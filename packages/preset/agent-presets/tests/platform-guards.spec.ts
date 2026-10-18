@@ -46,7 +46,7 @@ function assertGuardMatrix(presetId: string, entries: PresetEntry[]): void {
   expect(pwsh, `${presetId}: tool-pwsh entry must exist`).toBeDefined()
   expect(guardExpressionOf(pwsh?.disabled), `${presetId}: tool-pwsh guard`)
     .toBe(PWSH_GUARD)
-  // A preset without the scheduler row opts out by design (the shipped three
+  // A preset without the scheduler row opts out by design (the shipped presets
   // all carry it); one that carries the row must not carry a guard with it —
   // that is exactly the migrated-guard shape.
   const schedule = entries.find(entry => entry.id === 'tool-schedule')

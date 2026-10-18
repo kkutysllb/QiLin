@@ -98,7 +98,7 @@ describe('the shipped preset root', () => {
     const ctx = await roster({ includeUserRoot: false })
 
     const listed = await ctx.agentPresets.list()
-    expect(listed.map(preset => preset.id).sort()).toEqual(['ptc'])
+    expect(listed.map(preset => preset.id).sort()).toEqual(['ptc', 'standard'])
     expect(listed.every(preset => preset.trust === 'system')).toBe(true)
     // Not `broken === undefined`: health asks whether each row's package is
     // installed above the base, and the shipped rows name packages the
@@ -142,8 +142,20 @@ describe('the shipped preset root', () => {
     expect(minimal?.path.startsWith(SYSTEM_ROOT)).toBe(true)
   })
 
+  it('orders both shipped presets and publishes their display names', async () => {
+    const ctx = await roster({ includeUserRoot: false })
+    const listed = await ctx.agentPresets.list()
+
+    // Standard (order 1) is the ordinary mode; ptc (order 2) is the coding
+    // mode that adds the runtime-authoring capability.
+    expect(listed.map(preset => [preset.id, preset.name, preset.order])).toEqual([
+      ['standard', '普通模式', 1],
+      ['ptc', '编码模式', 2],
+    ])
+  })
+
   it('enables web_fetch in each tool-bearing Web app preset', async () => {
-    for (const id of ['ptc']) {
+    for (const id of ['standard', 'ptc']) {
       const entries = await shippedEntries(id)
       const toolWeb: unknown = entries.find((entry: unknown) =>
         typeof entry === 'object' && entry !== null && 'id' in entry && entry.id === 'tool-web')
@@ -161,7 +173,7 @@ describe('the shipped preset root', () => {
     expect(findEntry(entries, 'workflow-ptc')?.disabled).toBe(true)
   })
 
-  it('carries the runtime-authoring rows the merged preset owns', async () => {
+  it('carries the runtime-authoring rows the coding preset owns', async () => {
     const entries = await shippedEntries('ptc')
     expect(findEntry(entries, 'tool-kylin')).toBeDefined()
     expect(findEntry(entries, 'tool-plugin-manager')?.disabled).not.toBe(true)
@@ -169,10 +181,24 @@ describe('the shipped preset root', () => {
     expect(skillRoot?.config).toMatchObject({ customSkillDirs: [expect.anything()] })
   })
 
+  it('presents the ordinary preset natively, without the authoring surface', async () => {
+    const entries = await shippedEntries('standard')
+    // No `tool-presentation` row: the agent inherits the deployment's tool
+    // presentation (native on the Web surface), and `run_code` never appears.
+    expect(findEntry(entries, 'tool-presentation')).toBeUndefined()
+    expect(findEntry(entries, 'tool-kylin')).toBeUndefined()
+    expect(findEntry(entries, 'tool-plugin-manager')?.disabled).toBe(true)
+    expect(findEntry(entries, 'skill-filesystem')?.config).toBeUndefined()
+    // The general workflow tool is available here: it is the model-authored
+    // orchestration surface `run_code` replaces under PTC.
+    expect(findEntry(entries, 'tool-workflow')?.disabled).not.toBe(true)
+    expect(findEntry(entries, 'workflow-ptc')?.disabled).not.toBe(true)
+  })
+
   it('keeps the ralph tool out of the shipped preset root', async () => {
     // The ralph capability moved to an experimental package: the shipped presets
     // declare no row for it, so enabling it takes an explicit installation.
-    for (const id of ['ptc']) {
+    for (const id of ['standard', 'ptc']) {
       expect(findEntry(await shippedEntries(id), 'tool-ralph'), id).toBeUndefined()
     }
   })

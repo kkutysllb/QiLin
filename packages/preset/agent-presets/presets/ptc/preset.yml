@@ -1,2 +1,3 @@
+name: 编码模式
 description: 功能完整的编码 Agent：工具经生成的 SDK 调用（PTC），并具备运行时自省、持久化插件管理与组合创作能力。
-order: 1
+order: 2

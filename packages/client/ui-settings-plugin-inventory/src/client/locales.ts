@@ -41,12 +41,14 @@ export const zh = {
   active: '运行中',
   failed: '启动失败',
   unloading: '卸载中',
-  // Display copy for the shipped preset. This tab renders the roster while the
-  // ui-agent-preset plugin may be absent (the shipped Web composition disables
-  // it), so the copy is owned here instead of read through that plugin's
-  // namespace; the id→key mapping stays in `@qilin-agent/agent-presets/display`.
+  // Display copy for the shipped presets. This tab renders the roster while the
+  // ui-agent-preset plugin may be absent or disabled in a deployment, so the
+  // copy is owned here instead of read through that plugin's namespace; the
+  // id→key mapping stays in `@qilin-agent/agent-presets/display`.
+  presetStandardName: '普通模式',
+  presetStandardDescription: '功能完整的编码 Agent，具备标准工具面：文件编辑、Shell、文件与网页检索、Skills、计划、目标、子代理与工作流。',
   presetPtcName: '编码模式',
-  presetPtcDescription: '功能完整的编码 Agent，但默认不提供 workflow 工具；其他工具经生成的 SDK 呈现，让模型用一个 TypeScript 程序组合多步操作。',
+  presetPtcDescription: '功能完整的编码 Agent：工具经生成的 SDK 调用（PTC），并具备运行时自省、持久化插件管理与组合创作能力。',
 } satisfies Record<string, string>
 
 /** Plugin inventory locale key union. */
@@ -93,7 +95,10 @@ export const en = {
   active: 'Running',
   failed: 'Failed to start',
   unloading: 'Unloading',
+  presetStandardName: 'Standard mode',
+  presetStandardDescription:
+    'Full coding agent with the standard tool surface: file editing, shell, file and web search, skills, plans, goals, subagents, and workflows.',
   presetPtcName: 'Coding mode',
   presetPtcDescription:
-    'Full coding agent without the workflow tool; other tools are exposed through a generated SDK so the model can combine multi-step operations in one TypeScript program.',
+    'Full coding agent whose tools are called through a generated SDK (PTC), with runtime introspection, persistent plugin management, and composition authoring.',
 } satisfies Record<PluginInventoryLocaleKey, string>

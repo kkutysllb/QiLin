@@ -1,13 +1,14 @@
-# The `ptc` agent preset: the deployment's single shipped composition — the
-# full coding agent, presented through PTC, carrying the runtime-authoring
-# capabilities as well.
+# The `ptc` agent preset: the full coding agent presented through PTC,
+# carrying the runtime-authoring capabilities as well.
 #
-# One shipped preset means a session never picks a capability tier and no
-# capability is withheld from a task that turns out to need it. The general
-# purpose `workflow` tool stays off — PTC uses `run_code` as its model-authored
-# composition surface — and the `tool-presentation` row turns the remaining
-# registry into a generated SDK, so a sequence that would be five round trips
-# becomes one.
+# The deployment also ships `standard`, the ordinary mode that presents native
+# tool schemas and is the default for new sessions. This preset is the coding
+# mode: it selects the PTC presentation and adds the runtime-authoring surface,
+# so a session that reads, extends, or authors the harness runs here. The
+# general purpose `workflow` tool stays off — PTC uses `run_code` as its
+# model-authored composition surface — and the `tool-presentation` row turns
+# the remaining registry into a generated SDK, so a sequence that would be five
+# round trips becomes one.
 #
 # The registry itself stays on the host plane — the agent loop's scheduler and
 # the API proxy's presenters are its consumers — so what this preset owns is

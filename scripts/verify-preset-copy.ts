@@ -1,5 +1,5 @@
 /**
- * Doc-sync gate for the single shipped agent preset: the preset directories, the
+ * Doc-sync gate for the shipped agent presets: the preset directories, the
  * id→copy-key mapping in `@qilin-agent/agent-presets/display`, and every client
  * dictionary that renders that copy must name exactly the same set, and no
  * retired preset id may keep a copy key behind.
@@ -10,8 +10,8 @@ import { resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
 
-/** Preset ids the product shipped before the single-preset convergence. */
-const RETIRED_PRESET_IDS: readonly string[] = ['standard', 'cordis', 'minimal']
+/** Preset ids the product no longer ships. */
+const RETIRED_PRESET_IDS: readonly string[] = ['cordis', 'minimal']
 
 const PRESETS_DIR = 'packages/preset/agent-presets/presets'
 
@@ -47,17 +47,17 @@ const NAMES_PRESETS = /\bpresets?\b|agentPreset/u
  * longer name, so `cordis.patch.yml` and `cordis-composition-reference` are
  * other things.
  */
-const RETIRED_ID = String.raw`\b(?:standard|cordis|minimal)\b(?![-.\w])`
+const RETIRED_ID = String.raw`\b(?:cordis|minimal)\b(?![-.\w])`
 /** How far apart a retired id and the word "preset" may stand on one line. */
 const RETIRED_PRESET_GAP = String.raw`[^\n]{0,20}`
 const RETIRED_PRESET_NAME = new RegExp([
   `${RETIRED_ID}${RETIRED_PRESET_GAP}\\bpresets?\\b`,
   `\\bpresets?\\b${RETIRED_PRESET_GAP}${RETIRED_ID}`,
-  String.raw`\bagentPreset: *['"]?(?:standard|cordis|minimal)\b`,
+  String.raw`\bagentPreset: *['"]?(?:cordis|minimal)\b`,
 ].join('|'), 'u')
 
 /** Every retired preset id one line writes as code. */
-const RETIRED_CODE_IDS = /`(?:standard|cordis|minimal)`/gu
+const RETIRED_CODE_IDS = /`(?:cordis|minimal)`/gu
 
 /**
  * Find retired preset ids one contract file still names as presets.
@@ -72,7 +72,7 @@ export function checkPresetContractProse(path: string, source: string): string[]
     // an enumeration, whatever the surrounding sentence does.
     const enumerated = (line.match(RETIRED_CODE_IDS) ?? []).length > 1
     if (!enumerated && (!NAMES_PRESETS.test(line) || !RETIRED_PRESET_NAME.test(line))) continue
-    failures.push(`${path}:${String(index + 1)} names a retired preset id where presets are documented; the deployment ships \`ptc\` alone`)
+    failures.push(`${path}:${String(index + 1)} names a retired preset id where presets are documented; the deployment ships \`standard\` and \`ptc\``)
   }
   return failures
 }
