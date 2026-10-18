@@ -67,7 +67,7 @@ kind: "plan"
 ### 现象与根因
 对**已安装**的第三方 bundle 再点安装会被拒（`ManagementFailure('already-installed')`，文案「该插件已安装。如需升级，请卸载后重新安装」）；而升级/覆盖安装若改变了包解析目录，resolver 抛 `ResolutionRestartRequired` → 「请重启 QiLin」toast。实测：全新第三方 bundle 首装（dsh-plugin-whale-pet）与 bundle 启停都实时生效、无需重启；风险路径集中在**升级/覆盖安装**。
 
-### 修复（进行中）
+### 修复（已完成，`edb41f5f96`）
 1. plugin-manager：对已安装同名包不再拒绝，改为一次组合发布的原子更新（pnpm add 升/降版本 → 保持 bundle 选中 → 一次 recompose/publish）；同版本重装返回「已是最新」；失败回滚语义不变。
 2. app-boot resolver：profile 作用域映射的目录变化改为 `MovedDirectories` 采纳 + 旧路径重定向，不再一律拒绝；**保留** installation 作用域变化、本地覆盖自带包、profile 范围变化的拒绝。
 3. 客户端文案：`installProblemInstalled` / `installUpgradeNotice` / `reasonAlreadyInstalled` 改为「可直接重新安装升级」；`restartReasonPackageMoved` 仅保留真正的覆盖自带包场景。
@@ -75,7 +75,8 @@ kind: "plan"
 
 ## 6. 验证
 
-- 2026-10-18：四条流全部完成并入主干——预设（4 笔：standard 恢复/默认切换/e2e/headless 文档）、渲染（1 笔：三态对齐）、移动采纳（1 笔：MovedDirectories/linkedTargets）、拖宽手柄（1 笔：contentWidth 投影 + 三处防御 + 3 份 spec）。
+- 2026-10-18：五条流全部完成并入主干——预设（4 笔：standard 恢复/默认切换/e2e/headless 文档）、渲染（1 笔：三态对齐）、移动采纳（1 笔：MovedDirectories/linkedTargets）、拖宽手柄（1 笔：contentWidth 投影 + 三处防御 + 3 份 spec）、**插件原子更新（1 笔：in-place 升级 + resolver 目录采纳 + 文案/测试）**。
+- 2026-10-18 原子更新验证：plugin-manager 347 例、app-boot+hmr 942 例（1 skip）、client 273 例全绿；定向覆盖率 100/100/100/100；双 boot 包与 client face tsc 0；catalog/i18n/md-links/pairing 门绿；真实 pnpm 11.7.0 双 tarball 演示确认「链接路径不变、realDir 变 → 采纳并重定向」。保留拒绝：覆盖 QiLin 自带包（pnpm 前拒绝）、本地组合包覆盖、installation 映射变化、profile 范围变化。同版本重装走 `upToDate` 结果（不选入/不重载/不重启）；界面在检查阶段仍显示「已安装/立即启用」面板（既有 UX，非重启提示）。
 - 集成：目录全量再生（module-graph 双语 + 2 写）、全量 build exit 0、test:docs 21/21、type-equiv 472、md-links 2285、pairing 1155、repository-references、subsystem-pages 54 组、constraints、families 65 例全绿；工作树干净。
 - 实机核验（桌面端）：新会话预设芯片显示「普通模式」（默认生效）；会话正文两侧宽度手柄 10px 可拖（`--qilin-chat-user-width` 不再出现 NaNpx）。
 - 已知预存红（流报告，非本批引入）：web-agent-presets e2e 2 例 profile reload、7 条 replay 车道金样漂移、rescope-vendor 4 篇未改动文档、export-jsdoc 13 等，均按既有基线口径留档。
