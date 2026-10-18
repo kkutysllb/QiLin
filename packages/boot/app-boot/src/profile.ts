@@ -365,7 +365,10 @@ export const OPTIONAL_BUNDLES: readonly string[] = [
   '@qilin-agent/experimental-voice-input-bundle',
   '@qilin-agent/experimental-auto-review',
   '@qilin-agent/experimental-schedule-bundle',
-  '@qilin-agent/experimental-inspector-profile',
+  // KStock patch (K21): 开发者工具（inspector-profile）不作为可选 bundle 展示。
+  // 依赖边保留——移除它会让引擎 patchedDependencies 里的 pi-ai 补丁变成
+  // 「未使用」而拒绝生成 lock（ERR_PNPM_UNUSED_PATCH）；只改展示面即可达成
+  // 产品口径（插件管理不再出现该行）。
   '@qilin-agent/experimental-tool-worktree',
   '@qilin-agent/experimental-session-search',
   '@qilin-agent/experimental-session-titles-bundle',
