@@ -38,6 +38,17 @@ kind: "plan"
 - 保留：QiLin 品牌资产（RunningSeal、运行文案）、locale 字典机制、已确立的 fork 适配（如 controlAnchorSeq 修复，需先核上游是否同款）。
 - 要求：逐文件 diff 清单 + 每处对齐附原因；新增/改写 spec 覆盖三态；报告保留差异。
 
-## 3. 验证
+## 3. 追加：插件移动采纳（no-restart relink/换目录安装）
+
+### 问题
+插件页安装后提示「请重启 QiLin 使更改生效」（`package-moved`）。链路：`installBundle` → HMR `reconcileProfile` → app-boot `publish(packages)` → `ResolutionRouter.replace()` 对保留映射「目录变了就拒绝」→ `ResolutionRestartRequired`。
+
+### 与上游差异（已核实）
+上游 rc.1/rc.2 的 resolver 在拒绝之外还有 `MovedDirectories`（旧目录→新目录的 spelling 重定向）与 `ResolutionRouter.linkedTargets`（link 目标 move 采纳），令重链/换目录安装被原地采纳、无需重启。QiLin 的 resolver 无这两块（`fb17313f68` 移植时缺失），因此 DSH 不重启而 QiLin 要求重启。
+
+### 修复
+移植 MovedDirectories + linkedTargets + ESM/CJS 路由重定向（仅迁移采纳相关），保持 QiLin 既有拒绝规则（替换自带包/本地覆盖仍需重启，上游同款）；核实新装 bundle 是否可能命中 `localPackageNames` 覆盖判定（若与上游有偏差则修到上游语义）；补 moved-directory 回归测试并跑 boot/hmr/plugin-manager 相关 spec。
+
+## 4. 验证
 - 预设：agent-presets spec、e2e 脚手架/shipped-composition、目录生成器三绿、`verify-translation-pairing`/md-links。
 - 渲染：ui-chat spec、client face tsc、Web e2e（能跑则该三态的断言）、docs 门。
