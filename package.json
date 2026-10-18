@@ -190,7 +190,8 @@
     "mock:llm": "node --import tsx packages/test-support/llm-mock-server/src/bin.ts",
     "dev:web": "tsx scripts/dev-web.ts --poll",
     "postinstall": "node scripts/install-lefthook.mjs",
-    "version:set": "tsx scripts/set-version.ts"
+    "version:set": "tsx scripts/set-version.ts",
+    "repair:links": "tsx scripts/ensure-root-links.ts"
   },
   "devDependencies": {
     "@qilin-agent/agent": "workspace:*",

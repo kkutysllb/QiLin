@@ -12,6 +12,7 @@ import {
   resolveClientBuildEnvironment,
   writeClientBuildRecord,
 } from './client-build-environment.ts'
+import { repairRootLinks } from './ensure-root-links.ts'
 import { pnpmInvocation } from './pnpm-invocation.ts'
 import { missingDeclaredEntrypoints as verifyDeclaredEntrypoints } from './verify-declared-entrypoints.ts'
 
@@ -40,6 +41,10 @@ function main(): void {
     allowPositionals: false,
   })
   const root = resolve(import.meta.dirname, '..')
+  // A concurrent install can leave a root dependency link missing while pnpm still reports the install current; the
+  // compiler then fails to resolve it. Heal those links before anything compiles.
+  const relinked = repairRootLinks(root, () => {}).relinked
+  for (const { name, version } of relinked) console.log(`build: relinked node_modules/${name} -> ${version}`)
   const repositoryEnvironment = repositoryClientBuildEnvironment(root, process.env)
   const profile = values.profile ?? process.env[CLIENT_BUILD_PROFILE_SELECTOR]
   const clientEnvironment = resolveClientBuildEnvironment(repositoryEnvironment, profile)
