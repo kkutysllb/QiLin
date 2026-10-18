@@ -26,7 +26,9 @@ export const RIGHTBAR_MIN = 300
 /** Maximum normal right panel width as a fraction of the frame. */
 export const RIGHTBAR_MAX_RATIO = 0.7
 /** First-open right panel preference as a fraction of the frame. */
-export const RIGHTBAR_DEFAULT_RATIO = 0.35
+// KStock patch (K23): 产品口径——桌面端右栏首开 32%（2.0.x 已发布行为），不上调
+// 上游 3.1.6 的 35%。
+export const RIGHTBAR_DEFAULT_RATIO = 0.32
 
 /**
  * Clamp a panel width into its contract range.
