@@ -23,7 +23,8 @@ function isBuildFaceClient(value: unknown): boolean {
 export default defineConfig(({ env }) => {
   const client = isBuildFaceClient(env?.QILIN_BUILD_FACE)
   return {
-    workspace: ['vendor/*', 'packages/*/*', 'apps/cli', ...client ? [] : ['apps/desktop', 'apps/desktop-host']],
+    // apps/desktop bundles after the workspace pass (its import guard reads workspace lib/ output the concurrent pass does not order ahead of it); build:lib:host runs its bundle serially last.
+    workspace: ['vendor/*', 'packages/*/*', 'apps/cli', ...client ? [] : ['apps/desktop-host']],
     entry: client ? '' : ['lib/types/{index,startup}.js'],
     outDir: 'lib',
     format: ['esm'],

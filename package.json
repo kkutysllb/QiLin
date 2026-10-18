@@ -22,7 +22,7 @@
     "build:official": "tsx scripts/build.ts --profile official",
     "build:qilin": "tsx scripts/build.ts --profile qilin",
     "build:lib": "pnpm run build:lib:host && pnpm run build:lib:client",
-    "build:lib:host": "pnpm run gen-typert && node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b tsconfig.host.json && tsdown --config-loader native --env.QILIN_BUILD_FACE host",
+    "build:lib:host": "pnpm run gen-typert && node --max-old-space-size=4096 ./node_modules/typescript/bin/tsc -b tsconfig.host.json && tsdown --config-loader native --env.QILIN_BUILD_FACE host && pnpm --filter @qilin-agent/desktop run bundle",
     "build:lib:client": "tsc -b tsconfig.client.json && tsdown --config-loader native --env.QILIN_BUILD_FACE client",
     "build:web": "pnpm --filter @qilin-agent/web-frontend run build",
     "clean": "tsx scripts/clean.ts",
