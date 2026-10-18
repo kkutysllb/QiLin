@@ -1124,8 +1124,11 @@ function normalizeShippedProfile(name: string, dir: string, manifest: ProfileMan
   const shipped = new Set([...template.bundles, ...INSTALLATION_OWNED_PROFILE_TUPLES[name] ?? []])
   const dependencies = new Set(Object.keys(manifest.dependencies ?? {}))
   const audiences = manifest.qilin?.profile?.audiences ?? {}
-  const restored = [...template.bundles, ...bundles.filter(entry =>
-    !shipped.has(entry) || dependencies.has(entry) || Object.hasOwn(audiences, entry))]
+  // KStock patch (K24): 归一化必须幂等。产品 profile 的模板层（@qstock/web 等）同时是
+  // profile 依赖时，上面的 filter 会保留依赖副本，再与 template.bundles 拼接就产生重复；
+  // 下一次加载再重复一次——真机实测 856 项里 @kstock/web 占 843 项。去重后写盘收敛。
+  const restored = [...new Set([...template.bundles, ...bundles.filter(entry =>
+    !shipped.has(entry) || dependencies.has(entry) || Object.hasOwn(audiences, entry))])]
   if (sameBundles(bundles, restored)) return manifest
   const normalized: ProfileManifest = {
     ...manifest,
