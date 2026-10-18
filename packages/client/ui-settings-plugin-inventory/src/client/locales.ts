@@ -46,9 +46,9 @@ export const zh = {
   // copy is owned here instead of read through that plugin's namespace; the
   // id→key mapping stays in `@qilin-agent/agent-presets/display`.
   presetStandardName: '普通模式',
-  presetStandardDescription: '功能完整的编码 Agent，具备标准工具面：文件编辑、Shell、文件与网页检索、Skills、计划、目标、子代理与工作流。',
+  presetStandardDescription: '面向日常与办公任务的通用 Agent：写作、检索、文件与表格处理都能胜任，也具备完整的编码、Shell、Skills、计划与子代理能力。',
   presetPtcName: '编码模式',
-  presetPtcDescription: '功能完整的编码 Agent：工具经生成的 SDK 调用（PTC），并具备运行时自省、持久化插件管理与组合创作能力。',
+  presetPtcDescription: '在普通能力之上为编码任务深度优化的 Agent：以自定义程序组合把编码任务封装后与模型交互，减少调用次数与上下文占用，并针对编码场景做了更深的工具与流程优化。',
 } satisfies Record<string, string>
 
 /** Plugin inventory locale key union. */
@@ -97,8 +97,8 @@ export const en = {
   unloading: 'Unloading',
   presetStandardName: 'Standard mode',
   presetStandardDescription:
-    'Full coding agent with the standard tool surface: file editing, shell, file and web search, skills, plans, goals, subagents, and workflows.',
+    'A general-purpose agent for everyday and office work — writing, research, files, and spreadsheets — with full coding, shell, skills, planning, and subagent capabilities.',
   presetPtcName: 'Coding mode',
   presetPtcDescription:
-    'Full coding agent whose tools are called through a generated SDK (PTC), with runtime introspection, persistent plugin management, and composition authoring.',
+    'An agent optimized for coding beyond the standard capabilities: a custom program composition wraps coding tasks before they reach the model, cutting calls and context, with deeper coding-focused tool and flow optimizations.',
 } satisfies Record<PluginInventoryLocaleKey, string>

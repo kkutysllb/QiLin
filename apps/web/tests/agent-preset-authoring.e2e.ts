@@ -155,7 +155,12 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     expect(composition).toBe(await readFile(join(SHIPPED_PRESETS, 'ptc', 'agent.cordis.yml'), 'utf8'))
     const metadata = await readFile(join(userRoot, 'my-agent', 'preset.yml'), 'utf8')
     expect(metadata).toContain('name: 我的模式')
-    expect(metadata).toContain('description: 功能完整的编码 Agent：工具经生成的 SDK 调用（PTC），并具备运行时自省、持久化插件管理与组合创作能力。')
+    // The description rides along verbatim from the shipped source; read it from
+    // the source so a copy edit does not stale this lane.
+    const shippedDescription = (await readFile(join(SHIPPED_PRESETS, 'ptc', 'preset.yml'), 'utf8'))
+      .split('\n').find(line => line.startsWith('description: ')) ?? ''
+    expect(shippedDescription).not.toBe('')
+    expect(metadata).toContain(shippedDescription)
     expect(metadata).not.toContain('order:')
   }, 60_000)
 

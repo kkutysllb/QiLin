@@ -226,8 +226,8 @@ describe('web e2e: agent-preset selection', () => {
     // `standard` the default new tasks compose from.
     await dialog.getByRole('button', { name: 'New task default: Standard mode' }).waitFor({ timeout: 10_000 })
     await dialog.getByRole('button', { name: 'View: Coding mode' }).waitFor({ timeout: 10_000 })
-    // The coding preset documents the runtime-authoring capability it adds.
-    await dialog.getByText(/persistent plugin management, and composition authoring/).waitFor({ timeout: 10_000 })
+    // The coding preset documents the program-composition optimization it adds.
+    await dialog.getByText(/custom program composition wraps coding tasks/).waitFor({ timeout: 10_000 })
     const toggle = dialog.getByRole('switch', { name: 'Allow switching Agent modes' })
     expect(await toggle.getAttribute('aria-checked')).toBe('true')
     await dialog.getByRole('button', { name: 'Close' }).last().click()
