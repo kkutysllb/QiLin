@@ -47,7 +47,7 @@ kind: "package-reference"
 
 ### 管理会话
 
-Session 行内的 Rename 操作打开一个以该行显示标题预填的对话框；确认未修改的标题是有意允许的——这正是把当前自动标题钉住、不再被重新生成覆盖的手势。Rename 使用临时 `workspaceOperation` reference，fork 标题设置则由 Session Controller 使用临时 `controllerOperation` reference；两者都等待该 reference 的首次历史打开。Archive 不经确认对话框直接提交，归档集合回声落地后，该行从所有分组视图中消失。Fork 在源会话最后一个已完成轮次处 fork，在客户端递增继承的持久化标题后再打开子会话。Workspace 行内的 Delete 操作会打开确认框，说明保留边界；成功后该分组被移除，其 Session 则留在 Ungrouped 下。
+Session 行内的 Rename 操作打开一个以该行显示标题预填的对话框；确认未修改的标题是有意允许的——这正是把当前自动标题钉住、不再被重新生成覆盖的手势。Rename 使用临时 `workspaceOperation` reference，fork 标题设置则由 Session Controller 使用临时 `controllerOperation` reference；两者都等待该 reference 的首次历史打开。Archive 不经确认对话框直接提交（行菜单与悬停按钮都可触发），归档集合回声落地后，该行从所有分组视图中消失。Fork 在源会话最后一个已完成轮次处 fork，在客户端递增继承的持久化标题后再打开子会话。Workspace 行内的 Delete 操作会打开确认框，说明保留边界；成功后该分组被移除，其 Session 则留在 Ungrouped 下。
 
 Session 行的 “...” 菜单最后一项为**复制 Session ID**：它关闭菜单并直接复制完整 ID 到剪贴板，不 retain 会话、不加载历史、也不调用 Host。复制成功经提示槽反馈；失败时可从菜单重试。
 
@@ -55,7 +55,7 @@ Session 行的 “...” 菜单最后一项为**复制 Session ID**：它关闭�
 
 置顶是注册表全局事实，而非浏览器的本地排序：行菜单与悬停按钮切换它，被置顶的行领在其分组与单列列表之前，并在尾随格绘制标记；Host 调用会把该 Session 提到每个拥有它的已保存手动排序之前。取消置顶不改动这些已保存位置。已归档的 Session 不可置顶，归档会在同一次持久化写入中丢弃它的置顶。
 
-标题宽于所在行时，静止状态以省略号裁切。把指针停在行上，标题会滚动到远端——例如 fork 递增后的标题——并在揭示时不显示省略号；指针离开后标题回到开头。
+标题宽于所在行时，静止状态以省略号裁切。把指针停在行上，标题会以恒定速度跑马灯滚动到远端——例如 fork 递增后的标题——并在揭示时不显示省略号；滚动期间两端裁切边各以 12 px 渐隐，指针离开后标题一步回到开头。溢出不超过 8 px 时标题保持不动；开启减少动态效果时直接跳到远端而不滚动。
 
 ### 待处理交互
 

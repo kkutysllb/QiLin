@@ -47,7 +47,7 @@ Collapsed search is one header action beside the view and add actions: activatin
 
 ### Managing sessions
 
-The Session row's Rename action opens a dialog prefilled with the row's display title; confirming an unchanged title is deliberately allowed — it pins the current automatic title against regeneration. Rename uses a temporary `workspaceOperation` reference, while fork-title assignment uses a temporary `controllerOperation` reference inside Session Controller; both await the reference's initial history opening. Archive commits without a confirmation dialog and the row disappears from every grouping surface when the archive-set echo lands. Fork forks at the source's last completed turn, increments the inherited persisted title on the client, and then opens the child. Workspace Delete opens a confirmation that states the retention boundary; success removes the group while its Sessions remain under Ungrouped.
+The Session row's Rename action opens a dialog prefilled with the row's display title; confirming an unchanged title is deliberately allowed — it pins the current automatic title against regeneration. Rename uses a temporary `workspaceOperation` reference, while fork-title assignment uses a temporary `controllerOperation` reference inside Session Controller; both await the reference's initial history opening. Archive commits without a confirmation dialog, from the row menu or the hover strip, and the row disappears from every grouping surface when the archive-set echo lands. Fork forks at the source's last completed turn, increments the inherited persisted title on the client, and then opens the child. Workspace Delete opens a confirmation that states the retention boundary; success removes the group while its Sessions remain under Ungrouped.
 
 The Session row's "..." menu ends with **Copy Session ID**: it closes the menu and writes the complete id to the clipboard without retaining the Session, loading its history, or calling the Host. A successful copy reports through the notice slot; a failed copy can be retried from the menu.
 
@@ -55,7 +55,7 @@ Notices are keyed: the browser raises one `{ kind, seq }` notice, a `shell.overl
 
 Pin is a registry-global fact, not a browser-local order: the row menu and its hover button toggle it, a pinned row leads its group and the flat list and draws a marker in the trailing cell, and the Host call fronts the Session in every saved manual order that owns it. Unpin leaves those saved positions alone. An archived Session cannot be pinned, and archiving drops its pin in the same durable write.
 
-A Session title wider than its row is clipped with an ellipsis at rest. Hovering the row scrolls the title to its far edge — the incremented title of a fork, for example — and reveals it without the ellipsis; leaving the row returns the title to its start.
+A Session title wider than its row is clipped with an ellipsis at rest. Hovering the row marquees the title at a constant speed to its far edge — the incremented title of a fork, for example — and reveals it without the ellipsis, fading both clipping edges over 12 px while it travels; leaving the row returns the title to its start in one step. Overflow of 8 px or less stays put, and a reduced-motion preference jumps straight to the far edge instead of crawling.
 
 ### Pending interactions
 

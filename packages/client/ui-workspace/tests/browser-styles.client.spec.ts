@@ -113,13 +113,36 @@ describe('WorkspaceBrowser.module.css list', () => {
       .toBe('var(--qilin-alias-interactive-bg-hover)')
   })
 
-  it('reveals a clipped session title by scrolling it on row hover', () => {
-    // Smooth versus reduced motion is pinned as a computed style in
+  it('marquees a clipped session title and fades both clipping edges', () => {
+    // The frame walk and the reduced-motion jump belong to the browser lane in
     // apps/web/tests/sidebar-title-hover-scroll.e2e.ts: this helper merges
-    // same-selector rules across media queries, so the reduce override would
-    // mask the smooth declaration here.
+    // same-selector rules across media queries, so a reduce override would
+    // mask the rules asserted here.
     expect(rowDeclarations('.sessionRow .title')?.get('flex')).toBe('1')
     expect(rowDeclarations('.sessionRow:hover .title')?.get('text-overflow')).toBe('clip')
+    // An open menu pins the same hovered affordances as the pointer does.
+    expect(rowDeclarations('.sessionRow.menuOpen .title')?.get('text-overflow')).toBe('clip')
+    // The left fade follows any travel off the start, the right one marks the
+    // text still beyond the cell, and both meet only while the crawl is under way.
+    expect(rowDeclarations('.sessionRow .title[data-scrolled]')?.get('mask-image'))
+      .toBe('linear-gradient(to right, transparent, #000 12px)')
+    expect(rowDeclarations('.sessionRow .title[data-clipped]')?.get('mask-image'))
+      .toBe('linear-gradient(to left, transparent, #000 12px)')
+    expect(rowDeclarations('.sessionRow .title[data-scrolled][data-clipped]')?.get('mask-image'))
+      .toBe('linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent)')
+  })
+
+  it('swaps the trailing time cell for the 16px hover action strip', () => {
+    expect(rowDeclarations('.rowActions')?.get('display')).toBe('none')
+    expect(rowDeclarations('.rowActions')?.get('gap')).toBe('15px')
+    for (const selector of ['.sessionRow:hover .rowActions', '.sessionRow.menuOpen .rowActions']) {
+      expect(rowDeclarations(selector)?.get('display')).toBe('inline-flex')
+    }
+    expect(rowDeclarations('.sessionRow:hover .time')?.get('display')).toBe('none')
+    // The static pin marker yields to the hover button that replaces it.
+    expect(rowDeclarations('.sessionRow:hover .pinIndicator')?.get('display')).toBe('none')
+    expect(rowDeclarations('.iconButton')?.get('width')).toBe('16px')
+    expect(rowDeclarations('.iconButton')?.get('height')).toBe('16px')
   })
 
   it('keeps the collapsed column free of region controls', () => {

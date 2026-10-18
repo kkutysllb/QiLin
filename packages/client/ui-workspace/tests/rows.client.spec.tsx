@@ -52,6 +52,24 @@ const emptyRenderSlot = (name: string) => {
   return null
 }
 
+/** One session row whose title the marquee measures: returns the row and its title span. */
+function renderClippedRow(title: string, actions = sessionActions()) {
+  render(<SessionNodeItem
+    node={{
+      id: sid('clipped'), title, blank: false, running: false,
+      runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
+    }}
+    currentId={undefined} now={0} {...actions} onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t}
+  />)
+  return { row: screen.getByRole('treeitem'), title: screen.getByText(title) }
+}
+
+/** jsdom lays out nothing: the title's clipped geometry is stated outright. */
+function stubTitleGeometry(title: HTMLElement, scrollWidth: number, clientWidth: number): void {
+  Object.defineProperty(title, 'scrollWidth', { value: scrollWidth, configurable: true })
+  Object.defineProperty(title, 'clientWidth', { value: clientWidth, configurable: true })
+}
+
 /** Install the async browser clipboard and restore its prior host shape. */
 function installClipboard(writeText: (text: string) => Promise<void>): () => void {
   const prior = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
@@ -175,56 +193,145 @@ describe('workspace browser rows', () => {
     expect(onOpen).toHaveBeenCalledWith(node.id)
   })
 
-  it('reveals a clipped session title by scrolling it while the row is hovered', () => {
-    const node: SessionNode = {
-      id: sid('clipped'), title: 'A Session Title Long Enough To Be Clipped (1)', blank: false,
-      running: false, runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
-    }
-    render(
-      <SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
-        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
-    )
-    const row = screen.getByRole('treeitem')
-    const title = screen.getByText(node.title)
-    // jsdom lays out nothing: the title's clipped geometry is stated outright.
-    const geometry = (scrollWidth: number, clientWidth: number): void => {
-      Object.defineProperty(title, 'scrollWidth', { value: scrollWidth, configurable: true })
-      Object.defineProperty(title, 'clientWidth', { value: clientWidth, configurable: true })
-    }
+  it('marquees a clipped title while the row is hovered and rests at its far edge', () => {
+    vi.useFakeTimers()
+    try {
+      const { row, title } = renderClippedRow('A Session Title Long Enough To Be Clipped (1)')
+      stubTitleGeometry(title, 320, 180)
 
-    geometry(320, 180)
-    fireEvent.pointerEnter(row)
-    expect(title.scrollLeft).toBe(140)
-    fireEvent.pointerLeave(row)
-    expect(title.scrollLeft).toBe(0)
+      fireEvent.pointerEnter(row)
+      // The first frame publishes the remaining clip before any travel; the
+      // left fade stays off while the title still sits at its start.
+      act(() => { vi.advanceTimersByTime(16) })
+      expect(title.scrollLeft).toBe(0)
+      expect(title.dataset.clipped).toBe('')
+      expect(title.dataset.scrolled).toBeUndefined()
 
-    // A title that fits has no scroll range: hovering leaves it at its start.
-    geometry(180, 180)
-    fireEvent.pointerEnter(row)
-    expect(title.scrollLeft).toBe(0)
+      act(() => { vi.advanceTimersByTime(1000) })
+      const travelled = title.scrollLeft
+      expect(travelled).toBeGreaterThan(0)
+      expect(travelled).toBeLessThan(140)
+      expect(title.dataset.scrolled).toBe('')
+
+      // The crawl holds at the far edge, where the right fade lifts.
+      act(() => { vi.advanceTimersByTime(10_000) })
+      expect(title.scrollLeft).toBe(140)
+      expect(title.dataset.scrolled).toBe('')
+      expect(title.dataset.clipped).toBeUndefined()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
-  it('returns a revealed title to its start in one step', () => {
-    const node: SessionNode = {
-      id: sid('instant-return'), title: 'A Session Title Long Enough To Be Clipped (1)', blank: false,
-      running: false, runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
-    }
-    render(
-      <SessionNodeItem node={node} currentId={undefined} now={0} onOpen={vi.fn()}
-        onRename={vi.fn()} onFork={vi.fn()} onArchive={vi.fn()} onPin={vi.fn()} onUnpin={vi.fn()}
-        onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />,
-    )
-    const row = screen.getByRole('treeitem')
-    const title = screen.getByText(node.title)
-    const scrollTo = vi.fn()
-    Object.defineProperty(title, 'scrollTo', { value: scrollTo, configurable: true })
+  it('returns a marqueed title to its start in one step and stops the crawl', () => {
+    vi.useFakeTimers()
+    try {
+      const { row, title } = renderClippedRow('A Session Title Long Enough To Be Clipped (1)')
+      stubTitleGeometry(title, 320, 180)
+      const scrollTo = vi.fn()
+      Object.defineProperty(title, 'scrollTo', { value: scrollTo, configurable: true })
 
-    fireEvent.pointerEnter(row)
-    fireEvent.pointerLeave(row)
-    // Browsers receive the explicit instant behavior that the stylesheet's
-    // smooth scroll-behavior would otherwise override.
-    expect(scrollTo).toHaveBeenCalledWith({ left: 0, behavior: 'instant' })
+      fireEvent.pointerEnter(row)
+      act(() => { vi.advanceTimersByTime(500) })
+      fireEvent.pointerLeave(row)
+      // Rest is one explicit instant hop: the stylesheet no longer smooths it,
+      // and the resting ellipsis must not meet the text on the way back.
+      expect(scrollTo).toHaveBeenLastCalledWith({ left: 0, behavior: 'instant' })
+      expect(title.dataset.scrolled).toBeUndefined()
+      expect(title.dataset.clipped).toBeUndefined()
+      const calls = scrollTo.mock.calls.length
+      act(() => { vi.advanceTimersByTime(1000) })
+      expect(scrollTo).toHaveBeenCalledTimes(calls)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('leaves a title that fits its cell and a jitter-sized clip at rest', () => {
+    vi.useFakeTimers()
+    try {
+      const { row, title } = renderClippedRow('Short title')
+      stubTitleGeometry(title, 180, 180)
+      fireEvent.pointerEnter(row)
+      act(() => { vi.advanceTimersByTime(1000) })
+      expect(title.scrollLeft).toBe(0)
+      expect(title.dataset.scrolled).toBeUndefined()
+      expect(title.dataset.clipped).toBeUndefined()
+
+      // A clip of exactly the 8px reveal guard hides no meaningful tail.
+      fireEvent.pointerLeave(row)
+      stubTitleGeometry(title, 188, 180)
+      fireEvent.pointerEnter(row)
+      act(() => { vi.advanceTimersByTime(1000) })
+      expect(title.scrollLeft).toBe(0)
+      expect(title.dataset.scrolled).toBeUndefined()
+      expect(title.dataset.clipped).toBeUndefined()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('jumps to the far edge under reduced motion instead of crawling', () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true }) as unknown as MediaQueryList))
+    try {
+      const { row, title } = renderClippedRow('A Session Title Long Enough To Be Clipped (1)')
+      stubTitleGeometry(title, 320, 180)
+      const scrollTo = vi.fn()
+      Object.defineProperty(title, 'scrollTo', { value: scrollTo, configurable: true })
+
+      fireEvent.pointerEnter(row)
+      // No frame runs: the far edge is in view at once, left fade on, no right fade.
+      expect(scrollTo).toHaveBeenCalledWith({ left: 140, behavior: 'instant' })
+      expect(title.dataset.scrolled).toBe('')
+      expect(title.dataset.clipped).toBeUndefined()
+
+      fireEvent.pointerLeave(row)
+      expect(scrollTo).toHaveBeenLastCalledWith({ left: 0, behavior: 'instant' })
+    } finally {
+      vi.unstubAllGlobals()
+      vi.useRealTimers()
+    }
+  })
+
+  it('shows archive and pin hover actions that act without opening the row', () => {
+    const actions = sessionActions()
+    const node: SessionNode = {
+      id: sid('verbs'), title: 'Row verbs', blank: false, running: false,
+      runningSubagentCount: 0, completed: false, updatedAt: 0, pinned: false,
+    }
+    render(<SessionNodeItem node={node} currentId={undefined} now={0} {...actions}
+      onCopyId={vi.fn()} renderSlot={emptyRenderSlot} t={t} />)
+
+    const archive = screen.getByRole('button', { name: '归档会话' })
+    const pin = screen.getByRole('button', { name: '置顶会话' })
+    expect(archive.className).toMatch(/iconButton/)
+    expect(pin.className).toMatch(/iconButton/)
+    fireEvent.click(archive)
+    expect(actions.onArchive).toHaveBeenCalledWith(node.id)
+    fireEvent.click(pin)
+    expect(actions.onPin).toHaveBeenCalledWith(node.id)
+    expect(actions.onOpen).not.toHaveBeenCalled()
+  })
+
+  it('raises the hover action tooltips after the pointer dwell', () => {
+    vi.useFakeTimers()
+    try {
+      renderClippedRow('Row verbs')
+      const archive = screen.getByRole('button', { name: '归档会话' })
+      fireEvent.mouseEnter(archive)
+      act(() => { vi.advanceTimersByTime(500) })
+      expect(screen.getByRole('tooltip').textContent).toBe('归档会话')
+      fireEvent.mouseLeave(archive)
+      expect(screen.queryByRole('tooltip')).toBeNull()
+
+      const pin = screen.getByRole('button', { name: '置顶会话' })
+      fireEvent.mouseEnter(pin)
+      act(() => { vi.advanceTimersByTime(500) })
+      expect(screen.getByRole('tooltip').textContent).toBe('置顶会话')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('shows the green done dot only on a finished, unviewed session (live activity wins the slot)', () => {
