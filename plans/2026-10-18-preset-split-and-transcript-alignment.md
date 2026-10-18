@@ -73,6 +73,9 @@ kind: "plan"
 3. 客户端文案：`installProblemInstalled` / `installUpgradeNotice` / `reasonAlreadyInstalled` 改为「可直接重新安装升级」；`restartReasonPackageMoved` 仅保留真正的覆盖自带包场景。
 4. 测试：plugin-manager 真实组合「装 v1 → 装 v2 → 一次 recompose 生效、无 restartReason」；resolver「目录变化采纳 + 重定向」「覆盖自带包仍拒绝」；文案断言。
 
+### 遗留（用户接受）
+第三方 `dsh-workbuddy-connect` 在个别状态（半安装/覆盖）仍可能出现重启提示；本轮覆盖全新安装、同版本重装与 profile 内重装，其余按第三方插件边界接受，不再追（用户明确「先不管了，毕竟第三方插件」）。
+
 ## 6. 验证
 
 - 2026-10-18：五条流全部完成并入主干——预设（4 笔：standard 恢复/默认切换/e2e/headless 文档）、渲染（1 笔：三态对齐）、移动采纳（1 笔：MovedDirectories/linkedTargets）、拖宽手柄（1 笔：contentWidth 投影 + 三处防御 + 3 份 spec）、**插件原子更新（1 笔：in-place 升级 + resolver 目录采纳 + 文案/测试）**。
