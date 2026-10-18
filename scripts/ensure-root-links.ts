@@ -27,7 +27,7 @@ function encoded(name: string): string {
 
 /** Numeric version ordering; a prerelease sorts below its release. */
 function compareVersions(left: string, right: string): number {
-  const core = (version: string): number[] => version.split('-')[0].split('.').map(part => Number(part) || 0)
+  const core = (version: string): number[] => (version.split('-')[0] ?? '').split('.').map(part => Number(part) || 0)
   const a = core(left)
   const b = core(right)
   for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
