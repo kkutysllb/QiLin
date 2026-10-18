@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/client-ui-usage",
   "description": "Per-account token usage in Settings: daily stacked bars, cache-hit-rate area, and per-session detail",
-  "version": "3.1.6-rc.2",
+  "version": "3.1.6",
   "publishConfig": {
     "access": "public"
   },
