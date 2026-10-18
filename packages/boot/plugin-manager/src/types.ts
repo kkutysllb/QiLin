@@ -26,11 +26,11 @@ export interface ManagementError {
 }
 
 /**
- * Why a change waits for the next start: `no-hmr` profiles apply changes only at startup; `package-moved` changes map an
- * installed package to another directory without removing it first, or change or locally override a package the QiLin
- * installation provides; `host-module` changes reach
- * modules the running process itself imports; `unmanaged-plugin` changes reach a plugin running outside a Loader entry;
- * `module-comparison` means loaded modules could not be compared with disk.
+ * Why a change waits for the next start: `no-hmr` profiles apply changes only at startup; `package-moved` changes or
+ * locally overrides a package the QiLin installation provides, or moves an installed package to another directory
+ * without removing it first; `host-module` changes reach modules the running process itself imports;
+ * `unmanaged-plugin` changes reach a plugin running outside a Loader entry; `module-comparison` means loaded modules
+ * could not be compared with disk.
  */
 export type RestartReason = 'no-hmr' | 'package-moved' | 'host-module' | 'unmanaged-plugin' | 'module-comparison'
 
@@ -142,10 +142,15 @@ export interface ChangeResult {
   /** Pre-existing inactive entries the operation left as they were. */
   warnings?: string[]
   packageResult?: PackageResult
-  /** The bundle an installation added, once pnpm and the bundle check accepted it. */
+  /** The bundle an installation added or replaced, once pnpm and the bundle check accepted it. */
   bundle?: string
   /** The installed bundle's manifest version, when declared; pnpm's `minimumReleaseAge` can make it older than the newest release. */
   version?: string
+  /**
+   * Present with `applied`: pnpm resolved the dependency and version the profile already saved, so the installation
+   * selected, reloaded, and restarted nothing. `bundle` is absent because the installation added no package.
+   */
+  upToDate?: true
   /** Exact package names awaiting explicit script approval in the profile's pnpm settings, read after a failed run. */
   pendingBuilds?: string[]
   /** Package script permissions saved before this installation attempt. */
@@ -186,6 +191,7 @@ export type InstallSpecKind = 'registry' | 'path' | 'git' | 'tarball'
 /** Why a spec was refused before anything installed. */
 export type PluginInspectProblem =
   | 'invalid-spec'
+  /** The QiLin installation or a local bundle provides this name; the profile never replaces it through an install. */
   | 'already-installed'
   | 'not-found'
   | 'not-a-package'

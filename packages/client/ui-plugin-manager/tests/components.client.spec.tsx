@@ -1586,9 +1586,20 @@ describe('PluginManagerPage', () => {
     expect(screen.getByRole('button', { name: en.installEnableNow })).toHaveProperty('disabled', true)
     expect(screen.getByText(en.installDoneRestart.replace('{reason}', en.restartReasonHostModule))).toBeTruthy()
 
+    // A run that resolved the saved version says so, and leaves only Done.
+    set({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'dsh-x', phase: 'done', installedVersion: '1.2.0', upToDate: true,
+        subject: { spec: 'dsh-x', status: 'accepted', kind: 'registry', name: 'dsh-x', bundle: true, registry: null },
+      },
+    })
+    expect(screen.getByText(en.installDoneUpToDate)).toBeTruthy()
+    expect(screen.queryByText(en.installDoneNothing)).toBeNull()
+    expect(screen.queryByRole('button', { name: en.installEnableNow })).toBeNull()
     // A run that named no bundle leaves only Done.
     set({ install: { ...IDLE_INSTALL, open: true, spec: 'dsh-x', phase: 'done', subject: { spec: 'dsh-x', status: 'accepted', kind: 'registry', name: 'dsh-x', bundle: true, registry: null } } })
     expect(screen.getByText(en.installDoneNothing)).toBeTruthy()
+    expect(screen.queryByText(en.installDoneUpToDate)).toBeNull()
     expect(screen.queryByRole('button', { name: en.installEnableNow })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: en.installClose }))
     expect(actions.closeInstall).toHaveBeenCalledTimes(1)

@@ -1330,7 +1330,10 @@ function InstallDialog({
               </section>
             )
             : null}
-          {phase === 'done' && install.installed === null
+          {phase === 'done' && install.upToDate === true
+            ? <p className={css.result} role="status">{t('installDoneUpToDate')}</p>
+            : null}
+          {phase === 'done' && install.installed === null && install.upToDate !== true
             ? <p className={css.result} role="status">{t('installDoneNothing')}</p>
             : null}
           {phase === 'done' && install.restartRequired

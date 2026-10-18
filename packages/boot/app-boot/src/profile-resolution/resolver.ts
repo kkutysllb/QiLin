@@ -91,9 +91,9 @@ interface CompiledGeneration {
 }
 
 /**
- * A successor generation the running process cannot adopt, such as a mapping that moved to another directory; it waits
- * for a restart. A caller that can stop the plugins a change replaces catches it, rather than treating the change as a
- * wiring fault.
+ * A successor generation the running process cannot adopt, such as an installation mapping that changed or left; it
+ * waits for a restart. A caller that can stop the plugins a change replaces catches it, rather than treating the change
+ * as a wiring fault.
  */
 export class ResolutionRestartRequired extends Error {
   /**
@@ -119,16 +119,15 @@ export interface ProfileResolutionRegistration {
   packageDir(specifier: string, parentURL: string): string | undefined
   /**
    * Atomically publish a successor package table and fresh generation-owned caches. Profile-scoped mappings and local
-   * package names may leave the table. A retained profile mapping may change its version and declarer while its
-   * normalized directory and scope stay, as an upgrade in place does. A previously published link name may point to
-   * another real directory; callers stop the plugins of its previous target first, as removing and installing the
-   * package again does, and a file Node selected through the previous directory loads from the current one. Existing
-   * modules and Node caches stay intact: callers remove a package only after its plugins stop, and replace the loaded
-   * modules of an upgrade in place separately.
+   * package names may leave the table. A retained profile mapping may change its version, declarer, and directory, as an
+   * upgrade in place and a reinstallation from another location do; files Node selected through its previous directory
+   * load from the current one, and callers stop the plugins of that directory first. A previously published link name
+   * may point to another real directory in the same way. Existing modules and Node caches stay intact: callers remove a
+   * package only after its plugins stop, and replace the loaded modules of an upgrade in place separately.
    * @param generation - fully constructed successor generation.
-   * @throws when the profile scope changes; {@link ResolutionRestartRequired} when a retained mapping changes its
-   * normalized directory or scope, an installation mapping changes its declarer, version, or scope or leaves, or a new
-   * local name overrides an existing mapping. Every rejected change is named in the message.
+   * @throws when the profile scope changes; {@link ResolutionRestartRequired} when a retained installation mapping
+   * changes its directory, declarer, version, or scope or leaves, or a new local name overrides an existing mapping.
+   * Every rejected change is named in the message.
    */
   replace(generation: RuntimeResolution): void
   /** Restore the native resolver methods. Registrations dispose in reverse order. */
@@ -463,8 +462,11 @@ class ResolutionRouter {
         // A bundle-only fallback keeps its normalized directory; a package upgraded in place keeps that directory too,
         // so its recorded version and declarer may move without the process holding a module of the old files. Real
         // directories are compared: a link keeps its path when its target changes.
-        if (current.realDir === canonicalPath(next.packageDir)) continue
-        rejected.push(`profile resolution: replacing ${JSON.stringify(name)} requires a process restart`)
+        const realDir = canonicalPath(next.packageDir)
+        if (current.realDir === realDir) continue
+        // A profile mapping that names another directory is the package installed again elsewhere. Its plugins stop
+        // before the publication, and files Node selected through the previous directory load from the current one.
+        moves.push([current.realDir, realDir])
         continue
       }
       if (next === undefined

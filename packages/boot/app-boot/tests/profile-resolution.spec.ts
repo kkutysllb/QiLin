@@ -1539,7 +1539,7 @@ describe('profile resolution generation', { concurrent: false }, () => {
     )).toBe(f.installed)
   })
 
-  it('publishes a profile mapping whose version moved in place and refuses one that moved directory', async () => {
+  it('publishes a profile mapping that changed in place and adopts one that moved to another directory', async () => {
     const f = fixture()
     const second = join(f.root, 'second')
     pkg(second, 'resolution-lib', 2)
@@ -1560,12 +1560,16 @@ describe('profile resolution generation', { concurrent: false }, () => {
     // A package upgraded in place keeps its directory, so its version and declarer may move with the files below it.
     registration.replace(mapped(second, '3.0.0', join(f.profile.dir, 'package.json')))
     expect(registration.packageDir('profile-lib', parent)).toBe(second)
-    const error = thrownError(() => {
-      registration.replace(mapped(third, '3.0.0', join(third, 'package.json')))
-    })
-    expect(error).toBeInstanceOf(ResolutionRestartRequired)
-    // The rejected generation published nothing, so the accepted mapping still answers.
-    expect(registration.packageDir('profile-lib', parent)).toBe(second)
+    // A package installed again elsewhere is adopted: the mapping follows it, and a file Node selected through the
+    // previous directory loads from the current one.
+    const outside = createRequire(join(f.root, 'outside.cjs'))
+    expect(outside.resolve(join(second, 'index.cjs'))).toBe(join(second, 'index.cjs'))
+    registration.replace(mapped(third, '3.0.0', join(third, 'package.json')))
+    expect(registration.packageDir('profile-lib', parent)).toBe(third)
+    expect(outside.resolve(join(second, 'index.cjs'))).toBe(join(third, 'index.cjs'))
+    // A file only the previous directory holds stays as Node selected it.
+    file(join(second, 'only-second.cjs'), '')
+    expect(outside.resolve(join(second, 'only-second.cjs'))).toBe(join(second, 'only-second.cjs'))
   })
 
   it('adopts a package relinked to another directory without a restart and redirects its old files', async () => {
@@ -1679,7 +1683,7 @@ describe('profile resolution generation', { concurrent: false }, () => {
     expect(createRequire(parentPath).resolve('linked-lib')).toBe(join(realpathSync.native(link), 'index.cjs'))
   })
 
-  it('reports a package whose link keeps its path but points to another directory', async () => {
+  it('adopts a profile package whose link keeps its path but points to another directory', async () => {
     const f = fixture()
     const firstDir = join(f.root, 'source-a')
     const secondDir = join(f.root, 'source-b')
@@ -1698,9 +1702,13 @@ describe('profile resolution generation', { concurrent: false }, () => {
     registrations.push(registration)
     unlinkSync(link)
     symlinkSync(secondDir, link, process.platform === 'win32' ? 'junction' : 'dir')
-    // The mapping and the linked root report the same package once.
+    // The mapping and the linked root report the same package once: the publication records one move and adopts it.
     const relinked = { ...generation, linkedRoots: [{ name: 'linked-lib', realPath: realpathSync(secondDir) }] }
-    expect(() => { registration.replace(relinked) }).toThrow(/^profile resolution: replacing "linked-lib" requires a process restart$/u)
+    expect(() => { registration.replace(relinked) }).not.toThrow()
+    const mapped = registration.packageDir('linked-lib', pathToFileURL(join(f.profile.dir, 'entry.mjs')).href)
+    expect(realpathSync(mapped as string)).toBe(realpathSync(secondDir))
+    expect(createRequire(join(f.root, 'outside.cjs')).resolve(join(firstDir, 'index.cjs')))
+      .toBe(join(realpathSync(secondDir), 'index.cjs'))
   })
 
   it('forgets a previous directory removed before the package moved again', async () => {

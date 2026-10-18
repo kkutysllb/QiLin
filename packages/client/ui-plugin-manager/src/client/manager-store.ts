@@ -226,10 +226,12 @@ export interface InstallState {
   readonly runs: readonly InstallRun[]
   /** Whether the run's command and output are unfolded, including after reopening. */
   readonly detailsOpen: boolean
-  /** The bundle the finished run added; ordinary installs await enablement, catalog operations carry their selection. */
+  /** The bundle the finished run added or replaced; ordinary installs await enablement, catalog operations carry their selection. */
   readonly installed: string | null
   /** The version the finished run installed, when its manifest declares one; null otherwise. */
   readonly installedVersion: string | null
+  /** Whether the profile already saved the version the run resolved, so nothing was installed, reloaded, or restarted. */
+  readonly upToDate?: boolean
   /** Whether the finished run's bundle waits for the next start to load. */
   readonly restartRequired: boolean
   /** Why it waits, when the Host says. */
@@ -961,12 +963,13 @@ export class PluginManagerController {
       this.analyticsAttempt = { input: sanitizeInstallInput(spec), started: Date.now() }
       this.ctx.get('productAnalytics')?.track('plugin_install_click', { input_value: sanitizeInstallInput(spec) })
     }
-    // A name the list already shows is refused at once, before the Host is asked.
+    // A name the QiLin installation supplies is refused at once, before the Host is asked. An installed dependency is
+    // installed again over itself: the Host updates it, or answers that the version is already current.
     const listed = state.packages.find(pkg => pkg.name === spec)
     const catalogSubject = install.subject?.selection === undefined || install.subject.spec !== spec ? undefined : install.subject
-    if (listed !== undefined && listed.availability !== 'missing' && catalogSubject === undefined) {
+    if (listed?.availability === 'installation' && catalogSubject === undefined) {
       this.finishAnalytics('failed', 'already-installed')
-      this.patchInstall({ phase: 'idle', inputError: { problem: listed.availability === 'installation' ? 'shipped' : 'already-installed', reason: spec } })
+      this.patchInstall({ phase: 'idle', inputError: { problem: 'shipped', reason: spec } })
       return
     }
     const choice = install.registry
@@ -1024,7 +1027,7 @@ export class PluginManagerController {
     const requestId = randomUUID() as PluginInstallRequestId
     const request: InstallRequest = { requestId, acknowledged: false, replyLost: false, recovering: false }
     this.request = request
-    this.patchInstall({ phase: 'starting', requestId, subject, runs: [], attempts: null, failure: null, installed: null, installedVersion: null, approvedBuilds: [] })
+    this.patchInstall({ phase: 'starting', requestId, subject, runs: [], attempts: null, failure: null, installed: null, installedVersion: null, upToDate: false, approvedBuilds: [] })
     // The Host announces `plugin-manager/changed` while the run is still on
     // the wire, and every such event reads again; those reads must not cancel
     // the run's settlement.
@@ -1088,6 +1091,7 @@ export class PluginManagerController {
         phase: 'done', runs: settledRuns(runs, 0), failure: null,
         installed: result.bundle ?? null,
         installedVersion: result.version ?? null,
+        upToDate: result.upToDate === true,
         restartRequired: result.application === 'restart-required',
         ...result.restartReason === undefined ? {} : { restartReason: result.restartReason },
         approvedBuilds: result.approvedBuilds ?? [],

@@ -164,6 +164,20 @@ function bundleSelection(manifest: ProfileManifest): readonly string[] {
 }
 
 /**
+ * The names an installation must not replace: the copies the QiLin installation provides, and the bundles a selected
+ * local directory provides. A name the profile declares as its own dependency is installed again to update it.
+ * @param manifest The profile manifest as saved.
+ * @param installation The qilin installation's own manifest.
+ * @returns The package names no install spec may replace in this profile.
+ */
+function providedNames(manifest: ProfileManifest, installation: InstallationManifest): Set<string> {
+  const dependencies = new Set(Object.keys(manifest.dependencies ?? {}))
+  const provided = new Set(Object.keys(installation.dependencies ?? {}))
+  for (const name of bundleSelection(manifest)) if (!dependencies.has(name)) provided.add(name)
+  return provided
+}
+
+/**
  * The package an installation spec names before pnpm runs: a registry name, a local directory's manifest name, or the
  * dependency saved with this git or tarball spec, compared as the plugin list shows saved specs.
  * @param spec The installation spec.
@@ -323,7 +337,7 @@ export class PluginManager extends TypertRemoteService {
     const selected = bundleSelection(manifest)
     const recorded = manifest.dependencies ?? {}
     const dependencies = Object.keys(recorded)
-    const installation = JSON.parse(readFileSync(this.profile.installAnchor, 'utf8')) as InstallationManifest
+    const installation = this.installationManifest()
     const catalog = new Map(OFFICIAL_ON_DEMAND_CATALOG.map(entry => [entry.packageName, entry]))
     const names = [...new Set([...selected, ...dependencies, ...Object.keys(installation.dependencies ?? {}), ...catalog.keys()])]
     const bundles: BundleInfo[] = []
@@ -419,10 +433,8 @@ export class PluginManager extends TypertRemoteService {
       return refused('invalid-spec', error.reason)
     }
     const manifest = readProfileManifest('qilin', this.profile.dir)
-    const installation = JSON.parse(readFileSync(this.profile.installAnchor, 'utf8')) as InstallationManifest
-    const known = new Set([
-      ...bundleSelection(manifest), ...Object.keys(manifest.dependencies ?? {}), ...Object.keys(installation.dependencies ?? {}),
-    ])
+    // Installing a name the profile declares again updates that dependency; a provided name has no such dependency.
+    const provided = providedNames(manifest, this.installationManifest())
     const plan = registryPlan(options?.registry, await this.registries())
     const registry = plan[0] as Registry
     switch (parsed.kind) {
@@ -440,12 +452,12 @@ export class PluginManager extends TypertRemoteService {
         }
         const inspection = inspectionOf('path', read, registry)
         if (inspection.name === undefined) return refused('not-a-package', 'the package.json names no package')
-        if (known.has(inspection.name)) return refused('already-installed', `${inspection.name} is already installed`)
+        if (provided.has(inspection.name)) return refused('already-installed', `${inspection.name} is provided by the QiLin installation or a local bundle`)
         if (!inspection.bundle) return refused('not-a-bundle', `${inspection.name} declares no qilin.bundle.patch or dsh.bundle.patch`)
         return inspection
       }
       case 'registry': {
-        if (known.has(parsed.name)) return refused('already-installed', `${parsed.name} is already installed`)
+        if (provided.has(parsed.name)) return refused('already-installed', `${parsed.name} is provided by the QiLin installation or a local bundle`)
         const registries: Registry[] = []
         const refusedBy = (problem: PluginInspectProblem, reason: string): PluginSpecInspection =>
           ({ status: 'refused', problem, reason, registries })
@@ -541,12 +553,16 @@ export class PluginManager extends TypertRemoteService {
     const result = this.change(async (result) => {
       if (spec.trim() === '' || spec.startsWith('-')) throw new ManagementFailure('invalid-spec')
       if (stopped()) throw new InstallCancelledError()
-      const before = readProfileManifest('qilin', this.profile.dir).dependencies ?? {}
-      // With HMR, an installed package is removed before another version is installed, so its plugins stop first.
+      const current = readProfileManifest('qilin', this.profile.dir)
+      const before = current.dependencies ?? {}
       const known = specPackageName(spec, before, this.profile.dir)
-      if (this.ownerContext.get('hmr') !== undefined && known !== undefined && Object.hasOwn(before, known)) {
+      // A name the installation or a local bundle provides is the profile's safety boundary, not an update.
+      if (known !== undefined && providedNames(current, this.installationManifest()).has(known)) {
         throw new ManagementFailure('already-installed')
       }
+      // An installed name is installed again over its own dependency: pnpm replaces the files in place, and the version
+      // it resolves decides whether anything changed.
+      const previous = known === undefined || !Object.hasOwn(before, known) ? undefined : this.installedVersion(known)
       if (options?.approvedBuilds !== undefined) {
         await approveBuilds(this.profile.dir, options.approvedBuilds)
         result.approvedBuilds = options.approvedBuilds
@@ -554,6 +570,7 @@ export class PluginManager extends TypertRemoteService {
       const files = await this.readRestoredFiles()
       let name: string
       let version: string | undefined
+      let sameDependency = false
       try {
         result.registries = []
         const connection = checkGithubConnection(parsedForRegistry(spec), this.profile.dir, {
@@ -613,6 +630,7 @@ export class PluginManager extends TypertRemoteService {
           throw new Error(run.output)
         }
         const after = readProfileManifest('qilin', this.profile.dir).dependencies ?? {}
+        sameDependency = known !== undefined && after[known] === before[known]
         const installed = Object.keys(after).filter(name => before[name] !== after[name])
         // Without HMR a repeated installation can leave the saved dependency as it was.
         if (installed.length === 0) {
@@ -637,6 +655,14 @@ export class PluginManager extends TypertRemoteService {
       }
       control.phase = 'applying'
       announce('applying')
+      // pnpm resolved the version and dependency the profile already saved: no bundle is selected, no plugin reloaded,
+      // and no restart waits.
+      if (sameDependency && previous !== undefined && previous === version) {
+        result.version = version
+        result.target = name
+        result.upToDate = true
+        return 'applied'
+      }
       result.bundle = name
       if (version !== undefined) result.version = version
       result.target = name
@@ -826,6 +852,21 @@ export class PluginManager extends TypertRemoteService {
     manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles } }
     await saveManifest(this.profile.dir, manifest)
     if (enabled) this.protectsManager(name)
+  }
+
+  /** The version one installed profile dependency declares, or `undefined` when its files carry no readable manifest. */
+  private installedVersion(name: string): string | undefined {
+    try {
+      return bundleManifest(name, this.profile.dir, this.profile.installAnchor)?.version
+    } catch (_error) {
+      // A declaration without its files has no version to compare; the installation runs and repairs them.
+      return undefined
+    }
+  }
+
+  /** The qilin installation's own manifest, as saved beside this profile's anchor. */
+  private installationManifest(): InstallationManifest {
+    return JSON.parse(readFileSync(this.profile.installAnchor, 'utf8')) as InstallationManifest
   }
 
   private bundleRows(name: string): EntryOptions[] {

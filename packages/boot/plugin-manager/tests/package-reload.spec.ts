@@ -376,19 +376,34 @@ it('removes and publishes a bundle that is not running without HMR', async () =>
   expect(ctx.get('packageReloadSibling')).toBe(sibling)
 })
 
-it('refuses to overwrite an installed bundle, and installs another version once it is removed', async () => {
-  const { ctx, dir, trace, manager, evaluationPath, entry } = await fixture({ installed: true })
+it('updates an installed bundle in place with one publication and no restart', async () => {
+  const { ctx, dir, trace, published, manager, evaluationPath, entry } = await fixture({ installed: true })
   const pnpm = mockPnpm(dir, trace, () => { installFiles(dir, 2) })
-  expect(await manager.installBundle('addon@2', { enabled: true }))
-    .toMatchObject({ application: 'failed', changed: false, error: { code: 'already-installed' } })
-  expect(pnpm).not.toHaveBeenCalled()
-  await removeAddon(manager, dir, trace)
-  mockPnpm(dir, trace, () => { installFiles(dir, 2) })
-  expect(await manager.installBundle('addon@2', { enabled: true })).toMatchObject({ application: 'applied', changed: true })
-  expect(trace).toEqual(['start:sibling', 'start:addon:1', 'stop:addon:1', 'publish', 'pnpm:remove', 'publish', 'pnpm:add', 'publish', 'start:addon:2'])
+  expect(await manager.installBundle('addon@2', { enabled: true })).toMatchObject({
+    application: 'applied', changed: true, bundle: 'addon', version: '2.0.0', target: 'addon',
+  })
+  expect(pnpm).toHaveBeenCalledOnce()
+  expect(published).toHaveBeenCalledOnce()
+  expect(trace).toEqual(['start:sibling', 'start:addon:1', 'pnpm:add', 'stop:addon:1', 'publish', 'start:addon:2'])
   expect(entry()?.fiber?.state).toBe(FiberState.ACTIVE)
   expect(ctx.get('addonVersion')).toBe(2)
+  expect(ctx.pluginPackages.packageOf('addon-plugin', pathToFileURL(join(dir, 'caller.cjs')).href)?.version).toBe('2.0.0')
   expect(readFileSync(evaluationPath, 'utf8')).toBe('addon:1\naddon:2\n')
+  // The dependency moved with the installation and the bundle stayed selected.
+  expect(readProfileManifest('test', dir).dependencies).toEqual({ addon: '2.0.0' })
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'addon'])
+})
+
+it('reports the saved version as already current without publishing', async () => {
+  const { ctx, dir, trace, published, manager, evaluationPath } = await fixture({ installed: true })
+  mockPnpm(dir, trace, () => { installFiles(dir, 1) })
+  expect(await manager.installBundle('addon@1.0.0', { enabled: true })).toMatchObject({
+    application: 'applied', changed: false, version: '1.0.0', target: 'addon', upToDate: true,
+  })
+  expect(published).not.toHaveBeenCalled()
+  expect(trace).toEqual(['start:sibling', 'start:addon:1', 'pnpm:add'])
+  expect(ctx.get('addonVersion')).toBe(1)
+  expect(readFileSync(evaluationPath, 'utf8')).toBe('addon:1\n')
 })
 
 it('reports the load error when a reinstalled version fails to load', async () => {

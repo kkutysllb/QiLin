@@ -818,11 +818,35 @@ it('restores the manifest when the package pnpm added declares no bundle', async
   expect((await manager.listBundles()).some(row => row.name === 'plain')).toBe(false)
 })
 
-it('refuses to install over an installed package, by name, version or local directory, without running pnpm', async () => {
-  const { manager, dir } = await fixture()
+it('installs again over an installed dependency to update it, without removing it first', async () => {
+  const { manager, dir, bundle } = await fixture()
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockImplementation(async (_context, args) => {
+    expect(args[0]).toBe('add')
+    bundle('extra', [{ id: 'managed', name: './plugin.mjs' }])
+    writeFileSync(join(dir, 'node_modules', 'extra', 'package.json'),
+      JSON.stringify({ name: 'extra', version: '2.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } } }))
+    const saved = readProfileManifest('test', dir)
+    saved.dependencies = { ...saved.dependencies, extra: '2.0.0' }
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(saved))
+    return { exitCode: 0, output: '', truncated: false, logPath: '/operation.log' }
+  })
+  onTestFinished(() => { install.mockRestore() })
+  expect(await manager.installBundle('extra@2')).toMatchObject({
+    application: 'applied', stage: 'enable', changed: true, bundle: 'extra', version: '2.0.0',
+  })
+  expect(install).toHaveBeenCalledOnce()
+  // The saved dependency moved with the installation, and the bundle stayed selected.
+  expect(readProfileManifest('test', dir).dependencies).toEqual({ extra: '2.0.0' })
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra'])
+})
+
+it('refuses to install over a package the installation or a local bundle provides, without running pnpm', async () => {
+  const { manager, dir, profile } = await fixture()
   const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: '/operation.log' })
   onTestFinished(() => { install.mockRestore() })
-  for (const spec of ['extra', 'extra@2', join(dir, 'node_modules', 'extra'), `link:${join(dir, 'node_modules', 'extra')}`]) {
+  // The installation's own copy of a selected package is the one that loads.
+  writeFileSync(profile.installAnchor, JSON.stringify({ name: 'installation', dependencies: { extra: '1.0.0' } }))
+  for (const spec of ['extra@2', join(dir, 'node_modules', 'extra'), `link:${join(dir, 'node_modules', 'extra')}`]) {
     expect(await manager.installBundle(spec)).toMatchObject({ application: 'failed', stage: 'install', changed: false, error: { code: 'already-installed' } })
   }
   // A tarball saved as a path relative to the profile, and a refused install's script approvals, write nothing.
@@ -834,6 +858,10 @@ it('refuses to install over an installed package, by name, version or local dire
     .toMatchObject({ application: 'failed', changed: false, error: { code: 'already-installed' } })
   expect(existsSync(workspace) ? readFileSync(workspace, 'utf8') : undefined).toBe(settings)
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  // A selected bundle no dependency declares is a local directory the profile provides.
+  writeFileSync(profile.installAnchor, JSON.stringify({ name: 'installation', dependencies: {} }))
+  expect(await manager.installBundle('core@2'))
+    .toMatchObject({ application: 'failed', stage: 'install', changed: false, error: { code: 'already-installed' } })
   expect(install).not.toHaveBeenCalled()
   expect(readProfileManifest('test', dir).dependencies).toEqual({ extra: '1.0.0' })
 })
@@ -885,12 +913,31 @@ it('returns unchanged failures as warnings while toggling and removing another b
   expect(remove).toHaveBeenCalledOnce()
 })
 
-it('recognizes a repeated installation without HMR that leaves the saved dependency as it was', async () => {
+it('reports the saved version as already current without publishing or waiting for a restart', async () => {
   const { manager, dir } = await fixture('startup')
   const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: join(dir, 'pnpm.log') })
   onTestFinished(() => { install.mockRestore() })
-  expect(await manager.installBundle(`link:${join(dir, 'node_modules', 'extra')}`, { enabled: false }))
-    .toMatchObject({ changed: false, application: 'restart-required', bundle: 'extra', enabled: false })
+  const result = await manager.installBundle('extra', { enabled: false })
+  expect(result).toMatchObject({
+    changed: false, application: 'applied', stage: 'install', target: 'extra', version: '1.0.0', upToDate: true, enabled: false,
+  })
+  // Nothing was added, reloaded, or restarted: the profile already saved this dependency and version.
+  expect(result).not.toHaveProperty('bundle')
+  expect(result).not.toHaveProperty('restartReason')
+  expect(install).toHaveBeenCalledOnce()
+  expect(readProfileManifest('test', dir).dependencies).toEqual({ extra: '1.0.0' })
+})
+
+it('installs a declared dependency whose files are missing instead of reporting it current', async () => {
+  const { manager, dir } = await fixture('startup')
+  // The declaration survives without its package, so the run has no installed version to compare against.
+  rmSync(join(dir, 'node_modules', 'extra'), { recursive: true, force: true })
+  const install = vi.spyOn(operations, 'runProfilePnpm').mockResolvedValue({ exitCode: 0, output: '', truncated: false, logPath: join(dir, 'pnpm.log') })
+  onTestFinished(() => { install.mockRestore() })
+  const result = await manager.installBundle('extra')
+  expect(result).toMatchObject({ application: 'failed', error: { code: 'operation-error' } })
+  expect(result).not.toHaveProperty('upToDate')
+  expect(install).toHaveBeenCalledOnce()
 })
 
 it('reports ambiguous package changes as failures', async () => {
@@ -1076,8 +1123,16 @@ it('reads what a spec names before installing it', async () => {
   expect(await manager.inspect('scalar')).toEqual({ status: 'refused', problem: 'unknown', reason: 'pnpm view answered no package', registries: [null] })
   answers('')
   expect(await manager.inspect('silent')).toEqual({ status: 'refused', problem: 'unknown', reason: 'pnpm view answered no package', registries: [null] })
-  // What is installed, or supplied by the installation, is refused before the registry is asked.
-  expect(await manager.inspect('extra')).toEqual({ status: 'refused', problem: 'already-installed', reason: 'extra is already installed' })
+  // What the installation or a selected local bundle provides is refused before the registry is asked; an installed
+  // dependency is read from the registry, so installing it again can update it.
+  writeFileSync(profile.installAnchor, JSON.stringify({ name: 'installation', dependencies: { extra: '1.0.0' } }))
+  expect(await manager.inspect('extra')).toEqual({
+    status: 'refused', problem: 'already-installed', reason: 'extra is provided by the QiLin installation or a local bundle',
+  })
+  writeFileSync(profile.installAnchor, JSON.stringify({ name: 'installation', dependencies: {} }))
+  expect(await manager.inspect('core')).toEqual({
+    status: 'refused', problem: 'already-installed', reason: 'core is provided by the QiLin installation or a local bundle',
+  })
   expect(await manager.inspect('./relative')).toEqual({ status: 'refused', problem: 'invalid-spec', reason: 'a local path must be absolute' })
   expect(await manager.inspect('github:acme/qilin-remote')).toEqual({ status: 'accepted', kind: 'git', bundle: null, registry: null, host: 'github.com' })
   const tarball = join(profile.home, 'pack.tgz')
@@ -1097,7 +1152,7 @@ it('reads what a spec names before installing it', async () => {
   writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'qilin-local', version: '0.1.0', description: 'Local.', qilin: { bundle: { patch: './p.yml' } } }))
   expect(await manager.inspect(`file:${local}`)).toEqual({ status: 'accepted', kind: 'path', name: 'qilin-local', version: '0.1.0', description: 'Local.', bundle: true, registry: null })
   writeFileSync(join(local, 'package.json'), JSON.stringify({ name: 'core', qilin: { bundle: { patch: './p.yml' } } }))
-  expect(await manager.inspect(local)).toEqual({ status: 'refused', problem: 'already-installed', reason: 'core is already installed' })
+  expect(await manager.inspect(local)).toEqual({ status: 'refused', problem: 'already-installed', reason: 'core is provided by the QiLin installation or a local bundle' })
   // A profile and an installation that list nothing know nothing.
   writeFileSync(join(dir, 'package.json'), '{}')
   writeFileSync(profile.installAnchor, '{}')

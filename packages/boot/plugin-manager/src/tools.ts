@@ -15,7 +15,7 @@ const ERROR_STEPS: Record<ManagementError['code'], string> = {
   'unaddressable': 'This entry has no unique profile patch target; tell the user to edit the profile patch file directly.',
   'unknown-plugin': 'Call list_plugins and retry with an exact entryId.',
   'invalid-spec': 'Retry with an npm package name, a git URL, a tarball URL, or an absolute local directory.',
-  'already-installed': 'The package is already installed; to install another version, call remove_bundle first, then install_bundle again.',
+  'already-installed': 'The QiLin installation or a local bundle provides this name, so the profile cannot replace it; an installed dependency is updated by calling install_bundle again with the wanted version.',
   'ambiguous-install': 'The dependency change named no single package; call list_bundles to see what was installed.',
   'not-bundle': 'The package declares no qilin.bundle and cannot be managed as a plugin; install a QiLin plugin bundle instead.',
   'not-removable': 'Call list_bundles; only bundles marked removable can be removed.',
@@ -41,7 +41,7 @@ const FAILURE_STEPS: Partial<Record<PluginInstallFailureKind, string>> = {
 /** Why a change waits for a restart, as the model tells the user. */
 const RESTART_STEPS: Record<RestartReason, string> = {
   'no-hmr': 'this profile applies changes only at startup',
-  'package-moved': 'an installed package now resolves to another directory, or the change replaces a package the QiLin installation provides; remove a package before installing it from another location',
+  'package-moved': 'the change replaces or locally overrides a package the QiLin installation provides, or moves an installed package to another directory without removing it first',
   'host-module': 'the change reaches modules QiLin itself loaded',
   'unmanaged-plugin': 'the change reaches a plugin running outside the plugin list',
   'module-comparison': 'QiLin could not compare loaded plugins with their files',
@@ -55,7 +55,9 @@ const RESTART_STEPS: Record<RestartReason, string> = {
 function withNextStep(result: ChangeResult): ChangeResult & { nextStep?: string } {
   switch (result.application) {
     case 'applied':
-      return result
+      return result.upToDate === true
+        ? { ...result, nextStep: 'The profile already resolved this version and dependency; nothing was installed, reloaded, or restarted.' }
+        : result
     case 'cancelled':
       return { ...result, nextStep: 'The installation was cancelled and its files restored; nothing changed.' }
     case 'overridden':
@@ -84,7 +86,7 @@ export const inject = ['tools', 'pluginManager', 'sandboxPolicy']
 export function apply(ctx: Context): void {
   ctx.tools.register(defineTool({
     name: 'plugin_manager',
-    description: 'List plugins or bundles in the current profile, enable or disable them, install a bundle, or remove an installed bundle. Every action requires danger-full-access permission or approval for this call. Approval does not change the session permission mode. Changes affect every session in this profile. List first to obtain exact identifiers. Package installation can execute allowed build scripts. Live profiles apply changes immediately, including upgrades of installed packages; a change result that is not applied carries nextStep, which says what to do or tell the user. Incompatible qilin peer dependencies block installation and activation. Version exemptions risk crashes and data loss: warn the user and obtain explicit permission for the exact plugin and runtime versions before granting one.',
+    description: 'List plugins or bundles in the current profile, enable or disable them, install a bundle, or remove an installed bundle. Every action requires danger-full-access permission or approval for this call. Approval does not change the session permission mode. Changes affect every session in this profile. List first to obtain exact identifiers. Package installation can execute allowed build scripts. Live profiles apply changes immediately: install_bundle replaces an installed dependency whose spec it names, so one call upgrades it without remove_bundle, and resolves to upToDate when the same version is already saved. A change result that is not applied carries nextStep, which says what to do or tell the user. Incompatible qilin peer dependencies block installation and activation. Version exemptions risk crashes and data loss: warn the user and obtain explicit permission for the exact plugin and runtime versions before granting one.',
     parameters: {
       action: { type: 'string', required: true, enum: ['list_plugins', 'list_bundles', 'set_plugin', 'set_bundle', 'install_bundle', 'remove_bundle', 'list_version_exemptions', 'set_version_exemption'], description: 'Management operation.' },
       target: { type: 'string', description: 'Plugin entry id, bundle package name, or installation spec, according to action. For an Official catalog entry, pass list_bundles installTarget.spec to install_bundle.' },

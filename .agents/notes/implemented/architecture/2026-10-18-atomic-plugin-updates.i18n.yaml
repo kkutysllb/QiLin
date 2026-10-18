@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-18-atomic-plugin-updates.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-18-atomic-plugin-updates.md
+/agent-note-update-installed-plugins-in-place:
+  en: f82f5c9a888dc70d
+  zh: 2ca5ede7500a60bd
+/agent-note-update-installed-plugins-in-place/problem:
+  en: 6472b9930584380e
+  zh: 95539714930c9fe1
+/agent-note-update-installed-plugins-in-place/decision:
+  en: 547528272f5e61f5
+  zh: 534eae09e6557813
+/agent-note-update-installed-plugins-in-place/alternatives-considered:
+  en: aab9a44720e067e4
+  zh: 22fa7559f30af96e
+/agent-note-update-installed-plugins-in-place/consequences:
+  en: 630ecd198ec801b5
+  zh: a7c37f75e9f22aa7
+/agent-note-update-installed-plugins-in-place/testing:
+  en: 74d85b38b0ce5e6e
+  zh: 1991e5bf39ee9129

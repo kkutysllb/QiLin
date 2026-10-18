@@ -607,6 +607,20 @@ describe('PluginManagerController', () => {
     expect(installBundle).toHaveBeenCalledTimes(2)
   })
 
+  it('settles a run that resolved the saved version as already current, with nothing to enable', async () => {
+    const { face, state, controller } = bench({
+      installBundle: vi.fn().mockResolvedValue(ok({ ...APPLIED, version: '1.0.0', upToDate: true })),
+    })
+    await controller.load()
+    face.openInstall()
+    face.editInstallSpec('dsh-new')
+    face.runInstall()
+    await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
+    expect(state().install).toMatchObject({
+      installed: null, installedVersion: '1.0.0', upToDate: true, restartRequired: false, failure: null,
+    })
+  })
+
   it('checks the spec, hands the run to the Host, and folds the chunks that carry its request id', async () => {
     const gate = deferred<ReturnType<typeof ok<ChangeResult>>>()
     const { plugins, face, state, controller, started } = bench({ installBundle: vi.fn().mockReturnValueOnce(gate.promise) })
@@ -646,7 +660,9 @@ describe('PluginManagerController', () => {
     expect(state().install.detailsOpen).toBe(true)
     gate.resolve(ok({ ...APPLIED, bundle: 'dsh-new', version: '1.0.0' }))
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
-    expect(state().install).toMatchObject({ installed: 'dsh-new', installedVersion: '1.0.0', restartRequired: false, detailsOpen: true })
+    expect(state().install).toMatchObject({
+      installed: 'dsh-new', installedVersion: '1.0.0', upToDate: false, restartRequired: false, detailsOpen: true,
+    })
     // The finished install settled its run; a trailing last chunk still lands
     // on it, while a chunk for a run the dialog never saw is dropped.
     controller.appendLog({ requestId, jobId: 'j1', argv, cwd: '/p', stream: 'stdout', text: '', exitCode: 0 })
@@ -666,7 +682,7 @@ describe('PluginManagerController', () => {
     expect(state().install.open).toBe(false)
   })
 
-  it('refuses a spec the list already shows without asking the Host, and words what the Host refused', async () => {
+  it('checks an installed dependency with the Host, refuses a shipped bundle at once, and words what the Host refused', async () => {
     const shipped: BundleInfo = { ...BUNDLE, name: '@qilin-agent/official', installed: false, official: true, availability: 'installation', optional: true, removable: false }
     const { plugins, face, state, controller } = bench({
       listBundles: vi.fn(() => Promise.resolve(ok([BUNDLE, shipped]))),
@@ -677,22 +693,21 @@ describe('PluginManagerController', () => {
     })
     await controller.load()
     face.openInstall()
+    // An installed dependency is checked with the Host: installing it again updates it.
     face.editInstallSpec(BUNDLE.name)
     face.runInstall()
-    expect(plugins.inspect).not.toHaveBeenCalled()
-    expect(state().install).toMatchObject({ phase: 'idle', inputError: { problem: 'already-installed', reason: BUNDLE.name } })
-    // A bundle the installation supplies upgrades with DSH instead.
+    await vi.waitFor(() => { expect(state().install.inputError).toEqual({ problem: 'not-found', reason: 'E404', registries: [null, MIRROR] }) })
+    expect(plugins.inspect).toHaveBeenCalledOnce()
+    expect(state().install.phase).toBe('idle')
+    // A bundle the installation supplies upgrades with QiLin instead, before the Host is asked.
     face.editInstallSpec(shipped.name)
     face.runInstall()
+    expect(plugins.inspect).toHaveBeenCalledOnce()
     expect(state().install).toMatchObject({ phase: 'idle', inputError: { problem: 'shipped', reason: shipped.name } })
     // Typing clears the refusal.
-    face.editInstallSpec('nope')
+    face.editInstallSpec('plain')
     expect(state().install.inputError).toBeNull()
     face.runInstall()
-    await vi.waitFor(() => { expect(state().install.inputError).toEqual({ problem: 'not-found', reason: 'E404', registries: [null, MIRROR] }) })
-    expect(state().install.phase).toBe('idle')
-    expect(plugins.installBundle).not.toHaveBeenCalled()
-    face.editInstallSpec('plain')
     face.runInstall()
     await vi.waitFor(() => { expect(state().install.inputError).toEqual({ problem: 'not-a-bundle', reason: 'plain declares no dsh.bundle' }) })
     // A refused answer, rather than a refused spec, reads as unknown with the transport's words.

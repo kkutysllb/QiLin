@@ -62,7 +62,7 @@ resolution generation 列出可用 fallback 包；Loader entries 组成活动插
 
 添加包的调用方先完成 pnpm 事务，再构造下一代。替换操作会拒绝改变任何保留包的目录。Plugin Manager 先发布后继 generation，再挂载新的 Loader 配置项。挂载失败可以留下已安装但未启用的包。
 
-修改既有运行时包映射的规范化目录或作用域、或者删除安装映射，需要重启，因为 Node 的 ESM Module Map、CommonJS cache、现存对象引用和运行中的 Worker 都可能保留旧模块 identity。保留的 profile 映射可以在规范化目录与作用域不变时就地更换版本与声明者，如同包在原位升级。profile 范围的映射和 profile 本地包名可以移除；调用方在删除包文件之前先停止相关插件。generation 换代不声称卸载模块。
+修改既有运行时包映射的规范化目录或作用域、或者删除安装映射，需要重启，因为 Node 的 ESM Module Map、CommonJS cache、现存对象引用和运行中的 Worker 都可能保留旧模块 identity。保留的 profile 映射可以在规范化目录与作用域不变时就地更换版本与声明者，如同包在原位升级。profile 范围的映射和 profile 本地包名可以移除；调用方在删除包文件之前先停止相关插件。保留的 profile 映射解析到另一个目录时会被采纳，Node 先前从旧目录选中的文件改从当前目录加载；[就地更新已安装的插件](2026-10-18-atomic-plugin-updates.zh.md) 持有该决定以及产生它的安装路径。generation 换代不声称卸载模块。
 
 ### 磁盘迁移
 

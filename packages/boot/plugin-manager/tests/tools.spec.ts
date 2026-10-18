@@ -290,6 +290,8 @@ it('tells the agent the next step for each change outcome it can act on', async 
     return (JSON.parse(resultText(await call({ action: 'set_bundle', target: 'bundle', enabled: true }))) as { nextStep?: string }).nextStep
   }
   expect(await outcome({ changed: true, application: 'applied' })).toBeUndefined()
+  // An installation that changed nothing says so rather than reading as a fresh install.
+  expect(await outcome({ changed: false, application: 'applied', upToDate: true })).toContain('already resolved this version')
   expect(await outcome({ changed: false, application: 'cancelled' })).toContain('nothing changed')
   expect(await outcome({ changed: true, application: 'overridden' })).toContain('higher-priority layer')
   expect(await outcome({ changed: true, application: 'restart-required', restartReason: 'host-module' }))
