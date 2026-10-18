@@ -62,7 +62,18 @@ kind: "plan"
 3. `ConversationWidthControls.tsx`：`resolveContentWidth` 对非有限值回落到自适应；`publishWidths` 对非有限值不写 `--qilin-chat-user-width`。
 4. 测试：host 配置表单覆盖 `contentWidth`（默认 0、负值拒绝）、策略层「投影缺字段保持自适应」、组件层「非有限偏好不写 NaNpx」；实测桌面端 DOM 手柄宽 10px、内容轴 798px。
 
-## 5. 验证
+## 5. 追加：插件原子更新（升级免重启）
+
+### 现象与根因
+对**已安装**的第三方 bundle 再点安装会被拒（`ManagementFailure('already-installed')`，文案「该插件已安装。如需升级，请卸载后重新安装」）；而升级/覆盖安装若改变了包解析目录，resolver 抛 `ResolutionRestartRequired` → 「请重启 QiLin」toast。实测：全新第三方 bundle 首装（dsh-plugin-whale-pet）与 bundle 启停都实时生效、无需重启；风险路径集中在**升级/覆盖安装**。
+
+### 修复（进行中）
+1. plugin-manager：对已安装同名包不再拒绝，改为一次组合发布的原子更新（pnpm add 升/降版本 → 保持 bundle 选中 → 一次 recompose/publish）；同版本重装返回「已是最新」；失败回滚语义不变。
+2. app-boot resolver：profile 作用域映射的目录变化改为 `MovedDirectories` 采纳 + 旧路径重定向，不再一律拒绝；**保留** installation 作用域变化、本地覆盖自带包、profile 范围变化的拒绝。
+3. 客户端文案：`installProblemInstalled` / `installUpgradeNotice` / `reasonAlreadyInstalled` 改为「可直接重新安装升级」；`restartReasonPackageMoved` 仅保留真正的覆盖自带包场景。
+4. 测试：plugin-manager 真实组合「装 v1 → 装 v2 → 一次 recompose 生效、无 restartReason」；resolver「目录变化采纳 + 重定向」「覆盖自带包仍拒绝」；文案断言。
+
+## 6. 验证
 
 - 2026-10-18：四条流全部完成并入主干——预设（4 笔：standard 恢复/默认切换/e2e/headless 文档）、渲染（1 笔：三态对齐）、移动采纳（1 笔：MovedDirectories/linkedTargets）、拖宽手柄（1 笔：contentWidth 投影 + 三处防御 + 3 份 spec）。
 - 集成：目录全量再生（module-graph 双语 + 2 写）、全量 build exit 0、test:docs 21/21、type-equiv 472、md-links 2285、pairing 1155、repository-references、subsystem-pages 54 组、constraints、families 65 例全绿；工作树干净。
