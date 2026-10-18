@@ -350,7 +350,11 @@ export function AgentPresetSection(props: AgentPresetSectionProps): ReactNode {
                       {row.broken === undefined
                         ? null
                         : <span className={css.cardBrokenReason} role="alert">{row.broken}</span>}
-                      <code className={css.cardId}>{row.id}</code>
+                      {/* A shipped preset's id is a fork-internal name, so the
+                        card shows no identifier; a user preset shows the id the
+                        user authored, which is what its files and copies key on.
+                        The element stays for the card's layout. */}
+                      <code className={css.cardId}>{row.trust === 'user' ? row.id : ''}</code>
                     </button>
                     <div className={css.cardFoot}>
                       {/* Shipped presets are the compositions a copy starts

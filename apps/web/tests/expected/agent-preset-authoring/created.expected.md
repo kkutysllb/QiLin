@@ -24,13 +24,13 @@
     - listitem:
       - 'button "新任务默认: 普通模式" [disabled] [pressed]':
         - text: 普通模式 内置 新任务默认 面向日常与办公任务的通用 Agent：写作、检索、文件与表格处理都能胜任，也具备完整的编码、Shell、Skills、计划与子代理能力。
-        - code: standard
+        - code
       - 'button "查看: 普通模式"': 查看
       - 'button "复制: 普通模式"': 复制
     - listitem:
       - 'button "设为默认: 编码模式"':
         - text: 编码模式 内置 在普通能力之上为编码任务深度优化的 Agent：以自定义程序组合把编码任务封装后与模型交互，减少调用次数与上下文占用，并针对编码场景做了更深的工具与流程优化。
-        - code: ptc
+        - code
       - 'button "查看: 编码模式"': 查看
       - 'button "复制: 编码模式"': 复制
   - heading "自定义" [level=3]
