@@ -76,6 +76,14 @@ kind: "plan"
 ### 遗留（用户接受）
 第三方 `dsh-workbuddy-connect` 在个别状态（半安装/覆盖）仍可能出现重启提示；本轮覆盖全新安装、同版本重装与 profile 内重装，其余按第三方插件边界接受，不再追（用户明确「先不管了，毕竟第三方插件」）。
 
+## 7. 侧边栏会话行 hover 对齐（跑马灯 + 归档/置顶）
+
+- 现状：QiLin 旧实现 hover 时直接把 `scrollLeft` 设到末端并靠 CSS `scroll-behavior: smooth` 过渡；行尾只有置顶与菜单；归档后整行消失。上游 rc.2 是逐帧跑马灯（0.03px/ms）+ `data-scrolled`/`data-clipped` 双端 12px mask + reduced-motion 直接跳远，行尾顺序为「菜单 → 归档 → 置顶」。
+- 完成：移植 `placeTitle/restTitle/useTitleMarquee`（8px 抖动阈、rAF 逐帧、离开步进复位、卸载清帧、`scrollTo` 不可用回落 `scrollLeft`、reduced-motion 跳远）；行尾动作改为「菜单 → 归档 → 置顶」，两个动词带 Tooltip/aria 与 `stopPropagation`；CSS 删 smooth、加三条 12px mask、`menuOpen` 也 clip、`.rowActions` gap 15；新增 `actions.archive` 文案；README 双语同步。测试：rows 36 例、browser-styles CSS 契约、`apps/web` 真浏览器 e2e `sidebar-title-hover-scroll` 通过。
+- 保留差异：fork 行树/子代理血统/置顶排序/`.time` 12px 排版/`row-in` 挂载淡入；归档语义仍是「整行从树中消失」，不移植灰化与取消归档按钮。
+- 待决策（本次记录）：① `AnimatedRows`（行增删/重排动画）未移植——需全行 `data-row-key` 与 `rowKeys/ready/resetKey` 协议，且与现有 `row-in` 淡入叠加，建议单独立项；② focus-visible 显现按钮不可行（行容器非可聚焦元素，上游 rc.2 同样没有），作为可及性项另行排期。
+- 附带：自愈脚本 `scripts/ensure-root-links.ts` 的 host 面 TS2532（版本核心缺段）已修；全量 build exit 0、门禁全绿。
+
 ## 6. 验证
 
 - 2026-10-18：五条流全部完成并入主干——预设（4 笔：standard 恢复/默认切换/e2e/headless 文档）、渲染（1 笔：三态对齐）、移动采纳（1 笔：MovedDirectories/linkedTargets）、拖宽手柄（1 笔：contentWidth 投影 + 三处防御 + 3 份 spec）、**插件原子更新（1 笔：in-place 升级 + resolver 目录采纳 + 文案/测试）**。
