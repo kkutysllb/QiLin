@@ -194,14 +194,16 @@ describe('sidebar global panels', () => {
     await mountPanel(runtime, { id: GAMMA, heading: 'Gamma content', label: 'Gamma panel', order: 30, section: 'Alpha group' })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
     const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
-    expect(headers).toHaveLength(3)
-    expect(headers.map(header => header.textContent)).toEqual(['Alpha group', 'Extensions', 'Alpha group'])
-    expect(headers.map(header => header.getAttribute('aria-hidden'))).toEqual(['false', 'false', 'false'])
+    // KStock patch (K27): 扩展行现在被稳定移到末尾（不再按 order 插进业务组中间），
+    // 所以这里只剩两个分区头：业务组一次、扩展一次。
+    expect(headers).toHaveLength(2)
+    expect(headers.map(header => header.textContent)).toEqual(['Alpha group', 'Extensions'])
+    expect(headers.map(header => header.getAttribute('aria-hidden'))).toEqual(['false', 'false'])
     // Section headers are fold toggles (role=button with aria-expanded); panel
     // rows are the buttons without one.
     // The Extensions header is a fold toggle with role=button and no label; the rows are the labelled ones.
     const rows = within(navigation).getAllByRole('button').filter(row => row.getAttribute('aria-label') !== null).filter(row => row.getAttribute('aria-expanded') === null)
-    expect(rows.map(row => row.textContent)).toEqual(['Alpha panel', 'Beta panel', 'Gamma panel'])
+    expect(rows.map(row => row.textContent)).toEqual(['Alpha panel', 'Gamma panel', 'Beta panel'])
     expect(headers.every(header => header.getAttribute('aria-expanded') === 'true')).toBe(true)
     const entries = runtime.slots.entries('sidebar.panellist')
     expect(entries[0]!.options.section).toBe('Alpha group')

@@ -64,7 +64,7 @@ export function apply(ctx: ClientContext): void {
       const face = entry.inject?.(undefined as never) as Partial<SidebarSectionAssignmentsOwnerProps> | undefined
       if (face?.assignments !== undefined) Object.assign(assigned, face.assignments)
     }
-    const next = ctx.slots.entriesOfSlot('sidebar.panellist').map(({ options }) => {
+    const sorted = ctx.slots.entriesOfSlot('sidebar.panellist').map(({ options }) => {
       // The list registration requires an id; StoredEntry erases the slot kind.
       const id = options.id as MainPanelId
       // Any row without an assigned or declared section is plugin-contributed, so it
@@ -76,13 +76,24 @@ export function apply(ctx: ClientContext): void {
       const section = assigned[id] ?? resolveSlotLabel(options.section) ?? trailing
       return { id, order: options.order ?? 0, label: resolveSlotLabel(options.label) ?? id, section }
     }).sort((a, b) => a.order - b.order)
+    // KStock patch (K27): 扩展面板必须殿后。行按 order 排序时，第三方扩展行的 order
+    // 可能小于产品业务行，导致「扩展」分组插到「通用/业务」中间；这里按分区做稳定
+    // 分组：通用（引擎自带）在前、业务组按 order 居中、扩展（无声明 section 的插件行）最后。
+    const generalLabel = t('section.general')
+    const extensionsLabel = t('section.extensions')
+    const orderedPanels = [
+      ...sorted.filter(panel => panel.section === generalLabel),
+      ...sorted.filter(panel => panel.section !== generalLabel && panel.section !== extensionsLabel),
+      ...sorted.filter(panel => panel.section === extensionsLabel),
+    ]
+    const nextOrdered = orderedPanels
     const previous = panels.getSnapshot()
-    if (previous.length === next.length && previous.every((panel, index) => {
-      const candidate = next[index] as SidebarPanelMetadata
+    if (previous.length === nextOrdered.length && previous.every((panel, index) => {
+      const candidate = nextOrdered[index] as SidebarPanelMetadata
       return panel.id === candidate.id && panel.order === candidate.order
         && panel.label === candidate.label && panel.section === candidate.section
     })) return
-    panels.set(next)
+    panels.set(nextOrdered)
   }
   ctx.effect(() => ctx.slots.subscribe('sidebar.panellist', syncPanels), 'ui-sidebar: panel entries')
   ctx.effect(() => ctx.slots.subscribe('sidebar.section.assignments', syncPanels), 'ui-sidebar: section assignments')
