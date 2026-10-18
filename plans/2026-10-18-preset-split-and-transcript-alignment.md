@@ -63,5 +63,10 @@ kind: "plan"
 4. 测试：host 配置表单覆盖 `contentWidth`（默认 0、负值拒绝）、策略层「投影缺字段保持自适应」、组件层「非有限偏好不写 NaNpx」；实测桌面端 DOM 手柄宽 10px、内容轴 798px。
 
 ## 5. 验证
+
+- 2026-10-18：四条流全部完成并入主干——预设（4 笔：standard 恢复/默认切换/e2e/headless 文档）、渲染（1 笔：三态对齐）、移动采纳（1 笔：MovedDirectories/linkedTargets）、拖宽手柄（1 笔：contentWidth 投影 + 三处防御 + 3 份 spec）。
+- 集成：目录全量再生（module-graph 双语 + 2 写）、全量 build exit 0、test:docs 21/21、type-equiv 472、md-links 2285、pairing 1155、repository-references、subsystem-pages 54 组、constraints、families 65 例全绿；工作树干净。
+- 实机核验（桌面端）：新会话预设芯片显示「普通模式」（默认生效）；会话正文两侧宽度手柄 10px 可拖（`--qilin-chat-user-width` 不再出现 NaNpx）。
+- 已知预存红（流报告，非本批引入）：web-agent-presets e2e 2 例 profile reload、7 条 replay 车道金样漂移、rescope-vendor 4 篇未改动文档、export-jsdoc 13 等，均按既有基线口径留档。
 - 预设：agent-presets spec、e2e 脚手架/shipped-composition、目录生成器三绿、`verify-translation-pairing`/md-links。
 - 渲染：ui-chat spec、client face tsc、Web e2e（能跑则该三态的断言）、docs 门。
