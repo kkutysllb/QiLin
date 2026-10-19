@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/usage-report",
   "description": "Reports each settled Turn's token usage to the deployment that started the runtime",
-  "version": "3.1.6",
+  "version": "3.1.7-rc.1",
   "publishConfig": {
     "access": "public"
   },

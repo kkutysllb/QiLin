@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/api-remote-access",
   "description": "Method-level Remote access control for non-owner Peers and the per-Peer access snapshot",
-  "version": "3.1.6",
+  "version": "3.1.7-rc.1",
   "publishConfig": {
     "access": "public"
   },

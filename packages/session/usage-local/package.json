@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/usage-local",
   "description": "Local usage ledger for single-user surfaces: derives /api/usage/me from this runtime's own session logs with the token-meter derivation",
-  "version": "3.1.6",
+  "version": "3.1.7-rc.1",
   "publishConfig": {
     "access": "public"
   },
