@@ -220,33 +220,39 @@ export function McpSection({ controller, useSnapshot, t }: McpSectionProps): Rea
           </ul>
         )}
 
-      <h3 className={styles.groupTitle}>{t('recommended')}</h3>
-      <p className={styles.hint}>{t('recommendedHint')}</p>
-      <ul className={styles.list}>
-        {state.builtins.map((builtin) => {
-          const copyKey = BUILTIN_COPY[builtin.id]
-          const configured = state.servers.some(server => server.serverName === builtin.name)
-          return (
-            <li key={builtin.id} className={styles.row}>
-              <div className={styles.rowMain}>
-                <div className={styles.rowTitle}>
-                  <span className={styles.name}>{builtin.name}</span>
-                  {!builtin.available && <Tag>{fill(t('unavailable'), { command: builtin.command })}</Tag>}
-                </div>
-                <span className={styles.detail}>{[builtin.command, ...builtin.args].join(' ')}</span>
-                {copyKey !== undefined && <span className={styles.hint}>{t(copyKey)}</span>}
-              </div>
-              <Button
-                variant="outline"
-                disabled={configured || !builtin.available || pageBusy || broken}
-                onClick={() => { void controller.addBuiltin(builtin.id) }}
-              >
-                {state.busy === builtin.id ? t('adding') : named(t('addNamed'), builtin.name)}
-              </Button>
-            </li>
-          )
-        })}
-      </ul>
+      {/* KStock patch: 推荐服务器区块随 MCP_BUILTINS 清空而消失；
+          上游列表非空时（回滚/上游升级）仍按原样渲染。 */}
+      {state.builtins.length > 0 && (
+        <>
+          <h3 className={styles.groupTitle}>{t('recommended')}</h3>
+          <p className={styles.hint}>{t('recommendedHint')}</p>
+          <ul className={styles.list}>
+            {state.builtins.map((builtin) => {
+              const copyKey = BUILTIN_COPY[builtin.id]
+              const configured = state.servers.some(server => server.serverName === builtin.name)
+              return (
+                <li key={builtin.id} className={styles.row}>
+                  <div className={styles.rowMain}>
+                    <div className={styles.rowTitle}>
+                      <span className={styles.name}>{builtin.name}</span>
+                      {!builtin.available && <Tag>{fill(t('unavailable'), { command: builtin.command })}</Tag>}
+                    </div>
+                    <span className={styles.detail}>{[builtin.command, ...builtin.args].join(' ')}</span>
+                    {copyKey !== undefined && <span className={styles.hint}>{t(copyKey)}</span>}
+                  </div>
+                  <Button
+                    variant="outline"
+                    disabled={configured || !builtin.available || pageBusy || broken}
+                    onClick={() => { void controller.addBuiltin(builtin.id) }}
+                  >
+                    {state.busy === builtin.id ? t('adding') : named(t('addNamed'), builtin.name)}
+                  </Button>
+                </li>
+              )
+            })}
+          </ul>
+        </>
+      )}
 
       {draft === null
         ? (
