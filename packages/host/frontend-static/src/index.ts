@@ -233,7 +233,7 @@ export function apply(ctx: Context, config: Config): void {
   const accountId = process.env[ACCOUNT_VARIABLE]
   const renderIndex = async (): Promise<string> =>
     withSiteBase(ctx.webServer.renderIndex(await readFile(config.distIndex, 'utf8')), accountId)
-  ctx.effect(() => ctx.webServer.registerFallback(async (req, res) => {
+  ctx.webServer.registerFallback(async (req, res) => {
     // Non-GET/HEAD without a matching named route is 405 (fallback-only
     // semantics: named routes own their method handling).
     if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -251,5 +251,5 @@ export function apply(ctx: Context, config: Config): void {
       authorizeIndex: () => ctx.connection.authorizeIndex(req, res),
       renderIndex,
     })
-  }), 'frontend-static: fallback seat')
+  })
 }

@@ -23,7 +23,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context, FiberState } from '@qilin-agent/kylin'
 import Loader from '@qilin-agent/kylin-plugin-loader'
 import Include from '@qilin-agent/kylin-plugin-include'
-import HttpServer, { isLoopbackHost, normalizeBindAddress, renderIndexInjections, type TlsConfig } from '../src/index.ts'
+import HttpServer, { isLoopbackHost, normalizeBindAddress, renderIndexInjections, type TlsConfig, type WebRoute, type WebUpgradeRoute } from '../src/index.ts'
 import { materializeTlsFixture, type TlsFixture } from './tls-fixture.ts'
 
 /** One-shot barrier for disposal overlapping a pending PEM read. */
@@ -74,8 +74,19 @@ afterEach(async () => {
   tlsRoot = undefined
 })
 
-/** Write a cordis.yml with one webserver row, then boot it through the real Loader. */
-async function loadComposition(port = 0, gzip = false, listenOn?: 'settle', host = '127.0.0.1', tls?: Partial<TlsConfig> | null): Promise<Context> {
+/**
+ * Write a cordis.yml with one webserver row, then boot it through the real Loader.
+ * @param extra - additional config rows and importable modules for a case that
+ * mounts its own plugin entry beside the webserver.
+ */
+async function loadComposition(
+  port = 0,
+  gzip = false,
+  listenOn?: 'settle',
+  host = '127.0.0.1',
+  tls?: Partial<TlsConfig> | null,
+  extra?: { rows?: readonly string[]; modules?: Iterable<readonly [string, unknown]> },
+): Promise<Context> {
   const root = await mkdtemp(join(tmpdir(), 'qilin-webserver-loader-'))
   const configPath = join(root, 'cordis.yml')
   await writeFile(configPath, [
@@ -96,6 +107,7 @@ async function loadComposition(port = 0, gzip = false, listenOn?: 'settle', host
       : tls === null
         ? ['    tls: null']
         : ['    tls:', `      certFile: '${tls.certFile}'`, `      keyFile: '${tls.keyFile}'`]),
+    ...(extra?.rows ?? []),
     '',
   ].join('\n'))
 
@@ -106,6 +118,7 @@ async function loadComposition(port = 0, gzip = false, listenOn?: 'settle', host
   context.loader.builtins.include = Include
   const modules = new Map<string, unknown>([
     ['@qilin-agent/host-webserver', HttpServer],
+    ...(extra?.modules ?? []),
   ])
   context.loader.internal = {
     version: 'v2',
@@ -486,6 +499,153 @@ describe('real Loader composition', () => {
     expect(upgradedServerClosed).toBe(true)
     upgraded.destroy()
     await expect(request(port, '/probe')).rejects.toThrow()
+  })
+
+  it('reclaims a route when the registering fiber is disposed', { timeout: 60_000 }, async () => {
+    const loaded = await loadComposition()
+    const port = loaded.webServer.port
+    const handler: WebRoute['handler'] = (_req, res) => { res.writeHead(200); res.end('BUNDLE') }
+    // A profile bundle that registers a management prefix and keeps no
+    // disposer: only the fiber's own lifetime can reclaim the route.
+    const fiber = loaded.plugin({
+      name: 'kcoder-skills',
+      inject: ['webServer'],
+      apply(pluginCtx: Context) {
+        pluginCtx.webServer.register({ kind: 'prefix', path: '/kcoder-skills/api', handler })
+      },
+    })
+    await fiber.await()
+    expect(fiber.state).toBe(FiberState.ACTIVE)
+    expect(await request(port, '/kcoder-skills/api/catalog')).toMatchObject({ status: 200, body: 'BUNDLE' })
+
+    await fiber.dispose()
+    expect((await request(port, '/kcoder-skills/api/catalog')).status).toBe(404)
+
+    // The hot-upgrade order: the replacement mounts only after the old fiber
+    // settled, so a reclaimed route must be registrable again.
+    const replacement = loaded.plugin({
+      name: 'kcoder-skills-v2',
+      inject: ['webServer'],
+      apply(pluginCtx: Context) {
+        pluginCtx.webServer.register({ kind: 'prefix', path: '/kcoder-skills/api', handler })
+      },
+    })
+    await replacement.await()
+    expect(await request(port, '/kcoder-skills/api/catalog')).toMatchObject({ status: 200, body: 'BUNDLE' })
+    await replacement.dispose()
+  })
+
+  it('reclaims a route whose owner fiber is already disposed when cleanup settles', { timeout: 60_000 }, async () => {
+    const loaded = await loadComposition()
+    const port = loaded.webServer.port
+    const path = '/hot-upgrade/api'
+    const old = loaded.plugin({
+      name: 'kcoder-skills',
+      inject: ['webServer'],
+      apply(pluginCtx: Context) {
+        pluginCtx.webServer.register({ kind: 'prefix', path, handler: (_req, res) => { res.writeHead(200); res.end('OLD') } })
+        pluginCtx.webServer.registerFallback((_req, res) => { res.writeHead(200); res.end('OLD-SEAT') })
+      },
+    })
+    await old.await()
+    expect(await request(port, path)).toMatchObject({ status: 200, body: 'OLD' })
+    expect(await request(port, '/unmatched')).toMatchObject({ status: 200, body: 'OLD-SEAT' })
+
+    // Hot-upgrade order in the Loader: the old entry's fiber is already
+    // disposed (uid cleared) while its route cleanup is still a queued
+    // microtask when the replacement registers on the same path.
+    const disposal = old.dispose()
+    expect(() => loaded.webServer.register({
+      kind: 'prefix', path, handler: (_req, res) => { res.writeHead(200); res.end('NEW') },
+    })).not.toThrow()
+    expect(() => loaded.webServer.registerFallback((_req, res) => { res.writeHead(200); res.end('NEW-SEAT') })).not.toThrow()
+    expect(await request(port, path)).toMatchObject({ status: 200, body: 'NEW' })
+    expect(await request(port, '/unmatched')).toMatchObject({ status: 200, body: 'NEW-SEAT' })
+    await disposal
+    // The stale owner's queued cleanup must not remove the replacement claims.
+    expect(await request(port, path)).toMatchObject({ status: 200, body: 'NEW' })
+    expect(await request(port, '/unmatched')).toMatchObject({ status: 200, body: 'NEW-SEAT' })
+  })
+
+  it('reclaims a route from a fiber that fails after registering it', { timeout: 60_000 }, async () => {
+    const loaded = await loadComposition()
+    const port = loaded.webServer.port
+    const handler: WebRoute['handler'] = (_req, res) => { res.writeHead(200); res.end('FAILED') }
+    const fiber = loaded.plugin({
+      name: 'failing-bundle',
+      inject: ['webServer'],
+      apply(pluginCtx: Context) {
+        pluginCtx.webServer.register({ kind: 'prefix', path: '/failing-bundle/api', handler })
+        throw new Error('bundle apply failed')
+      },
+    })
+    await expect(fiber.await()).rejects.toThrow('bundle apply failed')
+    expect(fiber.state).toBe(FiberState.FAILED)
+    expect((await request(port, '/failing-bundle/api/catalog')).status).toBe(404)
+    // A failed fiber's route must not keep the path occupied.
+    expect(() => loaded.webServer.register({ kind: 'prefix', path: '/failing-bundle/api', handler })).not.toThrow()
+  })
+
+  it('reclaims upgrade routes and the fallback seat with the registering fiber', { timeout: 60_000 }, async () => {
+    const loaded = await loadComposition()
+    const port = loaded.webServer.port
+    const upgrade: WebUpgradeRoute['handler'] = (_req, socket) => { socket.destroy() }
+    const fallback: WebRoute['handler'] = (_req, res) => { res.writeHead(200); res.end('SEAT') }
+    const fiber = loaded.plugin({
+      name: 'seat-owner',
+      inject: ['webServer'],
+      apply(pluginCtx: Context) {
+        pluginCtx.webServer.registerUpgrade({ path: '/seat-owner/events', handler: upgrade })
+        pluginCtx.webServer.registerFallback(fallback)
+      },
+    })
+    await fiber.await()
+    expect(await request(port, '/anything')).toMatchObject({ status: 200, body: 'SEAT' })
+
+    await fiber.dispose()
+    expect((await request(port, '/anything')).status).toBe(404)
+    // Releasing the fiber released both seats: a replacement can claim each.
+    expect(() => loaded.webServer.registerUpgrade({ path: '/seat-owner/events', handler: upgrade })).not.toThrow()
+    expect(() => loaded.webServer.registerFallback(fallback)).not.toThrow()
+  })
+
+  it('names the Loader entry that owns a duplicate route', { timeout: 60_000 }, async () => {
+    const handler: WebRoute['handler'] = (_req, res) => { res.writeHead(200); res.end('ENTRY') }
+    const loaded = await loadComposition(0, false, undefined, '127.0.0.1', undefined, {
+      rows: ["- id: 'route-owner'", "  name: 'route-owner'"],
+      modules: [['route-owner', {
+        name: 'route-owner',
+        inject: ['webServer'],
+        apply(pluginCtx: Context) {
+          pluginCtx.webServer.register({ kind: 'prefix', path: '/owned-by-entry', handler })
+        },
+      }]],
+    })
+    const port = loaded.webServer.port
+    expect(await request(port, '/owned-by-entry/catalog')).toMatchObject({ status: 200, body: 'ENTRY' })
+    expect(() => loaded.webServer.register({ kind: 'prefix', path: '/owned-by-entry', handler }))
+      .toThrow(/duplicate prefix route "\/owned-by-entry" \(owned by entry "[^"]*route-owner"(, plugin "[^"]*")?, fiber #\d+\)/)
+  })
+
+  it('names the incumbent owner of a duplicate registration', { timeout: 60_000 }, async () => {
+    const loaded = await loadComposition()
+    const handler: WebRoute['handler'] = (_req, res) => { res.writeHead(200); res.end('OWNED') }
+    const fiber = loaded.plugin({
+      name: 'kcoder-skills',
+      inject: ['webServer'],
+      apply(pluginCtx: Context) {
+        pluginCtx.webServer.register({ kind: 'prefix', path: '/owned-route', handler })
+        pluginCtx.webServer.registerUpgrade({ path: '/owned-upgrade', handler: (_req, socket) => { socket.destroy() } })
+        pluginCtx.webServer.registerFallback(handler)
+      },
+    })
+    await fiber.await()
+    expect(() => loaded.webServer.register({ kind: 'prefix', path: '/owned-route', handler }))
+      .toThrow(/duplicate prefix route "\/owned-route" \(owned by plugin "kcoder-skills", fiber #\d+\)/)
+    expect(() => loaded.webServer.registerUpgrade({ path: '/owned-upgrade', handler: (_req, socket) => { socket.destroy() } }))
+      .toThrow(/duplicate upgrade route "\/owned-upgrade" \(owned by plugin "kcoder-skills", fiber #\d+\)/)
+    expect(() => loaded.webServer.registerFallback(handler))
+      .toThrow(/fallback already registered \(owned by plugin "kcoder-skills", fiber #\d+\)/)
   })
 
   it('collects injection rows fresh per render and layers taps over the rendered rows', { timeout: 60_000 }, async () => {

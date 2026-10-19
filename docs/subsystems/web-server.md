@@ -89,7 +89,7 @@ interface TlsConfig {
 
 ## The service
 
-`WebServer` (`ctx.webServer`) listens immediately on activation; a listen failure (EADDRINUSE…) rejects initialization, and the boot process reports the failed fiber. The `tls` pair is read once before the listener binds, so an unreadable, empty, invalid, or mismatched pair rejects initialization the same way instead of falling back to HTTP. `register(route)` adds one named route and returns its disposer; a duplicate `(kind, path)` throws because route patterns are a composition-level contract and a collision is a misconfiguration. Gzip wraps eligible socket-backed responses inside the server, so route handlers retain direct `ServerResponse` ownership and no response-writing API is added to the service. Existing content encodings, `Cache-Control: no-transform`, ranges, SSE, ZIP, and the packaged `.gz` Worker image remain identity responses. `collectIndexInjections()` gathers structured `IndexInjection` rows over one `webserver/index-inject` emit, and `renderIndex(html)` renders them into successful root and configured index responses before applying the raw `tapIndex(transform)` escape-hatch transforms in registration order; [qilin-client-modules](../../packages/client/modules) answers the event with the boot manifest rows. `port` reads the listening port, including the port assigned by the OS when `config.port` is 0.
+`WebServer` (`ctx.webServer`) listens immediately on activation; a listen failure (EADDRINUSE…) rejects initialization, and the boot process reports the failed fiber. The `tls` pair is read once before the listener binds, so an unreadable, empty, invalid, or mismatched pair rejects initialization the same way instead of falling back to HTTP. `register(route)` adds one named route and returns its disposer; the registration is owned by the calling fiber, so a plugin row's disposal or failed `apply` reclaims it, and a duplicate `(kind, path)` throws with the incumbent owner named because route patterns are a composition-level contract and a collision is a misconfiguration; an incumbent whose fiber is already disposed is reclaimed. Gzip wraps eligible socket-backed responses inside the server, so route handlers retain direct `ServerResponse` ownership and no response-writing API is added to the service. Existing content encodings, `Cache-Control: no-transform`, ranges, SSE, ZIP, and the packaged `.gz` Worker image remain identity responses. `collectIndexInjections()` gathers structured `IndexInjection` rows over one `webserver/index-inject` emit, and `renderIndex(html)` renders them into successful root and configured index responses before applying the raw `tapIndex(transform)` escape-hatch transforms in registration order; [qilin-client-modules](../../packages/client/modules) answers the event with the boot manifest rows. `port` reads the listening port, including the port assigned by the OS when `config.port` is 0.
 
 A request whose handling throws (a malformed %-escape hitting `decodeURIComponent`, a client dropping mid-body) is logged as a warning and answered 400 — or the socket destroyed when headers are already out — never a process exit. Disposal pairs `close()` with `closeAllConnections()` because a handler may hold its response open (SSE) and such connections never end on their own; without the force-close, teardown would hang. The package never prints: the URL line belongs to the shell. Per-package operational detail, including the dev-mode bundle watch pipeline, stays in the [README](../../packages/host/webserver/README.md).
 
@@ -186,16 +186,23 @@ The browser HTTP carrier service. `listenOn` (see Config) decides when the socke
 whenListened(): Promise<void>
 
 /**
- * Register a named route. Duplicate (kind, path) throws — route patterns are
- * a composition-level contract, so a collision is a misconfiguration.
+ * Register a named route, owned by the calling fiber: the route leaves the
+ * table when the returned disposer runs or that fiber unloads, including a
+ * plugin that throws after registering. Duplicate (kind, path) throws and
+ * names the incumbent owner — route patterns are a composition-level
+ * contract, so a collision is a misconfiguration — unless the incumbent's
+ * fiber is already disposed, which reclaims the stale entry.
  * @param route - kind, path, and the owning handler.
  * @returns the disposer removing the route.
  */
 register(route: WebRoute): () => void
 
 /**
- * Register an exact-path HTTP upgrade route. Duplicate paths throw because
- * one socket can have only one protocol owner.
+ * Register an exact-path HTTP upgrade route, owned by the calling fiber:
+ * the route leaves the table when the returned disposer runs or that fiber
+ * unloads. Duplicate paths throw and name the incumbent owner because one
+ * socket can have only one protocol owner, unless the incumbent's fiber is
+ * already disposed, which reclaims the stale entry.
  * @param route - pathname and handler owning negotiation plus socket use.
  * @returns the disposer removing the route.
  */
@@ -203,9 +210,11 @@ registerUpgrade(route: WebUpgradeRoute): () => void
 
 /**
  * Claim the fallback seat: the handler answering every request no named
- * route matches (the SPA dist server in the shipped Web composition). One
- * owner only — a second registration throws, because two fallbacks cannot
- * compose.
+ * route matches (the SPA dist server in the shipped Web composition), owned
+ * by the calling fiber and released with its disposer or on unload. One
+ * owner only — a second registration throws and names the incumbent because
+ * two fallbacks cannot compose, unless the incumbent's fiber is already
+ * disposed, which reclaims the stale seat.
  * @param handler - owns the full response lifecycle of unmatched requests.
  * @returns the disposer releasing the seat.
  */

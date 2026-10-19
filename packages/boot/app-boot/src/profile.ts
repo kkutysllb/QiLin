@@ -218,11 +218,11 @@ export interface Profile {
   patchPath: string
   /** The profile's own patches; empty when the file is absent. */
   patches: PatchOptions[]
-  /** Selected bundles the profile could not load; reported once per start, never fatal. */
+  /** Bundles skipped as incompatible, or broken in a recovery read; reported once per start. */
   skippedBundles: SkippedBundle[]
 }
 
-/** A selected bundle the profile could not load. */
+/** A selected bundle skipped: incompatible, or broken in a recovery read. */
 export interface SkippedBundle {
   /** The bundle's package name from the profile declaration. */
   packageName: string
@@ -838,9 +838,9 @@ export async function healProfilesModuleFallback(
 }
 
 /**
- * Report the bundles a profile could not load once per start.
+ * Report every skipped bundle a profile recorded once per start.
  * @param binName - the diagnostic prefix on each line.
- * @param profile - the loaded profile carrying its skipped bundles.
+ * @param profile - the loaded profile carrying the bundles it skipped.
  */
 export function reportSkippedBundles(binName: string, profile: Pick<Profile, 'skippedBundles'>): void {
   for (const { packageName, reason } of profile.skippedBundles) {
@@ -1394,19 +1394,24 @@ export function reconcileProfileBundles(
  * Load an already initialized profile directory without resolving it through
  * the shared Harness home. This is used by application-owned profiles whose
  * package project and lifecycle belong to that application.
- * A bundle whose own qilin peers the profile does not exempt fails startup
- * loudly, beside a missing bundle and one without a patch declaration.
+ * A bundle whose own qilin peers the profile does not exempt is recorded in
+ * `skippedBundles` for {@link reportSkippedBundles}; an unresolvable bundle,
+ * one without a patch declaration, and one whose declared patch cannot load
+ * fail startup loudly, because no sibling layer can replace them. A caller
+ * that repairs selected packages opts into `tolerateSkippedBundles`, which
+ * records such a layer instead so the same profile can still be composed.
  * @param binName - the diagnostic prefix on thrown errors.
  * @param dir - absolute profile package directory.
  * @param installAnchor - absolute path of the owning qilin app's package.json.
- * @param options - `userLayer: false` skips reading `cordis.patch.yml`.
+ * @param options - `userLayer: false` skips reading `cordis.patch.yml`;
+ * `tolerateSkippedBundles: true` records a broken layer instead of throwing.
  * @returns the resolved bundle layers and optional user patch layer.
  */
 export function loadProfileDirectory(
   binName: string,
   dir: string,
   installAnchor: string,
-  options: { userLayer?: boolean } = {},
+  options: { userLayer?: boolean; tolerateSkippedBundles?: boolean } = {},
 ): Profile {
   const manifest = dropRetiredProfileBundles(dir, readProfileManifest(binName, dir))
   const bundles = profileDeclarationOf(manifest)?.profile?.bundles ?? []
@@ -1416,19 +1421,42 @@ export function loadProfileDirectory(
   for (const packageName of bundles) {
     try {
       const packageDir = resolveBundleDir(binName, packageName, installAnchor, dir)
-      const bundleManifest = JSON.parse(readFileSync(join(packageDir, 'package.json'), 'utf8')) as ProfileManifest
-      const declared = bundlePatchFilesOf(bundleManifest)
+      const manifestPath = join(packageDir, 'package.json')
+      let bundleManifest: ProfileManifest
+      let declared: string[]
+      try {
+        bundleManifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as ProfileManifest
+        declared = bundlePatchFilesOf(bundleManifest)
+      } catch (error) {
+        // A listed layer whose own manifest cannot be read, parsed, or understood
+        // is misconfiguration: dropping it would hide a broken installation.
+        /* v8 ignore next -- readFileSync, JSON.parse, and bundlePatchFilesOf reject only with Error */
+        const reason = error instanceof Error ? error.message : String(error)
+        throw new Error(
+          `${binName}: profile bundle ${JSON.stringify(packageName)} has an unreadable manifest ${manifestPath}: `
+          + `${reason}; reinstall the package, or remove it from qilin.profile.bundles`,
+        )
+      }
       if (declared.length === 0) {
-        throw new Error(`${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle.patch or dsh.bundle.patch in its package.json`)
+        throw new Error(
+          `${binName}: profile bundle ${JSON.stringify(packageName)} declares no qilin.bundle.patch or dsh.bundle.patch in its package.json; `
+          + 'remove it from qilin.profile.bundles or replace it with a package that declares one',
+        )
       }
       // A bundle is not a plugin row, so row admission never reads its own peers.
       const issue = evaluatePluginCompatibility(bundleManifest, exemptions)
-      if (issue !== undefined && !issue.exempted) throw new Error(`${binName}: ${pluginCompatibilityWarning(issue)}`)
+      if (issue !== undefined && !issue.exempted) {
+        // Version skew the profile can exempt is a compatibility condition, not an
+        // unresolvable layer: record it so reportSkippedBundles names it at startup.
+        skippedBundles.push({ packageName, reason: pluginCompatibilityWarning(issue) })
+        continue
+      }
       const patchPaths = declared.map(file => join(packageDir, file))
       layers.push({ packageName, packageDir, patchPaths, patches: patchPaths.flatMap(path => loadOverlayPatches(binName, path)) })
     } catch (error) {
-      // A broken selected bundle must not fail the whole boot: record it, and let the
-      // installation traversal treat its manifest as skipped as well.
+      // Boot paths keep a broken layer fatal; only a caller that repairs selected
+      // packages tolerates it, so the manager can still list and remove it.
+      if (options.tolerateSkippedBundles !== true) throw error
       /* v8 ignore next -- every reader and parser in this try rejects with an Error */
       skippedBundles.push({ packageName, reason: error instanceof Error ? error.message : String(error) })
     }
@@ -1444,8 +1472,9 @@ export function loadProfileDirectory(
  * Load a profile: resolve every `qilin.profile.bundles` entry to its patch
  * layer and parse the profile's own patch file. A listed bundle without a
  * `qilin.bundle` manifest fails loud — naming a bundle-less package as a layer
- * is a misconfiguration, not "no patches"; a bundle the profile does not
- * exempt for the running runtime version fails the same way.
+ * is a misconfiguration, not "no patches". A bundle whose qilin peers do not
+ * match the running runtime is skipped unless the profile exempts that exact
+ * pair, and {@link reportSkippedBundles} names every skip once per start.
  * @param binName - the diagnostic prefix on thrown errors.
  * @param name - the profile name.
  * @param installAnchor - absolute path of the qilin app's package.json (first resolution anchor).

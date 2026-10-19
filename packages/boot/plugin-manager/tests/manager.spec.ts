@@ -84,7 +84,10 @@ async function fixture(reload: 'live' | 'startup' = 'live', overlay = false, pre
   const profile: ProfileContext = {
     name: 'test',
     ...(packageManager === undefined ? {} : { packageManager }),
-    startedBundles: loadProfileDirectory('test', dir, anchor).layers.map(layer => layer.packageName),
+    // The manager must keep running after a selected package breaks: it owns the
+    // repair, so this recovery read tolerates the broken layer.
+    startedBundles: loadProfileDirectory('test', dir, anchor, { tolerateSkippedBundles: true })
+      .layers.map(layer => layer.packageName),
     dir, patchPath: join(dir, 'cordis.patch.yml'), installAnchor: anchor, cwd: home, home,
     overlays, telemetryDisabledEnv: undefined,
   }

@@ -45,7 +45,9 @@ primary_runtime = download_primary_runtime()
 
 ## 打包后的 profile 解析
 
-`qilin` 在显式指定的主目录下初始化随附 profile、组合其 bundle patch，并从可执行程序的虚拟文件系统加载内置插件。操作系统符号链接无法进入该文件系统，因此打包运行会在 `$QILIN_HOME/profiles/node_modules` 下维护小型真实 ESM 代理包。每个代理复现运行时的显式导出项、记录原包身份，并重新导出虚拟模块 URL。因此，内置配置项与外部插件 peer 会共享同一个 Cordis／模块实例。原生共享库与 Windows ConPTY addon 会同其他原生 addon 一起打包；ripgrep 与 macOS PTY helper 仍是可执行伴随程序。
+`qilin` 在显式指定的主目录下初始化随附 profile、组合其 bundle patch，并从可执行程序的虚拟文件系统加载内置插件。操作系统符号链接无法进入该文件系统，因此打包运行会在 `$QILIN_HOME/profiles/node_modules` 下维护小型真实 ESM 代理包。每个代理复现运行时的显式导出项、记录原包身份，并重新导出虚拟模块 URL。因此，内置配置项与外部插件 peer 会共享同一个 Cordis／模块实例。
+
+`@qilin-agent/base` 等官方组合包经安装锚（`installAnchor`）解析，而不走闭包依赖图：私有 manifest 是部署根，profile 列出而安装实例不携带的组合包会让启动失败，并在诊断中点名该组合包与原因。base 因此被有意排除在打包 manifest 之外——若在其中声明它，会经 `session-telemetry-otel` 与 `message-feedback` 形成闭环，被 `verify-runtime-closure` 拒绝。以闭包形态部署、又在 profile 中挂载 base 的形态必须自行提供该包；参照做法是下游产品显式补挂 `credentials → @qilin-agent/credentials-local` 层，该模块本就经闭包传递依赖在场。原生共享库与 Windows ConPTY addon 会同其他原生 addon 一起打包；ripgrep 与 macOS PTY helper 仍是可执行伴随程序。
 
 Python 与打包的 bootstrap 共享资源布局：`<cache>/<identity>/office/`、`node/bin/node[.exe]` 与 `node_modules/@deepseek-ai/libreoffice-kit/lib/cli.js`。自动发现 Office 缓存要求 `complete` 标记匹配清单 identity；显式 `QILIN_OFFICE_SIDECAR` 要求 Node 与 CLI 文件存在。Python bootstrap 从显式下载或选择的 sidecar 解析 Office kit，让原生辅助程序与 URL Worker 使用真实文件系统路径。kit 负责文档操作；Python bootstrap 不增加运行时下载或编译。
 

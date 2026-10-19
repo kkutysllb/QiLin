@@ -89,7 +89,7 @@ interface TlsConfig {
 
 ## 服务
 
-`WebServer`（`ctx.webServer`）在激活时立即监听；监听失败（EADDRINUSE 等）会使初始化被拒绝，启动进程会报告失败的 fiber。`tls` 这一对文件在监听器绑定前读取一次，因此不可读、为空、非法或不匹配都会以同样方式拒绝初始化，而不会回落到 HTTP。`register(route)` 添加一条具名路由并返回其 disposer；重复的 `(kind, path)` 抛出异常，因为路由模式是组合层约定，冲突即配置错误。Gzip 在服务器内部包装符合条件且基于 socket 的响应，因此 route handler 继续直接持有 `ServerResponse`，服务也不新增响应写出 API。已有内容编码、`Cache-Control: no-transform`、范围响应、SSE、ZIP 与打包后的 `.gz` Worker 镜像均保持 identity 响应。`collectIndexInjections()` 经一次 `webserver/index-inject` emit 收集结构化 `IndexInjection` 行，`renderIndex(html)` 把它们渲染进成功的根路径和配置 index 响应，随后再按注册顺序应用原始的 `tapIndex(transform)` 逃生口转换；[qilin-client-modules](../../packages/client/modules) 以启动 manifest（元数据清单）行回应该事件。`port` 读取监听端口，包括 `config.port` 为 0 时操作系统分配的端口。
+`WebServer`（`ctx.webServer`）在激活时立即监听；监听失败（EADDRINUSE 等）会使初始化被拒绝，启动进程会报告失败的 fiber。`tls` 这一对文件在监听器绑定前读取一次，因此不可读、为空、非法或不匹配都会以同样方式拒绝初始化，而不会回落到 HTTP。`register(route)` 添加一条具名路由并返回其 disposer；注册归属于发起调用的 fiber，因此插件行被释放或 `apply` 失败时会回收该注册；重复的 `(kind, path)` 抛出异常并指明当前占用者，因为路由模式是组合层约定，冲突即配置错误；占用者 fiber 已被释放时则回收该注册。Gzip 在服务器内部包装符合条件且基于 socket 的响应，因此 route handler 继续直接持有 `ServerResponse`，服务也不新增响应写出 API。已有内容编码、`Cache-Control: no-transform`、范围响应、SSE、ZIP 与打包后的 `.gz` Worker 镜像均保持 identity 响应。`collectIndexInjections()` 经一次 `webserver/index-inject` emit 收集结构化 `IndexInjection` 行，`renderIndex(html)` 把它们渲染进成功的根路径和配置 index 响应，随后再按注册顺序应用原始的 `tapIndex(transform)` 逃生口转换；[qilin-client-modules](../../packages/client/modules) 以启动 manifest（元数据清单）行回应该事件。`port` 读取监听端口，包括 `config.port` 为 0 时操作系统分配的端口。
 
 处理过程中抛出异常的请求（畸形的 % 转义撞上 `decodeURIComponent`、客户端在请求体中途断开）会记录为警告并应答 400（响应头已发出时则销毁 socket），绝不导致进程退出。dispose（资源释放）把 `close()` 与 `closeAllConnections()` 配对使用，因为处理器可能像 SSE（Server-Sent Events）那样保持响应打开，而这类连接永远不会自行结束；没有强制关闭，拆卸就会挂起。该包从不打印输出：URL 行归 shell 所有。逐包运维细节（含开发模式的 bundle 监视流水线）留在 [README](../../packages/host/webserver/README.zh.md) 中。
 
@@ -186,16 +186,23 @@ The browser HTTP carrier service. `listenOn` (see Config) decides when the socke
 whenListened(): Promise<void>
 
 /**
- * Register a named route. Duplicate (kind, path) throws — route patterns are
- * a composition-level contract, so a collision is a misconfiguration.
+ * Register a named route, owned by the calling fiber: the route leaves the
+ * table when the returned disposer runs or that fiber unloads, including a
+ * plugin that throws after registering. Duplicate (kind, path) throws and
+ * names the incumbent owner — route patterns are a composition-level
+ * contract, so a collision is a misconfiguration — unless the incumbent's
+ * fiber is already disposed, which reclaims the stale entry.
  * @param route - kind, path, and the owning handler.
  * @returns the disposer removing the route.
  */
 register(route: WebRoute): () => void
 
 /**
- * Register an exact-path HTTP upgrade route. Duplicate paths throw because
- * one socket can have only one protocol owner.
+ * Register an exact-path HTTP upgrade route, owned by the calling fiber:
+ * the route leaves the table when the returned disposer runs or that fiber
+ * unloads. Duplicate paths throw and name the incumbent owner because one
+ * socket can have only one protocol owner, unless the incumbent's fiber is
+ * already disposed, which reclaims the stale entry.
  * @param route - pathname and handler owning negotiation plus socket use.
  * @returns the disposer removing the route.
  */
@@ -203,9 +210,11 @@ registerUpgrade(route: WebUpgradeRoute): () => void
 
 /**
  * Claim the fallback seat: the handler answering every request no named
- * route matches (the SPA dist server in the shipped Web composition). One
- * owner only — a second registration throws, because two fallbacks cannot
- * compose.
+ * route matches (the SPA dist server in the shipped Web composition), owned
+ * by the calling fiber and released with its disposer or on unload. One
+ * owner only — a second registration throws and names the incumbent because
+ * two fallbacks cannot compose, unless the incumbent's fiber is already
+ * disposed, which reclaims the stale seat.
  * @param handler - owns the full response lifecycle of unmatched requests.
  * @returns the disposer releasing the seat.
  */

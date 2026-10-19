@@ -3711,19 +3711,19 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
       },
       {
         signature: 'register(route: WebRoute): () => void',
-        description: 'Register a named route. Duplicate (kind, path) throws — route patterns are a composition-level contract, so a collision is a misconfiguration.',
+        description: 'Register a named route, owned by the calling fiber: the route leaves the table when the returned disposer runs or that fiber unloads, including a plugin that throws after registering. Duplicate (kind, path) throws and names the incumbent owner — route patterns are a composition-level contract, so a collision is a misconfiguration — unless the incumbent\'s fiber is already disposed, which reclaims the stale entry.',
         parameters: [{ name: 'route', description: 'kind, path, and the owning handler.' }],
         returns: 'the disposer removing the route.',
       },
       {
         signature: 'registerUpgrade(route: WebUpgradeRoute): () => void',
-        description: 'Register an exact-path HTTP upgrade route. Duplicate paths throw because one socket can have only one protocol owner.',
+        description: 'Register an exact-path HTTP upgrade route, owned by the calling fiber: the route leaves the table when the returned disposer runs or that fiber unloads. Duplicate paths throw and name the incumbent owner because one socket can have only one protocol owner, unless the incumbent\'s fiber is already disposed, which reclaims the stale entry.',
         parameters: [{ name: 'route', description: 'pathname and handler owning negotiation plus socket use.' }],
         returns: 'the disposer removing the route.',
       },
       {
         signature: 'registerFallback(handler: WebRoute[\'handler\']): () => void',
-        description: 'Claim the fallback seat: the handler answering every request no named route matches (the SPA dist server in the shipped Web composition). One owner only — a second registration throws, because two fallbacks cannot compose.',
+        description: 'Claim the fallback seat: the handler answering every request no named route matches (the SPA dist server in the shipped Web composition), owned by the calling fiber and released with its disposer or on unload. One owner only — a second registration throws and names the incumbent because two fallbacks cannot compose, unless the incumbent\'s fiber is already disposed, which reclaims the stale seat.',
         parameters: [{ name: 'handler', description: 'owns the full response lifecycle of unmatched requests.' }],
         returns: 'the disposer releasing the seat.',
       },

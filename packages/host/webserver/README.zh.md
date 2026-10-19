@@ -42,11 +42,11 @@ kind: "package-reference"
 
 ### 注册路由
 
-`register(route)` 添加具名的 `exact`／`prefix` HTTP route，`registerUpgrade(route)` 为精确 pathname 添加 upgrade route，两者返回的 disposer 都会移除注册。同一张表内的重复路径会抛错——route 模式是组合层约定，冲突即配置错误。HTTP 匹配先在整张表中匹配精确 route，再匹配最长前缀，最后交给回退 handler；upgrade 只做精确匹配，未命中连接直接关闭。
+`register(route)` 添加具名的 `exact`／`prefix` HTTP route，`registerUpgrade(route)` 为精确 pathname 添加 upgrade route。每次注册都归属于发起调用的 fiber：返回的 disposer 可提前移除注册，而该 fiber 卸载时——主动 dispose、`apply` 失败或热替换——即使调用方没有保存 disposer，注册也会随 fiber 一起移除。同一张表内的重复路径会抛错并指出当前占用者（Loader entry id、插件名、fiber id）——route 模式是组合层约定，冲突即配置错误。若当前占用者的 fiber 已被释放，则会回收该陈旧条目，因此即使在旧占用者排队的清理完成前挂载替代者，也能认领该 path。HTTP 匹配先在整张表中匹配精确 route，再匹配最长前缀，最后交给回退 handler；upgrade 只做精确匹配，未命中连接直接关闭。
 
 ### 回退席位
 
-`registerFallback(handler)` 认领所有未被具名 route 命中的请求的唯一一个 handler。第二次注册会抛错；没有注册回退时服务器回答 404。在随附的 Web 组合中，[SPA dist 服务器](../frontend-static/README.zh.md)拥有该席位，并对其渲染的每个 index 响应调用 `renderIndex`。
+`registerFallback(handler)` 认领所有未被具名 route 命中的请求的唯一一个 handler。第二次注册会抛错并指出当前占用者，占用者 fiber 已被释放时同样会回收该席位；没有注册回退时服务器回答 404。在随附的 Web 组合中，[SPA dist 服务器](../frontend-static/README.zh.md)拥有该席位，并对其渲染的每个 index 响应调用 `renderIndex`。
 
 index 启动输入分两层。`collectIndexInjections()` 收集一张全新的注入表——每次调用发一次 `webserver/index-inject` 事件，每个订阅方推入其当前行——`renderIndex(html)` 先把这些行渲染进 index.html 正文，再按注册顺序应用原始 `tapIndex(transform)` 转换。`script-preload` 行会渲染为 classic script 的提示性 preload 链接。静态部署会在启动 payload 中携带同一批行。`applyIndexTaps(html)` 只应用原始转换；它是任何行都无法表达的标记的逃生口。
 

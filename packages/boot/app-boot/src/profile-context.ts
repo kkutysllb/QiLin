@@ -56,24 +56,32 @@ export function resolveTelemetryPatch(disabledEnv: string | undefined, hasRow: b
 
 /**
  * Read the current bundle layers patches.
+ * A recovery read tolerates a broken layer and records it in the profile's
+ * `skippedBundles`, so a manager can still list and remove it; the boot path
+ * loads the profile through {@link loadProfileDirectory} first, where it stays fatal.
  * @param binName - diagnostic prefix for a malformed or missing configuration.
  * @param context - data supplied by the profile launcher.
  * @param initialProfile - already loaded startup profile; omitted reads the current files.
  * @returns the bundle layers patches in application order.
  */
 export function readBundlePatches(binName: string, context: ProfileContext, initialProfile?: Profile): PatchOptions[] {
-  const profile = initialProfile ?? loadProfileDirectory(binName, context.dir, context.installAnchor, { userLayer: false })
+  const profile = initialProfile ?? loadProfileDirectory(binName, context.dir, context.installAnchor, {
+    userLayer: false, tolerateSkippedBundles: true,
+  })
   return profile.layers.flatMap(layer => layer.patches)
 }
 
 /** Read current bundle and user layers with the launch-time overlays.
+ * A recovery read tolerates a broken layer; see {@link readBundlePatches}.
  * @param binName Diagnostic prefix for malformed or missing configuration.
  * @param context Data supplied by the profile launcher.
  * @param initialProfile Already loaded startup profile; omitted reads the current files.
  * @returns Detached ordered patches; this function does not update the Loader.
  */
 export function readProfilePatches(binName: string, context: ProfileContext, initialProfile?: Profile): PatchOptions[] {
-  const profile = initialProfile ?? loadProfileDirectory(binName, context.dir, context.installAnchor, { userLayer: false })
+  const profile = initialProfile ?? loadProfileDirectory(binName, context.dir, context.installAnchor, {
+    userLayer: false, tolerateSkippedBundles: true,
+  })
   const patches = structuredClone([
     ...readBundlePatches(binName, context, profile),
     ...(initialProfile?.patches ?? loadOptionalPatches(binName, context.patchPath) ?? []),

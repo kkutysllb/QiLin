@@ -190,7 +190,7 @@ export function apply(ctx: Context, config: Config): void {
     return true
   }
 
-  ctx.effect(() => ctx.webServer.register({
+  ctx.webServer.register({
     kind: 'exact',
     path: OPEN_IN_APP_APPS_PATH,
     handler: async (req, res) => {
@@ -201,9 +201,9 @@ export function apply(ctx: Context, config: Config): void {
       }
       sendJson(res, 200, { apps: [...(await availability()).keys()] })
     },
-  }), `open-in-app: GET ${OPEN_IN_APP_APPS_PATH}`)
+  })
 
-  ctx.effect(() => ctx.webServer.register({
+  ctx.webServer.register({
     kind: 'prefix',
     path: OPEN_IN_APP_ICON_PREFIX_PATH,
     handler: async (req, res) => {
@@ -236,9 +236,9 @@ export function apply(ctx: Context, config: Config): void {
       res.setHeader('cache-control', 'public, max-age=3600')
       res.end(icon.bytes)
     },
-  }), `open-in-app: GET ${OPEN_IN_APP_ICON_PREFIX_PATH}/<id>`)
+  })
 
-  ctx.effect(() => ctx.webServer.register({
+  ctx.webServer.register({
     kind: 'exact',
     path: OPEN_IN_APP_OPEN_PATH,
     handler: async (req, res) => {
@@ -307,5 +307,5 @@ export function apply(ctx: Context, config: Config): void {
         sendJson(res, 502, { code: 'launch-failed', message: `failed to launch ${app.id}` })
       }
     },
-  }), `open-in-app: POST ${OPEN_IN_APP_OPEN_PATH}`)
+  })
 }

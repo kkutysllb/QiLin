@@ -14,7 +14,7 @@ import { createServer as createSecureServer } from 'node:https'
 import { isIP, type AddressInfo } from 'node:net'
 import { resolve } from 'node:path'
 import type { Duplex } from 'node:stream'
-import { Context, Service } from '@qilin-agent/kylin'
+import { Context, Service, type Fiber } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
 import compressionMiddleware from 'compression'
 import ipaddr from 'ipaddr.js'
@@ -138,6 +138,43 @@ type NodeMiddleware = (
   res: ServerResponse,
   next: () => void,
 ) => void
+
+/** One registration's owning fiber and its diagnostic label. */
+interface RegistrationOwner {
+  /** Diagnostic label built from the registering fiber at registration time. */
+  label: string
+  /** The owning fiber; `uid === null` means it was disposed before its cleanup settled. */
+  fiber: Fiber
+}
+
+/** One stored registration: its route or handler and the fiber that owns it. */
+interface RegistrationClaim<T> {
+  /** Route object or fallback handler at the table key. */
+  value: T
+  /** Registering fiber, retained for diagnostics and dead-owner reclamation. */
+  owner: RegistrationOwner
+}
+
+/**
+ * Name the fiber that owns one registration, for duplicate diagnostics: the
+ * Loader entry id when the fiber runs an entry, the plugin runtime name, and
+ * the fiber id.
+ * @param fiber - the fiber whose effect holds the registration.
+ * @returns a one-clause owner description without surrounding parentheses.
+ */
+function ownerName(fiber: Fiber): string {
+  // The Loader augments Fiber with its entry; reading it structurally keeps
+  // this package independent of the Loader's types.
+  const entry = (fiber as { entry?: { id?: unknown } }).entry
+  const entryId = typeof entry?.id === 'string' ? entry.id : undefined
+  const plugin = fiber.runtime?.name
+  const parts: string[] = []
+  if (entryId !== undefined) parts.push(`entry "${entryId}"`)
+  if (plugin !== undefined) parts.push(`plugin "${plugin}"`)
+  if (parts.length === 0) parts.push('an unnamed source')
+  parts.push(`fiber #${String(fiber.uid)}`)
+  return parts.join(', ')
+}
 
 /** Dotted-quad tail of the IPv6 mixed notation: `::0.0.0.1`, `1:2:3:4:5:6:127.0.0.1`. */
 const IPV4_TAIL = /^(.*:)(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/
@@ -299,9 +336,9 @@ export class WebServer extends Service {
     listenOn: z.union([z.const('activate'), z.const('settle')]).default(DEFAULT_LISTEN_ON),
   })
 
-  private readonly exact = new Map<string, WebRoute>()
-  private readonly prefixes = new Map<string, WebRoute>()
-  private readonly upgrades = new Map<string, WebUpgradeRoute>()
+  private readonly exact = new Map<string, RegistrationClaim<WebRoute>>()
+  private readonly prefixes = new Map<string, RegistrationClaim<WebRoute>>()
+  private readonly upgrades = new Map<string, RegistrationClaim<WebUpgradeRoute>>()
   private readonly upgradedSockets = new Set<Duplex>()
   /**
    * Raw connections of a TLS listener, held until they close. A TLS connection
@@ -312,7 +349,7 @@ export class WebServer extends Service {
    */
   private readonly tlsConnections = new Set<Duplex>()
   private readonly indexTaps: ((html: string) => string)[] = []
-  private fallback: WebRoute['handler'] | undefined
+  private fallback: RegistrationClaim<WebRoute['handler']> | undefined
   private server!: Server
   private listenedPort!: number
   private readonly gzip: NodeMiddleware | undefined
@@ -367,48 +404,103 @@ export class WebServer extends Service {
   }
 
   /**
-   * Register a named route. Duplicate (kind, path) throws — route patterns are
-   * a composition-level contract, so a collision is a misconfiguration.
+   * Register a named route, owned by the calling fiber: the route leaves the
+   * table when the returned disposer runs or that fiber unloads, including a
+   * plugin that throws after registering. Duplicate (kind, path) throws and
+   * names the incumbent owner — route patterns are a composition-level
+   * contract, so a collision is a misconfiguration — unless the incumbent's
+   * fiber is already disposed, which reclaims the stale entry.
    * @param route - kind, path, and the owning handler.
    * @returns the disposer removing the route.
    */
   register(route: WebRoute): () => void {
     const table = route.kind === 'exact' ? this.exact : this.prefixes
-    if (table.has(route.path)) {
-      throw new Error(`webserver: duplicate ${route.kind} route "${route.path}"`)
-    }
-    table.set(route.path, route)
-    return () => { table.delete(route.path) }
+    return this.claim(table, route.path, route,
+      `webServer.register(${route.kind} ${JSON.stringify(route.path)})`,
+      () => `duplicate ${route.kind} route ${JSON.stringify(route.path)}`)
   }
 
   /**
-   * Register an exact-path HTTP upgrade route. Duplicate paths throw because
-   * one socket can have only one protocol owner.
+   * Register an exact-path HTTP upgrade route, owned by the calling fiber:
+   * the route leaves the table when the returned disposer runs or that fiber
+   * unloads. Duplicate paths throw and name the incumbent owner because one
+   * socket can have only one protocol owner, unless the incumbent's fiber is
+   * already disposed, which reclaims the stale entry.
    * @param route - pathname and handler owning negotiation plus socket use.
    * @returns the disposer removing the route.
    */
   registerUpgrade(route: WebUpgradeRoute): () => void {
-    if (this.upgrades.has(route.path)) {
-      throw new Error(`webserver: duplicate upgrade route "${route.path}"`)
-    }
-    this.upgrades.set(route.path, route)
-    return () => { this.upgrades.delete(route.path) }
+    return this.claim(this.upgrades, route.path, route,
+      `webServer.registerUpgrade(${JSON.stringify(route.path)})`,
+      () => `duplicate upgrade route ${JSON.stringify(route.path)}`)
   }
 
   /**
    * Claim the fallback seat: the handler answering every request no named
-   * route matches (the SPA dist server in the shipped Web composition). One
-   * owner only — a second registration throws, because two fallbacks cannot
-   * compose.
+   * route matches (the SPA dist server in the shipped Web composition), owned
+   * by the calling fiber and released with its disposer or on unload. One
+   * owner only — a second registration throws and names the incumbent because
+   * two fallbacks cannot compose, unless the incumbent's fiber is already
+   * disposed, which reclaims the stale seat.
    * @param handler - owns the full response lifecycle of unmatched requests.
    * @returns the disposer releasing the seat.
    */
   registerFallback(handler: WebRoute['handler']): () => void {
-    if (this.fallback !== undefined) {
-      throw new Error('webserver: fallback already registered')
-    }
-    this.fallback = handler
-    return () => { this.fallback = undefined }
+    // Same caller-fiber binding as claim().
+    return this.ctx.effect(() => {
+      const incumbent = this.fallback
+      if (incumbent !== undefined && incumbent.owner.fiber.uid !== null) {
+        throw new Error(`webserver: fallback already registered (owned by ${incumbent.owner.label})`)
+      }
+      // A disposed owner's queued cleanup cannot reclaim the seat, so the new
+      // claim replaces it; the superseded disposer checks claim identity.
+      const claim: RegistrationClaim<WebRoute['handler']> = {
+        value: handler,
+        owner: { label: ownerName(this.ctx.fiber), fiber: this.ctx.fiber },
+      }
+      this.fallback = claim
+      return () => {
+        if (this.fallback === claim) this.fallback = undefined
+      }
+    }, 'webServer.registerFallback()')
+  }
+
+  /**
+   * Add a table entry under the calling fiber's effect, so disposal of the
+   * effect or unload of that fiber removes it. The owner label survives on the
+   * entry for duplicate diagnostics.
+   * @param table - exact, prefix, or upgrade route table.
+   * @param path - registration key within the table.
+   * @param value - route stored at the key.
+   * @param label - effect label for fiber diagnostics.
+   * @param conflict - duplicate diagnostic phrase naming kind and path.
+   * @returns the effect disposer removing the entry.
+   */
+  private claim<T>(
+    table: Map<string, RegistrationClaim<T>>,
+    path: string,
+    value: T,
+    label: string,
+    conflict: () => string,
+  ): () => void {
+    // The traceable service proxy resolves `this.ctx` to the calling context,
+    // so this effect and its cleanup belong to the registering fiber.
+    return this.ctx.effect(() => {
+      const incumbent = table.get(path)
+      // A disposed owner's queued cleanup can no longer reclaim the entry, so
+      // a replacement replaces it; the old disposer checks claim identity.
+      if (incumbent !== undefined && incumbent.owner.fiber.uid !== null) {
+        throw new Error(`webserver: ${conflict()} (owned by ${incumbent.owner.label})`)
+      }
+      const claim: RegistrationClaim<T> = {
+        value,
+        owner: { label: ownerName(this.ctx.fiber), fiber: this.ctx.fiber },
+      }
+      table.set(path, claim)
+      return () => {
+        if (table.get(path) === claim) table.delete(path)
+      }
+    }, label)
   }
 
   /**
@@ -437,7 +529,7 @@ export class WebServer extends Service {
         await route.handler(req, res)
         return
       }
-      const fallback = this.fallback
+      const fallback = this.fallback?.value
       if (fallback === undefined) {
         res.writeHead(404)
         res.end()
@@ -494,22 +586,22 @@ export class WebServer extends Service {
         socket.off('error', onError)
         this.upgradedSockets.delete(socket)
       })
-      let route: WebUpgradeRoute | undefined
+      let claim: RegistrationClaim<WebUpgradeRoute> | undefined
       try {
         /* v8 ignore next -- node:http always sets url on server requests. */
-        route = this.upgrades.get(new URL(req.url ?? '/', 'http://x').pathname)
+        claim = this.upgrades.get(new URL(req.url ?? '/', 'http://x').pathname)
       } catch (error) {
         this.ctx.logger.warn(error instanceof Error ? error : new Error(String(error)))
         socket.destroy()
         return
       }
-      if (route === undefined) {
+      if (claim === undefined) {
         socket.destroy()
         return
       }
       this.upgradedSockets.add(socket)
       try {
-        Promise.resolve(route.handler(req, socket, head)).catch((error: unknown) => {
+        Promise.resolve(claim.value.handler(req, socket, head)).catch((error: unknown) => {
           this.ctx.logger.warn(error instanceof Error ? error : new Error(String(error)))
           socket.destroy()
         })
@@ -590,12 +682,16 @@ export class WebServer extends Service {
 
   /** Longest-prefix-wins over the prefix table after an exact-table miss. */
   private match(pathname: string): WebRoute | undefined {
-    const exact = this.exact.get(pathname)
+    const exact = this.exact.get(pathname)?.value
     if (exact !== undefined) return exact
     let best: WebRoute | undefined
-    for (const [prefix, route] of this.prefixes) {
+    let bestLength = -1
+    for (const [prefix, claim] of this.prefixes) {
       if (pathname !== prefix && !pathname.startsWith(`${prefix}/`)) continue
-      if (best === undefined || prefix.length > best.path.length) best = route
+      if (prefix.length > bestLength) {
+        best = claim.value
+        bestLength = prefix.length
+      }
     }
     return best
   }

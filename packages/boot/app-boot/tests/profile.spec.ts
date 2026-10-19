@@ -611,7 +611,8 @@ describe('loadProfile', () => {
     initProfile(dir, ['guarded', 'kept'])
 
     // A bundle is not a plugin row, so row admission never reads its own peers: the profile loader is
-    // the only gate that can reject it, and it records the rejection instead of failing the startup.
+    // the only gate that can reject it. Version skew the profile can exempt is a compatibility
+    // condition, not an unresolvable layer, so it is recorded while the sibling layers still boot.
     const skipped = loadProfileDirectory('qilin', dir, anchor)
     expect(skipped.layers.map(layer => layer.packageName)).toEqual(['kept'])
     expect(skipped.skippedBundles.map(entry => entry.packageName)).toEqual(['guarded'])
@@ -828,15 +829,39 @@ describe('loadProfile', () => {
     ])
   })
 
-  it('records a listed bundle that declares no qilin.bundle instead of failing the startup', () => {
+  it('fails loud when a listed bundle cannot be resolved, naming the bundle and the reason', () => {
+    // The package is installed neither in the staged installation nor in the
+    // profile: a listed layer that resolves nowhere is authoritative
+    // misconfiguration, and dropping it would hide the missing deployment.
+    const anchor = stageInstallation({})
+    const home = tmp()
+    const dir = resolveProfileDir('demo', home)
+    initProfile(dir, ['absent-bundle'])
+    expect(() => loadProfile('t', 'demo', anchor, home)).toThrow('cannot resolve profile bundle "absent-bundle"')
+  })
+
+  it('fails loud when a listed bundle declares no qilin.bundle', () => {
     const anchor = stageInstallation({ 'not-a-bundle': {} })
     const home = tmp()
     const dir = resolveProfileDir('demo', home)
     initProfile(dir, ['not-a-bundle'])
-    const profile = loadProfile('t', 'demo', anchor, home)
-    expect(profile.layers).toEqual([])
-    expect(profile.skippedBundles.map(entry => entry.packageName)).toEqual(['not-a-bundle'])
-    expect(profile.skippedBundles[0]?.reason).toContain('declares no qilin.bundle')
+    expect(() => loadProfile('t', 'demo', anchor, home)).toThrow('profile bundle "not-a-bundle" declares no qilin.bundle')
+  })
+
+  it('fails loud when a listed bundle manifest cannot be parsed, naming the bundle', () => {
+    const anchor = stageInstallation({ 'broken-manifest': {} })
+    writeFileSync(join(dirname(anchor), 'node_modules', 'broken-manifest', 'package.json'), '{')
+    const home = tmp()
+    const dir = resolveProfileDir('demo', home)
+    initProfile(dir, ['broken-manifest'])
+    expect(() => loadProfile('t', 'demo', anchor, home)).toThrow(
+      'profile bundle "broken-manifest" has an unreadable manifest',
+    )
+    // The plugin manager's recovery read opts into the record so it can list and remove the layer.
+    const recovered = loadProfileDirectory('t', dir, anchor, { tolerateSkippedBundles: true })
+    expect(recovered.layers).toEqual([])
+    expect(recovered.skippedBundles.map(entry => entry.packageName)).toEqual(['broken-manifest'])
+    expect(recovered.skippedBundles[0]?.reason).toContain('unreadable manifest')
   })
 })
 

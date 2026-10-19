@@ -171,7 +171,7 @@ export function apply(ctx: Context, config: Config): void {
   /** The composition's rejection for one request, or undefined when admitted. */
   const rejectionOf = (req: IncomingMessage): number | undefined => connection.requestRejection(req)
 
-  ctx.effect(() => ctx.webServer.register({
+  ctx.webServer.register({
     kind: 'prefix',
     path: PREVIEW_MEDIA_PATH,
     handler: async (req, res) => {
@@ -233,7 +233,7 @@ export function apply(ctx: Context, config: Config): void {
         writeError(res, error)
       }
     },
-  }), `preview-media: GET/HEAD ${PREVIEW_MEDIA_PATH}`)
+  })
 
   /** Buffer one request body up to a byte ceiling; the caller names its limit. */
   const readBody = async (req: IncomingMessage, limit: number): Promise<Buffer> => {
@@ -248,7 +248,7 @@ export function apply(ctx: Context, config: Config): void {
     return Buffer.concat(chunks)
   }
 
-  ctx.effect(() => ctx.webServer.register({
+  ctx.webServer.register({
     kind: 'exact',
     path: `${PREVIEW_MEDIA_PATH}/upload`,
     handler: async (req, res) => {
@@ -280,7 +280,7 @@ export function apply(ctx: Context, config: Config): void {
         writeError(res, error)
       }
     },
-  }), `preview-media: PUT ${PREVIEW_MEDIA_PATH}/upload`)
+  })
 }
 
 /** Cordis row Config schema: the media limit is a positive byte count. */
