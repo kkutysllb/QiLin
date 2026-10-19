@@ -1,6 +1,6 @@
 /** Models section registration: slot declaration injection, the locale-following label thunk, and HMR recovery. */
 import { Context } from '@qilin-agent/kylin'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
 import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
@@ -9,7 +9,9 @@ import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/c
 import { apply, inject, refreshIfLoaded } from '@qilin-agent/client-ui-settings-models/client'
 import { ModelsSection } from '../src/client/ModelsSection.tsx'
 import { DeepSeekOnboardingDialog } from '../src/client/DeepSeekOnboardingDialog.tsx'
-import { apply as hostApply } from '../src/index.ts'
+import * as hostPlugin from '../src/index.ts'
+import { ONBOARDING_CONFIG_GLOBAL } from '../src/onboarding-config.ts'
+import type { IndexInjection } from '@qilin-agent/host-webserver'
 
 // These specs assert the shipped Chinese copy. The lane has no jsdom `window`,
 // so browser-language detection never runs and a fresh LocaleRuntime opens on
@@ -58,8 +60,56 @@ function declare(slots: SlotRegistry): () => void {
 }
 
 describe('ui-settings-models apply', () => {
-  it('keeps the host Loader entry inert', () => {
-    expect(hostApply).not.toThrow()
+  afterEach(() => { vi.unstubAllGlobals() })
+
+  it('publishes the credential-onboarding choice through the index injection', async () => {
+    const ctx = new Context()
+    try {
+      const host = ctx.plugin(hostPlugin, { credentialOnboarding: false })
+      await host.await()
+      const rows: IndexInjection[] = []
+      ctx.emit('webserver/index-inject', rows)
+      expect(rows).toEqual([{ kind: 'global', name: ONBOARDING_CONFIG_GLOBAL, value: { credentialOnboarding: false } }])
+      await host.dispose()
+      const after: IndexInjection[] = []
+      ctx.emit('webserver/index-inject', after)
+      expect(after).toEqual([])
+    } finally {
+      await ctx.fiber.dispose()
+    }
+  })
+
+  it('defaults to browser credential onboarding and rejects a malformed bootstrap payload', () => {
+    expect(hostPlugin.Config({})).toEqual({ credentialOnboarding: true })
+    const ctx = new Context()
+    try {
+      vi.stubGlobal(ONBOARDING_CONFIG_GLOBAL, { credentialOnboarding: 'false' })
+      expect(() => { apply(ctx) }).toThrow()
+    } finally {
+      void ctx.fiber.dispose()
+    }
+  })
+
+  it('registers the DeepSeek onboarding step only when the Host leaves it to the browser', async () => {
+    const explicit = await bench()
+    declare(explicit.slots)
+    vi.stubGlobal(ONBOARDING_CONFIG_GLOBAL, { credentialOnboarding: true })
+    await explicit.ctx.plugin({ inject: [...inject], apply }).await()
+    expect(explicit.slots.entries('settings.onboarding').map(entry => entry.options.id)).toEqual(['deepseek-official'])
+
+    const absent = await bench()
+    declare(absent.slots)
+    vi.unstubAllGlobals()
+    await absent.ctx.plugin({ inject: [...inject], apply }).await()
+    // No published payload keeps the browser step: the Host default is true.
+    expect(absent.slots.entries('settings.onboarding').map(entry => entry.options.id)).toEqual(['deepseek-official'])
+
+    const disabled = await bench()
+    declare(disabled.slots)
+    vi.stubGlobal(ONBOARDING_CONFIG_GLOBAL, { credentialOnboarding: false })
+    await disabled.ctx.plugin({ inject: [...inject], apply }).await()
+    expect(disabled.slots.entries('settings.onboarding')).toEqual([])
+    expect(disabled.slots.entries('settings.section').map(entry => entry.options.id)).toEqual(['models'])
   })
 
   it('declares the services it uses', () => {

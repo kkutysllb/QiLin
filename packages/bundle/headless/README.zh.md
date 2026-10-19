@@ -65,6 +65,22 @@ agent 会完成该任务，把提供方的每个非空推理（reasoning）增�
 
 `qilin --profile headless --help` 打印该命令的帮助文本并直接退出，不运行任何内容。只有空白的位置参数本身就属于用法错误——什么都不运行，进程退出 1，即使 stdin 不是终端也一样，因此误传的空白参数绝不会消费管道内容。完全缺失任务时，仅在 stdin 是终端时属于用法错误；stdin 不是终端时，runner 改从 stdin 读取任务，并以同样方式拒绝空结果。单独的 `-` 是唯一的 stdin 标记；把它与其他任务词混用属于用法错误，而不是以连字符开头的任务。在 `--json` 模式下，所有用法错误——包括 commander 自身的语法拒绝，例如未知选项或选项缺少取值——都会在进程退出前向 stdout 写出 `error` 事件，因此按行解析的监督进程即使 runner 从未挂载也能看到格式良好的事件流；事件 `message` 中的文本不带 commander 的 `error: ` 前缀。
 
+<a id="credentials"></a>
+### 凭据
+
+随附的 headless profile 禁用受管凭据存储，一次性任务改用启动环境认证，其次 `<invocation cwd>/.env`，再次 `$QILIN_HOME/.env`。GUI 保存的密钥与登录态在不改动其文件的情况下会被忽略。启动环境优先于恢复后的存储；解析顺序见 [credentials-local](../../credentials/credentials-local/README.zh.md)。外部提供方凭据链（如 AWS profile）仍然可用。
+
+清空启动变量即可让 `.env` 兜底生效；导出的空值会遮蔽该兜底。
+
+要恢复存储认证，向 `$QILIN_HOME/profiles/headless/cordis.patch.yml` 或 `--patch` 覆盖层加入这一行：
+
+```yaml
+- id: credentials
+  disabled: false
+```
+
+headless 的会话、设置与工具行为不受影响；这一 profile 选择不是文件系统访问边界。
+
 -----
 
 <a id="understand-the-implementation"></a>

@@ -55,11 +55,16 @@
     "@qilin-agent/client-ui-primitives": "workspace:*",
     "@qilin-agent/client-ui-settings": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/host-webserver": "workspace:*",
     "@types/react": "~18.3.1",
+    "@testing-library/react": "^16.3.2",
     "@qilin-agent/kylin": "workspace:~",
     "react": "^18.2.0",
     "@qilin-agent/client-ui-renderer": "workspace:*",
     "@qilin-agent/util-values": "workspace:*"
+  },
+  "dependencies": {
+    "@qilin-agent/schemastery": "workspace:~"
   },
   "files": [
     "lib/index.js",

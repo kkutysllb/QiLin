@@ -28,6 +28,7 @@ import type {
   CredentialInfo, LlmNativeAuth, SettingsNamespaceView, SettingsPathOpView,
 } from '@qilin-agent/api-remotes/client'
 import type { JsonValue } from '@qilin-agent/util-values'
+import { Tooltip } from '@qilin-agent/client-ui-primitives'
 import {
   DeepSeekModelsEditor, modelDrafts, validateDeepSeekModels,
 } from './DeepSeekModelsEditor.tsx'
@@ -70,10 +71,14 @@ export interface ProviderEditorProps {
   namespace: SettingsNamespaceView
   /** Settings-owned synchronous schema and immutable path operations. */
   schema: SettingsSchemaOperations
+  /** Endpoint the route uses when its profile sets no `baseURL`; absent when the adapter reports none. */
+  defaultBaseURL?: string
   /** Environment variables used by the provider to construct its endpoint. */
   baseURLEnv?: readonly string[]
   /** Authentication the route performs when its profile names no credential reference; absent when the adapter reports none. */
   nativeAuth?: LlmNativeAuth
+  /** Redacted state of the profile's named credential reference, from the page snapshot. */
+  credential?: CredentialInfo
   /** Redacted checks for the profile's named reference or the provider's native variables. */
   credentialChecks?: Readonly<Record<string, CredentialInfo>>
   /** Path from the section root to this provider's profile. */
@@ -98,6 +103,14 @@ export interface ProviderEditorProps {
   submitBusyLabelKey?: keyof typeof en
   /** Close the editor; `changed` reports whether an Apply committed. */
   onClose: (changed: boolean) => void
+  /** Called on a credential form submission before the save starts. */
+  onSubmitCredential?: () => void
+  /**
+   * Called once per change with whether the apply or the model list's
+   * endpoint interrogation is in flight, so the owner can hold its surface
+   * still.
+   */
+  onBusyChange?: (busy: boolean) => void
 }
 
 /** A user-section subtree as a plain draft object (absent → empty). */
@@ -170,8 +183,10 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
   const { namespace, schema, settingsPath, operations, t } = props
   const [draft, setDraft] = useState<Record<string, unknown>>(() => draftAt(schema, namespace, settingsPath))
   const [keyDraft, setKeyDraft] = useState('')
-  const [keyState, setKeyState] = useState<CredentialInfo | undefined>(undefined)
   const [busy, setBusy] = useState(false)
+  const [listBusy, setListBusy] = useState(false)
+  const { onBusyChange } = props
+  useEffect(() => { onBusyChange?.(busy || listBusy) }, [busy, listBusy, onBusyChange])
   const [failure, setFailure] = useState<string | undefined>(undefined)
   // A settings success advances both retry baselines immediately. Keeping the
   // derived fields in the draft prevents a pushed namespace refresh from
@@ -194,18 +209,6 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     () => layout === 'pi-ai' ? protocolChoices(namespace, schema) : [],
     [layout, namespace, schema],
   )
-
-  useEffect(() => {
-    let stale = false
-    setKeyState(undefined)
-    // The key state is a placeholder hint, not a precondition for editing: a
-    // refused describe leaves the card without the "already configured" hint.
-    void operations.describeCredential(keyRef).then((described) => {
-      if (stale) return
-      setKeyState(described)
-    })
-    return () => { stale = true }
-  }, [operations, keyRef])
 
   const stringAt = (source: unknown, key: string): string | undefined => {
     const value = schema.getPath(source, [key])
@@ -334,8 +337,6 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     return <p className={styles['error']}>{props.provider}: {props.t('settingsPathUnresolvable')}</p>
   }
 
-  const keyLocked = keyState?.writable === false
-
   /**
    * The catalog beneath the user layer: what the composition entry pinned, or
    * else the schema default that `resolve` would supply. The effective value
@@ -364,22 +365,22 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     const defaultContextWindow = schema.getPath(fallback, ['defaultContextWindow'])
     const defaultMaxTokens = schema.getPath(fallback, ['maxTokens'])
     const defaultInput = schema.getPath(fallback, ['defaultInput'])
+    const baseURL = stringAt(fallback, 'baseURL') ?? props.defaultBaseURL
+    const endpointEnv = props.baseURLEnv ?? []
+    const endpointHint = family === 'deepseek' ? t('deepSeekEndpointHint')
+      : baseURL === undefined && endpointEnv.length > 0 ? t('baseUrlEnvironment').replace('{env}', () => endpointEnv.join(', ')) : undefined
     // A named reference is the only credential the adapter reads for this
     // route. Without one, a catalog route authenticates the way the directory
     // reports, and a declared route sends no key at all.
     const namedRef = stringAt(fallback, 'apiKeyEnv')
     const nativeAuth = namedRef === undefined ? props.nativeAuth : undefined
-    const endpointEnv = props.baseURLEnv ?? []
-    const baseURL = stringAt(fallback, 'baseURL')
-    const endpointHint = family === 'deepseek' ? t('deepSeekEndpointHint')
-      : baseURL === undefined && endpointEnv.length > 0 ? t('baseUrlEnvironment').replace('{env}', () => endpointEnv.join(', ')) : undefined
+    // Display method-neutral references without changing the adapter's lookup.
     const authRefs = namedRef === undefined
       ? (nativeAuth?.env ?? []).filter(ref => !endpointEnv.includes(ref)) : [namedRef]
-    // Display method-neutral references without changing the adapter's lookup.
     const visibleRefs = authRefs.filter(ref => !ref.toLowerCase().includes('oauth'))
     const keyHint = visibleRefs[0]
     const checkedRefs = authRefs.map(ref => [
-      ref, props.credentialChecks?.[ref] ?? (ref === keyRef ? keyState : undefined),
+      ref, props.credentialChecks?.[ref] ?? (ref === namedRef ? props.credential : undefined),
     ] as const)
     const detected = checkedRefs.find(([, info]) => info?.configured === true)
     const detectedRef = detected?.[0]
@@ -388,18 +389,24 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     const savedCredential = detected?.[1]?.source === 'file'
     // What the blank field says: a detected source names it, an all-missing or
     // unchecked set asks for a key. A typed draft hides every hint.
-    const credentialHint = keyDraft.length > 0 || savedCredential || keyHint === undefined || props.credentialRequired === true || keyLocked
+    const credentialHint = keyDraft.length > 0 || savedCredential || keyHint === undefined || props.credentialRequired === true
       ? undefined
       : t(detectedRef === undefined ? missingRefs ? 'keyFallbackMissing' : 'keyFallbackUnchecked'
         : detectedVisibleRef === undefined ? 'keyFallbackDetectedHidden' : 'keyFallbackDetected')
         .replace('{hint}', () => detectedVisibleRef ?? keyHint)
-    const keyPlaceholder = keyLocked
-      ? t('keyEnvLocked')
-      : keyState?.configured === true && props.credentialRequired !== true
-        ? t('keyStored')
-        : savedCredential
-          ? t('keyPlaceholderSaved')
-          : family === 'pi-ai' && keyHint !== undefined && props.credentialRequired !== true ? t('keyPlaceholderNative') : t('keyPlaceholder')
+    const keyHelp = visibleRefs.length === 0
+      ? undefined
+      : t('keyHelp').replace('{env}', () => visibleRefs.join(' / '))
+    const authHelp = keyHelp === undefined ? null : (
+      <Tooltip label={keyHelp} side="right" delayMs={0} focusDelayMs={0} portal openOnClick>
+        <button type="button" className={styles['helpButton']} aria-label={t('authHelp')}>?</button>
+      </Tooltip>
+    )
+    // A provider with no native key authentication has no key for this field to store.
+    const keylessNativeAuth = nativeAuth?.env.length === 0 && nativeAuth.oauth
+    const keyPlaceholder = keyHint === undefined || props.credentialRequired === true
+      ? t('keyPlaceholder')
+      : t(savedCredential ? 'keyPlaceholderSaved' : 'keyPlaceholderFallback').replace('{hint}', () => keyHint)
     /** What both family editors take: the rows, whose layer owns them, and the two writes. */
     const catalogProps = {
       models,
@@ -413,32 +420,28 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     }
     return (
       <>
-        <div className={styles['field']}>
-          <span className={styles['fieldLabel']}>{t('keyInput')}</span>
-          <ApiKeyInput
-            t={t}
-            value={keyDraft}
-            placeholder={keyPlaceholder}
-            aria-label={t('keyInput')}
-            aria-invalid={shownKeyFailure !== undefined}
-            aria-describedby={credentialHint === undefined ? undefined : `${props.provider}-credential-hint`}
-            required={props.credentialRequired === true}
-            autoFocus={props.autoFocusCredential === true}
-            disabled={disabled || keyLocked}
-            onChange={(event) => { setKeyDraft(event.target.value) }}
-          />
-          {credentialHint === undefined
-            ? null
-            : (
-              <p
-                id={`${props.provider}-credential-hint`}
-                className={styles[missingRefs ? 'notice' : detectedRef === undefined ? 'advancedHint' : 'savedNotice']}
-              >
-                {credentialHint}
-              </p>
-            )}
-          {shownKeyFailure === undefined ? null : <p className={styles['error']}>{t(shownKeyFailure)}</p>}
-        </div>
+        {keylessNativeAuth
+          ? null
+          : <div className={styles['field']}>
+            <span className={styles['fieldLabel']}>
+              {t('keyInput')}
+              {authHelp}
+            </span>
+            <ApiKeyInput
+              t={t}
+              value={keyDraft}
+              placeholder={keyPlaceholder}
+              aria-label={t('keyInput')}
+              aria-invalid={shownKeyFailure !== undefined}
+              aria-describedby={credentialHint === undefined ? undefined : `${props.provider}-credential-hint`}
+              required={props.credentialRequired === true}
+              autoFocus={props.autoFocusCredential === true}
+              disabled={disabled}
+              onChange={(event) => { setKeyDraft(event.target.value) }}
+            />
+            {credentialHint === undefined ? null : <p id={`${props.provider}-credential-hint`} className={styles[missingRefs ? 'notice' : detectedRef === undefined ? 'advancedHint' : 'savedNotice']}>{credentialHint}</p>}
+            {shownKeyFailure === undefined ? null : <p className={styles['error']}>{t(shownKeyFailure)}</p>}
+          </div>}
         {props.credentialOnly === true ? null : <details className={styles['customized']}>
           <summary className={styles['customizedSummary']}>{t('customized')}</summary>
           <div className={styles['customizedBody']}>
@@ -478,7 +481,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
                 placeholder={family === 'deepseek'
                   ? t('deepSeekBaseUrl')
                   : baseURL === undefined ? t(endpointEnv.length > 0 ? 'baseUrlConfigured' : 'baseUrlDefault')
-                    : baseURL}
+                    : t('baseUrlPlaceholder').replace('{url}', () => baseURL)}
                 aria-describedby={endpointHint === undefined ? undefined : `${props.provider}-endpoint-hint`}
                 aria-label={t('baseUrl')}
                 disabled={disabled}
@@ -535,6 +538,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
                   probe={probe}
                   probeBlocked={keyFailure}
                   operations={operations}
+                  onBusyChange={setListBusy}
                 />
               )}
           </div>
@@ -577,7 +581,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
         submitBusyLabelKey={props.submitBusyLabelKey ?? 'applying'}
         {...props.cancelLabelKey === undefined ? {} : { cancelLabelKey: props.cancelLabelKey }}
         onCancel={() => { props.onClose(false) }}
-        onSubmit={() => { void apply() }}
+        onSubmit={() => { props.onSubmitCredential?.(); void apply() }}
       />
     </div>
   )

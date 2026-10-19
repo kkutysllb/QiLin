@@ -108,8 +108,8 @@
       name: '@qilin-agent/settings'
       disabled: !!js "!ctx.get('profileContext')"
 
-    # Credential sources: inherited environment over the managed
-    # `$QILIN_HOME/.credentials.yaml`, with project and user `.env` fallbacks.
+    # Credential sources: managed `$QILIN_HOME/.credentials.yaml`, then inherited
+    # environment, project `.env`, and user `.env` fallbacks.
     # Adapters resolve references per request; the Models page writes only the
     # managed document, which is never materialized into the process environment.
     - id: credentials

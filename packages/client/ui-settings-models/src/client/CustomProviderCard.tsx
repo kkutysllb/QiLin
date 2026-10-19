@@ -22,7 +22,7 @@
  * offers each model those levels.
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { JsonValue } from '@qilin-agent/util-values'
 import { apiKeyFailure } from './apiKey.ts'
@@ -82,6 +82,11 @@ export interface CustomProviderCardProps {
   readOnly: boolean
   /** Close the card; `changed` reports whether a provider was created. */
   onClose: (changed: boolean) => void
+  /**
+   * Called once per change with whether the create or the list's endpoint
+   * interrogation is in flight, so the owner can hold its surface still.
+   */
+  onBusyChange?: (busy: boolean) => void
 }
 
 /**
@@ -90,7 +95,7 @@ export interface CustomProviderCardProps {
  * @returns the creation card.
  */
 export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
-  const { taken, protocols, reasoningLevels, operations, t } = props
+  const { taken, protocols, reasoningLevels, operations, t, onBusyChange } = props
   // The write is checked against the revision on which this draft was opened.
   const [openedAt] = useState(() => props.revision)
   const [route, setRoute] = useState('')
@@ -100,6 +105,8 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
   const [keyDraft, setKeyDraft] = useState('')
   const [models, setModels] = useState<readonly ModelDraft[]>([])
   const [busy, setBusy] = useState(false)
+  const [listBusy, setListBusy] = useState(false)
+  useEffect(() => { onBusyChange?.(busy || listBusy) }, [busy, listBusy, onBusyChange])
   const [failure, setFailure] = useState<string | undefined>(undefined)
   /**
    * The profile write landed. Only the key write can still be outstanding, so
@@ -243,7 +250,9 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
           className={styles['input']}
           type="text"
           value={baseURL}
-          placeholder={t('customBaseUrlPlaceholder')}
+          placeholder={t(protocol === 'anthropic-messages'
+            ? 'customAnthropicBaseUrlPlaceholder'
+            : 'customBaseUrlPlaceholder')}
           aria-label={t('baseUrl')}
           aria-invalid={baseUrlInvalid}
           disabled={profileDisabled}
@@ -296,6 +305,7 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
         operations={operations}
         t={t}
         disabled={profileDisabled}
+        onBusyChange={setListBusy}
       />
       {failure !== undefined ? <p className={styles['error']}>{failure}</p> : null}
       {/* Only the gates with something to say render; the route-id gate has its

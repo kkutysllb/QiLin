@@ -6,6 +6,8 @@
     - button "模型"
     - button "内置插件"
     - button "MCP 服务器"
+    - button "Agent 预设"
+    - button "用量"
     - button "已归档会话"
     - button "技能"
     - button "关于 QiLin"
@@ -26,7 +28,7 @@
       - button "删除 Acme Gateway (acme-gateway)": 删除
       - text: Acme Gateway acme-gateway API 密钥
       - textbox "API 密钥":
-        - /placeholder: 输入 API 密钥，或留空使用环境认证
+        - /placeholder: 输入 API 密钥
       - group:
         - text: 自定义设置 显示名称
         - textbox "显示名称":
@@ -64,6 +66,10 @@
             - text: 文本
             - checkbox "图片" [checked]
             - text: 图片
+          - group "推理等级 1":
+            - text: 推理等级
+            - button "推理等级说明": "?"
+            - switch "推理等级 1"
           - button "添加模型"
       - button "取消"
       - button "保存"

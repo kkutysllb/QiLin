@@ -1,8 +1,10 @@
 /**
  * Models settings and product-onboarding plugin, browser half. It registers
  * the Models page plus the official-DeepSeek onboarding dialog, whose UI is
- * this package's modal wrapper. The Host settings and credential contracts
- * stay behind their existing wire APIs. Export discipline:
+ * this package's modal wrapper; the dialog registers only when the Host's
+ * published credentialOnboarding choice leaves the API-key step to the
+ * browser. The Host settings and credential contracts stay behind their
+ * existing wire APIs. Export discipline:
  * packages/client/AGENTS.md.
  */
 import type { Context as ClientContext } from '@qilin-agent/kylin'
@@ -22,6 +24,7 @@ import { ModelsSettingsStore } from './store.ts'
 import { createModelsOperations } from './operations.ts'
 import { createSettingsSchemaOperations } from './schema-operations.ts'
 import { en, zh, type ModelsKey } from './locales.ts'
+import { Config, ONBOARDING_CONFIG_GLOBAL } from '../onboarding-config.ts'
 
 export type { ModelsSectionInjected, ModelsSectionProps } from './ModelsSection.tsx'
 export type { ModelsFooterOwnerProps, ProviderCardExtrasOwnerProps } from './slot-contract.ts'
@@ -68,6 +71,11 @@ export const inject = [
  * @param ctx - client root context.
  */
 export function apply(ctx: ClientContext): void {
+  // The Host publishes the onboarding choice in the page bootstrap; a native
+  // shell that owns credential onboarding suppresses the browser step here.
+  const page = globalThis as Partial<Record<typeof ONBOARDING_CONFIG_GLOBAL, unknown>>
+  const payload = page[ONBOARDING_CONFIG_GLOBAL]
+  const configured = Config(payload === undefined ? {} : payload)
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-settings-models: copy dictionaries')
 
   const schema = createSettingsSchemaOperations(ctx.settingsSchema)
@@ -120,10 +128,12 @@ export function apply(ctx: ClientContext): void {
       'settings.models.footer': { kind: 'list', scope: 'root' },
     },
   }, ModelsSection))
-  ctx.slots.inject('settings.onboarding', () => ctx.slots.register({
-    name: 'settings.onboarding',
-    id: 'deepseek-official',
-    order: 0,
-    inject: deepSeekOnboardingInjected,
-  }, DeepSeekOnboardingDialog))
+  if (configured.credentialOnboarding) {
+    ctx.slots.inject('settings.onboarding', () => ctx.slots.register({
+      name: 'settings.onboarding',
+      id: 'deepseek-official',
+      order: 0,
+      inject: deepSeekOnboardingInjected,
+    }, DeepSeekOnboardingDialog))
+  }
 }

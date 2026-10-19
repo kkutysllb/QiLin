@@ -635,6 +635,22 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/client-ui-plugin-manager -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/client-ui-settings-models -->
+<a id="qilin-agentclient-ui-settings-models"></a>
+
+## `@qilin-agent/client-ui-settings-models`
+
+- `source`: [`packages/client/ui-settings-models/src/onboarding-config.ts:6`](../packages/client/ui-settings-models/src/onboarding-config.ts)
+
+```ts config-catalog
+/** Onboarding options after schema defaults are applied. */
+export interface Config {
+  /** Offer the browser API-key step when no native shell owns credential onboarding. */
+  credentialOnboarding: boolean
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/client-ui-settings-models -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/client-ui-sidebar-documentpreview -->
 <a id="qilin-agentclient-ui-sidebar-documentpreview"></a>
 
@@ -4603,7 +4619,6 @@ export interface Config {
 | `@qilin-agent/client-ui-settings` | — | [`packages/client/ui-settings/src/index.ts`](../packages/client/ui-settings/src/index.ts) |
 | `@qilin-agent/client-ui-settings-general` | — | [`packages/client/ui-settings-general/src/index.ts`](../packages/client/ui-settings-general/src/index.ts) |
 | `@qilin-agent/client-ui-settings-mcp` | — | [`packages/client/ui-settings-mcp/src/index.ts`](../packages/client/ui-settings-mcp/src/index.ts) |
-| `@qilin-agent/client-ui-settings-models` | — | [`packages/client/ui-settings-models/src/index.ts`](../packages/client/ui-settings-models/src/index.ts) |
 | `@qilin-agent/client-ui-settings-plugin-inventory` | — | [`packages/client/ui-settings-plugin-inventory/src/index.ts`](../packages/client/ui-settings-plugin-inventory/src/index.ts) |
 | `@qilin-agent/client-ui-settings-plugins` | — | [`packages/client/ui-settings-plugins/src/index.ts`](../packages/client/ui-settings-plugins/src/index.ts) |
 | `@qilin-agent/client-ui-settings-session-log` | — | [`packages/client/ui-settings-session-log/src/index.ts`](../packages/client/ui-settings-session-log/src/index.ts) |

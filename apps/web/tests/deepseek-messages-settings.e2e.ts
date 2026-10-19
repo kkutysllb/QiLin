@@ -62,9 +62,9 @@ describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages opt-
     await messages.getByRole('button', { name: '保存', exact: true }).click()
     await dialog.getByText('已保存 DeepSeek (deepseek-official)。', { exact: true }).waitFor()
 
-    const settings = await readFile(join(scaffold.harnessHome, 'settings.yaml'), 'utf8')
+    const settings = await readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8')
     expect(settings).toContain('https://messages.example/anthropic')
-    expect(settings).toContain('llm-deepseek:')
+    expect(settings).toContain('id: llm-deepseek')
     await expect(scaffold.ctx.llm.resolveModelInfo('deepseek-official', 'deepseek-flash')).resolves.toMatchObject({
       name: 'Messages Flash', inputModalities: ['text', 'image'], systemPromptUpdate: 'in-history',
     })
@@ -95,12 +95,15 @@ describe.skipIf(webSnapshotMode() === 'record')('web e2e: DeepSeek Messages opt-
     await page.reload({ waitUntil: 'load' })
     const input = page.locator('[data-composer-input]').first()
     await expect.poll(() => input.isEnabled()).toBe(true)
-    await page.getByRole('button', { name: /^选择模型/ }).click()
-    await page.getByRole('menuitem', { name: /模型/ }).click()
+    // An unadvertised saved selection leaves the trigger without a current
+    // caption, so it opens the model pane directly.
+    const trigger = page.getByRole('button', { name: '请选择模型', exact: true })
+    await trigger.waitFor({ timeout: 10_000 })
+    await trigger.click()
     await page.getByRole('menuitemradio', { name: 'Messages Flash', exact: true }).click()
     await expect.poll(() => input.isEnabled()).toBe(true)
     await expect.poll(() => scaffold.ctx.agentDefaultModel.currentSelection().provider).toBe('deepseek-official')
-    const settings = await readFile(join(scaffold.harnessHome, 'settings.yaml'), 'utf8')
+    const settings = await readFile(join(scaffold.harnessHome, 'profiles', 'scaffold', 'cordis.patch.yml'), 'utf8')
     expect(settings).toContain('provider: deepseek-official')
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)

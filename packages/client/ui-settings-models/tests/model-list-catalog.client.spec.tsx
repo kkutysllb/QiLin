@@ -11,7 +11,6 @@ afterEach(cleanup)
 function operations(discoverModels: ModelsOperations['discoverModels']): ModelsOperations {
   return {
     discoverModels,
-    describeCredential: vi.fn(),
     storeCredential: vi.fn(),
     removeCredential: vi.fn(),
     writeSettings: vi.fn(),
@@ -26,7 +25,7 @@ it('ignores a late catalog response after the provider changes', async () => {
     .mockReturnValueOnce(newCatalog.promise))
   const onChange = vi.fn()
   const props = {
-    models: [{ id: 'm' }], onChange, operations: actions,
+    models: [{ id: 'm' }], onChange, operations: actions, onBusyChange: vi.fn(),
     disabled: false, t: (key: keyof typeof en) => en[key],
   }
   const { rerender } = render(<ModelListEditor {...props} catalogProvider="old" probe={{ settingsNs: 'llm-pi-ai', provider: 'old' }} />)
@@ -45,7 +44,7 @@ it('uses provider input defaults for a model absent from the installed catalog',
   render(<ModelListEditor
     models={[{ id: 'custom' }]} onChange={onChange} defaultInput={['image']} catalogProvider="openai"
     probe={{ settingsNs: 'llm-pi-ai', provider: 'openai' }} disabled={false} t={key => en[key]}
-    operations={operations(() => Promise.resolve({ kind: 'found', models: [] }))}
+    operations={operations(() => Promise.resolve({ kind: 'found', models: [] }))} onBusyChange={vi.fn()}
   />)
   fireEvent.click(screen.getByRole('button', { name: `${en.modelAdvanced} 1` }))
   const text = screen.getByRole<HTMLInputElement>('checkbox', { name: en.modelInputText })
@@ -60,7 +59,7 @@ it('inherits catalog inputs once an incomplete draft has a model id', async () =
   const props = {
     onChange, catalogProvider: 'openai',
     probe: { settingsNs: 'llm-pi-ai', provider: 'openai' },
-    disabled: false, t: (key: keyof typeof en) => en[key],
+    disabled: false, t: (key: keyof typeof en) => en[key], onBusyChange: vi.fn(),
     operations: operations(() => Promise.resolve({
       kind: 'found', models: [{ id: 'vision', inputModalities: ['text', 'image'] }],
     })),
@@ -90,7 +89,7 @@ it('restores inherited image input after a failed catalog read is retried manual
   render(<ModelListEditor
     models={[{ id: 'vision' }]} onChange={onChange} catalogProvider="openai"
     probe={{ settingsNs: 'llm-pi-ai', provider: 'openai' }} disabled={false} t={key => en[key]}
-    operations={operations(discover)}
+    operations={operations(discover)} onBusyChange={vi.fn()}
   />)
   await screen.findByText('Catalog unavailable')
   fireEvent.click(screen.getByRole('button', { name: `${en.modelAdvanced} 1` }))
@@ -104,4 +103,22 @@ it('restores inherited image input after a failed catalog read is retried manual
   expect(screen.queryByText('Catalog unavailable')).toBeNull()
   expect(discover).toHaveBeenCalledTimes(2)
   expect(onChange).not.toHaveBeenCalled()
+})
+
+it('reports the interrogation through onBusyChange from idle to found', async () => {
+  const gate = Promise.withResolvers<ModelDiscoveryOutcome>()
+  const discover = vi.fn<ModelsOperations['discoverModels']>().mockReturnValueOnce(gate.promise)
+  const onBusyChange = vi.fn()
+  render(<ModelListEditor
+    models={[{ id: 'm' }]} onChange={vi.fn()}
+    probe={{ settingsNs: 'llm-pi-ai', provider: 'openai' }} disabled={false} t={key => en[key]}
+    operations={operations(discover)} onBusyChange={onBusyChange}
+  />)
+  await waitFor(() => { expect(onBusyChange).toHaveBeenLastCalledWith(false) })
+  fireEvent.click(screen.getByRole('button', { name: en.fetchModels }))
+  await waitFor(() => { expect(onBusyChange).toHaveBeenLastCalledWith(true) })
+  await act(async () => {
+    gate.resolve({ kind: 'found', models: [{ id: 'fresh' }] })
+  })
+  await waitFor(() => { expect(onBusyChange).toHaveBeenLastCalledWith(false) })
 })

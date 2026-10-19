@@ -77,6 +77,8 @@ interface EditorTarget extends ProviderIdentity {
   credentialRef?: string
   /** The adapter reports this route as one it does not ship (see {@link ProviderEditorProps.declared}). */
   declared?: boolean
+  /** The route's catalog endpoint (see {@link ProviderEditorProps.defaultBaseURL}). */
+  defaultBaseURL?: string
   /** Environment used to construct an endpoint (see {@link ProviderEditorProps.baseURLEnv}). */
   baseURLEnv?: readonly string[]
   /** The route's native authentication (see {@link ProviderEditorProps.nativeAuth}). */
@@ -100,8 +102,10 @@ function renderProviderEditor({ target, row, ...props }: ProviderEditorRenderPro
       displayName={target.displayName}
       settingsPath={target.settingsPath}
       {...target.declared === true ? { declared: true } : {}}
+      {...target.defaultBaseURL === undefined ? {} : { defaultBaseURL: target.defaultBaseURL }}
       {...target.baseURLEnv === undefined ? {} : { baseURLEnv: target.baseURLEnv }}
       {...target.nativeAuth === undefined ? {} : { nativeAuth: target.nativeAuth }}
+      {...row.credential === undefined ? {} : { credential: row.credential }}
       {...row.credentialChecks === undefined ? {} : { credentialChecks: row.credentialChecks }}
       {...props}
     />
@@ -181,6 +185,7 @@ function targetOf(row: ProviderRow): EditorTarget {
     ...credentialRef === undefined ? {} : { credentialRef },
     // Only declared routes may expose route-owned fields.
     ...row.entry.declared === true ? { declared: true } : {},
+    ...row.entry.defaultBaseURL === undefined ? {} : { defaultBaseURL: row.entry.defaultBaseURL },
     ...row.entry.baseURLEnv === undefined ? {} : { baseURLEnv: row.entry.baseURLEnv },
     ...row.entry.nativeAuth === undefined ? {} : { nativeAuth: row.entry.nativeAuth },
   }
@@ -226,6 +231,8 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
   const [deleteFailure, setDeleteFailure] = useState<string | undefined>(undefined)
   const [savedTarget, setSavedTarget] = useState<ProviderIdentity | undefined>(undefined)
   const [declaring, setDeclaring] = useState(false)
+  /** Whether the add card's editor has a write or an interrogation in flight. */
+  const [addBusy, setAddBusy] = useState(false)
   const [dismissedSetup, setDismissedSetup] = useState<ReadonlySet<string>>(() => new Set())
 
   const announceSaved = (target: ProviderIdentity): void => {
@@ -239,6 +246,8 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
     setEditing(undefined)
     setAdding(false)
     setDeclaring(false)
+    // A panel that closes itself on success unmounts before it can report idle.
+    setAddBusy(false)
     if (changed) announceSaved(target)
   }
 
@@ -482,6 +491,7 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                   className={`${styles['input']} ${styles['selectInput']}`}
                   value={addTarget.provider}
                   aria-label={t('provider')}
+                  disabled={addBusy}
                   onChange={(event) => {
                     const row = addable.find(candidate => candidate.entry.provider === event.target.value)
                     /* v8 ignore next -- the select only lists addable rows */
@@ -502,6 +512,7 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                 namespace={addNamespace}
                 schema={schema}
                 settingsPath={addTarget.settingsPath}
+                {...addTarget.defaultBaseURL === undefined ? {} : { defaultBaseURL: addTarget.defaultBaseURL }}
                 {...addTarget.baseURLEnv === undefined ? {} : { baseURLEnv: addTarget.baseURLEnv }}
                 {...addTarget.nativeAuth === undefined ? {} : { nativeAuth: addTarget.nativeAuth }}
                 {...addRow?.credentialChecks === undefined ? {} : { credentialChecks: addRow.credentialChecks }}
@@ -509,6 +520,7 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                 t={t}
                 readOnly={!state.writable}
                 onClose={(changed) => { closeEditor(changed, addTarget) }}
+                onBusyChange={setAddBusy}
               />
               {addRow === undefined
                 ? null

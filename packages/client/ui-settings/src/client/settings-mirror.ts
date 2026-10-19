@@ -33,7 +33,11 @@ export interface SettingsMirrorSnapshot {
   status: 'idle' | 'loading' | 'ready' | 'unavailable'
   /** The last good answer; undefined until the first success. */
   view: SettingsDescribeView | undefined
-  /** The latest refresh failure message, cleared by the next success. */
+  /**
+   * The latest refresh failure message, cleared by the next success. Memory
+   * persistence never refreshes, so its terminal message stays for the
+   * mirror's lifetime.
+   */
   error: string | null
 }
 
@@ -88,7 +92,9 @@ export class SettingsDescribeMirror implements SettingsDescribeFace {
     this.store = createSnapshotStore<SettingsMirrorSnapshot>({
       status: persistence === 'host' ? 'idle' : 'unavailable',
       view: undefined,
-      error: null,
+      // A settled mirror holds either a view or the read's error; memory
+      // persistence settles terminally, so it carries its message from birth.
+      error: persistence === 'host' ? null : 'settings are unavailable in this browser',
     })
   }
 

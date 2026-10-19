@@ -184,8 +184,8 @@ function scriptedFace(overrides: {
       listConfigurableProviders: vi.fn(() => Promise.resolve(remoteOk([
         { provider: 'deepseek-official', displayName: 'DeepSeek', settingsNs: 'llm-deepseek', settingsPath: [], active: true },
         { provider: 'openai', displayName: 'openai', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'openai'], active: true, baseURLEnv: ['FIXTURE_ENDPOINT'], nativeAuth: { env: ['OPENAI_API_KEY'], oauth: false } },
-        { provider: 'anthropic', displayName: 'anthropic', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'anthropic'], active: false, baseURLEnv: ['FIXTURE_ENDPOINT'], nativeAuth: { env: ['ANTHROPIC_AUTH_TOKEN', 'ANTHROPIC_OAUTH_TOKEN', 'ANTHROPIC_API_KEY'], oauth: true } },
-        { provider: 'zombie', displayName: 'zombie', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'zombie'], active: false },
+        { provider: 'anthropic', displayName: 'anthropic', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'anthropic'], active: false, defaultBaseURL: 'https://api.anthropic.com', baseURLEnv: ['FIXTURE_ENDPOINT'], nativeAuth: { env: ['ANTHROPIC_AUTH_TOKEN', 'ANTHROPIC_OAUTH_TOKEN', 'ANTHROPIC_API_KEY'], oauth: true } },
+        { provider: 'zombie', displayName: 'zombie', settingsNs: 'llm-pi-ai', settingsPath: ['providers', 'zombie'], active: false, defaultBaseURL: 'https://catalog.zombie.example' },
         { provider: 'broken', displayName: 'broken', settingsNs: 'llm-pi-ai', settingsPath: ['nope', 'x'], active: false },
         { provider: 'plain', displayName: 'plain', settingsNs: 'llm-plain', settingsPath: ['profiles', 'plain'], active: false },
       ].map(({ active: _active, ...entry }) => entry)))),
@@ -317,7 +317,9 @@ async function mountDeepSeekCard(overrides: Parameters<typeof scriptedFace>[0] =
 /** Render one pi-ai route's editor directly, with the directory facts the section would thread. */
 function renderPiAiEditor(
   provider: string,
-  facts: Pick<ProviderEditorProps, 'baseURLEnv' | 'nativeAuth' | 'credentialChecks'> = {},
+  facts: Pick<ProviderEditorProps,
+    'baseURLEnv' | 'nativeAuth' | 'credentialChecks' | 'credential' | 'defaultBaseURL'
+    | 'credentialOnly' | 'credentialRequired' | 'autoFocusCredential' | 'onBusyChange' | 'onSubmitCredential'> = {},
   operations: ModelsOperations = operationsWith(scriptedFace().face),
   namespace: SettingsNamespaceView = wireNamespaces().find(view => view.ns === 'llm-pi-ai')!,
 ): void {
@@ -1259,14 +1261,15 @@ describe('ModelsSection', () => {
   it('edits a pi-ai profile with the curated fields only', async () => {
     const { mutate } = await mountSection()
     fireEvent.click(screen.getByRole('button', { name: openaiCopy(en.editProvider) }))
-    // The configured credential shows as the stored placeholder.
+    // The stored credential shows as the saved-credentials placeholder.
     const editorKey = await screen.findByLabelText<HTMLInputElement>(en.keyInput)
-    await waitFor(() => { expect(editorKey.placeholder).toBe(en.keyStored) })
+    await waitFor(() => { expect(editorKey.placeholder).toBe(en.keyPlaceholderSaved) })
     // pi-ai carries Base URL too: the stored override shows as the value and
-    // the effective profile endpoint as its placeholder source.
+    // the effective profile endpoint, ahead of the catalog's, as its placeholder.
     fireEvent.click(screen.getByText(en.customized))
     const url = screen.getByLabelText<HTMLInputElement>(en.baseUrl)
     expect(url.value).toBe('https://proxy')
+    expect(url.placeholder).toBe('https://proxy')
     fireEvent.change(url, { target: { value: 'https://proxy/v2' } })
     fireEvent.click(screen.getByText(en.apply))
     await waitFor(() => { expect(mutate).toHaveBeenCalledTimes(1) })
@@ -1285,12 +1288,12 @@ describe('ModelsSection', () => {
     const pick = await screen.findByLabelText<HTMLSelectElement>(en.provider)
     expect([...pick.options].map(option => option.value)).toEqual(['anthropic', 'broken', 'plain'])
     expect(pick.value).toBe('anthropic')
-    // A dormant profile has no endpoint anywhere: the pi-ai placeholder names
-    // the configuration variables that would construct one.
+    // A dormant route shows its catalog endpoint and the first variable its
+    // provider reads; a typed key still stores under the derived reference.
     fireEvent.click(screen.getByText(en.customized))
-    expect(screen.getByLabelText<HTMLInputElement>(en.baseUrl).placeholder).toBe(en.baseUrlConfigured)
+    expect(screen.getByLabelText<HTMLInputElement>(en.baseUrl).placeholder).toBe('https://api.anthropic.com')
     const addKey = screen.getByLabelText<HTMLInputElement>(en.keyInput)
-    expect(addKey.placeholder).toBe(en.keyPlaceholderNative)
+    expect(addKey.placeholder).toBe(en.keyPlaceholderFallback.replace('{hint}', 'ANTHROPIC_AUTH_TOKEN'))
     fireEvent.change(addKey, { target: { value: 'sk-ant' } })
     fireEvent.click(screen.getByText(en.apply))
     await waitFor(() => { expect(mutate).toHaveBeenCalledTimes(1) })
@@ -1400,7 +1403,7 @@ describe('ModelsSection', () => {
       renderSlot={() => null}
     />)
     const key = await screen.findByLabelText<HTMLInputElement>(en.keyInput)
-    expect(key.placeholder).toBe(en.keyPlaceholder)
+    expect(key.placeholder).toBe(en.keyPlaceholderFallback.replace('{hint}', 'DEEPSEEK_API_KEY'))
   })
 
   it('tells the user to reopen when another writer moved the namespace first', async () => {
@@ -1439,17 +1442,69 @@ describe('ModelsSection', () => {
     expect(screen.queryByRole('status')).toBeNull()
   })
 
-  it('locks the key input when the launch environment provides the credential', async () => {
-    const { face } = await mountSection()
-    face.credentials.describe.mockImplementation((refs: string[]) => Promise.resolve(remoteOk(
+  it('reports an environment-provided credential without locking the field', async () => {
+    const scripted = scriptedFace()
+    scripted.face.credentials.describe.mockImplementation((refs: string[]) => Promise.resolve(remoteOk(
       Object.fromEntries(refs.map(ref => [ref, {
         configured: ref === 'OPENAI_API_KEY', source: 'env', writable: false,
       }])),
     )))
+    await mountFace(scripted)
     fireEvent.click(screen.getByRole('button', { name: openaiCopy(en.editProvider) }))
     const editorKey = await screen.findByLabelText<HTMLInputElement>(en.keyInput)
-    await waitFor(() => { expect(editorKey.placeholder).toBe(en.keyEnvLocked) })
-    expect(editorKey.disabled).toBe(true)
+    // The snapshot state names the detected variable and offers the env
+    // fallback in the placeholder; redacted writability never locks the field.
+    await waitFor(() => {
+      expect(document.getElementById(editorKey.getAttribute('aria-describedby')!)?.textContent)
+        .toBe(en.keyFallbackDetected.replace('{hint}', 'OPENAI_API_KEY'))
+    })
+    expect(editorKey.placeholder).toBe(en.keyPlaceholderFallback.replace('{hint}', 'OPENAI_API_KEY'))
+    expect(editorKey.disabled).toBe(false)
+  })
+
+  it('renders the credential-only editor with the key field alone', () => {
+    renderPiAiEditor('openai', { credentialOnly: true, credentialRequired: true, autoFocusCredential: true })
+    // The credential field and actions render; no provider settings do.
+    expect(screen.getByLabelText(en.keyInput)).toBeTruthy()
+    expect(screen.queryByText(en.customized)).toBeNull()
+    expect(screen.queryByLabelText(en.baseUrl)).toBeNull()
+    // A required key blocks submit while blank, and whitespace is a refusal
+    // rather than a keep.
+    expect(screen.getByText<HTMLButtonElement>(en.apply).disabled).toBe(true)
+    fireEvent.change(screen.getByLabelText(en.keyInput), { target: { value: '   ' } })
+    expect(screen.getByText(en.keyRequired)).toBeTruthy()
+  })
+
+  it('reports apply busy state through onBusyChange', async () => {
+    const gate = Promise.withResolvers<SettingsNamespaceView>()
+    const operations: ModelsOperations = {
+      discoverModels: () => Promise.resolve({ kind: 'found', models: [] }),
+      storeCredential: () => Promise.resolve(undefined),
+      removeCredential: () => Promise.resolve(undefined),
+      writeSettings: () => gate.promise.then(view => ({ kind: 'written' as const, view })),
+    }
+    const onBusyChange = vi.fn()
+    renderPiAiEditor('openai', { onBusyChange }, operations)
+    await waitFor(() => { expect(onBusyChange).toHaveBeenLastCalledWith(false) })
+    fireEvent.change(screen.getByLabelText(en.keyInput), { target: { value: 'sk-live' } })
+    fireEvent.click(screen.getByText(en.apply))
+    await waitFor(() => { expect(onBusyChange).toHaveBeenLastCalledWith(true) })
+    await act(async () => {
+      gate.resolve(wireNamespaces()[2]!)
+    })
+    await waitFor(() => { expect(onBusyChange).toHaveBeenLastCalledWith(false) })
+  })
+
+  it('locks the add card select while its editor has a write in flight', async () => {
+    const set = vi.fn(() => new Promise<{ ok: true; value: undefined }>(() => {}))
+    await mountSection({ set })
+    fireEvent.click(screen.getByText(en.add))
+    const pick = await screen.findByLabelText<HTMLSelectElement>(en.provider)
+    fireEvent.change(screen.getByLabelText<HTMLInputElement>(en.keyInput), { target: { value: 'sk-ant' } })
+    fireEvent.click(screen.getByText(en.apply))
+    await waitFor(() => { expect(pick.disabled).toBe(true) })
+    // The write never settles in this case; unmount happens with cleanup.
+    expect(screen.getByText(en.applying)).toBeTruthy()
   })
 
   it('keeps a failed credential describe silent and the input usable', async () => {
@@ -1729,15 +1784,15 @@ it('shows endpoint configuration variables without presenting them as credential
 })
 
 it.each([true, false, undefined] as const)('shows the confirmed fallback state without assuming a connection works: %s', (configured) => {
-  // The env name is not the page's derived reference, so only the directory's
-  // redacted checks answer — no editor describe can flip the state mid-test.
+  // The env name is not the page's derived reference, so only the snapshot
+  // props carried in here can answer — the editor runs no describe of its own.
   const facts: Pick<ProviderEditorProps, 'nativeAuth' | 'credentialChecks'> = {
     nativeAuth: { env: ['ZOMBIE_TOKEN'], oauth: false },
     ...configured === undefined ? {} : { credentialChecks: { ZOMBIE_TOKEN: { configured, writable: true } } },
   }
   renderPiAiEditor('zombie', facts)
   const input = screen.getByLabelText<HTMLInputElement>(en.keyInput)
-  expect(input.placeholder).toBe(en.keyPlaceholderNative)
+  expect(input.placeholder).toBe(en.keyPlaceholderFallback.replace('{hint}', 'ZOMBIE_TOKEN'))
   const hint = configured === true ? en.keyFallbackDetected.replace('{hint}', 'ZOMBIE_TOKEN')
     : configured === false ? en.keyFallbackMissing.replace('{hint}', 'ZOMBIE_TOKEN') : en.keyFallbackUnchecked
   expect(screen.getByText(hint).getAttribute('role')).toBeNull()
@@ -1760,6 +1815,13 @@ it('checks every native fallback name and displays a configured source its row d
   expect(document.body.textContent).not.toMatch(/oauth/i)
 })
 
+it('offers the catalog endpoint as the row editor placeholder when no endpoint is stored', async () => {
+  await mountSection()
+  fireEvent.click(screen.getByRole('button', { name: 'Edit zombie' }))
+  fireEvent.click(screen.getByText(en.customized))
+  expect(screen.getByLabelText<HTMLInputElement>(en.baseUrl).placeholder).toBe('https://catalog.zombie.example')
+})
+
 it('keeps an inherited profile endpoint ahead of dynamic provider configuration', () => {
   const namespace = wireNamespaces().find(view => view.ns === 'llm-pi-ai')!
   renderPiAiEditor('zombie', { baseURLEnv: ['ZOMBIE_BASE_URL'] }, operationsWith(scriptedFace().face),
@@ -1768,6 +1830,15 @@ it('keeps an inherited profile endpoint ahead of dynamic provider configuration'
   const input = screen.getByLabelText<HTMLInputElement>(en.baseUrl)
   expect(input.placeholder).toBe('https://team.example/v1')
   expect(input.getAttribute('aria-describedby')).toBeNull()
+})
+
+it('omits the key field and its help for a native-only OAuth route', () => {
+  renderPiAiEditor('zombie', { nativeAuth: { env: [], oauth: true } })
+  expect(screen.queryByLabelText(en.keyInput)).toBeNull()
+  expect(screen.queryByRole('button', { name: en.authHelp })).toBeNull()
+  // The rest of the card stays editable.
+  fireEvent.click(screen.getByText(en.customized))
+  expect(screen.getByLabelText(en.baseUrl)).toBeTruthy()
 })
 
 describe('apiKeyFailure', () => {

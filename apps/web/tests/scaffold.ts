@@ -33,8 +33,8 @@ import { expect } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import { QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
 import Loader from '@qilin-agent/kylin-plugin-loader'
-import Include, { type PatchOptions } from '@qilin-agent/kylin-plugin-include'
-import Group from '@qilin-agent/kylin-plugin-group'
+import { entryListSchema, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
+import yaml from 'js-yaml'
 import {
   captureExpectedWorkspaceSnapshot,
   captureWorkspaceSnapshot,
@@ -178,6 +178,8 @@ const BASE_PATCH_PATH = join(REPO_ROOT, 'packages/bundle/base/cordis.patch.yml')
 const WEB_PATCH_PATH = join(REPO_ROOT, 'packages/bundle/web-app/cordis.patch.yml')
 /** The installation anchor whose dependency surface the profile module fallback mirrors. */
 const INSTALL_ANCHOR = join(REPO_ROOT, 'apps/cli/package.json')
+/** The installed bundle carrying the scaffold's deployment defaults; the plugin manager lists it beside fixture bundles. */
+export const SCAFFOLD_DEFAULTS_BUNDLE = 'qilin-web-scaffold-defaults'
 
 // Replay publishes the provider catalog the gateway routes to (providers
 // mode, never catch-all: with both direct adapters disabled no adapter exists, so a
@@ -320,19 +322,25 @@ export interface LaunchOptions {
    */
   extraInstallAnchors?: string[]
   /**
-   * Manage the scaffold profile the way the launcher does: a `profileContext`
-   * over the profile directory, whose manifest lists the shipped web bundles
-   * and each package directory here as an installed dependency (`file:` in the
-   * manifest, a symlink under the profile's `node_modules`); `enabled` also
-   * lists a bundle in `qilin.profile.bundles`. The plugin manager mounts on such
-   * a profile, and the root Include is mounted from the profile's own layers.
-   * The base bundle's `hmr` row turns on with the profile context, so
-   * configuration changes apply live; `hmr: false` disables that row through
-   * an overlay, leaving changes for the next start.
+   * Install fixture packages into the scaffold profile, which the launcher
+   * always manages: a `profileContext` over the profile directory, whose
+   * manifest lists the shipped web bundles and each package directory here as
+   * an installed dependency (`file:` in the manifest, a symlink under the
+   * profile's `node_modules`); `enabled` also lists a bundle in
+   * `qilin.profile.bundles`. `bundles` adds selected names the shipped web
+   * bundles do not carry. The plugin manager mounts on this profile, and the
+   * root Include is mounted from the profile's own layers. The base bundle's
+   * `hmr` row turns on with the profile context, so configuration changes
+   * apply live; `hmr: false` disables that row through an overlay, leaving
+   * changes for the next start.
    */
   profile?: {
     hmr?: boolean
+    /** Launcher-owned invocation and environment for profile package operations. */
+    packageManager?: ProfileContext['packageManager']
     packages: { dir: string; enabled?: boolean }[]
+    /** Additional selected names, including bundles unavailable after an upgrade. */
+    bundles?: readonly string[]
   }
   /**
    * Replay fixture (session.jsonl) served by the inserted qilin-llm-replay row
@@ -706,7 +714,21 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       { id: 'llm-deepseek', disabled: mode !== 'record' && !maskDeepSeekCredential },
     ],
   ]
-  const patches: PatchOptions[] = [...basePatches, ...surfacePatches, ...overlayPatches]
+
+  // Live fields use a shared deployment layer; process-specific ports and roots
+  // stay in CLI overlays. The form rows stay product-editable in the profile,
+  // above the fixture defaults bundle that carries their composed values.
+  const formEntries = new Set(['agent-default-model', 'agent-presets', 'session-log-deepseek',
+    'web', 'web-search-deepseek', 'web-deepseek-api', 'llm-deepseek'])
+  const formDefaults: PatchOptions[] = []
+  const processOverlays = overlayPatches.map((patch) => {
+    if (patch.id === undefined || !formEntries.has(patch.id) || patch.config === undefined) return patch
+    const config: unknown = patch.config
+    formDefaults.push({ id: patch.id, config })
+    const ordinary = { ...patch }
+    Reflect.deleteProperty(ordinary, 'config')
+    return ordinary
+  })
 
   // Sessions inherit the gateway's process.cwd() default; run the boot from
   // the temp workspace so tool cwd, session cwd, and fixtures agree.
@@ -760,13 +782,13 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     const rootConfig = join(profileDir, 'cordis.yml')
     await writeFile(rootConfig, '[]\n')
     ctx.baseUrl = pathToFileURL(profileDir).href + '/'
-    let profileContext: ProfileContext | undefined
-    if (options.profile !== undefined) {
+    let profileContext: ProfileContext
+    {
       // A real profile: the shipped web bundles plus each fixture package,
       // installed the way `qilin plugin add` leaves them.
       const dependencies: Record<string, string> = {}
-      const bundles = ['@qilin-agent/base', '@qilin-agent/web-app']
-      for (const entry of options.profile.packages) {
+      const bundles = ['@qilin-agent/base', '@qilin-agent/web-app', ...options.profile?.bundles ?? []]
+      for (const entry of options.profile?.packages ?? []) {
         const manifest = JSON.parse(await readFile(join(entry.dir, 'package.json'), 'utf8')) as { name: string }
         dependencies[manifest.name] = `file:${entry.dir}`
         if (entry.enabled === true) bundles.push(manifest.name)
@@ -774,14 +796,26 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
         await mkdir(dirname(link), { recursive: true })
         await symlink(entry.dir, link, 'junction')
       }
+      // Fixture deployment defaults remain below editable profile values.
+      const fixtureDir = join(profileDir, 'node_modules', SCAFFOLD_DEFAULTS_BUNDLE)
+      await mkdir(fixtureDir, { recursive: true })
+      await writeFile(join(fixtureDir, 'package.json'), JSON.stringify({
+        name: SCAFFOLD_DEFAULTS_BUNDLE,
+        version: '1.0.0',
+        qilin: { bundle: { patch: 'cordis.patch.yml' } },
+      }))
+      await writeFile(join(fixtureDir, 'cordis.patch.yml'), yaml.dump(formDefaults, { schema: entryListSchema }))
+      bundles.push(SCAFFOLD_DEFAULTS_BUNDLE)
+      dependencies[SCAFFOLD_DEFAULTS_BUNDLE] = `file:${fixtureDir}`
       initProfile(profileDir, bundles)
       const manifest = readProfileManifest('qilin', profileDir)
       manifest.dependencies = dependencies
       await writeFile(join(profileDir, 'package.json'), JSON.stringify(manifest, null, 2) + '\n')
       profileContext = {
         name: 'scaffold', dir: profileDir, patchPath: profile.patchPath, installAnchor: INSTALL_ANCHOR,
+        ...options.profile?.packageManager === undefined ? {} : { packageManager: options.profile.packageManager },
         cwd: workspaceCwd, home: harnessHome, startedBundles: bundles,
-        overlays: overlayPatches, telemetryDisabledEnv: undefined,
+        overlays: processOverlays, telemetryDisabledEnv: undefined,
       }
       // HMR gates file-driven reloads on application readiness, which the
       // launcher commits after boot; this direct harness is ready at once.
@@ -807,23 +841,10 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       recompute: async () => createRuntimeResolution(resolutionOptions),
     })
     await ctx.plugin(Loader)
-    if (profileContext === undefined) {
-      ctx.loader.builtins.include = Include
-      // `cordis:group` beside it, exactly as `boot()` registers it: a group row is
-      // how a preset gives one `isolate` realm to a provider and its consumers,
-      // and a preset resolving package names from its own directory cannot reach
-      // `@qilin-agent/kylin-plugin-group` by name.
-      ctx.loader.builtins.group = Group
-      await ctx.loader.create({
-        name: 'cordis:include',
-        config: { path: pathToFileURL(rootConfig).href, patches },
-      })
-    } else {
-      // The launcher's own mount, so the manager's reloads find the root Include
-      // and compose the same layers the profile files name; bare names still
-      // resolve through the resolution generation above, as in the direct mount.
-      await mountRootInclude(ctx, rootConfig, readProfilePatches('qilin', profileContext))
-    }
+    // The launcher's own mount, so the manager's reloads find the root Include
+    // and compose the same layers the profile files name; bare names still
+    // resolve through the resolution generation above, as in the direct mount.
+    await mountRootInclude(ctx, rootConfig, readProfilePatches('qilin', profileContext))
     await ctx.loader.await()
     await auditStartupEntries(ctx, 'web e2e scaffold')
     const boundPort = ctx.get('webServer')?.port

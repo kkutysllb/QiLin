@@ -99,7 +99,9 @@ describe('SettingsDescribeMirror', () => {
     const mirror = new SettingsDescribeMirror(ctxWith(describeCall), 'memory')
     await mirror.ensure()
     await mirror.load()
-    expect(mirror.getSnapshot()).toEqual({ status: 'unavailable', view: undefined, error: null })
+    expect(mirror.getSnapshot()).toEqual({
+      status: 'unavailable', view: undefined, error: 'settings are unavailable in this browser',
+    })
     expect(describeCall).not.toHaveBeenCalled()
   })
 

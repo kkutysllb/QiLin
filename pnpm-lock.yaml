@@ -5069,6 +5069,10 @@ importers:
         version: 18.3.1(react@18.3.1)
 
   packages/client/ui-settings-models:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
     devDependencies:
       '@qilin-agent/api-remotes':
         specifier: workspace:*
@@ -5094,6 +5098,9 @@ importers:
       '@qilin-agent/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
+      '@qilin-agent/host-webserver':
+        specifier: workspace:*
+        version: link:../../host/webserver
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -5103,6 +5110,9 @@ importers:
       '@qilin-agent/util-values':
         specifier: workspace:*
         version: link:../../util/values
+      '@testing-library/react':
+        specifier: ^16.3.2
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31

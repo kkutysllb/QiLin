@@ -881,6 +881,25 @@ describe('hand-declared providers', () => {
     expect(input.type).toBe('password')
   })
 
+  it('reports create busy state through onBusyChange until the card closes', async () => {
+    let release!: () => void
+    const set = vi.fn(() => new Promise<{ ok: true; value: undefined }>((resolve) => { release = () => resolve(remoteOk(undefined)) }))
+    const onBusyChange = vi.fn()
+    const { onClose } = mountCard({ onBusyChange }, { set })
+
+    fireEvent.change(screen.getByLabelText(en.customRoute), { target: { value: 'acme' } })
+    fireEvent.change(screen.getByLabelText(en.baseUrl), { target: { value: 'https://acme.test/v1' } })
+    fireEvent.change(screen.getByLabelText(en.keyInput), { target: { value: 'gw-key' } })
+    fireEvent.click(screen.getByRole('button', { name: en.addModel }))
+    fireEvent.change(screen.getByLabelText(`${en.modelId} 1`), { target: { value: 'm' } })
+    await waitFor(() => { expect(onBusyChange).toHaveBeenLastCalledWith(false) })
+    fireEvent.click(screen.getByText(en.create))
+    await waitFor(() => { expect(onBusyChange).toHaveBeenLastCalledWith(true) })
+    release()
+    await waitFor(() => { expect(onClose).toHaveBeenCalledWith(true) })
+    await waitFor(() => { expect(onBusyChange).toHaveBeenLastCalledWith(false) })
+  })
+
   it('writes the whole profile and the key under the derived reference', async () => {
     const { mutate, set, onClose } = mountCard()
 

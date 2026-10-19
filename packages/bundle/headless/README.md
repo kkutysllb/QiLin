@@ -65,6 +65,22 @@ Use headless for scripted or automated qilin runs — CI steps, batch jobs, quic
 
 `qilin --profile headless --help` prints the command's help text and exits without running anything. A whitespace-only positional task is a usage error on its own — nothing runs and the process exits 1, even when stdin is not a terminal, so an accidental blank argument never consumes a pipe. A task that is absent entirely is a usage error only when stdin is a terminal; otherwise the runner reads the task from stdin and rejects an empty result the same way. A lone `-` is the only stdin marker; mixing it with other task words is a usage error rather than a task that starts with a dash. In `--json` mode every usage error — including commander's own grammar rejections such as an unknown option or a missing option value — also writes an `error` event to stdout before the process exits, so a line-oriented supervisor sees a well-formed stream even when the runner never mounts; the event `message` carries the text without commander's `error: ` prefix.
 
+<a id="credentials"></a>
+### Credentials
+
+The shipped headless profile disables the managed credential store, so one-shot jobs authenticate from the launch environment, then `<invocation cwd>/.env`, then `$QILIN_HOME/.env`. Keys and sign-ins saved by the GUI are ignored without changing their file. The launch environment keeps precedence over a restored store; see [credentials-local](../../credentials/credentials-local/README.md) for the resolution order. External provider credential chains, such as AWS profiles, remain available.
+
+Unset an empty launch variable to allow its `.env` fallback; an exported empty value shadows that fallback.
+
+To restore stored authentication, add this row to `$QILIN_HOME/profiles/headless/cordis.patch.yml` or a `--patch` overlay:
+
+```yaml
+- id: credentials
+  disabled: false
+```
+
+Headless sessions, settings and tool behavior are unchanged; this profile choice is not a filesystem access boundary.
+
 -----
 
 <a id="understand-the-implementation"></a>

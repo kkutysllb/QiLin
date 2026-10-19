@@ -240,7 +240,6 @@ describe('reasoning-level validation', () => {
 
 describe('reasoning levels in the model list', () => {
   const operations: ModelsOperations = {
-    describeCredential: vi.fn(),
     discoverModels: () => Promise.resolve({ kind: 'found', models: [] }),
     storeCredential: vi.fn(),
     removeCredential: vi.fn(),
@@ -256,6 +255,7 @@ describe('reasoning levels in the model list', () => {
         <ModelListEditor
           models={models} onChange={(next) => { writes.push(next); setModels(next) }} reasoningLevels={LEVELS}
           probe={{ settingsNs: 'llm-pi-ai' }} operations={operations} disabled={false} t={t}
+          onBusyChange={vi.fn()}
         />
       )
     }
@@ -294,7 +294,7 @@ describe('reasoning levels in the model list', () => {
     render(<ModelListEditor
       models={[{ id: 'gpt-5' }]} onChange={vi.fn()} catalogProvider="openai" reasoningLevels={reasoningLevels}
       probe={{ settingsNs: 'llm-pi-ai', provider: 'openai' }}
-      operations={operations} disabled={false} t={t}
+      operations={operations} disabled={false} t={t} onBusyChange={vi.fn()}
     />)
     fireEvent.click(screen.getByRole('button', { name: `${en.modelAdvanced} 1` }))
     expect(screen.getByRole('group', { name: `${en.modelInputTypes} 1` })).toBeTruthy()
