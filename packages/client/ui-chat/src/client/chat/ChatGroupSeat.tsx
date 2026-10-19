@@ -4,7 +4,7 @@ import {
   IconAgentPresetOutline16, IconApiOutline14, IconBrowseOutline16, IconChevronDownOutline14,
   IconChevronUpOutline14, IconCodeOutline16, IconEditOutline16, IconGlobeOutline14,
   IconPlanOutline14, IconQuestionOutline14, IconSearchOutline16, IconSparkle16,
-  IconThinkOutline14,
+  IconThinkOutline14, TextShimmer,
 } from '@qilin-agent/client-ui-primitives'
 import type { GroupKey, NodeReference } from '@qilin-agent/client-ui-conversation/client'
 import type { ProcessActivity } from '../contract/process-groups.ts'
@@ -132,7 +132,9 @@ const ProcessGroupHeader = memo(function ProcessGroupHeader({ groupKey, useChatG
           {open ? <IconChevronUpOutline14 /> : <IconChevronDownOutline14 />}
         </span>
       </span>
-      <span className={css.label} data-process-label>{title}</span>
+      <TextShimmer active={!data.closed}>
+        <span className={css.label} data-process-label>{title}</span>
+      </TextShimmer>
     </button>
   )
 })

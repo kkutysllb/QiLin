@@ -148,7 +148,6 @@
   margin-top: var(--dsh-chat-flow-gap, 6px);
 }
 .expandedBody {
-  --dsh-chat-flow-gap: 16px;
   max-height: none;
   overflow: visible;
   scrollbar-gutter: auto;

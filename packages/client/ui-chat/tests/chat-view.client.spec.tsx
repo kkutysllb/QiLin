@@ -1101,7 +1101,9 @@ describe('ChatView', () => {
       expect([...view.container.querySelectorAll('[data-process-activity]')]).toEqual(allHeaders)
       expect(headers.map(header => header.textContent)).toEqual(titles)
       const liveLabel = h.props.t('message.stepProcess.commands')
-      expect(allHeaders[40]?.textContent).toBe(mode === 'compact' ? liveLabel
+      // The running title's shimmer copy is decorative; the label owns the text.
+      const liveHeaderText = allHeaders[40]?.querySelector('[data-process-label]')?.textContent
+      expect(liveHeaderText).toBe(mode === 'compact' ? liveLabel
         : `${liveLabel}${h.props.t('message.turnProcess.separator')}pwd`)
     }
     const running = groups[40]!

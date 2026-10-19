@@ -180,6 +180,13 @@ function headerOf(container: HTMLElement): HTMLButtonElement {
   return header
 }
 
+/** The header's visible label, apart from the decorative shimmer duplicate. */
+function labelOf(container: HTMLElement): string {
+  const label = container.querySelector<HTMLElement>('[data-process-label]')
+  if (label === null) throw new Error('group title did not render')
+  return label.textContent ?? ''
+}
+
 function bodyOf(container: HTMLElement): HTMLElement {
   const body = container.querySelector<HTMLElement>('[data-step-process-body]')
   if (body === null) throw new Error('group body did not render')
@@ -322,7 +329,7 @@ describe('ChatGroupSeat', () => {
   it.each(TITLE_CASES)('titles $name as $expected', ({ summary, closed, expected }) => {
     const seat = makeSeat({ closed, summary })
     const view = render(<ChatGroupSeat {...seat.props} />)
-    expect(headerOf(view.container).textContent).toBe(expected)
+    expect(labelOf(view.container)).toBe(expected)
   })
 
   it('withholds the live detail once the reader picks a mode without it', () => {
@@ -331,10 +338,18 @@ describe('ChatGroupSeat', () => {
       summary: { counts: [], running: 'commands', runningDetail: 'pwd' },
     })
     const view = render(<ChatGroupSeat {...seat.props} />)
-    expect(headerOf(view.container).textContent).toBe('正在运行命令 · pwd')
+    expect(labelOf(view.container)).toBe('正在运行命令 · pwd')
 
     act(() => { seat.setPolicy('compact') })
-    expect(headerOf(view.container).textContent).toBe('正在运行命令')
+    expect(labelOf(view.container)).toBe('正在运行命令')
+  })
+
+  it('shimmers its title while the group runs and settles the text once it closes', () => {
+    const running = render(<ChatGroupSeat {...makeSeat({ closed: false }).props} />)
+    expect(running.container.querySelector('[data-process-label]')?.closest('[data-shimmer]')).not.toBeNull()
+    running.unmount()
+    const closed = render(<ChatGroupSeat {...makeSeat({ closed: true }).props} />)
+    expect(closed.container.querySelector('[data-process-label]')?.closest('[data-shimmer]')).toBeNull()
   })
 
   it('keeps independently keyed members apart when one part is split out', () => {

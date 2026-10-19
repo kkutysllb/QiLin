@@ -27,7 +27,7 @@ export const TRANSCRIPT_VIEW_MODES = ['compact', 'standard', 'detailed', 'verbos
 export type TranscriptViewMode = typeof TRANSCRIPT_VIEW_MODES[number]
 
 /**
- * Saved value from the two-mode generation of this setting. Read as `standard`;
+ * Saved value from the two-mode generation of this setting. Read as `detailed`;
  * never offered as a choice and never written back.
  */
 export const LEGACY_TRANSCRIPT_VIEW_MODE = 'normal'
@@ -40,7 +40,7 @@ const TRANSCRIPT_VIEW_SETTING_VALUES = [
   ...TRANSCRIPT_VIEW_MODES, LEGACY_TRANSCRIPT_VIEW_MODE, LEGACY_EXPANDED_TRANSCRIPT_VIEW_MODE,
 ] as const
 
-/** Standard process summaries for users without an explicit preference. */
+/** Work-details mode before Host settings arrive and for a missing saved value. */
 export const DEFAULT_TRANSCRIPT_VIEW_MODE: TranscriptViewMode = 'detailed'
 
 /** Performance and usage detail levels accepted by user settings. */

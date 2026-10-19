@@ -4,7 +4,7 @@ import { fileMediaUrl } from '@qilin-agent/util-workspace-path'
 import { JsonBlock, MarkdownText } from '@qilin-agent/client-ui-primitives'
 import type { MarkdownFileMentions, MarkdownPathImages } from '@qilin-agent/client-ui-primitives'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
-import type { ChatNodeOwnerProps, ChatViewSlotProps, UseGroupAction, UsePresentation } from '../contract/slots.ts'
+import type { ChatNodeOwnerProps, ChatViewSlotProps, UseDisclosure, UseGroupAction, UsePresentation } from '../contract/slots.ts'
 import type { AssistantBlock } from '../contract/snapshot.ts'
 import { markdownLabels } from '../markdown-labels.ts'
 import { ReasoningRow } from './ReasoningRow.tsx'
@@ -46,6 +46,8 @@ export interface AssistantMarkdownProps {
   renderMessageImages: ChatNodeOwnerProps['renderMessageImages']
   /** Hide reasoning that belongs to the Turn-level process disclosure. */
   reasoningHidden?: boolean | undefined
+  /** Stable Hook forwarded to each independently expandable reasoning block. */
+  useDisclosure?: UseDisclosure | undefined
   /** Process hiding bound by the node slot to its current viewport. */
   useGroupAction: UseGroupAction
   /** Reveal the owning Turn-level process disclosure. */
@@ -66,7 +68,8 @@ export interface AssistantMarkdownProps {
 /** Reasoning block as the Think variant summary row (figma 39:28304). */
 export const AssistantMarkdown = memo(function AssistantMarkdown({
   groupPart, blocks, streaming, interrupted, renderMessageImages,
-  reasoningHidden = false, revealProcess, mentions, usePresentation, useGroupAction, renderSlot, t,
+  reasoningHidden = false, revealProcess, mentions, usePresentation, useDisclosure, useGroupAction,
+  renderSlot, t,
 }: AssistantMarkdownProps) {
   // Stable per locale revision (t identity changes on switch): a fresh object
   // per render would rebuild MarkdownText's component table every chunk.
@@ -106,6 +109,7 @@ export const AssistantMarkdown = memo(function AssistantMarkdown({
         )
         break
       case 'reasoning':
+        if (block.text.trim() === '') break
         rendered.push(
           <ProcessReasoning
             key={i}
@@ -117,6 +121,7 @@ export const AssistantMarkdown = memo(function AssistantMarkdown({
               text={block.text}
               running={streaming && i === last}
               usePresentation={usePresentation}
+              useDisclosure={useDisclosure}
               renderSlot={renderSlot}
               t={t}
             />
@@ -165,7 +170,9 @@ export const AssistantMarkdown = memo(function AssistantMarkdown({
     <div className={css.root} data-streaming={streaming || undefined}>
       <div className={css.body}>
         {rendered}
-        {interrupted && <span className={css.stopped}>{t('message.stopped')}</span>}
+        {interrupted && (groupPart === undefined || groupPart === 'response'
+          || !blocks.some(block => block.kind !== 'reasoning' && block.kind !== 'tool-call'))
+          && <span className={css.stopped}>{t('message.stopped')}</span>}
       </div>
     </div>
   )

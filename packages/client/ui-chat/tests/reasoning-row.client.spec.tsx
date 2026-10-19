@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, fireEvent, render } from '@testing-library/react'
+import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
@@ -9,6 +9,7 @@ import { derivePresentationPolicy, type CollapseTiming } from '../src/client/pre
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { zh } from '../src/client/locale.ts'
 import { MarkdownText } from '@qilin-agent/client-ui-primitives'
+import { bindDisclosure } from '../src/client/chat/use-disclosure.ts'
 import { AssistantMarkdown, type AssistantMarkdownProps } from '../src/client/chat/AssistantMarkdown.tsx'
 import { markdownLabels } from '../src/client/markdown-labels.ts'
 import { useSearchableHidden } from '../src/client/chat/searchable-hidden.ts'
@@ -59,7 +60,7 @@ describe('ReasoningRow', () => {
     expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('false')
   })
 
-  it('follows the latest streaming line, then restores the settled first line', () => {
+  it('streams the latest completed paragraph first line, then keeps the settled first line', () => {
     const view = render(
       <AssistantMarkdown
         renderSlot={renderReasoningBody}
@@ -71,9 +72,10 @@ describe('ReasoningRow', () => {
     )
     expect(view.getByText('运行中')).toBeTruthy()
     expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('false')
-    expect(view.getByText('Newest reasoning tokens').parentElement?.getAttribute('data-follow-end'))
-      .toBe('true')
+    // The paragraph's first line completed, so it previews while the rest streams.
+    expect(view.getByText('Inspect the session').closest('[data-streaming]')).not.toBeNull()
 
+    // Later text in that paragraph leaves the preview unchanged.
     view.rerender(
       <AssistantMarkdown
         renderSlot={renderReasoningBody}
@@ -83,22 +85,91 @@ describe('ReasoningRow', () => {
         renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
-    expect(view.getByText('Newest reasoning tokens keep arriving').parentElement
-      ?.getAttribute('data-follow-end')).toBe('true')
+    expect(view.getByText('Inspect the session')).toBeTruthy()
+
+    // A completed second paragraph advances the preview to its first line, and
+    // its unfinished tail does not move it further.
+    view.rerender(
+      <AssistantMarkdown
+        renderSlot={renderReasoningBody}
+        t={t}
+        blocks={[{
+          kind: 'reasoning',
+          text: 'Inspect the session\nNewest reasoning tokens\n\nSecond paragraph line\nstill streaming',
+        }]}
+        streaming
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
+      />,
+    )
+    expect(view.getByText('Second paragraph line')).toBeTruthy()
+    expect(view.queryByText('still streaming')).toBeNull()
 
     view.rerender(
       <AssistantMarkdown
         renderSlot={renderReasoningBody}
         t={t}
-        blocks={[{ kind: 'reasoning', text: 'Inspect the session\nNewest reasoning tokens keep arriving\n' }]}
+        blocks={[{
+          kind: 'reasoning',
+          text: 'Inspect the session\nNewest reasoning tokens\n\nSecond paragraph line\nstill streaming\n',
+        }]}
         streaming={false}
         renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       />,
     )
-    const settledSummary = view.getByText('Inspect the session')
     expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('false')
     expect(view.queryByText('运行中')).toBeNull()
-    expect(settledSummary.parentElement?.hasAttribute('data-follow-end')).toBe(false)
+    // Settlement returns to the whole block's first line.
+    expect(view.getByText('Inspect the session')).toBeTruthy()
+    expect(view.getByText('Inspect the session').closest('[data-streaming]')).toBeNull()
+  })
+
+  it('has no streaming preview before the current paragraph first line completes', () => {
+    const view = render(
+      <AssistantMarkdown
+        renderSlot={renderReasoningBody}
+        t={t}
+        blocks={[{ kind: 'reasoning', text: 'Unfinished single line' }]}
+        streaming
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
+      />,
+    )
+    expect(view.container.querySelector('[data-variant="think"]')?.hasAttribute('data-preview')).toBe(false)
+    expect(view.queryByText('Unfinished single line')).toBeNull()
+    expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('false')
+  })
+
+  it('renders no reasoning row for a whitespace-only block', () => {
+    const view = render(
+      <AssistantMarkdown
+        renderSlot={renderReasoningBody}
+        t={t}
+        blocks={[{ kind: 'reasoning', text: '  \n\t ' }]}
+        streaming={false}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
+      />,
+    )
+    expect(view.queryByText('思考')).toBeNull()
+  })
+
+  it('resets an open reasoning row when the enclosing Turn hides its process', () => {
+    const reset = createSnapshotStore(0)
+    const useDisclosure = bindDisclosure(reset)
+    const renderRow = () => (
+      <AssistantMarkdown
+        renderSlot={renderReasoningBody}
+        t={t}
+        blocks={[{ kind: 'reasoning', text: 'Inspect the session\nCheck persistence' }]}
+        streaming={false}
+        renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
+        useDisclosure={useDisclosure}
+      />
+    )
+    const view = render(renderRow())
+    fireEvent.click(view.getByText('思考'))
+    expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('true')
+
+    act(() => { reset.set(reset.getSnapshot() + 1) })
+    expect(view.getByRole('button').getAttribute('aria-expanded')).toBe('false')
   })
 
   it('expands from either Think or the reasoning summary', () => {
@@ -129,7 +200,7 @@ describe('ReasoningRow', () => {
     },
     {
       label: 'streaming',
-      text: 'Inspect the session\n**Comparing checkout and merge bases**',
+      text: '**Comparing checkout and merge bases**\nstill streaming',
       streaming: true,
     },
   ])('strips double-asterisk markers from the $label summary and renders body emphasis', ({ text, streaming }) => {
@@ -294,6 +365,8 @@ describe('ReasoningRow settled preview by work-details mode', () => {
         ))}
       />,
     )
-    expect(view.getByText('Newest tokens')).toBeTruthy()
+    // The completed first line previews; the unfinished tail never does.
+    expect(view.getByText('Inspect the session')).toBeTruthy()
+    expect(view.queryByText('Newest tokens')).toBeNull()
   })
 })

@@ -23,6 +23,7 @@ const renderMessageImages: ChatNodeOwnerProps['renderMessageImages'] = () => nul
 
 const REASONING = 'Both files have been read, so I will reply with the marker.'
 const REPLY = 'DONE_MARKER'
+const STOPPED = '已停止'
 
 function step(): AssistantBlock[] {
   return [
@@ -31,13 +32,18 @@ function step(): AssistantBlock[] {
   ]
 }
 
-function seatText(groupPart: string | undefined): string {
+function seatText(
+  groupPart: string | undefined,
+  interrupted = false,
+  blocks: AssistantBlock[] = step(),
+): string {
   const view = render(
     <AssistantMarkdown
       renderSlot={() => null}
       groupPart={groupPart}
-      blocks={step()}
+      blocks={blocks}
       streaming={false}
+      interrupted={interrupted}
       renderMessageImages={renderMessageImages} useGroupAction={useSearchableHidden}
       t={t}
     />,
@@ -61,5 +67,12 @@ describe('AssistantMarkdown process portions', () => {
     const whole = seatText(undefined)
     expect(whole).toContain(REASONING)
     expect(whole).toContain(REPLY)
+  })
+
+  it('marks an interrupted step once, in the seat that carries the answer', () => {
+    expect(seatText('reasoning', true)).not.toContain(STOPPED)
+    expect(seatText('response', true)).toContain(STOPPED)
+    // A reasoning-only step owns the stopped mark because no answer seat exists.
+    expect(seatText('reasoning', true, [{ kind: 'reasoning', text: REASONING }])).toContain(STOPPED)
   })
 })
