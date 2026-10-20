@@ -6,7 +6,7 @@ import { desktopKeybindings } from './keybindings.ts'
 /** Name a sidebar browser lease carries in the main process, declared here because the client package ships no such type. */
 
 import type { DesktopBrowserLeaseId } from './browser-bridge-types.ts'
-import { DESKTOP_IPC, assertDesktopSender } from './ipc.ts'
+import { DESKTOP_IPC, assertDesktopSender, desktopScheme } from './ipc.ts'
 
 /**
  * Install application-owned configuration handlers and attach each product window's input lifecycle.
@@ -67,7 +67,7 @@ export function installDesktopShortcuts(
     closeBinding = close?.issue === null && close.conflicts.length === 0 ? close.binding : null
     if (wasEnabled !== (revision !== undefined) || previousAccelerator !== closeAccelerator()) updateMenu()
     const window = getWindow()
-    if (window !== undefined && !window.isDestroyed() && window.webContents.mainFrame.url.startsWith('qilin-app://app/')) {
+    if (window !== undefined && !window.isDestroyed() && window.webContents.mainFrame.url.startsWith(`${desktopScheme()}://app/`)) {
       window.webContents.send(DESKTOP_IPC.shortcutsChanged, snapshot)
     }
   }

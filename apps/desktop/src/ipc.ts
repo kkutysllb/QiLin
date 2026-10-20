@@ -84,19 +84,41 @@ export interface QilinDesktopProductApi {
   }
 }
 
-/** Scheme of Desktop-owned application documents. */
+/** Scheme of Desktop-owned application documents; the product manifest may name another. */
 export const SCHEME = 'qilin-app'
+
+/** Argument the main process uses to tell a preload which application scheme it serves. */
+export const SCHEME_ARGUMENT = '--qilin-desktop-scheme='
+
+/**
+ * Application scheme this process serves.
+ *
+ * The main process passes the product scheme through `additionalArguments`; a preload reads
+ * it from `process.argv`. Without the argument the engine's own scheme applies.
+ * @param argv - process arguments; defaults to this process's.
+ * @returns The scheme without the trailing colon.
+ */
+export function desktopScheme(argv: readonly string[] = process.argv): string {
+  const entry = argv.find(argument => argument.startsWith(SCHEME_ARGUMENT))
+  const fromArgument = entry === undefined ? '' : entry.slice(SCHEME_ARGUMENT.length)
+  const fromEnvironment = process.env.QILIN_DESKTOP_SCHEME ?? ''
+  for (const candidate of [fromArgument, fromEnvironment]) {
+    if (/^[a-z][a-z0-9+.-]*$/u.test(candidate)) return candidate
+  }
+  return SCHEME
+}
 
 /**
  * Reject IPC outside the allowed Desktop document origins.
  * @param event - IPC caller whose frame URL supplies the origin.
  * @param hostnames - Desktop document hosts allowed for this operation.
+ * @param scheme - Application scheme the product serves.
  */
-export function assertDesktopSender(event: IpcMainInvokeEvent, hostnames: readonly string[]): void {
+export function assertDesktopSender(event: IpcMainInvokeEvent, hostnames: readonly string[], scheme: string = desktopScheme()): void {
   const senderFrame = event.senderFrame
   if (senderFrame === null) throw new Error('qilin desktop: rejected IPC without a sender frame')
   const url = new URL(senderFrame.url)
-  if (url.protocol !== `${SCHEME}:` || !hostnames.includes(url.hostname)) {
+  if (url.protocol !== `${scheme}:` || !hostnames.includes(url.hostname)) {
     throw new Error('qilin desktop: rejected IPC from an unowned renderer')
   }
 }
