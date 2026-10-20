@@ -20,6 +20,8 @@ async function main(): Promise<void> {
   const installAnchor = join(runtimeDir, 'node_modules', '@qilin-agent', 'cli', 'package.json')
   const profile = loadProfileDirectory('qilin', projectDir, installAnchor)
   reportSkippedBundles('qilin', profile)
+  // A product names its own profile; the engine application keeps the reserved `desktop` name.
+  const profileName = process.env.QILIN_DESKTOP_PROFILE ?? 'desktop'
   // The desktop product isolates its user data from the Web deployment, which
   // resolves ~/.qilin: default the home to ~/.ktoon before the layered
   // environment resolves, unless the launcher's process environment already
@@ -28,7 +30,7 @@ async function main(): Promise<void> {
   const environment = loadLayeredEnv('qilin')
   const application = runProfile({
     environment,
-    profile: 'desktop',
+    profile: profileName,
     resolvedProfile: { profile, installAnchor },
     patchFiles: [],
     args: ['--no-open', '--host', '127.0.0.1', '--port', '0'],
@@ -96,11 +98,15 @@ async function main(): Promise<void> {
   const { ctx } = await application
   control.updateTasks = installDesktopUpdateTaskControl(ctx)
   control.quitInspection = installDesktopQuitInspection(ctx)
-  await ctx.plugin(desktopOffice, {
-    runtimeDir,
-    source: process.argv[4] ?? join(runtimeDir, '..', 'runtime', 'primary-runtime'),
-    root: join(resolveQilinHome(), 'qilin-runtimes', 'qilin-primary-runtime'),
-  })
+  // The bundled Office integration needs the primary runtime; a product without it keeps the
+  // profile's own Office tools and skips this extra composition.
+  if (process.env.QILIN_DESKTOP_OFFICE !== '0') {
+    await ctx.plugin(desktopOffice, {
+      runtimeDir,
+      source: process.argv[4] ?? join(runtimeDir, '..', 'runtime', 'primary-runtime'),
+      root: join(resolveQilinHome(), 'qilin-runtimes', 'qilin-primary-runtime'),
+    })
+  }
   // The listener may bind after the tree settles; the service owns that readiness signal.
   await ctx.webServer.whenListened()
   const url = ctx.connection.authenticatedUrl(`${ctx.webServer.protocol}//127.0.0.1:${String(ctx.webServer.port)}`)

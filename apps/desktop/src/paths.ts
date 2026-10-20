@@ -11,12 +11,13 @@ export interface DesktopPaths {
 
 /**
  * Resolve every Electron-owned path without changing the shared data roots.
- * @param dshHome - Harness home shared with npm-installed dsh.
+ * @param profile - Profile the Host boots; a product names its own profile.
+ * @param dshHome - Harness home shared with npm-installed qilin.
  * @returns immutable desktop path set.
  */
-export function resolveDesktopPaths(dshHome: string = resolveQilinHome()): DesktopPaths {
+export function resolveDesktopPaths(profile = 'desktop', dshHome: string = resolveQilinHome()): DesktopPaths {
   return {
-    profile: join(dshHome, 'profiles', 'desktop'),
-    lock: join(dshHome, 'profiles', 'desktop', 'lock'),
+    profile: join(dshHome, 'profiles', profile),
+    lock: join(dshHome, 'profiles', profile, 'lock'),
   }
 }
