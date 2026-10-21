@@ -27,6 +27,7 @@ const roots: string[] = []
 const contexts: Context[] = []
 
 afterEach(async () => {
+  UsageLocal.resetUsageAnswerCache()
   for (const ctx of contexts.splice(0)) await ctx.fiber.dispose()
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true, maxRetries: 3 })
 })
