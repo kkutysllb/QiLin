@@ -1,22 +1,23 @@
-/** QiLin brand color skin for the Web client theme. */
+/** Color packs for the Web client theme: every shipped pack registers as one selectable skin. */
 
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/client-ui-theme/client'
-import { QILIN_SKIN_ID, QILIN_SKIN_LABEL } from '../skin.ts'
-import { QILIN_TOKENS } from './tokens.ts'
+import { SKIN_PACKS } from '../skin.ts'
 
 /** Required service: the theme registry and its skin registry. */
 export const inject = ['theme']
 
 /**
- * Register the QiLin palette as one selectable skin. Light/dark selection stays
- * the user's; the skin only replaces QiLin-owned alias tokens. Registration is
- * an effect, so unloading the plugin removes the skin and restores the platform
- * palette while the durable selection survives for a later load.
+ * Register every shipped color pack as a selectable skin. Light/dark selection
+ * stays the user's; a skin only replaces the alias tokens it names. Registration
+ * is an effect, so unloading the plugin removes every skin and restores the
+ * platform palette while the durable selection survives for a later load.
  * @param ctx - Client root context.
  */
 export function apply(ctx: ClientContext): void {
-  ctx.effect(() => ctx.theme.registerSkin({
-    id: QILIN_SKIN_ID, label: QILIN_SKIN_LABEL, tokens: QILIN_TOKENS,
-  }), 'qilin: brand skin')
+  for (const pack of SKIN_PACKS) {
+    ctx.effect(() => ctx.theme.registerSkin({
+      id: pack.id, label: pack.label, tokens: pack.tokens,
+    }), `ui-theme-brand: ${pack.id} skin`)
+  }
 }

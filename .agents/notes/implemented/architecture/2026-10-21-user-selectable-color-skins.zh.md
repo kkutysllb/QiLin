@@ -14,6 +14,8 @@ QiLin 只有一套品牌配色，而且是无条件应用的：`ui-theme-brand` 
 
 **配色包是与明暗偏好相互正交的第二条轴。** `ThemeSkin` 为 `{ id, label, tokens }`，由 `ThemeRuntime.registerSkin` 与 `setSkin` 拥有；持久选择放在 `ui-theme` 命名空间新增的 `skin` 字段，而不是 `preference`。每个 token 都声明两套方案，因此一套配色包可与用户选定的任意明暗方案组合。
 
+**配色包按调色板命名，不按产品命名。** bundle 随附三套：玄金（`qilin`）、黑白（`mono`）、墨绿（`verdant`）。id 与名称描述颜色，组合可以提供其中任意一套而界面不暴露使用者；产品自有包携带自己的印章令牌，中性包把该令牌留给基础配色。
+
 **叠加顺序为：明暗基础调色 → 配色包 → 显式覆盖层。** 配色包永远是最低层；`overrideTokens` 层仍然优先，部署强制指定的 token 不会被用户的选择推翻。既无配色包也无覆盖层时，活动定义按同一性透传——运行时规格钉住了这一点。
 
 **卸载保留持久选择。** 提供方卸载只移除注册并重新发布；未注册的选择生效值回落到底色调色板，而持久值保留，重新启用插件后恢复用户的选择。只有 `setSkin` 写该字段，与 `setTheme` 及字体设置方法的单一写入口规则一致。
@@ -26,7 +28,7 @@ QiLin 只有一套品牌配色，而且是无条件应用的：`ui-theme-brand` 
 
 ## Verification
 
-`pnpm run test:gui` 覆盖注册、选择、持久化、提供方缺失回退、显式覆盖层之下的层次、令牌目录、外观行的隐藏/显示，以及语言切换后的标签重解析；两个主题包仍满足逐文件 100% 覆盖率门禁。品牌规格通过注册与卸载重新钉住玄金令牌，外观行规格证明 chip 行的选中与写回路径，bundle 规格断言产品补丁设置 `skin: qilin`。`pnpm run typecheck` 与 `QILIN_SNAPSHOT=replay pnpm run test:web` 覆盖客户端树与回放浏览器场景。
+`pnpm run test:gui` 覆盖注册、选择、持久化、提供方缺失回退、显式覆盖层之下的层次、令牌目录、外观行的隐藏/显示，以及语言切换后的标签重解析；两个主题包仍满足逐文件 100% 覆盖率门禁。品牌规格钉住每个随附包的 id、名称、画布底色、双 scheme 取值与共享语义覆盖面，再通过注册、切换与卸载重新钉住玄金令牌，外观行规格证明 chip 行的选中与写回路径，bundle 规格断言产品补丁设置 `skin: qilin`。`pnpm run typecheck` 与 `QILIN_SNAPSHOT=replay pnpm run test:web` 覆盖客户端树与回放浏览器场景。
 
 ## Alternatives considered
 

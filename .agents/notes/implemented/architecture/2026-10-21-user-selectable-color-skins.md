@@ -14,6 +14,8 @@ Adding palettes had no correct home. A second brand package that also overrode t
 
 **A skin is a separate axis from the light/dark preference.** `ThemeSkin` is `{ id, label, tokens }`; `ThemeRuntime.registerSkin` and `setSkin` own it, and the durable choice lives in a new `skin` field of the `ui-theme` namespace instead of `preference`. Every token states both palette modes, so one skin composes with whichever scheme the user picked.
 
+**Packs name palettes, not products.** The bundle ships three: dark-gold (`qilin`), monochrome (`mono`), and green (`verdant`). Ids and labels describe color, so a composition can offer one without the interface naming who uses it; the product's own pack carries its seal token, and the neutral packs leave that token to the base palettes.
+
 **Composition order is scheme palette, then skin, then explicit override layers.** A skin is always the lowest overlay; `overrideTokens` layers keep winning, so a deployment that forces tokens is not defeated by a user's choice. Without a skin or layers the active definition passes through by identity, which the runtime spec pins.
 
 **Disposal keeps the durable selection.** Disposing a provider removes its registration and republishes; an unregistered selection resolves to the platform palette while the persisted id stays, so re-enabling the plugin restores the user's pick. Only `setSkin` writes the field, the same single-write-entry rule as `setTheme` and the font setters.
@@ -26,7 +28,7 @@ Adding palettes had no correct home. A second brand package that also overrode t
 
 ## Verification
 
-`pnpm run test:gui` covers registration, selection, persistence, the unregistered-provider fallback, layering under an explicit override, inspection, the row's hidden/shown states, and label re-resolution; per-file coverage stays at the 100% gate for both theme packages. The brand spec re-pins the Xuanjin tokens through registration and unload, the appearance-row spec proves the chip row's selection and write path, and the bundle spec asserts the product patch sets `skin: qilin`. `pnpm run typecheck` and `QILIN_SNAPSHOT=replay pnpm run test:web` cover the client tree and the replayed browser scenarios.
+`pnpm run test:gui` covers registration, selection, persistence, the unregistered-provider fallback, layering under an explicit override, inspection, the row's hidden/shown states, and label re-resolution; per-file coverage stays at the 100% gate for both theme packages. The brand spec pins every shipped pack's id, label, boot colors, dual-mode token values, and shared semantic coverage, then re-pins the Xuanjin values through registration, selection changes, and unload; the appearance-row spec proves the chip row's selection and write path, and the bundle spec asserts the product patch sets `skin: qilin`. `pnpm run typecheck` and `QILIN_SNAPSHOT=replay pnpm run test:web` cover the client tree and the replayed browser scenarios.
 
 ## Alternatives considered
 

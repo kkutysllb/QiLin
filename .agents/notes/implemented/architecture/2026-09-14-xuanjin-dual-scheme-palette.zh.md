@@ -14,7 +14,7 @@ landing 页没有任何主题控制，而 auth 页与 landing 共用令牌名，
 
 ## Decision
 
-**landing 令牌是唯一色源，品牌配色包为整个表面栈声明双 scheme。** 该配色以可选 `qilin` 配色包的形式发布（[2026-10-21](2026-10-21-user-selectable-color-skins.zh.md)）；本笔记拥有颜色取值，那一篇拥有选择机制。 [tokens.ts](../../../../packages/client/ui-theme-brand/src/client/tokens.ts) 的 `QILIN_TOKENS` 从三个令牌扩展到五十五个，按族分组。深色值逐字移植 landing 配色：画布 `#0d0b09`、卡面 `#16130f`/`#1d1915`、推导的第三层 `#26211c`、墨阶 `#efe9df`/`#a89f90`/`#857c6c`、强调色 gold-500 `#c9a24a`。浅色值推导暖纸对应版：纸白画布 `#f8f5ee`、暖白卡面 `#fdfbf5`、暖近黑墨色 `#221d15`、强调色 gold-700 `#8f6f2e`。每个被覆盖的令牌都有真实组件消费者；无当前消费者的令牌（brand-text、module-platform、multi-select 等）留在基础配色。
+**landing 令牌是唯一色源，品牌配色包为整个表面栈声明双 scheme。** 该配色以可选 `qilin` 配色包的形式发布（[2026-10-21](2026-10-21-user-selectable-color-skins.zh.md)）；本笔记拥有颜色取值，那一篇拥有选择机制。 [tokens.ts](../../../../packages/client/ui-theme-brand/src/packs/qilin.ts) 的 `QILIN_TOKENS` 从三个令牌扩展到五十五个，按族分组。深色值逐字移植 landing 配色：画布 `#0d0b09`、卡面 `#16130f`/`#1d1915`、推导的第三层 `#26211c`、墨阶 `#efe9df`/`#a89f90`/`#857c6c`、强调色 gold-500 `#c9a24a`。浅色值推导暖纸对应版：纸白画布 `#f8f5ee`、暖白卡面 `#fdfbf5`、暖近黑墨色 `#221d15`、强调色 gold-700 `#8f6f2e`。每个被覆盖的令牌都有真实组件消费者；无当前消费者的令牌（brand-text、module-platform、multi-select 等）留在基础配色。
 
 **对比度决策来自计算而非目测。** 浅色链接金 `#7d6126` 是推导值而非 VI 的 gold-700：gold-700 在纸白画布上只有 4.3:1，`#7d6126` 保持 5.3:1（被替换的蓝色链接是 4.2:1）。浅色主按钮为 gold-700 搭配配色自带的白色前景，4.7:1；深色主按钮为 gold-500 搭配深色配色的近黑前景，7.9:1——正是 landing CTA 的配对。`--dsw-alias-label-primary-foreground` 刻意不覆盖：勾选框配对（label-primary 填充 + 前景对钩）依赖它，gold-700 让该配对原样成立，无需改任何组件。悬停遵循各平台惯例——深色变亮（gold-500 到 gold-300，即 landing CTA 自身的悬停），浅色变深（gold-700 到推导链接金）。
 

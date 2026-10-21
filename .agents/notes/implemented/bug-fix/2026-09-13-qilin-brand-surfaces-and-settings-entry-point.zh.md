@@ -36,7 +36,7 @@ QiLin Web GUI 在呈现自身品牌时有六处缺陷。
 
 **运行中的轮次标签带上产品品牌与印章朱砂。** `chat.deepDiving` 文案在两种语言下都读作 `QiLin...`，`.turnStatus` 用 `--dsw-specific-brand-seal-fill` 给它上色，取代原先的渐变文字裁剪流光；样式表连同其关键帧一起删除了该流光。
 
-**印章颜色是一个主题 token，其来源是印章本身。** [tokens.ts](../../../../packages/client/ui-theme-brand/src/client/tokens.ts) 在 QiLin 覆盖层中新增 `--dsw-specific-brand-seal-fill`。它的两个取值都是 [Seal.tsx](../../../../packages/client/ui-brand/src/client/Seal.tsx) 中印章主体渐变的色标——浅色表面用中间色标，深色表面用受光的顶部色标，且各自在其渲染表面上都达到 4.5:1。印章保留自己的字面量，因为它是品牌印记而非主题化图标；一个规程读取该来源，以证明 token 仍然与之保持一致。
+**印章颜色是一个主题 token，其来源是印章本身。** [tokens.ts](../../../../packages/client/ui-theme-brand/src/packs/qilin.ts) 在 QiLin 覆盖层中新增 `--dsw-specific-brand-seal-fill`。它的两个取值都是 [Seal.tsx](../../../../packages/client/ui-brand/src/client/Seal.tsx) 中印章主体渐变的色标——浅色表面用中间色标，深色表面用受光的顶部色标，且各自在其渲染表面上都达到 4.5:1。印章保留自己的字面量，因为它是品牌印记而非主题化图标；一个规程读取该来源，以证明 token 仍然与之保持一致。
 
 ## Alternatives considered
 

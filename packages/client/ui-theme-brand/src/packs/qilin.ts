@@ -1,9 +1,8 @@
 /**
- * QiLin alias-token overrides, registered as the product's color skin over the active palette.
+ * The dark-gold color pack: the "玄金" landing VI extended to both schemes.
  *
- * The palette is the "玄金麒麟" (dark-gold) landing VI extended to both
- * schemes: the dark values transplant the landing page's tokens verbatim
- * (apps/web/src/landing/landing.css), the light values derive the matching
+ * The dark values transplant the landing page's tokens verbatim
+ * (apps/web/src/landing/landing.css); the light values derive the matching
  * warm-paper variant because the landing VI ships no light mode. Accent
  * contrast is WCAG AA verified: the deep link gold #7d6126 clears 5.3:1 on
  * paper #f8f5ee where the VI's gold-700 #8f6f2e reaches only 4.3:1, and
@@ -17,11 +16,9 @@
  */
 
 import type { ThemeTokenOverrides } from '@qilin-agent/client-ui-theme/client'
+import type { SkinPack } from '../skin.ts'
 
-/**
- * QiLin's brand tokens over the platform palettes. Every value states both
- * schemes (the ThemeTokenModes contract), grouped by surface family.
- */
+/** Dark-gold tokens over the platform palettes. Every value states both schemes. */
 export const QILIN_TOKENS: ThemeTokenOverrides = Object.freeze({
   /* Brand gold: dark carries the landing gold-500 accent (8.2:1 on the dark
      canvas), light deepens to gold-700 so white on-primary text and focus
@@ -106,11 +103,19 @@ export const QILIN_TOKENS: ThemeTokenOverrides = Object.freeze({
   '--qilin-alias-scrollbar-hover-l1': { light: '#d5ccb6', dark: '#57503f' },
   '--qilin-alias-scrollbar-hover-l2': { light: '#d5ccb6', dark: '#665f4c' },
 
-  /* Seal: unchanged. `--qilin-specific-brand-seal-fill` carries the cinnabar
-     of the QiLin seal for surfaces that must match the stamp. Its two values
-     are the seal body gradient's own stops (ui-primitives QilinSeal.tsx): the
-     mid stop on light surfaces and the lit upper stop on dark ones, so the
-     label clears 4.5:1 against both the light sidebar #f1ece0 and the dark
-     #0d0b09. Changing the seal gradient means changing this token with it. */
+  /* Seal: carries the cinnabar of the product seal for surfaces that must
+     match the stamp. Its two values are the seal body gradient's own stops
+     (ui-primitives QilinSeal.tsx): the mid stop on light surfaces and the lit
+     upper stop on dark ones, so the label clears 4.5:1 against both the light
+     sidebar #f1ece0 and the dark #0d0b09. Changing the seal gradient means
+     changing this token with it. */
   '--qilin-specific-brand-seal-fill': { light: '#b7352c', dark: '#c94a40' },
+})
+
+/** The dark-gold pack as one selectable skin. */
+export const QILIN_PACK: SkinPack = Object.freeze({
+  id: 'qilin',
+  label: Object.freeze({ zh: '玄金', en: 'Xuanjin' }),
+  boot: Object.freeze({ light: '#f8f5ee', dark: '#0d0b09' }),
+  tokens: QILIN_TOKENS,
 })

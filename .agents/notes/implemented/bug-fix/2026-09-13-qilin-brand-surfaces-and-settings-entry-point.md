@@ -36,7 +36,7 @@ The running-turn status line shimmered in vendor blue and read `深度求索中.
 
 **The running-turn label is product-branded and carries the seal's cinnabar.** The `chat.deepDiving` copy reads `QiLin...` in both locales, and `.turnStatus` colors it with `--dsw-specific-brand-seal-fill` instead of the gradient text-clip shimmer, which the stylesheet drops along with its keyframes.
 
-**The seal color is one theme token with the seal as its source.** [tokens.ts](../../../../packages/client/ui-theme-brand/src/client/tokens.ts) adds `--dsw-specific-brand-seal-fill` to the QiLin override layer. Its two values are stops of the seal body gradient in [Seal.tsx](../../../../packages/client/ui-brand/src/client/Seal.tsx) — the mid stop for light surfaces and the lit upper stop for dark ones, each clearing 4.5:1 against the surface it renders on. The seal keeps its own literals because it is a brand stamp rather than a themed icon, and a spec reads that source to prove the token still mirrors it.
+**The seal color is one theme token with the seal as its source.** [tokens.ts](../../../../packages/client/ui-theme-brand/src/packs/qilin.ts) adds `--dsw-specific-brand-seal-fill` to the QiLin override layer. Its two values are stops of the seal body gradient in [Seal.tsx](../../../../packages/client/ui-brand/src/client/Seal.tsx) — the mid stop for light surfaces and the lit upper stop for dark ones, each clearing 4.5:1 against the surface it renders on. The seal keeps its own literals because it is a brand stamp rather than a themed icon, and a spec reads that source to prove the token still mirrors it.
 
 ## Alternatives considered
 

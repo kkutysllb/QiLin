@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to give the QiLin Web surface its own brand colors. The plugin registers one selectable `ctx.theme` skin named `qilin`: the user's `light`, `dark`, or `system` preference and every base token stay untouched, and only the tokens QiLin owns are replaced while the skin is selected. Unloading the plugin restores the platform palette because the registration is a Kylin effect, and the durable skin choice survives its provider so a later load restores the user's pick.
+Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to ship selectable color packs. Each pack registers one `ctx.theme` skin: the user's `light`, `dark`, or `system` preference and every base token stay untouched, and only the alias tokens the pack owns are replaced while it is selected. Packs carry the product's own palette plus neutral alternatives, identified by their palette rather than a product name. Unloading the plugin restores the platform palette because every registration is a Kylin effect, and the durable skin choice survives its provider so a later load restores the user's pick.
 
 ## Table of Contents
 
@@ -23,9 +23,19 @@ Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to give the QiLin W
 <a id="use-this-package"></a>
 ## Use this package
 
-The `qilin` profile mounts this package through its bundle patch, so no configuration is required; the same patch sets `skin: qilin` on the `ui-theme` row, making the Xuanjin palette the product default. The package's node half registers the skin's canvas colors (`#f8f5ee` light, `#0d0b09` dark) with the Host boot registry, so the first paint already uses the skin's background. A deployment that wants another palette with the same base theme ships its own skin provider and selects it through the appearance row; the light/dark/system preference keeps composing underneath. Any user who picks a different registered skin switches away from this one, and the choice persists across restarts.
+The `qilin` profile mounts this package through its bundle patch, so no configuration is required; the same patch sets `skin: qilin` on the `ui-theme` row, making the dark-gold pack the product default. The package's node half registers every pack's canvas colors with the Host boot registry, so the first paint already uses the selected pack's background. A deployment that wants another palette with the same base theme ships its own pack and selects it through the appearance row; the light/dark/system preference keeps composing underneath. Any user who picks a different pack switches away from the default, and the choice persists across restarts.
 
-The palette is the "Xuanjin" dark-gold landing VI in both schemes: the dark values transplant the landing tokens verbatim, the light values derive the warm-paper counterpart ([decision note](../../../.agents/notes/implemented/architecture/2026-09-14-xuanjin-dual-scheme-palette.md)). Fifty-five tokens are grouped by family in [tokens.ts](src/client/tokens.ts): brand gold, surfaces and sidebar, ink labels, hairlines and hovers, the secondary button family, and the code/scrollbar reading surfaces.
+### Shipped packs
+
+| Id | Label | Light canvas | Dark canvas | Accent (light / dark) |
+|---|---|---|---|---|
+| `qilin` | 玄金 / Xuanjin | `#f8f5ee` | `#0d0b09` | `#8f6f2e` / `#c9a24a` |
+| `mono` | 黑白 / Mono | `#f4f4f4` | `#000000` | `#1a1a1a` / `#f2f2f2` |
+| `verdant` | 墨绿 / Verdant | `#f1f6f2` | `#0a120e` | `#2f6b4b` / `#8fd0a8` |
+
+A pack covers the same semantic families in every scheme — accent, link, canvas and layer surfaces, sidebar, component fills, ink labels, hairlines and hovers, the secondary button family, and the code/scrollbar reading surfaces — so switching packs never leaves a component on the previous palette. Tokens a pack does not name stay with the base palettes.
+
+The dark-gold pack is the "Xuanjin" landing VI in both schemes: the dark values transplant the landing tokens verbatim, the light values derive the warm-paper counterpart ([decision note](../../../.agents/notes/implemented/architecture/2026-09-14-xuanjin-dual-scheme-palette.md)). Its tokens are grouped by family in [packs/qilin.ts](src/packs/qilin.ts).
 
 | Role | Token | Light | Dark |
 |---|---|---|---|
@@ -33,7 +43,7 @@ The palette is the "Xuanjin" dark-gold landing VI in both schemes: the dark valu
 | Canvas | `--qilin-alias-bg-base` | `#f8f5ee` (paper) | `#0d0b09` (landing bg) |
 | Sidebar | `--qilin-specific-sidebar-fill` | `#f1ece0` | `#0d0b09` |
 | Link | `--qilin-alias-link` | `#7d6126` (5.3:1 on paper) | `#f3dc9e` (14.5:1) |
-| Seal | `--qilin-specific-brand-seal-fill` | `#c3402f` | `#d4503d` |
+| Seal | `--qilin-specific-brand-seal-fill` | `#b7352c` | `#c94a40` |
 
 Feature components consume these through the `--qilin-alias-*` aliases they already use, so the palette reaches the sidebar, composer, conversation, and deliverables without any component being aware of QiLin. Hover keeps each platform's convention (dark brightens toward gold-300, light deepens toward the link gold), state colors and the ongoing blue stay with the base palettes, and `--qilin-specific-brand-seal-fill` carries the seal's own cinnabar for surfaces that must match the stamp; its two values are stops of the seal gradient in `ui-brand`.
 
