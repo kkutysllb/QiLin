@@ -37,5 +37,9 @@ describe('qilin-qilin-web bundle', () => {
     expect(systemPrompt?.config?.['personaSuffix']).toBeUndefined()
     const webRuntime = overrides.find(row => row.id === 'web-runtime')
     expect(webRuntime?.config?.['label']).toBe('qilin')
+    // The product default skin: the appearance row persists the user's own
+    // choice over this value, and the boot registry paints its canvas.
+    const themeRow = overrides.find(row => row.id === 'ui-theme')
+    expect(themeRow?.config?.['skin']).toBe('qilin')
   })
 })

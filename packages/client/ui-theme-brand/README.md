@@ -56,5 +56,5 @@ None; the theme contributes no prompt text.
 <a id="known-limitations-and-deferred-work"></a>
 
 - Tokens without a current component consumer stay with the base palettes; a future consumer that needs the warm values joins this skin rather than re-deriving them.
-- The shipped spec exercises the production theme runtime and its skin registry. A booted-Web-surface assertion for this skin is not in place yet; the assembled-surface check is manual.
+- The spec mounts the production theme runtime and a real boot registry, and the bundle spec asserts the product patch sets `skin: qilin`. A browser-rendered assertion for the assembled surface is still manual.
 - A skin the user selects but whose provider is disabled keeps the base scheme background for the pre-plugin frame, because the boot registry only knows colors from mounted providers.

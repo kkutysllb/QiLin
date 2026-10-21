@@ -26,7 +26,7 @@ QiLin 只有一套品牌配色，而且是无条件应用的：`ui-theme-brand` 
 
 ## Verification
 
-`pnpm run test:gui` 覆盖注册、选择、持久化、提供方缺失回退、显式覆盖层之下的层次、令牌目录、外观行的隐藏/显示，以及语言切换后的标签重解析；两个主题包仍满足逐文件 100% 覆盖率门禁。品牌规格通过注册与卸载重新钉住玄金令牌，外观行规格证明 chip 行的选中与写回路径。`pnpm run typecheck` 与 `QILIN_SNAPSHOT=replay pnpm run test:web` 覆盖客户端树与回放浏览器场景。
+`pnpm run test:gui` 覆盖注册、选择、持久化、提供方缺失回退、显式覆盖层之下的层次、令牌目录、外观行的隐藏/显示，以及语言切换后的标签重解析；两个主题包仍满足逐文件 100% 覆盖率门禁。品牌规格通过注册与卸载重新钉住玄金令牌，外观行规格证明 chip 行的选中与写回路径，bundle 规格断言产品补丁设置 `skin: qilin`。`pnpm run typecheck` 与 `QILIN_SNAPSHOT=replay pnpm run test:web` 覆盖客户端树与回放浏览器场景。
 
 ## Alternatives considered
 

@@ -26,7 +26,7 @@ Adding palettes had no correct home. A second brand package that also overrode t
 
 ## Verification
 
-`pnpm run test:gui` covers registration, selection, persistence, the unregistered-provider fallback, layering under an explicit override, inspection, the row's hidden/shown states, and label re-resolution; per-file coverage stays at the 100% gate for both theme packages. The brand spec re-pins the Xuanjin tokens through registration and unload, and the appearance-row spec proves the chip row's selection and write path. `pnpm run typecheck` and `QILIN_SNAPSHOT=replay pnpm run test:web` cover the client tree and the replayed browser scenarios.
+`pnpm run test:gui` covers registration, selection, persistence, the unregistered-provider fallback, layering under an explicit override, inspection, the row's hidden/shown states, and label re-resolution; per-file coverage stays at the 100% gate for both theme packages. The brand spec re-pins the Xuanjin tokens through registration and unload, the appearance-row spec proves the chip row's selection and write path, and the bundle spec asserts the product patch sets `skin: qilin`. `pnpm run typecheck` and `QILIN_SNAPSHOT=replay pnpm run test:web` cover the client tree and the replayed browser scenarios.
 
 ## Alternatives considered
 
