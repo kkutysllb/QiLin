@@ -46,6 +46,15 @@ const state = vi.hoisted(() => ({
   nativeTheme: { themeSource: 'system', shouldUseDarkColors: false },
 }))
 
+vi.mock('../src/product-runtime.ts', () => ({
+  // K30 product runtime extraction needs a packaged tar / CLI dir; this spec
+  // exercises the welcome flow, so the runtime prep is a fixed seam.
+  prepareProductRuntime: vi.fn(() => ({
+    environment: {},
+    paths: { dataDir: '/desktop-data', nodeBin: '/usr/bin/node', pnpm: '/usr/bin/pnpm', qilinDir: '/qilin' },
+  })),
+  ensurePythonDependencies: vi.fn(async () => {}),
+}))
 vi.mock('../src/crash-report.ts', async importOriginal => ({
   ...await importOriginal<typeof import('../src/crash-report.ts')>(),
   writeCrashReport: vi.fn(async () => undefined),
@@ -58,6 +67,9 @@ vi.mock('electron', () => ({
     name: 'Harness',
     requestSingleInstanceLock: () => true,
     setAsDefaultProtocolClient: vi.fn(),
+    // K29 product patch: main.ts adopts the manifest identity on boot.
+    setName: vi.fn(),
+    setAppUserModelId: vi.fn(),
     whenReady: () => Promise.resolve(),
     getLocale: () => 'en',
     getVersion: () => '1.0.0',
@@ -220,7 +232,9 @@ it.each([false, true])('starts welcome onboarding without carrying update focus 
   }
   await vi.waitFor(() => { expect(state.operations).toBeDefined() })
   expect(state.startHost).toHaveBeenCalledOnce()
-  expect(state.loadWorkspace).toHaveBeenCalledExactlyOnceWith('qilin-app://app/')
+  // K29 product patch: the application document scheme follows the product
+  // manifest (the built-in product keeps 'qilin'), not the static app scheme.
+  expect(state.loadWorkspace).toHaveBeenCalledExactlyOnceWith('qilin://app/')
   expect(state.showWorkspace).not.toHaveBeenCalled()
   state.loadWorkspace.mockClear()
   expect(state.welcomeLocale).toMatchObject({ id: 'zh-CN' })
