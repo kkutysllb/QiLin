@@ -10,11 +10,13 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { stubConfigForm } from '@qilin-agent/client-test-runtime'
 import { ThemeRuntime } from '@qilin-agent/client-ui-theme/client'
+import { PLATFORM_BOOT_COLORS, ThemeBootRegistry } from '@qilin-agent/client-ui-theme'
 import type { ThemeSettings } from '@qilin-agent/client-ui-theme/client'
 import { describe, expect, it } from 'vitest'
 import { apply, inject } from '../src/client/index.ts'
-import { apply as hostApply } from '../src/index.ts'
-import { QILIN_SKIN_ID, QILIN_SKIN_LABEL, QILIN_TOKENS } from '../src/client/tokens.ts'
+import { apply as hostApply, inject as hostInject } from '../src/index.ts'
+import { QILIN_SKIN_BOOT, QILIN_SKIN_ID, QILIN_SKIN_LABEL } from '../src/skin.ts'
+import { QILIN_TOKENS } from '../src/client/tokens.ts'
 
 const BRAND = '--qilin-alias-brand-primary'
 const SIDEBAR = '--qilin-specific-sidebar-fill'
@@ -44,11 +46,19 @@ function bench() {
 }
 
 describe('qilin brand theme plugin', () => {
-  it('keeps the host Loader entry inert', () => {
-    expect(hostApply).not.toThrow()
+  it('registers the skin canvas colors with the Host boot registry and removes them on unload', async () => {
+    const ctx = new Context()
+    const boot = new ThemeBootRegistry()
+    ctx.provide('themeBoot', boot)
+    expect(hostInject).toEqual(['themeBoot'])
+    const fiber = ctx.plugin({ inject: [...hostInject], apply: hostApply })
+    await fiber.await()
+    expect(boot.resolve(QILIN_SKIN_ID)).toEqual(QILIN_SKIN_BOOT)
+    await fiber.dispose()
+    expect(boot.resolve(QILIN_SKIN_ID)).toEqual(PLATFORM_BOOT_COLORS)
   })
 
-  it('declares only the theme service it uses', () => {
+  it('declares only the theme service the browser half uses', () => {
     expect(inject).toEqual(['theme'])
   })
 

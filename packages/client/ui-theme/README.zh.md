@@ -47,7 +47,7 @@ Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-`
 
 ### 插件前调色板
 
-当主机组合包含 HTTP 服务器时，宿主侧会把已注册的 `ui-theme` 设置或 schema 默认值嵌入每份 index 响应。head CSS 会在任何脚本运行前选择文档画布的配色方案，其中 `system` 偏好使用 `prefers-color-scheme` 查询；随后，body 脚本会在加载页面和应用脚本之前设置 `body[data-ds-dark-theme]`、`--qilin-content-font-size`、`--qilin-code-font-size`、`--qilin-terminal-font-size` 以及每个非空的 `--qilin-font-family-<role>` 字表，因此首帧绘制就采用所选调色板与正文、代码字号，且 `ThemeRuntime` 从已保存的字号与字体出发，而不是先渲染默认值。
+当主机组合包含 HTTP 服务器时，宿主侧会把已注册的 `ui-theme` 设置或 schema 默认值嵌入每份 index 响应。配色包提供方的宿主侧会把画布底色注册到 Host 的 `themeBoot` 注册表，因此选中配色的底色在浏览器插件加载之前就已生效。head CSS 会在任何脚本运行前选择文档画布的配色方案，其中 `system` 偏好使用 `prefers-color-scheme` 查询；随后，body 脚本会在加载页面和应用脚本之前设置 `body[data-ds-dark-theme]`、`--qilin-content-font-size`、`--qilin-code-font-size`、`--qilin-terminal-font-size` 以及每个非空的 `--qilin-font-family-<role>` 字表，因此首帧绘制就采用所选调色板与正文、代码字号，且 `ThemeRuntime` 从已保存的字号与字体出发，而不是先渲染默认值。
 
 -----
 

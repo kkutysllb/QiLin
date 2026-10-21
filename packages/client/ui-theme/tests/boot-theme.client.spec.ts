@@ -73,6 +73,16 @@ describe('theme bootstrap row', () => {
     )
   })
 
+  it('paints the selected skin canvas for each base palette', () => {
+    const colors = { light: '#f8f5ee', dark: '#0d0b09' }
+    const [head] = bootThemeInjections('dark', undefined, undefined, colors)
+    if (head?.kind !== 'style') throw new Error('theme head bootstrap row is not a style')
+    expect(head.text).toBe(':root{color-scheme:dark}body{background-color:#0d0b09;--qilin-boot-bg:#0d0b09}')
+    const [light] = bootThemeInjections('light', undefined, undefined, colors)
+    if (light?.kind !== 'style') throw new Error('theme head bootstrap row is not a style')
+    expect(light.text).toBe(':root{color-scheme:light}body{background-color:#f8f5ee;--qilin-boot-bg:#f8f5ee}')
+  })
+
   it('defaults to system and falls back to light when matchMedia is unavailable', () => {
     vi.stubGlobal('matchMedia', undefined)
     executeBootstrap()

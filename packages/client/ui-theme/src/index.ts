@@ -7,11 +7,15 @@ import z from '@qilin-agent/schemastery'
 
 import type { Context } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/host-webserver'
-import { bootThemeInjections } from './boot-theme.ts'
+import { bootThemeInjections, PLATFORM_BOOT_COLORS, type SkinBootColors } from './boot-theme.ts'
 import {
   DEFAULT_PREFERENCE, DEFAULT_SKIN, FONT_SIZE_SPECS, fontSizeSchema,
   THEME_PREFERENCES, type FontFamilies,
 } from './theme-settings.ts'
+
+export {
+  PLATFORM_BOOT_COLORS, type SkinBootColors,
+} from './boot-theme.ts'
 
 export {
   DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE, DEFAULT_SKIN,
@@ -28,6 +32,48 @@ export {
  */
 export function sectionFontFamilies(families: FontFamilies): FontFamilies {
   return Object.freeze({ ...families })
+}
+
+/**
+ * Registry of skin canvas colors for the pre-plugin interval. A skin provider's
+ * node half registers its palette here before the first index render; the
+ * bootstrap resolves the selected skin against it so first paint matches the
+ * user's palette instead of the platform canvas.
+ */
+export class ThemeBootRegistry {
+  private readonly colors = new Map<string, SkinBootColors>()
+
+  /**
+   * Register one skin's canvas colors, replacing an earlier registration.
+   * @param id - skin id; the empty id is the platform palette selector, not a skin.
+   * @param colors - background for each base palette.
+   * @returns disposer removing exactly this registration; a no-op once the id was re-registered.
+   */
+  register(id: string, colors: SkinBootColors): () => void {
+    if (id === '') throw new Error('the empty skin id selects the platform palette and has no boot colors')
+    const entry: SkinBootColors = Object.freeze({ light: colors.light, dark: colors.dark })
+    this.colors.set(id, entry)
+    return () => {
+      if (this.colors.get(id) !== entry) return
+      this.colors.delete(id)
+    }
+  }
+
+  /**
+   * Resolve the selected skin's canvas colors.
+   * @param id - persisted skin selection.
+   * @returns the registered colors, or {@link PLATFORM_BOOT_COLORS} for an unregistered or empty id.
+   */
+  resolve(id: string): SkinBootColors {
+    return this.colors.get(id) ?? PLATFORM_BOOT_COLORS
+  }
+}
+
+declare module '@qilin-agent/kylin' {
+  interface Context {
+    /** Skin canvas colors available to index renders; provided by this plugin. */
+    themeBoot: ThemeBootRegistry
+  }
 }
 
 /** Runtime preferences projected to the browser. */
@@ -67,6 +113,8 @@ export const Config = z.object({
  * @param config Validated live theme preferences.
  */
 export function apply(ctx: Context, config: Config): void {
+  const boot = new ThemeBootRegistry()
+  ctx.effect(() => ctx.provide('themeBoot', boot), 'ui-theme: skin boot registry')
   ctx.inject(['settings'], (child) => { child.effect(() => child.settings.configure({ auto: false }, ctx.fiber)) })
   ctx.on('webserver/index-inject', (table) => {
     table.push(...bootThemeInjections(config.preference.get(), {
@@ -77,6 +125,6 @@ export function apply(ctx: Context, config: Config): void {
       text: config.textFontFamily.get(),
       code: config.codeFontFamily.get(),
       terminal: config.terminalFontFamily.get(),
-    })))
+    }), boot.resolve(config.skin.get())))
   }, { prepend: true })
 }

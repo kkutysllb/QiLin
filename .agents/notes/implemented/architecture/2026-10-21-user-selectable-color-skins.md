@@ -20,6 +20,8 @@ Adding palettes had no correct home. A second brand package that also overrode t
 
 **Labels are provider-owned localized text.** `label` is `LocalizedText`, resolved through the active language chain when the row mirror syncs and re-resolved when the language changes, so product names never become copy ui-theme has to own.
 
+**A skin's node half supplies its pre-plugin canvas colors.** `ui-theme` provides a Host `themeBoot` registry; a provider registers its light and dark background there, and the index render paints the selected skin's canvas before any browser plugin loads. A selection whose provider is disabled falls back to the platform canvas, which the existing bootstrap colors already state.
+
 **The appearance row lists registered skins only when two or more exist.** A single skin is the product's own palette, so there is nothing to choose and the row stays out. QiLin keeps today's visuals by setting `skin: qilin` on the `ui-theme` row in the [web-brand patch](../../../../packages/bundle/web-brand/cordis.patch.yml), which builds on the setting's schema default rather than on a code path.
 
 ## Verification
@@ -39,5 +41,5 @@ Adding palettes had no correct home. A second brand package that also overrode t
 ## Consequences
 
 - The settings surface gains a chip row once a composition registers two or more skins; QiLin, with one skin, is unchanged until another skin ships.
-- First paint still uses the base scheme background. The pre-plugin bootstrap does not know skins, so a non-default skin can flash one frame of platform paper before registration; the limitation is recorded in ui-theme-brand's README.
+- First paint follows the selected skin when its provider is mounted; a skin selected while its provider is disabled paints the base scheme background for that frame.
 - Third-party theme ids stay an in-process extension; skins are the axis that persists.

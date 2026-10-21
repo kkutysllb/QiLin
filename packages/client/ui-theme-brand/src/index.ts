@@ -1,7 +1,20 @@
 /**
- * QiLin brand color plugin, node half. The empty apply gives Loader a host-side
- * row while the browser half ships through `exports["./client"]`.
+ * QiLin brand skin, node half: contributes the skin's canvas colors so the
+ * pre-plugin index render paints the user's palette before any browser plugin
+ * runs. The browser half ships through `exports["./client"]`.
  */
 
-/** Host plugin body — this package contributes browser presentation only. */
-export function apply(): void {}
+import type { Context } from '@qilin-agent/kylin'
+import type {} from '@qilin-agent/client-ui-theme'
+import { QILIN_SKIN_BOOT, QILIN_SKIN_ID } from './skin.ts'
+
+/** Required Host services: the boot registry the index render reads. */
+export const inject = ['themeBoot']
+
+/**
+ * Register the QiLin canvas colors for the pre-plugin interval.
+ * @param ctx - Host plugin context.
+ */
+export function apply(ctx: Context): void {
+  ctx.effect(() => ctx.themeBoot.register(QILIN_SKIN_ID, QILIN_SKIN_BOOT), 'qilin: skin boot colors')
+}

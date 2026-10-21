@@ -47,7 +47,7 @@ A composition can register a third-party theme id with alias-token overrides thr
 
 ### Pre-plugin palette
 
-When the host composition includes an HTTP server, the host half embeds the registered `ui-theme` settings, or schema defaults, into each index response. Head CSS selects the document canvas color scheme before any script runs, including a `prefers-color-scheme` query for the `system` preference. A body script then sets `body[data-ds-dark-theme]`, `--qilin-content-font-size`, `--qilin-code-font-size`, `--qilin-terminal-font-size`, and each non-empty `--qilin-font-family-<role>` list before the loading page and application scripts, so the first paint uses the selected palette and text and code sizes, and `ThemeRuntime` starts from the saved sizes and fonts instead of rendering the defaults first.
+When the host composition includes an HTTP server, the host half embeds the registered `ui-theme` settings, or schema defaults, into each index response. A skin provider's node half registers its canvas colors with the Host's `themeBoot` registry, so the selected skin's background paints before the browser plugin loads. Head CSS selects the document canvas color scheme before any script runs, including a `prefers-color-scheme` query for the `system` preference. A body script then sets `body[data-ds-dark-theme]`, `--qilin-content-font-size`, `--qilin-code-font-size`, `--qilin-terminal-font-size`, and each non-empty `--qilin-font-family-<role>` list before the loading page and application scripts, so the first paint uses the selected palette and text and code sizes, and `ThemeRuntime` starts from the saved sizes and fonts instead of rendering the defaults first.
 
 -----
 

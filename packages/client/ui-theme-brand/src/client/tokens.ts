@@ -18,12 +18,6 @@
 
 import type { ThemeTokenOverrides } from '@qilin-agent/client-ui-theme/client'
 
-/** The skin id the appearance row persists as the user's QiLin palette selection. */
-export const QILIN_SKIN_ID = 'qilin'
-
-/** Provider-owned display name; `ui-theme` resolves it through the language chain. */
-export const QILIN_SKIN_LABEL = Object.freeze({ zh: '玄金', en: 'Xuanjin' })
-
 /**
  * QiLin's brand tokens over the platform palettes. Every value states both
  * schemes (the ThemeTokenModes contract), grouped by surface family.

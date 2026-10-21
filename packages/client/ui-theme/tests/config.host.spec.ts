@@ -5,7 +5,7 @@ import * as HostPlugin from '../src/index.ts'
 import { liveConfig, omitsGeneratedPage } from '../../../settings/settings/tests/live-config.ts'
 import { plainConfig } from '../../../settings/settings/src/schema.ts'
 import {
-  DEFAULT_PREFERENCE, Config, apply,
+  DEFAULT_PREFERENCE, Config, ThemeBootRegistry, apply,
 } from '@qilin-agent/client-ui-theme'
 
 
@@ -64,6 +64,16 @@ describe('ui-theme host', () => {
     expect(rowText(collect(ctx)[1])).toContain('"22px"')
     await fiber.dispose()
     expect(collect(ctx)).toEqual([{ kind: 'script', placement: 'head', text: 'window.afterTheme=true' }])
+  })
+
+  it('paints the selected skin canvas once its provider registered boot colors', async () => {
+    const ctx = new Context()
+    const configuration = await liveConfig(ctx, { Config, apply })
+    await configuration.update({ preference: 'dark', skin: 'qilin' })
+    const boot = ctx.get('themeBoot') as ThemeBootRegistry
+    boot.register('qilin', { light: '#f8f5ee', dark: '#0d0b09' })
+    expect(rowText(collect(ctx)[0])).toContain('background-color:#0d0b09;--qilin-boot-bg:#0d0b09')
+    await configuration.fiber.dispose()
   })
 
   it('uses the system preference without a settings provider', async () => {

@@ -23,7 +23,7 @@ Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to give the QiLin W
 <a id="use-this-package"></a>
 ## Use this package
 
-The `qilin` profile mounts this package through its bundle patch, so no configuration is required; the same patch sets `skin: qilin` on the `ui-theme` row, making the Xuanjin palette the product default. A deployment that wants another palette with the same base theme ships its own skin provider and selects it through the appearance row; the light/dark/system preference keeps composing underneath. Any user who picks a different registered skin switches away from this one, and the choice persists across restarts.
+The `qilin` profile mounts this package through its bundle patch, so no configuration is required; the same patch sets `skin: qilin` on the `ui-theme` row, making the Xuanjin palette the product default. The package's node half registers the skin's canvas colors (`#f8f5ee` light, `#0d0b09` dark) with the Host boot registry, so the first paint already uses the skin's background. A deployment that wants another palette with the same base theme ships its own skin provider and selects it through the appearance row; the light/dark/system preference keeps composing underneath. Any user who picks a different registered skin switches away from this one, and the choice persists across restarts.
 
 The palette is the "Xuanjin" dark-gold landing VI in both schemes: the dark values transplant the landing tokens verbatim, the light values derive the warm-paper counterpart ([decision note](../../../.agents/notes/implemented/architecture/2026-09-14-xuanjin-dual-scheme-palette.md)). Fifty-five tokens are grouped by family in [tokens.ts](src/client/tokens.ts): brand gold, surfaces and sidebar, ink labels, hairlines and hovers, the secondary button family, and the code/scrollbar reading surfaces.
 
@@ -57,4 +57,4 @@ None; the theme contributes no prompt text.
 
 - Tokens without a current component consumer stay with the base palettes; a future consumer that needs the warm values joins this skin rather than re-deriving them.
 - The shipped spec exercises the production theme runtime and its skin registry. A booted-Web-surface assertion for this skin is not in place yet; the assembled-surface check is manual.
-- The pre-plugin bootstrap paints the base scheme background until the skin provider registers, so a page load can show one frame of the platform paper tone before the skin applies.
+- A skin the user selects but whose provider is disabled keeps the base scheme background for the pre-plugin frame, because the boot registry only knows colors from mounted providers.

@@ -2,7 +2,8 @@
 
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/client-ui-theme/client'
-import { QILIN_SKIN_ID, QILIN_SKIN_LABEL, QILIN_TOKENS } from './tokens.ts'
+import { QILIN_SKIN_ID, QILIN_SKIN_LABEL } from '../skin.ts'
+import { QILIN_TOKENS } from './tokens.ts'
 
 /** Required service: the theme registry and its skin registry. */
 export const inject = ['theme']
