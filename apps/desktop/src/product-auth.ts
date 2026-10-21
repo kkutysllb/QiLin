@@ -50,8 +50,11 @@ export async function mintProductAccountSession(args: {
     headers: { [args.auth.header]: args.secret },
   })
   if (!response.ok) {
+    console.warn(`desktop product: boot-secret sign-in refused with HTTP ${String(response.status)} at ${args.origin}`)
     await response.body?.cancel()
     return undefined
   }
-  return parseAccountSessionCookie(response.headers.get('set-cookie'))
+  const session = parseAccountSessionCookie(response.headers.get('set-cookie'))
+  if (session === undefined) console.warn(`desktop product: boot-secret sign-in returned no session cookie at ${args.origin}`)
+  return session
 }
