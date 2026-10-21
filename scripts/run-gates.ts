@@ -323,6 +323,7 @@ function ciSharedStaticGates(): Gate[] {
     pnpmScript('source-artifacts', 'verify-source-artifacts', { label: 'source artifacts' }),
     pnpmScript('provider-data', 'verify-provider-data', { label: 'pi-ai provider metadata' }),
     pnpmScript('package-dependencies', 'verify-package-dependencies', { label: 'package dependencies' }),
+    pnpmScript('desktop-theme', 'verify-desktop-theme', { label: 'desktop palettes' }),
     pnpmScript('typert-face-dependencies', 'verify-typert-face-dependencies', { label: 'Typert face dependencies' }),
     pnpmScript('qilin-package-licenses', 'verify-qilin-package-licenses', { label: 'QILIN package licenses' }),
     pnpmScript('package-meta', 'verify-package-meta', { label: 'package metadata' }),

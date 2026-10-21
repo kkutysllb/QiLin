@@ -22,6 +22,8 @@ Adding palettes had no correct home. A second brand package that also overrode t
 
 **Labels are provider-owned localized text.** `label` is `LocalizedText`, resolved through the active language chain when the row mirror syncs and re-resolved when the language changes, so product names never become copy ui-theme has to own.
 
+**Shell surfaces share the pack.** The desktop welcome page and the Windows installer palettes are generated from the product pack by `apps/desktop/scripts/gen-desktop-theme.ts`; a `--check` gate in the static lanes rejects stale artifacts, so the pre-Web surfaces cannot drift from the skin.
+
 **A skin's node half supplies its pre-plugin canvas colors.** `ui-theme` provides a Host `themeBoot` registry; a provider registers its light and dark background there, and the index render paints the selected skin's canvas before any browser plugin loads. A selection whose provider is disabled falls back to the platform canvas, which the existing bootstrap colors already state.
 
 **The appearance row lists registered skins only when two or more exist.** A single skin is the product's own palette, so there is nothing to choose and the row stays out. QiLin keeps today's visuals by setting `skin: qilin` on the `ui-theme` row in the [web-brand patch](../../../../packages/bundle/web-brand/cordis.patch.yml), which builds on the setting's schema default rather than on a code path.

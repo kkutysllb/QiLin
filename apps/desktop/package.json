@@ -60,6 +60,7 @@
     "@qilin-agent/client-ui-settings-general": "workspace:*",
     "@qilin-agent/client-ui-sidebar-browser": "workspace:*",
     "@qilin-agent/client-ui-theme": "workspace:*",
+    "@qilin-agent/client-ui-theme-brand": "workspace:*",
     "@qilin-agent/home-paths": "workspace:*",
     "@qilin-agent/node-addon-system": "workspace:~",
     "@types/js-yaml": "^4.0.9",

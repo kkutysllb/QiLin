@@ -670,6 +670,9 @@ importers:
       '@qilin-agent/client-ui-theme':
         specifier: workspace:*
         version: link:../../packages/client/ui-theme
+      '@qilin-agent/client-ui-theme-brand':
+        specifier: workspace:*
+        version: link:../../packages/client/ui-theme-brand
       '@qilin-agent/home-paths':
         specifier: workspace:*
         version: link:../../packages/util/home-paths

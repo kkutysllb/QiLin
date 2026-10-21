@@ -37,4 +37,4 @@ export const QILIN_SKIN_LABEL = QILIN_PACK.label
 /** The dark-gold pack's canvas colors. */
 export const QILIN_SKIN_BOOT = QILIN_PACK.boot
 
-export { QILIN_TOKENS }
+export { QILIN_PACK, QILIN_TOKENS }

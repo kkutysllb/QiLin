@@ -23,7 +23,7 @@ Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to ship selectable 
 <a id="use-this-package"></a>
 ## Use this package
 
-The `qilin` profile mounts this package through its bundle patch, so no configuration is required; the same patch sets `skin: qilin` on the `ui-theme` row, making the dark-gold pack the product default. The package's node half registers every pack's canvas colors with the Host boot registry, so the first paint already uses the selected pack's background. A deployment that wants another palette with the same base theme ships its own pack and selects it through the appearance row; the light/dark/system preference keeps composing underneath. Any user who picks a different pack switches away from the default, and the choice persists across restarts.
+The `qilin` profile mounts this package through its bundle patch, so no configuration is required; the same patch sets `skin: qilin` on the `ui-theme` row, making the dark-gold pack the product default. The package's node half registers every pack's canvas colors with the Host boot registry, so the first paint already uses the selected pack's background. A deployment that wants another palette with the same base theme ships its own pack and selects it through the appearance row; the light/dark/system preference keeps composing underneath. Any user who picks a different pack switches away from the default, and the choice persists across restarts. The desktop welcome page and the Windows installer palettes are generated from the product pack by `apps/desktop/scripts/gen-desktop-theme.ts`, whose `--check` gate rejects stale artifacts.
 
 ### Shipped packs
 
