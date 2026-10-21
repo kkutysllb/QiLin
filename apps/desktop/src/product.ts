@@ -66,6 +66,10 @@ export interface DesktopProduct {
   readonly auth: DesktopProductAuth
   /** Whether the bundled Office integration is available. */
   readonly office: boolean
+  // KStock patch (K32): backgroundNotice opts the product out of the one-time
+  // tray confirmation; `false` hides straight to the tray on close.
+  /** Whether the first Windows close confirms the tray behavior. Default true. */
+  readonly backgroundNotice?: boolean
   readonly update: DesktopProductUpdate | null
   /**
    * Extra environment variables for the Host and every child process. Values
@@ -175,6 +179,11 @@ export function parseDesktopProduct(value: unknown): DesktopProduct {
     parsedUpdate = { provider: 'generic', url: text(updateRecord.url, 'update.url') }
   }
   if (typeof record.office !== 'boolean') fail('office must be a boolean')
+  let parsedBackgroundNotice: boolean | undefined
+  if (record.backgroundNotice !== undefined) {
+    if (typeof record.backgroundNotice !== 'boolean') fail('backgroundNotice must be a boolean')
+    parsedBackgroundNotice = record.backgroundNotice
+  }
   const env = record.env
   let parsedEnv: Readonly<Record<string, string>> | undefined
   if (env !== undefined) {
@@ -210,6 +219,7 @@ export function parseDesktopProduct(value: unknown): DesktopProduct {
       header: text(authRecord.header, 'auth.header'),
     },
     office: record.office,
+    ...(parsedBackgroundNotice === undefined ? {} : { backgroundNotice: parsedBackgroundNotice }),
     update: parsedUpdate,
     ...(parsedEnv === undefined ? {} : { env: parsedEnv }),
   }
