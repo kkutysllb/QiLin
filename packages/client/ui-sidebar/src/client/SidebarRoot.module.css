@@ -42,9 +42,13 @@
   padding: 0;
 }
 
+/* KStock patch (K31): caption 高度读壳的 --dsh-windows-titlebar-height
+   （apps/desktop/src/preload-windows.ts 落 40px）——rescope 后本文件曾写
+   --qilin-windows-titlebar-height，无人定义即 calc 失效，top 被丢弃，
+   开关钉不进 caption 左上角（打包版 2.1.1 实测）。 */
 :global([data-windows-titlebar]) .toggle {
   position: fixed;
-  top: calc((var(--qilin-windows-titlebar-height) - 28px) / 2);
+  top: calc((var(--dsh-windows-titlebar-height) - 28px) / 2);
   left: 12px;
   z-index: 30;
   -webkit-app-region: no-drag;
@@ -91,7 +95,7 @@
 
 :global([data-windows-titlebar]) .collapsed .newSession {
   position: fixed;
-  top: calc((var(--qilin-windows-titlebar-height) - 28px) / 2);
+  top: calc((var(--dsh-windows-titlebar-height) - 28px) / 2);
   left: 48px;
   margin: 0;
   padding: 0;
