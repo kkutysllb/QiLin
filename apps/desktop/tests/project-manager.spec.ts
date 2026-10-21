@@ -7,6 +7,7 @@ import { DesktopProjectManager } from '../src/project-manager.ts'
 import { readProfilePlugins } from '@qilin-agent/app-boot'
 import { runtimeFixture } from './runtime-fixture.ts'
 
+// KStock patch (K34): fixture paths follow the platform resolver; see setup().
 const roots: string[] = []
 function temporaryRoot(): string {
   const root = mkdtempSync(join(tmpdir(), 'qilin-desktop-test-'))
@@ -36,7 +37,10 @@ function setup(): { root: string; manager: DesktopProjectManager } {
   const root = temporaryRoot()
   const qilin = join(root, 'resources', 'qilin')
   runtimeFixture(qilin)
-  return { root, manager: new DesktopProjectManager(resolveDesktopPaths(join(root, '.dsh')), { qilin }) }
+  // resolveDesktopPaths(profile, dshHome): the temp root is the Harness home, so
+  // the profile name stays 'desktop' — an absolute home passed in the profile
+  // position builds a path with a second drive prefix and cannot be created.
+  return { root, manager: new DesktopProjectManager(resolveDesktopPaths('desktop', join(root, '.dsh')), { qilin }) }
 }
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true })
