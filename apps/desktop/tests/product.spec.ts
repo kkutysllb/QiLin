@@ -74,6 +74,16 @@ describe('product manifest', () => {
     expect(() => parseDesktopProduct({ ...manifest, auth: { ...manifest.auth, mode: 'oauth' } })).toThrow(/auth.mode/u)
   })
 
+  it('rejects a non-boolean backgroundNotice', () => {
+    expect(() => parseDesktopProduct({ ...manifest, backgroundNotice: 'no' })).toThrow(/backgroundNotice/u)
+  })
+
+  it('carries backgroundNotice=false for products that hide straight to the tray', () => {
+    const product = parseDesktopProduct({ ...manifest, backgroundNotice: false })
+    expect(product.backgroundNotice).toBe(false)
+    expect(parseDesktopProduct(manifest).backgroundNotice).toBeUndefined()
+  })
+
   it('keeps relative paths against the packaged resources directory', () => {
     const product = parseDesktopProduct(manifest)
     expect(productDataDirectory(product, true, '/Users/example')).toBe('/Users/example/.kstock')
