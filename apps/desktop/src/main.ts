@@ -362,6 +362,16 @@ function createWindow(preload: string, show = false, primary = false): BrowserWi
   window.webContents.on('will-navigate', (event, url) => {
     const destination = new URL(url)
     const current = new URL(window.webContents.getURL())
+    // The Host's /workspace document belongs to a browser deployment: under the desktop protocol
+    // its client roster boots without the shell's boot facts and fails every import. The product's
+    // workspace is the SPA at the application root, so send those navigations back there (the login
+    // page returns through /workspace after a successful sign-in).
+    if (product?.product.auth.mode === 'boot-secret' && destination.protocol === `${applicationScheme}:`
+      && (destination.pathname === '/workspace' || destination.pathname.startsWith('/workspace/'))) {
+      event.preventDefault()
+      void window.loadURL(`${applicationOrigin}/`).catch(() => undefined)
+      return
+    }
     if (destination.protocol !== `${applicationScheme}:`
       && !(destination.protocol === 'http:' && destination.origin === current.origin)) {
       event.preventDefault()
@@ -511,11 +521,13 @@ async function main(): Promise<void> {
     notifyAccountSessionReady = resolve
   })
   /** Store or clear the captured account session in the live header state and the shell-owned cookie jar. */
-  const storeAccountSession = (url: string, cookie: WebSessionCookie): void => {
+  const storeAccountSession = (url: string, cookie: WebSessionCookie, options: { readonly reload?: boolean } = {}): void => {
     const cleared = cookie.value === '' || (cookie.expiresAt !== undefined && cookie.expiresAt <= Date.now() / 1000)
     const previous = accountSession
     accountSession = cleared ? undefined : cookie
-    scheduleApplicationReload(previous)
+    // A session obtained during startup must not reload the document it is booting: the abort
+    // turns in-flight module imports into activation failures and the page reports a fatal boot.
+    if (options.reload !== false) scheduleApplicationReload(previous)
     const jar = cleared
       ? session.defaultSession.cookies.remove(url, cookie.name)
       : session.defaultSession.cookies.set({
@@ -610,6 +622,11 @@ async function main(): Promise<void> {
    * @param previous - the session stored before the change, for the changed-identity decision.
    */
   const scheduleApplicationReload = (previous: WebSessionCookie | undefined): void => {
+    // A boot-secret product owns its own navigation: startup loads the window, sign-out lands on
+    // the product login page, and the login page returns through its own navigation. Reloading
+    // the document behind those navigations aborts in-flight client imports, and the aborted
+    // boot reports every half-loaded entry as a fatal activation failure.
+    if (product?.product.auth.mode === 'boot-secret') return
     const changed = (previous?.value ?? undefined) !== (accountSession?.value ?? undefined)
     if (!changed) return
     if (sessionReload !== undefined) clearTimeout(sessionReload)
@@ -637,13 +654,19 @@ async function main(): Promise<void> {
         // the welcome surface never opens, and a Host without an account yet leaves the web gate visible.
         if (product !== undefined && product.product.auth.mode === 'boot-secret' && accountSession === undefined) {
           const secret = productRuntime?.environment[product.product.auth.secretEnv] ?? ''
+          if (secret === '') console.warn('desktop product: boot secret is empty; automatic sign-in skipped')
           try {
             const session = await mintProductAccountSession({
               origin: new URL(ready.url).origin,
               auth: product.product.auth,
               secret,
             })
-            if (session !== undefined) storeAccountSession(ready.url, session)
+            if (session !== undefined) {
+              // The window loads (or is loading) right after backend start; the live session already
+              // covers every forwarded request, so refreshing the document would only abort its boot.
+              storeAccountSession(ready.url, session, { reload: false })
+              console.info('desktop product: automatic sign-in ready')
+            }
           } catch (error) {
             console.warn('desktop product: automatic sign-in failed', error)
           }
@@ -869,7 +892,19 @@ async function main(): Promise<void> {
     // Shell-owned documents live in the application bundle and never pass through the Host.
     if (url.hostname === 'shell') return serveWebDocument(request, join(app.getAppPath(), 'renderer'))
     if (url.hostname === 'app') {
-      if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname.startsWith('/assets/')
+      // KStock patch (K35): 产品模式导航自持——根路径按会话分流，/workspace 回跳写回根。
+      const applicationRoot = url.pathname === '/' || url.pathname === '/index.html'
+      // A boot-secret product shares its public root with the browser deployment: signed out it
+      // is the Host's sign-in document (first run, and the landing page a sign-out returns to);
+      // signed in it is the application shell. Serving the SPA to a session-less document boots
+      // a workspace whose account-gated plugin imports abort and report a fatal web boot.
+      if (applicationRoot && product?.product.auth.mode === 'boot-secret' && accountSession === undefined
+        && backend.host !== undefined && hostUrl !== undefined && hostCookie !== undefined) {
+        const target = hostUrl
+        return forwardWebRequest(request, target, webCookieHeader(accountSession, hostCookie),
+          (cookie) => { storeAccountSession(target, cookie) }, applicationOrigin)
+      }
+      if (applicationRoot || url.pathname.startsWith('/assets/')
         || ['/favicon.svg', '/manifest.webmanifest'].includes(url.pathname)) {
         return serveWebDocument(request, join(resources.qilin, 'node_modules', '@qilin-agent', 'web-frontend', 'dist'))
       }
@@ -885,9 +920,16 @@ async function main(): Promise<void> {
       // window closes itself on creation and hides nothing.
       if (request.method === 'POST' && url.pathname === '/api/auth/logout' && response.ok) {
         enteredWorkspace = false
-        void showWelcome().catch((error: unknown) => {
-          console.warn('desktop sign-out: welcome re-entry failed', error)
-        })
+        if (product?.product.auth.mode === 'boot-secret') {
+          // One navigation to the product's own login page; no shell-owned welcome surface.
+          void navigateMain(`${applicationOrigin}/login`, true).catch((error: unknown) => {
+            console.warn('desktop sign-out: login navigation failed', error)
+          })
+        } else {
+          void showWelcome().catch((error: unknown) => {
+            console.warn('desktop sign-out: welcome re-entry failed', error)
+          })
+        }
       }
       return response
     }
@@ -904,8 +946,15 @@ async function main(): Promise<void> {
     assertDesktopSender(event, ['app'], applicationScheme)
     await startup
     if (product?.product.auth.mode === 'boot-secret') {
-      // The application document carries the product's own account gate; boot proceeds without a
-      // shell-owned session so a Host without an account can still render sign-in.
+      // Without a session the root forwards to the Host's sign-in document; replace this waiting
+      // shell document instead of booting a workspace whose account-gated entries would fail.
+      if (accountSession === undefined) {
+        if (backend.host === undefined || hostUrl === undefined) throw new Error('Desktop Host is unavailable')
+        void navigateMain(`${applicationOrigin}/`, true).catch((error: unknown) => {
+          console.warn('desktop boot: sign-in navigation failed', error)
+        })
+        return new Promise<never>(() => {})
+      }
       if (backend.host === undefined || hostUrl === undefined) throw new Error('Desktop Host is unavailable')
       return { injections, streamBaseUrl: new URL(hostUrl).origin }
     }
