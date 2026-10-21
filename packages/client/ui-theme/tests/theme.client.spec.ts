@@ -4,6 +4,7 @@ import { Context } from '@qilin-agent/kylin'
 import { stubConfigForm, type StubConfigForm } from '@qilin-agent/client-test-runtime'
 import type {
   ThemeSettings,
+  ThemeSkin,
   ThemeSnapshot,
   ThemeTokenOverrides,
 } from '@qilin-agent/client-ui-theme/client'
@@ -13,7 +14,7 @@ import { FONT_SIZE_SPECS } from '../src/theme-settings.ts'
 /** A complete durable section: fixtures pass overrides, defaults fill the rest. */
 function fullSection(over: Partial<ThemeSettings>): ThemeSettings {
   return {
-    preference: 'system', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
+    preference: 'system', skin: '', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
     textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
     ...over,
   }
@@ -221,6 +222,92 @@ describe('ThemeRuntime', () => {
     current()
     expect(theme.getTheme().active.tokens).toEqual({})
     expect(events).toHaveLength(3)
+  })
+
+  describe('color skins', () => {
+    const SKIN: ThemeSkin = Object.freeze({
+      id: 'qilin',
+      label: { zh: '玄金', en: 'Xuanjin' },
+      tokens: { '--qilin-alias-bg-base': { light: '#f8f5ee', dark: '#0d0b09' } },
+    })
+
+    it('registers a skin without applying it until it is selected', () => {
+      const { theme, events } = make()
+      const dispose = theme.registerSkin(SKIN)
+      expect(theme.getTheme().skins.map(skin => skin.id)).toEqual(['qilin'])
+      expect(theme.getTheme().skin).toBe('')
+      expect(theme.getTheme().active.tokens).toEqual({})
+      dispose()
+      dispose()
+      expect(theme.getTheme().skins).toEqual([])
+      expect(events).toHaveLength(2)
+    })
+
+    it('setSkin overlays the selected skin, persists it, and resolves per palette mode', () => {
+      const { theme, events, host } = make()
+      theme.registerSkin(SKIN)
+      theme.setSkin('qilin')
+      expect(theme.getTheme().skin).toBe('qilin')
+      expect(theme.getTheme().active.tokens['--qilin-alias-bg-base']).toBe('#f8f5ee')
+      expect(host.set).toHaveBeenCalledWith('skin', 'qilin')
+      theme.setTheme('dark')
+      expect(theme.getTheme().active.tokens['--qilin-alias-bg-base']).toBe('#0d0b09')
+      theme.setSkin('qilin')
+      expect(events).toHaveLength(3)
+      expect(host.set).toHaveBeenCalledTimes(2)
+    })
+
+    it('rejects unknown ids, the empty registration, and duplicate ids', () => {
+      const { theme, events, host } = make()
+      expect(() => { theme.setSkin('nope') }).toThrow('not registered')
+      expect(() => theme.registerSkin({ ...SKIN, id: '' })).toThrow('platform palette')
+      theme.registerSkin(SKIN)
+      expect(() => theme.registerSkin(SKIN)).toThrow('already registered')
+      theme.setSkin('')
+      expect(events).toHaveLength(1)
+      expect(host.set).not.toHaveBeenCalled()
+    })
+
+    it('folds the skin under explicit override layers', () => {
+      const { theme } = make()
+      theme.registerSkin(SKIN)
+      theme.setSkin('qilin')
+      const dispose = theme.overrideTokens('deployment', {
+        '--qilin-alias-bg-base': { light: '#000000', dark: '#ffffff' },
+      })
+      expect(theme.getTheme().active.tokens['--qilin-alias-bg-base']).toBe('#000000')
+      dispose()
+      expect(theme.getTheme().active.tokens['--qilin-alias-bg-base']).toBe('#f8f5ee')
+    })
+
+    it('adopts a durable selection and keeps it when its provider unloads', () => {
+      const host = stubConfigForm<ThemeSettings>()
+      host.publish({ status: 'ready', value: fullSection({ skin: 'qilin' }), revision: 1, writable: true })
+      const { theme, events } = make(host)
+      expect(theme.getTheme().skin).toBe('qilin')
+      expect(theme.getTheme().active.tokens).toEqual({})
+      const dispose = theme.registerSkin(SKIN)
+      expect(theme.getTheme().active.tokens['--qilin-alias-bg-base']).toBe('#f8f5ee')
+      dispose()
+      expect(theme.getTheme().skin).toBe('qilin')
+      expect(theme.getTheme().skins).toEqual([])
+      expect(theme.getTheme().active.tokens).toEqual({})
+      // Adoption at construction, the registration, and the unload.
+      expect(events).toHaveLength(3)
+      expect(host.set).not.toHaveBeenCalled()
+    })
+
+    it('publishes skin tokens once in the inspection catalog', () => {
+      const { theme } = make()
+      theme.registerSkin({
+        ...SKIN,
+        tokens: { ...SKIN.tokens, '--qilin-skin-only': { light: 'red', dark: 'blue' } },
+      })
+      theme.registerSkin({ id: 'second', label: 'Second', tokens: { '--qilin-skin-only': { light: 'red', dark: 'blue' } } })
+      const tokens = theme.exportInspectTokens().filter(token => token.name === '--qilin-skin-only')
+      expect(tokens).toHaveLength(1)
+      expect(tokens[0]).toMatchObject({ valueType: 'CSS value', cssVariable: '--qilin-skin-only' })
+    })
   })
 
   it('exports sorted built-in, registered, and override-only token descriptions as copies', () => {

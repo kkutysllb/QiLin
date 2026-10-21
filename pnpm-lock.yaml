@@ -6366,6 +6366,9 @@ importers:
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+      '@qilin-agent/package-manifest':
+        specifier: workspace:*
+        version: link:../../util/package-manifest
       '@qilin-agent/settings':
         specifier: workspace:*
         version: link:../../settings/settings

@@ -4,17 +4,28 @@ import { createAppearanceRowStore, createFontRowStore } from '../src/client/sett
 import { DEFAULT_FONT_SIZES } from '../src/theme-settings.ts'
 
 describe('createAppearanceRowStore', () => {
-  it('init shape: the system preference with revision at -1', () => {
-    expect(createAppearanceRowStore().create().getSnapshot()).toEqual({ preference: 'system', revision: -1 })
+  it('init shape: the system preference and an empty skin with revision at -1', () => {
+    expect(createAppearanceRowStore().create().getSnapshot())
+      .toEqual({ preference: 'system', skin: '', skins: [], revision: -1 })
   })
 
-  it('sync mirrors the preference; the revision guard drops stale and duplicate writes', () => {
+  it('sync mirrors the preference and skin; the revision guard drops stale and duplicate writes', () => {
     const store = createAppearanceRowStore().create()
-    store.actions.sync('dark', 0)
-    expect(store.getSnapshot()).toEqual({ preference: 'dark', revision: 0 })
-    store.actions.sync('light', -1)
-    store.actions.sync('light', 0)
-    expect(store.getSnapshot()).toEqual({ preference: 'dark', revision: 0 })
+    store.actions.sync('dark', 'qilin', 0)
+    expect(store.getSnapshot()).toMatchObject({ preference: 'dark', skin: 'qilin', revision: 0 })
+    store.actions.sync('light', '', -1)
+    store.actions.sync('light', '', 0)
+    expect(store.getSnapshot()).toMatchObject({ preference: 'dark', skin: 'qilin', revision: 0 })
+  })
+
+  it('syncSkins rewrites the resolved labels without a theme revision', () => {
+    const store = createAppearanceRowStore().create()
+    store.actions.sync('system', 'qilin', 2)
+    store.actions.syncSkins([{ id: 'qilin', label: 'Xuanjin' }])
+    expect(store.getSnapshot().skins).toEqual([{ id: 'qilin', label: 'Xuanjin' }])
+    expect(store.getSnapshot().revision).toBe(2)
+    store.actions.syncSkins([{ id: 'qilin', label: '玄金' }])
+    expect(store.getSnapshot().skins).toEqual([{ id: 'qilin', label: '玄金' }])
   })
 })
 

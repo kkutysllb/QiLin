@@ -72,7 +72,7 @@ async function mountPlugin(stored: TerminalSettings | null = { fontFamily: 'User
     register: (name: string, values: unknown) => { dictionaries.set(name, values); return () => { dictionaries.delete(name) } },
   } as never)
   let theme = {
-    preference: 'light' as const, fontSizes: { text: 14, code: 11, terminal: 13 },
+    preference: 'light' as const, skin: '', skins: [], fontSizes: { text: 14, code: 11, terminal: 13 },
     fontFamilies: { text: '', code: '', terminal: '' }, leading: 0,
     active: { id: 'light', colorScheme: 'light' as const, tokens: {} }, themes: [], revision: 0,
   }
@@ -99,7 +99,7 @@ async function mountPlugin(stored: TerminalSettings | null = { fontFamily: 'User
   // The theme section form: defaults, observed, writes recorded and folded in.
   const themeDoc = createSnapshotStore<{ value: ThemeSettings | undefined }>({
     value: {
-      preference: 'light', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
+      preference: 'light', skin: '', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
       textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
     },
   })

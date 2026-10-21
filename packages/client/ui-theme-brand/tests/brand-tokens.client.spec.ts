@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 /**
- * The QiLin brand layer is one `ctx.theme` override source over the real
- * theme runtime: it must name a stable source, resolve per palette mode, and
- * leave no layer behind when its plugin fiber unloads.
+ * The QiLin brand skin registers one `ctx.theme` skin over the real theme
+ * runtime: it must carry both palette modes, apply only when selected, and
+ * leave no registration behind when its plugin fiber unloads.
  */
 
 import { Context } from '@qilin-agent/kylin'
@@ -14,7 +14,7 @@ import type { ThemeSettings } from '@qilin-agent/client-ui-theme/client'
 import { describe, expect, it } from 'vitest'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'
-import { QILIN_TOKENS } from '../src/client/tokens.ts'
+import { QILIN_SKIN_ID, QILIN_SKIN_LABEL, QILIN_TOKENS } from '../src/client/tokens.ts'
 
 const BRAND = '--qilin-alias-brand-primary'
 const SIDEBAR = '--qilin-specific-sidebar-fill'
@@ -72,12 +72,20 @@ describe('qilin brand theme plugin', () => {
     }
   })
 
-  it('stacks the QiLin palette over the active theme and removes it on unload', async () => {
+  it('registers the QiLin skin, applies it when selected, and removes it on unload', async () => {
     const { ctx, theme } = bench()
+    expect(theme.getTheme().skins).toEqual([])
     expect(theme.getTheme().active.tokens[BRAND]).toBeUndefined()
 
     const fiber = ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
+    const skin = theme.getTheme().skins.find(entry => entry.id === QILIN_SKIN_ID)
+    expect(skin?.label).toEqual(QILIN_SKIN_LABEL)
+    expect(skin?.tokens).toEqual(QILIN_TOKENS)
+    // Registration alone leaves the platform palette in place.
+    expect(theme.getTheme().active.tokens[BRAND]).toBeUndefined()
+
+    theme.setSkin(QILIN_SKIN_ID)
     expect(theme.getTheme().active.tokens[BRAND]).toBe(QILIN_TOKENS[BRAND]?.light)
     expect(theme.getTheme().active.tokens[SIDEBAR]).toBe(QILIN_TOKENS[SIDEBAR]?.light)
 
@@ -85,7 +93,10 @@ describe('qilin brand theme plugin', () => {
     expect(theme.getTheme().active.tokens[BRAND]).toBe(QILIN_TOKENS[BRAND]?.dark)
 
     await fiber.dispose()
+    expect(theme.getTheme().skins).toEqual([])
     expect(theme.getTheme().active.tokens[BRAND]).toBeUndefined()
     expect(theme.getTheme().active.tokens[SIDEBAR]).toBeUndefined()
+    // The durable selection survives its provider so a later load restores it.
+    expect(theme.getTheme().skin).toBe(QILIN_SKIN_ID)
   })
 })

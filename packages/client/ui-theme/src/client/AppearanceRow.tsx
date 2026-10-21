@@ -20,6 +20,8 @@ import css from './AppearanceRow.module.css'
 export interface AppearanceRowInjected {
   /** Switch the theme preference. */
   setTheme: (id: ThemePreference) => void
+  /** Switch the color skin. */
+  setSkin: (id: string) => void
 }
 
 /** Full component props: runtime share + store share + locale seat + injected face. */
@@ -39,8 +41,10 @@ const CUBES: readonly { id: ThemePreference; labelKey: ThemeKey; Icon: typeof Ic
  * @param props - composed slot props.
  * @returns the row element tree.
  */
-export function AppearanceRow({ t, setTheme, useStore }: AppearanceRowComponentProps) {
+export function AppearanceRow({ t, setTheme, setSkin, useStore }: AppearanceRowComponentProps) {
   const preference = useStore(s => s.preference)
+  const skin = useStore(s => s.skin)
+  const skins = useStore(s => s.skins)
   return (
     <div className={css.group}>
       <div className={css.title}>{t('appearance.title')}</div>
@@ -58,6 +62,22 @@ export function AppearanceRow({ t, setTheme, useStore }: AppearanceRowComponentP
           </button>
         ))}
       </div>
+      {/* One skin is the product's own palette: nothing to choose, so the row stays out. */}
+      {skins.length > 1 && (
+        <div className={css.skinRow} role="group" aria-label={t('appearance.skin')}>
+          {skins.map(option => (
+            <button
+              key={option.id}
+              type="button"
+              className={clsx(css.skinChip, skin === option.id && css.selected)}
+              aria-pressed={skin === option.id}
+              onClick={() => { setSkin(option.id) }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

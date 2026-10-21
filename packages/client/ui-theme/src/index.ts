@@ -9,14 +9,14 @@ import type { Context } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/host-webserver'
 import { bootThemeInjections } from './boot-theme.ts'
 import {
-  DEFAULT_PREFERENCE, FONT_SIZE_SPECS, fontSizeSchema,
+  DEFAULT_PREFERENCE, DEFAULT_SKIN, FONT_SIZE_SPECS, fontSizeSchema,
   THEME_PREFERENCES, type FontFamilies,
 } from './theme-settings.ts'
 
 export {
-  DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE,
+  DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE, DEFAULT_SKIN,
   FONT_FAMILY_FIELDS, FONT_SIZE_FIELD, FONT_SIZE_MAX, FONT_SIZE_MIN,
-  FONT_ROLES, FONT_SIZE_SPECS,
+  FONT_ROLES, FONT_SIZE_SPECS, SKIN_FIELD,
   THEME_PREFERENCE_FIELD, THEME_PREFERENCES, THEME_SETTINGS_NAMESPACE,
   type FontFamilies, type FontRole, type FontSizes, type ThemePreference, type ThemeSettings,
 } from './theme-settings.ts'
@@ -34,6 +34,8 @@ export function sectionFontFamilies(families: FontFamilies): FontFamilies {
 export interface Config {
   /** Browser palette preference. */
   preference: Volatile<ThemePreference>
+  /** Selected color skin id; an empty id keeps the platform palette. */
+  skin: Volatile<string>
   /** Browser font size in pixels. */
   fontSize: Volatile<number>
   /** Code-block font size in pixels. */
@@ -51,6 +53,7 @@ export interface Config {
 /** Live theme and typography preferences. */
 export const Config = z.object({
   preference: z.union([...THEME_PREFERENCES]).default(DEFAULT_PREFERENCE).volatile(),
+  skin: z.string().default(DEFAULT_SKIN).volatile(),
   fontSize: fontSizeSchema(FONT_SIZE_SPECS.text).volatile(),
   codeFontSize: fontSizeSchema(FONT_SIZE_SPECS.code).volatile(),
   terminalFontSize: fontSizeSchema(FONT_SIZE_SPECS.terminal).volatile(),

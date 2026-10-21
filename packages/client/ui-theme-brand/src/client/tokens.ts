@@ -1,5 +1,5 @@
 /**
- * QiLin alias-token overrides, applied as one layer over the active palette.
+ * QiLin alias-token overrides, registered as the product's color skin over the active palette.
  *
  * The palette is the "玄金麒麟" (dark-gold) landing VI extended to both
  * schemes: the dark values transplant the landing page's tokens verbatim
@@ -18,11 +18,11 @@
 
 import type { ThemeTokenOverrides } from '@qilin-agent/client-ui-theme/client'
 
-/**
- * The layer source id. One layer per source, so this names the origin in
- * `ctx.theme` inspection and makes re-application replace rather than stack.
- */
-export const QILIN_THEME_SOURCE = '@qilin-agent/client-ui-theme-brand'
+/** The skin id the appearance row persists as the user's QiLin palette selection. */
+export const QILIN_SKIN_ID = 'qilin'
+
+/** Provider-owned display name; `ui-theme` resolves it through the language chain. */
+export const QILIN_SKIN_LABEL = Object.freeze({ zh: '玄金', en: 'Xuanjin' })
 
 /**
  * QiLin's brand tokens over the platform palettes. Every value states both

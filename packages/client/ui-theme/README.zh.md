@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`qilin-client-ui-theme` 让 Web GUI 用户在设置中选择 `light`、`dark` 或 `system`，并分别设置正文、代码与侧栏终端的字体和字号。回环客户端把这些值存入 `ui-theme` 设置命名空间，本地提供方默认将其持久化到 `$QILIN_HOME/settings.yaml`。插件通过 `prefers-color-scheme` 解析 `system` 并发布不可变的 `ThemeSnapshot`；ui-layout 把每份快照应用到 document。本包还提供 `--qilin-*` token 样式表，并注入同步引导，使所选调色板、字号与字体在外壳加载前生效。第三方主题可通过 `ctx.theme` 注册别名 token 覆盖。
+`qilin-client-ui-theme` 让 Web GUI 用户在设置中选择 `light`、`dark` 或 `system`，在组合提供多套配色时选择配色包，并分别设置正文、代码与侧栏终端的字体和字号。回环客户端把这些值存入 `ui-theme` 设置命名空间，本地提供方默认将其持久化到 `$QILIN_HOME/settings.yaml`。插件通过 `prefers-color-scheme` 解析 `system` 并发布不可变的 `ThemeSnapshot`；ui-layout 把每份快照应用到 document。本包还提供 `--qilin-*` token 样式表，并注入同步引导，使所选调色板、字号与字体在外壳加载前生效。第三方主题可通过 `ctx.theme` 注册别名 token 覆盖；插件也可注册可选配色包，叠加在用户的浅色/深色选择之上。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-用户从设置（「通用」分区）的三行中切换配色方案与正文排版；在回环浏览器上，三个选择都会跨重启持久化。功能插件通过 `ctx.theme` 消费当前快照，并在 CSS 中读取 `--qilin-*` token；它们不自行管理主题状态。
+用户从设置（「通用」分区）的各行中切换配色方案、配色包与正文排版；在回环浏览器上，这些选择都会跨重启持久化。功能插件通过 `ctx.theme` 消费当前快照，并在 CSS 中读取 `--qilin-*` token；它们不自行管理主题状态。
 
 ### 排版
 
@@ -36,6 +36,10 @@ Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-`
 ### 字体
 
 三行分别独立设置正文字体（界面与会话正文）、代码字体（代码块、行内代码及其他 `--ds-font-family-code` 文本）与侧栏终端字体。每个输入框接受逗号分隔的字体族名，失焦或回车提交；留空恢复内建字表。服务会规范化每个列表——丢弃引号、反斜杠、尖括号与控制字符，除 CSS 通用族外每个名字加双引号——并存入 `textFontFamily`、`codeFontFamily` 或 `terminalFontFamily`。用户字表排在该角色内建字表之前，机器上缺失的字体回退到默认。输入框接受任何已安装字体名；它不枚举本机字体。
+
+### 配色包
+
+配色包是一组命名的 `--qilin-*` 别名 token，叠加在用户选定的明暗方案之上，因此 `light`、`dark` 与 `system` 仍是用户的选择，而同一产品可以提供多套调色。插件用 `ctx.theme.registerSkin({ id, label, tokens })` 注册配色包；每个 token 都要写明两套方案，`label` 是提供方自有的多语言文本，按活动语言链解析。已注册的配色包在两套及以上时列在外观行的三宫格下方——只有一套时它是产品自己的调色，没有可选项——`setSkin` 把选择写入 `ui-theme` 命名空间的 `skin` 字段。若当前组合没有注册选中的提供方（例如插件被禁用），生效值回落到底色调色板，而持久值保留，重新启用后即恢复用户的选择。配色包叠加在显式的 `ctx.theme.overrideTokens` 层之下，部署强制覆盖的 token 仍然优先。
 
 ### 注册主题
 
@@ -53,7 +57,7 @@ Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-`
 <details>
 <summary>实现细节——点击展开</summary>
 
-服务拥有主题、字号与字体状态并发布快照。ui-layout 呈现器应用这些快照，token 样式表则拥有颜色与会话文本尺度。
+服务拥有主题、配色包、字号与字体状态并发布快照。ui-layout 呈现器应用这些快照，token 样式表则拥有颜色与会话文本尺度。
 
 ### 样式表
 
@@ -75,7 +79,7 @@ Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-`
 
 ### 偏好持久化
 
-在 loopback 浏览器上，服务先以 schema 默认值立即提供自身，随后加载 `ui-theme` 命名空间，并把每次通过的主题、字号或字体变更经 Host settings API 写入。收到推送的设置变更时或重连后都会重新拉取该命名空间。自身写入未落定期间，服务会忽略重新拉取的节，早期写入的回显不会回滚更晚的变更；写入落定后服务再采纳持久节。非 loopback 页面不会创建该 Host-backed scope。该持久化边界由 [Host 支撑的偏好笔记](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.zh.md) 拥有。
+在 loopback 浏览器上，服务先以 schema 默认值立即提供自身，随后加载 `ui-theme` 命名空间，并把每次通过的主题、配色包、字号或字体变更经 Host settings API 写入。收到推送的设置变更时或重连后都会重新拉取该命名空间。自身写入未落定期间，服务会忽略重新拉取的节，早期写入的回显不会回滚更晚的变更；写入落定后服务再采纳持久节。非 loopback 页面不会创建该 Host-backed scope。该持久化边界由 [Host 支撑的偏好笔记](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.zh.md) 拥有。
 
 </details>
 

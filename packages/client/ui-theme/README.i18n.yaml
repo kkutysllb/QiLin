@@ -9,20 +9,23 @@
   en: ab0a967b786d021a
   zh: 70b6e02e2dbb7898
 /qilin-agent-client-ui-theme/summary:
-  en: eacc3d51381e88c0
-  zh: 5ab28d2792ab2a34
+  en: 81c1f550c7cabdeb
+  zh: 6ee454088fc36985
 /qilin-agent-client-ui-theme/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-client-ui-theme/use-this-package:
-  en: 5d1ec38a4bc6cac5
-  zh: 9ac70dce67027d62
+  en: 2764dae8fb8ab974
+  zh: dc646d325ff80c70
 /qilin-agent-client-ui-theme/use-this-package/typography:
   en: ff99a7f76165792d
   zh: 6b729ad97b36dda2
 /qilin-agent-client-ui-theme/use-this-package/fonts:
   en: b45d5b48ca799c3a
   zh: 6fb895bec83c2662
+/qilin-agent-client-ui-theme/use-this-package/color-skins:
+  en: 158f62c80067a453
+  zh: fd836d95c08a373d
 /qilin-agent-client-ui-theme/use-this-package/registering-a-theme:
   en: 2cd32ccaba33b3e9
   zh: 53ea78d19929ea02
@@ -30,8 +33,8 @@
   en: dd5d22d088bedd24
   zh: ff3416fc9cbf8418
 /qilin-agent-client-ui-theme/understand-the-implementation:
-  en: 610bb7f255c9d091
-  zh: 480ebc9bf5c7a5d0
+  en: dbbd39894d71bf78
+  zh: a513c6268359c27d
 /qilin-agent-client-ui-theme/understand-the-implementation/stylesheets:
   en: 3e76ea6bc9e07666
   zh: 4cff930270969b1c
@@ -39,8 +42,8 @@
   en: 998f0fa103ee6ea5
   zh: 13cae6dc8abd62e6
 /qilin-agent-client-ui-theme/understand-the-implementation/preference-persistence:
-  en: 1cd126d438c69c57
-  zh: 718b2a1dfff27466
+  en: f54afa0ce26ef469
+  zh: 9f838944b185ff93
 /qilin-agent-client-ui-theme/further-exploration:
   en: fdd4b91eeaf53ac7
   zh: 715b9706ea7a2717

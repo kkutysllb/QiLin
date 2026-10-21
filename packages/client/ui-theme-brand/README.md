@@ -1,5 +1,5 @@
 ---
-description: "QiLin brand color layer for the Web client: alias-token overrides stacked over the user's active light or dark palette."
+description: "QiLin brand color skin for the Web client: alias-token overrides layered over the user's active light or dark palette."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to give the QiLin Web surface its own brand colors. The plugin registers one `ctx.theme` override layer: the user's `light`, `dark`, or `system` preference and every base token stay untouched, and only the tokens QiLin owns are replaced. Unloading the plugin restores the covered tokens because the layer is a Kylin effect.
+Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to give the QiLin Web surface its own brand colors. The plugin registers one selectable `ctx.theme` skin named `qilin`: the user's `light`, `dark`, or `system` preference and every base token stay untouched, and only the tokens QiLin owns are replaced while the skin is selected. Unloading the plugin restores the platform palette because the registration is a Kylin effect, and the durable skin choice survives its provider so a later load restores the user's pick.
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@ Mount this plugin beside [`ui-theme`](../ui-theme/README.md) to give the QiLin W
 <a id="use-this-package"></a>
 ## Use this package
 
-The `qilin` profile mounts this package through its bundle patch, so no configuration is required. A deployment that wants the QiLin palette with a different base theme keeps its own `ui-theme` preference; this layer composes on top of it.
+The `qilin` profile mounts this package through its bundle patch, so no configuration is required; the same patch sets `skin: qilin` on the `ui-theme` row, making the Xuanjin palette the product default. A deployment that wants another palette with the same base theme ships its own skin provider and selects it through the appearance row; the light/dark/system preference keeps composing underneath. Any user who picks a different registered skin switches away from this one, and the choice persists across restarts.
 
 The palette is the "Xuanjin" dark-gold landing VI in both schemes: the dark values transplant the landing tokens verbatim, the light values derive the warm-paper counterpart ([decision note](../../../.agents/notes/implemented/architecture/2026-09-14-xuanjin-dual-scheme-palette.md)). Fifty-five tokens are grouped by family in [tokens.ts](src/client/tokens.ts): brand gold, surfaces and sidebar, ink labels, hairlines and hovers, the secondary button family, and the code/scrollbar reading surfaces.
 
@@ -55,5 +55,6 @@ None; the theme contributes no prompt text.
 
 <a id="known-limitations-and-deferred-work"></a>
 
-- Tokens without a current component consumer stay with the base palettes; a future consumer that needs the warm values joins this layer rather than re-deriving them.
-- The shipped spec exercises the production theme runtime and its override stack. A booted-Web-surface assertion for this layer is not in place yet; the assembled-surface check is manual.
+- Tokens without a current component consumer stay with the base palettes; a future consumer that needs the warm values joins this skin rather than re-deriving them.
+- The shipped spec exercises the production theme runtime and its skin registry. A booted-Web-surface assertion for this skin is not in place yet; the assembled-surface check is manual.
+- The pre-plugin bootstrap paints the base scheme background until the skin provider registers, so a page load can show one frame of the platform paper tone before the skin applies.

@@ -38,7 +38,7 @@ async function bench(isLoopback = true) {
   locale.setLocale('zh')
   ctx.provide('locale', locale)
   const section: Record<string, unknown> = {
-    preference: 'system', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
+    preference: 'system', skin: '', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
     textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
   }
   const namespace = () => ({
@@ -242,6 +242,31 @@ describe('ui-theme apply', () => {
     face.setTheme('light')
     expect(theme.getTheme().preference).toBe('light')
     expect(instance.getSnapshot().preference).toBe('light')
+    await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalled() })
+  })
+
+  it('mirrors registered skins, re-resolves their labels on a language switch, and routes skin writes back', async () => {
+    const b = await bench()
+    declareItems(b.slots)
+    await b.ctx.plugin({ inject: [...inject], apply }).await()
+    const theme = b.ctx.get('theme') as ThemeRuntime
+    const entry = b.slots.entries(SLOT).find(e => e.component === AppearanceRow)!
+    const handle = entry.store as ReturnType<typeof createAppearanceRowStore>
+    const instance = handle.create()
+    const face = (entry.inject as unknown as (a: typeof instance.actions) => AppearanceRowInjected)(instance.actions)
+
+    theme.registerSkin({
+      id: 'qilin', label: { zh: '玄金', en: 'Xuanjin' },
+      tokens: { '--qilin-skin': { light: '#ffffff', dark: '#000000' } },
+    })
+    expect(instance.getSnapshot().skins).toEqual([{ id: 'qilin', label: '玄金' }])
+
+    b.locale.setLocale('en')
+    expect(instance.getSnapshot().skins).toEqual([{ id: 'qilin', label: 'Xuanjin' }])
+
+    face.setSkin('qilin')
+    expect(theme.getTheme().skin).toBe('qilin')
+    expect(instance.getSnapshot().skin).toBe('qilin')
     await vi.waitFor(() => { expect(b.mutate).toHaveBeenCalled() })
   })
 

@@ -9,7 +9,7 @@ kind: "package-bundle"
 
 ## 概述
 
-用 `web` 或 `qilin` profile 运行 QiLin Web 表面，其 bundle 列表把本包叠加在 [`qilin-web-app`](../web-app/README.zh.md) 之后。本包不含运行时 API：其实质是 `cordis.patch.yml`，在 `qilin-web-app` 组合之上重述承载 QiLin 产品身份的行，并挂载麒麟印章与品牌色客户端插件。部署层或用户补丁层仍可替换它声明的每一行。
+用 `web` 或 `qilin` profile 运行 QiLin Web 表面，其 bundle 列表把本包叠加在 [`qilin-web-app`](../web-app/README.zh.md) 之后。本包不含运行时 API：其实质是 `cordis.patch.yml`，在 `qilin-web-app` 组合之上重述承载 QiLin 产品身份的行，挂载麒麟印章与品牌色客户端插件，并在 `ui-theme` 行把 `qilin` 配色包选为产品默认。部署层或用户补丁层仍可替换它声明的每一行。
 
 ## 目录
 
@@ -39,7 +39,7 @@ kind: "package-bundle"
 }
 ```
 
-随附的 `web` 与 `qilin` profile 模板都按该顺序列出这些 bundle，因此裸命令 `qilin` 与 `qilin --profile web` 都启动带品牌的表面；旧版本安装初始化的 profile 在下一次加载时补上本层。
+随附的 `web` 与 `qilin` profile 模板都按该顺序列出这些 bundle，因此裸命令 `qilin` 与 `qilin --profile web` 都启动带品牌的表面；旧版本安装初始化的 profile 在下一次加载时补上本层。`skin: qilin` 只是默认值而非锁定：用户在设置中改选其他已注册配色包即覆盖它，且该选择持久化。
 
 <a id="dev-note"></a>
 ## 开发备注

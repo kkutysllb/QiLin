@@ -255,7 +255,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   {
     key: 'theme',
     summary: 'Theme registry and preference owner.',
-    description: 'Theme registry and preference owner. `light`/`dark` are built in (the base stylesheets carry both palettes); third-party themes register alias-layer overrides. Reads go through getTheme; preference writes only through setTheme; continuous sync only through the `theme/change` event. overrideTokens stacks partial token layers over the active theme without touching the registry. The service holds the `prefers-color-scheme` media query (environment sensing, not presentation) and re-emits when the OS scheme flips while the preference is `system`.',
+    description: 'Theme registry and preference owner. `light`/`dark` are built in (the base stylesheets carry both palettes); third-party themes register alias-layer overrides. Color skins form a second axis: registerSkin publishes selectable token overlays that compose over whichever scheme the user picks. Reads go through getTheme; scheme writes only through setTheme, skin writes only through setSkin; continuous sync only through the `theme/change` event. overrideTokens stacks partial token layers over the active theme and the selected skin without touching the registries. The service holds the `prefers-color-scheme` media query (environment sensing, not presentation) and re-emits when the OS scheme flips while the preference is `system`.',
     methods: [
       {
         signature: 'getTheme(): ThemeSnapshot',
@@ -265,7 +265,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
       },
       {
         signature: 'setTheme(id: string): void',
-        description: 'Switch the theme preference — the only user preference write entry. Built-in preferences are written through the settings scope and every accepted value emits `theme/change`.',
+        description: 'Switch the theme preference — the only scheme write entry. Built-in preferences are written through the settings scope and every accepted value emits `theme/change`.',
         parameters: [{ name: 'id', description: 'a registered theme id or `system`; unknown ids throw.' }],
       },
       {
@@ -1032,8 +1032,12 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type ThemePreference = typeof THEME_PREFERENCES[number];',
   },
   {
+    name: 'ThemeSkin',
+    declaration: 'export interface ThemeSkin {\n    id: string;\n    label: LocalizedText;\n    tokens: ThemeTokenOverrides;\n}',
+  },
+  {
     name: 'ThemeSnapshot',
-    declaration: 'export interface ThemeSnapshot {\n    preference: ThemePreference;\n    fontSizes: FontSizes;\n    fontFamilies: FontFamilies;\n    active: ThemeDefinition;\n    themes: readonly ThemeDefinition[];\n    revision: number;\n}',
+    declaration: 'export interface ThemeSnapshot {\n    preference: ThemePreference;\n    skin: string;\n    skins: readonly ThemeSkin[];\n    fontSizes: FontSizes;\n    fontFamilies: FontFamilies;\n    active: ThemeDefinition;\n    themes: readonly ThemeDefinition[];\n    revision: number;\n}',
   },
   {
     name: 'ThemeTokenModes',

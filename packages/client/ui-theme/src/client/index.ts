@@ -9,6 +9,7 @@
  * surface.
  */
 import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { LocalizedText } from '@qilin-agent/package-manifest'
 import type { BoundActions } from '@qilin-agent/client-ui-slots'
 // Type-only: the ctx.configForms Context merge. Cross-plugin collaboration
 // goes through the service, never a value import (client bundle purity gate).
@@ -22,19 +23,20 @@ import { AppearanceRow } from './AppearanceRow.tsx'
 import type { FontSettingsInjected } from './FontSettingsGroup.tsx'
 import { FontSettingsGroup } from './FontSettingsGroup.tsx'
 import { createAppearanceRowStore, createFontRowStore } from './settings-store.ts'
+import type { AppearanceSkinOption } from './settings-store.ts'
 import { installFontSizeShortcuts } from './font-size-shortcuts.ts'
 import { installThemeStyles } from './styles.ts'
 import { en, zh, type ThemeKey } from './locales.ts'
 import {
-  DEFAULT_FONT_SIZES, DEFAULT_PREFERENCE, FONT_FAMILY_FIELDS, FONT_ROLES, FONT_SIZE_SPECS,
+  DEFAULT_FONT_SIZES, DEFAULT_PREFERENCE, DEFAULT_SKIN, FONT_FAMILY_FIELDS, FONT_ROLES, FONT_SIZE_SPECS,
   fontFamilyVariable, isFontSize, isThemePreference, normalizeFontFamily, sectionFontSizes,
-  THEME_PREFERENCE_FIELD, THEME_SETTINGS_NAMESPACE,
+  SKIN_FIELD, THEME_PREFERENCE_FIELD, THEME_SETTINGS_NAMESPACE,
   type FontFamilies, type FontRole, type FontSizes, type ThemePreference, type ThemeSettings,
 } from '../theme-settings.ts'
 
 export type { AppearanceRowComponentProps, AppearanceRowInjected } from './AppearanceRow.tsx'
 export type { FontSettingsGroupProps, FontSettingsInjected } from './FontSettingsGroup.tsx'
-export type { AppearanceRowState, FontRowState } from './settings-store.ts'
+export type { AppearanceRowState, AppearanceSkinOption, FontRowState } from './settings-store.ts'
 export type { ThemeKey } from './locales.ts'
 export type { FontFamilies, FontRole, FontSizes, ThemePreference, ThemeSettings } from '../theme-settings.ts'
 
@@ -79,18 +81,37 @@ export interface ThemeDefinition {
   tokens: ThemeTokens
 }
 
+/**
+ * One selectable color skin: a named alias-token overlay that is orthogonal to
+ * the light/dark preference. Every token states both palette modes; the skin
+ * folds under explicit {@link ThemeRuntime.overrideTokens} layers.
+ */
+export interface ThemeSkin {
+  /** Stable id persisted as the user's skin preference (non-empty, unique per registry). */
+  id: string
+  /** Provider-owned display name, resolved through the registry's language chain. */
+  label: LocalizedText
+  /** Alias-layer overrides applied as inline CSS variables over the base palette. */
+  tokens: ThemeTokenOverrides
+}
+
 /** Immutable theme state published on every change. */
 export interface ThemeSnapshot {
   /** The persisted preference (may be `system`). */
   preference: ThemePreference
+  /** The persisted skin selection; an empty id keeps the platform palette. */
+  skin: string
+  /** Registered skins in registration order. */
+  skins: readonly ThemeSkin[]
   /** Integer px font sizes by role, each within its `FONT_SIZE_SPECS` range (`text` is the conversation content size). */
   fontSizes: FontSizes
   /** Normalized user font lists by role; `''` selects the role's built-in stack. */
   fontFamilies: FontFamilies
   /**
    * The resolved active theme (`system` resolved via prefers-color-scheme)
-   * with override layers folded into its tokens (seq order, later layers win
-   * per-token; each value picked for the active color scheme).
+   * with the selected skin and then the override layers folded into its tokens
+   * (layers in seq order, later wins per-token; each value picked for the
+   * active color scheme).
    */
   active: ThemeDefinition
   /** Registered themes in registration order. */
@@ -153,10 +174,13 @@ const BUILTIN_INSPECT_TOKENS: readonly ThemeTokenInspection[] = Object.freeze([
 /**
  * Theme registry and preference owner. `light`/`dark` are built in (the base
  * stylesheets carry both palettes); third-party themes register alias-layer
- * overrides. Reads go through {@link getTheme}; preference writes only
- * through {@link setTheme}; continuous sync only through the `theme/change`
- * event. {@link overrideTokens} stacks partial token layers over the active
- * theme without touching the registry.
+ * overrides. Color skins form a second axis: {@link registerSkin} publishes
+ * selectable token overlays that compose over whichever scheme the user picks.
+ * Reads go through {@link getTheme}; scheme writes only through
+ * {@link setTheme}, skin writes only through {@link setSkin}; continuous sync
+ * only through the `theme/change` event. {@link overrideTokens} stacks partial
+ * token layers over the active theme and the selected skin without touching
+ * the registries.
  * The service holds the `prefers-color-scheme` media query (environment
  * sensing, not presentation) and re-emits when the OS scheme flips while the
  * preference is `system`.
@@ -165,6 +189,8 @@ export class ThemeRuntime {
   private readonly ctx: ClientContext
   private readonly host: ConfigForm<ThemeSettings>
   private themes: ThemeDefinition[] = [...BUILTIN_THEMES]
+  private skins: ThemeSkin[] = []
+  private skin: string = DEFAULT_SKIN
   private preference: ThemePreference
   private fontSizes: FontSizes = bootstrapFontSizes()
   private fontFamilies: FontFamilies = bootstrapFontFamilies()
@@ -224,6 +250,11 @@ export class ThemeRuntime {
         if (!tokens.has(name)) tokens.set(name, dynamicToken(name))
       }
     }
+    for (const skin of this.skins) {
+      for (const name of Object.keys(skin.tokens)) {
+        if (!tokens.has(name)) tokens.set(name, dynamicToken(name))
+      }
+    }
     for (const layer of this.overrides.values()) {
       for (const name of Object.keys(layer.tokens)) {
         if (!tokens.has(name)) tokens.set(name, dynamicToken(name))
@@ -233,7 +264,7 @@ export class ThemeRuntime {
   }
 
   /**
-   * Switch the theme preference — the only user preference write entry.
+   * Switch the theme preference — the only scheme write entry.
    * Built-in preferences are written through the settings scope and every
    * accepted value emits `theme/change`.
    * @param id - a registered theme id or `system`; unknown ids throw.
@@ -245,6 +276,23 @@ export class ThemeRuntime {
     if (this.preference === id) return
     this.preference = id as ThemePreference
     if (isThemePreference(id)) this.write(() => this.host.set(THEME_PREFERENCE_FIELD, id))
+    this.publish()
+  }
+
+  /**
+   * Switch the color skin — the only skin write entry. The selection is
+   * persisted through the settings scope; the overlay resolves at snapshot
+   * build time, so an id whose provider is not registered falls back to the
+   * platform palette while the durable selection stays for a later load.
+   * @param id - a registered skin id or the empty id; unknown ids throw.
+   */
+  setSkin(id: string): void {
+    if (id !== DEFAULT_SKIN && !this.skins.some(skin => skin.id === id)) {
+      throw new Error(`skin "${id}" is not registered`)
+    }
+    if (this.skin === id) return
+    this.skin = id
+    this.write(() => this.host.set(SKIN_FIELD, id))
     this.publish()
   }
 
@@ -316,9 +364,10 @@ export class ThemeRuntime {
     if (section === undefined) return
     const fontFamilies = durableFontFamilies(section)
     const fontSizes = sectionFontSizes(section)
-    if (this.preference === section.preference
+    if (this.preference === section.preference && this.skin === section.skin
       && FONT_ROLES.every(role => this.fontSizes[role] === fontSizes[role] && this.fontFamilies[role] === fontFamilies[role])) return
     this.preference = section.preference
+    this.skin = section.skin
     this.fontSizes = fontSizes
     this.fontFamilies = fontFamilies
     this.publish()
@@ -345,6 +394,32 @@ export class ThemeRuntime {
       if (this.preference === definition.id) {
         this.preference = DEFAULT_PREFERENCE
       }
+      this.publish()
+    }
+  }
+
+  /**
+   * Register a color skin. Duplicate ids throw; the empty id is the platform
+   * palette selector, not a registrable skin. The overlay folds under every
+   * `overrideTokens` layer, so a deployment layer still wins. Disposal removes
+   * the registration and republishes; the durable selection is untouched, so a
+   * later registration restores the user's pick.
+   * @param skin - skin id, display name, and alias-token overrides.
+   * @returns disposer removing exactly this registration (idempotent).
+   */
+  registerSkin(skin: ThemeSkin): () => void {
+    if (skin.id === DEFAULT_SKIN) throw new Error('the empty skin id selects the platform palette and is not registrable')
+    if (this.skins.some(registered => registered.id === skin.id)) {
+      throw new Error(`skin "${skin.id}" is already registered`)
+    }
+    const entry: ThemeSkin = Object.freeze({
+      id: skin.id, label: skin.label, tokens: validateOverrides(skin.id, skin.tokens),
+    })
+    this.skins = [...this.skins, entry]
+    this.publish()
+    return () => {
+      if (!this.skins.some(registered => registered.id === entry.id)) return
+      this.skins = this.skins.filter(registered => registered.id !== entry.id)
       this.publish()
     }
   }
@@ -385,25 +460,34 @@ export class ThemeRuntime {
     const active = this.themes.find(t => t.id === resolvedId)
     /* v8 ignore next 2 -- needs a registry without light/dark, which register()/dispose() cannot produce */
     if (active === undefined) throw new Error(`theme registry lost "${resolvedId}"`)
+    // An unregistered selection (its provider is not loaded) falls back to the
+    // platform palette while the durable id stays for a later registration.
+    const skin = this.skins.find(entry => entry.id === this.skin)
     return Object.freeze({
       preference: this.preference,
+      skin: this.skin,
+      skins: Object.freeze([...this.skins]),
       fontSizes: this.fontSizes,
       fontFamilies: this.fontFamilies,
-      active: this.composeActive(active),
+      active: this.composeActive(active, skin),
       themes: Object.freeze([...this.themes]),
       revision: this.revision,
     })
   }
 
   /**
-   * Fold the override layers into the active definition: seq order, later
-   * layers win per-token, each value picked for the active color scheme (the
-   * presenter consumes the composed snapshot and needs no override awareness).
-   * Without layers the registered definition passes through by identity.
+   * Fold the selected skin and the override layers into the active definition:
+   * the skin first, then layers in seq order, later wins per-token, each value
+   * picked for the active color scheme (the presenter consumes the composed
+   * snapshot and needs no override awareness). Without a skin or layers the
+   * registered definition passes through by identity.
    */
-  private composeActive(active: ThemeDefinition): ThemeDefinition {
-    if (this.overrides.size === 0) return active
+  private composeActive(active: ThemeDefinition, skin: ThemeSkin | undefined): ThemeDefinition {
+    if (skin === undefined && this.overrides.size === 0) return active
     const tokens: ThemeTokens = { ...active.tokens }
+    if (skin !== undefined) {
+      for (const [name, modes] of Object.entries(skin.tokens)) tokens[name] = modes[active.colorScheme]
+    }
     for (const layer of [...this.overrides.values()].sort((a, b) => a.seq - b.seq)) {
       for (const [name, modes] of Object.entries(layer.tokens)) {
         tokens[name] = modes[active.colorScheme]
@@ -519,11 +603,18 @@ export function apply(ctx: ClientContext): void {
   let bound: BoundActions<typeof store> | undefined
   const fontStore = createFontRowStore()
   let fontBound: BoundActions<typeof fontStore> | undefined
+  const skinOptions = (snapshot: ThemeSnapshot): readonly AppearanceSkinOption[] => snapshot.skins.map(
+    skin => ({ id: skin.id, label: ctx.locale.resolveText(skin.label) }),
+  )
   const sync = (snapshot: ThemeSnapshot): void => {
-    bound?.sync(snapshot.preference, snapshot.revision)
+    bound?.sync(snapshot.preference, snapshot.skin, snapshot.revision)
+    bound?.syncSkins(skinOptions(snapshot))
     fontBound?.sync(snapshot.fontSizes, snapshot.fontFamilies, snapshot.revision)
   }
   ctx.on('theme/change', sync)
+  // Skin labels are provider-owned localized text, so a language switch re-resolves
+  // them without a theme change.
+  ctx.effect(() => ctx.locale.subscribe(() => { sync(theme.getTheme()) }), 'ui-theme: skin label language')
   const injected = (actions: BoundActions<typeof store>): AppearanceRowInjected => {
     bound = actions
     // Re-sync from the getter so no event is lost between registration and
@@ -531,6 +622,7 @@ export function apply(ctx: ClientContext): void {
     sync(theme.getTheme())
     return {
       setTheme: (id) => { theme.setTheme(id) },
+      setSkin: (id) => { theme.setSkin(id) },
     }
   }
   ctx.slots.inject('settings.general.item', () => ctx.slots.register({

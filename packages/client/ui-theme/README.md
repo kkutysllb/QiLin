@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-client-ui-theme` lets Web GUI users choose `light`, `dark`, or `system`, and set the font and font size of text, code, and the sidebar terminal separately in Settings. A loopback client stores these values in the `ui-theme` settings namespace, which the provider persists in `$QILIN_HOME/settings.yaml` by default. The plugin resolves `system` through `prefers-color-scheme` and publishes immutable `ThemeSnapshot`s; ui-layout applies each snapshot to the document. The package also ships the `--qilin-*` token stylesheets and injects a synchronous bootstrap so the selected palette, font sizes, and fonts apply before the shell loads. Third-party themes can register alias-token overrides through `ctx.theme`.
+`qilin-client-ui-theme` lets Web GUI users choose `light`, `dark`, or `system`, pick a registered color skin, and set the font and font size of text, code, and the sidebar terminal in Settings. A loopback client stores these values in the `ui-theme` settings namespace, which the provider persists in `$QILIN_HOME/settings.yaml` by default. The plugin resolves `system` through `prefers-color-scheme` and publishes immutable `ThemeSnapshot`s; ui-layout applies each snapshot. The package ships the `--qilin-*` token stylesheets and injects a synchronous bootstrap so the selected palette, sizes, and fonts apply before the shell loads. Plugins register themes and skins through `ctx.theme`.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-Users switch the color scheme and content typography from three rows in Settings (General section); all three choices persist across restarts on a loopback browser. Feature plugins consume the current snapshot through `ctx.theme` and read the `--qilin-*` tokens in CSS; they do not manage theme state themselves.
+Users switch the color scheme, the color skin, and content typography from the rows in Settings (General section); every choice persists across restarts on a loopback browser. Feature plugins consume the current snapshot through `ctx.theme` and read the `--qilin-*` tokens in CSS; they do not manage theme state themselves.
 
 ### Typography
 
@@ -36,6 +36,10 @@ Desktop's fixed `Cmd`/`Ctrl` + `+` (or `=`) and `Cmd`/`Ctrl` + `-` shortcuts cha
 ### Fonts
 
 Three rows set the text font (interface and conversation text), the code font (code blocks, inline code, and other `--ds-font-family-code` text), and the sidebar terminal font independently. Each field takes comma-separated family names and commits on blur or Enter; an empty field restores the built-in stack. The service normalizes each list by dropping quotes, backslashes, angle brackets, and control characters and double-quoting every name except CSS generic families, then stores it in `textFontFamily`, `codeFontFamily`, or `terminalFontFamily`. The user list precedes the role's built-in stack, so a font missing on the machine falls back to the default. The field accepts any installed font name; it does not enumerate local fonts.
+
+### Color skins
+
+A color skin is a named set of `--qilin-*` alias tokens layered over whichever scheme the user picked, so `light`, `dark`, and `system` stay the user's choice while one product can offer several palettes. Plugins register skins with `ctx.theme.registerSkin({ id, label, tokens })`; every token states both palette modes, and `label` is provider-owned localized text resolved through the active language chain. The Appearance row lists registered skins once two or more exist — a single skin is the product's own palette, so there is nothing to choose — and `setSkin` persists the selection in the `skin` field of the `ui-theme` namespace. A selection whose provider is not registered in the current composition (a disabled plugin) falls back to the platform palette while the durable value stays, so re-enabling the provider restores the user's pick. Skins fold under explicit `ctx.theme.overrideTokens` layers, so a deployment that forces tokens still wins.
 
 ### Registering a theme
 
@@ -53,7 +57,7 @@ When the host composition includes an HTTP server, the host half embeds the regi
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The service owns theme, font-size, and font-family state and publishes snapshots. The ui-layout presenter applies those snapshots, and the token sheets own the color and conversation text scales.
+The service owns theme, skin, font-size, and font-family state and publishes snapshots. The ui-layout presenter applies those snapshots, and the token sheets own the color and conversation text scales.
 
 ### Stylesheets
 
@@ -75,7 +79,7 @@ In pointer modality, `html[data-input-modality='pointer'] body :focus-visible:no
 
 ### Preference persistence
 
-The service provides itself immediately with the schema defaults on a loopback browser, then loads the `ui-theme` namespace and writes each accepted theme, font-size, or font-family change through the Host settings API. Pushed settings changes and reconnects refetch the namespace. While its own writes are pending, the service ignores refetched sections, so an echo of an earlier write cannot revert a later change; it adopts the durable section once the writes settle. Non-loopback pages do not create that Host-backed scope. The persistence boundary is owned by the [Host-backed preferences note](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.md).
+The service provides itself immediately with the schema defaults on a loopback browser, then loads the `ui-theme` namespace and writes each accepted theme, skin, font-size, or font-family change through the Host settings API. Pushed settings changes and reconnects refetch the namespace. While its own writes are pending, the service ignores refetched sections, so an echo of an earlier write cannot revert a later change; it adopts the durable section once the writes settle. Non-loopback pages do not create that Host-backed scope. The persistence boundary is owned by the [Host-backed preferences note](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.md).
 
 </details>
 

@@ -23,6 +23,12 @@
     printUrl: true
     surfaceContext: true
 
+# The QiLin product skin: the appearance row persists the user's own choice over
+# this default, and a row without the layer opens on the platform palette.
+- id: ui-theme
+  config:
+    skin: qilin
+
 # ── the QiLin browser roster ────────────────────────────────────────────────
 
 # The 麒麟 seal occupies the sidebar and conversation-hero brand marks; the

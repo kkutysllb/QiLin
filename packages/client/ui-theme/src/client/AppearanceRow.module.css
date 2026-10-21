@@ -55,3 +55,28 @@
   background: var(--qilin-alias-bg-module-platform);
   border-color: var(--qilin-static-neutral-bluish-400);
 }
+
+/* Color-skin chips: compact inline choices under the cube row. */
+.skinRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skinChip {
+  box-sizing: border-box;
+  padding: 6px 14px;
+  border: 0.5px solid var(--qilin-alias-border-l4);
+  border-radius: var(--qilin-radius-xl);
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--qilin-alias-label-primary);
+  cursor: pointer;
+}
+
+.skinChip:hover:not(.selected) {
+  background: var(--qilin-alias-interactive-bg-hover);
+}
