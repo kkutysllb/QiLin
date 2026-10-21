@@ -61,7 +61,7 @@ export interface ComposerAttachmentsOwnerProps {
   /** Whether a document-level file drop may add attachments now. */
   canAcceptDrop: boolean
   /** Add one dropped batch through the composer's validation path. */
-  onAddFiles: (files: readonly File[]) => void
+  onAddFiles: (files: readonly File[], directories?: ReadonlySet<File>) => void
   /** Remove one draft attachment through the Conversation service. */
   onRemoveAttachment: (id: DraftAttachmentId) => void
   /** Current per-draft upload states for file-kind attachments. */
@@ -383,7 +383,7 @@ export interface ComposerBarOwnerProps {
 /** Package-private operations injected into the resident composer bar. */
 export interface ComposerBarInjected {
   keyboard: ComposerKeyboard | undefined
-  addFiles: ((files: readonly File[]) => string | null) | undefined
+  addFiles: ((files: readonly File[], directories?: ReadonlySet<File>) => string | null) | undefined
   removeAttachment: ((id: DraftAttachmentId) => void) | undefined
   resolveDraftAttachments: ((ids: readonly DraftAttachmentId[]) => readonly ComposerAttachment[]) | undefined
   /** Restart one failed file upload; absent without a session. */
@@ -391,6 +391,8 @@ export interface ComposerBarInjected {
   toggleCommandMenu: ((selection: EditSelection) => void) | undefined
   stop: (() => void) | undefined
   hooks: {
+    /** Readable sequence while the fixed Stop command is registered. */
+    stopShortcut: ObservableSnapshot<readonly string[]>
     /**
      * Live busy-state submission preference: the delivery mode plain Enter
      * and the primary Send button use while the addressed agent is busy.

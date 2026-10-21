@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import {
-  IconCodeOutline16, IconInspectOutline12, StateDot,
+  IconCodeOutlineRegular, IconInspectOutlineMedium, StateDot,
 } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
@@ -35,7 +35,7 @@ const READING_LABELS = {
 /** Render one activation result and, when eligible, its Package-owned view. */
 export function CordisRunRow(props: CordisRunRowProps) {
   if (props.phase === 'preparing') return <CordisPreparingRow {...props}
-    icon={<IconCodeOutline16 size={14} />} title={props.t('row.runTitle')}
+    icon={<IconCodeOutlineRegular size={14} />} title={props.t('row.runTitle')}
     className={css.card} rowClassName={css.row} titleClassName={css.title} />
   return <StartedCordisRunRow {...props} />
 }
@@ -106,7 +106,7 @@ function StartedCordisRunRow({
             ? <StateDot state="error" />
             : card.state === 'stopped'
               ? <StateDot state="warning" />
-              : <IconCodeOutline16 size={14} />}
+              : <IconCodeOutlineRegular size={14} />}
         </span>
         <span className={css.title}>{t(card.mode === 'update' ? 'row.updateTitle' : 'row.runTitle')}</span>
         <span className={css.separator} aria-hidden />
@@ -114,7 +114,7 @@ function StartedCordisRunRow({
         <span className={css.status}>{status}</span>
         {inspect !== undefined && (
           <button type="button" className={css.inspect} aria-label={t('action.inspect')} onClick={inspect}>
-            <IconInspectOutline12 />
+            <IconInspectOutlineMedium />
           </button>
         )}
       </div>

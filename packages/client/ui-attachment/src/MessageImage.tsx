@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ImageAttachmentRef } from '@qilin-agent/attachment'
-import { IconLoadingOutline16, IconRefreshOutline16, ImageLightbox } from '@qilin-agent/client-ui-primitives'
+import { IconLoadingOutlineRegular, IconRefreshOutlineRegular, ImageLightbox } from '@qilin-agent/client-ui-primitives'
 import type { ImageLightboxLabels } from '@qilin-agent/client-ui-primitives'
 import css from './MessageImage.module.css'
 
@@ -134,7 +134,7 @@ export function MessageImage({ image, load, variant, labels }: {
       onClick={request}
     >
       {variant === 'thumbnail'
-        ? <span aria-hidden="true"><IconRefreshOutline16 /></span>
+        ? <span aria-hidden="true"><IconRefreshOutlineRegular /></span>
         : labels.loadFailed}
     </button>
   )
@@ -153,7 +153,7 @@ export function MessageImage({ image, load, variant, labels }: {
         {src === null
           ? (
             <span className={css.loading} aria-hidden={loadingThumbnail || undefined}>
-              {loadingThumbnail ? <IconLoadingOutline16 className={css.spinner} /> : labels.loading}
+              {loadingThumbnail ? <IconLoadingOutlineRegular className={css.spinner} /> : labels.loading}
             </span>
           )
           : <img src={src} alt={label} style={fit === undefined ? undefined : { objectPosition: fit.objectPosition }} />}

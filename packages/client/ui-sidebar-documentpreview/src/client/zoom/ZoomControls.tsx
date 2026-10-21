@@ -1,6 +1,6 @@
 /** Floating controls shared by every zoomable document renderer. */
 import { forwardRef, useEffect, useImperativeHandle, useState, type ReactNode } from 'react'
-import { Button, IconChevronDownOutline14, IconPlusOutline16, Menu, Tooltip, type MenuEntry } from '@qilin-agent/client-ui-primitives'
+import { Button, IconChevronDownOutlineRegular, IconPlusOutlineRegular, Menu, Tooltip, type MenuEntry } from '@qilin-agent/client-ui-primitives'
 import { MAX_FIXED_ZOOM, MIN_FIXED_ZOOM, ZOOM_OPTIONS, ZOOM_STEP, type ZoomLabels } from './types.ts'
 import css from './ZoomControls.module.css'
 
@@ -59,7 +59,7 @@ export const ZoomControls = forwardRef<ZoomControlsHandle, {
       anchor={<Button size="sm" className={css.percent} aria-label={labels.menu} aria-expanded={open}
         onMouseDown={(event) => { event.preventDefault() }} onClick={() => { setOpen(value => !value) }}>
         <span>{labels.value(Math.round(displayZoom * 100))}</span>
-        <IconChevronDownOutline14 size={12} />
+        <IconChevronDownOutlineRegular size={12} />
       </Button>}
       items={items} selectedId={selectedId} onClose={() => { setOpen(false) }} onSelect={(selected) => {
         setOpen(false)
@@ -70,7 +70,7 @@ export const ZoomControls = forwardRef<ZoomControlsHandle, {
       <span className={css.controlAnchor}><Button size="sm" className={css.zoomButton} aria-label={labels.into}
         disabled={displayZoom >= MAX_FIXED_ZOOM} onMouseDown={(event) => { event.preventDefault() }}
         onClick={() => { onZoom(steppedZoom(displayZoom, 1)) }}>
-        <IconPlusOutline16 size={14} />
+        <IconPlusOutlineRegular size={14} />
       </Button></span>
     </Tooltip>
   </div>

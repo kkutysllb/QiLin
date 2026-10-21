@@ -9,7 +9,7 @@
 import type { ReactNode } from 'react'
 import type { TranslateNS } from '@qilin-agent/client-locale/client'
 import {
-  FileTypeIcon, IconCloseOutline16, IconSearchOutline16, Input, classifyFileType,
+  FileTypeIcon, IconCloseOutlineRegular, IconSearchOutlineRegular, Input, classifyFileType,
 } from '@qilin-agent/client-ui-primitives'
 import { pathPartsOf } from '@qilin-agent/util-workspace-path'
 import { failureLine } from './FileTree.tsx'
@@ -33,7 +33,7 @@ export function FileSearchBox(props: {
     <div className={css.search} data-files-search>
       <Input
         className={css.field}
-        icon={<IconSearchOutline16 />}
+        icon={<IconSearchOutlineRegular />}
         value={query}
         placeholder={t('search.placeholder')}
         aria-label={t('search.label')}
@@ -49,7 +49,7 @@ export function FileSearchBox(props: {
           data-files-search-clear
           onClick={onClear}
         >
-          <IconCloseOutline16 />
+          <IconCloseOutlineRegular />
         </button>
       )}
     </div>

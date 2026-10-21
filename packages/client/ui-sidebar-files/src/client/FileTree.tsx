@@ -22,7 +22,7 @@ import clsx from 'clsx'
 import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
 import type { TranslateNS } from '@qilin-agent/client-locale/client'
 import {
-  Button, FileTypeIcon, IconCloseOutline16, IconFolderClose16, IconFolderOpen16, IconLinkOutline14, Input, Menu,
+  Button, FileTypeIcon, IconCloseOutlineRegular, IconFolderCloseRegular, IconFolderOpenRegular, IconLinkOutlineMedium, Input, Menu,
   Modal, classifyFileType, writeClipboard,
 } from '@qilin-agent/client-ui-primitives'
 import type { MenuEntry } from '@qilin-agent/client-ui-primitives'
@@ -105,7 +105,7 @@ interface TreeContext {
 function LinkMark({ t }: { t: TranslateNS<'sidebarFiles'> }): ReactNode {
   return (
     <span className={css.linkIcon} title={t('entry.symlink')} data-files-symlink>
-      <IconLinkOutline14 aria-label={t('entry.symlink')} />
+      <IconLinkOutlineMedium aria-label={t('entry.symlink')} />
     </span>
   )
 }
@@ -185,7 +185,7 @@ function Entry({ parent, entry, tree }: { parent: string; entry: WorkspaceDirect
           onClick={() => { tree.onToggle(path) }}
           onContextMenu={menu}
         >
-          {expanded ? <IconFolderOpen16 className={css.icon} /> : <IconFolderClose16 className={css.icon} />}
+          {expanded ? <IconFolderOpenRegular className={css.icon} /> : <IconFolderCloseRegular className={css.icon} />}
           <span className={css.name}>{entry.name}</span>
           {entry.symlink === true && <LinkMark t={tree.t} />}
         </button>
@@ -258,7 +258,7 @@ function MutationStrip({ mutation, t, onDismiss }: {
         data-files-mutation-dismiss
         onClick={onDismiss}
       >
-        <IconCloseOutline16 />
+        <IconCloseOutlineRegular />
       </button>
     </li>
   )

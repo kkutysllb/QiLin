@@ -6,7 +6,7 @@ import type {
   MouseEvent as ReactMouseEvent,
   ReactNode,
 } from 'react'
-import { IconCheckOutline16, IconCopyOutline16, IconWrapLinesOutline16 } from './icons/index.tsx'
+import { IconCheckOutlineRegular, IconCopyOutlineRegular, IconWrapLinesOutlineRegular } from './icons/index.tsx'
 import { Menu } from './Menu.tsx'
 import type { MenuEntry } from './Menu.tsx'
 import css from './JsonTree.module.css'
@@ -148,8 +148,8 @@ function JsonCopyAction({ store, target, persistent, labels, onCopy, onClose }: 
               }}
             >
               {state === 'copied'
-                ? <IconCheckOutline16 size={12} />
-                : <IconCopyOutline16 size={12} />}
+                ? <IconCheckOutlineRegular size={12} />
+                : <IconCopyOutlineRegular size={12} />}
             </button>
           )}
           items={object ? objectCopyMenuItems(labels) : valueCopyMenuItems(labels)}
@@ -436,7 +436,7 @@ function JsonString({
                 stringWrapping.setDefault(next)
               }}
             >
-              <IconWrapLinesOutline16 size={12} />
+              <IconWrapLinesOutlineRegular size={12} />
             </button>
           )}
           <button

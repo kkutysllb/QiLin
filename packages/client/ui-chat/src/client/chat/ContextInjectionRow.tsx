@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { ChatViewSlotProps } from '../contract/slots.ts'
-import { DisclosureRow, IconBrowseOutline16, IconContextInjectionOutline16, ReferenceIcon } from '@qilin-agent/client-ui-primitives'
+import { DisclosureRow, IconBrowseOutlineRegular, IconContextInjectionOutlineRegular, ReferenceIconRegular } from '@qilin-agent/client-ui-primitives'
 import type { ContextMessageNode } from '../contract/snapshot.ts'
 import { contextBody } from './ContextBody.tsx'
 import css from './ContextInjectionRow.module.css'
@@ -49,9 +49,9 @@ export function ContextInjectionRow({ content, source, producer, form, t }: Cont
   return (
     <DisclosureRow
       className={css.root}
-      icon={toolBlocks !== undefined ? <IconBrowseOutline16 size={14} /> : producer.role === 'recall'
-        ? <span data-context-recall-icon><ReferenceIcon kind="session" /></span>
-        : <IconContextInjectionOutline16 size={14} />}
+      icon={toolBlocks !== undefined ? <IconBrowseOutlineRegular size={14} /> : producer.role === 'recall'
+        ? <span data-context-recall-icon><ReferenceIconRegular kind="session" /></span>
+        : <IconContextInjectionOutlineRegular size={14} />}
       chevronClassName={css.chevron}
       title={single !== undefined ? t(single.type === 'tool-addition' ? 'message.toolAdded' : 'message.toolRemoved', { name: single.toolName }) : t(toolBlocks !== undefined ? 'message.toolsUpdated' : producer.role === 'recall' ? 'message.contextRecall' : 'message.contextInjection')}
       collapsedContent={toolSummary !== null ? (

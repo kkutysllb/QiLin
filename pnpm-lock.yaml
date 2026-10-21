@@ -3671,6 +3671,9 @@ importers:
       '@qilin-agent/commands':
         specifier: workspace:*
         version: link:../../interaction/commands
+      '@qilin-agent/file-reference':
+        specifier: workspace:*
+        version: link:../../context/file-reference
       '@qilin-agent/goal':
         specifier: workspace:*
         version: link:../../goal/goal

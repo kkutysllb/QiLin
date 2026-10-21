@@ -1,7 +1,7 @@
 /** Completed-Turn token usage action and its accounting details dialog. */
 
 import { createPortal } from 'react-dom'
-import { IconDatabaseOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconDatabaseOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { TurnTokenUsage } from '../contract/chat-nodes.ts'
 import type { ChatViewSlotProps } from '../contract/slots.ts'
 import { formatCacheHitPercent, formatExactTokens, formatTokens } from './token-format.ts'
@@ -46,7 +46,7 @@ export function TurnUsagePanel({ usage, t }: TurnUsagePanelProps) {
         aria-expanded={open}
         onClick={() => { setOpen(!open) }}
       >
-        <IconDatabaseOutline16 />
+        <IconDatabaseOutlineRegular />
         <span className={css.label}>{t('message.turnUsage.consumed', { total })}</span>
       </button>
       {open && createPortal(
@@ -59,7 +59,7 @@ export function TurnUsagePanel({ usage, t }: TurnUsagePanelProps) {
         >
           <div className={dialogCss.title}>
             <span className={dialogCss.titleLabel}>
-              <IconDatabaseOutline16 />
+              <IconDatabaseOutlineRegular />
               {t('message.turnUsage.title')}
             </span>
             <span className={dialogCss.titleValue}>{formatExactCount(usage.totalTokens, t)}</span>

@@ -14,11 +14,11 @@ import type { ReactNode } from 'react'
 import type { TeamMemberProjection, TeamTaskView as TeamTask } from '@qilin-agent/experimental-agent-team/client'
 import type {} from '@qilin-agent/api-session-controller/client'
 import {
-  IconCloseOutline16,
-  IconPlusOutline16,
-  IconRefreshOutline14,
-  IconTrashOutline16,
-  IconUserOutline16,
+  IconCloseOutlineRegular,
+  IconPlusOutlineRegular,
+  IconRefreshOutlineMedium,
+  IconTrashOutlineRegular,
+  IconUserOutlineRegular,
   StateDot,
 } from '@qilin-agent/client-ui-primitives'
 import type {
@@ -64,7 +64,7 @@ export function TeamTitle({ useTabInfo }: PropsRuntime<'sidebar.right.pane.tab.t
   const { tab } = useTabInfo()
   return (
     <>
-      <IconUserOutline16 size={16} className={css.titleIcon} />
+      <IconUserOutlineRegular size={16} className={css.titleIcon} />
       {tab.title}
     </>
   )
@@ -98,7 +98,7 @@ function MemberRow({
     >
       <span className={css.memberDot}>
         {status === 'inactive'
-          ? <IconUserOutline16 size={14} className={css.inactiveGlyph} />
+          ? <IconUserOutlineRegular size={14} className={css.inactiveGlyph} />
           : <StateDot state={memberDotState(status)} />}
       </span>
       <span className={css.memberText}>
@@ -193,7 +193,7 @@ function TaskCard({
               transitionTask(sessionId, task, 'delete')
             }}
           >
-            <IconTrashOutline16 size={13} />
+            <IconTrashOutlineRegular size={13} />
             {t(armed ? 'deleteArmed' : 'delete')}
           </button>
         </span>
@@ -301,7 +301,7 @@ export function TeamBody({
       <div className={css.toolbar}>
         <span className={css.toolbarText}>{t('tasks')}</span>
         <button type="button" className={css.actionButton} disabled={busy} onClick={() => { refresh(sessionId) }}>
-          <IconRefreshOutline14 size={13} />
+          <IconRefreshOutlineMedium size={13} />
           {t('refresh')}
         </button>
         <button
@@ -313,7 +313,7 @@ export function TeamBody({
             setForm(current => current?.kind === 'create' ? null : { kind: 'create', draft: emptyTeamDraft() })
           }}
         >
-          <IconPlusOutline16 size={13} />
+          <IconPlusOutlineRegular size={13} />
           {t('create')}
         </button>
       </div>
@@ -334,7 +334,7 @@ export function TeamBody({
             disabled={busy}
             onClick={actions.cleared}
           >
-            <IconCloseOutline16 size={12} />
+            <IconCloseOutlineRegular size={12} />
           </button>
         </div>
       )}

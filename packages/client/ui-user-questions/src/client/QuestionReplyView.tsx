@@ -2,8 +2,8 @@ import { memo, useCallback, useState } from 'react'
 import type {} from '@qilin-agent/client-ui-chat/client'
 import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import {
-  IconCheckOutline14, IconChevronDownOutline14, IconChevronRightOutline14,
-  IconCopyOutline16, Tooltip, writeClipboard,
+  IconCheckOutlineRegular, IconChevronDownOutlineRegular, IconChevronRightOutlineRegular,
+  IconCopyOutlineRegular, Tooltip, writeClipboard,
 } from '@qilin-agent/client-ui-primitives'
 import type { QuestionReplyData } from './question-reply.ts'
 import { replyAnswerValues, replyClipboardText } from './question-reply.ts'
@@ -56,7 +56,7 @@ export function QuestionReplyBubble({ data, t }: { data: QuestionReplyData; t: P
             {/* The caret is the only sign the bubble opens; the label alone
                 reads as plain text. Its state is on the button already. */}
             <span className={css.caret} aria-hidden="true">
-              {open ? <IconChevronDownOutline14 /> : <IconChevronRightOutline14 />}
+              {open ? <IconChevronDownOutlineRegular /> : <IconChevronRightOutlineRegular />}
             </span>
             <span className={css.label}>{label}</span>
           </span>
@@ -96,7 +96,7 @@ export function QuestionReplyBubble({ data, t }: { data: QuestionReplyData; t: P
         </span>
         <Tooltip label={copied ? t('copied') : t('copy')} side="bottom">
           <button type="button" className={css.action} aria-label={copied ? t('copied') : t('copy')} onClick={onCopy}>
-            {copied ? <IconCheckOutline14 /> : <IconCopyOutline16 />}
+            {copied ? <IconCheckOutlineRegular /> : <IconCopyOutlineRegular />}
           </button>
         </Tooltip>
       </div>

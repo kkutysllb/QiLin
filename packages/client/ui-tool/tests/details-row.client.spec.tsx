@@ -3,7 +3,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ToolResultNode } from '@qilin-agent/client-ui-chat/client'
-import { IconUserOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconUserOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { en } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
 import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
@@ -125,7 +125,7 @@ describe('DetailsRow', () => {
 
   it('presents teammate-coordination tools under the two-person team icon', () => {
     const inspect = vi.fn()
-    const expectedIcon = render(<IconUserOutline16 size={14} />).container.querySelector('svg')!.outerHTML
+    const expectedIcon = render(<IconUserOutlineRegular size={14} />).container.querySelector('svg')!.outerHTML
     const view = render(<DetailsRow {...{ useDisclosure, toolName: 'wait_agent', block: result('wait_agent', { timedOut: true }), inspect, t } as Parameters<typeof DetailsRow>[0]} />)
     expect(screen.getByText('Wait for subagent')).toBeTruthy()
     expect(view.container.querySelector('svg')?.outerHTML).toBe(expectedIcon)

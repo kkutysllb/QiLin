@@ -7,8 +7,8 @@ import type {
 } from '@qilin-agent/experimental-agent-team/client'
 import type {} from '@qilin-agent/api-session-controller/client'
 import {
-  IconChevronDownOutline14,
-  IconUserOutline16, StateDot, Tag, Tooltip,
+  IconChevronDownOutlineRegular,
+  IconUserOutlineRegular, StateDot, Tag, Tooltip,
   useAnchoredPosition, useDismissOnOutsidePointer,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
@@ -64,7 +64,7 @@ function TeamMemberRow({
       >
         <span className={css.memberDot}>
           {status === 'inactive'
-            ? <IconUserOutline16 size={14} className={css.inactiveIcon} />
+            ? <IconUserOutlineRegular size={14} className={css.inactiveIcon} />
             : <StateDot state={memberDotState(status)} />}
         </span>
         <span className={css.memberText}>
@@ -115,7 +115,7 @@ function TaskCard({ task, t }: { task: TeamTask; t: TranslateNS<typeof NS> }) {
             onClick={() => { setExpanded(current => !current) }}
           >
             {t(expanded ? 'task.collapse' : 'task.expand')}
-            <IconChevronDownOutline14 size={12} className={expanded ? css.expandToggleOpen : undefined} />
+            <IconChevronDownOutlineRegular size={12} className={expanded ? css.expandToggleOpen : undefined} />
           </button>
         )}
         <span>{task.id}</span>
@@ -235,7 +235,7 @@ export function TeamAction({
           else panelRef.current?.focus()
         }}
       >
-        <IconUserOutline16 size={14} />
+        <IconUserOutlineRegular size={14} />
         <span ref={triggerLabelRef} className={css.triggerLabel}>{t('trigger')}</span>
       </button>
       {open && createPortal(

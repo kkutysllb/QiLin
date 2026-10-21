@@ -17,7 +17,7 @@ import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useStat
 import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react'
 import clsx from 'clsx'
 import {
-  IconPlusOutline16, IconWarningOutline16, Toast, Tooltip,
+  IconPlusOutlineMedium, IconWarningOutlineRegular, Toast, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 // Type-only: the `plan` projection key merge (the TodoDock posture — the
 // composer reads a host-computed value; the domain owns the key).
@@ -47,7 +47,7 @@ export const InputBar = memo(function InputBar({
   useSession, useInput, inputActions, keyboard, addFiles, removeAttachment, resolveDraftAttachments,
   retryFileUpload,
   toggleCommandMenu, stop, t,
-  renderSlot, useBusyEnter, useFileUploads, useNotices, useLexicon, useMenuLauncher,
+  renderSlot, useBusyEnter, useFileUploads, useNotices, useLexicon, useMenuLauncher, useStopShortcut,
   useProjection, sessionId, variant, disabled: inert = false, blocked,
   workspacePickerOpen = false, onRequestWorkspace,
   placeholder, accessory,
@@ -55,6 +55,7 @@ export const InputBar = memo(function InputBar({
   const input = useInput(s => s)
   const notice = useNotices(s => s)
   const busyEnter = useBusyEnter(s => s)
+  const stopKeys = useStopShortcut(keys => keys)
   void useLexicon // hook seat stays bound by the inject compartment; text-ref decoration rides the shell's editor transforms
   const commandMenuOpen = useMenuLauncher(source => source === 'command')
   // A toolbar activity (the voice capture row) owns the toolbar while expanded:
@@ -211,12 +212,12 @@ export const InputBar = memo(function InputBar({
   // client-side size or count limit and upload as soon as they are picked.
   // The host enforces the same image limits at submit for callers that bypass
   // this composer.
-  const intakeFiles = useCallback((files: readonly File[]): void => {
+  const intakeFiles = useCallback((files: readonly File[], directories?: ReadonlySet<File>): void => {
     if (locked || machineBusy || (subagent !== null && !continuable) || addFiles === undefined || files.length === 0) return
     const rejected = ((): string | null => {
       // Child prompts support images, but not generic file receipts or the
       // Desktop path-reference fallback. Refuse mixed batches before intake.
-      if (continuable && files.some(file => !isImageMediaType(file.type))) {
+      if (continuable && files.some(file => directories?.has(file) || !isImageMediaType(file.type))) {
         return t('image.unsupportedType')
       }
       if (imageLimits !== undefined) {
@@ -235,7 +236,7 @@ export const InputBar = memo(function InputBar({
           return t('image.totalTooLarge', { size: imageSizeText(imageLimits.maxMessageImageBytes) })
         }
       }
-      return addFiles(files)
+      return addFiles(files, directories)
     })()
     if (rejected !== null) showToast(rejected)
   }, [locked, machineBusy, subagent, continuable, addFiles, attachments, imageLimits, showToast, t])
@@ -382,7 +383,7 @@ export const InputBar = memo(function InputBar({
         <Toast
           key={toast.seq}
           text={toast.text}
-          icon={<IconWarningOutline16 />}
+          icon={<IconWarningOutlineRegular />}
           anchor={cardRef.current}
           onDone={dismissToast}
         />
@@ -454,7 +455,7 @@ export const InputBar = memo(function InputBar({
                 onMouseDown={keepFocus}
                 onClick={onToggleCommandMenu}
               >
-                <IconPlusOutline16 size={14} />
+                <IconPlusOutlineMedium size={14} />
               </button>
             </Tooltip>
             <input
@@ -486,7 +487,7 @@ export const InputBar = memo(function InputBar({
               </div>
             )}
             {interruptible && (
-              <Tooltip label={t('input.stop')} side="top" delayMs={500} disabled={stop === undefined}>
+              <Tooltip label={t('input.stop')} shortcutKeys={stopKeys} side="top" delayMs={500} disabled={stop === undefined}>
                 <button
                   type="button"
                   className={css.primary}
@@ -501,7 +502,7 @@ export const InputBar = memo(function InputBar({
                 </button>
               </Tooltip>
             )}
-            <Tooltip label={primaryLabel} side="top" delayMs={500} disabled={primaryDisabled}>
+            <Tooltip label={primaryStops ? t('input.stop') : primaryLabel} shortcutKeys={primaryStops ? stopKeys : undefined} side="top" delayMs={500} disabled={primaryDisabled}>
               <button
                 type="button"
                 className={css.primary}
@@ -524,7 +525,7 @@ export const InputBar = memo(function InputBar({
           </div>
         </div>
       </div>
-      <div className={css.dock}>
+      <div className={css.dock} data-composer-dock>
         {variant === 'composer' && input !== undefined && sessionId !== undefined
           ? renderSlot('conversation.composer.dock', {})
           : null}

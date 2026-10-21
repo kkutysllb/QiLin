@@ -8,7 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
-  IconChevronDownOutline14, IconFolderOpenOutline16, IconRightUpOutline16, Menu, Tooltip,
+  IconChevronDownOutlineMedium, IconFolderOpenOutlineRegular, IconRightUpOutlineRegular, Menu, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type { MenuEntry } from '@qilin-agent/client-ui-primitives'
 import type { ObservableSnapshot } from '@qilin-agent/client-store'
@@ -55,7 +55,7 @@ type HandlerState =
 function ApplicationIcon({ source, size }: { source: string | null; size: number }): ReactNode {
   const [failed, setFailed] = useState(false)
   return source === null || failed
-    ? <IconRightUpOutline16 size={size} />
+    ? <IconRightUpOutlineRegular size={size} />
     : (
       <img
         src={source}
@@ -134,7 +134,7 @@ function FileOpenTarget({
       align="end"
       onClose={() => { setOpen(false) }}
       items={entries}
-      footer={[{ id: 'reveal', label: t('path.reveal'), icon: <IconFolderOpenOutline16 size={14} /> }]}
+      footer={[{ id: 'reveal', label: t('path.reveal'), icon: <IconFolderOpenOutlineRegular size={14} /> }]}
       onSelect={(id) => { run(id === 'reveal' ? 'reveal' : 'open', id === 'reveal' ? undefined : id.slice(4)) }}
       anchor={(
         <div
@@ -152,7 +152,7 @@ function FileOpenTarget({
               aria-label={label}
               onClick={() => { run('open') }}
             >
-              <IconRightUpOutline16 size={prominent ? 16 : 14} />
+              <IconRightUpOutlineRegular size={prominent ? 16 : 14} />
               {prominent && <span className={css.label}>{t('path.open')}</span>}
             </button>
           </Tooltip>
@@ -169,7 +169,7 @@ function FileOpenTarget({
               setOpen(value => !value)
             }}
           >
-            <IconChevronDownOutline14 size={prominent ? 14 : 11} />
+            <IconChevronDownOutlineMedium size={prominent ? 14 : 11} />
           </button>
         </div>
       )}

@@ -1,6 +1,6 @@
 /** Searchable editable shortcut reference and its General Settings row. */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Button, IconCloseOutline16, IconRefreshOutline16, Modal, ShortcutKeys, Tooltip, Toast, focusWithoutRing, isBehindModal, rankByName } from '@qilin-agent/client-ui-primitives'
+import { Button, IconCloseOutlineRegular, IconRefreshOutlineRegular, Modal, ShortcutKeys, Tooltip, Toast, focusWithoutRing, isBehindModal, rankByName } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { ObservableSnapshot, PropsStore } from '@qilin-agent/client-store'
 import type { ShortcutCatalogEntry, ShortcutPlatform, Shortcuts } from '@qilin-agent/client-shortcuts/client'
@@ -162,7 +162,7 @@ export function ShortcutReference({
       <header className={css.header}>
         <h2 className={css.title}>{t('title')}</h2>
         <button type="button" className={css.close} aria-label={t('close')} disabled={busy} onClick={closeReference}>
-          <IconCloseOutline16 size={14} />
+          <IconCloseOutlineRegular size={14} />
         </button>
       </header>
       <div className={css.searchRow}>
@@ -174,7 +174,7 @@ export function ShortcutReference({
           <input ref={search} data-modal-autofocus className={css.search} type="search" aria-label={t('search')}
             placeholder={t('search')} value={query} onChange={(event) => { actions.search(event.target.value) }} />
           {query !== '' && <button type="button" className={css.clearSearch} aria-label={t('clear-search')}
-            onClick={() => { actions.search(''); search.current?.focus() }}><IconCloseOutline16 size={10} /></button>}
+            onClick={() => { actions.search(''); search.current?.focus() }}><IconCloseOutlineRegular size={10} /></button>}
         </div>
       </div>
       <div className={css.list} aria-busy={config.status === 'loading'}>
@@ -206,7 +206,7 @@ export function ShortcutReference({
       <footer className={css.footer}>
         <button type="button" className={css.resetAll} disabled={busy || config.status !== 'ready' || modifiedCount === 0}
           onClick={(event) => { event.currentTarget.focus(); setTarget(null); setResetRevision(config.revision) }}>
-          <IconRefreshOutline16 size={12} />{t('reset-all')}
+          <IconRefreshOutlineRegular size={12} />{t('reset-all')}
         </button>
         {modifiedCount > 0 && <span className={css.modifiedCount}>{t('modified-count', { count: modifiedCount })}</span>}
       </footer>

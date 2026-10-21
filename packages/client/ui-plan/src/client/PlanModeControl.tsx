@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
-import { IconCloseFill14 } from '@qilin-agent/client-ui-primitives'
+import { IconCloseFillMedium } from '@qilin-agent/client-ui-primitives'
 // Type-only: pulls the ui-conversation SlotMap merge (the input.plan seat and
 // its {locked} owner share).
 import type {} from '@qilin-agent/client-ui-conversation/client'
@@ -60,7 +60,7 @@ export function PlanChip({ useProjection, locked, exitPlanMode, t }: PlanChipPro
       >
         {t('chip.label')}
         <span className={css.close} aria-hidden>
-          <IconCloseFill14 size={12} />
+          <IconCloseFillMedium size={12} />
         </span>
       </button>
       {error !== null && <span className={css.error} role="status" title={error}>{t('chip.exitFailed')}</span>}

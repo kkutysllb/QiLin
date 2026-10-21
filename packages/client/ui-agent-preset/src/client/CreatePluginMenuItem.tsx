@@ -4,7 +4,7 @@ import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 // Type-only: pulls the plugin page's SlotMap merge (the 'plugins.add.actions' entry).
 import type {} from '@qilin-agent/client-ui-plugin-manager/client'
-import { IconAgentPresetOutline16, MenuItemButton } from '@qilin-agent/client-ui-primitives'
+import { IconAgentPresetOutlineRegular, MenuItemButton } from '@qilin-agent/client-ui-primitives'
 import type { AgentPresetSettingsState } from './settings-store.ts'
 import { SHIPPED_PRESET_ID } from './shipped-preset.ts'
 import css from './CreatePluginMenuItem.module.css'
@@ -40,7 +40,7 @@ export function CreatePluginMenuItem({
   else if (!enabled) description = t('createPluginMissing')
 
   return (
-    <MenuItemButton icon={<IconAgentPresetOutline16 size={14} />} disabled={!enabled} onSelect={() => {
+    <MenuItemButton icon={<IconAgentPresetOutlineRegular size={14} />} disabled={!enabled} onSelect={() => {
       onDismiss()
       startCreatorDraft()
     }}>

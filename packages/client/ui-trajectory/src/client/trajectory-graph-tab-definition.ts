@@ -6,7 +6,7 @@
  */
 import type { TranslateNS } from '@qilin-agent/client-locale/client'
 import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
-import { IconShareOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconShareOutlineRegular } from '@qilin-agent/client-ui-primitives'
 
 /** The tab kind this package owns under the graph implementation; ctx.sidebarRight.openTab names it. */
 export const TRAJECTORY_GRAPH_KIND = 'trajectory-graph'
@@ -27,7 +27,7 @@ export function trajectoryGraphTabDefinition(
     kind: TRAJECTORY_GRAPH_KIND,
     priority: 'builtin',
     label: () => t('view.trajectoryGraph'),
-    icon: IconShareOutline16,
+    icon: IconShareOutlineRegular,
     // One graph per surface, like the ledger it draws.
     single: true,
     title: () => t('view.trajectoryGraph'),
@@ -38,7 +38,7 @@ export function trajectoryGraphTabDefinition(
       order: 35,
       title: () => t('view.trajectoryGraph'),
       description: () => t('guide.graphDescription'),
-      icon: IconShareOutline16,
+      icon: IconShareOutlineRegular,
     }],
   }
 }

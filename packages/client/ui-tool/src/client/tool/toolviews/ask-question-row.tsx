@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { IconQuestionOutline14 } from '@qilin-agent/client-ui-primitives'
+import { IconQuestionOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { Context } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/agent/types'
 import type { InjectFace, PropsLocale } from '@qilin-agent/client-ui-slots'
@@ -355,7 +355,7 @@ export function AskQuestionRow({
       t={t}
       variant={model.variant}
       toolName={toolName}
-      icon={<IconQuestionOutline14 />}
+      icon={<IconQuestionOutlineRegular />}
       title={t(model.titleKey)}
       summary={summary}
       bodyRaw={transcript === null ? model.bodyRaw : null}

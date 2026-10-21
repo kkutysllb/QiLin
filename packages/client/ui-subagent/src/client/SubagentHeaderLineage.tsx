@@ -7,7 +7,7 @@ import {
 import type { SubagentAddress } from '@qilin-agent/subagent/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import {
-  IconChevronDownOutline14, IconChevronRightOutline14, IconRefreshOutline14, StateDot,
+  IconChevronDownOutlineRegular, IconChevronRightOutlineRegular, IconRefreshOutlineRegular, StateDot,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale, PropsRuntime, TranslateNS } from '@qilin-agent/client-ui-slots'
 import { NS } from './locales.ts'
@@ -224,7 +224,7 @@ function CatalogRows({
             className={css.refresh}
             onClick={() => { refreshProjection(parentSessionId) }}
           >
-            <IconRefreshOutline14 size={14} />
+            <IconRefreshOutlineRegular size={14} />
             {t('retry')}
           </button>
         </div>
@@ -326,7 +326,7 @@ function CatalogRows({
                     aria-label={t(isExpanded ? 'branch.collapse' : 'branch.expand', { label })}
                     onClick={toggle}
                   >
-                    <IconChevronRightOutline14 />
+                    <IconChevronRightOutlineRegular />
                   </button>
                 )}
               <div className={css.clickarea}>
@@ -359,7 +359,7 @@ function CatalogRows({
                     onClick={openAside}
                     onKeyDown={(event) => { event.stopPropagation() }}
                   >
-                    <IconChevronRightOutline14 />
+                    <IconChevronRightOutlineRegular />
                   </button>
                 )}
               </div>
@@ -685,7 +685,7 @@ function CatalogDropdown({
           )}
         {variant === 'switcher'
           ? <SubagentSwitcherIcon />
-          : <IconChevronDownOutline14 className={open ? css.triggerOpen : undefined} />}
+          : <IconChevronDownOutlineRegular className={open ? css.triggerOpen : undefined} />}
       </button>
       {open && createPortal((
         <div

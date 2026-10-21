@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { IconCheckOutline16 } from './icons/index.tsx'
+import { IconCheckOutlineRegular } from './icons/index.tsx'
 import css from './Toast.module.css'
 
 /** Full-opacity hold before the fade starts, when the owner names none. */
@@ -71,7 +71,7 @@ export function Toast({ text, icon, tone, anchor, holdMs = HOLD_MS, onDone }: {
       } as CSSProperties}
     >
       {tone === 'success'
-        ? <span className={`${css.icon} ${css.success}`} aria-hidden><IconCheckOutline16 /></span>
+        ? <span className={`${css.icon} ${css.success}`} aria-hidden><IconCheckOutlineRegular /></span>
         : icon !== undefined && <span className={css.icon} aria-hidden>{icon}</span>}
       <span className={css.text}>{text}</span>
     </div>,

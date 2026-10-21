@@ -10,7 +10,7 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import clsx from 'clsx'
-import { IconRefreshOutline16, IconSearchOutline16, Input } from '@qilin-agent/client-ui-primitives'
+import { IconRefreshOutlineRegular, IconSearchOutlineRegular, Input } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime, PropsStore, TranslateNS } from '@qilin-agent/client-ui-slots'
 import { fileAddressFor } from '@qilin-agent/util-workspace-path'
 import type { PlansInjected } from './face.ts'
@@ -99,7 +99,7 @@ export function PlansBody({ useTabInfo, sessionId, useSessions, useStore, refres
         <Input
           className={clsx(css.search)}
           type="search"
-          icon={<IconSearchOutline16 />}
+          icon={<IconSearchOutlineRegular />}
           value={query}
           placeholder={t('search.placeholder')}
           aria-label={t('search.label')}
@@ -114,7 +114,7 @@ export function PlansBody({ useTabInfo, sessionId, useSessions, useStore, refres
           data-plans-reload
           onClick={() => { refresh(tab.id, cwd, signal) }}
         >
-          <IconRefreshOutline16 />
+          <IconRefreshOutlineRegular />
         </button>
       </div>
       <div className={css.body}>

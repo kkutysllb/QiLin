@@ -2,7 +2,7 @@
 
 import { useId, useState, type ReactNode } from 'react'
 import {
-  CodeBlock, DisclosureRow, IconCodeOutline16, IconInspectOutline12, StateDot,
+  CodeBlock, DisclosureRow, IconCodeOutlineRegular, IconInspectOutlineMedium, StateDot,
 } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
@@ -39,14 +39,14 @@ function leadingFor(state: CordisToolState): ReactNode {
   switch (state) {
     case 'error': return <StateDot state="error" />
     case 'stopped': return <StateDot state="warning" />
-    default: return <IconCodeOutline16 size={14} />
+    default: return <IconCodeOutlineRegular size={14} />
   }
 }
 
 /** Render one immutable Package definition. */
 export function CordisDefineRow(props: CordisDefineRowProps) {
   if (props.phase === 'preparing') return <CordisPreparingRow {...props}
-    icon={<IconCodeOutline16 size={14} />} title={props.t('row.defineTitle')}
+    icon={<IconCodeOutlineRegular size={14} />} title={props.t('row.defineTitle')}
     className={css.card} rowClassName={css.row} titleClassName={css.title} />
   return <StartedCordisDefineRow {...props} />
 }
@@ -168,7 +168,7 @@ function StartedCordisDefineRow({
           {card.pluginId !== null && <div className={css.panelHint}>{t('panel.hint')}</div>}
           {inspect !== undefined && (
             <button type="button" className={css.inspectButton} onClick={inspect}>
-              <IconInspectOutline12 />
+              <IconInspectOutlineMedium />
               {t('action.inspect')}
             </button>
           )}

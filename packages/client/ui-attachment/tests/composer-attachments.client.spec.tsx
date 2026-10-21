@@ -103,14 +103,14 @@ describe('ComposerAttachments', () => {
     expect(view.queryByRole('status')).toBeNull()
 
     const image = attachment('dropped').file
-    const dataTransfer = { types: ['Files'], files: [image], dropEffect: 'none' }
+    const dataTransfer = { types: ['Files'], files: [image], items: [], dropEffect: 'none' }
     expect(fireEvent.dragEnter(document.body, { dataTransfer })).toBe(false)
     expect(view.getByRole('status').textContent).toContain('文件或图片拖动到此处即可添加')
     expect(view.getByRole('status').textContent).toContain('图片限制：最多 20 张，每张 5MB')
     expect(fireEvent.dragOver(document.body, { dataTransfer })).toBe(false)
     expect(dataTransfer.dropEffect).toBe('copy')
     expect(fireEvent.drop(document.body, { dataTransfer })).toBe(false)
-    expect(onAddFiles).toHaveBeenCalledWith([image])
+    expect(onAddFiles).toHaveBeenCalledWith([image], new Set())
     expect(view.queryByRole('status')).toBeNull()
   })
 

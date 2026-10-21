@@ -1,6 +1,6 @@
 /** Static Browser tab type and guide declaration. */
 import type { TranslateNS } from '@qilin-agent/client-locale/client'
-import { IconGlobeOutline14 } from '@qilin-agent/client-ui-primitives'
+import { IconGlobeOutlineMedium } from '@qilin-agent/client-ui-primitives'
 import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
 import type {} from './locales.ts'
 
@@ -24,7 +24,7 @@ export function browserDefinition(t: TranslateNS<'sidebarBrowser'>): SidebarRigh
     title: () => t('type.label'),
     guide: [{
       id: 'new', order: 30, title: () => t('guide.title'),
-      description: () => t('guide.description'), icon: IconGlobeOutline14,
+      description: () => t('guide.description'), icon: IconGlobeOutlineMedium,
     }],
   }
 }

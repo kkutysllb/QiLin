@@ -9,7 +9,7 @@
  */
 import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
 import type { TranslateNS } from '@qilin-agent/client-locale/client'
-import { IconGaugeOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconGaugeOutlineRegular } from '@qilin-agent/client-ui-primitives'
 
 /** The tab kind this package owns; `ctx.sidebarRight.openTab` names it. */
 export const TRAJECTORY_KIND = 'trajectory'
@@ -40,7 +40,7 @@ export function trajectoryTabDefinition(t: TranslateNS<'trajectory'>): SidebarRi
     kind: TRAJECTORY_KIND,
     priority: 'builtin',
     label: () => t('view.trajectory'),
-    icon: IconGaugeOutline16,
+    icon: IconGaugeOutlineRegular,
     // One ledger per surface: inspecting a second call re-focuses the open
     // page through its navigation parameters instead of seating another.
     single: true,

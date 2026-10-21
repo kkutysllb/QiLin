@@ -1,6 +1,6 @@
 /** Translation controls for one expanded reasoning body. */
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Button, IconLoadingOutline16 } from '@qilin-agent/client-ui-primitives'
+import { Button, IconLoadingOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { LocaleSnapshot } from '@qilin-agent/client-locale/client'
 import type {} from '@qilin-agent/client-ui-chat/client'
 import type { HostObservable, InjectFace, PropsLocale, PropsRenderFactories, PropsRuntime } from '@qilin-agent/client-ui-slots'
@@ -54,7 +54,7 @@ export function TranslationBody(props: TranslationBodyProps) {
     <div className={css.toolbar}>
       <Button className={css.viewToggle} size="sm" variant="ghost" disabled={state.failed}
         onClick={() => { setOriginal(!showOriginal) }}>{actionLabel}</Button>
-      {state.pending && <span role="status" aria-label={t('translating')}><IconLoadingOutline16 size={14} className={css.spinner} /></span>}
+      {state.pending && <span role="status" aria-label={t('translating')}><IconLoadingOutlineRegular size={14} className={css.spinner} /></span>}
       {state.failed && <><span className={css.failure} role="status">{t('failed')}</span>
         <Button size="sm" variant="ghost" onClick={() => { translation.current?.retry() }}>{t('retry')}</Button></>}
     </div>

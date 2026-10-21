@@ -4,7 +4,7 @@
  * show the bare label.
  */
 import type { ReactNode } from 'react'
-import { IconBranchOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconBranchOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
 import css from './GitBody.module.css'
 
@@ -17,7 +17,7 @@ export function GitTitle({ useTabInfo }: PropsRuntime<'sidebar.right.pane.tab.ti
   const { tab } = useTabInfo()
   return (
     <>
-      <IconBranchOutline16 size={16} className={css.titleIcon} />
+      <IconBranchOutlineRegular size={16} className={css.titleIcon} />
       {tab.title}
     </>
   )

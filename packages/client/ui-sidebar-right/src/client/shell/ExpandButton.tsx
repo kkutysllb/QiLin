@@ -16,7 +16,7 @@
 import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
 import type { InjectFace, HostObservable } from '@qilin-agent/client-ui-slots'
 import type { ReactNode } from 'react'
-import { Button, IconPanelLeftOutline16, Tooltip } from '@qilin-agent/client-ui-primitives'
+import { Button, IconPanelLeftOutlineRegular, Tooltip } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 import type {} from '@qilin-agent/client-ui-conversation/client'
 import type { createSidebarRightStore } from '../stores.ts'
@@ -46,7 +46,7 @@ export function ExpandButton({ sessionId, useStore, actions, t, useShortcuts }: 
         data-sidebar-right-expand
         onClick={() => { actions.setExpanded(sessionId, true) }}
       >
-        <IconPanelLeftOutline16 className={css.icon} />
+        <IconPanelLeftOutlineRegular className={css.icon} />
       </Button>
     </Tooltip>
   )

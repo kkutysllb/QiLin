@@ -23,7 +23,7 @@
 import { Fragment, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import clsx from 'clsx'
-import { IconCloseFill14, IconPlusOutline16, Tooltip } from '@qilin-agent/client-ui-primitives'
+import { IconCloseFillRegular, IconPlusOutlineRegular, Tooltip } from '@qilin-agent/client-ui-primitives'
 import type { DockZone, LayoutState, PaneNode, TabId, TabRecord } from '../contract/types.ts'
 import { getTab } from '../engine/tree.ts'
 import type { PaneCallbacks, SplitBlock } from './render.ts'
@@ -351,7 +351,7 @@ export function TabStrip({ state, pane, callbacks }: TabPanelProps): ReactNode {
                       callbacks.onCloseTab(tabId)
                     }}
                   >
-                    <IconCloseFill14 size={14} />
+                    <IconCloseFillRegular size={14} />
                   </button>
                 )}
                 {menu?.tabId === tabId && (
@@ -381,7 +381,7 @@ export function TabStrip({ state, pane, callbacks }: TabPanelProps): ReactNode {
               callbacks.onAddTab(pane.id)
             }}
           >
-            <IconPlusOutline16 size={14} />
+            <IconPlusOutlineRegular size={14} />
           </button>
         </Tooltip>
       )}

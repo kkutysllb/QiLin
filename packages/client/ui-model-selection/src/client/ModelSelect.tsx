@@ -34,8 +34,8 @@ import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import type { ModelReasoningEffort, ModelSelection } from '@qilin-agent/api-remotes/client'
 import {
-  IconCheckOutline16, IconChevronDownOutline14, IconChevronRightOutline14, IconCloseFill14,
-  IconDataOutline16, IconWarningOutline16, Input, rankByName, StateDot, Toast,
+  IconCheckOutlineRegular, IconChevronDownOutlineRegular, IconChevronRightOutlineRegular, IconCloseFillRegular,
+  IconDataOutlineRegular, IconWarningOutlineRegular, Input, rankByName, StateDot, Toast,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { ModelLabelOwner, ModelSelectInjected } from './slots.ts'
@@ -482,14 +482,14 @@ export function ModelSelect(
           }
         }}
       >
-        <IconDataOutline16 className={css.triggerIcon} size={16} />
+        <IconDataOutlineRegular className={css.triggerIcon} size={16} />
         <span className={css.triggerLabel}>
           {currentChoice === undefined ? modelLabel : renderModelLabel(currentChoice.group.provider, currentChoice.model, 'trigger', true)}
         </span>
         {effortLabel !== undefined && <span className={css.triggerEffort}>{effortLabel}</span>}
         {busy
           ? <StateDot state="ongoing" />
-          : <IconChevronDownOutline14 className={clsx(css.chevron, open && css.chevronOpen)} />}
+          : <IconChevronDownOutlineRegular className={clsx(css.chevron, open && css.chevronOpen)} />}
       </button>
 
       {/* Portaled to body (Menu primitive's portal mode) so the sidebar and
@@ -512,13 +512,13 @@ export function ModelSelect(
                 <span className={css.cellValue}>
                   {currentChoice === undefined ? modelLabel : renderModelLabel(currentChoice.group.provider, currentChoice.model, 'menu', true)}
                 </span>
-                <IconChevronRightOutline14 className={css.cellChevron} />
+                <IconChevronRightOutlineRegular className={css.cellChevron} />
               </button>
               {reasoning !== undefined && (
                 <button ref={itemRef()} type="button" role="menuitem" className={css.cell} onClick={() => { drill('effort') }}>
                   <span className={css.cellLabel}>{t('menu.effort')}</span>
                   <span className={css.cellValue}>{effortLabel}</span>
-                  <IconChevronRightOutline14 className={css.cellChevron} />
+                  <IconChevronRightOutlineRegular className={css.cellChevron} />
                 </button>
               )}
             </>
@@ -551,7 +551,7 @@ export function ModelSelect(
                       searchRef.current?.focus()
                     }}
                   >
-                    <IconCloseFill14 />
+                    <IconCloseFillRegular />
                   </button>
                 )}
               </div>}
@@ -612,7 +612,7 @@ export function ModelSelect(
                             <span className={css.check}>
                               {pending?.provider === group.id && pending.model === model.id
                                 ? <StateDot state="ongoing" />
-                                : selected ? <IconCheckOutline16 /> : null}
+                                : selected ? <IconCheckOutlineRegular /> : null}
                             </span>
                           </button>
                         )
@@ -655,7 +655,7 @@ export function ModelSelect(
                       {pending !== null && pending.provider === state.current?.provider
                         && pending.model === state.current.model && pending.reasoningEffort === level.effort
                         ? <StateDot state="ongoing" />
-                        : effectiveEffort === level.effort ? <IconCheckOutline16 /> : null}
+                        : effectiveEffort === level.effort ? <IconCheckOutlineRegular /> : null}
                     </span>
                   </button>
                 ))}
@@ -668,7 +668,7 @@ export function ModelSelect(
         <Toast
           key={toast.seq}
           text={toast.text}
-          icon={<IconWarningOutline16 />}
+          icon={<IconWarningOutlineRegular />}
           anchor={rootRef.current?.closest<HTMLElement>('[data-composer-card]') ?? null}
           onDone={() => { setToast(null) }}
         />

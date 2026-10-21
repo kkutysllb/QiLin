@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
-import { IconChevronDownOutline14, Menu } from '@qilin-agent/client-ui-primitives'
+import { IconChevronDownOutlineRegular, Menu } from '@qilin-agent/client-ui-primitives'
 import type { BusyEnterBehavior } from '../contract/composer-submission.ts'
 import type { ConversationKey } from '../locales.ts'
 import css from './EnterBehaviorRow.module.css'
@@ -67,7 +67,7 @@ export function EnterBehaviorRow({ useBusyEnter, setBusyEnter, t }: EnterBehavio
             onClick={() => { setOpen(value => !value) }}
           >
             {t(selectedLabel)}
-            <IconChevronDownOutline14 className={css.chevron} />
+            <IconChevronDownOutlineRegular className={css.chevron} />
           </button>
         )}
       />

@@ -1,5 +1,5 @@
 import type { Context } from '@qilin-agent/kylin'
-import { IconEditOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconEditOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
 import { diffCardModel } from '../models/diff-card-model.ts'
@@ -8,7 +8,7 @@ import { ToolRow } from '../components/ToolRow.tsx'
 import { CONVERSATION_NS as NS } from '../../locale.ts'
 
 type FileMutationRowProps = ToolCallViewProps & PropsLocale<'conversation'>
-const FILE_MUTATION_ICON = <IconEditOutline16 size={14} />
+const FILE_MUTATION_ICON = <IconEditOutlineRegular size={14} />
 
 const CONTENT_FIELDS = ['content', 'old_string', 'new_string']
 const KILOBYTE = 1024

@@ -13,8 +13,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import clsx from 'clsx'
 import {
-  Button, IconBranchOutline16, IconChevronDownOutline14, IconCloseOutline16, IconCopyOutline16, IconPlusOutline16,
-  IconRefreshOutline16, IconTrashOutline16, Input, Menu, useCopyFeedback, writeClipboard,
+  Button, IconBranchOutlineRegular, IconChevronDownOutlineMedium, IconCloseOutlineRegular, IconCopyOutlineRegular, IconPlusOutlineRegular,
+  IconRefreshOutlineRegular, IconTrashOutlineRegular, Input, Menu, useCopyFeedback, writeClipboard,
   type MenuEntry,
 } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
@@ -165,12 +165,12 @@ export function GitBody({
   const items: MenuEntry[] = []
   if (menu !== null) {
     items.push(menu.entry.staged
-      ? { id: 'unstage', label: t('unstage'), icon: <IconCloseOutline16 size={14} /> }
-      : { id: 'stage', label: t('stage'), icon: <IconPlusOutline16 size={14} /> })
+      ? { id: 'unstage', label: t('unstage'), icon: <IconCloseOutlineRegular size={14} /> }
+      : { id: 'stage', label: t('stage'), icon: <IconPlusOutlineRegular size={14} /> })
     if (canDiscardEntry(menu.entry)) {
-      items.push({ id: 'discard', label: t('discard'), icon: <IconTrashOutline16 size={14} />, danger: true })
+      items.push({ id: 'discard', label: t('discard'), icon: <IconTrashOutlineRegular size={14} />, danger: true })
     }
-    items.push({ type: 'separator', id: 'actions' }, { id: 'copy', label: t('menu.copyPath'), icon: <IconCopyOutline16 size={14} /> })
+    items.push({ type: 'separator', id: 'actions' }, { id: 'copy', label: t('menu.copyPath'), icon: <IconCopyOutlineRegular size={14} /> })
   }
   const select = (id: string): void => {
     const open = menu
@@ -190,7 +190,7 @@ export function GitBody({
   return (
     <div className={css.root} data-git-state="ready">
       <div className={css.header}>
-        <span className={css.toolIcon} aria-hidden="true"><IconBranchOutline16 /></span>
+        <span className={css.toolIcon} aria-hidden="true"><IconBranchOutlineRegular /></span>
         <span className={css.branch} data-git-branch>{status.branch ?? t('noBranch')}</span>
         {status.upstream === undefined
           ? <span className={css.upstreamNone}>{t('upstream.none')}</span>
@@ -235,7 +235,7 @@ export function GitBody({
           title={t('refresh')}
           onClick={() => { refresh(tab.id, signal) }}
         >
-          <IconRefreshOutline16 />
+          <IconRefreshOutlineRegular />
         </button>
       </div>
       {failure !== undefined && (
@@ -318,7 +318,7 @@ export function GitBody({
               title={t('diff.close')}
               onClick={() => { actions.diffClosed(tab.id) }}
             >
-              <IconCloseOutline16 />
+              <IconCloseOutlineRegular />
             </button>
           </div>
           {diff.phase.kind === 'loading' && <p className={css.note} data-git-row="loading">{t('loading')}</p>}
@@ -369,7 +369,7 @@ export function GitBody({
           aria-expanded={historyOpen}
           onClick={() => { if (historyOpen) setHistoryOpen(false); else openHistory() }}
         >
-          <IconChevronDownOutline14 className={clsx(css.chevron, !historyOpen && css.chevronClosed)} />
+          <IconChevronDownOutlineMedium className={clsx(css.chevron, !historyOpen && css.chevronClosed)} />
           {t('history.title')}
         </button>
         {historyOpen && history?.kind === 'loading' && (
@@ -426,7 +426,7 @@ export function GitBody({
                         title={t('diff.close')}
                         onClick={() => { actions.patchClosed(tab.id) }}
                       >
-                        <IconCloseOutline16 />
+                        <IconCloseOutlineRegular />
                       </button>
                     </div>
                     {patch.phase.kind === 'loading' && <p className={css.note} data-git-row="loading">{t('loading')}</p>}
@@ -481,7 +481,7 @@ export function GitBody({
           aria-expanded={branchesOpen}
           onClick={() => { if (branchesOpen) setBranchesOpen(false); else openBranches() }}
         >
-          <IconChevronDownOutline14 className={clsx(css.chevron, !branchesOpen && css.chevronClosed)} />
+          <IconChevronDownOutlineMedium className={clsx(css.chevron, !branchesOpen && css.chevronClosed)} />
           {t('branches.title')}
         </button>
         {branchesOpen && state.branches?.kind === 'ready' && state.branches.truncated && (
@@ -553,7 +553,7 @@ export function GitBody({
                     title={t('branches.cancel')}
                     onClick={() => { setFormOpen(false) }}
                   >
-                    <IconCloseOutline16 />
+                    <IconCloseOutlineRegular />
                   </button>
                 </>
               )
@@ -564,7 +564,7 @@ export function GitBody({
                   disabled={busy}
                   onClick={() => { setFormOpen(true); setName(''); setFrom('') }}
                 >
-                  <IconPlusOutline16 size={14} />
+                  <IconPlusOutlineRegular size={14} />
                   {t('branches.create')}
                 </button>
               )}
@@ -585,7 +585,7 @@ export function GitBody({
               }
             }}
           >
-            <IconChevronDownOutline14 className={clsx(css.chevron, !ghOpen && css.chevronClosed)} />
+            <IconChevronDownOutlineMedium className={clsx(css.chevron, !ghOpen && css.chevronClosed)} />
             {t('gh.title')}
           </button>
           {ghOpen && state.gh.kind === 'authLoading' && (
@@ -618,7 +618,7 @@ export function GitBody({
                     title={t('gh.dismiss')}
                     onClick={() => { actions.ghNoticeClosed(tab.id) }}
                   >
-                    <IconCloseOutline16 />
+                    <IconCloseOutlineRegular />
                   </button>
                 </div>
               )}
@@ -702,7 +702,7 @@ export function GitBody({
                                 title={t('gh.cancel')}
                                 onClick={() => { setMerging(null) }}
                               >
-                                <IconCloseOutline16 />
+                                <IconCloseOutlineRegular />
                               </button>
                             </>
                           )
@@ -730,7 +730,7 @@ export function GitBody({
                       disabled={busy}
                       onClick={() => { setPrForm({ title: '', body: '', base: status.branch ?? '' }) }}
                     >
-                      <IconPlusOutline16 size={14} />
+                      <IconPlusOutlineRegular size={14} />
                       {t('gh.create')}
                     </button>
                   )
@@ -778,7 +778,7 @@ export function GitBody({
                         title={t('gh.cancel')}
                         onClick={() => { setPrForm(null) }}
                       >
-                        <IconCloseOutline16 />
+                        <IconCloseOutlineRegular />
                       </button>
                     </div>
                   )}

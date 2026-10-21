@@ -20,9 +20,10 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
         <svg
           aria-hidden="true"
           class="panelIcon"
-          data-content="35f95b0c"
+          data-content="88020f34"
           fill="none"
           height="16"
+          stroke-width="1"
           viewBox="0 0 16 16"
           width="16"
           xmlns="http://www.w3.org/2000/svg"
@@ -40,9 +41,10 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
     >
       <svg
         aria-hidden="true"
-        data-content="c0ce4dcc"
+        data-content="47b5e433"
         fill="none"
         height="16"
+        stroke-width="1"
         viewBox="0 0 16 16"
         width="16"
         xmlns="http://www.w3.org/2000/svg"
@@ -156,9 +158,10 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
         <svg
           aria-hidden="true"
           class="panelIcon"
-          data-content="35f95b0c"
+          data-content="88020f34"
           fill="none"
           height="16"
+          stroke-width="1"
           viewBox="0 0 16 16"
           width="16"
           xmlns="http://www.w3.org/2000/svg"
@@ -172,9 +175,10 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
     >
       <svg
         aria-hidden="true"
-        data-content="c0ce4dcc"
+        data-content="47b5e433"
         fill="none"
         height="14"
+        stroke-width="1"
         viewBox="0 0 16 16"
         width="14"
         xmlns="http://www.w3.org/2000/svg"
@@ -263,9 +267,10 @@ exports[`sidebar shell snapshots > renders the collapsed rail after the crossfad
         <svg
           aria-hidden="true"
           class="panelIcon"
-          data-content="35f95b0c"
+          data-content="88020f34"
           fill="none"
           height="18"
+          stroke-width="1"
           viewBox="0 0 16 16"
           width="18"
           xmlns="http://www.w3.org/2000/svg"
@@ -283,9 +288,10 @@ exports[`sidebar shell snapshots > renders the collapsed rail after the crossfad
     >
       <svg
         aria-hidden="true"
-        data-content="c0ce4dcc"
+        data-content="47b5e433"
         fill="none"
         height="18"
+        stroke-width="1"
         viewBox="0 0 16 16"
         width="18"
         xmlns="http://www.w3.org/2000/svg"
@@ -399,9 +405,10 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
         <svg
           aria-hidden="true"
           class="panelIcon"
-          data-content="35f95b0c"
+          data-content="88020f34"
           fill="none"
           height="16"
+          stroke-width="1"
           viewBox="0 0 16 16"
           width="16"
           xmlns="http://www.w3.org/2000/svg"
@@ -415,9 +422,10 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
     >
       <svg
         aria-hidden="true"
-        data-content="c0ce4dcc"
+        data-content="47b5e433"
         fill="none"
         height="14"
+        stroke-width="1"
         viewBox="0 0 16 16"
         width="14"
         xmlns="http://www.w3.org/2000/svg"
@@ -536,9 +544,10 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
         <svg
           aria-hidden="true"
           class="panelIcon"
-          data-content="35f95b0c"
+          data-content="88020f34"
           fill="none"
           height="16"
+          stroke-width="1"
           viewBox="0 0 16 16"
           width="16"
           xmlns="http://www.w3.org/2000/svg"
@@ -552,9 +561,10 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
     >
       <svg
         aria-hidden="true"
-        data-content="c0ce4dcc"
+        data-content="47b5e433"
         fill="none"
         height="14"
+        stroke-width="1"
         viewBox="0 0 16 16"
         width="14"
         xmlns="http://www.w3.org/2000/svg"

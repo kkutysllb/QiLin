@@ -5,7 +5,7 @@
  * kind is opened by kind alone — `ctx.sidebarRight.openTab('sidechat')`.
  */
 import type { TranslateNS } from '@qilin-agent/client-locale/client'
-import { IconNewChatOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconNewChatOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
 import type {} from './locales.ts'
 
@@ -26,7 +26,7 @@ export function sidechatDefinition(t: TranslateNS<'sidebarSidechat'>): SidebarRi
     kind: SIDECHAT_KIND,
     priority: 'builtin',
     label: () => t('type.label'),
-    icon: IconNewChatOutline16,
+    icon: IconNewChatOutlineRegular,
     // One page per surface: reopening focuses the page the user already has
     // rather than seating a second one; the page switches threads in place.
     single: true,

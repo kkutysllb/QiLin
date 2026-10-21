@@ -6,7 +6,7 @@
  * anywhere that calls `ctx.sidebarRight.openTab('agent-team')`.
  */
 import type { TranslateNS } from '@qilin-agent/client-ui-slots'
-import { IconUserOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconUserOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
 import type {} from './locales.ts'
 
@@ -27,7 +27,7 @@ export function teamDefinition(t: TranslateNS<'agent-team'>): SidebarRightTabDef
     kind: TEAM_KIND,
     priority: 'builtin',
     label: () => t('trigger'),
-    icon: IconUserOutline16,
+    icon: IconUserOutlineRegular,
     // One page per surface: reopening the guide entry focuses the page the user
     // already has rather than seating a second one.
     single: true,
@@ -37,7 +37,7 @@ export function teamDefinition(t: TranslateNS<'agent-team'>): SidebarRightTabDef
       order: 30,
       title: () => t('guide.title'),
       description: () => t('guide.description'),
-      icon: IconUserOutline16,
+      icon: IconUserOutlineRegular,
     }],
   }
 }

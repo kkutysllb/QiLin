@@ -80,6 +80,7 @@
     "@qilin-agent/client-ui-slots": "workspace:*",
     "@qilin-agent/client-ui-workspace": "workspace:*",
     "@qilin-agent/commands": "workspace:*",
+    "@qilin-agent/file-reference": "workspace:*",
     "@qilin-agent/goal": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/llm": "workspace:*",

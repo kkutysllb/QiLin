@@ -1,7 +1,7 @@
 /** The changed-files card: a header and per-file rows that open the turn's review, and a three-row fold. */
 import { useState } from 'react'
 import { resolveWorkspacePath } from '@qilin-agent/util-workspace-path'
-import { FileTypeIcon, IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin-agent/client-ui-primitives'
+import { FileTypeIcon, IconChevronDownOutlineRegular, IconChevronUpOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ChangesSummary } from '../changes.ts'
 import { IconCodeBracketsOutline16 } from './icons.tsx'
@@ -69,7 +69,7 @@ export function ChangedFiles({ changes, cwd, openReview, t }: {
       aria-label={t(expanded ? 'changes.collapseAria' : 'changes.expandAria', { count: String(changes.files.length) })}
       onClick={() => { setExpanded(value => !value) }}>
       <span>{t(expanded ? 'changes.collapse' : 'changes.all', { count: String(changes.files.length) })}</span>
-      {expanded ? <IconChevronUpOutline14 /> : <IconChevronDownOutline14 />}
+      {expanded ? <IconChevronUpOutlineRegular /> : <IconChevronDownOutlineRegular />}
     </button>}
   </div>
 }

@@ -1,4 +1,4 @@
-import { Button, IconClockOutline16 } from '@qilin-agent/client-ui-primitives'
+import { Button, IconClockOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
 import type { ScheduleId, ScheduleRecord } from '@qilin-agent/schedule/client'
@@ -62,7 +62,7 @@ export function ScheduleCreateCard({ block, toolName, openTaskDetail, t, current
         )
         : null}
       <div className={css.row}>
-        <span className={css.leading}><IconClockOutline16 size={18} /></span>
+        <span className={css.leading}><IconClockOutlineRegular size={18} /></span>
         <span className={css.body}>
           <span className={css.title}>{title}</span>
           {task !== undefined

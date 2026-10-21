@@ -2,7 +2,7 @@ import { useMemo, type KeyboardEvent } from 'react'
 import type { Context } from '@qilin-agent/kylin'
 import clsx from 'clsx'
 import {
-  CommandText, IconApiOutline14, IconChevronDownOutline14, IconInspectOutline12, StateDot, TerminalBlock, TextShimmer,
+  CommandText, IconApiOutlineRegular, IconChevronDownOutlineRegular, IconInspectOutlineRegular, StateDot, TerminalBlock, TextShimmer,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
@@ -23,7 +23,7 @@ import css from './bash-sample.module.css'
 
 type BashRowProps = ToolCallViewProps & PropsLocale<'conversation'>
 
-const BASH_ICON = <IconApiOutline14 size={14} />
+const BASH_ICON = <IconApiOutlineRegular size={14} />
 
 function leadingFor(state: ToolRowState) {
   switch (state) {
@@ -95,12 +95,12 @@ export function BashRow({ toolName, block, sessionId, useSessions, inspect, useD
     toggleExpand()
   }
   const leading = open
-    ? <IconChevronDownOutline14 className={css.chevron} />
+    ? <IconChevronDownOutlineRegular className={css.chevron} />
     : expandable
       ? (
         <>
           <span className={css.iconIdle}>{leadingFor(state)}</span>
-          <IconChevronDownOutline14 className={clsx(css.chevron, css.chevronHover)} />
+          <IconChevronDownOutlineRegular className={clsx(css.chevron, css.chevronHover)} />
         </>
       )
       : leadingFor(state)
@@ -169,7 +169,7 @@ export function BashRow({ toolName, block, sessionId, useSessions, inspect, useD
             )}
           {inspect !== undefined && (
             <button type="button" className={css.inspectButton} onClick={inspect}>
-              <IconInspectOutline12 />
+              <IconInspectOutlineRegular />
               {t('row.inspect')}
             </button>
           )}

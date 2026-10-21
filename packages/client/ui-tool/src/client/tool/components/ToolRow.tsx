@@ -1,7 +1,7 @@
 import { useMemo, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import clsx from 'clsx'
 import {
-  CodeBlock, DiffBlock, DisclosureRow, FileTypeIcon, IconInspectOutline12, ReadBlock, SearchBlock, StateDot,
+  CodeBlock, DiffBlock, DisclosureRow, FileTypeIcon, IconInspectOutlineRegular, ReadBlock, SearchBlock, StateDot,
   TerminalBlock, WebBlock, TextShimmer, diffTotals,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsRenderSlots, TranslateNS } from '@qilin-agent/client-ui-slots'
@@ -359,7 +359,7 @@ export function ToolRow({
               className={css.inspectButton}
               onClick={inspect}
             >
-              <IconInspectOutline12 />
+              <IconInspectOutlineRegular />
               {t('row.inspect')}
             </button>
           )}

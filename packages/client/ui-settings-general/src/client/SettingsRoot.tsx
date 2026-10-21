@@ -17,9 +17,9 @@ import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import {
   ConnectionIndicator,
-  IconAgentPresetOutline16, IconArchiveOutline20, IconChevronLeftOutline14,
-  IconCloseOutline16, IconDataOutline16, IconPersonalizationOutline16,
-  IconQuestionOutline14, IconSettingsOutline16, useModalLayer,
+  IconAgentPresetOutlineMedium, IconArchiveOutlineMedium, IconChevronLeftOutlineMedium,
+  IconCloseOutlineRegular, IconDataOutlineMedium, IconPersonalizationOutlineMedium,
+  IconQuestionOutlineMedium, IconSettingsOutlineMedium, useModalLayer,
 } from '@qilin-agent/client-ui-primitives'
 import type { ConnectionIndicatorState } from '@qilin-agent/client-ui-primitives'
 import type { SettingsRootComponentProps, SettingsSectionRow } from './shell-contract.ts'
@@ -124,13 +124,13 @@ function SettingsNavResizeHandle({ label, width, onResize }: {
 
 /** Nav glyph by section id; unknown ids fall back to the settings gear. */
 function navIcon(id: string) {
-  if (id === 'models') return <IconDataOutline16 className={css.navIcon} size={16} />
-  if (id === 'agent-presets') return <IconAgentPresetOutline16 className={css.navIcon} size={16} />
-  if (id === 'plugins') return <IconPersonalizationOutline16 className={css.navIcon} size={16} />
+  if (id === 'models') return <IconDataOutlineMedium className={css.navIcon} size={16} />
+  if (id === 'agent-presets') return <IconAgentPresetOutlineMedium className={css.navIcon} size={16} />
+  if (id === 'plugins') return <IconPersonalizationOutlineMedium className={css.navIcon} size={16} />
   // 20-native glyph in the rail's 16px icon slot, as on the Session row menu.
-  if (id === 'archived-sessions') return <IconArchiveOutline20 className={css.navIcon} size={16} />
-  if (id === 'about') return <IconQuestionOutline14 className={css.navIcon} size={16} />
-  return <IconSettingsOutline16 className={css.navIcon} size={16} />
+  if (id === 'archived-sessions') return <IconArchiveOutlineMedium className={css.navIcon} size={16} />
+  if (id === 'about') return <IconQuestionOutlineMedium className={css.navIcon} size={16} />
+  return <IconSettingsOutlineMedium className={css.navIcon} size={16} />
 }
 
 type PanelProps = {
@@ -178,7 +178,7 @@ function SettingsPanel({
       <div ref={panel} tabIndex={-1} data-shortcut-modal="settings" className={css.panel} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <nav className={css.nav} style={{ width: navWidth }}>
           <button type="button" className={css.navBack} onClick={onClose}>
-            <IconChevronLeftOutline14 size={14} />
+            <IconChevronLeftOutlineMedium size={14} />
             <span>{backToWorkspaceLabel}</span>
           </button>
           <div className={css.navTitle} id={titleId}
@@ -220,7 +220,7 @@ function SettingsPanel({
           <div className={css.header}>
             <div className={css.actions}>{renderSlot('settings.action', {})}</div>
             <button type="button" className={css.close} onClick={onClose}>
-              <IconCloseOutline16 size={14} />
+              <IconCloseOutlineRegular size={14} />
               <span className={css.hiddenLabel}>{renderSlot('settings.close', {})}</span>
             </button>
           </div>

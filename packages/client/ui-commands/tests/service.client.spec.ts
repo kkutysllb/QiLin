@@ -14,7 +14,7 @@ import { CommandDefinitionId } from '@qilin-agent/commands/brand'
 import { createScope, scopeOf } from '@qilin-agent/api-session-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import { RemoteError, TestRemote } from '@qilin-agent/client-test-runtime'
-import { IconGoalOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconGoalOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { ClientSessionContext, ConsumeTokenRequest, InputTriggerPick, InputTriggerSource, SubmitAttachment } from '@qilin-agent/client-ui-input-trigger/client'
 import type { CommandContribution, CommandDecoration, PopupSelectSpec, SelectOption } from '../src/client/contract.ts'
 import type { CommandDescriptor } from '../src/client/directory.ts'
@@ -360,7 +360,7 @@ describe('candidates', () => {
         name: 'goal',
         label: 'command:label.goal',
         description: 'command:description.goal',
-        icon: IconGoalOutline16,
+        icon: IconGoalOutlineRegular,
         hint: '<objective>',
         section: 'command:section.add',
       })

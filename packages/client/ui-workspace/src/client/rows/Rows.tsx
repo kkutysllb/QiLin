@@ -11,10 +11,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import clsx from 'clsx'
 import {
-  HoverCard, IconArchiveOutline20, IconBranchOutline16, IconCopyOutlineRegular,
-  IconEditOutline16, IconEllipsisOutline16, IconFolderClose16, IconFolderOpen16,
-  IconPinFillRegular, IconPinOutlineRegular, IconPlusOutline16, IconTrashOutline16,
-  IconTriangleRightFill14, Menu, relativeTime,
+  HoverCard, IconArchiveOutlineRegular, IconBranchOutlineRegular, IconCopyOutlineRegular,
+  IconEditOutlineRegular, IconEllipsisOutlineRegular, IconFolderCloseRegular, IconFolderOpenRegular,
+  IconPinFillRegular, IconPinOutlineRegular, IconPlusOutlineRegular, IconTrashOutlineRegular,
+  IconTriangleRightFillRegular, Menu, relativeTime,
   StateDot, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type { StateDotState } from '@qilin-agent/client-ui-primitives'
@@ -223,8 +223,8 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
   const active = containsCurrentDescendant || (group.expanded && group.containsCurrent)
   const [menuOpen, setMenuOpen] = useState(false)
   const workspaceMenuItems = [
-    { id: 'rename', label: t('rename'), icon: <IconEditOutline16 /> },
-    { id: 'delete', label: t('delete.workspace'), icon: <IconTrashOutline16 />, danger: true },
+    { id: 'rename', label: t('rename'), icon: <IconEditOutlineRegular /> },
+    { id: 'delete', label: t('delete.workspace'), icon: <IconTrashOutlineRegular />, danger: true },
   ]
   const ownRow = (
     <div
@@ -243,10 +243,10 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
       onDragEnd={drag?.end}
     >
       <span className={clsx(css.slot, css.folder, active && css.folderActive)}>
-        {row.expanded ? <IconFolderOpen16 /> : <IconFolderClose16 />}
+        {row.expanded ? <IconFolderOpenRegular /> : <IconFolderCloseRegular />}
       </span>
       <span className={clsx(css.slot, css.chevron)}>
-        <IconTriangleRightFill14 className={clsx(css.arrow, row.expanded && css.arrowOpen)} />
+        <IconTriangleRightFillRegular className={clsx(css.arrow, row.expanded && css.arrowOpen)} />
       </span>
       <span className={css.projectText}>
         <span className={css.title}>{label}</span>
@@ -275,7 +275,7 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
                 aria-label={t('actions.workspace.aria', { name: label })}
                 onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v) }}
               >
-                <IconEllipsisOutline16 />
+                <IconEllipsisOutlineRegular />
               </button>
             )}
           />
@@ -286,7 +286,7 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
           aria-label={t('actions.newSession.aria', { name: label })}
           onClick={(e) => { e.stopPropagation(); onCreate() }}
         >
-          <IconPlusOutline16 />
+          <IconPlusOutlineRegular />
         </button>
       </span>
     </div>
@@ -536,10 +536,10 @@ export function SessionNodeItem({
       label: t(row.pinned ? 'menu.unpinSession' : 'menu.pinSession'),
       icon: row.pinned ? <IconPinFillRegular /> : <IconPinOutlineRegular />,
     },
-    { id: 'rename', label: t('rename'), icon: <IconEditOutline16 /> },
-    { id: 'fork', label: t('menu.fork'), icon: <IconBranchOutline16 /> },
+    { id: 'rename', label: t('rename'), icon: <IconEditOutlineRegular /> },
+    { id: 'fork', label: t('menu.fork'), icon: <IconBranchOutlineRegular /> },
     // 20-native glyph in the menu's 16px icon slot (Menu.module.css .itemIcon).
-    { id: 'archive', label: t('menu.archiveSession'), icon: <IconArchiveOutline20 size={16} /> },
+    { id: 'archive', label: t('menu.archiveSession'), icon: <IconArchiveOutlineRegular size={16} /> },
     // The id stays last: it acts on the row's identity, not on its content.
     { id: 'copyId', label: t('menu.sessionId'), icon: <IconCopyOutlineRegular /> },
   ]
@@ -630,7 +630,7 @@ export function SessionNodeItem({
                 aria-label={t('actions.session.aria', { name: title })}
                 onClick={(e) => { e.stopPropagation(); setMenuOpen(v => !v) }}
               >
-                <IconEllipsisOutline16 />
+                <IconEllipsisOutlineRegular />
               </button>
             )}
           />
@@ -642,7 +642,7 @@ export function SessionNodeItem({
               onClick={(e) => { e.stopPropagation(); onArchive(node.id) }}
             >
               {/* 20-native glyph in the 16px action cell, like the menu's. */}
-              <IconArchiveOutline20 size={16} />
+              <IconArchiveOutlineRegular size={16} />
             </button>
           </Tooltip>
           <Tooltip label={t(row.pinned ? 'actions.unpin' : 'actions.pin')} side="bottom" delayMs={500} portal>

@@ -1,6 +1,6 @@
 import { useState, type KeyboardEvent, type ReactNode } from 'react'
 import {
-  IconChevronDownOutline14, IconInspectOutline12, IconSkillOutline16, StateDot, TextShimmer,
+  IconChevronDownOutlineRegular, IconInspectOutlineRegular, IconSkillOutlineRegular, StateDot, TextShimmer,
 } from '@qilin-agent/client-ui-primitives'
 import type { StartedToolCallViewProps, ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
@@ -77,19 +77,19 @@ function leadingFor(state: SkillRowState): ReactNode {
   switch (state) {
     case 'error': return <StateDot state="error" />
     case 'stopped': return <StateDot state="warning" />
-    default: return <IconSkillOutline16 size={14} />
+    default: return <IconSkillOutlineRegular size={14} />
   }
 }
 
 /** Leading disclosure slot: state icon at rest, chevron on hover or while open. */
 function disclosureLeading(state: SkillRowState, open: boolean, expandable: boolean): ReactNode {
-  if (open) return <IconChevronDownOutline14 className={css.chevron} />
+  if (open) return <IconChevronDownOutlineRegular className={css.chevron} />
   const icon = leadingFor(state)
   if (!expandable) return icon
   return (
     <>
       <span className={css.iconIdle}>{icon}</span>
-      <IconChevronDownOutline14 className={`${css.chevron} ${css.chevronHover}`} />
+      <IconChevronDownOutlineRegular className={`${css.chevron} ${css.chevronHover}`} />
     </>
   )
 }
@@ -112,7 +112,7 @@ function stateStatus(state: SkillRowState, t: SkillRowProps['t']): string | null
 export function SkillRow(props: SkillRowProps) {
   if (props.phase === 'preparing') return <div className={css.card} data-tool="skill" data-state="preparing">
     <div className={css.row}>
-      <span className={css.leading}><IconSkillOutline16 size={14} /></span>
+      <span className={css.leading}><IconSkillOutlineRegular size={14} /></span>
       <span className={css.visuallyHidden}>{props.t('row.preparing')}</span>
       <TextShimmer active className={css.title}>{props.t('row.title')}</TextShimmer>
     </div>
@@ -172,7 +172,7 @@ function StartedSkillRow({ block, inspect, t }: Exclude<SkillRowProps, { phase: 
           </section>
           {inspect !== undefined ? (
             <button type="button" className={css.inspectButton} onClick={inspect}>
-              <IconInspectOutline12 />
+              <IconInspectOutlineRegular />
               {t('row.inspect')}
             </button>
           ) : null}

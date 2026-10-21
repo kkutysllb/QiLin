@@ -7,7 +7,7 @@
  */
 import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
 import type { TranslateNS } from '@qilin-agent/client-ui-slots'
-import { IconBranchOutline16, type IconProps } from '@qilin-agent/client-ui-primitives'
+import { IconBranchOutlineRegular, type IconProps } from '@qilin-agent/client-ui-primitives'
 import type {} from './locales.ts'
 
 /** The tab kind this package owns. */
@@ -18,7 +18,7 @@ export const GIT_ID = '@qilin-agent/client-ui-sidebar-git'
 
 /** The type's branch glyph at whatever size the drawing surface asks for. */
 function BranchGlyph({ size, className }: IconProps) {
-  return <IconBranchOutline16 size={size} className={className} />
+  return <IconBranchOutlineRegular size={size} className={className} />
 }
 
 /**

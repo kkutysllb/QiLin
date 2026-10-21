@@ -1,6 +1,6 @@
 /** Passive, contained image preview for Markdown image links. */
 import { useState } from 'react'
-import { IconLoadingOutline16 } from './icons/index.tsx'
+import { IconLoadingOutlineRegular } from './icons/index.tsx'
 import css from './ImagePreview.module.css'
 
 /**
@@ -29,7 +29,7 @@ function Preview({ src, alt, loadingLabel, failedLabel }: {
       className={css.image} data-ready={state === 'ready' || undefined}
       onLoad={() => { setState('ready') }} onError={() => { setState('failed') }} />}
     {state !== 'ready' && <span className={css.status} role="status">
-      {state === 'loading' && <IconLoadingOutline16 size={16} />}
+      {state === 'loading' && <IconLoadingOutlineRegular size={16} />}
       <span>{state === 'loading' ? loadingLabel : failedLabel}</span>
     </span>}
   </span>

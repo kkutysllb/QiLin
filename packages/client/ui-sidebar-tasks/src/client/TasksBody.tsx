@@ -13,7 +13,7 @@ import type { ReactNode } from 'react'
 import clsx from 'clsx'
 import type { JobView } from '@qilin-agent/jobs/view'
 import {
-  IconChevronDownOutline14, IconChevronRightOutline14, IconRefreshOutline14, IconRefreshOutline16,
+  IconChevronDownOutlineMedium, IconChevronRightOutlineMedium, IconRefreshOutlineMedium, IconRefreshOutlineRegular,
   StateDot,
 } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime, PropsStore, TranslateNS } from '@qilin-agent/client-ui-slots'
@@ -78,8 +78,8 @@ function SectionHeader({ section, title, count, expanded, onToggle, action }: {
     <div className={css.sectionHeader} data-tasks-section={section}>
       <button type="button" className={css.sectionToggle} aria-expanded={expanded} onClick={onToggle}>
         {expanded
-          ? <IconChevronDownOutline14 className={css.chevron} />
-          : <IconChevronRightOutline14 className={css.chevron} />}
+          ? <IconChevronDownOutlineMedium className={css.chevron} />
+          : <IconChevronRightOutlineMedium className={css.chevron} />}
         <span className={css.sectionTitle}>{title}</span>
         <span className={css.sectionCount}>{count}</span>
       </button>
@@ -295,7 +295,7 @@ export function TasksBody({
               data-tasks-refresh
               onClick={() => { refresh(sessionId) }}
             >
-              <IconRefreshOutline16 className={css.refreshIcon} />
+              <IconRefreshOutlineRegular className={css.refreshIcon} />
             </button>
           </>
         )}
@@ -307,7 +307,7 @@ export function TasksBody({
               <div className={css.failure}>
                 <span className={css.failureText}>{catalog.error?.message ?? t('subagents.failed')}</span>
                 <button type="button" className={css.retry} onClick={() => { refresh(sessionId) }}>
-                  <IconRefreshOutline14 className={css.retryIcon} />
+                  <IconRefreshOutlineMedium className={css.retryIcon} />
                   {t('subagents.retry')}
                 </button>
               </div>

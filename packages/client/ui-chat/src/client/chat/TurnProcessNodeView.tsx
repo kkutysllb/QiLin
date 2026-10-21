@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { IconChevronDownOutline14 } from '@qilin-agent/client-ui-primitives'
+import { IconChevronDownOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { ChatNodeViewProps } from '../contract/slots.ts'
 import { turnProcessAlwaysOpen } from '../contract/turn-process.ts'
 import { formatRunDuration } from './message-chrome.ts'
@@ -55,7 +55,7 @@ export const TurnProcessNodeView = memo(function TurnProcessNodeView({
             <span key={index} className={part.numeric ? css.durationNumber : undefined}>{part.text}</span>
           ))}
         </span>
-        {canCollapse && <IconChevronDownOutline14 className={css.chevron} />}
+        {canCollapse && <IconChevronDownOutlineRegular className={css.chevron} />}
       </button>
     </>
   )

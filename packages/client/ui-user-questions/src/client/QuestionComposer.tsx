@@ -4,9 +4,9 @@ import {
 } from 'react'
 import clsx from 'clsx'
 import {
-  Button, IconCheckOutline14, IconChevronDownOutline14, IconChevronLeftOutline14,
-  IconChevronRightOutline14, IconChevronUpOutline14, IconCloseOutline16,
-  IconEditOutline16, MarkdownText,
+  Button, IconCheckOutlineRegular, IconChevronDownOutlineRegular, IconChevronLeftOutlineRegular,
+  IconChevronRightOutlineRegular, IconChevronUpOutlineRegular, IconCloseOutlineRegular,
+  IconEditOutlineRegular, MarkdownText,
 } from '@qilin-agent/client-ui-primitives'
 import { planReviewOf, type QuestionAnswer, type QuestionCardSnapshot, type QuestionComposerProps } from './contract/slots.ts'
 import type { PendingQuestion } from './contract/slots.ts'
@@ -471,7 +471,7 @@ function QuestionFlow({ pending, t, useStore, useQuestionCard, actions }: Questi
               disabled={busy !== null}
               onClick={() => { setMinimized(current => !current) }}
             >
-              {minimized ? <IconChevronUpOutline14 /> : <IconChevronDownOutline14 />}
+              {minimized ? <IconChevronUpOutlineRegular /> : <IconChevronDownOutlineRegular />}
             </button>
             <button
               type="button" className={css.iconButton}
@@ -479,7 +479,7 @@ function QuestionFlow({ pending, t, useStore, useQuestionCard, actions }: Questi
               title={t(pending.dismissal === 'hide' ? 'nav.close' : 'nav.cancel')}
               disabled={busy !== null} onClick={dismissFlow}
             >
-              <IconCloseOutline16 />
+              <IconCloseOutlineRegular />
             </button>
           </div>
         </header>
@@ -518,7 +518,7 @@ function QuestionFlow({ pending, t, useStore, useQuestionCard, actions }: Questi
                       {question.multiSelect === true
                         ? (
                           <span className={clsx(css.checkbox, selected && css.checkboxChecked)} aria-hidden="true">
-                            {selected && <IconCheckOutline14 size={12} />}
+                            {selected && <IconCheckOutlineRegular size={12} />}
                           </span>
                         )
                         : <span className={css.number}>{optionIndex + 1}</span>}
@@ -553,12 +553,12 @@ function QuestionFlow({ pending, t, useStore, useQuestionCard, actions }: Questi
                             className={clsx(css.checkbox, draft.custom !== '' && css.checkboxChecked)}
                             aria-hidden="true"
                           >
-                            {draft.custom !== '' && <IconCheckOutline14 size={12} />}
+                            {draft.custom !== '' && <IconCheckOutlineRegular size={12} />}
                           </span>
                         )
                         : (
                           <span className={css.number} aria-hidden="true">
-                            <IconEditOutline16 size={12} />
+                            <IconEditOutlineRegular size={12} />
                           </span>
                         )}
                       <AnswerField
@@ -595,7 +595,7 @@ function QuestionFlow({ pending, t, useStore, useQuestionCard, actions }: Questi
                   disabled={index === 0 || busy !== null}
                   onClick={() => { replaceProgress(index - 1, drafts); setError(null) }}
                 >
-                  <IconChevronLeftOutline14 />
+                  <IconChevronLeftOutlineRegular />
                 </button>
                 <span className={css.progress}>{index + 1} / {questions.length}</span>
                 <button
@@ -603,7 +603,7 @@ function QuestionFlow({ pending, t, useStore, useQuestionCard, actions }: Questi
                   disabled={index === questions.length - 1 || busy !== null}
                   onClick={() => { replaceProgress(index + 1, drafts); setError(null) }}
                 >
-                  <IconChevronRightOutline14 />
+                  <IconChevronRightOutlineRegular />
                 </button>
               </div>
               <div className={css.feedback} role="status">

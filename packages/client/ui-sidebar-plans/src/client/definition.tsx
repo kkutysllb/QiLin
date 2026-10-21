@@ -7,7 +7,7 @@
  */
 import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
 import type { TranslateNS } from '@qilin-agent/client-ui-slots'
-import { IconChecklistOutline14, type IconProps } from '@qilin-agent/client-ui-primitives'
+import { IconChecklistOutlineMedium, type IconProps } from '@qilin-agent/client-ui-primitives'
 import type {} from './locales.ts'
 
 /** The tab kind this package owns. */
@@ -18,7 +18,7 @@ export const PLANS_ID = '@qilin-agent/client-ui-sidebar-plans'
 
 /** The type's checklist glyph at whatever size the drawing surface asks for. */
 function ChecklistGlyph({ size, className }: IconProps) {
-  return <IconChecklistOutline14 size={size} className={className} />
+  return <IconChecklistOutlineMedium size={size} className={className} />
 }
 
 /**

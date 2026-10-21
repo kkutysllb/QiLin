@@ -7,7 +7,7 @@
   height: 64px;
   padding: 0 12px;
   border: 0.5px solid var(--qilin-alias-border-l2, rgba(0, 0, 0, 0.12));
-  border-radius: 16px;
+  border-radius: var(--qilin-radius-lg);
   background: var(--qilin-specific-input-major, transparent);
   box-sizing: border-box;
   text-align: left;

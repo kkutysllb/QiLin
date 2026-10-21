@@ -1,5 +1,5 @@
 import type { Context } from '@qilin-agent/kylin'
-import { IconSearchOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconSearchOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
 import { searchCardModel } from '../models/search-card-model.ts'
@@ -24,7 +24,7 @@ export function SearchRow({ toolName, block, inspect, useDisclosure, t }: Search
       t={t}
       variant={model.variant}
       toolName={toolName}
-      icon={<IconSearchOutline16 size={14} />}
+      icon={<IconSearchOutlineRegular size={14} />}
       title={t(toolName === 'grep'
         ? SEARCH_TITLE_KEYS.grep
         : toolName === 'glob' ? SEARCH_TITLE_KEYS.glob : model.titleKey)}

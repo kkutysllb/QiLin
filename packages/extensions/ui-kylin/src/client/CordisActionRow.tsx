@@ -1,7 +1,7 @@
 /** Localized cards for `cordis_stop` and `cordis_undefine`. */
 
 import {
-  IconInspectOutline12, IconStopFill16, IconTrashOutline16, StateDot,
+  IconInspectOutlineMedium, IconStopFillRegular, IconTrashOutlineRegular, StateDot,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '@qilin-agent/client-ui-tool/client'
@@ -17,7 +17,7 @@ export function CordisActionRow(props: CordisActionRowProps) {
   if (props.phase === 'preparing') {
     const remove = props.toolName === 'cordis_undefine'
     return <CordisPreparingRow {...props}
-      icon={remove ? <IconTrashOutline16 size={14} /> : <IconStopFill16 size={14} />}
+      icon={remove ? <IconTrashOutlineRegular size={14} /> : <IconStopFillRegular size={14} />}
       title={props.t(remove ? 'row.removeTitle' : 'row.stopTitle')}
       className={css.card} rowClassName={css.row} titleClassName={css.title} />
   }
@@ -37,14 +37,14 @@ function StartedCordisActionRow({ callId, toolName, block, inspect, t }: Exclude
             ? <StateDot state="error" />
             : card.state === 'stopped'
               ? <StateDot state="warning" />
-              : remove ? <IconTrashOutline16 size={14} /> : <IconStopFill16 size={14} />}
+              : remove ? <IconTrashOutlineRegular size={14} /> : <IconStopFillRegular size={14} />}
         </span>
         <span className={css.title}>{t(remove ? 'row.removeTitle' : 'row.stopTitle')}</span>
         <span className={css.separator} aria-hidden />
         <span className={card.errorSummary === null ? css.summary : css.error}>{summary}</span>
         {inspect !== undefined && (
           <button type="button" className={css.inspect} aria-label={t('action.inspect')} onClick={inspect}>
-            <IconInspectOutline12 />
+            <IconInspectOutlineMedium />
           </button>
         )}
       </div>

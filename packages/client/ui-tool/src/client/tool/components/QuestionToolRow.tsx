@@ -1,5 +1,5 @@
 /** Question-owned summary action and transcript disclosure. */
-import { DisclosureRow, IconQuestionOutline14, TextShimmer } from '@qilin-agent/client-ui-primitives'
+import { DisclosureRow, IconQuestionOutlineRegular, TextShimmer } from '@qilin-agent/client-ui-primitives'
 import type { ToolRowProps } from './ToolRow.tsx'
 import { formatToolBody } from '../models/tool-call-model.ts'
 import { AskQuestionCard } from './AskQuestionCard.tsx'
@@ -28,7 +28,7 @@ export function QuestionToolRow({
       {state === 'running' && <span className={css.visuallyHidden}>{t('row.running')}</span>}
       <DisclosureRow
         rowClassName={css.row} leadingClassName={css.leading} titleClassName={css.title}
-        chevronClassName={css.chevron} icon={<IconQuestionOutline14 />} title={t('ask.rowTitle')}
+        chevronClassName={css.chevron} icon={<IconQuestionOutlineRegular />} title={t('ask.rowTitle')}
         running={state === 'running'} open={open} expandable={expandable}
         keepContentWhenOpen onToggle={toggle}
         collapsedContent={<>
@@ -39,7 +39,7 @@ export function QuestionToolRow({
           <button type="button" className={questionCss.panelButton}
             onClick={(event) => { event.stopPropagation(); if (!openPanel()) toggle() }}
             onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') event.stopPropagation() }}>
-            <IconQuestionOutline14 />{panelLabel}
+            <IconQuestionOutlineRegular />{panelLabel}
           </button>
         </>}
       >
@@ -55,7 +55,7 @@ export function QuestionToolRow({
             </div>}
           </div>}
           {inspect !== undefined && <button type="button" className={css.inspectButton} onClick={inspect}>
-            <IconQuestionOutline14 />{t('row.inspect')}
+            <IconQuestionOutlineRegular />{t('row.inspect')}
           </button>}
         </div>}
       </DisclosureRow>

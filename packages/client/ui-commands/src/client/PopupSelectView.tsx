@@ -14,7 +14,7 @@ import { MenuGroup, MenuSurface, observeStickyMenuGroups } from '@qilin-agent/cl
 import { Fragment, useEffect, useMemo, useRef } from 'react'
 import { useSyncExternalStore } from 'react'
 import clsx from 'clsx'
-import { IconCheckOutline16, RiskConfirmation, useAnchoredMaxHeight } from '@qilin-agent/client-ui-primitives'
+import { IconCheckOutlineRegular, RiskConfirmation, useAnchoredMaxHeight } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import { filterOptions } from './popup.ts'
 import type { SelectOption } from './contract.ts'
@@ -146,7 +146,7 @@ export function PopupSelectView({ popup, t }: PopupSelectViewProps) {
         {option.badge !== undefined && <sup className={css.badge}>{option.badge}</sup>}
       </span>
       {option.detail !== undefined && <span className={css.detail}>{option.detail}</span>}
-      {option.active === true && <span className={css.check}><IconCheckOutline16 /></span>}
+      {option.active === true && <span className={css.check}><IconCheckOutlineRegular /></span>}
     </div>
   )
   let optionIndex = 0

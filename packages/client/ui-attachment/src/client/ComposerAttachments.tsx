@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type {
   ComposerAttachment, ComposerAttachmentsProps, ComposerImageAttachment,
 } from '@qilin-agent/client-ui-conversation/client'
-import { IconCloseFill14 } from '@qilin-agent/client-ui-primitives'
+import { IconCloseFillRegular } from '@qilin-agent/client-ui-primitives'
 import { AttachmentRail } from '../AttachmentRail.tsx'
 import type { AttachmentRailItem } from '../AttachmentRail.tsx'
 import { DropOverlay } from '../DropOverlay.tsx'
@@ -87,7 +87,7 @@ export function ComposerAttachments({
                     aria-label={t('image.remove', { name: attachment.file.name })}
                     onClick={() => { onRemoveAttachment(attachment.id) }}
                   >
-                    <IconCloseFill14 size={12} />
+                    <IconCloseFillRegular size={12} />
                   </button>
                 </div>
               )

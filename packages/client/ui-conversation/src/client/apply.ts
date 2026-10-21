@@ -3,7 +3,7 @@ import type { Context } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
 import type { ISessions, SessionBinding } from '@qilin-agent/api-session-controller/client'
 import type { ShortcutCommandId, ShortcutFixedCommand } from '@qilin-agent/client-shortcuts/client'
-import { IconPaperclipOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconPaperclipOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import { createSnapshotStore, type BoundActions } from '@qilin-agent/client-store'
 import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
 import type { SessionId } from '@qilin-agent/session/types'
@@ -20,7 +20,10 @@ import type {
 } from './contract/slots.ts'
 import type { InputNotice } from './contract/input.ts'
 import { createConversationStore, readConversationViewPreference } from './stores.ts'
-import { ConversationController, UnsupportedImageMediaTypeError } from './service.ts'
+import type { ReferenceInsert } from './contract/draft-editor.ts'
+import { formatFileMention } from '@qilin-agent/file-reference/grammar'
+import { relativizeToCwd, workspaceTitleOf } from '@qilin-agent/util-workspace-path'
+import { ConversationController, UnsupportedImageMediaTypeError, isImageMediaType } from './service.ts'
 import type { IConversation } from './service.ts'
 import { ComposerBlockRegistry } from './input/blocks.ts'
 import type { ComposerBlock } from './contract/composer-blocks.ts'
@@ -47,6 +50,21 @@ declare module '@qilin-agent/client-ui-slots' {
     /** Conversation shell, composer, queue, and dock copy. */
     conversation: ConversationKey
   }
+}
+
+/**
+ * Browser-shell bridge reporting the harness-host path of a picked file. The
+ * Desktop preload exposes it on the application document; a served Web page
+ * has none, so every non-image file uploads there.
+ */
+interface HostPathBridge {
+  /** Absolute harness-host path of one picked file, or empty when the shell has none for it. */
+  pathFor(file: File): string
+}
+
+/** The shell-installed bridge, when this document runs inside the Desktop application. */
+function hostPathBridge(): HostPathBridge | undefined {
+  return (globalThis as { __QILIN_HOST_PATHS__?: HostPathBridge }).__QILIN_HOST_PATHS__
 }
 
 /** Services required by the Conversation plugin. */
@@ -103,7 +121,7 @@ interface FileCommandRegistry {
   register(contribution: {
     name: string
     label(): string
-    icon: typeof IconPaperclipOutline16
+    icon: typeof IconPaperclipOutlineRegular
     available(session: { sessionId: SessionId }): boolean
     ui: { kind: 'action'; run(session: { sessionId: SessionId }): void }
   }): () => void
@@ -252,7 +270,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
     scope.effect(() => commands.register({
       name: 'file',
       label: () => t('input.file'),
-      icon: IconPaperclipOutline16,
+      icon: IconPaperclipOutlineRegular,
       available: session => inputHub.canPickFiles(session.sessionId),
       ui: { kind: 'action', run: (session) => { inputHub.pickFiles(session.sessionId) } },
     }), 'ui-conversation: File action')
@@ -405,6 +423,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
           toggleCommandMenu: undefined,
           stop: undefined,
           hooks: {
+            stopShortcut,
             busyEnter: submissionPolicy.busyEnter,
             fileUploads: ABSENT_FILE_UPLOADS,
             notices: ABSENT_NOTICES,
@@ -416,14 +435,41 @@ export function apply(ctx: Context, config: Config = Config({})): void {
       const conversation = concreteConversation(ctx)
       const shell = inputHub.shell(sessionId)
       const inputTriggers = inputHub.inputTriggers(sessionId)
+      const bridge = hostPathBridge()
       return {
         keyboard: shell,
-        addFiles: (files) => {
+        addFiles: (files, directories = new Set()) => {
           if (sessions.binding(sessionId) === undefined) return t('file.sessionUnavailable')
+          if (shell.snapshot.phase === 'adjudicating' || shell.snapshot.phase === 'submitting') {
+            return t('attachment.dropBlocked')
+          }
+          const uploads: File[] = []
+          const references: ReferenceInsert[] = []
+          const cwd = sessions.list.getSnapshot().byId[sessionId]?.cwd
+          for (const file of files) {
+            const directory = directories.has(file)
+            if (bridge === undefined && directory) return t('attachment.directoryDesktopOnly')
+            const path = bridge?.pathFor(file) ?? ''
+            if (directory && path === '') return t('attachment.pathUnavailable')
+            if (path === '' || (!directory && isImageMediaType(file.type))) {
+              uploads.push(file)
+              continue
+            }
+            const relative = relativizeToCwd(path, cwd)
+            // A completed directory chip needs closed quotes; the directory grammar keeps them open for drill.
+            const mention = formatFileMention({ path: directory ? `${relative}/` : relative, kind: 'file' }, false)
+            if (mention === undefined) return t('attachment.pathUnsupported')
+            const label = workspaceTitleOf(path) || file.name
+            references.push({
+              source: 'reference', ref: mention, label: directory ? `${label}/` : label,
+              appearance: directory ? 'folder' : 'file', clipboardText: mention,
+            })
+          }
           try {
-            const drafts = conversation.createDrafts(sessionId, files)
-            if (!shell.addAttachments(drafts.map(draft => draft.id))) {
+            const drafts = conversation.createDrafts(sessionId, uploads)
+            if (!shell.addFiles(references, drafts.map(draft => draft.id))) {
               conversation.releaseDraftAttachments(drafts)
+              return t('attachment.dropBlocked')
             }
             return null
           } catch (error: unknown) {
@@ -457,6 +503,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
           })
         },
         hooks: {
+          stopShortcut,
           busyEnter: submissionPolicy.busyEnter,
           fileUploads: conversation.fileUploads,
           notices: shell.notices,

@@ -20,7 +20,7 @@
 import { Fragment, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import clsx from 'clsx'
 import {
-  IconNewChatOutline16, IconPanelLeftOutline16, isDarwinDesktop, QilinSeal, ShortcutKeys, Tooltip,
+  IconNewChatOutlineRegular, IconPanelLeftOutlineRegular, isDarwinDesktop, QilinSeal, ShortcutKeys, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type {
@@ -229,7 +229,7 @@ export function SidebarRoot({
           </span>
         )}
         {/* Rail icons render at 18 (figma rail spec); expanded keeps the glyph-native sizes. */}
-        <IconPanelLeftOutline16 className={css.panelIcon} size={wide || windowsTitlebar ? 16 : 18} />
+        <IconPanelLeftOutlineRegular className={css.panelIcon} size={wide || windowsTitlebar ? 16 : 18} />
         {!wide && renderSlot('sidebar.toggle.badge', {})}
       </button>
     </Tooltip>
@@ -269,7 +269,7 @@ export function SidebarRoot({
               aria-label={t('toggle.open')}
               onClick={() => { toggleSidebar() }}
             >
-              <IconPanelLeftOutline16 size={16} />
+              <IconPanelLeftOutlineRegular size={16} />
             </button>
           </Tooltip>
           <Tooltip label={t('session.new.label')} delayMs={500}>
@@ -280,7 +280,7 @@ export function SidebarRoot({
               aria-keyshortcuts={newShortcut?.aria}
               onClick={() => { startSession() }}
             >
-              <IconNewChatOutline16 size={16} />
+              <IconNewChatOutlineRegular size={16} />
             </button>
           </Tooltip>
         </div>
@@ -326,7 +326,7 @@ export function SidebarRoot({
           aria-keyshortcuts={newShortcut?.aria}
           onClick={() => { startSession() }}
         >
-          <IconNewChatOutline16 size={wide ? 14 : windowsTitlebar ? 16 : 18} />
+          <IconNewChatOutlineRegular size={wide ? 14 : windowsTitlebar ? 16 : 18} />
           {wide && <span className={clsx(css.newSessionLabel, css.wide)}>{t('session.new')}</span>}
           {wide && newShortcut !== undefined && newShortcut.keys.length > 0 && <span className={css.newSessionShortcut} aria-hidden="true">
             <ShortcutKeys keys={newShortcut.keys} />

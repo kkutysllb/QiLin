@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { IconChecklistOutline14 } from '@qilin-agent/client-ui-primitives'
+import { IconChecklistOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { Context } from '@qilin-agent/kylin'
 import type { HostObservable, InjectFace, PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
@@ -62,7 +62,7 @@ export function TodoRow({ toolName, block, inspect, useDisclosure, useTodoHistor
       t={t}
       variant={model.variant}
       toolName={toolName}
-      icon={<IconChecklistOutline14 />}
+      icon={<IconChecklistOutlineRegular />}
       title={t('todo.rowTitle')}
       summary={summary.text}
       summarySuffix={[diff?.summary, summary.extra > 0 ? `+${summary.extra}` : null]

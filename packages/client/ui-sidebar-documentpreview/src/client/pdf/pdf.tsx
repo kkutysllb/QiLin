@@ -1,6 +1,6 @@
 /** PDF page presentation; binary content and tab information come from the document owner. */
 import { useCallback, useEffect, useRef, useState, type ComponentType, type CSSProperties, type ReactNode } from 'react'
-import { Button, IconLoadingOutline16 } from '@qilin-agent/client-ui-primitives'
+import { Button, IconLoadingOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale, PropsStore } from '@qilin-agent/client-ui-slots'
 import type { TabId } from '@qilin-agent/client-ui-dockkit'
 import type { DocumentPreviewProps } from '../document/contract.ts'
@@ -87,7 +87,7 @@ export function PdfBody(props: PdfBodyProps): ReactNode {
   // spinner position covers everything until the first page block appears.
   if (load?.data !== data) return <span className={`${css.status} ${css.opening}`} role="status"
     aria-label={t('loading')} data-document-loading>
-    <span className={css.loadingIcon} aria-hidden="true"><IconLoadingOutline16 /></span>
+    <span className={css.loadingIcon} aria-hidden="true"><IconLoadingOutlineRegular /></span>
   </span>
   if (load.kind === 'failed') {
     return <div className={css.status} role="alert">

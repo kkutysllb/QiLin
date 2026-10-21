@@ -10,7 +10,7 @@
  */
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import type { ReactNode, RefObject } from 'react'
-import { IconRefreshOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconRefreshOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import { fileAddressFor, pathPartsOf } from '@qilin-agent/util-workspace-path'
 import { FileSearchBox, FileSearchResults } from './FileSearch.tsx'
 import { FileTree } from './FileTree.tsx'
@@ -148,7 +148,7 @@ export function FilesBody({
             data-files-reload
             onClick={reload}
           >
-            <IconRefreshOutline16 />
+            <IconRefreshOutlineRegular />
           </button>
           {renderSlot('sidebar.right.tab.files.actions', {
             absolutePath: state.root,

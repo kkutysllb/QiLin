@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { IconChevronDownOutline14, Menu, Tooltip, type MenuItem } from '@qilin-agent/client-ui-primitives'
+import { IconChevronDownOutlineMedium, Menu, Tooltip, type MenuItem } from '@qilin-agent/client-ui-primitives'
 import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type {} from '@qilin-agent/client-ui-conversation/client'
@@ -220,7 +220,7 @@ export function OpenInAppAction(props: OpenInAppActionProps): React.JSX.Element 
             aria-label={t('menu.toggle')}
             onClick={() => { setOpen(value => !value) }}
           >
-            <IconChevronDownOutline14 size={11} />
+            <IconChevronDownOutlineMedium size={11} />
           </button>
         </div>
       )}

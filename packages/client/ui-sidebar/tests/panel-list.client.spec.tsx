@@ -7,7 +7,7 @@ import { SlotTestRuntime } from '@qilin-agent/client-test-runtime'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
-import { IconGlobeOutline14 } from '@qilin-agent/client-ui-primitives'
+import { IconGlobeOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { ILayout, MainPanelId } from '@qilin-agent/client-ui-layout/client'
 import type { PropsRenderSlots, PropsRuntime, SlotLabel } from '@qilin-agent/client-ui-slots'
 import { apply, inject } from '../src/client/index.ts'
@@ -94,7 +94,7 @@ async function mountPanel(runtime: SlotTestRuntime, { heading, ...metadata }: Te
   function Icon({ size, active }: PropsRuntime<'sidebar.panellist'>) {
     return (
       <span data-testid={`${metadata.id}-icon`} data-active={active}>
-        <IconGlobeOutline14 size={size} />
+        <IconGlobeOutlineRegular size={size} />
       </span>
     )
   }

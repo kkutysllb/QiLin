@@ -209,6 +209,7 @@ function bench(over?: BenchOptions) {
     }),
     toggleCommandMenu: over?.toggleCommandMenu ?? vi.fn(),
     useBusyEnter: bindSnapshotSelector(busyEnter),
+    useStopShortcut: bindSnapshotSelector(createSnapshotStore<readonly string[]>([])),
     useNotices: bindSnapshotSelector(shell.notices),
     useLexicon: bindSnapshotSelector(shell.lexicon),
     useMenuLauncher: bindSnapshotSelector(menuLauncher),
@@ -437,7 +438,7 @@ describe('image draft rail', () => {
         getData: () => '一起发送的文字',
       },
     })
-    expect(addFiles).toHaveBeenCalledWith([image])
+    expect(addFiles).toHaveBeenCalledWith([image], undefined)
     await vi.waitFor(() => { expect(shell.snapshot.draft).toBe('一起发送的文字') })
     expect(attachmentOwner(slotCalls).canAcceptDrop).toBe(true)
     act(() => { attachmentOwner(slotCalls).onAddFiles([image]) })
@@ -485,7 +486,7 @@ describe('image draft rail', () => {
         getData: () => '同时粘贴的文字',
       },
     })
-    expect(addFiles).toHaveBeenCalledWith([image])
+    expect(addFiles).toHaveBeenCalledWith([image], undefined)
     // The paste lands inside the PASTE_COMMAND update; its commit is a microtask away.
     await vi.waitFor(() => { expect(shell.snapshot.draft).toBe('同时粘贴的文字') })
   })
@@ -544,7 +545,7 @@ describe('image draft rail', () => {
     const within = bench({ addFiles: vi.fn(() => null), imageLimits: limits })
     const fits = png(16, 'fits.png')
     intake(within, [fits])
-    expect(within.props.addFiles).toHaveBeenCalledWith([fits])
+    expect(within.props.addFiles).toHaveBeenCalledWith([fits], undefined)
     expect(within.view.queryByRole('alert')).toBeNull()
   })
 
@@ -567,7 +568,7 @@ describe('image draft rail', () => {
       new File([new ArrayBuffer(64)], 'b.pdf', { type: 'application/pdf' }),
     ]
     act(() => { attachmentOwner(result.slotCalls).onAddFiles(files) })
-    expect(addFiles).toHaveBeenCalledWith(files)
+    expect(addFiles).toHaveBeenCalledWith(files, undefined)
     expect(result.view.getByRole('alert').textContent).toContain('仅支持 PNG、JPG、WebP、GIF 格式的图片')
   })
 

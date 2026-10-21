@@ -8,9 +8,9 @@
 import { useEffect } from 'react'
 import type { ReactNode } from 'react'
 import {
-  IconCheckOutline16, IconDarkOutline16, IconFollowsystemOutline16, IconGlobeOutline14,
-  IconLightOutline16, IconLogoutOutline16, IconPersonalizationOutline16, IconSettingsOutline16,
-  IconUserOutline16, Menu, Tooltip,
+  IconCheckOutlineRegular, IconDarkOutlineRegular, IconFollowsystemOutlineRegular, IconGlobeOutlineMedium,
+  IconLightOutlineRegular, IconLogoutOutlineRegular, IconPersonalizationOutlineRegular, IconSettingsOutlineRegular,
+  IconUserOutlineRegular, Menu, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type { MenuEntry } from '@qilin-agent/client-ui-primitives'
 import type {
@@ -41,14 +41,14 @@ interface ThemeRow {
   /** Dictionary key of this row's own label. */
   readonly labelKey: AccountLocaleKey
   /** Leading glyph. */
-  readonly Icon: typeof IconLightOutline16
+  readonly Icon: typeof IconLightOutlineRegular
 }
 
 /** The built-in theme preferences, in menu order. */
 const THEME_ROWS: readonly ThemeRow[] = [
-  { id: 'light', labelKey: 'appearance.light', Icon: IconLightOutline16 },
-  { id: 'dark', labelKey: 'appearance.dark', Icon: IconDarkOutline16 },
-  { id: 'system', labelKey: 'appearance.system', Icon: IconFollowsystemOutline16 },
+  { id: 'light', labelKey: 'appearance.light', Icon: IconLightOutlineRegular },
+  { id: 'dark', labelKey: 'appearance.dark', Icon: IconDarkOutlineRegular },
+  { id: 'system', labelKey: 'appearance.system', Icon: IconFollowsystemOutlineRegular },
 ]
 
 /** Injected dependencies of {@link AccountMenu} (the plugin's inject face). */
@@ -92,7 +92,7 @@ function optionLabel(label: string, selected: boolean): ReactNode {
   return (
     <span className={css.option}>
       <span className={css.optionText}>{label}</span>
-      {selected && <IconCheckOutline16 className={css.check} />}
+      {selected && <IconCheckOutlineRegular className={css.check} />}
     </span>
   )
 }
@@ -123,11 +123,11 @@ export function AccountMenu({
   if (accountName !== null) items.push({ type: 'label', id: 'account', text: accountName })
   // A deployment that mounts no settings panel offers no Settings row: the row
   // is the panel's entry point, and nothing else would answer it.
-  if (settingsMounted) items.push({ id: SETTINGS_ID, label: t('settings'), icon: <IconSettingsOutline16 /> })
+  if (settingsMounted) items.push({ id: SETTINGS_ID, label: t('settings'), icon: <IconSettingsOutlineRegular /> })
   items.push({
     id: 'appearance',
     label: t('appearance'),
-    icon: <IconPersonalizationOutline16 />,
+    icon: <IconPersonalizationOutlineRegular />,
     submenu: THEME_ROWS.map((row) => {
       const id = `${THEME_ROW_PREFIX}${row.id}`
       const isSelected = row.id === preference
@@ -138,7 +138,7 @@ export function AccountMenu({
   items.push({
     id: 'language',
     label: t('language'),
-    icon: <IconGlobeOutline14 />,
+    icon: <IconGlobeOutlineMedium />,
     submenu: locales.map((entry) => {
       const id = `${LOCALE_ROW_PREFIX}${entry.id}`
       const isSelected = entry.id === activeLocale
@@ -148,7 +148,7 @@ export function AccountMenu({
   })
   if (signOutAvailable) {
     items.push({ type: 'separator', id: 'sign-out-separator' })
-    items.push({ id: SIGN_OUT_ID, label: t('signOut'), icon: <IconLogoutOutline16 />, danger: true })
+    items.push({ id: SIGN_OUT_ID, label: t('signOut'), icon: <IconLogoutOutlineRegular />, danger: true })
   }
 
   const select = (id: string): void => {
@@ -201,7 +201,7 @@ export function AccountMenu({
             onClick={() => { actions.setOpen(!open) }}
           >
             <span className={css.avatar} aria-hidden="true">
-              {initial ?? <IconUserOutline16 size={14} />}
+              {initial ?? <IconUserOutlineRegular size={14} />}
             </span>
             {wide && <span className={css.name}>{name}</span>}
           </button>

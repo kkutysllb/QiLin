@@ -12,8 +12,8 @@
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
-  Button, IconCloseFill14, IconPersonalizationOutline16,
-  IconProjectAddOutline16, IconSearchOutline16, Menu, Modal, Tooltip,
+  Button, IconCloseFillRegular, IconPersonalizationOutlineRegular,
+  IconProjectAddOutlineRegular, IconSearchOutlineRegular, Menu, Modal, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type {
   SessionListState, SessionSearchResultItem,
@@ -171,7 +171,7 @@ function ViewOptionsMenu({ groupBy, orderBy, onGroupPick, onOrderPick, t }: {
             aria-label={t('viewOptions.label')}
             onClick={() => { setOpen(v => !v) }}
           >
-            <IconPersonalizationOutline16 />
+            <IconPersonalizationOutlineRegular />
           </button>
         </Tooltip>
       )}
@@ -1296,7 +1296,7 @@ export function WorkspaceBrowser({
                     requestSearch()
                   }}
                 >
-                  <IconSearchOutline16 size={searchExpanded ? 11 : 14} />
+                  <IconSearchOutlineRegular size={searchExpanded ? 11 : 14} />
                 </button>
               </Tooltip>
               <input
@@ -1325,7 +1325,7 @@ export function WorkspaceBrowser({
                     setSearchExpanded(false)
                   }}
                 >
-                  <IconCloseFill14 />
+                  <IconCloseFillRegular />
                 </button>
               )}
             </div>
@@ -1355,7 +1355,7 @@ export function WorkspaceBrowser({
                     requestAddWorkspace()
                   }}
                 >
-                  <IconProjectAddOutline16 size={16} />
+                  <IconProjectAddOutlineRegular size={16} />
                 </button>
               </Tooltip>
             )}

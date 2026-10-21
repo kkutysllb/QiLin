@@ -10,7 +10,7 @@
  */
 
 import {
-  IconClockOutline16,
+  IconClockOutlineRegular,
 } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type {} from '@qilin-agent/client-ui-workspace/client'
@@ -50,7 +50,7 @@ export function SessionScheduleMark({
       // own click target; the row keeps every other cell as its activation area.
       onClick={(event) => { event.stopPropagation() }}
     >
-      <IconClockOutline16 size={12} />
+      <IconClockOutlineRegular size={12} />
       {/* The glyph is aria-hidden, so the count reaches assistive technology
           only through this label, as the row's status dots do. */}
       <span className={css.visuallyHidden}>{t('mark.aria', { count: facts.records.length })}</span>

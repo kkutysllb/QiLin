@@ -22,7 +22,7 @@ import type {} from '@qilin-agent/client-locale/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
 import type {} from '@qilin-agent/client-ui-session/client'
 import type { TranslateNS } from '@qilin-agent/client-ui-slots'
-import { IconDataOutline16 } from '@qilin-agent/client-ui-primitives'
+import { IconDataOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { ModelDirectoryState } from './directory.ts'
 import { ModelDirectoryResolver } from './service.ts'
 import type { ModelSelectInjected } from './slots.ts'
@@ -132,7 +132,7 @@ export function apply(ctx: ClientContext): void {
       name: 'model',
       label: () => t('command.label'),
       description: () => t('command.description'),
-      icon: IconDataOutline16,
+      icon: IconDataOutlineRegular,
       available: session => sessions.subagentAddress(session.sessionId) === undefined,
       ui: {
         kind: 'popupSelect',

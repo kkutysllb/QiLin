@@ -1,5 +1,5 @@
 import type { Context } from '@qilin-agent/kylin'
-import { IconBrowseOutline16, IconGlobeOutline14 } from '@qilin-agent/client-ui-primitives'
+import { IconBrowseOutlineRegular, IconGlobeOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ToolCallViewProps } from '../../contract/slots.ts'
 import { webCardModel } from '../models/web-card-model.ts'
@@ -18,7 +18,7 @@ const WEB_TITLE_KEYS = {
 export function WebRow({ toolName, block, inspect, useDisclosure, t }: WebRowProps) {
   const model = toolRowModel(toolName, block)
   const web = webCardModel(block)
-  const icon = toolName === 'web_fetch' ? <IconBrowseOutline16 size={14} /> : <IconGlobeOutline14 size={14} />
+  const icon = toolName === 'web_fetch' ? <IconBrowseOutlineRegular size={14} /> : <IconGlobeOutlineRegular size={14} />
   return (
     <ToolRow
       useDisclosure={useDisclosure}

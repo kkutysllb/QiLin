@@ -20,7 +20,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import clsx from 'clsx'
 import {
-  IconBrowseOutline16, IconCheckOutline16, IconPanelLeftOutline16, IconRefreshOutline16,
+  IconBrowseOutlineRegular, IconCheckOutlineRegular, IconPanelLeftOutlineRegular, IconRefreshOutlineRegular,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 // The `file` entry of `SidebarRightResourceParamsMap`, which types the line
@@ -200,7 +200,7 @@ export function FileBody({
           data-file-tree-toggle
           onClick={() => { setTreeOpen(open => !open) }}
         >
-          <IconPanelLeftOutline16 />
+          <IconPanelLeftOutlineRegular />
         </button>
         <div className={css.path} title={file.path} data-file-path>{file.path}</div>
         {edit.dirty && <span className={css.dirtyDot} title={t('file.unsaved')} data-file-dirty />}
@@ -215,7 +215,7 @@ export function FileBody({
           disabled={edit.saving}
           onClick={() => { openPreview(sessionId, tab.navigation.address) }}
         >
-          <IconBrowseOutline16 />
+          <IconBrowseOutlineRegular />
         </button>
         <button
           type="button"
@@ -238,7 +238,7 @@ export function FileBody({
           disabled={edit.saving}
           onClick={reload}
         >
-          <IconRefreshOutline16 />
+          <IconRefreshOutlineRegular />
         </button>
         <button
           type="button"
@@ -249,7 +249,7 @@ export function FileBody({
           disabled={edit.saving}
           onClick={() => { performSave(false) }}
         >
-          <IconCheckOutline16 />
+          <IconCheckOutlineRegular />
         </button>
       </div>
       {confirmReload && (

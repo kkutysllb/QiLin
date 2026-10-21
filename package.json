@@ -18,6 +18,7 @@
   ],
   "scripts": {
     "build": "tsx scripts/build.ts",
+    "build:artifacts": "pnpm run build",
     "build:bench": "npm run build:native-system && npm run build:lib && tsdown --config-loader native --config benchmarks/tsdown.config.ts",
     "build:official": "tsx scripts/build.ts --profile official",
     "build:qilin": "tsx scripts/build.ts --profile qilin",

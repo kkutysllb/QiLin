@@ -49,9 +49,15 @@ export type { RiskConfirmationProps } from './RiskConfirmation.tsx'
 export { ConnectionIndicator } from './ConnectionIndicator.tsx'
 export type { ConnectionIndicatorState } from './ConnectionIndicator.tsx'
 export { QilinSeal } from './QilinSeal.tsx'
-export { ReferenceIcon } from './ReferenceIcon.tsx'
+export {
+  PermissionIconAutoReviewMedium, PermissionIconAutoReviewRegular,
+  PermissionIconFullAccessMedium, PermissionIconFullAccessRegular,
+  PermissionIconReadOnlyMedium, PermissionIconReadOnlyRegular,
+  PermissionIconWorkspaceWriteMedium, PermissionIconWorkspaceWriteRegular,
+} from './PermissionIcon.tsx'
+export { ReferenceIconMedium, ReferenceIconRegular } from './ReferenceIcon.tsx'
 export type { ReferenceIconKind, ReferenceIconProps } from './ReferenceIcon.tsx'
-export { LinkIcon, classifyLinkPath } from './LinkIcon.tsx'
+export { LinkIconMedium, LinkIconRegular, classifyLinkPath } from './LinkIcon.tsx'
 export type { LinkIconKind, LinkIconProps } from './LinkIcon.tsx'
 export { FileTypeIcon, classifyFileType, fileExtension } from './FileTypeIcon.tsx'
 export type {

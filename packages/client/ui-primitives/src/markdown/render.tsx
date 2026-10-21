@@ -26,7 +26,7 @@ import { CodeBlock } from './CodeBlock.tsx'
 import { MermaidDiagram } from './mermaid.tsx'
 import { parseFileLink } from './file-link.ts'
 import { renderTexToReact } from './katex.tsx'
-import { LinkIcon, classifyLinkPath } from '../LinkIcon.tsx'
+import { LinkIconMedium, classifyLinkPath } from '../LinkIcon.tsx'
 import { useMarkdownDelegate } from './MarkdownDelegate.tsx'
 import { HoverCard } from '../HoverCard.tsx'
 import { ImageLightbox } from '../ImageLightbox.tsx'
@@ -341,7 +341,7 @@ function renderNode(node: Md.RootContent, key: Key, context: MarkdownRenderConte
               aria-label={mention.label}
               onClick={mention.open}
             >
-              <LinkIcon kind={classifyLinkPath(value)} className={css.linkIcon} />
+              <LinkIconMedium kind={classifyLinkPath(value)} className={css.linkIcon} />
               {value}
             </button>
           </code>
@@ -596,7 +596,7 @@ function MarkdownAnchor({ href, glyph, children }: {
         open(href)
       }}
     >
-      {glyph && <LinkIcon kind="url" href={href} className={css.linkIcon} />}
+      {glyph && <LinkIconMedium kind="url" href={href} className={css.linkIcon} />}
       {children}
     </a>
   )
@@ -628,7 +628,7 @@ function MarkdownFileLink({ file, glyph, children }: {
       title={src === undefined ? file.path : undefined}
       onClick={() => { openFile(file.path, file.line === undefined ? undefined : { line: file.line }) }}
     >
-      {glyph && <LinkIcon kind={classifyLinkPath(file.path)} className={css.linkIcon} />}
+      {glyph && <LinkIconMedium kind={classifyLinkPath(file.path)} className={css.linkIcon} />}
       {children}
     </button>
   )

@@ -3,8 +3,8 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  IconClockOutline16,
-  IconTrashOutline16,
+  IconClockOutlineRegular,
+  IconTrashOutlineRegular,
   useAnchoredPosition,
   useDismissOnOutsidePointer,
 } from '@qilin-agent/client-ui-primitives'
@@ -121,7 +121,7 @@ export function ScheduleCatalogAction({
         openTask(soleTask.id)
       }}
     >
-      <IconClockOutline16 size={16} />
+      <IconClockOutlineRegular size={16} />
     </button>
   )
   const catalog = open
@@ -184,7 +184,7 @@ export function ScheduleCatalogAction({
               >
                 {/* The button's aria-label names it; the glyph is decorative
                     and must not surface as an accessible image child. */}
-                <span aria-hidden="true"><IconTrashOutline16 size={14} /></span>
+                <span aria-hidden="true"><IconTrashOutlineRegular size={14} /></span>
               </button>
             </li>
           )

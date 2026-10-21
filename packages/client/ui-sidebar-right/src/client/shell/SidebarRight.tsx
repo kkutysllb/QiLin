@@ -30,7 +30,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import type { CSSProperties, ReactNode, RefObject } from 'react'
 import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
-import { IconPanelLeftOutline16, Tooltip } from '@qilin-agent/client-ui-primitives'
+import { IconPanelLeftOutlineRegular, Tooltip } from '@qilin-agent/client-ui-primitives'
 import type {
   HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore,
 } from '@qilin-agent/client-ui-slots'
@@ -288,7 +288,7 @@ function PanelChrome({ sessionId, fullscreen, actions, t, shortcuts, toggleFulls
           data-sidebar-right-toggle
           onClick={() => { actions.toggleExpanded(sessionId) }}
         >
-          <IconPanelLeftOutline16 className={css.collapseGlyph} />
+          <IconPanelLeftOutlineRegular className={css.collapseGlyph} />
         </button>
       </Tooltip>
     </>

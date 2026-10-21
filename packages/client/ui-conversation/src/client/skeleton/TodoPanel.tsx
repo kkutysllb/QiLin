@@ -6,7 +6,7 @@ import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 // declare) and the payload type. Type-only by construction — the outlet is
 // free of host value imports, so no host Context merge enters this program.
 import type { TodoItem } from '@qilin-agent/tool-todo/client'
-import { IconChecklistOutline14, IconChevronDownOutline14, IconChevronUpOutline14 } from '@qilin-agent/client-ui-primitives'
+import { IconChecklistOutlineRegular, IconChevronDownOutlineRegular, IconChevronUpOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import { NS } from '../locales.ts'
 import css from './TodoPanel.module.css'
 
@@ -98,11 +98,11 @@ export function TodoPanel({ todos, t }: TodoPanelProps) {
           aria-expanded={!collapsed}
           onClick={() => { setCollapsed(v => !v) }}
         >
-          <span className={css.lead} aria-hidden><IconChecklistOutline14 /></span>
+          <span className={css.lead} aria-hidden><IconChecklistOutlineRegular /></span>
           <span className={css.title}>{t('todo.title')}</span>
           <span className={css.progress}>{progressLabel(todos, t)}</span>
           <span className={css.chevron} aria-hidden>
-            {collapsed ? <IconChevronUpOutline14 /> : <IconChevronDownOutline14 />}
+            {collapsed ? <IconChevronUpOutlineRegular /> : <IconChevronDownOutlineRegular />}
           </span>
         </button>
         {!collapsed && (

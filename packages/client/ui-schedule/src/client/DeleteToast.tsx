@@ -8,7 +8,7 @@
  * tab that asked for it.
  */
 import type { ReactNode } from 'react'
-import { IconWarningOutline16, Toast } from '@qilin-agent/client-ui-primitives'
+import { IconWarningOutlineRegular, Toast } from '@qilin-agent/client-ui-primitives'
 import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type {} from '@qilin-agent/client-ui-layout/client'
 import type { CatalogDeleteOutcome } from './catalog-source.ts'
@@ -82,7 +82,7 @@ export function ScheduleDeleteToast({ useToast, dismiss, t }: ScheduleDeleteToas
     : <Toast
       key={`schedule-delete-${String(toast.seq)}`}
       text={t('toast.deleteFailed')}
-      icon={<IconWarningOutline16 />}
+      icon={<IconWarningOutlineRegular />}
       onDone={dismiss}
     />
 }

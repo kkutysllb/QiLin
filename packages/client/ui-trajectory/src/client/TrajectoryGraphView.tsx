@@ -18,8 +18,8 @@
 import { useEffect, useMemo, useRef, useState,
   type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
 import {
-  IconChevronDownOutline14, IconCloseOutline16, IconFullscreenOutline16,
-  IconGaugeOutline16, IconPaperclipOutline16, IconPauseOutline16, IconPlayOutline16, IconStopFill16,
+  IconChevronDownOutlineMedium, IconCloseOutlineRegular, IconFullscreenOutlineRegular,
+  IconGaugeOutlineRegular, IconPaperclipOutlineRegular, IconPauseOutlineRegular, IconPlayOutlineRegular, IconStopFillRegular,
   ImageLightbox, MarkdownText,
 } from '@qilin-agent/client-ui-primitives'
 import type { ImageLightboxLabels } from '@qilin-agent/client-ui-primitives'
@@ -513,7 +513,7 @@ export function TrajectoryGraphView(
           title={t('graph.fit')}
           onClick={fitToWidth}
         >
-          <IconFullscreenOutline16 size={14} />
+          <IconFullscreenOutlineRegular size={14} />
         </button>
         <button
           type="button"
@@ -523,7 +523,7 @@ export function TrajectoryGraphView(
           title={t('graph.follow')}
           onClick={() => { setFollow(value => !value) }}
         >
-          <IconChevronDownOutline14 size={14} />
+          <IconChevronDownOutlineMedium size={14} />
         </button>
         <button
           type="button"
@@ -533,7 +533,7 @@ export function TrajectoryGraphView(
           title={t(paused ? 'graph.resume' : 'graph.pause')}
           onClick={() => { setPaused(value => !value) }}
         >
-          {paused ? <IconPlayOutline16 size={14} /> : <IconPauseOutline16 size={14} />}
+          {paused ? <IconPlayOutlineRegular size={14} /> : <IconPauseOutlineRegular size={14} />}
         </button>
         <button
           type="button"
@@ -564,7 +564,7 @@ export function TrajectoryGraphView(
             else setReplay(current => (current === null ? null : { ...current, playing: !current.playing }))
           }}
         >
-          {replay?.playing === true ? <IconPauseOutline16 size={14} /> : <IconPlayOutline16 size={14} />}
+          {replay?.playing === true ? <IconPauseOutlineRegular size={14} /> : <IconPlayOutlineRegular size={14} />}
         </button>
         <button
           type="button"
@@ -586,7 +586,7 @@ export function TrajectoryGraphView(
             title={t('graph.replay.stop')}
             onClick={() => { setReplay(null) }}
           >
-            <IconStopFill16 size={12} />
+            <IconStopFillRegular size={12} />
           </button>
         )}
         <button
@@ -596,7 +596,7 @@ export function TrajectoryGraphView(
           title={t('graph.openLedger')}
           onClick={openLedger}
         >
-          <IconGaugeOutline16 size={14} />
+          <IconGaugeOutlineRegular size={14} />
         </button>
         <span className={css.spacer} />
         <span className={css.stat}>{t('graph.stats.nodes', { count: windowed.graph.stats.nodes })}</span>
@@ -853,7 +853,7 @@ export function TrajectoryGraphView(
                     title={t('graph.closeDetails')}
                     onClick={() => { setSelectedId(null) }}
                   >
-                    <IconCloseOutline16 size={14} />
+                    <IconCloseOutlineRegular size={14} />
                   </button>
                 </div>
                 <div className={css.inspectorMeta}>{selectionMeta.join(' · ')}</div>
@@ -869,7 +869,7 @@ export function TrajectoryGraphView(
                         >
                           {attachment.kind === 'image'
                             ? (url === undefined
-                              ? <span className={css.attachmentIcon} aria-hidden="true"><IconPaperclipOutline16 size={14} /></span>
+                              ? <span className={css.attachmentIcon} aria-hidden="true"><IconPaperclipOutlineRegular size={14} /></span>
                               : (
                                 <button
                                   type="button"
@@ -881,7 +881,7 @@ export function TrajectoryGraphView(
                                   <img src={url} alt={presentation.name} loading="lazy" />
                                 </button>
                               ))
-                            : <span className={css.attachmentIcon} aria-hidden="true"><IconPaperclipOutline16 size={14} /></span>}
+                            : <span className={css.attachmentIcon} aria-hidden="true"><IconPaperclipOutlineRegular size={14} /></span>}
                           <span className={css.attachmentText}>
                             <span className={css.attachmentName} title={presentation.name}>{presentation.name}</span>
                             {presentation.meta === ''

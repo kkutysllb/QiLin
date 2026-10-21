@@ -19,13 +19,13 @@ import clsx from 'clsx'
 import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 import {
-  FileTypeIcon, IconEditOutline16, IconPauseOutline16, IconPlayOutline16,
-  IconRefreshOutline16, Menu, Tooltip, classifyFileType,
+  FileTypeIcon, IconEditOutlineRegular, IconNowrapFillRegular, IconPauseOutlineRegular,
+  IconPlayOutlineRegular, IconRefreshOutlineRegular, IconWrapFillRegular, Menu, Tooltip,
+  classifyFileType,
 } from '@qilin-agent/client-ui-primitives'
 import { acceptsPath, parseFileAddress, pathPartsOf } from '@qilin-agent/util-workspace-path'
 import type { TextInjected } from './face.ts'
 import { failureLine } from './failure-line.ts'
-import { IconNowrapFill16, IconWrapFill16 } from './icons.tsx'
 import { LoadingIndicator } from './LoadingIndicator.tsx'
 import { hostFileOf } from './rpc.ts'
 import type { TextStore } from './store.ts'
@@ -365,7 +365,7 @@ export function TextPreview({
               data-textpreview-tool="edit"
               onClick={() => { tabActions.openResource(tab.contentId) }}
             >
-              <IconEditOutline16 />
+              <IconEditOutlineRegular />
             </button>
           </Tooltip>
         )}
@@ -399,7 +399,7 @@ export function TextPreview({
               data-textpreview-tool="wrap"
               onClick={() => { actions.toggledWrap(tab.id) }}
             >
-              {state.wrap ? <IconNowrapFill16 /> : <IconWrapFill16 />}
+              {state.wrap ? <IconNowrapFillRegular /> : <IconWrapFillRegular />}
             </button>
           </Tooltip>
         )}
@@ -409,7 +409,7 @@ export function TextPreview({
             <button type="button" className={css.tool} aria-label={t('autoRefresh')}
               aria-pressed={state.autoRefresh} data-textpreview-tool="auto-refresh"
               onClick={() => { actions.toggledAutoRefresh(tab.id) }}>
-              {state.autoRefresh ? <IconPauseOutline16 /> : <IconPlayOutline16 />}
+              {state.autoRefresh ? <IconPauseOutlineRegular /> : <IconPlayOutlineRegular />}
             </button>
           </Tooltip>
         </span>
@@ -421,7 +421,7 @@ export function TextPreview({
             data-textpreview-tool="reload"
             onClick={reload}
           >
-            <IconRefreshOutline16 />
+            <IconRefreshOutlineRegular />
           </button>
         </Tooltip>
         {fileOwner !== undefined && renderSlot('sidebar.right.tab.document.actions', fileOwner)}
@@ -478,7 +478,7 @@ export function TextPreview({
                 data-textpreview-retry
                 onClick={reload}
               >
-                <IconRefreshOutline16 size={14} />
+                <IconRefreshOutlineRegular size={14} />
                 {t('retry')}
               </button>
             </div>

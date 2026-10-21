@@ -8,7 +8,7 @@ import type {
 import type { InboxState } from '@qilin-agent/agent/types'
 import type { PendingSubmission } from '@qilin-agent/api-session-controller/client'
 import {
-  Button, IconChevronDownOutline14, MarkdownDelegateProvider, Modal,
+  Button, IconChevronDownOutlineRegular, MarkdownDelegateProvider, Modal,
 } from '@qilin-agent/client-ui-primitives'
 import type { ChatFlowHookContext, ChatViewSlotProps, OpenFileOptions } from '../contract/slots.ts'
 import type { ChatSnapshot } from '../contract/snapshot.ts'
@@ -249,7 +249,7 @@ export function ChatView({
             aria-label={t('chat.toBottom')}
             onClick={scroll.returnToBottom}
           >
-            <IconChevronDownOutline14 />
+            <IconChevronDownOutlineRegular />
           </button>
         </div>
       )}

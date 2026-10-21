@@ -6,7 +6,7 @@
  * that calls `ctx.sidebarRight.openTab('tasks')`.
  */
 import type { TranslateNS } from '@qilin-agent/client-locale/client'
-import { IconChecklistOutline14 } from '@qilin-agent/client-ui-primitives'
+import { IconChecklistOutlineMedium } from '@qilin-agent/client-ui-primitives'
 import type { SidebarRightTabDefinition } from '@qilin-agent/client-ui-sidebar-right/client'
 import type {} from './locales.ts'
 
@@ -27,7 +27,7 @@ export function tasksDefinition(t: TranslateNS<'sidebarTasks'>): SidebarRightTab
     kind: TASKS_KIND,
     priority: 'builtin',
     label: () => t('type.label'),
-    icon: IconChecklistOutline14,
+    icon: IconChecklistOutlineMedium,
     // One page per surface: reopening the guide entry focuses the page the user
     // already has rather than seating a second one.
     single: true,
@@ -37,7 +37,7 @@ export function tasksDefinition(t: TranslateNS<'sidebarTasks'>): SidebarRightTab
       order: 40,
       title: () => t('guide.title'),
       description: () => t('guide.description'),
-      icon: IconChecklistOutline14,
+      icon: IconChecklistOutlineMedium,
     }],
   }
 }
