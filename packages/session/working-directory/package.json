@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/working-directory",
   "description": "Session working directories with durable changes and model context",
-  "version": "3.1.7-rc.1",
+  "version": "3.1.7-rc.2",
   "publishConfig": {
     "access": "public"
   },
