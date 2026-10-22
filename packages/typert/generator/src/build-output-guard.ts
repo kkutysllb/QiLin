@@ -52,6 +52,8 @@ export function findBuildOutputLoads(
   const classifier = new BuildOutputClassifier(root)
   const outputs = new Map<string, BuildOutputImporter[]>()
   for (const sourceFile of program.getSourceFiles()) {
+    // KStock patch (K38): Typert artifacts are this pass's own products
+    // (absorbed upstream: classifier.isTypertArtifact skips them here).
     if (classifier.isTypertArtifact(sourceFile.fileName)) continue
     if (classifier.isBuildOutput(sourceFile.fileName)) outputs.set(classifier.canonical(sourceFile.fileName), [])
   }
@@ -65,7 +67,11 @@ export function findBuildOutputLoads(
       importers?.push({ file: classifier.display(sourceFile.fileName), specifier })
     }
   }
+  // KStock patch (K38): an output that only another build output loads is a
+  // consequence of the generated artifacts in the program, not a source-plane
+  // import; the pass reports only outputs a program source names.
   return [...outputs]
+    .filter(([, importers]) => importers.length > 0)
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([file, importers]) => ({ file: classifier.display(file), importers, source: classifier.sourceFor(file) }))
 }
@@ -108,6 +114,8 @@ export function findUnresolvedWorkspaceImports(
       if (ts.resolveModuleName(specifier, sourceFile.fileName, options, host, cache).resolvedModule !== undefined) continue
       const packageRoot = classifier.linkedWorkspacePackage(sourceFile.fileName, packageNameOf(specifier))
       if (packageRoot === undefined) continue
+      // KStock patch (K38): a generated Typert artifact subpath has no
+      // source module to map to (absorbed upstream: ./lib/typert.* check).
       if (exportTypesTarget(packageRoot, specifier)?.startsWith('./lib/typert.')) continue
       const source = exportSource(packageRoot, specifier)
       found.push({
