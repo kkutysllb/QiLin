@@ -182,12 +182,14 @@ export function discoverProductPlugins(root: string): readonly ProductPlugin[] {
  * @param product - Product manifest.
  * @param plugins - Discovered plugin packages.
  * @param log - Progress sink.
+ * @param runtimeDir - Extracted runtime whose `node_modules` resolves engine bundle layers.
  */
 export function seedProductProfile(
   profileDir: string,
   product: DesktopProduct,
   plugins: readonly ProductPlugin[],
   log: (message: string) => void = () => {},
+  runtimeDir?: string,
 ): void {
   mkdirSync(profileDir, { recursive: true, mode: 0o700 })
   initProfile(profileDir, product.profileBundles)
@@ -199,12 +201,17 @@ export function seedProductProfile(
   const dependencies: Record<string, string> = { ...manifest.dependencies }
   for (const plugin of plugins) dependencies[plugin.name] = `link:${plugin.directory}`
   const existing = manifest.qilin?.profile?.bundles ?? []
+  // KStock patch (K41): a bundle the plugin manager removed but left in the layer
+  // list makes the strict profile loader refuse to boot. Drop layers that resolve
+  // from neither this profile nor the runtime; the product layers always do.
+  const extras = existing.filter(bundle => !product.profileBundles.includes(bundle))
+  const keptExtras = extras.filter(bundle => bundleInstalled(profileDir, runtimeDir, bundle))
+  const dropped = extras.filter(bundle => !keptExtras.includes(bundle))
+  if (dropped.length > 0) log(`desktop profile: dropped unresolvable bundle(s): ${dropped.join(', ')}`)
   const missing = product.profileBundles.filter(bundle => !existing.includes(bundle))
-  const bundles = missing.length === 0
-    ? existing
-    : [...product.profileBundles, ...existing.filter(bundle => !product.profileBundles.includes(bundle))]
+  const bundles = [...product.profileBundles, ...keptExtras]
   const dependenciesChanged = plugins.some(plugin => manifest.dependencies?.[plugin.name] !== `link:${plugin.directory}`)
-  if (dependenciesChanged || missing.length > 0) {
+  if (dependenciesChanged || missing.length > 0 || dropped.length > 0) {
     writeFileSync(manifestPath, `${JSON.stringify({
       ...manifest,
       dependencies,
@@ -213,6 +220,12 @@ export function seedProductProfile(
     log('desktop profile: manifest updated')
   }
   for (const plugin of plugins) linkPlugin(profileDir, plugin)
+}
+
+/** Whether a profile layer resolves from the profile or the extracted runtime. */
+function bundleInstalled(profileDir: string, runtimeDir: string | undefined, name: string): boolean {
+  const roots = [join(profileDir, 'node_modules'), ...(runtimeDir === undefined ? [] : [join(runtimeDir, 'node_modules')])]
+  return roots.some(root => existsSync(join(root, name, 'package.json')))
 }
 
 function linkPlugin(profileDir: string, plugin: ProductPlugin): void {
@@ -369,7 +382,7 @@ export function prepareProductRuntime(options: PrepareProductRuntimeOptions): {
   const launcherBin = join(qilinDir, 'tools', 'pnpm', 'bin')
 
   const plugins = pluginDir === undefined ? [] : discoverProductPlugins(pluginDir)
-  seedProductProfile(profileDir, options.product, plugins, log)
+  seedProductProfile(profileDir, options.product, plugins, log, qilinDir)
 
   const secret = options.product.auth.mode === 'boot-secret'
     ? randomBytes(32).toString('base64url')
