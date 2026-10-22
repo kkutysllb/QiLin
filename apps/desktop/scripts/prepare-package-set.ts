@@ -12,7 +12,7 @@ import {
   statSync,
   writeFileSync,
 } from 'node:fs'
-import { basename, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import * as yaml from 'js-yaml'
 import {
@@ -88,7 +88,11 @@ export function selectDesktopPackageClosure(
 }
 
 function packedManifest(tarball: string): Record<string, unknown> {
-  const value: unknown = JSON.parse(capture('tar', ['-xOzf', tarball, 'package/package.json']))
+  // GNU tar reads the colon in a Windows drive path as a remote-host separator ("Cannot
+  // connect to D:"), so tar runs beside the tarball — the same convention tarballFiles()
+  // and packedIdentity() already follow. Passing the absolute path broke prepare:packages
+  // on every Windows runner.
+  const value: unknown = JSON.parse(capture('tar', ['-xOzf', basename(tarball), 'package/package.json'], { cwd: dirname(tarball) }))
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error(`desktop package set: ${tarball} has no package manifest`)
   }
