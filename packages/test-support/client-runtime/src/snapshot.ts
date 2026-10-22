@@ -8,7 +8,9 @@
  *   CSS edits do not churn snapshots.
  * - `<svg>` internals collapse to a `data-content` fingerprint on the svg
  *   element: path geometry is print noise, but the fingerprint still flips
- *   when an icon's artwork actually changes.
+ *   when an icon's artwork actually changes. Instance ids (`useId` gradient
+ *   and mask names) and their `url(#…)` references are mount-order noise and
+ *   are stripped before hashing, so the fingerprint moves only with artwork.
  */
 import { expect } from 'vitest'
 import type { SnapshotSerializer } from 'vitest'
@@ -25,11 +27,16 @@ function normalizeClassValue(value: string): string {
     .join(' ')
 }
 
+/** Instance ids and their references: they shift with mount order, not artwork. */
+const SVG_INSTANCE_ID = /\sid="[^"]*"/g
+const SVG_ID_REFERENCE = /url\(#[^)]*\)/g
+
 /** FNV-1a 32-bit over the svg markup: deterministic, dependency-free fingerprint. */
 function fingerprint(markup: string): string {
+  const stable = markup.replace(SVG_INSTANCE_ID, '').replace(SVG_ID_REFERENCE, 'url(#)')
   let hash = 0x811c9dc5
-  for (let i = 0; i < markup.length; i++) {
-    hash ^= markup.charCodeAt(i)
+  for (let i = 0; i < stable.length; i++) {
+    hash ^= stable.charCodeAt(i)
     hash = Math.imul(hash, 0x01000193)
   }
   return (hash >>> 0).toString(16).padStart(8, '0')

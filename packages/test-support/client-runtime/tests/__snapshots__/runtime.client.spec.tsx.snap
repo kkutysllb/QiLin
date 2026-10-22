@@ -18,6 +18,16 @@ exports[`single-slot mounting (declare + renderSlot) > folds class hashes and co
       data-content="2bfa09dc"
       viewBox="0 0 16 16"
     />
+    <svg
+      aria-hidden="true"
+      data-content="e9b154f0"
+      viewBox="0 0 16 16"
+    />
+    <svg
+      aria-hidden="true"
+      data-content="e9b154f0"
+      viewBox="0 0 16 16"
+    />
   </div>
 </div>
 `;

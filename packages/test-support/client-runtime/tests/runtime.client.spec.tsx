@@ -681,6 +681,22 @@ describe('single-slot mounting (declare + renderSlot)', () => {
         <svg viewBox="0 0 16 16" aria-hidden="true">
           <path d="M0 0L16 16" fill="currentColor" />
         </svg>
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <defs>
+            <linearGradient id="brand-body-a">
+              <stop offset="0%" stopColor="#c9a24a" />
+            </linearGradient>
+          </defs>
+          <rect width="16" height="16" fill="url(#brand-body-a)" />
+        </svg>
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <defs>
+            <linearGradient id="brand-body-bbbbbbbb">
+              <stop offset="0%" stopColor="#c9a24a" />
+            </linearGradient>
+          </defs>
+          <rect width="16" height="16" fill="url(#brand-body-bbbbbbbb)" />
+        </svg>
       </div>
     ))
     const slot = runtime.renderSlot('trt.panel', {})
@@ -688,6 +704,10 @@ describe('single-slot mounting (declare + renderSlot)', () => {
     // The serializer works on a clone: the live DOM keeps hashes and paths.
     expect(slot.container.querySelector('div')!.className).toBe('_frame_a1b2c3 plain')
     expect(slot.container.querySelector('svg path')).not.toBeNull()
+    // Instance ids (useId gradient names) shift with mount order: identical
+    // artwork fingerprints the same whatever id its mount assigned it.
+    const svgs = slot.container.querySelectorAll('svg')
+    expect(svgs[1]!.getAttribute('data-content')).toBe(svgs[2]!.getAttribute('data-content'))
     await runtime.dispose()
   })
 })
