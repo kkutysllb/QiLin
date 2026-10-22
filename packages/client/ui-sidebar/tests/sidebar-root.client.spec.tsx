@@ -138,6 +138,18 @@ function mountShell({
   }
 }
 
+/** Render the shell with no brand/seat packages, as the badge cases need. */
+function renderBareShell(): void {
+  render(<SidebarRoot
+    collapsed={false} width={300}
+    useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
+    usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+    useResource={useResource} useRemoteAccess={useRemoteAccess} useWorkspaces={neverHook}
+    startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
+    renderSlot={((_key: string, _owner: unknown, options?: { fallback?: ReactNode }) =>
+      options?.fallback ?? null) as SidebarRootComponentProps['renderSlot']}
+  />)
+}
 describe('SidebarRoot shell', () => {
   it('routes New Session (capsule + wordmark) and the column toggle', () => {
     const b = mountShell()
@@ -179,6 +191,8 @@ describe('SidebarRoot shell', () => {
     [{ QILIN_CLIENT_COMMIT_HASH: 'abcdef0', QILIN_CLIENT_VERSION: '1.2.3' }, '1.2.3', '1.2.3-abcdef0'],
     [{ QILIN_CLIENT_PRODUCT_VERSION: '0.1.2', QILIN_CLIENT_VERSION: '3.0.5' }, '0.1.2', '0.1.2（引擎 3.0.5）'],
     [{ QILIN_CLIENT_PRODUCT_VERSION: '0.1.2', QILIN_CLIENT_VERSION: '0.1.2' }, '0.1.2', '0.1.2'],
+    // KStock patch (K36): a product label names the delivery surface on the chip.
+    [{ QILIN_CLIENT_PRODUCT_LABEL: '桌面端：', QILIN_CLIENT_PRODUCT_VERSION: '2.1.1', QILIN_CLIENT_VERSION: '3.1.7-rc.1' }, '桌面端：2.1.1', '桌面端：2.1.1（引擎 3.1.7-rc.1）'],
   ])('omits unavailable build-version suffixes from %j', (environment, version, detail) => {
     for (const [name, value] of Object.entries(environment)) vi.stubEnv(name, value)
     render(<SidebarRoot
@@ -193,6 +207,28 @@ describe('SidebarRoot shell', () => {
 
     expect(screen.getByText('QiLin')).toBeTruthy()
     expect(screen.getByText(version).getAttribute('title')).toBe(detail)
+  })
+
+  it('reads a product surface label ahead of the desktop marker (K36)', () => {
+    vi.stubEnv('QILIN_CLIENT_PRODUCT_LABEL', '桌面端：')
+    vi.stubEnv('QILIN_CLIENT_PRODUCT_VERSION', '2.1.1')
+    vi.stubEnv('QILIN_CLIENT_VERSION', '3.1.7-rc.1')
+    ;(window as Window & { qilinDesktop?: unknown }).qilinDesktop = {}
+    renderBareShell()
+
+    // One surface name on the chip: the product label replaces the marker's.
+    const badge = screen.getByText('桌面端：2.1.1')
+    expect(badge.getAttribute('title')).toBe('桌面端：2.1.1（引擎 3.1.7-rc.1）')
+    delete (window as Window & { qilinDesktop?: unknown }).qilinDesktop
+  })
+
+  it('falls back to the desktop marker label when the build names no surface', () => {
+    vi.stubEnv('QILIN_CLIENT_VERSION', '1.2.3')
+    ;(window as Window & { qilinDesktop?: unknown }).qilinDesktop = {}
+    renderBareShell()
+
+    expect(screen.getByText('Desktop 1.2.3').getAttribute('title')).toBe('Desktop·1.2.3')
+    delete (window as Window & { qilinDesktop?: unknown }).qilinDesktop
   })
 
   it('retains the local-build fallback without complete build metadata', () => {

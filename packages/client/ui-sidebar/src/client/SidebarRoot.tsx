@@ -49,6 +49,12 @@ interface LocalBuild {
   readonly version: string
   /** Version with the commit and dirty suffix, carried as the badge's tooltip. */
   readonly detail: string
+  /**
+   * KStock patch (K36): the surface label this build names for the chip
+   * (`桌面端：`), including its own separator. Absent when the build names
+   * none, leaving the surface to the desktop marker below.
+   */
+  readonly label?: string
 }
 
 /**
@@ -62,6 +68,9 @@ function localBuild(): LocalBuild | undefined {
   const engine = process.env.QILIN_CLIENT_VERSION
   const version = process.env.QILIN_CLIENT_PRODUCT_VERSION ?? engine
   if (version === undefined) return undefined
+  // KStock patch (K36): a product may name its delivery surface on the chip
+  // itself (`桌面端：`), which the browser deployment leaves empty.
+  const label = process.env.QILIN_CLIENT_PRODUCT_LABEL ?? ''
   const commit = process.env.QILIN_CLIENT_COMMIT_HASH
   return {
     version,
@@ -69,6 +78,9 @@ function localBuild(): LocalBuild | undefined {
       + (commit === undefined ? '' : `-${commit}`)
       + (process.env.QILIN_CLIENT_GIT_DIRTY === 'true' ? '-dirty' : '')
       + (engine === undefined || engine === version ? '' : `（引擎 ${engine}）`),
+    // The label stays its own fact: the badge reads it ahead of the desktop
+    // marker, so the two surface names never stack on one chip.
+    ...(label === '' ? {} : { label }),
   }
 }
 
@@ -311,12 +323,18 @@ export function SidebarRoot({
                      identifies the product without taking a line of its own.
                      Inside the desktop shell (its preload marker) the badge
                      prepends the surface label, distinguishing the desktop
-                     deployment from a browser tab of the same build. */
+                     deployment from a browser tab of the same build. A
+                     product-chosen label (K36) replaces that surface label
+                     rather than stacking on it. */
                   <span
                     className={css.buildBadge}
-                    title={desktop ? `${t('brand.desktop')}·${build.detail}` : build.detail}
+                    title={build.label !== undefined
+                      ? `${build.label}${build.detail}`
+                      : desktop ? `${t('brand.desktop')}·${build.detail}` : build.detail}
                   >
-                    {desktop ? `${t('brand.desktop')} ${build.version}` : build.version}
+                    {build.label !== undefined
+                      ? `${build.label}${build.version}`
+                      : desktop ? `${t('brand.desktop')} ${build.version}` : build.version}
                   </span>
                 )}
               </span>
