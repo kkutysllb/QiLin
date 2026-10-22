@@ -179,6 +179,8 @@ describe('SidebarRoot shell', () => {
     [{ QILIN_CLIENT_COMMIT_HASH: 'abcdef0', QILIN_CLIENT_VERSION: '1.2.3' }, '1.2.3', '1.2.3-abcdef0'],
     [{ QILIN_CLIENT_PRODUCT_VERSION: '0.1.2', QILIN_CLIENT_VERSION: '3.0.5' }, '0.1.2', '0.1.2（引擎 3.0.5）'],
     [{ QILIN_CLIENT_PRODUCT_VERSION: '0.1.2', QILIN_CLIENT_VERSION: '0.1.2' }, '0.1.2', '0.1.2'],
+    // KStock patch (K36): a product label names the delivery surface on the chip.
+    [{ QILIN_CLIENT_PRODUCT_LABEL: '桌面端：', QILIN_CLIENT_PRODUCT_VERSION: '2.1.1', QILIN_CLIENT_VERSION: '3.1.7-rc.1' }, '桌面端：2.1.1', '桌面端：2.1.1（引擎 3.1.7-rc.1）'],
   ])('omits unavailable build-version suffixes from %j', (environment, version, detail) => {
     for (const [name, value] of Object.entries(environment)) vi.stubEnv(name, value)
     render(<SidebarRoot

@@ -62,10 +62,13 @@ function localBuild(): LocalBuild | undefined {
   const engine = process.env.QILIN_CLIENT_VERSION
   const version = process.env.QILIN_CLIENT_PRODUCT_VERSION ?? engine
   if (version === undefined) return undefined
+  // KStock patch (K36): a product may name its delivery surface on the chip
+  // itself (`桌面端：`), which the browser deployment leaves empty.
+  const label = process.env.QILIN_CLIENT_PRODUCT_LABEL ?? ''
   const commit = process.env.QILIN_CLIENT_COMMIT_HASH
   return {
-    version,
-    detail: version
+    version: `${label}${version}`,
+    detail: `${label}${version}`
       + (commit === undefined ? '' : `-${commit}`)
       + (process.env.QILIN_CLIENT_GIT_DIRTY === 'true' ? '-dirty' : '')
       + (engine === undefined || engine === version ? '' : `（引擎 ${engine}）`),
