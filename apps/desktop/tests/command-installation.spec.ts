@@ -195,7 +195,7 @@ describe.skipIf(process.platform === 'win32')('macOS command entry ownership', (
     expect(failure.errors).toMatchObject([{ code: 'EACCES' }, { code: 'EPERM' }])
     expect(failure.message).toContain('The Desktop command link is preserved at ')
     barrier.beforeUnlink = undefined; barrier.afterStat = undefined
-    const preserved = (await readdir(f.root)).filter(name => name.startsWith('.dsh-command-backup-'))
+    const preserved = (await readdir(f.root)).filter(name => name.startsWith('.qilin-command-backup-'))
     expect(preserved).toHaveLength(1)
     expect(await readlink(join(f.root, preserved[0]!))).toBe(f.options.launcher)
   })
@@ -210,7 +210,7 @@ describe.skipIf(process.platform === 'win32')('macOS command entry ownership', (
     onTestFinished(() => { barrier.beforeUnlink = undefined })
     await expect(removeFileCommand(f.options, installed.fingerprint)).rejects.toMatchObject({ code: 'EACCES' })
     expect(await readlink(f.options.destination)).toBe('previous-command')
-    expect((await readdir(f.root)).filter(name => name.startsWith('.dsh-command-backup-'))).toEqual([])
+    expect((await readdir(f.root)).filter(name => name.startsWith('.qilin-command-backup-'))).toEqual([])
     barrier.beforeUnlink = undefined
     const retried = await installFileCommand(f.options, (await inspectFileCommand(f.options)).fingerprint)
     expect(retried.preservedBackup).toBeUndefined()
