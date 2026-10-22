@@ -1,5 +1,7 @@
 CLAUDE.local.md
 .env
+apps/desktop/.env.macos
+apps/desktop/.env.windows
 node_modules/
 lib/
 *.tsbuildinfo
