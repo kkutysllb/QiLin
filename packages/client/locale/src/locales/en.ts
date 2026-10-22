@@ -31,6 +31,7 @@ export const en = {
   'expand': 'Expand',
   'back': 'Back',
   'brand.localBuild': 'QiLin',
+  'brand.desktop': 'Desktop',
   'unknown': 'Unknown',
   'none': 'None',
   'truncated': 'Truncated',

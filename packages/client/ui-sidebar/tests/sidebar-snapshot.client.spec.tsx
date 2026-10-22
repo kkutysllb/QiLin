@@ -29,6 +29,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup()
   vi.unstubAllEnvs()
+  delete (window as Window & { qilinDesktop?: unknown }).qilinDesktop
 })
 
 /**
@@ -67,6 +68,24 @@ describe('sidebar shell snapshots', () => {
     // Wordmark + capsule both start a session in the expanded state.
     expect(slot.view.getAllByRole('button', { name: 'New session' })).toHaveLength(2)
     expect(slot.container).toMatchSnapshot()
+    await runtime.dispose()
+  })
+
+  it('marks the build badge as the desktop surface inside the desktop shell', async () => {
+    ;(window as Window & { qilinDesktop?: unknown }).qilinDesktop = { protocolVersion: 1 }
+    const { runtime } = await bench()
+    const slot = runtime.renderSlot('sidebar', { collapsed: false, width: 300 })
+    const badge = slot.view.getByTitle('桌面·1.2.3-rc.4-abc1234-dirty')
+    expect(badge.textContent).toBe('桌面 1.2.3-rc.4')
+    await runtime.dispose()
+  })
+
+  it('keeps the plain version badge outside the desktop shell', async () => {
+    expect('qilinDesktop' in window).toBe(false)
+    const { runtime } = await bench()
+    const slot = runtime.renderSlot('sidebar', { collapsed: false, width: 300 })
+    const badge = slot.view.getByTitle('1.2.3-rc.4-abc1234-dirty')
+    expect(badge.textContent).toBe('1.2.3-rc.4')
     await runtime.dispose()
   })
 

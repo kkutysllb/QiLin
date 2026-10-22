@@ -190,6 +190,8 @@ export function SidebarRoot({
   }, [pointerInside])
 
   const build = localBuild()
+  // The desktop shell's preload marker; a browser tab of the same build lacks it.
+  const desktop = 'qilinDesktop' in window
 
   const darwinDesktop = isDarwinDesktop()
   // OpenKylin 桌面：分区折叠（KStock K19 同款语义）。折叠只收该分区的行，
@@ -306,8 +308,16 @@ export function SidebarRoot({
                 })}
                 {build !== undefined && (
                   /* The chip rides the wordmark's top-right corner: the version
-                     identifies the product without taking a line of its own. */
-                  <span className={css.buildBadge} title={build.detail}>{build.version}</span>
+                     identifies the product without taking a line of its own.
+                     Inside the desktop shell (its preload marker) the badge
+                     prepends the surface label, distinguishing the desktop
+                     deployment from a browser tab of the same build. */
+                  <span
+                    className={css.buildBadge}
+                    title={desktop ? `${t('brand.desktop')}·${build.detail}` : build.detail}
+                  >
+                    {desktop ? `${t('brand.desktop')} ${build.version}` : build.version}
+                  </span>
                 )}
               </span>
             </span>

@@ -120,7 +120,7 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
             >
               <svg
                 aria-hidden="true"
-                data-content="16f7232d"
+                data-content="f9a21d65"
                 fill="none"
                 height="24"
                 viewBox="0 0 24 24"
@@ -256,7 +256,7 @@ exports[`sidebar shell snapshots > renders the collapsed rail after the crossfad
           >
             <svg
               aria-hidden="true"
-              data-content="daa404b9"
+              data-content="f9a21d65"
               fill="none"
               height="24"
               viewBox="0 0 24 24"
@@ -367,7 +367,7 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
             >
               <svg
                 aria-hidden="true"
-                data-content="1f346e89"
+                data-content="f9a21d65"
                 fill="none"
                 height="24"
                 viewBox="0 0 24 24"
@@ -506,7 +506,7 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
             >
               <svg
                 aria-hidden="true"
-                data-content="0e5a1985"
+                data-content="f9a21d65"
                 fill="none"
                 height="24"
                 viewBox="0 0 24 24"
