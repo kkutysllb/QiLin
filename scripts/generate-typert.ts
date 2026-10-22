@@ -57,9 +57,11 @@ const STAGE_ACTIONS: Readonly<Record<TypertGenerationStage, string>> = {
 // Host package compilation owns TypeScript diagnostics, as it does for the
 // tsdown plugin; rejecting build outputs lets this pass run beside it.
 // KCoder bootstrap（2026-10-22）：全新树的 host 程序解析不到各包由 Typert 生成的
-// lib/typert.* 声明（先有鸡还是先有蛋），设置 QILIN_TYPERT_BOOTSTRAP=1 时放行
-// 未解析导入与 lib 解析——产物仍由 faces 驱动生成，仅首次引导使用。
-const BOOTSTRAP = process.env.QILIN_TYPERT_BOOTSTRAP === '1'
+// lib/typert.* 声明（先有鸡还是先有蛋）。工作区根存在 .qilin-typert-bootstrap
+// 标记文件时放行未解析导入与 lib 解析——产物仍由 faces 驱动生成，仅首次引导使用
+// （文件标记而非 env：build.ts 的子进程环境白名单会剥掉自定义 env）。
+import { existsSync } from 'node:fs'
+const BOOTSTRAP = existsSync(findWorkspaceRoot(process.cwd()) + '/.qilin-typert-bootstrap')
 const GENERATION_OPTIONS = { checkDiagnostics: false, rejectBuildOutputs: BOOTSTRAP ? false : true } as const
 
 /**
