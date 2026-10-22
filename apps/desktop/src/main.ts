@@ -1241,7 +1241,11 @@ async function main(): Promise<void> {
       : { label: currentDesktopLocale().messages.aboutMenu, role: 'about' },
     { type: 'separator' },
     { label: currentDesktopLocale().messages.checkUpdatesMenu, click: () => { void openUpdatePrompt(true) } },
-    ...process.platform === 'darwin' || process.platform === 'win32'
+    // KStock patch (K39): the CLI manager installs a `qilin` launcher out of
+    // `resources/runtime/**`. A product that runs its own runtime archive does not
+    // ship that tree, so the entry can only open a failure dialog; the manifest
+    // opts out instead of offering a dead command.
+    ...(process.platform === 'darwin' || process.platform === 'win32') && product?.product.commandManagement !== false
       ? [{ label: currentDesktopLocale().messages.cliCommandMenu, click: () => { void commandManager.show() } }] : [],
     ...development ? [
       { type: 'separator' as const },
