@@ -469,6 +469,7 @@
       "@qilin-agent/output-retention": ["./packages/util/output-retention/src"],
       "@qilin-agent/package-manifest": ["./packages/util/package-manifest/src"],
       "@qilin-agent/permission-presets": ["./packages/interaction/permission-presets/src"],
+      "@qilin-agent/permission-presets/types": ["./packages/interaction/permission-presets/src/types.ts"],
       "@qilin-agent/persona": ["./packages/preset/persona/src"],
       "@qilin-agent/plan-mode": ["./packages/plan/plan-mode/src"],
       "@qilin-agent/plugin-market": ["./packages/boot/plugin-market/src"],
