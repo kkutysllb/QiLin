@@ -366,6 +366,7 @@ export function prepareProductRuntime(options: PrepareProductRuntimeOptions): {
   const qilinDir = runtimeDir ?? fail('desktop runtime: no bundled runtime and QILIN_DESKTOP_CLI_DIR is unset')
   const nodeBin = ensureRuntimeLaunchers(qilinDir, electron, log)
   const pnpm = join(qilinDir, 'tools', 'pnpm', 'bin', 'pnpm.cjs')
+  const launcherBin = join(qilinDir, 'tools', 'pnpm', 'bin')
 
   const plugins = pluginDir === undefined ? [] : discoverProductPlugins(pluginDir)
   seedProductProfile(profileDir, options.product, plugins, log)
@@ -379,6 +380,10 @@ export function prepareProductRuntime(options: PrepareProductRuntimeOptions): {
     QILIN_DESKTOP_PROFILE: options.product.profile,
     QILIN_DESKTOP_OFFICE: options.product.office ? '1' : '0',
     QILIN_CLIENT_PRODUCT_VERSION: options.version,
+    // KStock patch (K37): the bundled pnpm shim must lead the Host PATH. A GUI launch inherits
+    // the launchd PATH with no user package manager, and the plugin manager spawns `pnpm`
+    // directly; the shims in tools/pnpm/bin are the only guaranteed executable.
+    PATH: [launcherBin, process.env.PATH].filter((value): value is string => typeof value === 'string' && value !== '').join(delimiter),
     PYTHONPATH: [join(dataDir, 'py-deps'), process.env.PYTHONPATH].filter((value): value is string => typeof value === 'string' && value !== '').join(delimiter),
   }
   if (secret !== undefined) environment[options.product.auth.secretEnv] = secret
