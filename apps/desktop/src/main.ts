@@ -1263,7 +1263,11 @@ async function main(): Promise<void> {
     // message box, so the shell shows its own dimmed dialog instead.
     showAbout: () => { void showAbout().catch((error: unknown) => { console.error(error) }) },
     checkUpdates: () => { void openUpdatePrompt(true) },
-    manageCommand: () => { void commandManager.show() },
+    // KStock patch (K39): the CLI manager installs a `qilin` launcher out of
+    // `resources/runtime/**`. A product that runs its own runtime archive does not
+    // ship that tree, so the entry can only open a failure dialog; the manifest
+    // opts out instead of offering a dead command.
+    ...(product?.product.commandManagement === false ? {} : { manageCommand: () => { void commandManager.show() } }),
     restart: () => {
       if (quitting) return
       app.relaunch()

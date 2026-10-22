@@ -70,6 +70,12 @@ export interface DesktopProduct {
   // tray confirmation; `false` hides straight to the tray on close.
   /** Whether the first Windows close confirms the tray behavior. Default true. */
   readonly backgroundNotice?: boolean
+  // KStock patch (K39): commandManagement opts the product out of the engine's
+  // "manage qilin command" menu entry. That entry installs a `qilin` launcher
+  // from `resources/runtime/**`, which a product running its own runtime archive
+  // does not ship.
+  /** Whether the application menu offers the qilin CLI manager. Default true. */
+  readonly commandManagement?: boolean
   readonly update: DesktopProductUpdate | null
   /**
    * Extra environment variables for the Host and every child process. Values
@@ -184,6 +190,11 @@ export function parseDesktopProduct(value: unknown): DesktopProduct {
     if (typeof record.backgroundNotice !== 'boolean') fail('backgroundNotice must be a boolean')
     parsedBackgroundNotice = record.backgroundNotice
   }
+  let parsedCommandManagement: boolean | undefined
+  if (record.commandManagement !== undefined) {
+    if (typeof record.commandManagement !== 'boolean') fail('commandManagement must be a boolean')
+    parsedCommandManagement = record.commandManagement
+  }
   const env = record.env
   let parsedEnv: Readonly<Record<string, string>> | undefined
   if (env !== undefined) {
@@ -220,6 +231,7 @@ export function parseDesktopProduct(value: unknown): DesktopProduct {
     },
     office: record.office,
     ...(parsedBackgroundNotice === undefined ? {} : { backgroundNotice: parsedBackgroundNotice }),
+    ...(parsedCommandManagement === undefined ? {} : { commandManagement: parsedCommandManagement }),
     update: parsedUpdate,
     ...(parsedEnv === undefined ? {} : { env: parsedEnv }),
   }

@@ -32,8 +32,8 @@ export interface ApplicationMenuActions {
   readonly showAbout: () => void
   /** Check for updates now. */
   readonly checkUpdates: () => void
-  /** Open the qilin command manager. */
-  readonly manageCommand: () => void
+  /** Open the qilin command manager; omitted when the product ships no CLI tree. */
+  readonly manageCommand?: (() => void) | undefined
   /** Restart the application and its Host. */
   readonly restart: () => void
   /** Open one https destination in the default browser. */
@@ -52,6 +52,7 @@ const command = (actions: ApplicationMenuActions, id: string, label: string): Me
 /** The application menu shared by macOS and Linux; macOS also owns About and quit roles. */
 function applicationMenuItems(actions: ApplicationMenuActions): MenuItemConstructorOptions[] {
   const { messages, platform, development } = actions
+  const manageCommand = actions.manageCommand
   return [
     platform === 'darwin'
       ? { role: 'about', label: messages.aboutMenu }
@@ -59,8 +60,8 @@ function applicationMenuItems(actions: ApplicationMenuActions): MenuItemConstruc
     { type: 'separator' },
     command(actions, 'settings.open', messages.settingsMenu),
     { label: messages.checkUpdatesMenu, click: actions.checkUpdates },
-    ...platform === 'darwin' || platform === 'win32'
-      ? [{ label: messages.cliCommandMenu, click: actions.manageCommand }]
+    ...(platform === 'darwin' || platform === 'win32') && manageCommand !== undefined
+      ? [{ label: messages.cliCommandMenu, click: manageCommand }]
       : [],
     ...development ? [
       { type: 'separator' as const },
