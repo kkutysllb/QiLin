@@ -49,7 +49,7 @@
   width: 100%;
 }
 
-.row > :first-child {
+.row > .slot {
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -66,7 +66,9 @@
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: var(--qilin-alias-brand-primary);
+  /* Product accent for the update affordance: a link blue that reads as an
+   * action beside the neutral theme chrome; KCoder may override the variable. */
+  color: var(--kcoder-update-indicator-color, #2f6fed);
   cursor: pointer;
 }
 

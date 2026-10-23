@@ -207,22 +207,6 @@ export function AccountMenu({
 
   return (
     <div className={css.row}>
-      {updateVisible && (
-        <Tooltip label={updateLabel} delayMs={500} disabled={wide}>
-          <button
-            type="button"
-            className={css.updateButton}
-            aria-label={updateLabel}
-            onClick={() => { openInstaller() }}
-          >
-            {(updates.phase === 'downloading' || updates.phase === 'verifying') && updates.percent !== undefined
-              ? <span className={css.updatePercent}>{Math.floor(updates.percent)}%</span>
-              : updates.phase === 'ready'
-                ? <IconRefreshOutlineRegular className={css.updateIcon} />
-                : <IconDownloadOutlineRegular className={css.updateIcon} />}
-          </button>
-        </Tooltip>
-      )}
       <Menu
         className={css.slot}
       open={open}
@@ -253,6 +237,24 @@ export function AccountMenu({
         </Tooltip>
       )}
       />
+      {/* 更新指示器在账户块之后：红圈位置（行尾）。放到前面会被 .row 的
+          弹性规则拉伸，把账户块挤到右边。 */}
+      {updateVisible && (
+        <Tooltip label={updateLabel} delayMs={500} disabled={wide}>
+          <button
+            type="button"
+            className={css.updateButton}
+            aria-label={updateLabel}
+            onClick={() => { openInstaller() }}
+          >
+            {(updates.phase === 'downloading' || updates.phase === 'verifying') && updates.percent !== undefined
+              ? <span className={css.updatePercent}>{Math.floor(updates.percent)}%</span>
+              : updates.phase === 'ready'
+                ? <IconRefreshOutlineRegular className={css.updateIcon} />
+                : <IconDownloadOutlineRegular className={css.updateIcon} />}
+          </button>
+        </Tooltip>
+      )}
     </div>
   )
 }
