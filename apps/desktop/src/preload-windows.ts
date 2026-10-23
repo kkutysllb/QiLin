@@ -10,7 +10,9 @@ export function syncWindowsAppearance(): void {
   const mark = (): void => {
     const root = document.documentElement
     root.dataset.windowsTitlebar = ''
+    // The client CSS asks for the qilin spelling; ui-layout still reads the dsh one.
     root.style.setProperty('--dsh-windows-titlebar-height', `${WINDOWS_TITLEBAR_HEIGHT}px`)
+    root.style.setProperty('--qilin-windows-titlebar-height', `${WINDOWS_TITLEBAR_HEIGHT}px`)
   }
   // The root can be absent before the HTML parser creates it.
   if ((document.documentElement as HTMLElement | null) !== null) mark()

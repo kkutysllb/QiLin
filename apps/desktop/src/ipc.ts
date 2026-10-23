@@ -81,6 +81,11 @@ export interface QilinDesktopProductApi {
     status(): Promise<DesktopUpdatePresentation>
     open(): Promise<void>
     subscribe(listener: (state: DesktopUpdatePresentation) => void): () => void
+    /**
+     * Alias of {@link subscribe} under the name the account client asks for
+     * (`onPresentation`); both spellings stay in sync.
+     */
+    onPresentation(listener: (state: DesktopUpdatePresentation) => void): () => void
   }
 }
 

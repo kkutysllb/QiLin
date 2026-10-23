@@ -51,6 +51,16 @@ function createProductApi(): QilinDesktopProductApi {
         ipcRenderer.on(DESKTOP_IPC.updatesPresentation, handle)
         return () => { ipcRenderer.off(DESKTOP_IPC.updatesPresentation, handle) }
       },
+      /**
+       * The account client (`@qilin-agent/client-ui-account`) names this contract
+       * `onPresentation`; it is the same subscription `subscribe` exposes, so the
+       * kernel keeps one implementation and both spellings stay in sync.
+       */
+      onPresentation(listener: (state: DesktopUpdatePresentation) => void): () => void {
+        const handle = (_event: Electron.IpcRendererEvent, state: DesktopUpdatePresentation): void => { listener(state) }
+        ipcRenderer.on(DESKTOP_IPC.updatesPresentation, handle)
+        return () => { ipcRenderer.off(DESKTOP_IPC.updatesPresentation, handle) }
+      },
     },
   }
 }
