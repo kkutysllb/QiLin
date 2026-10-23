@@ -1,4 +1,5 @@
 /** Desktop update presentation bridge: desktop-shell-only, absent in the browser. */
+import type { HostObservable } from '@qilin-agent/client-ui-slots'
 
 /** Semantic update state the desktop shell publishes (apps/desktop ipc). */
 export interface UpdatesPresentation {

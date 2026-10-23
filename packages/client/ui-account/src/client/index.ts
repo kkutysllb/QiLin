@@ -22,6 +22,7 @@ import type { AccountMenuInjected } from './AccountMenu.tsx'
 import { createAccountMenuInjected } from './injected.ts'
 import { SettingsPanelPresence } from './settings-panel.ts'
 import { createAccountMenuStore } from './store.ts'
+import { createUpdatesSource, readDesktopUpdates } from './updates.ts'
 import type { AccountMenuStoreHandle } from './store.ts'
 import { en, zh, type AccountLocaleKey } from './locales.ts'
 
@@ -54,6 +55,9 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-account: dictionaries')
   const store = createAccountMenuStore()
   const settingsPanel = new SettingsPanelPresence()
+  // Desktop-shell-only: undefined in the browser, where the update indicator hides.
+  const updatesApi = readDesktopUpdates()
+  const updates = createUpdatesSource(updatesApi)
   const injected = (actions: BoundActions<AccountMenuStoreHandle>): AccountMenuInjected =>
     createAccountMenuInjected({
       actions,
@@ -69,6 +73,8 @@ export function apply(ctx: ClientContext): void {
         subscribe: listener => ctx.locale.subscribe(listener),
       },
       settingsPanel: settingsPanel.mounted,
+      updates,
+      openInstaller: () => { void updatesApi?.open() },
     })
   ctx.slots.inject('sidebar.account', () => ctx.slots.register({
     name: 'sidebar.account',
