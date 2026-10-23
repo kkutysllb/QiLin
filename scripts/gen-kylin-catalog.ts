@@ -52,6 +52,7 @@ export { REGION_BEGIN, REGION_END }
 export const SERVICE_PAGE: Record<string, string> = {
   configEditor: 'settings.md',
   connection: 'web-server.md',
+  themeBoot: 'web-server.md',
   pluginManager: 'boot.md',
   pluginMarket: 'boot.md',
   pluginRegistryProbe: 'boot.md',
@@ -950,6 +951,7 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   InvokeRemoteRequest: 'gateway invocation contract is owned by packages/api/gateway/README.md',
   LocaleDict: 'service-local dictionary fields are owned by packages/client/i18n/src/index.ts',
   ThemeTokens: 'service-local token dictionary is owned by packages/client/ui-theme/src/index.ts',
+  SkinBootColors: 'service-local boot color registry value is owned by packages/client/ui-theme/src/boot-theme.ts',
   Translate: 'service-local bound translator is owned by packages/client/i18n/src/index.ts',
   WebUpgradeRoute:
     'upgrade route registration contract is owned by packages/host/webserver/src/index.ts',
