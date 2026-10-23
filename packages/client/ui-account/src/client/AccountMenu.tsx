@@ -187,8 +187,12 @@ export function AccountMenu({
     setLocale(id.slice(LOCALE_ROW_PREFIX.length))
   }
 
-  const updateVisible = updates.phase === 'update-available' || updates.phase === 'downloading' || updates.phase === 'ready'
-  const updateLabel = updates.phase === 'downloading'
+  // The shell's state machine (apps/desktop DesktopUpdateState) names the phases
+  // 'available' / 'downloading' / 'verifying' / 'installing' / 'ready'; this row
+  // rides that contract directly instead of a second spelling of its own.
+  const updateVisible = updates.phase === 'available' || updates.phase === 'downloading'
+    || updates.phase === 'verifying' || updates.phase === 'ready'
+  const updateLabel = updates.phase === 'downloading' || updates.phase === 'verifying'
     ? t('update.downloading')
     : updates.phase === 'ready'
       ? t('update.ready')
@@ -211,7 +215,7 @@ export function AccountMenu({
             aria-label={updateLabel}
             onClick={() => { openInstaller() }}
           >
-            {updates.phase === 'downloading' && updates.percent !== undefined
+            {(updates.phase === 'downloading' || updates.phase === 'verifying') && updates.percent !== undefined
               ? <span className={css.updatePercent}>{Math.floor(updates.percent)}%</span>
               : updates.phase === 'ready'
                 ? <IconRefreshOutlineRegular className={css.updateIcon} />

@@ -3,7 +3,7 @@ import type { HostObservable } from '@qilin-agent/client-ui-slots'
 
 /** Semantic update state the desktop shell publishes (apps/desktop ipc). */
 export interface UpdatesPresentation {
-  phase: 'idle' | 'checking' | 'update-available' | 'downloading' | 'ready' | 'error' | 'idle-error'
+  phase: 'idle' | 'checking' | 'available' | 'downloading' | 'verifying' | 'installing' | 'ready' | 'error'
   version?: string
   percent?: number
   failure?: string
