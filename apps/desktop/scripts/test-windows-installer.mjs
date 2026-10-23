@@ -43,7 +43,7 @@ const sign = process.argv.includes('--signed') ? createWindowsTokenSigner({
 let succeeded = false
 try {
   Object.assign(process.env, {
-    QILIN_DESKTOP_APP_ID: `com.qilin.desktop.installertest.n${id}`,
+    QILIN_DESKTOP_APP_ID: `com.ktoon.desktop.installertest.n${id}`,
     QILIN_DESKTOP_TARGET_PLATFORM: 'win32', QILIN_DESKTOP_TARGET_ARCH: 'x64',
     QILIN_DESKTOP_UNSIGNED: '1', CSC_IDENTITY_AUTO_DISCOVERY: 'false', ELECTRON_BUILDER_7Z_FILTER: 'BCJ',
     QILIN_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: signingEnvironment.QILIN_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN

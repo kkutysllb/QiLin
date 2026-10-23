@@ -203,7 +203,7 @@ describe('Windows token signing', () => {
     }, {
       certificateFile: CERTIFICATE_FILE,
       signTool: 'C:\\tools\\signtool.exe',
-      path: 'C:\\release\\QiLin Desktop.exe',
+      path: 'C:\\release\\KToon.exe',
       isNest: false,
       tokenPin: 'token-secret!',
       keyContainer: 'te-container',
@@ -213,7 +213,7 @@ describe('Windows token signing', () => {
       QILIN_DESKTOP_WINDOWS_CER_FILE: CERTIFICATE_FILE,
       QILIN_DESKTOP_WINDOWS_TOKEN_PIN: 'token-secret!',
       QILIN_DESKTOP_WINDOWS_KEY_CONTAINER: 'te-container',
-      QILIN_DESKTOP_WINDOWS_SIGN_TARGET: 'C:\\release\\QiLin Desktop.exe',
+      QILIN_DESKTOP_WINDOWS_SIGN_TARGET: 'C:\\release\\KToon.exe',
       QILIN_DESKTOP_WINDOWS_SIGN_APPEND: '',
     })
   })

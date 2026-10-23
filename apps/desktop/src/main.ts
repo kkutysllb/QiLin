@@ -1056,7 +1056,7 @@ async function main(): Promise<void> {
   const applicationIconPath = development ? join(app.getAppPath(), 'resources', 'icon-windows.png')
     : join(process.resourcesPath, 'icon.png')
   app.setAboutPanelOptions({
-    applicationName: 'QiLin Desktop',
+    applicationName: 'KToon',
     applicationVersion: app.getVersion(),
     // The release has no separate build number; omit Electron's bundle version.
     version: '',
@@ -1379,7 +1379,7 @@ async function main(): Promise<void> {
   if (app.isPackaged || process.env.QILIN_DESKTOP_DEV_APP === '1') app.setAsDefaultProtocolClient('qilin')
   app.on('open-url', (event, url) => {
     event.preventDefault()
-    if (url === 'qilin://open' || url === 'qilin://open/') focusPrimaryWindow()
+    if (url === 'ktoon://open' || url === 'ktoon://open/') focusPrimaryWindow()
   })
 
   app.on('activate', (_event, hasVisibleWindows) => {
