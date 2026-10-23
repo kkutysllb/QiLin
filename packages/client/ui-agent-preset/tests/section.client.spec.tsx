@@ -72,11 +72,16 @@ function renderSection(
   return actions
 }
 
-/** Locate a card by the id it prints, not by its display name. */
+/**
+ * Locate a card by the identity it prints: a custom preset shows the id it was
+ * authored with, a shipped preset only its resolved display name.
+ */
 function rowFor(id: string): HTMLElement {
-  const key = screen.getAllByText(id).find(node => node.tagName === 'CODE')
-  const row = key?.closest('li') ?? null
-  /* v8 ignore next -- every rendered card prints its id */
+  const shipped = id === 'ptc'
+  const marker = screen.getAllByText(shipped ? en.presetPtcName : id)
+    .find(node => node.tagName === (shipped ? 'SPAN' : 'CODE'))
+  const row = marker?.closest('li') ?? null
+  /* v8 ignore next -- every rendered card prints its id or its resolved name */
   if (row === null) throw new Error(`no card for ${id}`)
   return row
 }

@@ -35,15 +35,14 @@ const CHILD_NAMES = Object.keys(CHILD_SPECS) as Array<keyof typeof CHILD_SPECS>
 
 /**
  * Section ids the web-app roster registers: this package (general and about),
- * ui-settings-models, ui-settings-plugins, ui-settings-mcp,
+ * ui-agent-preset, ui-settings-models, ui-settings-plugins, ui-settings-mcp,
  * ui-settings-skills, ui-settings-unarchive-sessions, and client-ui-usage. A
- * plugin adding a section changes this list; ui-agent-preset's row is disabled
- * in the web-app patch, so it is not on the roster. The mcp section shares order
- * 20 with the models default ordering, so the projection order within the pair
+ * plugin adding a section changes this list. The mcp section shares order 20
+ * with the models default ordering, so the projection order within the pair
  * follows registration.
  */
 const PRODUCT_SECTIONS: readonly string[] = [
-  'general', 'models', 'plugins', 'mcp', 'usage', 'archived-sessions', 'skills', 'about',
+  'general', 'models', 'plugins', 'mcp', 'agent-presets', 'usage', 'archived-sessions', 'skills', 'about',
 ]
 /** Onboarding steps the web-app roster registers; ui-settings-models owns the only one. */
 const PRODUCT_ONBOARDING: readonly { id: string; order: number }[] = [
