@@ -133,7 +133,7 @@ export function AccountMenu({
     () => updatesSource?.getSnapshot.bind(updatesSource) ?? (() => UPDATES_ABSENT),
     [updatesSource],
   )
-  const updates = useSyncExternalStore(updatesSubscribe, updatesGetSnapshot, UPDATES_ABSENT)
+  const updates = useSyncExternalStore(updatesSubscribe, updatesGetSnapshot, () => UPDATES_ABSENT)
 
   const selected: string[] = []
   const items: MenuEntry[] = []

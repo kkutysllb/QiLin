@@ -127,6 +127,7 @@ function bench(options: BenchOptions = {}) {
     openSettings,
     setTheme,
     setLocale,
+    openInstaller: vi.fn(),
     theme: {
       getSnapshot: (): ThemeSnapshot => ({
         preference: options.preference ?? 'system',
