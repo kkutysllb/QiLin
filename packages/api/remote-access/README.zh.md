@@ -57,7 +57,7 @@ Gateway 从 `@Remote` 与 `@RemoteScope` 的 `resources` 读取函数、lookup �
 <a id="client-face"></a>
 ## Client 面
 
-Client 入口同步读取 index 注入的 `REMOTE_ACCESS_SNAPSHOT_KEY` 基线，通过 `mountAccess(ctx, contribution, initial)` 自行挂载生成的 `remoteAccess` contribution，跟随快照流，并提供：
+Client 入口同步读取 index 注入的 `REMOTE_ACCESS_SNAPSHOT_KEY` 基线，通过 `mountAccess(ctx, contribution, initial)` 自行挂载生成的 `remoteAccess` contribution——除非其他所有者已提供 `remote.remoteAccess` 命名空间——随后跟随快照流，并提供：
 
 - Client 服务 `ctx.remoteAccess.source(kind, id, action)`：按 `(kind, id, action)` 的身份稳定布尔 source，对应声明种类的一个资源；
 - 标准 Hook `useRemoteAccess(action)`，在 `global` 资源上作答。

@@ -57,7 +57,7 @@ Snapshot grants list, per resource the principal's bindings name, the sorted end
 <a id="client-face"></a>
 ## Client face
 
-The Client entry reads the baseline the index injected under `REMOTE_ACCESS_SNAPSHOT_KEY` synchronously, mounts the generated `remoteAccess` contribution itself through `mountAccess(ctx, contribution, initial)`, follows the snapshot stream, and provides:
+The Client entry reads the baseline the index injected under `REMOTE_ACCESS_SNAPSHOT_KEY` synchronously, mounts the generated `remoteAccess` contribution itself through `mountAccess(ctx, contribution, initial)` unless another owner already provides the `remote.remoteAccess` namespace, follows the snapshot stream, and provides:
 
 - the Client service `ctx.remoteAccess.source(kind, id, action)`, an identity-stable boolean source per `(kind, id, action)` for one resource of a declared kind;
 - the standard Hook `useRemoteAccess(action)`, which answers on the `global` resource.
