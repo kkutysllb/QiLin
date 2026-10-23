@@ -7,6 +7,7 @@ import {
   copyKeyPresetIds,
   parseDictionaryKeys,
   parseDisplayRows,
+  shippedPresetIds,
 } from './verify-preset-copy.ts'
 
 const DISPLAY = [
@@ -128,5 +129,13 @@ describe('checkPresetCopy', () => {
       displayRows: parseDisplayRows(twoPresets),
       dictionaryKeys: { 'locales.ts': parseDictionaryKeys(dictionary) },
     })).toEqual([])
+  })
+})
+
+describe('shippedPresetIds', () => {
+  it('reads preset directory names from either platform separator', () => {
+    const posix = 'packages/preset/agent-presets/presets/ptc/preset.yml'
+    const windows = 'packages\\preset\\agent-presets\\presets\\standard\\preset.yml'
+    expect(shippedPresetIds([posix, windows])).toEqual(['ptc', 'standard'])
   })
 })
