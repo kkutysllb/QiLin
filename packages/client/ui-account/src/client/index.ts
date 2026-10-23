@@ -73,7 +73,7 @@ export function apply(ctx: ClientContext): void {
         subscribe: listener => ctx.locale.subscribe(listener),
       },
       settingsPanel: settingsPanel.mounted,
-      updates,
+      ...(updates === undefined ? {} : { updates }),
       openInstaller: () => { void updatesApi?.open() },
     })
   ctx.slots.inject('sidebar.account', () => ctx.slots.register({
