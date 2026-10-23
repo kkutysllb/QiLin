@@ -4,12 +4,15 @@
  * packages only from source when a caller rejects build outputs, so its
  * result cannot depend on whether, or when, package compilation ran: an
  * import that reaches `lib/` on a compiled tree resolves to nothing on a
- * clean one, and both are rejected.
+ * clean one, and both are rejected. The pass's own Typert artifacts
+ * (`lib/typert.*`) are the one exception: contributor packages publish them
+ * and consumers import them, so a load or unresolved import naming a Typert
+ * artifact says nothing about package compilation and is tolerated.
  * @module @qilin-agent/typert-generator/build-output-guard
  */
 
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
-import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import ts from 'typescript'
 
 /** One program file that a workspace package's `lib/` holds, with the imports that load it. */
@@ -49,6 +52,7 @@ export function findBuildOutputLoads(
   const classifier = new BuildOutputClassifier(root)
   const outputs = new Map<string, BuildOutputImporter[]>()
   for (const sourceFile of program.getSourceFiles()) {
+    if (classifier.isTypertArtifact(sourceFile.fileName)) continue
     if (classifier.isBuildOutput(sourceFile.fileName)) outputs.set(classifier.canonical(sourceFile.fileName), [])
   }
   if (outputs.size === 0) return []
@@ -104,6 +108,7 @@ export function findUnresolvedWorkspaceImports(
       if (ts.resolveModuleName(specifier, sourceFile.fileName, options, host, cache).resolvedModule !== undefined) continue
       const packageRoot = classifier.linkedWorkspacePackage(sourceFile.fileName, packageNameOf(specifier))
       if (packageRoot === undefined) continue
+      if (exportTypesTarget(packageRoot, specifier)?.startsWith('./lib/typert.')) continue
       const source = exportSource(packageRoot, specifier)
       found.push({
         file: classifier.display(sourceFile.fileName),
@@ -121,6 +126,14 @@ function packageNameOf(specifier: string): string {
 }
 
 function exportSource(packageRoot: string, specifier: string): string | undefined {
+  const types = exportTypesTarget(packageRoot, specifier)
+  if (typeof types !== 'string' || !types.startsWith('./lib/types/')) return undefined
+  const stem = join(packageRoot, 'src', types.slice('./lib/types/'.length).replace(/\.d\.([cm]?)ts$/u, '.$1ts'))
+  return [stem, `${stem}x`].find(candidate => existsSync(candidate))
+}
+
+/** The manifest `exports` types condition of the specifier's subpath, when the manifest is readable. */
+function exportTypesTarget(packageRoot: string, specifier: string): string | undefined {
   const packageName = packageNameOf(specifier)
   const subpath = specifier === packageName ? '.' : `.${specifier.slice(packageName.length)}`
   let manifest: unknown
@@ -132,9 +145,7 @@ function exportSource(packageRoot: string, specifier: string): string | undefine
   }
   const entry = property(property(manifest, 'exports'), subpath)
   const types = typeof entry === 'string' ? entry : property(entry, 'types')
-  if (typeof types !== 'string' || !types.startsWith('./lib/types/')) return undefined
-  const stem = join(packageRoot, 'src', types.slice('./lib/types/'.length).replace(/\.d\.([cm]?)ts$/u, '.$1ts'))
-  return [stem, `${stem}x`].find(candidate => existsSync(candidate))
+  return typeof types === 'string' ? types : undefined
 }
 
 function property(value: unknown, key: string): unknown {
@@ -183,6 +194,16 @@ class BuildOutputClassifier {
   isBuildOutput(file: string): boolean {
     if (!this.isWorkspaceFile(file)) return false
     const real = this.canonical(file)
+    const packageRoot = this.packageRoot(dirname(real))
+    return packageRoot !== undefined && relative(packageRoot, real).split(sep)[0] === 'lib'
+  }
+
+  /** Whether the file is a declaration the Typert pass itself generates, which the guard tolerates. */
+  isTypertArtifact(file: string): boolean {
+    if (!this.isWorkspaceFile(file)) return false
+    const real = this.canonical(file)
+    const base = basename(real)
+    if (base !== 'typert.host.d.ts' && base !== 'typert.remote-client.d.ts') return false
     const packageRoot = this.packageRoot(dirname(real))
     return packageRoot !== undefined && relative(packageRoot, real).split(sep)[0] === 'lib'
   }
