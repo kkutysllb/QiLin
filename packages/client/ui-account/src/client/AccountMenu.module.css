@@ -41,6 +41,51 @@
   background: var(--qilin-alias-interactive-bg-hover);
 }
 
+/* Footer row: the update indicator sits beside the account entry. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.row > :first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Update indicator: a quiet control that surfaces download progress and the
+ * restart-to-install action while the desktop shell works on an update. */
+.updateButton {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--qilin-alias-brand-primary);
+  cursor: pointer;
+}
+
+.updateButton:hover {
+  background: var(--qilin-alias-interactive-bg-hover);
+}
+
+.updateIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.updatePercent {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
 .avatar {
   flex: none;
   display: grid;
