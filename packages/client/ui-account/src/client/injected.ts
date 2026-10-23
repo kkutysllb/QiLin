@@ -8,6 +8,7 @@ import type { BoundActions, HostObservable } from '@qilin-agent/client-ui-slots'
 import type { LocaleSnapshot } from '@qilin-agent/client-locale/client'
 import type { ThemeSnapshot } from '@qilin-agent/client-ui-theme/client'
 import { endSession, readAccountStatus } from './account-api.ts'
+import type { UpdatesPresentation } from './updates.ts'
 import type { AccountMenuInjected } from './AccountMenu.tsx'
 import type { AccountMenuStoreHandle } from './store.ts'
 
@@ -27,6 +28,10 @@ export interface AccountMenuSources {
   readonly locale: HostObservable<LocaleSnapshot>
   /** Live settings-panel presence; the renderer binds it as useSettingsPanel. */
   readonly settingsPanel: HostObservable<boolean>
+  /** Live desktop update presentation; undefined outside the desktop shell. */
+  readonly updates?: HostObservable<UpdatesPresentation>
+  /** Open the desktop installer prompt (download confirm / restart to install). */
+  readonly openInstaller: () => void
 }
 
 /**
@@ -43,5 +48,7 @@ export function createAccountMenuInjected(sources: AccountMenuSources): AccountM
     setTheme: sources.setTheme,
     setLocale: sources.setLocale,
     hooks: { theme: sources.theme, locale: sources.locale, settingsPanel: sources.settingsPanel },
+    openInstaller: sources.openInstaller,
+    ...(sources.updates === undefined ? {} : { updates: sources.updates }),
   }
 }
