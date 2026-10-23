@@ -6,7 +6,7 @@ kind: "plan"
 # 工作步骤展示四档渲染对齐（compact / standard / detailed / verbose）
 
 - 日期：2026-10-20 · 上游取材源：本地 fork 仓库 `/Users/libing/kk_Projects/deepseek-harness` 的 tag `dsh-v0.2.1-rc.2`（只读 `git show`，**不使用**该 checkout 的工作树）。
-- QiLin 基线：`main` HEAD `72bf1c773e`（工作树含其他 agent 的未提交改动；本计划只动 `packages/client/ui-chat/**` 与自身的 plan/README）。
+- QiLin 基线：`main` HEAD（工作树含其他 agent 的未提交改动；本计划只动 `packages/client/ui-chat/**` 与自身的 plan/README）。
 - 范围：Settings → 通用设置 → 工作步骤展示（locale key `settings.transcript.title`，Host 设置字段 `ui-chat.transcriptView`）四档模式下 **过程组头 / 组正文 / 推理预览 / 工具调用细节 / 时长状态行 / 整轮折叠 / 折叠动画与滚动锚定** 的可见渲染。
 - 不在范围：欢迎页、deepseek-account、品牌运行指示（麒麟印章 `RunningSeal`）、`webserver`/`app-boot`/`apps/web/tests`、`plans/2026-10-19-*`。
 
@@ -67,7 +67,7 @@ kind: "plan"
 | 内部推理/工具开合 | 初始收起（verbose 不自动展开） | 同 | `ReasoningRow.tsx`、`tool.ts` | 一致 |
 | 推理预览/停止标记 | 首行预览（策略 true）；停止标记重复 | 同 | 同上 | **移植** |
 
-> 行距证据：rc.2 的 `ChatGroupSeat.module.css` 中 `.expandedBody` 只覆盖 `max-height/overflow/scrollbar-gutter`，不含 `--dsh-chat-flow-gap`；其 README 亦写明"Process rows retain 6px spacing in both modes; Assistant responses have 12px clearance ... Turn process controls retain 16px clearance"。QiLin 的 `097f6694b3`「restore the upstream transcript rhythm」把"expanded 16px"记为上游值，与 rc.2 tag 不符（很可能取自 `deepseek-harness` checkout 的工作树，该树带品牌叠加提交）。本任务以 tag 为准改回 6px，并同步 CSS 断言 spec。
+> 行距证据：rc.2 的 `ChatGroupSeat.module.css` 中 `.expandedBody` 只覆盖 `max-height/overflow/scrollbar-gutter`，不含 `--dsh-chat-flow-gap`；其 README 亦写明"Process rows retain 6px spacing in both modes; Assistant responses have 12px clearance ... Turn process controls retain 16px clearance"。QiLin 的「restore the upstream transcript rhythm」提交把"expanded 16px"记为上游值，与 rc.2 tag 不符（很可能取自 `deepseek-harness` checkout 的工作树，该树带品牌叠加提交）。本任务以 tag 为准改回 6px，并同步 CSS 断言 spec。
 
 ### 与四档相关的设置语义（不在渲染表内，记录以免误读）
 
