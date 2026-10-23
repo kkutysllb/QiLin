@@ -5,12 +5,12 @@
  * and every write goes through the injected callbacks — the component reaches
  * no service itself.
  */
-import { useEffect } from 'react'
+import { useEffect, useMemo, useSyncExternalStore } from 'react'
 import type { ReactNode } from 'react'
 import {
-  IconCheckOutlineRegular, IconDarkOutlineRegular, IconFollowsystemOutlineRegular, IconGlobeOutlineMedium,
-  IconLightOutlineRegular, IconLogoutOutlineRegular, IconPersonalizationOutlineRegular, IconSettingsOutlineRegular,
-  IconUserOutlineRegular, Menu, Tooltip,
+  IconCheckOutlineRegular, IconDarkOutlineRegular, IconDownloadOutlineRegular, IconFollowsystemOutlineRegular,
+  IconGlobeOutlineMedium, IconLightOutlineRegular, IconLogoutOutlineRegular, IconPersonalizationOutlineRegular,
+  IconRefreshOutlineRegular, IconSettingsOutlineRegular, IconUserOutlineRegular, Menu, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type { MenuEntry } from '@qilin-agent/client-ui-primitives'
 import type {
@@ -19,6 +19,7 @@ import type {
 import type { LocaleSnapshot } from '@qilin-agent/client-locale/client'
 import type { ThemeSnapshot } from '@qilin-agent/client-ui-theme/client'
 import type { AccountLocaleKey } from './locales.ts'
+import { UPDATES_ABSENT, type UpdatesPresentation } from './updates.ts'
 import type { AccountMenuStoreHandle } from './store.ts'
 import css from './AccountMenu.module.css'
 
@@ -71,6 +72,10 @@ export interface AccountMenuInjected {
     /** Settings-panel presence, bound by the renderer as useSettingsPanel. */
     settingsPanel: HostObservable<boolean>
   }
+  /** Live desktop update presentation; undefined outside the desktop shell. */
+  updates?: HostObservable<UpdatesPresentation>
+  /** Open the desktop installer prompt (download confirm / restart to install). */
+  openInstaller: () => void
 }
 
 /** Full component props: sidebar column state, store share, inject face, and copy seat. */
@@ -104,7 +109,7 @@ function optionLabel(label: string, selected: boolean): ReactNode {
  */
 export function AccountMenu({
   wide, useStore, actions, loadAccount, signOut, openSettings, setTheme, setLocale,
-  useTheme, useLocale, useSettingsPanel, t,
+  useTheme, useLocale, useSettingsPanel, t, updates: updatesSource, openInstaller,
 }: AccountMenuProps): ReactNode {
   const open = useStore(state => state.open)
   const accountName = useStore(state => state.accountName)
@@ -117,6 +122,18 @@ export function AccountMenu({
   // One read per mount. The entry's inject face is identity-stable for the
   // registration, so this effect runs once and never re-reads on a render.
   useEffect(() => { void loadAccount() }, [loadAccount])
+
+  // Desktop update presentation: undefined outside the desktop shell, idle in
+  // the browser — the indicator stays hidden in both.
+  const updatesSubscribe = useMemo(
+    () => updatesSource?.subscribe.bind(updatesSource) ?? (() => () => { }),
+    [updatesSource],
+  )
+  const updatesGetSnapshot = useMemo(
+    () => updatesSource?.getSnapshot.bind(updatesSource) ?? (() => UPDATES_ABSENT),
+    [updatesSource],
+  )
+  const updates = useSyncExternalStore(updatesSubscribe, updatesGetSnapshot, UPDATES_ABSENT)
 
   const selected: string[] = []
   const items: MenuEntry[] = []
@@ -170,6 +187,13 @@ export function AccountMenu({
     setLocale(id.slice(LOCALE_ROW_PREFIX.length))
   }
 
+  const updateVisible = updates.phase === 'update-available' || updates.phase === 'downloading' || updates.phase === 'ready'
+  const updateLabel = updates.phase === 'downloading'
+    ? t('update.downloading')
+    : updates.phase === 'ready'
+      ? t('update.ready')
+      : t('update.available')
+
   const label = t('label')
   // The row reads as the account it belongs to: the signed-in name when the
   // gate reports one, otherwise the localized account label. The avatar shows
@@ -178,8 +202,25 @@ export function AccountMenu({
   const initial = accountName === null ? undefined : Array.from(accountName)[0]?.toUpperCase()
 
   return (
-    <Menu
-      className={css.slot}
+    <div className={css.row}>
+      {updateVisible && (
+        <Tooltip label={updateLabel} delayMs={500} disabled={wide}>
+          <button
+            type="button"
+            className={css.updateButton}
+            aria-label={updateLabel}
+            onClick={() => { openInstaller() }}
+          >
+            {updates.phase === 'downloading' && updates.percent !== undefined
+              ? <span className={css.updatePercent}>{Math.floor(updates.percent)}%</span>
+              : updates.phase === 'ready'
+                ? <IconRefreshOutlineRegular className={css.updateIcon} />
+                : <IconDownloadOutlineRegular className={css.updateIcon} />}
+          </button>
+        </Tooltip>
+      )}
+      <Menu
+        className={css.slot}
       open={open}
       align="end"
       side="top"
@@ -207,6 +248,7 @@ export function AccountMenu({
           </button>
         </Tooltip>
       )}
-    />
+      />
+    </div>
   )
 }
