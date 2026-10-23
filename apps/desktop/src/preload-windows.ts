@@ -13,6 +13,9 @@ export function syncWindowsAppearance(): void {
     // The client CSS asks for the qilin spelling; ui-layout still reads the dsh one.
     root.style.setProperty('--dsh-windows-titlebar-height', `${WINDOWS_TITLEBAR_HEIGHT}px`)
     root.style.setProperty('--qilin-windows-titlebar-height', `${WINDOWS_TITLEBAR_HEIGHT}px`)
+    // 设置页全屏 overlay 用 top: var(--ok-tb-h, 0px) 让开自绘标题栏（ui-settings-general
+    // 注释写的"由壳注入"一直没人注入）：不注入时设置页顶到菜单行下，返回键贴着菜单。
+    root.style.setProperty('--ok-tb-h', `${WINDOWS_TITLEBAR_HEIGHT}px`)
   }
   // The root can be absent before the HTML parser creates it.
   if ((document.documentElement as HTMLElement | null) !== null) mark()
