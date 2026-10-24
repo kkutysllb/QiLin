@@ -9,6 +9,7 @@ import { resolveQilinDesktopHome } from '@qilin-agent/home-paths'
 import { DESKTOP_HOST_PROTOCOL_VERSION } from '../src/host-protocol.ts'
 import type { DesktopRelease } from '../src/release.ts'
 import { developmentRuntimeDirectory, resolveDesktopBuildTarget } from './desktop-build-paths.mjs'
+import { resolveDesktopBuildVersion } from './desktop-build-version.mjs'
 import { prepareDevelopmentProject } from './development-project.ts'
 import { prepareDevelopmentApp } from './development-app.ts'
 import { preparePrimaryRuntime } from './prepare-primary-runtime.ts'
@@ -104,7 +105,9 @@ async function main(): Promise<void> {
   ]) {
     if (!existsSync(path)) throw new Error(`desktop development: missing built artifact ${path}`)
   }
-  const version = packageVersion(join(APP_ROOT, 'package.json'), 'desktop package')
+  // The product release version is independent of the engine package version: a product build
+  // exports QILIN_DESKTOP_BUILD_VERSION, while an unconfigured engine build keeps its own.
+  const version = resolveDesktopBuildVersion(process.env, packageVersion(join(APP_ROOT, 'package.json'), 'desktop package'))
   const pnpmVersion = packageVersion(join(APP_ROOT, 'node_modules', 'pnpm', 'package.json'), 'pnpm package')
   const release: DesktopRelease = {
     schemaVersion: 1,
