@@ -35,4 +35,15 @@ describe('SettingsRoot.module.css overlay', () => {
       'var(--qilin-windows-titlebar-height, var(--dsh-windows-titlebar-height, var(--ok-tb-h, 0px)))',
     )
   })
+
+  it('gives the caption slot the same height and clips it away when no titlebar claims it', () => {
+    const mark = declarations('.captionMark')
+    expect(mark?.get('position')).toBe('fixed')
+    expect(mark?.get('inset-inline-start')).toBe('12px')
+    expect(mark?.get('height')).toBe('var(--qilin-windows-titlebar-height, var(--dsh-windows-titlebar-height, 0px))')
+    expect(mark?.get('overflow')).toBe('hidden')
+    // The frame's caption band stays the composed drag region: a component
+    // sheet may not declare one (app-region-styles owns that contract).
+    expect(mark?.has('-webkit-app-region')).toBe(false)
+  })
 })

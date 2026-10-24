@@ -326,6 +326,17 @@ describe('SettingsPanel chrome seats', () => {
     expect(close.hasAttribute('aria-label')).toBe(false)
     expect(close.textContent).toContain('Close')
   })
+
+  it('stands the brand seal in the caption slot beside the dialog', () => {
+    mount()
+    openPanel()
+    const dialog = screen.getByRole('dialog')
+    // The seal is decorative brand art outside the dialog: a self-drawn titlebar
+    // leaves that corner to the page, where the sidebar toggle hides behind it.
+    const seals = [...document.querySelectorAll<SVGSVGElement>('svg[aria-hidden="true"][width="24"]')]
+      .filter(svg => !dialog.contains(svg))
+    expect(seals).toHaveLength(1)
+  })
 })
 
 describe('SettingsPanel close paths', () => {

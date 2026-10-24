@@ -19,7 +19,7 @@ import {
   ConnectionIndicator,
   IconAgentPresetOutlineMedium, IconArchiveOutlineMedium, IconChevronLeftOutlineMedium,
   IconCloseOutlineRegular, IconDataOutlineMedium, IconPersonalizationOutlineMedium,
-  IconQuestionOutlineMedium, IconSettingsOutlineMedium, useModalLayer,
+  IconQuestionOutlineMedium, IconSettingsOutlineMedium, QilinSeal, useModalLayer,
 } from '@qilin-agent/client-ui-primitives'
 import type { ConnectionIndicatorState } from '@qilin-agent/client-ui-primitives'
 import type { SettingsRootComponentProps, SettingsSectionRow } from './shell-contract.ts'
@@ -175,6 +175,10 @@ function SettingsPanel({
   return createPortal((
     <div className={css.overlay} role="presentation">
       <div className={css.mask} aria-hidden="true" onClick={onClose} />
+      {/* A self-drawn titlebar leaves its left slot to the page: the sidebar
+          toggle sits behind this overlay, so the brand mark occupies the
+          caption corner instead. Without a caption height the slot collapses. */}
+      <span className={css.captionMark}><QilinSeal size={24} /></span>
       <div ref={panel} tabIndex={-1} data-shortcut-modal="settings" className={css.panel} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <nav className={css.nav} style={{ width: navWidth }}>
           <button type="button" className={css.navBack} onClick={onClose}>

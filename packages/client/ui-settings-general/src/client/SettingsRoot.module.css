@@ -21,6 +21,22 @@
   display: flex;
 }
 
+/* The caption slot before the page: the sidebar toggle sits there behind this
+   overlay, so the brand mark stands in it. The slot is exactly the caption
+   height, so a shell without one (pure web, native titlebar) clips it to
+   nothing; the mark sits on the sidebar brand's 12px inline line. It declares
+   no app-region, so the frame's caption drag band stays composed underneath. */
+.captionMark {
+  position: fixed;
+  inset-inline-start: 12px;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  height: var(--qilin-windows-titlebar-height, var(--dsh-windows-titlebar-height, 0px));
+  overflow: hidden;
+}
+
 .mask {
   position: absolute;
   inset: 0;
