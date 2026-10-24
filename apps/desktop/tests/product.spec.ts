@@ -2,7 +2,7 @@
 
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import {
@@ -76,11 +76,12 @@ describe('product manifest', () => {
 
   it('keeps relative paths against the packaged resources directory', () => {
     const product = parseDesktopProduct(manifest)
-    expect(productDataDirectory(product, true, '/Users/example')).toBe('/Users/example/.kstock')
-    expect(productDataDirectory(product, false, '/Users/example')).toBe('/Users/example/.kstock-dev')
-    expect(productHarnessHome(product, true, '/Users/example')).toBe('/Users/example/.kstock/qilin-home')
-    expect(productHarnessHome(product, false, '/Users/example')).toBe('/Users/example/.kstock-dev/qilin-home-dev')
-    expect(productPresetsDirectory(product, '/srv/resources')).toBe('/srv/resources/engine/presets')
+    // Platform-aware expectations: Windows resolves the same relative layout under its drive root.
+    expect(productDataDirectory(product, true, '/Users/example')).toBe(resolve('/Users/example', '.kstock'))
+    expect(productDataDirectory(product, false, '/Users/example')).toBe(resolve('/Users/example', '.kstock-dev'))
+    expect(productHarnessHome(product, true, '/Users/example')).toBe(resolve('/Users/example', '.kstock', 'qilin-home'))
+    expect(productHarnessHome(product, false, '/Users/example')).toBe(resolve('/Users/example', '.kstock-dev', 'qilin-home-dev'))
+    expect(productPresetsDirectory(product, '/srv/resources')).toBe(resolve('/srv/resources', 'engine', 'presets'))
   })
 
   it('keeps the built-in product defaults free of a preset override', () => {
