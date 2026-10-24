@@ -61,6 +61,8 @@ export interface DesktopProduct {
   readonly presetsRoot?: string
   /** Agent preset root for an unpackaged launch, when it lives elsewhere than the packaged copy. */
   readonly devPresetsRoot?: string
+  /** Application path the main window opens after sign-in (default "/"). */
+  readonly entry?: string
   /** Runtime archive names, or absent when the Host runs an installed CLI. */
   readonly runtime?: DesktopProductRuntime
   readonly auth: DesktopProductAuth
@@ -188,6 +190,7 @@ export function parseDesktopProduct(value: unknown): DesktopProduct {
   const devPluginRoot = optionalText(record.devPluginRoot, 'devPluginRoot')
   const presetsRoot = optionalText(record.presetsRoot, 'presetsRoot')
   const devPresetsRoot = optionalText(record.devPresetsRoot, 'devPresetsRoot')
+  const entry = optionalText(record.entry, 'entry')
   return {
     schemaVersion: 1,
     name: text(record.name, 'name'),
@@ -202,6 +205,7 @@ export function parseDesktopProduct(value: unknown): DesktopProduct {
     ...(devPluginRoot === undefined ? {} : { devPluginRoot }),
     ...(presetsRoot === undefined ? {} : { presetsRoot }),
     ...(devPresetsRoot === undefined ? {} : { devPresetsRoot }),
+    ...(entry === undefined ? {} : { entry }),
     ...(parsedRuntime === undefined ? {} : { runtime: parsedRuntime }),
     auth: {
       mode,

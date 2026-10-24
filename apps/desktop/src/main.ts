@@ -509,7 +509,8 @@ async function main(): Promise<void> {
     show: ordinaryMessageBox,
   })
   const appPreload = fileURLToPath(new URL('./preload-app.cjs', import.meta.url))
-  const applicationUrl = `${applicationScheme}://app/`
+  // The product may open a path other than the engine root (KToon opens its own studio).
+const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/'}`
   let hostUrl: string | undefined
   let hostCookie: string | undefined
   let accountSession: WebSessionCookie | undefined
