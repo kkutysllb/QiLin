@@ -1337,19 +1337,26 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
       else backgroundNotice.close(hide)
     })
     // 产品入口路由可能先于 Host 注册 web 路由被请求，窗口会停留在空文档；
-    // 首个完成加载的空文档重载一次，避免启动白屏。
-    let blankRetried = false
-    window.webContents.on('did-finish-load', () => {
-      if (blankRetried || window.isDestroyed()) return
-      void window.webContents.executeJavaScript('document.body ? document.body.innerText.trim().length : 0', true)
-        .then((length: unknown) => {
-          if (typeof length === 'number' && length < 20 && !window.isDestroyed()) {
-            blankRetried = true
-            window.webContents.reload()
-          }
-        })
-        .catch(() => undefined)
-    })
+    // 空文档按 1.2s 间隔重试，最多 5 次，直到渲染出内容（Host 路由就绪有延迟）。
+    let blankRetries = 0
+    let blankTimer: NodeJS.Timeout | undefined
+    const scheduleBlankCheck = (): void => {
+      if (blankTimer !== undefined) clearTimeout(blankTimer)
+      blankTimer = setTimeout(() => {
+        blankTimer = undefined
+        if (window.isDestroyed() || blankRetries >= 5) return
+        void window.webContents.executeJavaScript('document.body ? document.body.innerText.trim().length : 0', true)
+          .then((length: unknown) => {
+            if (typeof length === 'number' && length < 20 && !window.isDestroyed()) {
+              blankRetries += 1
+              window.webContents.reload()
+            }
+          })
+          .catch(() => undefined)
+      }, 1200)
+    }
+    window.webContents.on('did-finish-load', scheduleBlankCheck)
+    window.on('closed', () => { if (blankTimer !== undefined) clearTimeout(blankTimer) })
     if (process.platform === 'win32') {
       // Shutdown, restart, and log-off must not wait on a confirmation. query-session-end is only a
       // question that another application can veto without any follow-up message, so it does not count.
