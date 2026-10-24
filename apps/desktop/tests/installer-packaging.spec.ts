@@ -77,6 +77,22 @@ describe('installer preparation preserves application dependencies', () => {
     expect(config.artifactName).toBe('KToon-${version}-${os}-${arch}-unsigned.${ext}')
   })
 
+  it('carries the product release version independently of the engine version', async () => {
+    const { createElectronBuilderConfig } = await import('../scripts/electron-builder-config.mjs')
+    const config = createElectronBuilderConfig({
+      QILIN_DESKTOP_APP_ID: 'com.ktoon.desktop',
+      QILIN_DESKTOP_MANDATORY_UPDATE_TEST_ORIGIN: 'https://policy.example.com',
+      QILIN_DESKTOP_MANDATORY_UPDATE_CONFIG: JSON.stringify({ allowedAuthOrigins: ['https://login.example.com'] }),
+      QILIN_DESKTOP_PRODUCT_VERSION: '0.1.0',
+      QILIN_DESKTOP_TARGET_PLATFORM: 'win32',
+      QILIN_DESKTOP_TARGET_ARCH: 'x64',
+      QILIN_DESKTOP_UNSIGNED: '1',
+    }, 'win32', 'x64')
+    // electron-builder substitutes ${version} from extraMetadata, so this is the installed app version.
+    expect(config.extraMetadata.version).toBe('0.1.0')
+    expect(config.productName).toBe('KToon')
+  })
+
   it('packages every preload entry point the shell loads', async () => {
     const { readdirSync, readFileSync } = await import('node:fs')
     const sourceDirectory = new URL('../src/', import.meta.url)

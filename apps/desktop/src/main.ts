@@ -90,6 +90,20 @@ const rendererConsole = new RendererConsoleTail()
 // set before ready so the first fatal report already resolves under it.
 app.setAppLogsPath()
 
+/**
+ * Product release version shown to users.
+ *
+ * A product build exports QILIN_DESKTOP_PRODUCT_VERSION so the application reports its own release
+ * version; engine builds keep Electron's package version. This affects display only — update
+ * comparisons continue against app.getVersion(), which electron-builder already records as the
+ * product version for packaged builds.
+ * @returns the product version when exported, otherwise Electron's package version.
+ */
+function desktopAppVersion(): string {
+  const productVersion = process.env.QILIN_DESKTOP_PRODUCT_VERSION?.trim()
+  return productVersion === undefined || productVersion === '' ? app.getVersion() : productVersion
+}
+
 function currentDesktopLocale(): ReturnType<typeof resolveDesktopLocale> {
   return resolveDesktopLocale(windowsLanguage ?? app.getLocale())
 }
@@ -120,7 +134,7 @@ function persistCrashReport(error: unknown, source: CrashReportSource): Promise<
     ...(error instanceof DesktopHostFatalError && error.diagnostic !== undefined ? { hostDiagnostic: error.diagnostic } : {}),
     rendererConsole: rendererConsole.snapshot(),
     app: {
-      name: app.name, version: app.getVersion(), platform: process.platform, arch: process.arch,
+      name: app.name, version: desktopAppVersion(), platform: process.platform, arch: process.arch,
       electron: process.versions.electron, node: process.versions.node, locale: currentDesktopLocale().id,
     },
     time: new Date(),
@@ -395,7 +409,7 @@ async function main(): Promise<void> {
   // chrome and its content never mix languages.
   const showAbout = async (): Promise<void> => {
     await ordinaryMessageBox({ type: 'info', title: locale.messages.aboutMenu, message: locale.messages.aboutProduct,
-      detail: formatDesktopMessage(locale.messages.aboutVersion, { version: app.getVersion() }),
+      detail: formatDesktopMessage(locale.messages.aboutVersion, { version: desktopAppVersion() }),
       buttons: [locale.messages.updateAcknowledge], cancelId: 0 })
   }
   const commandManager = new DesktopCommandManager({
@@ -957,7 +971,7 @@ async function main(): Promise<void> {
         if (state.phase === 'idle') {
           await ordinaryMessageBox({ type: 'info', title: locale.messages.updateCheckTitle,
             message: locale.messages.updateCurrent,
-            detail: formatDesktopMessage(locale.messages.updateCurrentDetail, { version: app.getVersion() }) })
+            detail: formatDesktopMessage(locale.messages.updateCurrentDetail, { version: desktopAppVersion() }) })
           return
         }
         if (state.phase === 'ready' || (state.phase === 'error' && state.failedOperation === 'install')) {
@@ -1055,9 +1069,12 @@ async function main(): Promise<void> {
 
   const applicationIconPath = development ? join(app.getAppPath(), 'resources', 'icon-windows.png')
     : join(process.resourcesPath, 'icon.png')
+  if (process.env.QILIN_DESKTOP_PRODUCT_VERSION?.trim()) {
+    console.log(`desktop: product version ${desktopAppVersion()} (engine package ${app.getVersion()})`)
+  }
   app.setAboutPanelOptions({
     applicationName: 'KToon',
-    applicationVersion: app.getVersion(),
+    applicationVersion: desktopAppVersion(),
     // The release has no separate build number; omit Electron's bundle version.
     version: '',
     copyright: '',
