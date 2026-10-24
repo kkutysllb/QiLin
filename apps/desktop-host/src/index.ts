@@ -20,8 +20,8 @@ async function main(): Promise<void> {
   const installAnchor = join(runtimeDir, 'node_modules', '@qilin-agent', 'cli', 'package.json')
   const profile = loadProfileDirectory('qilin', projectDir, installAnchor)
   reportSkippedBundles('qilin', profile)
-  // The Desktop product isolates its user data from the Web deployment, which
-  // resolves ~/.qilin: default the home to ~/.qilin-desktop before the layered
+  // The desktop product isolates its user data from the Web deployment, which
+  // resolves ~/.qilin: default the home to ~/.ktoon before the layered
   // environment resolves, unless the launcher's process environment already
   // named one.
   process.env.QILIN_HOME ??= resolveQilinDesktopHome()
