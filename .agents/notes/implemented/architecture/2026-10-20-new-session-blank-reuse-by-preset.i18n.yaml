@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-20-new-session-blank-reuse-by-preset.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-20-new-session-blank-reuse-by-preset.md
+/agent-note-new-session-reuses-a-blank-session-matching-a-requested-preset:
+  en: 554b4caf1575494e
+  zh: 4e83e88ea3e25495
+/agent-note-new-session-reuses-a-blank-session-matching-a-requested-preset/problem:
+  en: fd06d5ed2d6918d6
+  zh: fca2e039a8cd33b9
+/agent-note-new-session-reuses-a-blank-session-matching-a-requested-preset/decision:
+  en: e0bd8ae81d9c462d
+  zh: 3046b1de9f6927d0
+/agent-note-new-session-reuses-a-blank-session-matching-a-requested-preset/alternatives-considered:
+  en: c881557a4cbae838
+  zh: f4376d12980a2658
+/agent-note-new-session-reuses-a-blank-session-matching-a-requested-preset/verification:
+  en: e66f6e49a58890f2
+  zh: 6349d7ddc0c7759b
+/agent-note-new-session-reuses-a-blank-session-matching-a-requested-preset/consequences:
+  en: e6238f73c6458163
+  zh: ea2c36a2a45ab36a

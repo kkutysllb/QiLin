@@ -35,7 +35,7 @@ afterEach(async () => {
   }
 })
 
-async function bench(collapsed = false) {
+async function bench(collapsed = false, analytics?: { track: (name: string, attributes: unknown) => void }) {
   const runtime = await SlotTestRuntime.create()
   runtimes.add(runtime)
   const locale = new LocaleRuntime(runtime.ctx)
@@ -53,6 +53,7 @@ async function bench(collapsed = false) {
     apply(ctx: Context) {
       ctx.provide('layout', layout)
       ctx.provide('uiWorkspace', { startSession: vi.fn() } as never)
+      if (analytics !== undefined) ctx.provide('productAnalytics', analytics as never)
       ctx.provide('locale', locale)
       ctx.effect(() => locale.register('common', { zh: commonZh, en: commonEn }), 'panel test: common locale')
       ctx.effect(() => locale.register('sidebar-panel-test', {
@@ -418,5 +419,56 @@ describe('sidebar global panels', () => {
     expect(view.getByRole('heading', { name: 'Alpha content' })).toBeTruthy()
     act(() => { locale.setLocale('zh') })
     expect(view.queryByRole('navigation')).toBeNull()
+  })
+})
+
+describe('sidebar More menu', () => {
+  it('shows More only while the actions list has registrations and opens the registered rows', async () => {
+    const { runtime, locale, view } = await bench()
+    await mountPanels(runtime, locale)
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    expect(within(navigation).queryByRole('button', { name: 'More' })).toBeNull()
+
+    interface ActionProps {
+      readonly entries: readonly { readonly id: string; readonly label: string }[]
+      readonly onOpen: (id: string) => void
+      readonly onDismiss: () => void
+    }
+    function Actions({ entries, onOpen, onDismiss }: ActionProps) {
+      return <>{entries.map(entry => (
+        <button key={entry.id} type="button" onClick={() => { onDismiss(); onOpen(entry.id) }}>Open {entry.label}</button>
+      ))}</>
+    }
+    const actions = await runtime.mount({
+      inject: ['slots'],
+      apply(ctx: Context) {
+        ctx.slots.inject('sidebar.panellist.actions', () => ctx.slots.register({ name: 'sidebar.panellist.actions', id: 'test-actions' }, Actions as never))
+      },
+    })
+    const more = await within(navigation).findByRole('button', { name: 'More' })
+    expect(more.getAttribute('aria-haspopup')).toBe('menu')
+    expect(more.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(more)
+    const menu = await view.findByRole('menu')
+    expect(within(menu).getByRole('button', { name: 'Open Beta panel' })).toBeTruthy()
+    fireEvent.click(within(menu).getByRole('button', { name: 'Open Beta panel' }))
+    await waitFor(() => { expect(view.getByRole('heading', { name: 'Beta content' })).toBeTruthy() })
+    await actions.dispose()
+    await waitFor(() => { expect(within(navigation).queryByRole('button', { name: 'More' })).toBeNull() })
+  })
+})
+
+describe('sidebar entry click analytics', () => {
+  it('reports official panel rows and leaves other rows unreported', async () => {
+    const track = vi.fn()
+    const { runtime, locale, view } = await bench(false, { track })
+    const plugins = await mountPanel(runtime, { id: 'plugins' as MainPanelId, heading: 'Plugins content', label: 'Plugins' })
+    await mountPanels(runtime, locale)
+    const navigation = await view.findByRole('navigation', { name: 'Global panels' })
+    fireEvent.click(within(navigation).getByRole('button', { name: 'Beta panel' }))
+    expect(track).not.toHaveBeenCalled()
+    fireEvent.click(within(navigation).getByRole('button', { name: 'Plugins' }))
+    expect(track).toHaveBeenCalledWith('sidebar_menu_click', { menu_name: 'plugin', position: 'sidebar' })
+    await plugins.dispose()
   })
 })

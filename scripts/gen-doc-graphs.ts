@@ -116,6 +116,15 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Owns module and exact configuration watchers; application mutations share its queue and automatic reloads await the application file lock.',
   },
   {
+    key: 'themeBoot',
+    pkg: 'ui-theme',
+    title: 'Skin boot colours',
+    mode: 'seam',
+    implementations: ['ui-theme'],
+    consumers: ['ui-theme-brand'],
+    note: 'Carries per-skin boot backgrounds from brand packages to the shell before first paint.',
+  },
+  {
     key: 'configEditor',
     pkg: 'config-editor',
     title: 'Profile configuration edits',

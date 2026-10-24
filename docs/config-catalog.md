@@ -689,13 +689,15 @@ export interface Config {
 ## `@qilin-agent/client-ui-theme`
 
 - `refs`: `Volatile` (`@qilin-agent/kylin`)
-- `source`: [`packages/client/ui-theme/src/index.ts:34`](../packages/client/ui-theme/src/index.ts)
+- `source`: [`packages/client/ui-theme/src/index.ts:80`](../packages/client/ui-theme/src/index.ts)
 
 ```ts config-catalog
 /** Runtime preferences projected to the browser. */
 export interface Config {
   /** Browser palette preference. */
   preference: Volatile<ThemePreference>
+  /** Selected color skin id; an empty id keeps the platform palette. */
+  skin: Volatile<string>
   /** Browser font size in pixels. */
   fontSize: Volatile<number>
   /** Code-block font size in pixels. */
@@ -1836,12 +1838,12 @@ export interface Config {
 ## `@qilin-agent/llm-deepseek-api-key`
 
 - `inject`: `llm`
-- `refs`: [`ProtocolConfig`](../packages/llm/llm-deepseek/src/index.ts) · `Volatile` (`@qilin-agent/kylin`)
-- `source`: [`packages/llm/llm-deepseek-api-key/src/config.ts:10`](../packages/llm/llm-deepseek-api-key/src/config.ts)
+- `refs`: [`ModelListingConfig`](../packages/llm/llm-deepseek/src/index.ts) · [`ProtocolConfig`](../packages/llm/llm-deepseek/src/index.ts) · `Volatile` (`@qilin-agent/kylin`)
+- `source`: [`packages/llm/llm-deepseek-api-key/src/config.ts:18`](../packages/llm/llm-deepseek-api-key/src/config.ts)
 
 ```ts config-catalog
 /** Messages configuration with a per-request API-key reference. */
-export interface Config extends ProtocolConfig {
+export interface Config extends ProtocolConfig, ModelListingConfig {
   /** Credential reference resolved per request; defaults to DEEPSEEK_API_KEY. */
   apiKeyEnv: Volatile<string>
 }
@@ -4599,6 +4601,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@qilin-agent/client-ui-deliverables` | `systemPrompt` · `connection` · `sessionQuery` · `sessionController` · `workspaceFiles` · `fs` · `sandboxPolicy` · `workspaceChanges` | [`packages/client/ui-deliverables/src/index.ts`](../packages/client/ui-deliverables/src/index.ts) |
 | `@qilin-agent/client-ui-directory-picker-browse` | — | [`packages/client/ui-directory-picker-browse/src/index.ts`](../packages/client/ui-directory-picker-browse/src/index.ts) |
 | `@qilin-agent/client-ui-directory-picker-native` | — | [`packages/client/ui-directory-picker-native/src/index.ts`](../packages/client/ui-directory-picker-native/src/index.ts) |
+| `@qilin-agent/client-ui-entry-customization` | — | [`packages/client/ui-entry-customization/src/index.ts`](../packages/client/ui-entry-customization/src/index.ts) |
 | `@qilin-agent/client-ui-goal` | — | [`packages/client/ui-goal/src/index.ts`](../packages/client/ui-goal/src/index.ts) |
 | `@qilin-agent/client-ui-input-trigger` | — | [`packages/client/ui-input-trigger/src/index.ts`](../packages/client/ui-input-trigger/src/index.ts) |
 | `@qilin-agent/client-ui-jobs` | — | [`packages/client/ui-jobs/src/index.ts`](../packages/client/ui-jobs/src/index.ts) |
@@ -4634,7 +4637,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@qilin-agent/client-ui-sidechat` | — | [`packages/client/ui-sidechat/src/index.ts`](../packages/client/ui-sidechat/src/index.ts) |
 | `@qilin-agent/client-ui-skill` | — | [`packages/client/ui-skill/src/index.ts`](../packages/client/ui-skill/src/index.ts) |
 | `@qilin-agent/client-ui-subagent` | — | [`packages/client/ui-subagent/src/index.ts`](../packages/client/ui-subagent/src/index.ts) |
-| `@qilin-agent/client-ui-theme-brand` | — | [`packages/client/ui-theme-brand/src/index.ts`](../packages/client/ui-theme-brand/src/index.ts) |
+| `@qilin-agent/client-ui-theme-brand` | `themeBoot` | [`packages/client/ui-theme-brand/src/index.ts`](../packages/client/ui-theme-brand/src/index.ts) |
 | `@qilin-agent/client-ui-tool` | — | [`packages/client/ui-tool/src/index.ts`](../packages/client/ui-tool/src/index.ts) |
 | `@qilin-agent/client-ui-trajectory` | — | [`packages/client/ui-trajectory/src/index.ts`](../packages/client/ui-trajectory/src/index.ts) |
 | `@qilin-agent/client-ui-usage` | — | [`packages/client/ui-usage/src/index.ts`](../packages/client/ui-usage/src/index.ts) |

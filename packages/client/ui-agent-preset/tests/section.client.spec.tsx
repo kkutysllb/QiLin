@@ -516,7 +516,15 @@ describe('deleting a preset', () => {
 describe('a long card description', () => {
   /** jsdom has no ResizeObserver; the description watches its own box through one. */
   class ResizeObserverStub {
-    observe(): void {}
+    constructor(private readonly callback: ResizeObserverCallback) {}
+    observe(target: Element): void {
+      // Deliver one laid-out border box so the tooltip leaves its hidden state.
+      const size = { inlineSize: 320, blockSize: 40 }
+      this.callback([{
+        target, borderBoxSize: [size], contentBoxSize: [size], devicePixelContentBoxSize: [size],
+        contentRect: new DOMRect(0, 0, size.inlineSize, size.blockSize),
+      }], this)
+    }
     unobserve(): void {}
     disconnect(): void {}
   }

@@ -746,7 +746,7 @@ describe('ui-agent-preset apply', () => {
     ctx.provide('conversation', {} as never)
     const sessions = sessionsDouble(ctx, {
       current: 's1',
-      byId: { s1: { id: 's1', blank: true, projectionValues: { agentPreset: 'standard' } } },
+      byId: { s1: { id: 's1', blank: true, projectionValues: {} } },
     })
     ctx.provide('sessions', sessions as never)
     const uiWorkspace = uiWorkspaceDouble()

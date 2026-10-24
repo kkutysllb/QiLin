@@ -48,6 +48,9 @@
       "path": "../../util/timeout"
     },
     {
+      "path": "../../util/values"
+    },
+    {
       "path": "../../identity/anonymous-user-id"
     },
     {

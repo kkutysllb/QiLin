@@ -445,6 +445,11 @@
     # mounted; a deployment that ships one preset hides it with its own patch.
     - id: ui-agent-preset
       name: '@qilin-agent/client-ui-agent-preset'
+
+    # Region-local More menus: pin or unpin plugin launchers and start a
+    # plugin draft.
+    - id: entry-customization
+      name: '@qilin-agent/client-ui-entry-customization'
     - id: ui-settings-session-log
       name: '@qilin-agent/client-ui-settings-session-log'
 

@@ -69,6 +69,9 @@
       "path": "../../llm/token-meter"
     },
     {
+      "path": "../../api/product-analytics/tsconfig.client.json"
+    },
+    {
       "path": "../../plan/plan-mode"
     },
     {

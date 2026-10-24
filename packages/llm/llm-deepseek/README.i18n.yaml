@@ -21,8 +21,8 @@
   en: 78aa6183924b0b0a
   zh: cb6d54b26a738834
 /qilin-agent-llm-deepseek/use-this-package/minimal-configuration:
-  en: 5ca5f87ffe9998ba
-  zh: 204b681e805e23bd
+  en: a1db87871a3165fd
+  zh: dea5d67d9f7e6b53
 /qilin-agent-llm-deepseek/use-this-package/endpoint-and-wire-format:
   en: fce88d2ebad6296c
   zh: 0c351f26b472d521
@@ -39,8 +39,8 @@
   en: 2c1fe4ae0aaeacdf
   zh: b2d3763615ae83ba
 /qilin-agent-llm-deepseek/use-this-package/failures-and-recovery:
-  en: 4f9d9fcbecfd2a3b
-  zh: aaca1933346e2d73
+  en: 698ad0b0d06edf7d
+  zh: 3a2f61217701d2c4
 /qilin-agent-llm-deepseek/understand-the-implementation:
   en: 1598ac8a8bb9b6bf
   zh: fdd089c5ae7722cd
@@ -48,8 +48,8 @@
   en: 829203c4c282dc46
   zh: e05dada4a1420a95
 /qilin-agent-llm-deepseek/understand-the-implementation/source-map:
-  en: dc2d2409ad8c41cc
-  zh: 51fc4ad65dab6378
+  en: 584698e2c7686997
+  zh: aaf1fdc9a28445be
 /qilin-agent-llm-deepseek/understand-the-implementation/wire-flow:
   en: 9477d8af3d762450
   zh: 52a2967518509f94

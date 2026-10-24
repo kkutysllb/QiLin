@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/llm/llm-deepseek-api-key/README.md
 /:
-  en: 3bc991d01c87c9c6
-  zh: ba63ebb46b72bc3e
+  en: d0825db7a1a9d8ee
+  zh: a9674b740c6ba153
 /qilin-agent-llm-deepseek-api-key:
   en: 8a2b25305a5a91d3
   zh: 51cf04f399face3f
 /qilin-agent-llm-deepseek-api-key/summary:
-  en: 25ad3b4851f2d57d
-  zh: e919438413fae0f6
+  en: 15dc3b61f4f1ee4b
+  zh: 363b92a24c90bb4e
 /qilin-agent-llm-deepseek-api-key/table-of-contents:
   en: 23386452a66b2fbd
   zh: 4cf93c4bf17b3da2
 /qilin-agent-llm-deepseek-api-key/use-this-package:
-  en: 6065aad649ad52d4
-  zh: 8a8b9871d5afe1df
+  en: 5a369aa3c69569bb
+  zh: 63aa863767b0549d
 /qilin-agent-llm-deepseek-api-key/understand-the-implementation:
-  en: 002ac925beb4e75b
-  zh: 815d06f116604a09
+  en: d614c1ea3a9eb382
+  zh: 0af85a84b3efd389
 /qilin-agent-llm-deepseek-api-key/further-exploration:
   en: 3f5390176d060e81
   zh: c7cfc4d226562d4b

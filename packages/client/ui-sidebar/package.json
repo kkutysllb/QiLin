@@ -60,6 +60,7 @@
     "@qilin-agent/client-ui-conversation": "workspace:*",
     "@qilin-agent/client-ui-layout": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-product-analytics": "workspace:*",
     "@qilin-agent/client-ui-renderer": "workspace:*",
     "@qilin-agent/client-ui-session": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",

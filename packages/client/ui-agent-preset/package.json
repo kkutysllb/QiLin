@@ -57,6 +57,7 @@
     "@qilin-agent/agent-presets": "workspace:*",
     "@qilin-agent/client-connection": "workspace:*",
     "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-product-analytics": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
     "@qilin-agent/client-ui-conversation": "workspace:*",

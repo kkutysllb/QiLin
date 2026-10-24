@@ -210,6 +210,8 @@
       "@qilin-agent/client-ui-attachment": ["./packages/client/ui-attachment/src"],
       "@qilin-agent/client-ui-primitives": ["./packages/client/ui-primitives/src"],
       "@qilin-agent/client-ui-dockkit": ["./packages/client/ui-dockkit/src"],
+      "@qilin-agent/client-ui-entry-customization": ["./packages/client/ui-entry-customization/src"],
+      "@qilin-agent/client-ui-entry-customization/client": ["./packages/client/ui-entry-customization/src/client"],
       "@qilin-agent/client-ui-sidebar-right": ["./packages/client/ui-sidebar-right/src"],
       "@qilin-agent/client-ui-sidebar-right/client": ["./packages/client/ui-sidebar-right/src/client"],
       "@qilin-agent/client-ui-sidebar-documentpreview": ["./packages/client/ui-sidebar-documentpreview/src"],

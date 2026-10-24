@@ -25,6 +25,7 @@ import { ConversationMainPanel } from '../src/client/skeleton/ConversationMainPa
 import { ConversationHeader } from '../src/client/skeleton/ConversationHeader.tsx'
 import { ConversationSession, ConversationSessionHeader } from '../src/client/skeleton/ConversationSession.tsx'
 import { conversationPhase } from '../src/client/contract/snapshot.ts'
+import type { ConversationViewActionsOwnerProps } from '../src/client/contract/slots.ts'
 import { HeroShell } from '../src/client/skeleton/EmptyHero.tsx'
 import type { HeroShellProps } from '../src/client/skeleton/EmptyHero.tsx'
 import './control-row-dom.ts'
@@ -166,6 +167,14 @@ function mount(
     contentWidth?: number
     /** Mutable view ledger used by registration-order regressions. */
     viewTabs?: ViewTab[]
+    /** Whether the View row's More menu list has registrations. */
+    entryActions?: boolean
+    /** Unpinned View ids the header reads. */
+    entryPins?: string[]
+    /** Spy for the header's pin mutation. */
+    setPinned?: (id: string, pinned: boolean) => void
+    /** Capture the owner props handed to the More menu's registered rows. */
+    viewsActions?: (owner: ConversationViewActionsOwnerProps) => void
   } = {},
 ) {
   const root = sid('root')
@@ -230,6 +239,10 @@ function mount(
       lineageOwners.push(owner as ConversationHeaderLineageOwnerProps)
       return opts?.fallback ?? null
     }
+    if (key === 'conversation.session.header.views.actions') {
+      options.viewsActions?.(owner as ConversationViewActionsOwnerProps)
+      return null
+    }
     if (key === 'conversation.header') {
       // The real resident header: it renders the root-scoped leading seat and
       // defers the Session half to the branch below.
@@ -277,6 +290,9 @@ function mount(
           renderSlot={renderSlot as never}
           open={open}
           selectView={(view) => { store.actions.setView(view) }}
+          useEntryPins={selector => selector(options.entryPins ?? [])}
+          useEntryActions={selector => selector(options.entryActions ?? false)}
+          setPinned={options.setPinned ?? (() => {})}
           t={t}
         />
       )
@@ -905,5 +921,42 @@ describe('ConversationRoot resident composer', () => {
   it('hero phase renders no width handles (no transcript to size)', () => {
     const b = mount(sessionSnapshotOf({ blank: true }))
     expect(b.view.container.querySelector('[data-width-handle]')).toBeNull()
+  })
+})
+
+describe('View row More menu', () => {
+  it('folds Views beyond the row budget into More while the actions list has registrations', () => {
+    const setPinned = vi.fn()
+    let actionsOwner: ConversationViewActionsOwnerProps | undefined
+    const b = mount(sessionSnapshotOf(), undefined, undefined, {
+      entryActions: true,
+      viewTabs: [
+        { id: 'chat', label: 'Chat' },
+        { id: 'trajectory', label: 'Trajectory' },
+        { id: 'diff', label: 'Diff' },
+      ],
+      setPinned,
+      viewsActions: (owner) => { actionsOwner = owner },
+    })
+    // jsdom reports a zero-width row, so the budget keeps one View and folds the rest.
+    expect(b.view.getAllByRole('tab')).toHaveLength(1)
+    const more = b.view.getByRole('button', { name: '更多会话视图' })
+    expect(more.getAttribute('aria-haspopup')).toBe('menu')
+    fireEvent.click(more)
+    if (actionsOwner === undefined) throw new Error('View actions not rendered')
+    expect(actionsOwner.entries.map(entry => [entry.id, entry.pinned])).toEqual([['trajectory', true], ['diff', true]])
+    act(() => { actionsOwner?.onOpen('diff') })
+    expect(b.store.store.getSnapshot().view).toBe('diff')
+    actionsOwner.onPinnedChange('trajectory', false)
+    expect(setPinned).toHaveBeenCalledWith('trajectory', false)
+    actionsOwner.onDismiss()
+  })
+
+  it('renders every View without a More launcher when the actions list is empty', () => {
+    const b = mount(sessionSnapshotOf(), undefined, undefined, {
+      viewTabs: [{ id: 'chat', label: 'Chat' }, { id: 'trajectory', label: 'Trajectory' }],
+    })
+    expect(b.view.getAllByRole('tab')).toHaveLength(2)
+    expect(b.view.queryByRole('button', { name: '更多会话视图' })).toBeNull()
   })
 })
