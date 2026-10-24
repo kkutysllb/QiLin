@@ -149,6 +149,8 @@ function syncDocumentLanguage(snapshot: LocaleSnapshot): void {
  */
 export class LocaleRuntime {
   private dicts = new Map<string, Map<string, LocaleDict>>()
+  /** Product-owned dictionaries layered over each namespace's shipped text. */
+  private overrides = new Map<string, Map<string, LocaleDict>>()
   private bound = new Map<string, Translate>()
   private catalog = new Map<string, LocaleDefinition>()
   private fallbackChains = new Map<string, readonly LocaleId[]>()
@@ -420,6 +422,51 @@ export class LocaleRuntime {
   }
 
   /**
+   * Layer product text over a namespace's registered dictionaries.
+   *
+   * The white-label seam for a deployment that ships its own brand, product
+   * name, or greeting copy on top of the engine's vocabulary. Lookup consults
+   * the override map first for every locale in the fallback chain, so an
+   * override wins over the registered dictionary for the same locale and key
+   * while unspecified keys keep engine text. A later override for the same
+   * (namespace, locale) replaces the earlier map; the disposer removes only
+   * the exact entries this call installed.
+   * @param ns - namespace to layer over (a namespace need not exist yet).
+   * @param dicts - partial dictionaries keyed by locale id.
+   * @returns idempotent disposer restoring the registered dictionaries.
+   * @throws when a locale id is not a BCP 47-style tag.
+   */
+  override(ns: string, dicts: Record<string, LocaleDict>): () => void {
+    const pairs = Object.entries(dicts)
+    for (const [locale] of pairs) {
+      if (!LOCALE_ID_PATTERN.test(locale)) {
+        throw new Error(`locale id "${locale}" is not a BCP 47-style tag`)
+      }
+    }
+    let locales = this.overrides.get(ns)
+    if (!locales) {
+      locales = new Map()
+      this.overrides.set(ns, locales)
+    }
+    for (const [locale, entries] of pairs) locales.set(localeKey(locale), entries)
+    this.publish(this.snapshot.active, false)
+    return () => {
+      const owner = this.overrides.get(ns)
+      /* v8 ignore next -- the map exists from the loop above and is never removed. */
+      if (!owner) return
+      let removed = false
+      for (const [locale, entries] of pairs) {
+        const key = localeKey(locale)
+        if (owner.get(key) === entries) {
+          owner.delete(key)
+          removed = true
+        }
+      }
+      if (removed) this.publish(this.snapshot.active, false)
+    }
+  }
+
+  /**
    * Bind a declared namespace to a translate function typed to its
    * dictionary key union (plus the shared common vocabulary) — the same key
    * domain the framework-injected `t` seat carries. The returned reference
@@ -457,9 +504,11 @@ export class LocaleRuntime {
   }
 
   private lookup(ns: string, key: string, chain: readonly LocaleId[]): string | undefined {
+    const overrides = this.overrides.get(ns)
     const locales = this.dicts.get(ns)
     for (const locale of chain) {
-      const value = locales?.get(localeKey(locale))?.[key]
+      const keyed = localeKey(locale)
+      const value = overrides?.get(keyed)?.[key] ?? locales?.get(keyed)?.[key]
       if (value !== undefined) return value
     }
     return undefined
