@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/plugin-market",
   "description": "Configured plugin market indexes for the Discover page and the plugin_market agent tool",
-  "version": "3.1.7-rc.3",
+  "version": "3.1.7-rc.4",
   "publishConfig": {
     "access": "public"
   },

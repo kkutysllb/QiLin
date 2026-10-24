@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/tool-working-directory",
   "description": "Read and change the active Session working directory",
-  "version": "3.1.7-rc.3",
+  "version": "3.1.7-rc.4",
   "publishConfig": {
     "access": "public"
   },
