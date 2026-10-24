@@ -37,14 +37,14 @@ describe('macOS packaged updater configuration', () => {
 
   it('writes and verifies the fixed release feed before signing', async () => {
     const paths = await fixture()
-    expect(createMacOSAppUpdateConfig(update, 'QiLin-updater')).toEqual({
+    expect(createMacOSAppUpdateConfig(update, 'KToon-updater')).toEqual({
       provider: 'generic',
       url: update.publicUrl,
       channel: 'nightly',
-      updaterCacheDirName: 'QiLin-updater',
+      updaterCacheDirName: 'KToon-updater',
     })
-    await writeMacOSAppUpdateConfig(paths.resourcesDir, update, 'QiLin-updater')
-    await expect(verifyMacOSAppUpdateConfig(paths.appPath, update, 'QiLin-updater')).resolves.toBeUndefined()
+    await writeMacOSAppUpdateConfig(paths.resourcesDir, update, 'KToon-updater')
+    await expect(verifyMacOSAppUpdateConfig(paths.appPath, update, 'KToon-updater')).resolves.toBeUndefined()
   })
 
   it.each([
@@ -60,8 +60,8 @@ describe('macOS packaged updater configuration', () => {
   it('rejects another updater cache directory when the signed value is known', async () => {
     const paths = await fixture()
     await writeMacOSAppUpdateConfig(paths.resourcesDir, update, 'wrong-updater')
-    await expect(verifyMacOSAppUpdateConfig(paths.appPath, update, 'QiLin-updater'))
-      .rejects.toThrow(/expected QiLin-updater/u)
+    await expect(verifyMacOSAppUpdateConfig(paths.appPath, update, 'KToon-updater'))
+      .rejects.toThrow(/expected KToon-updater/u)
   })
 })
 

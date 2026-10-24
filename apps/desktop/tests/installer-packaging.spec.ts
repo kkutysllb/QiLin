@@ -74,7 +74,7 @@ describe('installer preparation preserves application dependencies', () => {
       QILIN_DESKTOP_TARGET_ARCH: 'x64',
       QILIN_DESKTOP_UNSIGNED: '1',
     }, 'win32', 'x64')
-    expect(config.artifactName).toBe('QiLin-${version}-${os}-${arch}-unsigned.${ext}')
+    expect(config.artifactName).toBe('KToon-${version}-${os}-${arch}-unsigned.${ext}')
   })
 
   it('packages every preload entry point the shell loads', async () => {

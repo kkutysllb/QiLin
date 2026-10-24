@@ -34,9 +34,9 @@ async function fixture(arch: 'arm64' | 'x64' = 'arm64') {
   await writeFile(join(appPath, 'payload'), 'signed content')
   await writeMacOSAppUpdateConfig(join(appPath, 'Contents', 'Resources'), {
     publicUrl: `https://desktop-updates.example.com/dsh-desk/0123456789abcdef0123456789abcdef/feeds/mac-${arch}/`,
-  }, 'QiLin-updater')
+  }, 'KToon-updater')
   const version = '1.2.3-alpha.1'
-  const base = `QiLin-${version}-mac-${arch}`
+  const base = `KToon-${version}-mac-${arch}`
   const request = { arch, artifactsRoot, version, environment }
   const apple: MacOSArtifactOperations = {
     copyApp: async (source, destination) => {
