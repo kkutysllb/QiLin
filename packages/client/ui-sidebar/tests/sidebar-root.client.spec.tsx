@@ -162,10 +162,15 @@ function mountShell({
 /** Render the shell with no brand/seat packages, as the badge cases need. */
 function renderBareShell(): void {
   render(<SidebarRoot
-    collapsed={false} width={300}
+    collapsed={false} width={300} drawer={false}
+    // KStock patch (K42): 3.1.7 收紧侧栏注入契约（setPinned / trackEntryClick /
+    // useEntryPins / useEntryActions 进 Required 面），裸壳夹具同步补齐。
     useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
-    usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useShortcuts={selector => selector([])}
-    useResource={useResource} useRemoteAccess={useRemoteAccess} useWorkspaces={neverHook}
+    usePanelInfo={usePanelInfo} selectPanel={() => {}} setPinned={() => {}} trackEntryClick={() => {}}
+    usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+    useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
+    useResource={useResource} useRemoteAccess={useRemoteAccess} useSessionAccess={useSessionAccess} useWorkspaces={neverHook}
+    useContextMenu={useContextMenu}
     startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
     renderSlot={((_key: string, _owner: unknown, options?: { fallback?: ReactNode }) =>
       options?.fallback ?? null) as SidebarRootComponentProps['renderSlot']}
