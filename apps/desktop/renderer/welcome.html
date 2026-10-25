@@ -21,38 +21,55 @@
   </header>
 
   <main class="card">
-    <p class="eyebrow" id="eyebrow">WELCOME</p>
-    <h1 id="title">登录 KSRW</h1>
-    <p class="sub" id="subtitle">本地账户由内置麒麟引擎管理。</p>
+    <div id="auth">
+      <p class="eyebrow" id="eyebrow">WELCOME</p>
+      <h1 id="title">登录 KSRW</h1>
+      <p class="sub" id="subtitle">本地账户由内置麒麟引擎管理。</p>
 
-    <div class="tabs" id="tabs">
-      <button type="button" class="tab is-on" data-mode="login">登录</button>
-      <button type="button" class="tab" data-mode="register">注册</button>
+      <div class="tabs" id="tabs">
+        <button type="button" class="tab is-on" data-mode="login">登录</button>
+        <button type="button" class="tab" data-mode="register">注册</button>
+      </div>
+
+      <form id="form" novalidate>
+        <label class="field">
+          <span id="user-label">用户名或邮箱</span>
+          <input id="user" type="text" autocomplete="username" spellcheck="false" placeholder="username 或 name@example.com">
+        </label>
+        <label class="field" id="email-field" hidden>
+          <span>邮箱（可选）</span>
+          <input id="email" type="email" autocomplete="email" spellcheck="false" placeholder="name@example.com">
+        </label>
+        <label class="field">
+          <span>密码</span>
+          <input id="password" type="password" autocomplete="current-password" placeholder="至少 8 位">
+        </label>
+        <label class="field" id="confirm-field" hidden>
+          <span>确认密码</span>
+          <input id="confirm" type="password" autocomplete="new-password" placeholder="再输一遍">
+        </label>
+        <p class="error" id="error" role="alert" hidden></p>
+        <button class="submit" id="submit" type="submit">登录</button>
+      </form>
+
+      <p class="switch" id="switch">首次使用？<button type="button" class="link" id="to-register">创建管理员</button></p>
+      <p class="foot">本地运行 · 数据留在本机 · 不经过云端</p>
     </div>
 
-    <form id="form" novalidate>
+    <section id="model" hidden>
+      <p class="eyebrow">MODEL</p>
+      <h1>连接模型</h1>
+      <p class="sub">KSRW 的分析由麒麟引擎调用模型；密钥只保存在本机。</p>
+      <p class="note">密钥只用于本机引擎调用模型；项目、论文与实验记录始终留在本机。也可以稍后在引擎设置中接入本地模型。</p>
       <label class="field">
-        <span id="user-label">用户名或邮箱</span>
-        <input id="user" type="text" autocomplete="username" spellcheck="false" placeholder="username 或 name@example.com">
+        <span>API 密钥</span>
+        <input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…">
       </label>
-      <label class="field" id="email-field" hidden>
-        <span>邮箱（可选）</span>
-        <input id="email" type="email" autocomplete="email" spellcheck="false" placeholder="name@example.com">
-      </label>
-      <label class="field">
-        <span>密码</span>
-        <input id="password" type="password" autocomplete="current-password" placeholder="至少 8 位">
-      </label>
-      <label class="field" id="confirm-field" hidden>
-        <span>确认密码</span>
-        <input id="confirm" type="password" autocomplete="new-password" placeholder="再输一遍">
-      </label>
-      <p class="error" id="error" role="alert" hidden></p>
-      <button class="submit" id="submit" type="submit">登录</button>
-    </form>
-
-    <p class="switch" id="switch">首次使用？<button type="button" class="link" id="to-register">创建管理员</button></p>
-    <p class="foot">本地运行 · 数据留在本机 · 不经过云端</p>
+      <p class="error" id="model-error" role="alert" hidden></p>
+      <button class="submit" id="model-save" type="button">保存并进入</button>
+      <p class="switch"><button type="button" class="link" id="model-skip">稍后配置</button></p>
+      <p class="foot">密钥只写入本机引擎配置；不会上传。</p>
+    </section>
   </main>
 </div>
 </body>

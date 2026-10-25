@@ -165,6 +165,8 @@ describe('desktop welcome presentation', () => {
     expect(html).toContain('KSRW')
     expect(html).toContain('登录')
     expect(html).toContain('注册')
+    expect(html).toContain('连接模型')
+    expect(html).toContain('api-key')
     expect(html).toContain("default-src 'none'")
     expect(html).toContain("form-action 'none'")
     expect(html).not.toMatch(/https?:\/\//)

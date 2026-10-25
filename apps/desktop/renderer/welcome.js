@@ -14,6 +14,12 @@ const errorBox = $('error')
 const submit = $('submit')
 const tabs = $('tabs')
 const switchRow = $('switch')
+const auth = $('auth')
+const model = $('model')
+const modelKey = $('api-key')
+const modelError = $('model-error')
+const modelSave = $('model-save')
+const modelSkip = $('model-skip')
 
 const ERROR_MESSAGES = {
   'invalid-body': '请求格式不正确，请重试',
@@ -33,6 +39,16 @@ let mode = 'login'
 function showError(message) {
   errorBox.textContent = message
   errorBox.hidden = message === ''
+}
+function showModelError(message) {
+  modelError.textContent = message
+  modelError.hidden = message === ''
+}
+function showModel() {
+  auth.hidden = true
+  model.hidden = false
+  showModelError('')
+  modelKey.focus()
 }
 function setBusy(busy) {
   submit.disabled = busy
@@ -82,8 +98,8 @@ form.addEventListener('submit', async (event) => {
       ? await api.register(name, email.value.trim(), pass)
       : await api.logIn(name, pass)
     if (result && result.ok) {
-      submit.textContent = '正在进入工作台…'
-      await api.skip()
+      // 认证已通过；模型密钥是进入工作台前的最后一步（可稍后配置）。
+      showModel()
       return
     }
     const reason = result && result.reason
@@ -96,4 +112,33 @@ form.addEventListener('submit', async (event) => {
   }
 })
 for (const input of [user, email, password, confirm]) input.addEventListener('input', () => showError(''))
+modelKey.addEventListener('input', () => showModelError(''))
+modelKey.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') { event.preventDefault(); modelSave.click() }
+})
+modelSave.addEventListener('click', async () => {
+  const key = modelKey.value.trim()
+  if (key === '') { showModelError('请输入 API 密钥，或选择稍后配置'); modelKey.focus(); return }
+  if (api === undefined || api.saveApiKey === undefined) { showModelError('当前版本不支持模型配置'); return }
+  modelSave.disabled = true
+  modelSave.textContent = '保存中…'
+  try {
+    const result = await api.saveApiKey(key)
+    if (result && result.ok) {
+      // 主进程 saveApiKey 成功后已经进入工作台，这里不再重复 skip。
+      modelSave.textContent = '正在进入工作台…'
+      return
+    }
+    showModelError(describe(result && result.reason))
+  } catch {
+    showModelError('保存失败，请稍后重试')
+  } finally {
+    modelSave.disabled = false
+    modelSave.textContent = '保存并进入'
+  }
+})
+modelSkip.addEventListener('click', async () => {
+  modelSkip.disabled = true
+  try { await api.skip() } catch { modelSkip.disabled = false }
+})
 applyMode('login')
