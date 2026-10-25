@@ -121,7 +121,7 @@ if (product !== undefined) {
   if (typeof app.setName === 'function') app.setName(product.product.name)
   if (typeof app.setAppUserModelId === 'function') app.setAppUserModelId(product.product.appId)
   if (typeof app.setAboutPanelOptions === 'function') {
-    app.setAboutPanelOptions({ applicationName: product.product.name, applicationVersion: app.getVersion() })
+    app.setAboutPanelOptions({ applicationName: product.product.name, applicationVersion: desktopAppVersion() })
   }
 }
 
