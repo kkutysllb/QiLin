@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/experimental-cua",
   "description": "Shared Computer Use application objects, authorization, and logged tool execution",
-  "version": "3.1.7-rc.4",
+  "version": "3.1.7",
   "publishConfig": {
     "access": "public"
   },
