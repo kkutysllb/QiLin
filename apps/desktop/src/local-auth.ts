@@ -5,6 +5,7 @@ import { accountSessionCookie, type WebSessionCookie } from './web-document.ts'
 /** Local account routes served by the Host; wire paths of the accounts-local service. */
 const LOGIN_ROUTE = '/api/auth/login'
 const SETUP_ROUTE = '/api/auth/setup'
+const REGISTER_ROUTE = '/api/auth/register'
 
 /** Outcome of one local account request. */
 export interface LocalAuthResult {
@@ -18,18 +19,19 @@ export interface LocalAuthResult {
 /**
  * Submit one local account request to the Host that owns this Desktop.
  * @param origin - Host origin serving the local account routes.
- * @param kind - login or registration.
+ * @param kind - login, first-admin setup, or local registration.
  * @param body - submitted fields; never logged.
  * @param send - Electron session fetch, carrying the Host device cookie.
  * @returns whether the Host accepted the submission, with its refusal reason when it did not, and
  * the account session the acceptance minted. The response cookie reaches no cookie jar on this
  * path, so the shell stores and forwards it itself.
  */
-export async function submitLocalAccount(origin: string, kind: 'login' | 'setup',
+export async function submitLocalAccount(origin: string, kind: 'login' | 'setup' | 'register',
   body: Readonly<Record<string, string>>, send: (input: string, init?: RequestInit) => Promise<Response>): Promise<LocalAuthResult> {
   // The login route accepts a username or an email address, named as one identifier.
   const payload = kind === 'login' ? { identifier: body.username ?? '', password: body.password ?? '' } : body
-  const response = await send(new URL(kind === 'login' ? LOGIN_ROUTE : SETUP_ROUTE, origin).href, {
+  const route = kind === 'login' ? LOGIN_ROUTE : kind === 'register' ? REGISTER_ROUTE : SETUP_ROUTE
+  const response = await send(new URL(route, origin).href, {
     method: 'POST', credentials: 'include', redirect: 'error',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(payload),

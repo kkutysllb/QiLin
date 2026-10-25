@@ -67,6 +67,7 @@ import { DesktopUpdateOverlays } from './update-overlay.ts'
 import { DesktopQuitConfirmation } from './quit-confirmation.ts'
 import { DesktopTray } from './tray.ts'
 import { DesktopBackgroundNotice } from './background-notice.ts'
+import { closeKSRWSplash, dismissKSRWSplash, openKSRWSplash } from './ksrw-splash.ts'
 import { loadDesktopProduct, type ResolvedDesktopProduct } from './product.ts'
 import { ensurePythonDependencies, prepareProductRuntime } from './product-runtime.ts'
 import { mintProductAccountSession } from './product-auth.ts'
@@ -191,6 +192,7 @@ function persistCrashReport(error: unknown, source: CrashReportSource): Promise<
 }
 
 function reportFatal(error: unknown, source: CrashReportSource): void {
+  dismissKSRWSplash()
   console.error(error)
   if (shuttingDown) {
     // No dialog during shutdown, but the report still records what failed on the way out.
@@ -394,6 +396,7 @@ async function main(): Promise<void> {
     reportFatal(productState.failure, 'main')
     return
   }
+  openKSRWSplash()
   // A product drives its own runtime archive, profile, data root, and Host environment.
   const productRuntime = product === undefined ? undefined : prepareProductRuntime({
     product: product.product,
@@ -1372,6 +1375,7 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
     if (activate) window.show()
     else window.showInactive()
     enteredWorkspace = true
+    closeKSRWSplash()
     if (welcomeWindow !== undefined) {
       welcomeWindow.close()
       window.webContents.send(DESKTOP_IPC.enterWorkspace)
@@ -1392,6 +1396,7 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
     // Products with their own account gate never show the built-in welcome surface; the
     // application document owns sign-in instead.
     if (product?.product.auth.mode === 'boot-secret') return navigateMain(applicationUrl, true)
+    closeKSRWSplash()
     if (welcomeWindow !== undefined && !welcomeWindow.isDestroyed()) {
       if (!welcomeWindow.isVisible()) void track('auth_page_view', {})
       welcomeWindow.show()
@@ -1443,7 +1448,14 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
         register: async (username: string, email: string, password: string) => {
           const url = hostUrl
           if (url === undefined) return { ok: false }
-          const result = await submitLocalAccount(new URL(url).origin, 'setup', { username, email, password }, fetchWithDesktopAuthority)
+          const origin = new URL(url).origin
+          const body = { username, email, password }
+          // First run creates the administrator through setup; an initialized Home
+          // accepts later local accounts through the engine's registration route.
+          let result = await submitLocalAccount(origin, 'setup', body, fetchWithDesktopAuthority)
+          if (!result.ok && result.reason === 'already-initialized') {
+            result = await submitLocalAccount(origin, 'register', body, fetchWithDesktopAuthority)
+          }
           if (result.ok) {
             if (result.session !== undefined) storeAccountSession(url, result.session)
             else await refreshAccountSession()

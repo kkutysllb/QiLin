@@ -1,17 +1,59 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
-    <title></title>
-    <link rel="stylesheet" href="../lib/welcome/brand-font.css">
-    <link rel="stylesheet" href="../lib/welcome/welcome.css">
-    <link rel="stylesheet" href="welcome.css">
-    <link rel="stylesheet" href="welcome-palette.generated.css">
-    <script src="../lib/welcome/welcome.js" defer></script>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+<title>KSRW</title>
+<link rel="stylesheet" href="./welcome.css">
+<script src="./welcome.js" defer></script>
+</head>
+<body>
+<div class="stage">
+  <header class="brand">
+    <svg class="seal" viewBox="0 0 64 64" aria-hidden="true">
+      <rect x="2" y="2" width="60" height="60" rx="16" fill="#12151a" stroke="#c2622f" stroke-width="2"/>
+      <path d="M25 16h14" stroke="#f7f4ee" stroke-width="3" stroke-linecap="round"/>
+      <path d="M27 16v13L17 45a6 6 0 0 0 5 9h20a6 6 0 0 0 5-9l-10-16V16" fill="none" stroke="#f7f4ee" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="28" cy="42" r="2.4" fill="#c2622f"/><circle cx="36" cy="46" r="3" fill="#c2622f"/><circle cx="33" cy="37" r="1.6" fill="#c2622f"/>
+    </svg>
+    <div><b>KSRW</b><span>麒麟科研工作台</span></div>
+  </header>
+
+  <main class="card">
+    <p class="eyebrow" id="eyebrow">WELCOME</p>
+    <h1 id="title">登录 KSRW</h1>
+    <p class="sub" id="subtitle">本地账户由内置麒麟引擎管理。</p>
+
+    <div class="tabs" id="tabs">
+      <button type="button" class="tab is-on" data-mode="login">登录</button>
+      <button type="button" class="tab" data-mode="register">注册</button>
+    </div>
+
+    <form id="form" novalidate>
+      <label class="field">
+        <span id="user-label">用户名或邮箱</span>
+        <input id="user" type="text" autocomplete="username" spellcheck="false" placeholder="username 或 name@example.com">
+      </label>
+      <label class="field" id="email-field" hidden>
+        <span>邮箱（可选）</span>
+        <input id="email" type="email" autocomplete="email" spellcheck="false" placeholder="name@example.com">
+      </label>
+      <label class="field">
+        <span>密码</span>
+        <input id="password" type="password" autocomplete="current-password" placeholder="至少 8 位">
+      </label>
+      <label class="field" id="confirm-field" hidden>
+        <span>确认密码</span>
+        <input id="confirm" type="password" autocomplete="new-password" placeholder="再输一遍">
+      </label>
+      <p class="error" id="error" role="alert" hidden></p>
+      <button class="submit" id="submit" type="submit">登录</button>
+    </form>
+
+    <p class="switch" id="switch">首次使用？<button type="button" class="link" id="to-register">创建管理员</button></p>
+    <p class="foot">本地运行 · 数据留在本机 · 不经过云端</p>
+  </main>
+</div>
+</body>
 </html>
