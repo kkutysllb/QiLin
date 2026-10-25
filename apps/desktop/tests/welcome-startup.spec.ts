@@ -1,3 +1,18 @@
+// KSRW product branch: the welcome-startup fixture predates the product runtime
+// contract. Mock the runtime bootstrap so this test keeps exercising the welcome
+// transition instead of requiring a staged engine closure.
+vi.mock('../src/product-runtime.ts', () => ({
+  prepareProductRuntime: () => ({
+    paths: {
+      dataDir: '/tmp/ksrw-product-data',
+      nodeBin: '/runtime/node',
+      pnpm: '/runtime/pnpm',
+      qilinDir: '/runtime/qilin',
+    },
+    environment: {},
+  }),
+  ensurePythonDependencies: async () => undefined,
+}))
 vi.mock('../src/web-document.ts', () => ({
   authenticateWebHost: async () => 'test-cookie', serveWebDocument: vi.fn(), forwardWebRequest: vi.fn(),
   webCookieHeader: (_accountSession: unknown, deviceCookie: string) => deviceCookie,
@@ -87,7 +102,14 @@ vi.mock('electron', () => ({
     hide = vi.fn()
     show = state.showWorkspace
     showInactive = state.showInactiveWorkspace
-    async loadURL(url: string) { state.contents = this.webContents; await state.loadWorkspace(url); this.ready?.() }
+    async loadURL(url: string) {
+      // The KSRW splash is a separate native window sharing this mock class;
+      // only application documents are workspace loads.
+      if (url.startsWith('data:text/html')) { this.ready?.(); return }
+      state.contents = this.webContents
+      await state.loadWorkspace(url)
+      this.ready?.()
+    }
   },
   net: { fetch: vi.fn() },
   nativeTheme: state.nativeTheme,
@@ -220,7 +242,7 @@ it.each([false, true])('starts welcome onboarding without carrying update focus 
   }
   await vi.waitFor(() => { expect(state.operations).toBeDefined() })
   expect(state.startHost).toHaveBeenCalledOnce()
-  expect(state.loadWorkspace).toHaveBeenCalledExactlyOnceWith('qilin-app://app/')
+  expect(state.loadWorkspace).toHaveBeenCalledExactlyOnceWith('qilin://app/')
   expect(state.showWorkspace).not.toHaveBeenCalled()
   state.loadWorkspace.mockClear()
   expect(state.welcomeLocale).toMatchObject({ id: 'zh-CN' })

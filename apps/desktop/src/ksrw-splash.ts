@@ -57,30 +57,36 @@ const SPLASH_HTML = `<!doctype html>
 export function openKSRWSplash(): void {
   if (splash !== undefined) return
   openedAt = Date.now()
-  const window = new BrowserWindow({
-    width: 420,
-    height: 260,
-    frame: false,
-    transparent: true,
-    resizable: false,
-    maximizable: false,
-    minimizable: false,
-    fullscreenable: false,
-    show: false,
-    alwaysOnTop: true,
-    skipTaskbar: true,
-    hasShadow: true,
-    backgroundColor: '#00000000',
-    webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false },
-  })
-  splash = window
-  window.once('ready-to-show', () => {
-    if (window.isDestroyed() || splash !== window) return
-    window.center()
-    window.show()
-  })
-  window.on('closed', () => { if (splash === window) splash = undefined })
-  void window.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(SPLASH_HTML)).catch(() => undefined)
+  try {
+    const window = new BrowserWindow({
+      width: 420,
+      height: 260,
+      frame: false,
+      transparent: true,
+      resizable: false,
+      maximizable: false,
+      minimizable: false,
+      fullscreenable: false,
+      show: false,
+      alwaysOnTop: true,
+      skipTaskbar: true,
+      hasShadow: true,
+      backgroundColor: '#00000000',
+      webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false },
+    })
+    splash = window
+    window.once('ready-to-show', () => {
+      if (window.isDestroyed() || splash !== window) return
+      window.center()
+      window.show()
+    })
+    window.on('closed', () => { if (splash === window) splash = undefined })
+    void window.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(SPLASH_HTML)).catch(() => undefined)
+  } catch (error) {
+    // A cosmetic window must never block startup (headless tests, unusual shells).
+    console.warn('KSRW splash unavailable:', error)
+    splash = undefined
+  }
 }
 
 /** Destroy the splash immediately, including on a fatal startup failure. */
@@ -88,7 +94,8 @@ export function dismissKSRWSplash(): void {
   if (closeTimer !== undefined) { clearTimeout(closeTimer); closeTimer = undefined }
   const window = splash
   splash = undefined
-  if (window !== undefined && !window.isDestroyed()) window.destroy()
+  if (window !== undefined && typeof window.isDestroyed === 'function' && !window.isDestroyed()
+    && typeof window.destroy === 'function') window.destroy()
 }
 
 /** Fade the splash out and destroy it once the first product window is visible. */

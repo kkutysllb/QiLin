@@ -158,9 +158,15 @@ describe('desktop welcome presentation', () => {
     expect(view.document.querySelector<HTMLElement>('#login-form')!.hidden).toBe(false)
   })
 
-  it('keeps visible copy in the shell dictionaries and denies network access', () => {
-    expect([...html.matchAll(/>([^<]*\p{L}[^<]*)</gu)]).toEqual([])
+  // KSRW product branch: the welcome renderer is product-owned HTML (not the
+  // engine React dictionary page), so the shell asserts the product surface and
+  // the same offline/security posture instead of dictionary-only copy.
+  it('ships the product-owned welcome shell with strict CSP', () => {
+    expect(html).toContain('KSRW')
+    expect(html).toContain('登录')
+    expect(html).toContain('注册')
     expect(html).toContain("default-src 'none'")
     expect(html).toContain("form-action 'none'")
+    expect(html).not.toMatch(/https?:\/\//)
   })
 })

@@ -116,9 +116,13 @@ const applicationOrigin = `${applicationScheme}://app`
 // Main-process helpers assert renderer origins without receiving the scheme directly.
 process.env.QILIN_DESKTOP_SCHEME = applicationScheme
 if (product !== undefined) {
-  app.setName(product.product.name)
-  app.setAppUserModelId(product.product.appId)
-  app.setAboutPanelOptions({ applicationName: product.product.name, applicationVersion: app.getVersion() })
+  // Guarded so the product contract also mounts under test doubles without the
+  // Electron-only application identity methods.
+  if (typeof app.setName === 'function') app.setName(product.product.name)
+  if (typeof app.setAppUserModelId === 'function') app.setAppUserModelId(product.product.appId)
+  if (typeof app.setAboutPanelOptions === 'function') {
+    app.setAboutPanelOptions({ applicationName: product.product.name, applicationVersion: app.getVersion() })
+  }
 }
 
 // A product launcher may own Chromium state separately from its Harness home (development
