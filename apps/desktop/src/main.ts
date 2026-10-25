@@ -285,7 +285,10 @@ function createWindow(preload: string, show = false, primary = false): BrowserWi
     show,
     ...(process.platform === 'win32' && primary ? {
       titleBarStyle: 'hidden' as const,
-      titleBarOverlay: { height: WINDOWS_TITLEBAR_HEIGHT, color: chromeFallbackFill(),
+      // KToon: the overlay paints only the 40px title strip; match the product
+      // canvas so the system buttons sit on the scene background.
+      titleBarOverlay: { height: WINDOWS_TITLEBAR_HEIGHT,
+        color: nativeTheme.shouldUseDarkColors ? '#0c0c0e' : '#faf7f2',
         symbolColor: nativeTheme.shouldUseDarkColors ? '#f9fafb' : '#0f1115' },
     } : {}),
     // hiddenInset places traffic lights inside the sidebar; sidebar vibrancy
