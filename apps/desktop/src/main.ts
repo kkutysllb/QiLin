@@ -276,10 +276,12 @@ function platformLoginUrl(authorizeUrl: string): string {
 
 function createWindow(preload: string, show = false, primary = false): BrowserWindow {
   const window = new BrowserWindow({
-    width: 1280,
-    height: 820,
+    width: 1440,
+    height: 900,
     minWidth: 520,
     minHeight: 600,
+    // KToon: the product owns its navigation; no native menu bar above it.
+    autoHideMenuBar: true,
     show,
     ...(process.platform === 'win32' && primary ? {
       titleBarStyle: 'hidden' as const,
@@ -309,6 +311,8 @@ function createWindow(preload: string, show = false, primary = false): BrowserWi
       additionalArguments: [`${SCHEME_ARGUMENT}${applicationScheme}`],
     },
   })
+  window.setMenuBarVisibility(false)
+  if (process.platform !== 'darwin') window.setMenu(null)
   window.webContents.setWindowOpenHandler(({ url }) => {
     if (['http:', 'https:'].includes(new URL(url).protocol)) void shell.openExternal(url)
     return { action: 'deny' }
