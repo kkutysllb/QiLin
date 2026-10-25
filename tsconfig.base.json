@@ -393,6 +393,13 @@
       "@qilin-agent/kylin-host-runner/types": ["./packages/extensions/kylin-host-runner/src/types.ts"],
       // Hand-written: package names that don't match their directory cannot be generated.
       "@qilin-agent/tool-kylin/host": ["./packages/extensions/tool-kylin/src/host.ts"],
+      // Hand-written: typed subpath exports resolve to source for the host
+      // program; the generated region maps bare package specifiers only.
+      "@qilin-agent/mcp-servers/types": ["./packages/mcp/mcp-servers/src/types.ts"],
+      "@qilin-agent/message-feedback/types": ["./packages/feedback/message-feedback/src/types.ts"],
+      "@qilin-agent/permission-presets/types": ["./packages/interaction/permission-presets/src/types.ts"],
+      "@qilin-agent/permission-presets/client": ["./packages/interaction/permission-presets/src/client.ts"],
+      "@qilin-agent/sidebar-opens/types": ["./packages/host/sidebar-opens/src/types.ts"],
 
       "@qilin-agent/otel": ["./packages/telemetry/otel/src"],
       "@qilin-agent/client-ui-settings-session-log": ["./packages/client/ui-settings-session-log/src"],
@@ -465,16 +472,12 @@
       "@qilin-agent/mcp-client": ["./packages/mcp/mcp-client/src"],
       "@qilin-agent/mcp-resources": ["./packages/mcp/mcp-resources/src"],
       "@qilin-agent/mcp-servers": ["./packages/mcp/mcp-servers/src"],
-      "@qilin-agent/mcp-servers/types": ["./packages/mcp/mcp-servers/src/types.ts"],
       "@qilin-agent/message-feedback": ["./packages/feedback/message-feedback/src"],
-      "@qilin-agent/message-feedback/types": ["./packages/feedback/message-feedback/src/types.ts"],
       "@qilin-agent/native-command": ["./packages/util/native-command/src"],
       "@qilin-agent/office-to-pdf": ["./packages/document/office-to-pdf/src"],
       "@qilin-agent/output-retention": ["./packages/util/output-retention/src"],
       "@qilin-agent/package-manifest": ["./packages/util/package-manifest/src"],
       "@qilin-agent/permission-presets": ["./packages/interaction/permission-presets/src"],
-      "@qilin-agent/permission-presets/types": ["./packages/interaction/permission-presets/src/types.ts"],
-      "@qilin-agent/permission-presets/client": ["./packages/interaction/permission-presets/src/client.ts"],
       "@qilin-agent/persona": ["./packages/preset/persona/src"],
       "@qilin-agent/plan-mode": ["./packages/plan/plan-mode/src"],
       "@qilin-agent/plugin-market": ["./packages/boot/plugin-market/src"],
@@ -523,7 +526,6 @@
       "@qilin-agent/settings": ["./packages/settings/settings/src"],
       "@qilin-agent/shell": ["./packages/shell/shell/src"],
       "@qilin-agent/sidebar-opens": ["./packages/host/sidebar-opens/src"],
-      "@qilin-agent/sidebar-opens/types": ["./packages/host/sidebar-opens/src/types.ts"],
       "@qilin-agent/skill": ["./packages/skill/skill/src"],
       "@qilin-agent/skill-filesystem": ["./packages/skill/skill-filesystem/src"],
       "@qilin-agent/skill-office": ["./packages/skill/skill-office/src"],

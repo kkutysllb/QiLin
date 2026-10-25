@@ -129,3 +129,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: pnpm run release:publish --family qilin --from dist/npm
+
+      # The publish order only orders this family's own install dependencies.
+      # Members also declare the vendored framework in dependency and peer
+      # ranges, and npm 7+ installs peers, so a release whose vendor-facing
+      # ranges point at versions the registry lacks is uninstallable. This
+      # step is the release's postcondition: it fails the run until the
+      # referenced family's versions are on the registry too.
+      - name: Verify published resolution
+        run: pnpm run release:verify-published --family qilin --from dist/npm
