@@ -1396,7 +1396,7 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
     const window = mainWindow ?? createMainWindow()
     await navigateMain(applicationUrl)
     if (isQuitting() || recovery.active || window.isDestroyed()) return
-    if (activate) window.show()
+    if (activate) { window.show(); window.moveTop(); window.focus() }
     else window.showInactive()
     enteredWorkspace = true
     if (welcomeWindow !== undefined) {
@@ -1533,6 +1533,7 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
     if (window === mainWindow && !enteredWorkspace) return
     if (window.isMinimized()) window.restore()
     window.show()
+    window.moveTop()
     window.focus()
   }
 
