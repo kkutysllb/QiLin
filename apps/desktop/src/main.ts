@@ -67,6 +67,7 @@ import { DesktopUpdateOverlays } from './update-overlay.ts'
 import { DesktopQuitConfirmation } from './quit-confirmation.ts'
 import { DesktopTray } from './tray.ts'
 import { DesktopBackgroundNotice } from './background-notice.ts'
+import { closeKToonSplash, dismissKToonSplash, openKToonSplash } from './ktoon-splash.ts'
 import { loadDesktopProduct, type ResolvedDesktopProduct } from './product.ts'
 import { ensurePythonDependencies, prepareProductRuntime } from './product-runtime.ts'
 import { mintProductAccountSession } from './product-auth.ts'
@@ -191,6 +192,7 @@ function persistCrashReport(error: unknown, source: CrashReportSource): Promise<
 }
 
 function reportFatal(error: unknown, source: CrashReportSource): void {
+  dismissKToonSplash()
   console.error(error)
   if (shuttingDown) {
     // No dialog during shutdown, but the report still records what failed on the way out.
@@ -401,6 +403,7 @@ async function main(): Promise<void> {
     reportFatal(productState.failure, 'main')
     return
   }
+  openKToonSplash()
   // A product drives its own runtime archive, profile, data root, and Host environment.
   const productRuntime = product === undefined ? undefined : prepareProductRuntime({
     product: product.product,
@@ -1399,6 +1402,7 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
     if (activate) { window.show(); window.moveTop(); window.focus() }
     else window.showInactive()
     enteredWorkspace = true
+    closeKToonSplash()
     if (welcomeWindow !== undefined) {
       welcomeWindow.close()
       window.webContents.send(DESKTOP_IPC.enterWorkspace)
@@ -1423,6 +1427,7 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
       if (!welcomeWindow.isVisible()) void track('auth_page_view', {})
       welcomeWindow.show()
       welcomeWindow.focus()
+      closeKToonSplash()
       return Promise.resolve()
     }
     openingWelcome ??= (async () => {
