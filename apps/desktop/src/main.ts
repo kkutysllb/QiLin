@@ -1337,11 +1337,7 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
       if (quitting || shellInstallerOwnsQuit || sessionEnding) return
       event.preventDefault()
       if (updateDialog.isOpen) { updateDialog.focus(); return }
-      const hide = (): void => {
-        if (!quitting && !shellInstallerOwnsQuit && !sessionEnding && !window.isDestroyed()) hideMainWindow(window)
-      }
-      if (backgroundNotice === undefined) hide()
-      else backgroundNotice.close(hide)
+      if (!quitting && !shellInstallerOwnsQuit && !sessionEnding && !window.isDestroyed()) hideMainWindow(window)
     })
     // 产品入口路由可能先于 Host 注册 web 路由被请求，窗口会停留在空文档；
     // 空文档按 1.2s 间隔重试，最多 5 次，直到渲染出内容（Host 路由就绪有延迟）。
