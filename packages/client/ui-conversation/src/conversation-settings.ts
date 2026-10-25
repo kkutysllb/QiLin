@@ -53,4 +53,5 @@ export const ConversationSettingsFields = {
   [CONTENT_WIDTH_FIELD]: z.natural().max(CONTENT_WIDTH_MAX).default(DEFAULT_CONTENT_WIDTH),
 }
 
+/** The compiled conversation settings schema the browser scope validates wire envelopes against. */
 export const ConversationSettingsSchema: z<ConversationSettings> = z.object(ConversationSettingsFields)

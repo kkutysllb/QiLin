@@ -235,11 +235,17 @@ export function agentsHomeDisplay(resolvedHome: string): string {
  * upstream literals).
  */
 export const DSH_HOME_DIR_NAME = QILIN_HOME_DIR_NAME
+/** {@link DEFAULT_QILIN_HOME_DISPLAY} under its upstream name. */
 export const DEFAULT_DSH_HOME_DISPLAY = DEFAULT_QILIN_HOME_DISPLAY
+/** {@link QILIN_HOME_ENV} under its upstream name. */
 export const DSH_HOME_ENV = QILIN_HOME_ENV
+/** {@link defaultQilinHome} under its upstream name. */
 export const defaultDshHome = defaultQilinHome
+/** {@link resolveQilinHome} under its upstream name. */
 export const resolveDshHome = resolveQilinHome
+/** {@link qilinHomePath} under its upstream name. */
 export const dshHomePath = qilinHomePath
+/** {@link qilinHomeDisplay} under its upstream name. */
 export const dshHomeDisplay = qilinHomeDisplay
 
 /**

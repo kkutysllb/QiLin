@@ -446,6 +446,13 @@ export function truncateWithoutSplittingSurrogatePair(text: string, maxChars: nu
   return /[\uD800-\uDBFF]$/.test(capped) ? capped.slice(0, -1) : capped
 }
 
+/**
+ * Render one retention notice as a single line: the omitted-work summary, then
+ * the recovery hint.
+ * @param notice - what the retention policy dropped.
+ * @param recovery - renders the human-facing recovery hint for the notice.
+ * @returns the joined notice text, empty parts skipped.
+ */
 export function formatRetentionNotice(
   notice: RetentionNotice,
   recovery: (notice: RetentionNotice) => string,
