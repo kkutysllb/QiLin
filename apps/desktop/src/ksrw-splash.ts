@@ -9,6 +9,29 @@ let splash: BrowserWindow | undefined
 let openedAt = 0
 let closeTimer: NodeJS.Timeout | undefined
 
+/**
+ * How long the splash stays readable before handing over to the first product
+ * window. The boot underneath is usually faster than the brand animation, so
+ * this floor is what the user actually sees; KSRW_SPLASH_MIN_MS tunes it in dev.
+ */
+const SPLASH_MIN_VISIBLE_MS = readDuration('KSRW_SPLASH_MIN_MS', 2600)
+
+/** Fade-out length; the window is destroyed just after it finishes. */
+const SPLASH_FADE_MS = 320
+
+/**
+ * Read a bounded millisecond duration from the environment.
+ * @param name - Environment variable holding the override.
+ * @param fallback - Value used when the variable is absent or unusable.
+ * @returns A whole number of milliseconds from 0 through 30000.
+ */
+function readDuration(name: string, fallback: number): number {
+  const raw = process.env[name]
+  if (raw === undefined || raw === '') return fallback
+  const value = Number(raw)
+  return Number.isSafeInteger(value) && value >= 0 && value <= 30_000 ? value : fallback
+}
+
 const SPLASH_HTML = `<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -17,17 +40,17 @@ const SPLASH_HTML = `<!doctype html>
 <style>
   *{box-sizing:border-box}
   html,body{width:100%;height:100%;margin:0;background:transparent;overflow:hidden;font-family:Inter,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
-  body{opacity:1;transition:opacity .22s ease}
+  body{opacity:1;transition:opacity .32s ease}
   body.is-leaving{opacity:0}
   .card{position:relative;width:100%;height:100%;border-radius:20px;overflow:hidden;background:radial-gradient(80% 90% at 20% 0%,#1b2028 0%,#0b0d10 62%);border:1px solid #262c35;box-shadow:0 28px 80px rgba(0,0,0,.45);padding:26px 28px 20px;display:flex;flex-direction:column;align-items:flex-start}
-  .mark{animation:markIn .7s cubic-bezier(.2,.7,.2,1) both}
+  .mark{animation:markIn .95s cubic-bezier(.2,.7,.2,1) both}
   .mark svg{width:46px;height:46px;display:block}
-  .word{display:flex;align-items:baseline;gap:10px;margin-top:12px;animation:rise .7s .06s cubic-bezier(.2,.7,.2,1) both}
+  .word{display:flex;align-items:baseline;gap:10px;margin-top:12px;animation:rise .95s .1s cubic-bezier(.2,.7,.2,1) both}
   .word b{font:600 22px/1 "Source Serif 4","Noto Serif SC",Georgia,serif;letter-spacing:.02em;color:#e8e6e1}
   .word span{color:#9a968e;font-size:10.5px;letter-spacing:.16em}
-  .tagline{margin:10px 0 0;color:#9a968e;font-size:11.5px;animation:rise .7s .12s cubic-bezier(.2,.7,.2,1) both}
+  .tagline{margin:10px 0 0;color:#9a968e;font-size:11.5px;animation:rise .95s .22s cubic-bezier(.2,.7,.2,1) both}
   .bar{width:100%;height:2px;margin-top:auto;border-radius:99px;background:#20252d;overflow:hidden;position:relative}
-  .bar i{display:block;width:38%;height:100%;border-radius:99px;background:linear-gradient(90deg,transparent,#c2622f,transparent);animation:load 1.35s ease-in-out infinite}
+  .bar i{display:block;width:38%;height:100%;border-radius:99px;background:linear-gradient(90deg,transparent,#c2622f,transparent);animation:load 1.7s ease-in-out infinite}
   .status{margin:9px 0 0;color:#5e5a53;font-size:10px;letter-spacing:.03em}
   @keyframes markIn{from{opacity:0;transform:scale(.86)}to{opacity:1;transform:none}}
   @keyframes rise{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
@@ -103,10 +126,10 @@ export function closeKSRWSplash(): void {
   const window = splash
   if (window === undefined || window.isDestroyed()) return
   if (closeTimer !== undefined) clearTimeout(closeTimer)
-  const wait = Math.max(0, 1200 - (Date.now() - openedAt))
+  const wait = Math.max(0, SPLASH_MIN_VISIBLE_MS - (Date.now() - openedAt))
   closeTimer = setTimeout(() => {
     if (window.isDestroyed()) return
     void window.webContents.executeJavaScript("document.body.classList.add('is-leaving')").catch(() => undefined)
-    setTimeout(() => { if (!window.isDestroyed()) window.close() }, 240)
+    setTimeout(() => { if (!window.isDestroyed()) window.close() }, SPLASH_FADE_MS + 20)
   }, wait)
 }
