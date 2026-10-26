@@ -14,8 +14,8 @@ describe('BootPage', () => {
   it('draws the loading skeleton before any plugin state arrives', () => {
     const { el } = mount()
     expect(el.firstElementChild?.getAttribute('data-qilin-boot')).toBe('')
-    expect(el.textContent).toContain('QiLin')
-    expect(el.textContent).toContain('Loading plugins…')
+    expect(el.textContent).toContain('KToon')
+    expect(el.textContent).toContain('正在载入创作台…')
   })
 
   it('keeps loading while entries are active or loading', () => {
@@ -29,7 +29,7 @@ describe('BootPage', () => {
     expect(el.querySelector('[data-qilin-boot-spinner]')).toBe(spinner)
     page.setState('b', 'active')
     expect(spinner?.style.getPropertyValue('--qilin-boot-arc')).toBe('288deg')
-    expect(el.textContent).toContain('Loading plugins…')
+    expect(el.textContent).toContain('正在载入创作台…')
     expect(el.textContent).not.toContain('Failed to load plugins')
   })
 
