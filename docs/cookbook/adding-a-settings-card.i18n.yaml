@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/cookbook/adding-a-settings-card.md
 /cookbook-adding-a-settings-card:
-  en: a5786334132e15bf
-  zh: fb35456725a38bb2
-/cookbook-adding-a-settings-card/1-register-the-namespace-host-half:
-  en: e4bac025361407bf
-  zh: 088476946d349cc5
+  en: e917c59801cc10e7
+  zh: 87697c944bfadcaf
+/cookbook-adding-a-settings-card/1-declare-the-config-host-half:
+  en: 2068f0840fb9a2ac
+  zh: bea78eefb2ae1efa
 /cookbook-adding-a-settings-card/2-register-the-card-browser-half:
-  en: 27d340330326a525
-  zh: 42c2ef1f2cb8f832
+  en: fc2a483e1cac9bf2
+  zh: 38f3c21728b2e512
 /cookbook-adding-a-settings-card/3-what-the-tab-does-with-it:
-  en: 6a957e6f18ca728b
-  zh: bfca06aaa66b8cbd
+  en: 42b8bc0a7d00c010
+  zh: f73b0b747d06873d
 /cookbook-adding-a-settings-card/packaging:
-  en: 34ab9f6dcc3f2bc9
-  zh: 5c4ac9516045a085
+  en: 7fa71a266360ab96
+  zh: 6efe9484fdf3529b
