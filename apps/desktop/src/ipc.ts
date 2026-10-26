@@ -28,6 +28,7 @@ export const DESKTOP_IPC = {
   updatesPresentation: 'qilin-desktop:updates-presentation',
   nativeThemeSet: 'qilin-desktop:native-theme-set',
   windowFullscreen: 'qilin-desktop:window-fullscreen',
+  windowZoom: 'qilin-desktop:window-zoom',
   windowsAppearance: 'qilin-desktop:windows-appearance',
   windowsMenu: 'qilin-desktop:windows-menu',
 } as const
@@ -77,6 +78,13 @@ export interface QilinDesktopProductApi {
    * @returns `name=value` fields separated by `; `, with no hostname, user name, or serial number.
    */
   deviceInfo(): Promise<string>
+  /**
+   * Toggle the product window between zoomed and its restored frame. A product
+   * whose chrome owns the whole title band cannot rely on a native title bar,
+   * so its double click asks here instead.
+   * @returns whether the window is zoomed after the call.
+   */
+  toggleWindowZoom(): Promise<boolean>
   readonly updates: {
     status(): Promise<DesktopUpdatePresentation>
     open(): Promise<void>

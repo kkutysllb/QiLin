@@ -15,6 +15,7 @@ function createProductApi(): QilinDesktopProductApi {
   return {
     protocolVersion: 1,
     deviceInfo: () => ipcRenderer.invoke(DESKTOP_IPC.deviceInfo) as Promise<string>,
+    toggleWindowZoom: () => ipcRenderer.invoke(DESKTOP_IPC.windowZoom) as Promise<boolean>,
     keyboard: {
       closeWindow: revision => ipcRenderer.invoke(DESKTOP_IPC.shortcutsCloseWindow, revision) as Promise<void>,
       subscribe: (listener) => {

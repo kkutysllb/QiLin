@@ -280,6 +280,26 @@ function platformLoginUrl(authorizeUrl: string): string {
   return url.href
 }
 
+/**
+ * Toggle a product window between zoomed and its restored frame.
+ *
+ * Chromium may zoom the window itself when the pointer lands on a drag region;
+ * a product that also forwards its own double click would then toggle twice, so
+ * a repeat request inside ZOOM_TOGGLE_GUARD_MS is treated as the same gesture.
+ */
+const ZOOM_TOGGLE_GUARD_MS = 400
+let lastWindowZoomAt = 0
+function toggleProductWindowZoom(window: BrowserWindow | null): boolean {
+  if (window === null || window.isDestroyed() || window.isFullScreen()) return false
+  const now = Date.now()
+  if (now - lastWindowZoomAt < ZOOM_TOGGLE_GUARD_MS) return window.isMaximized()
+  lastWindowZoomAt = now
+  const zoomed = window.isMaximized()
+  if (zoomed) window.unmaximize()
+  else window.maximize()
+  return !zoomed
+}
+
 function createWindow(preload: string, show = false, primary = false): BrowserWindow {
   const window = new BrowserWindow({
     width: 1280,
@@ -1030,6 +1050,10 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
   ipcMain.handle(DESKTOP_IPC.deviceInfo, (event) => {
     assertProductSender(event)
     return readDeviceInfo()
+  })
+  ipcMain.handle(DESKTOP_IPC.windowZoom, (event) => {
+    assertProductSender(event)
+    return toggleProductWindowZoom(BrowserWindow.fromWebContents(event.sender))
   })
   ipcMain.handle(DESKTOP_IPC.onboardingApiKey, async (event) => {
     assertProductSender(event)
