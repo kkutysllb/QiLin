@@ -29,6 +29,12 @@ declare module '@qilin-agent/llm' {
 
 const testToolSignal = new AbortController().signal
 
+/** The logged-append face a session stub exposes: accepts any append's type and data, returns nothing. */
+type SessionAppendStub = (
+  type: Parameters<Session['append']>[0],
+  data: Parameters<Session['append']>[1],
+) => void
+
 /**
  * PTC mode unit tier (per the Agent Note's plan): provider contribution per mode,
  * misconfiguration rejections, the run_code dispatch bridge (serialization,
@@ -79,7 +85,11 @@ async function setup(options: SetupOptions = {}) {
 
 /** Mint an agent scope configured like production that can register scoped tool policy. */
 async function mintAgentScope(ctx: Context, name = 'scoped'): Promise<{ scope: Scope; agent: Agent }> {
-  const agent = { ctx, id: SessionId(name), session: { header: {}, append: () => {} } } as unknown as Agent
+  const session: { header: { cwd?: string }; append: SessionAppendStub } = {
+    header: {},
+    append: () => {},
+  }
+  const agent = { ctx, id: SessionId(name), session } as Agent
   let scope!: Scope
   await ctx.plugin(Object.assign((inner: Context) => { scope = createScope(inner, agent) },
     { inject: ['tools', 'systemPrompt'] }))
@@ -108,14 +118,12 @@ function registerEcho(ctx: Context, name = 'echo'): unknown[] {
 /** A structural fake of the owning agent: captures session appends. */
 function fakeAgent(context: Context = new Context()): { agent: Agent; events: { type: string; data: unknown }[] } {
   const events: { type: string; data: unknown }[] = []
-  const agent = {
-    // PTC registers retained-state cleanup on the owning agent's context.
-    ctx: context,
-    session: {
-      header: { cwd: '/workspace' },
-      append: (type: string, data: unknown) => { events.push({ type, data }) },
-    },
-  } as unknown as Agent
+  const session: { header: { cwd?: string }; append: SessionAppendStub } = {
+    header: { cwd: '/workspace' },
+    append: (type, data) => { events.push({ type, data }) },
+  }
+  // PTC registers retained-state cleanup on the owning agent's context.
+  const agent = { ctx: context, session } as Agent
   return { agent, events }
 }
 

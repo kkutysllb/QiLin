@@ -175,12 +175,12 @@ describe('ui-settings-plugins apply', () => {
     expect(entry.options).toMatchObject({ id: 'git', order: 15 })
     expect(resolveSlotLabel(entry.options.label)).toBe('Git 仓库')
 
-    const face = (entry.inject as unknown as () => GitCardFace)()
+    const face = (entry as { inject?: () => unknown }).inject?.() as GitCardFace
     // The face carries the card's snapshot seat plus the complete mutation API
     // its staged form drives.
     expect(face.hooks.gitCard.getSnapshot()).toMatchObject({ dirty: false, invalid: false })
-    for (const action of ['edit', 'resetField', 'save', 'discard']) {
-      expect(typeof (face as unknown as Record<string, unknown>)[action]).toBe('function')
+    for (const action of ['edit', 'resetField', 'save', 'discard'] as const) {
+      expect(typeof face[action]).toBe('function')
     }
   })
 

@@ -21,13 +21,25 @@ class IntersectionObserverStub {
 
   observe(element: Element): void { this.observed.add(element) }
 
+  unobserve(element: Element): void { this.observed.delete(element) }
+
+  takeRecords(): IntersectionObserverEntry[] { return [] }
+
+  get root(): Element | Document | null { return null }
+
+  get rootMargin(): string { return '' }
+
+  get scrollMargin(): string { return '' }
+
+  get thresholds(): readonly number[] { return [] }
+
   disconnect(): void {
     this.disconnected = true
     this.observed.clear()
   }
 
   emit(entries: readonly Partial<IntersectionObserverEntry>[]): void {
-    this.callback(entries as IntersectionObserverEntry[], this as unknown as IntersectionObserver)
+    this.callback(entries as IntersectionObserverEntry[], this)
   }
 }
 
@@ -43,6 +55,8 @@ class ResizeObserverStub {
 
   observe(element: Element): void { this.observed.add(element) }
 
+  unobserve(element: Element): void { this.observed.delete(element) }
+
   disconnect(): void {
     this.disconnected = true
     this.observed.clear()
@@ -50,8 +64,14 @@ class ResizeObserverStub {
 
   resize(element: Element, height: number): void {
     this.callback(
-      [{ target: element, contentRect: { height } } as unknown as ResizeObserverEntry],
-      this as unknown as ResizeObserver,
+      [{
+        target: element,
+        contentRect: { height } as DOMRectReadOnly,
+        borderBoxSize: [],
+        contentBoxSize: [],
+        devicePixelContentBoxSize: [],
+      }],
+      this,
     )
   }
 }

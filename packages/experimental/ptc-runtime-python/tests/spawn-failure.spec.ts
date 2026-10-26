@@ -4,7 +4,7 @@ import type { ConfinedArgv } from '@qilin-agent/sandbox'
 import { PythonPtcRuntime } from '../src/index.ts'
 import { createRuntimeContext } from './setup.ts'
 
-const thrown = vi.hoisted(() => ({ value: undefined as unknown }))
+const thrown = vi.hoisted((): { value: unknown } => ({ value: undefined }))
 
 vi.mock('node:child_process', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:child_process')>()

@@ -9,7 +9,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { describe, expect, it } from 'vitest'
 import type { Context } from '@qilin-agent/kylin'
-import type { FsTarget } from '@qilin-agent/fs'
+import { FsTargetKey, type FsTarget } from '@qilin-agent/fs'
 import { apply, PREVIEW_MEDIA_PATH, type Config } from '../src/index.ts'
 
 type Handler = (req: IncomingMessage, res: ServerResponse) => Promise<void>
@@ -85,7 +85,7 @@ function mount(config: Config = {}, overrides: Partial<FakeFs> = {}): Harness {
     ['media-session', { header: { cwd: '/ws' } }],
   ])
   const fs: FakeFs = {
-    resolve: (path, options) => { resolveCalls.push(options?.cwd ?? ''); return { path } as unknown as FsTarget },
+    resolve: (path, options) => { resolveCalls.push(options?.cwd ?? ''); return { targetKey: FsTargetKey(path), displayPath: path } },
     stat: () => ({ type: 'file', size: 3 }),
     readBytes: () => Buffer.from('abc'),
     readByteRange: () => Buffer.from('bc'),
@@ -93,7 +93,7 @@ function mount(config: Config = {}, overrides: Partial<FakeFs> = {}): Harness {
     writeBytes: () => ({ version: 'v1' }),
     ...overrides,
   }
-  const ctx = {
+  const fake = {
     effect: (create: () => unknown) => { create(); return () => {} },
     webServer: {
       register: ({ handler }: { handler: Handler }) => { handlers.push(handler); return () => {} },
@@ -102,14 +102,14 @@ function mount(config: Config = {}, overrides: Partial<FakeFs> = {}): Harness {
     sessions: { get: (id: string) => sessions.get(id) },
     sandboxPolicy: { workspaceRoot: '/ws' },
     fs,
-  } as unknown as Context
-  apply(ctx, config)
+  }
+  apply(fake as Context & typeof fake, config)
   return { media: handlers[0]!, upload: handlers[1]!, resolveCalls, rejection, sessions, fs }
 }
 
 /** Invoke one captured handler with the fake request and response. */
 async function send(handler: Handler, request: Request, response: Recorder): Promise<void> {
-  await handler(request as unknown as IncomingMessage, response as unknown as ServerResponse)
+  await handler(request as Request & IncomingMessage, response as Recorder & ServerResponse)
 }
 
 const mediaUrl = (query: string): string => `${PREVIEW_MEDIA_PATH}?${query}`

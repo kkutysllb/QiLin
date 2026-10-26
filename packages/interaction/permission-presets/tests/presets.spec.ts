@@ -8,6 +8,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context, type Volatile } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
+import type { UserMessage } from '@qilin-agent/llm'
 import SessionStore, { Session, SessionId, SessionSeq, SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import CommandRuntime from '@qilin-agent/commands'
@@ -82,7 +83,7 @@ async function mounted(options: MountOptions = {}): Promise<Context> {
 
 /** An agent stand-in reaching only the session and the inject queue. */
 function agentOf(session: Session): Agent {
-  return { id: session.id, session, inject: () => {} } as unknown as Agent
+  return { id: session.id, session, inject: (_message: UserMessage) => {} } as Agent
 }
 
 /** A session that was never entered into the store, so no initial pinning ran. */

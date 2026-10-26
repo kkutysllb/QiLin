@@ -9,11 +9,11 @@ import { SessionSeq, type TurnEndReason } from '@qilin-agent/session/types'
 import type { TurnLocation } from '@qilin-agent/client-ui-conversation/client'
 import { TurnProcessNodeView } from '../src/client/chat/TurnProcessNodeView.tsx'
 import type { ChatNode } from '../src/client/contract/chat-nodes.ts'
-import type { ChatNodeViewProps } from '../src/client/contract/slots.ts'
+import type { ChatNodeViewProps, TurnProcessOwnerProps } from '../src/client/contract/slots.ts'
 import { turnProcessAlwaysOpen } from '../src/client/contract/turn-process.ts'
 import { zh } from '../src/client/locale.ts'
 
-const t = makeTranslate(zh, commonZh)
+const t: ChatNodeViewProps['t'] = makeTranslate(zh, commonZh)
 
 afterEach(cleanup)
 
@@ -70,20 +70,21 @@ interface ViewOptions {
   readonly foldable?: boolean
 }
 
+/** Typed view props for the seats this control reads: the node, the process state, and the copy. */
+function viewProps(node: ChatNode<'turn-process'>, turnProcess: TurnProcessOwnerProps | undefined): ChatNodeViewProps<'turn-process'> {
+  return { node, turnProcess, t } as ChatNodeViewProps<'turn-process'>
+}
+
 function renderControl(options: ViewOptions = {}) {
   const node = options.node ?? processNode(turn({ reason: { kind: 'completed' } }))
   const setOpen = vi.fn()
-  const props = {
-    node,
-    turnProcess: {
-      hasContent: options.hasContent ?? true,
-      spec: node.data,
-      foldable: options.foldable ?? true,
-      open: options.open ?? false,
-      setOpen,
-    },
-    t,
-  } as unknown as ChatNodeViewProps<'turn-process'>
+  const props = viewProps(node, {
+    hasContent: options.hasContent ?? true,
+    spec: node.data,
+    foldable: options.foldable ?? true,
+    open: options.open ?? false,
+    setOpen,
+  })
   const view = render(<TurnProcessNodeView {...props} />)
   return {
     ...view,
@@ -117,11 +118,9 @@ describe('TurnProcessNodeView states', () => {
 
     fireEvent.click(control)
     expect(view.setOpen).toHaveBeenCalledWith(true)
-    view.rerender(<TurnProcessNodeView {...{
-      node: view.node,
-      turnProcess: { hasContent: true, spec: view.node.data, foldable: true, open: true, setOpen: view.setOpen },
-      t,
-    } as unknown as ChatNodeViewProps<'turn-process'>} />)
+    view.rerender(<TurnProcessNodeView {...viewProps(view.node, {
+      hasContent: true, spec: view.node.data, foldable: true, open: true, setOpen: view.setOpen,
+    })} />)
     const reopened = view.control()
     expect(reopened?.getAttribute('aria-expanded')).toBe('true')
     fireEvent.click(reopened as HTMLButtonElement)

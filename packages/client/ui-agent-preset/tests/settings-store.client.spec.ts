@@ -252,7 +252,7 @@ describe('the new-session chip controller', () => {
           },
         },
       },
-    } as unknown as ClientContext
+    } as never
     return new AgentPresetSeatController(
       ctx,
       typeof current === 'function' ? current : () => current,

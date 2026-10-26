@@ -24,12 +24,11 @@ interface Mounted {
 function connection(): Mounted {
   const routes: unknown[] = []
   const authorities: unknown[] = []
-  const ctx = {
-    connection: {
-      fetch: { register: (route: unknown) => { routes.push(route) } },
-      session: { install: (authority: unknown) => { authorities.push(authority) } },
-    },
-  } as unknown as Context
+  const connection: Pick<Context['connection'], 'fetch' | 'session'> = {
+    fetch: { register: (route) => { routes.push(route); return async () => {} } },
+    session: { install: (authority) => { authorities.push(authority) } },
+  }
+  const ctx = { connection } as Context
   return { ctx, routes, authorities }
 }
 

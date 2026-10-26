@@ -240,7 +240,7 @@ describe('ui-workspace apply', () => {
     expect(overlay?.component).toBe(RowActionToast)
     // The keyed notice slot is declared by the dispatcher that renders it.
     expect(overlay?.children).toMatchObject({ 'workspace.toast': { kind: 'keyed', scope: 'root' } })
-    const injected = (overlay!.inject as unknown as () => RowToastInjected)()
+    const injected = (overlay!.inject as () => RowToastInjected & Record<string, unknown>)()
     expect(injected.hooks.toast.getSnapshot()).toBeNull()
 
     const browser = (b.slots.entries('sidebar.workspaces')[0]!.inject as () => WorkspaceBrowserInjected)()

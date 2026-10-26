@@ -22,7 +22,7 @@ function artifact(events: readonly Record<string, unknown>[], h = header(), inhe
   return {
     header: h,
     inheritedEventCount: inherited,
-    events: events as unknown as SessionFormatArtifact['events'],
+    events: events as SessionFormatArtifact['events'],
   }
 }
 

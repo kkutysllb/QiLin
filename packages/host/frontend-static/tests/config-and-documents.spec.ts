@@ -58,7 +58,7 @@ type Fallback = (req: IncomingMessage, res: ServerResponse) => Promise<void>
 function mount(config: Config): { serve: Fallback; authorized: () => number } {
   let fallback: Fallback | undefined
   let checks = 0
-  const ctx = {
+  const fake = {
     effect: (create: () => unknown) => { create(); return () => {} },
     connection: {
       entryPath: '/entry',
@@ -68,8 +68,8 @@ function mount(config: Config): { serve: Fallback; authorized: () => number } {
       registerFallback: (handler: Fallback) => { fallback = handler; return () => {} },
       renderIndex: (html: string) => html.replace('<head>', '<head><script>window.__T__=1</script>'),
     },
-  } as unknown as Context
-  apply(ctx, config)
+  }
+  apply(fake as Context & typeof fake, config)
   if (fallback === undefined) throw new Error('fallback seat was not claimed')
   return { serve: fallback, authorized: () => checks }
 }
@@ -77,7 +77,8 @@ function mount(config: Config): { serve: Fallback; authorized: () => number } {
 /** Serve one request through the captured fallback seat. */
 async function serve(handler: Fallback, url: string | undefined, method = 'GET'): Promise<Recorder> {
   const res = recorder()
-  await handler({ method, url } as IncomingMessage, res as unknown as ServerResponse)
+  const request = { method, url }
+  await handler(request as IncomingMessage & typeof request, res as ServerResponse & Recorder)
   return res
 }
 

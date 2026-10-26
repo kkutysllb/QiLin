@@ -74,7 +74,7 @@ async function executeShell(text: string, nested: boolean, name = 'bash', maxInl
     const session = Session.create(SessionId('spill-terminal'))
     // The tool pipeline reads the owner session and registers retained-environment
     // cleanup through the Agent's context; no agent loop runs here.
-    const agent = { session, ctx } as unknown as Agent
+    const agent = { session, ctx } as Agent
     const callId = ToolCallId('shell-call')
     const result = await ctx.tools.execute({
       callId,

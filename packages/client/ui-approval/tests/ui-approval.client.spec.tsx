@@ -339,7 +339,7 @@ function panelProps(
     renderSlot,
     resolveReason,
     t: (key: string) => messages[key] ?? key,
-  } as unknown as ApprovalComposerProps
+  } satisfies Partial<ApprovalComposerProps> as ApprovalComposerProps
 }
 
 describe('ApprovalPanel', () => {

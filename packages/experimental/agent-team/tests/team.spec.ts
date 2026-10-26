@@ -108,7 +108,8 @@ function teamInternals(ctx: Context): TeamServiceInternals {
 
 /** Access the existing host adapter for per-instance delivery barriers. */
 function hostDeliverer(ctx: Context): HostPromptDeliverer {
-  return ctx.subagents as unknown as HostPromptDeliverer
+  const deliverer: unknown = ctx.subagents
+  return deliverer as HostPromptDeliverer
 }
 
 function spawn(
@@ -1304,7 +1305,7 @@ describe('Team direct messages and waiting', () => {
       signal: SIGNAL,
     })
     await entered.promise
-    const internal = ctx.agentTeams as unknown as { disposeRuntime(): Promise<void> }
+    const internal = teamInternals(ctx)
     let disposed = false
     const disposal = internal.disposeRuntime().then(() => { disposed = true })
     await aborted.promise

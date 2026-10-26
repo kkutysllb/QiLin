@@ -247,10 +247,10 @@ describe('Chat inject API', () => {
   it('fails loud when a Chat View inject resolves no Session', async () => {
     const b = await bench()
     const entry = b.runtime.slots.entries('conversation.view')[0]!
-    const injectView = entry.inject as unknown as (
+    const injectView = entry.inject as (
       sessionId: SessionId,
       actions: ChatActions,
-    ) => ChatViewInjected
+    ) => unknown
     expect(() => injectView('never-listed' as SessionId, {} as ChatActions))
       .toThrow(/unknown session/)
     await b.runtime.dispose()
@@ -293,13 +293,13 @@ describe('Chat inject API', () => {
     expect(injected.keyedHooks.chatGroup('missing')).toBeDefined()
 
     const flow = b.runtime.slots.entries('conversation.chat.flow')[0]!
-    const flowInjected = (flow.inject as unknown as (id: SessionId) => {
+    const flowInjected = (flow.inject as (id: SessionId) => {
       hooks: unknown
       keyedHooks: { chatNodeBottom: (key: string) => unknown }
     })(ROOT)
     expect(flowInjected.hooks).toBeDefined()
     expect(flowInjected.keyedHooks.chatNodeBottom('missing')).toBeDefined()
-    expect(() => (flow.inject as unknown as (id: SessionId) => unknown)('never-listed' as SessionId))
+    expect(() => (flow.inject as (id: SessionId) => unknown)('never-listed' as SessionId))
       .toThrow(/unknown session/)
     await b.runtime.dispose()
   })
@@ -351,7 +351,7 @@ describe('Chat inject API', () => {
     // An accepted section without the field leaves the local choice standing.
     b.chatSettings.publish({
       status: 'ready',
-      value: { transcriptView: 'compact', performanceUsage: 'detailed' } as unknown as ChatSettings,
+      value: { transcriptView: 'compact', performanceUsage: 'detailed' } as ChatSettings,
       revision: 1,
       writable: true,
     })
