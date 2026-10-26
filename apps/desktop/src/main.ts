@@ -1384,6 +1384,24 @@ async function main(): Promise<void> {
     }
     window.on('closed', () => { if (mainWindow === window) mainWindow = undefined })
     window.webContents.on('console-message', (details) => {
+      // KStock patch (K43): 产品公共页自报画布主题（kstock-window-chrome.js 打印
+      // `__kstock_page_theme__:<dark|light>`），Windows WCO 按钮簇据此切配色——
+      // 引擎默认只跟 nativeTheme/持久化主题走，恒暗色的产品登录页在浅色主题下
+      // 会被配上浅色按钮簇压在深墨蓝画布上。
+      if (process.platform === 'win32' && details.message.startsWith('__kstock_page_theme__:')) {
+        const pageTheme = details.message.slice('__kstock_page_theme__:'.length).trim()
+        if (pageTheme === 'dark' || pageTheme === 'light') {
+          try {
+            window.setTitleBarOverlay({
+              color: pageTheme === 'dark' ? '#0b0e13' : '#f9fafb',
+              symbolColor: pageTheme === 'dark' ? '#e8ecf1' : '#0f1115',
+            })
+          } catch (_overlayUnavailable) {
+            // WCO 未启用（无 titleBarOverlay 的窗口形态）时无需切换，静默即可
+          }
+        }
+        return
+      }
       if (details.level !== 'error') return
       rendererConsole.push(`${details.sourceId}:${String(details.lineNumber)} ${details.message}`)
     })
