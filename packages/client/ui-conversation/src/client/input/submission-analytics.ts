@@ -10,7 +10,7 @@ import type { MessageSubmission } from '../contract/composer-submission.ts'
  */
 function analyticsPreset(id: string): AnalyticsPreset | 'other' {
   switch (id) {
-    case 'cordis': return 'creator'
+    case '@qilin-agent/kylin': return 'creator'
     case 'ptc': return 'ptc'
     case 'minimal': return 'minimal'
     case 'standard': return 'standard'

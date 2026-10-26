@@ -11,7 +11,7 @@ description: "QiLin 仅依据 `@qilin-agent/` peer 范围检查插件兼容性�
 
 上游 0.2.1-alpha.3 让插件自身的 `engines.dsh` 范围单独决定兼容性，仅在该范围缺席时才应用 `peerDependencies`，把 `engines.dsh` 内的 `workspace:` 值视为不兼容，拒绝 `engines` 不是对象或 `engines.dsh` 不是字符串的清单，并把拒绝记录中的 `peers` 字段改名为 `requirements`。
 
-QiLin 保持 `engines.dsh` 为 advisory。`packages/boot/app-boot/src/plugin-compatibility.ts` 中的 `evaluatePluginCompatibility` 读取指名 `@qilin-agent/` harness 包的 `peerDependencies`，从不读取 `engines`；安装与 profile 启动只使用该结果。`requirements` 改名已落地，其键是 peer 包名。vendored 框架包 `@qilin-agent/kylin`、`cosmokit`、`schemastery` 与 `node-addon-system`，以及 `@qilin-agent/kylin-plugin-*` 均被排除，因为它们的版本独立于 QiLin 发布。
+QiLin 保持 `engines.dsh` 为 advisory。`packages/boot/app-boot/src/plugin-compatibility.ts` 中的 `evaluatePluginCompatibility` 读取指名 `@qilin-agent/` harness 包的 `peerDependencies`，从不读取 `engines`；安装与 profile 启动只使用该结果。`requirements` 改名已落地，其键是 peer 包名。vendored 框架包 `@qilin-agent/kylin`、`@qilin-agent/cosmokit`、`@qilin-agent/schemastery` 与 `node-addon-system`，以及 `@qilin-agent/kylin-plugin-*` 均被排除，因为它们的版本独立于 QiLin 发布。
 
 QiLin 的发布版本无法满足上游插件的 `engines.dsh: ^0.2.x` 范围，因此让该范围决定兼容性会在读取 peer 之前就拒绝所有 DSH 插件。[`@qilin-agent/dsh-compat`](../../../../packages/util/dsh-compat/README.zh.md) 让 DSH 时代的插件保持可加载：它在 QiLin 清单键旁读取 `dsh.bundle.patch` 与 `dsh.client`，并把改名后的模块标识符规范化；它不模拟两个运行时之间的 API 漂移。
 

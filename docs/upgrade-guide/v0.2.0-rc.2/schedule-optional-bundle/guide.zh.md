@@ -9,7 +9,7 @@ description: "QiLin 通过可选 bundle `@qilin-agent/experimental-schedule-bund
 
 ## 变更
 
-上游在 0.2.1-alpha.1 移除了其实验性 Schedule bundle，把该能力移入 Web 组合与预设：`@deepseek-ai/dsh-web-app` 在每个 Web profile 中挂载 `schedule` 服务与 `ui-schedule` 页面，其 `standard`、`cordis` 与 `ptc` 预设声明时钟读数及四个 `schedule_*` 工具。QiLin 保留较早的供给形态。
+上游在 0.2.1-alpha.1 移除了其实验性 Schedule bundle，把该能力移入 Web 组合与预设：`@deepseek-ai/dsh-web-app` 在每个 Web profile 中挂载 `schedule` 服务与 `ui-schedule` 页面，其 `standard`、`@qilin-agent/kylin` 与 `ptc` 预设声明时钟读数及四个 `schedule_*` 工具。QiLin 保留较早的供给形态。
 
 `@qilin-agent/experimental-schedule-bundle` 列在 `packages/boot/app-boot/src/profile.ts` 的 `OPTIONAL_BUNDLES` 中，因此每次安装都随附但默认关闭，插件管理页在“官方”分组以“自动化任务”提供它。启用后，该包被追加到 profile 的 `qilin.profile.bundles` 列表，其 patch 在 profile 根插入 `time-context`、`schedule` 与 `ui-schedule` 行。随发行版交付的 Web 组合不含这三行中的任何一行；随发行版交付的 `ptc` 预设声明 `tool-schedule` 行，后者仅在 `schedule` 服务处于作用域内时注册这四个工具。
 
@@ -17,7 +17,7 @@ description: "QiLin 通过可选 bundle `@qilin-agent/experimental-schedule-bund
 
 - 关闭 bundle 时，随发行的 Web profile 没有“自动化任务”页面、没有 Session 提醒目录、没有时钟读数、也没有提醒工具。页面与目录是缺席，而不是空状态。
 - 时钟行在此处是 profile 根行，因此顶层的 `- id: time-context` 覆盖能命中它。上游把时钟行声明在 Web 预设中，顶层覆盖匹配不到任何行。
-- 该版本中 QiLin 只交付一个预设 `ptc`。上游的 `standard`、`cordis` 与 `ptc` 预设声明时钟行与四个工具，`minimal` 两者都不声明。
+- 该版本中 QiLin 只交付一个预设 `ptc`。上游的 `standard`、`@qilin-agent/kylin` 与 `ptc` 预设声明时钟行与四个工具，`minimal` 两者都不声明。
 - 选择状态存放在 `qilin.profile.bundles`；在插件管理页关闭该 bundle 会移除它。
 
 [bundle README](../../../../packages/experimental/schedule-bundle/README.zh.md) 记录了本部署为何保留该 bundle，而不是把三行并入 Web 组合。

@@ -8,7 +8,7 @@ import type { AnalyticsPreset } from '@qilin-agent/client-product-analytics/clie
 export function analyticsMode(id: string): AnalyticsPreset | 'other' | undefined {
   if (id === '') return undefined
   switch (id) {
-    case 'cordis': return 'creator'
+    case '@qilin-agent/kylin': return 'creator'
     case 'ptc': return 'ptc'
     case 'minimal': return 'minimal'
     case 'standard': return 'standard'

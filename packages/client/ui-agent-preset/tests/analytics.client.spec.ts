@@ -9,7 +9,7 @@ import { analyticsMode } from '../src/client/analytics.ts'
 
 describe('analyticsMode', () => {
   it.each([
-    ['cordis', 'creator'],
+    ['@qilin-agent/kylin', 'creator'],
     ['ptc', 'ptc'],
     ['minimal', 'minimal'],
     ['standard', 'standard'],
