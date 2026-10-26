@@ -12,6 +12,7 @@ import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { WorkspaceId } from '@qilin-agent/api-workspace-controller/client'
 import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
 import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
+import type { ProductEventMap } from '@qilin-agent/client-product-analytics/client'
 
 declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
@@ -33,6 +34,8 @@ declare module '@qilin-agent/client-ui-slots' {
      * the sidebar owns the button and resolves its label from list metadata.
      */
     'sidebar.panellist': { kind: 'list'; scope: 'root'; owner: SidebarPanelIconOwnerProps }
+    /** Rows of the panel list's More menu; the sidebar shows More only while this list has registrations. */
+    'sidebar.panellist.actions': { kind: 'list'; scope: 'root'; owner: SidebarPanelActionsOwnerProps }
     /**
      * Deployment-side section assignment for panel rows. Each occupant's
      * inject face contributes a row-id → section-label map applied over the
@@ -144,6 +147,37 @@ export interface SidebarFooterActionOwnerProps {
   wide: boolean
 }
 
+/** One customizable panel launcher listed in the More menu. */
+export interface SidebarPanelActionEntry {
+  /** Panel id. */
+  readonly id: string
+  /** Resolved panel label. */
+  readonly label: string
+  /** False while the launcher is unpinned from the sidebar. */
+  readonly pinned: boolean
+  /** Whether this panel is selected, independently of its pin state. */
+  readonly active?: boolean
+}
+
+/** Owner share of the panel list's More menu rows. */
+export interface SidebarPanelActionsOwnerProps {
+  /** Customizable panels in registration order; Plugins is never listed. */
+  readonly entries: readonly SidebarPanelActionEntry[]
+  /**
+   * Open a panel without changing its pin state.
+   * @param id - Listed panel id.
+   */
+  readonly onOpen: (id: string) => void
+  /**
+   * Show (true) or unpin (false) a panel launcher.
+   * @param id - Listed panel id.
+   * @param pinned - Whether the launcher shows in the sidebar.
+   */
+  readonly onPinnedChange: (id: string, pinned: boolean) => void
+  /** Close the More menu. */
+  readonly onDismiss: () => void
+}
+
 /**
  * Registrant-private injected share (arrives via the register inject
  * factory). The renderer binds the panel metadata source to usePanels.
@@ -159,8 +193,23 @@ export type SidebarRootInjected = {
   toggleSidebar: () => void
   /** Select the global panel addressed by a sidebar row. */
   selectPanel: (id: MainPanelId) => void
+  /**
+   * Show or unpin one panel launcher; Plugins is ignored.
+   * @param id - Panel id.
+   * @param pinned - Whether the launcher shows in the sidebar.
+   */
+  setPinned: (id: string, pinned: boolean) => void
+  /** Record activation of an official navigation control without changing navigation. */
+  trackEntryClick: (attributes: ProductEventMap['sidebar_menu_click']) => void
   /** Private reactive sources bound to framework selector hooks. */
-  hooks: { panels: ObservableSnapshot<readonly SidebarPanelMetadata[]>; shortcuts: ObservableSnapshot<readonly ShortcutCatalogEntry[]> }
+  hooks: {
+    panels: ObservableSnapshot<readonly SidebarPanelMetadata[]>
+    shortcuts: ObservableSnapshot<readonly ShortcutCatalogEntry[]>
+    /** Ids of unpinned panel launchers held in memory until plugin reload. */
+    entryPins: ObservableSnapshot<readonly string[]>
+    /** Whether `sidebar.panellist.actions` has registrations. */
+    entryActions: ObservableSnapshot<boolean>
+  }
 }
 
 /**
@@ -175,6 +224,7 @@ export type SidebarRootComponentProps =
     | 'sidebar.brand.name'
     | 'sidebar.toggle.badge'
     | 'sidebar.panellist'
+    | 'sidebar.panellist.actions'
     | 'sidebar.workspaces'
     | 'sidebar.settings'
     | 'sidebar.account'

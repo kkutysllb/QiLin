@@ -66,7 +66,8 @@ describe('roster Settings integration', () => {
     expect(ctx.agentPresets.defaultId).toBe('temp')
     // The roster's own context is not the Loader fiber in this harness; naming
     // the entry it belongs to is what the Loader composition supplies.
-    const owner = (ctx.agentPresets as unknown as { ctx: { fiber: object } }).ctx.fiber
+    const internals: unknown = ctx.agentPresets
+    const owner = (internals as { ctx: { fiber: object } }).ctx.fiber
     Object.defineProperty(owner, 'entry', { value: { options: { id: 'agent-presets' } } })
     await ctx.agentPresets.remove('temp')
     expect(replace).toHaveBeenCalledOnce()

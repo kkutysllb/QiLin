@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/client-ui-settings-general",
   "description": "Settings shell plugin: the General section, shell trigger/header chrome content, and settings dictionaries",
-  "version": "3.1.7-rc.3",
+  "version": "3.1.7",
   "publishConfig": {
     "access": "public"
   },
@@ -59,6 +59,7 @@
     "@qilin-agent/client-connection": "workspace:*",
     "@qilin-agent/client-locale": "workspace:*",
     "@qilin-agent/client-modules": "workspace:*",
+    "@qilin-agent/client-product-analytics": "workspace:*",
     "@qilin-agent/client-shortcuts": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",

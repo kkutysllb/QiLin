@@ -44,7 +44,7 @@
 
 :global([data-windows-titlebar]) .toggle {
   position: fixed;
-  top: calc((var(--qilin-windows-titlebar-height) - 28px) / 2);
+  top: calc((var(--qilin-windows-titlebar-height, var(--dsh-windows-titlebar-height, 40px)) - 28px) / 2);
   left: 12px;
   z-index: 30;
   -webkit-app-region: no-drag;
@@ -85,13 +85,19 @@
   display: none;
 }
 
+/* Expanded: the menu clears the caption toggle at 12..40. Collapsed: it also clears
+   the fixed New Session button at 48..76. */
+:global(html[data-windows-titlebar]) {
+  --qilin-windows-menu-start: 48px;
+}
+
 :global(html[data-windows-titlebar]:has([data-sidebar-collapsed='true'])) {
   --qilin-windows-menu-start: 84px;
 }
 
 :global([data-windows-titlebar]) .collapsed .newSession {
   position: fixed;
-  top: calc((var(--qilin-windows-titlebar-height) - 28px) / 2);
+  top: calc((var(--qilin-windows-titlebar-height, var(--dsh-windows-titlebar-height, 40px)) - 28px) / 2);
   left: 48px;
   margin: 0;
   padding: 0;
@@ -443,8 +449,23 @@
   flex: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   margin-bottom: 8px;
+}
+
+/* The More launcher keeps the panel rows' geometry inside the menu's anchor wrapper. */
+.moreAnchor {
+  display: flex;
+  flex-direction: column;
+}
+
+.panelRow[aria-expanded='true'] {
+  background: var(--qilin-alias-interactive-bg-hover);
+}
+
+.moreMenu {
+  width: 288px;
+  max-width: calc(100vw - 24px);
 }
 
 /* A section break: a small-caps header when wide, a hairline rail when narrow.

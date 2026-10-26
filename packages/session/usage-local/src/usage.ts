@@ -89,6 +89,7 @@ export function collectSessionUsage(sessionId: string, events: readonly SessionE
  * @param records - the ledger's records.
  * @param from - inclusive window start in epoch milliseconds.
  * @param to - inclusive window end in epoch milliseconds, or undefined for no end.
+ * @returns the records whose `at` falls inside the window, in ledger order.
  */
 export function withinWindow(records: readonly LocalUsageRecord[], from: number, to?: number): readonly LocalUsageRecord[] {
   return records.filter(record => record.at >= from && (to === undefined || record.at <= to))
@@ -98,6 +99,7 @@ export function withinWindow(records: readonly LocalUsageRecord[], from: number,
  * Total the whole ledger: every Turn, the distinct sessions they belong to, and
  * the prompt cache hit rate.
  * @param records - the ledger's records.
+ * @returns the aggregate: turn count, distinct sessions, token sums, and cache hit rate.
  */
 export function totalOf(records: readonly LocalUsageRecord[]): LocalUsageTotal {
   const sessions = new Set(records.map(record => record.sessionId))
@@ -127,6 +129,7 @@ export function totalOf(records: readonly LocalUsageRecord[]): LocalUsageTotal {
  * @param accountId - account the ledger names for display.
  * @param all - every Turn this runtime's logs prove.
  * @param windowed - the Turns inside the requested window.
+ * @returns the page answer: account display, total over `all`, and windowed records sorted by time.
  */
 export function usageAnswer(accountId: string, all: readonly LocalUsageRecord[], windowed: readonly LocalUsageRecord[]): LocalUsageAnswer {
   return {

@@ -21,6 +21,7 @@ import type {} from '@qilin-agent/client-locale/client'
 import type { ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
 import type {} from '@qilin-agent/client-ui-session/client'
+import type {} from '@qilin-agent/client-product-analytics/client'
 import type {
   SettingsOnboardingStep, SettingsRootInjected, SettingsSectionRow, SettingsShell,
 } from './shell-contract.ts'
@@ -78,7 +79,15 @@ export function apply(ctx: ClientContext): void {
     name: 'settings.general.item', id: 'developer-tools', order: 15, locale: NS,
     inject: (): DeveloperToolsRowInjected => ({
       hooks: { developerTools: ctx.configForms.developerTools.enabled },
-      setEnabled: enabled => ctx.configForms.developerTools.setEnabled(enabled),
+      setEnabled: async (enabled) => {
+        const preference = ctx.configForms.developerTools
+        const previous = preference.enabled.getSnapshot()
+        const timestamp = Date.now()
+        await preference.setEnabled(enabled)
+        if (previous !== enabled && preference.enabled.getSnapshot() === enabled) {
+          ctx.get('productAnalytics')?.track('code_work_view_toggle', { is_enabled: enabled }, timestamp)
+        }
+      },
     }),
   }, DeveloperToolsRow))
   // Version information follows the core preferences.

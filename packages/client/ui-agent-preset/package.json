@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/client-ui-agent-preset",
   "description": "Agent-preset surfaces: the default for later sessions, this session's seat, and the composition editor",
-  "version": "3.1.7-rc.3",
+  "version": "3.1.7",
   "publishConfig": {
     "access": "public"
   },
@@ -57,6 +57,7 @@
     "@qilin-agent/agent-presets": "workspace:*",
     "@qilin-agent/client-connection": "workspace:*",
     "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-product-analytics": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
     "@qilin-agent/client-ui-conversation": "workspace:*",

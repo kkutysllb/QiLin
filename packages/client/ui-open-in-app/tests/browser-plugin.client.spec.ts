@@ -284,7 +284,7 @@ describe('open-in-app browser half', () => {
     }))
     const { ctx, fiber } = await bench()
     const entry = ctx.slots.entries('conversation.session.header.utilities')[0]
-    const injected = (entry?.inject as unknown as () => OpenInAppActionInjected)()
+    const injected = (entry as { inject?: () => unknown } | undefined)?.inject?.() as OpenInAppActionInjected
     await vi.waitFor(() => {
       expect(injected.hooks.openInAppApps.getSnapshot()).toEqual([])
     })

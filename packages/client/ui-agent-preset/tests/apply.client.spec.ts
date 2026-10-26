@@ -746,7 +746,7 @@ describe('ui-agent-preset apply', () => {
     ctx.provide('conversation', {} as never)
     const sessions = sessionsDouble(ctx, {
       current: 's1',
-      byId: { s1: { id: 's1', blank: true, projectionValues: { agentPreset: 'standard' } } },
+      byId: { s1: { id: 's1', blank: true, projectionValues: {} } },
     })
     ctx.provide('sessions', sessions as never)
     const uiWorkspace = uiWorkspaceDouble()
@@ -883,14 +883,15 @@ describe('AgentPresetSeatController reconciliation', () => {
     const entry = slots.entries('plugins.add.actions')[0]
     expect(entry?.component).toBe(CreatePluginMenuItem)
     expect(entry?.options).toMatchObject({ id: 'create-plugin' })
-    const face = (entry?.inject as unknown as () => {
+    const face = (entry?.inject as () => {
       hooks: { agentPresets: unknown }
       load: () => Promise<void>
       startCreatorDraft: () => void
     })()
     // The draft is gated on the section's picker policy, which its own store
     // carries: the menu entry reads the same page state the section renders.
-    const section = (slots.entries('settings.section')[0]!.inject as unknown as () => AgentPresetSectionInjected)()
+    const section = (slots.entries('settings.section')[0]! as { inject?: () => unknown })
+      .inject?.() as AgentPresetSectionInjected
     await section.load()
     await face.load()
     face.startCreatorDraft()
@@ -898,9 +899,8 @@ describe('AgentPresetSeatController reconciliation', () => {
     // new-session flow, the same entry the settings section offers.
     expect(uiWorkspace.starts).toHaveLength(1)
 
-    const injectSeat = slots.entries('conversation.hero.agentPreset')[0]!
-      .inject as unknown as (sessionId?: SessionId) => AgentPresetSeatInjected
-    const seat = injectSeat()
+    const injectSeat = slots.entries('conversation.hero.agentPreset')[0]! as { inject?: () => unknown }
+    const seat = injectSeat.inject?.() as AgentPresetSeatInjected
     const before = seat.hooks.agentPresetSeat.getSnapshot()
     // Nothing is on display, so acknowledging a refusal leaves the chip alone.
     seat.dismissRefusal({ reason: 'stale', preset: { id: 'minimal', trust: 'user' } })

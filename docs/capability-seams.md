@@ -10,6 +10,9 @@ flowchart LR
   pkg_hmr["hmr"]
   svc_hmr["ctx.hmr<br/>Serialized module and configuration reloads"]
   pkg_app_boot["app-boot"]
+  pkg_ui_theme["ui-theme"]
+  svc_themeBoot["ctx.themeBoot<br/>Skin boot colours"]
+  pkg_ui_theme_brand["ui-theme-brand"]
   pkg_config_editor["config-editor"]
   svc_configEditor["ctx.configEditor<br/>Profile configuration edits"]
   pkg_settings["settings"]
@@ -427,6 +430,7 @@ flowchart LR
   pkg_tool_subagent --> svc_subagentModelSelection
   pkg_tools --> svc_tools
   pkg_typert_registry --> svc_typert
+  pkg_ui_theme --> svc_themeBoot
   pkg_user_approval --> svc_approval
   pkg_user_questions --> svc_userQuestions
   pkg_web --> svc_web
@@ -559,6 +563,7 @@ flowchart LR
   svc_systemPrompt --> pkg_tool_web
   svc_systemPrompt --> pkg_tools
   svc_terminals --> pkg_tool_terminal
+  svc_themeBoot --> pkg_ui_theme_brand
   svc_tokenMeter --> pkg_compaction_basic
   svc_toolResultPruner --> pkg_compaction_basic
   svc_tools --> pkg_agent_loop
@@ -596,6 +601,7 @@ flowchart LR
 | ctx key | Role | Owner | Implementations | Direct consumers | Companion plugins | Note |
 | --- | --- | --- | --- | --- | --- | --- |
 | `ctx.hmr` | `core` | [`hmr`](../packages/boot/hmr) | - | [`app-boot`](../packages/boot/app-boot) | - | Owns module and exact configuration watchers; application mutations share its queue and automatic reloads await the application file lock. |
+| `ctx.themeBoot` | `seam` | `ui-theme` | `ui-theme` | `ui-theme-brand` | - | Carries per-skin boot backgrounds from brand packages to the shell before first paint. |
 | `ctx.configEditor` | `core` | [`config-editor`](../packages/settings/config-editor) | - | [`settings`](../packages/settings/settings), [`agent-default-model`](../packages/core/agent-default-model) | - | Persists profile config patches under the application file lock and HMR queue, then reconciles Loader entries. |
 | `ctx.inspector` | `core` | [`experimental-inspector`](../packages/experimental/inspector) | - | - | - | Owns the Worker-hosted CDP target and the transport-independent Host and Client observation and Cordis-tree query API. |
 | `ctx.claudeCodeMods` | `seam` | [`experimental-claude-code-mods`](../packages/experimental/claude-code-mods) | - | [`experimental-client-ui-claude-code-mods`](../packages/experimental/client-ui-claude-code-mods) | - | Runs each loaded mod in load order above the prompt band, raising the harness events it serves and serving its `$` calls through composed services. |

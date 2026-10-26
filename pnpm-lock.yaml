@@ -107,6 +107,9 @@ importers:
       '@types/papaparse':
         specifier: ^5.3.16
         version: 5.5.2
+      '@types/semver':
+        specifier: ^7.8.0
+        version: 7.8.0
       '@types/spdx-expression-parse':
         specifier: ^4.0.0
         version: 4.0.0
@@ -179,6 +182,9 @@ importers:
       publint:
         specifier: ^0.3.21
         version: 0.3.21
+      semver:
+        specifier: ^7.8.5
+        version: 7.8.5
       smol-toml:
         specifier: ^1.7.1
         version: 1.7.1
@@ -2587,6 +2593,9 @@ importers:
       '@qilin-agent/client-ui-directory-picker-native':
         specifier: workspace:*
         version: link:../../client/ui-directory-picker-native
+      '@qilin-agent/client-ui-entry-customization':
+        specifier: workspace:*
+        version: link:../../client/ui-entry-customization
       '@qilin-agent/client-ui-goal':
         specifier: workspace:*
         version: link:../../client/ui-goal
@@ -3228,6 +3237,9 @@ importers:
       '@qilin-agent/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin-agent/client-product-analytics':
+        specifier: workspace:*
+        version: link:../../api/product-analytics
       '@qilin-agent/client-store':
         specifier: workspace:*
         version: link:../store
@@ -3641,6 +3653,9 @@ importers:
       '@qilin-agent/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin-agent/client-product-analytics':
+        specifier: workspace:*
+        version: link:../../api/product-analytics
       '@qilin-agent/client-shortcuts':
         specifier: workspace:*
         version: link:../shortcuts
@@ -3965,6 +3980,60 @@ importers:
         version: 18.3.7(@types/react@18.3.31)
       clsx:
         specifier: ^2.0.0
+        version: 2.1.1
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+
+  packages/client/ui-entry-customization:
+    devDependencies:
+      '@qilin-agent/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin-agent/client-product-analytics':
+        specifier: workspace:*
+        version: link:../../api/product-analytics
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-conversation':
+        specifier: workspace:*
+        version: link:../ui-conversation
+      '@qilin-agent/client-ui-plugin-manager':
+        specifier: workspace:*
+        version: link:../ui-plugin-manager
+      '@qilin-agent/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin-agent/client-ui-sidebar':
+        specifier: workspace:*
+        version: link:../ui-sidebar
+      '@qilin-agent/client-ui-sidebar-right':
+        specifier: workspace:*
+        version: link:../ui-sidebar-right
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin-agent/client-ui-workspace':
+        specifier: workspace:*
+        version: link:../ui-workspace
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@testing-library/react':
+        specifier: ^16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      clsx:
+        specifier: ^2.1.1
         version: 2.1.1
       react:
         specifier: ^18.2.0
@@ -4974,6 +5043,9 @@ importers:
       '@qilin-agent/client-modules':
         specifier: workspace:*
         version: link:../modules
+      '@qilin-agent/client-product-analytics':
+        specifier: workspace:*
+        version: link:../../api/product-analytics
       '@qilin-agent/client-shortcuts':
         specifier: workspace:*
         version: link:../shortcuts
@@ -5419,6 +5491,9 @@ importers:
       '@qilin-agent/client-locale':
         specifier: workspace:*
         version: link:../locale
+      '@qilin-agent/client-product-analytics':
+        specifier: workspace:*
+        version: link:../../api/product-analytics
       '@qilin-agent/client-shortcuts':
         specifier: workspace:*
         version: link:../shortcuts
@@ -8967,7 +9042,7 @@ importers:
         version: 11.0.4
       serve-static:
         specifier: ^2.2.1
-        version: 2.2.1(supports-color@9.4.0)
+        version: 2.2.1
       ws:
         specifier: ^8.21.0
         version: 8.22.0
@@ -11219,6 +11294,9 @@ importers:
       eventsource-parser:
         specifier: ^3.1.0
         version: 3.1.0
+      semver:
+        specifier: ^7.8.5
+        version: 7.8.5
     devDependencies:
       '@qilin-agent/agent':
         specifier: workspace:*
@@ -11298,6 +11376,9 @@ importers:
       '@qilin-agent/tools':
         specifier: workspace:*
         version: link:../../core/tools
+      '@types/semver':
+        specifier: ^7.8.0
+        version: 7.8.0
 
   packages/llm/llm-deepseek-api-key:
     dependencies:
@@ -22933,11 +23014,6 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  semver@7.8.4:
-    resolution: {integrity: sha512-rUCObTnP32Q08R2uuIrt7r9PlEonuTmtuXYcW6s5kjdlj3xbnwe+21yXptAUYcMAABLkYYTtnmzb3w3EDZfueA==}
-    engines: {node: '>=10'}
-    hasBin: true
-
   semver@7.8.5:
     resolution: {integrity: sha512-Y7/KDsb8LjooZpwaqGyulO6DQlksgCncchHGk+sZIY4SBvUocMBEFH5Ur1fI4dV+Jvl0w6cjvucaIi40puRioA==}
     engines: {node: '>=10'}
@@ -28402,7 +28478,7 @@ snapshots:
       lodash.merge: 4.6.2
       minimatch: 10.2.5
       scslre: 0.3.0
-      semver: 7.8.4
+      semver: 7.8.5
       ts-api-utils: 2.5.0(typescript@6.0.3)
       typescript: 6.0.3
       yaml: 2.9.0
@@ -28571,8 +28647,8 @@ snapshots:
       qs: 6.15.3
       range-parser: 1.3.0
       router: 2.2.0
-      send: 1.2.1(supports-color@9.4.0)
-      serve-static: 2.2.1(supports-color@9.4.0)
+      send: 1.2.1
+      serve-static: 2.2.1
       statuses: 2.0.2
       type-is: 2.1.0
       vary: 1.1.2
@@ -30857,11 +30933,9 @@ snapshots:
 
   semver@7.7.4: {}
 
-  semver@7.8.4: {}
-
   semver@7.8.5: {}
 
-  send@1.2.1(supports-color@9.4.0):
+  send@1.2.1:
     dependencies:
       debug: 4.4.3(supports-color@9.4.0)
       encodeurl: 2.0.0
@@ -30882,12 +30956,12 @@ snapshots:
       type-fest: 0.13.1
     optional: true
 
-  serve-static@2.2.1(supports-color@9.4.0):
+  serve-static@2.2.1:
     dependencies:
       encodeurl: 2.0.0
       escape-html: 1.0.3
       parseurl: 1.3.3
-      send: 1.2.1(supports-color@9.4.0)
+      send: 1.2.1
     transitivePeerDependencies:
       - supports-color
 
@@ -31360,7 +31434,7 @@ snapshots:
       picomatch: 4.0.4
       rolldown: 1.1.1
       rolldown-plugin-dts: 0.25.2(oxc-resolver@11.20.0)(rolldown@1.1.1)(typescript@6.0.3)
-      semver: 7.8.4
+      semver: 7.8.5
       tinyexec: 1.2.4
       tinyglobby: 0.2.17
       tree-kill: 1.2.2

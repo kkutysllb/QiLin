@@ -57,7 +57,7 @@ describe('released V5 codec framing', () => {
     const row = {
       type: 'developer/message', seq: 3, time: 4, ignorable: true,
       data: { turn: 1, step: 1, headerSeq: 2, message: { ...developer, content: [{ type: 'tool-addition' }] } },
-    } as unknown as SessionFormatEvent
+    } as SessionFormatEvent
     expect(() => releasedV5SessionFormatCodec.encodeEvent(row)).toThrow('nonempty toolName')
   })
 })

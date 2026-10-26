@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/llm-deepseek",
   "description": "DeepSeek Messages adapter",
-  "version": "3.1.7-rc.3",
+  "version": "3.1.7",
   "publishConfig": {
     "access": "public"
   },
@@ -51,7 +51,8 @@
     "@qilin-agent/brand": "workspace:*",
     "@qilin-agent/util-values": "workspace:*",
     "@qilin-agent/schemastery": "workspace:~",
-    "eventsource-parser": "^3.1.0"
+    "eventsource-parser": "^3.1.0",
+    "semver": "^7.8.5"
   },
   "devDependencies": {
     "@qilin-agent/kylin": "workspace:~",
@@ -79,6 +80,7 @@
     "@qilin-agent/session-projection": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
-    "@qilin-agent/credentials-local": "workspace:*"
+    "@qilin-agent/credentials-local": "workspace:*",
+    "@types/semver": "^7.8.0"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/client-ui-sidebar",
   "description": "Sidebar plugin: session multi-level tree, search, grouping, state dots",
-  "version": "3.1.7-rc.3",
+  "version": "3.1.7",
   "publishConfig": {
     "access": "public"
   },
@@ -60,6 +60,7 @@
     "@qilin-agent/client-ui-conversation": "workspace:*",
     "@qilin-agent/client-ui-layout": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-product-analytics": "workspace:*",
     "@qilin-agent/client-ui-renderer": "workspace:*",
     "@qilin-agent/client-ui-session": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",

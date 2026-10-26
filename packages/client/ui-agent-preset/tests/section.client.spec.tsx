@@ -72,11 +72,16 @@ function renderSection(
   return actions
 }
 
-/** Locate a card by the id it prints, not by its display name. */
+/**
+ * Locate a card by the identity it prints: a custom preset shows the id it was
+ * authored with, a shipped preset only its resolved display name.
+ */
 function rowFor(id: string): HTMLElement {
-  const key = screen.getAllByText(id).find(node => node.tagName === 'CODE')
-  const row = key?.closest('li') ?? null
-  /* v8 ignore next -- every rendered card prints its id */
+  const shipped = id === 'ptc'
+  const marker = screen.getAllByText(shipped ? en.presetPtcName : id)
+    .find(node => node.tagName === (shipped ? 'SPAN' : 'CODE'))
+  const row = marker?.closest('li') ?? null
+  /* v8 ignore next -- every rendered card prints its id or its resolved name */
   if (row === null) throw new Error(`no card for ${id}`)
   return row
 }
@@ -511,7 +516,15 @@ describe('deleting a preset', () => {
 describe('a long card description', () => {
   /** jsdom has no ResizeObserver; the description watches its own box through one. */
   class ResizeObserverStub {
-    observe(): void {}
+    constructor(private readonly callback: ResizeObserverCallback) {}
+    observe(target: Element): void {
+      // Deliver one laid-out border box so the tooltip leaves its hidden state.
+      const size = { inlineSize: 320, blockSize: 40 }
+      this.callback([{
+        target, borderBoxSize: [size], contentBoxSize: [size], devicePixelContentBoxSize: [size],
+        contentRect: new DOMRect(0, 0, size.inlineSize, size.blockSize),
+      }], this)
+    }
     unobserve(): void {}
     disconnect(): void {}
   }

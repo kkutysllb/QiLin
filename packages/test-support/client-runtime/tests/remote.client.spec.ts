@@ -58,7 +58,7 @@ describe('TestRemote', () => {
 
     remote.provideNamespaces({ settings })
 
-    expect((remote as unknown as { settings: unknown }).settings).toBe(settings)
+    expect((remote as TestRemote & { settings: unknown }).settings).toBe(settings)
     expect(ctx.get('remote.settings')).toBe(settings)
     await ctx.fiber.dispose()
   })

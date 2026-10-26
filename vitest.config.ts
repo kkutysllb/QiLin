@@ -170,7 +170,9 @@ export default defineConfig({
   plugins: [pathsPlugin(), standardDecoratorPlugin()],
   resolve: { alias: claudeCodeTestingAliases },
   test: {
-    setupFiles: ['./scripts/test-proxy-environment.ts', './scripts/test-dom-environment.ts'],
+    setupFiles: [
+      './scripts/test-proxy-environment.ts', './scripts/test-dom-environment.ts', './scripts/test-official-listing-guard.ts',
+    ],
     // .tsx: client component specs (jsdom via per-file @vitest-environment pragma).
     include: testIncludes,
     exclude: platformUnsupportedTests,
@@ -187,7 +189,9 @@ export default defineConfig({
           // MaybeLocal in cjs_lexer::Parse) from worker threads on macOS,
           // Linux, and Windows. Forked workers avoid that shared thread path.
           pool: 'forks',
-          setupFiles: ['./scripts/test-proxy-environment.ts', './scripts/test-dom-environment.ts'],
+          setupFiles: [
+      './scripts/test-proxy-environment.ts', './scripts/test-dom-environment.ts', './scripts/test-official-listing-guard.ts',
+    ],
           include: testIncludes,
           exclude: [
             ...platformUnsupportedTests,
@@ -203,7 +207,9 @@ export default defineConfig({
           name: 'process-bound',
           execArgv: vitestExecArgv,
           pool: 'forks',
-          setupFiles: ['./scripts/test-proxy-environment.ts', './scripts/test-dom-environment.ts'],
+          setupFiles: [
+      './scripts/test-proxy-environment.ts', './scripts/test-dom-environment.ts', './scripts/test-official-listing-guard.ts',
+    ],
           include: processBoundTests,
           exclude: [
             ...platformUnsupportedTests,

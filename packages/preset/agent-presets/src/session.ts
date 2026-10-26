@@ -29,6 +29,13 @@ declare module '@qilin-agent/session/types' {
   }
 }
 
+declare module '@qilin-agent/session/types' {
+  interface SessionProjectionMap {
+    /** Current Session preset, initialized from its header and advanced by selection events. */
+    agentPreset: string | null
+  }
+}
+
 const agentPresetSchema = z.union([z.string(), z.null()])
 
 /** Current Session preset, initialized from its header and advanced by selection events. */

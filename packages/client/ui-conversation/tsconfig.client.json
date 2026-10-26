@@ -98,6 +98,9 @@
     },
     {
       "path": "../../context/file-reference"
+    },
+    {
+      "path": "../../api/product-analytics/tsconfig.client.json"
     }
   ],
   "exclude": [

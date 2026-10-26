@@ -1,5 +1,5 @@
 ---
-description: "DeepSeek api-key authentication and model discovery."
+description: "DeepSeek API-key authentication, model discovery, and the official model listing."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Register authentication and model discovery for `deepseek-official`. This plugin shares the [Messages transport](../llm-deepseek/README.md) and owns credential resolution and catalog availability.
+Register authentication, model discovery, and the official model listing for `deepseek-official`. This plugin shares the [Messages transport](../llm-deepseek/README.md) and owns credential resolution, catalog availability, and model admission.
 
 Authentication resolution returns the validated API key in `x-api-key` for both Messages and Files requests.
 
@@ -37,12 +37,25 @@ Authentication resolution returns the validated API key in `x-api-key` for both 
 
 The endpoint and credential reference come from one configuration resolution. In-flight requests retain that snapshot; subsequent updates affect subsequent calls. Account login state cannot change this route’s credential.
 
-`models` is an independently configurable catalog for this provider; defaults and protocol capabilities come from the shared transport. Discovery does not probe inference endpoints. The settings namespace is the Cordis entry id, or the plugin name without an entry. Product profiles retain the official entry id `llm-deepseek`; the account route has no provider plugin in this repository yet.
+`models` is an independently configurable catalog for this provider; defaults and protocol capabilities come from the shared transport. While `models` equals the built-in catalog and the Messages origin is the official API, `https://api.deepseek.com`, the route serves the official `GET https://api.deepseek.com/models` listing instead. Listing requests carry the API key in `x-api-key` and the harness `User-Agent`, and reject redirects; without an API key the route requests nothing. Any other endpoint, including one named by `baseURL` or `$DEEPSEEK_BASE_URL`, serves `models` and requests no listing. Discovery does not probe inference endpoints.
+
+The first access waits for the listing up to `modelsTimeoutMs`. Later accesses use the loaded listing and refresh it in the background once it is older than `modelsMaxAgeMs`; an idle route sends no requests. A failed or empty listing keeps the previous one; before any listing loads, the route serves the built-in catalog of the current version (`deepseek-flash` and `deepseek-v4-pro`). A listing HTTP 401 fails only that load. Each loaded listing, the first failure of a failing streak with the catalog it falls back to, and each listing entry hidden because its declarations are unreadable or unusable are written to stderr with the `[llm-deepseek-api-key]` tag; stdout remains available for protocol messages, and secrets are never logged.
+
+Listed models are offered, merged with this build's entries, and refused before network I/O with `CLIENT_UPGRADE_REQUIRED` or `MODEL_UNSUPPORTED`; a listed entry declares its client requirement under this build's product token or the upstream `deepseek-harness` token, this build's token first. Model ids the listing does not name pass through unchanged.
+
+A `models` list that differs from the built-in catalog replaces the catalog and stops listing requests; the Models page stores an edited catalog there. Removing that list, as **Restore defaults** on the Models page does, returns the route to the listing, and the next access loads the listing again even when the cached one is still fresh. A list identical to the built-in catalog counts as uncustomized.
+
+| Field | Default | Meaning |
+|---|---|---|
+| `modelsTimeoutMs` | `5,000` | Deadline of one listing request and of a first-access wait |
+| `modelsMaxAgeMs` | `600,000` | Listing age after which the next access refreshes it; a failed load retries after the same age |
+
+The settings namespace is the Cordis entry id, or the plugin name without an entry. Product profiles retain the official entry id `llm-deepseek`.
 
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 
-Registrations and listeners dispose with the plugin. Shared Host wiring supplies attachments, request extensions, anonymous identity, and atomic retry-policy updates; this plugin registers only its own route.
+Registrations and listeners dispose with the plugin, and disposal aborts an in-flight listing request. Shared Host wiring supplies attachments, request extensions, anonymous identity, and atomic retry-policy updates; this plugin registers only its own route and uses the transport's `connect` and `admit` hooks for the listed catalog and the gate. The listing request, its cache, and catalog resolution come from the shared transport; the cache lives in memory and is keyed by endpoint and a SHA-256 of the key, so another key loads its own listing. A `loader/volatile-update` listener discards the cached listing whenever the route starts or stops following it.
 
 <a id="further-exploration"></a>
 ## Further Exploration

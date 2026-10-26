@@ -21,8 +21,8 @@
   en: b375e1edb5171239
   zh: 7f8659395ab519cd
 /qilin-agent-client-ui-sidebar/use-this-package/global-panel-entries:
-  en: 5d3300d3506254c5
-  zh: bb2220103e91d9de
+  en: 8a04ae596c9bb0b2
+  zh: 9ae4efc514184e2d
 /qilin-agent-client-ui-sidebar/use-this-package/collapse-behavior:
   en: d844a11db7e53871
   zh: 5b6b7d177a72de86
@@ -30,11 +30,14 @@
   en: 2394638d0a211e25
   zh: c28fffe34fbc47cd
 /qilin-agent-client-ui-sidebar/use-this-package/scrollbars:
-  en: d053b1ed0f4fd293
-  zh: ff25a56541f57530
+  en: 9e7b31acee759f2b
+  zh: 3a6beb63b23d26ae
+/qilin-agent-client-ui-sidebar/use-this-package/click-analytics:
+  en: 5d35f1d09d870278
+  zh: 0274fc34dac08fa5
 /qilin-agent-client-ui-sidebar/understand-the-implementation:
-  en: 676cd4c309b4110d
-  zh: 13be655486791b8e
+  en: a163df4f08dd9201
+  zh: 91c3cc27ee87a90c
 /qilin-agent-client-ui-sidebar/understand-the-implementation/slot-discipline:
   en: cc1d53236154e97e
   zh: 77a601b7c9cf7dec

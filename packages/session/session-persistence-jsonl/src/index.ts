@@ -96,6 +96,7 @@ export type JsonlVerification = 'isolated' | 'inline'
 /** The plugin-protocol name third-party dsh tooling references. */
 export const name = 'session-persistence-jsonl'
 
+/** Loader schema for how a resumed generation verifies against the previous one: isolated or inline. */
 export const JsonlVerificationSchema: z<JsonlVerification> = z.union([
   z.const('isolated'),
   z.const('inline'),

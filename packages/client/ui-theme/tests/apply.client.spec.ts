@@ -253,7 +253,7 @@ describe('ui-theme apply', () => {
     const entry = b.slots.entries(SLOT).find(e => e.component === AppearanceRow)!
     const handle = entry.store as ReturnType<typeof createAppearanceRowStore>
     const instance = handle.create()
-    const face = (entry.inject as unknown as (a: typeof instance.actions) => AppearanceRowInjected)(instance.actions)
+    const face = (entry.inject as (a: typeof instance.actions) => AppearanceRowInjected & Record<string, unknown>)(instance.actions)
 
     theme.registerSkin({
       id: 'qilin', label: { zh: '玄金', en: 'Xuanjin' },

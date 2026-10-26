@@ -46,7 +46,7 @@ describe('ui-sidechat wiring', () => {
     expect(entries).toHaveLength(1)
     expect(entries[0]?.options.key).toBe(SIDECHAT_ID)
     expect(entries[0]?.component).toBe(SidechatBody)
-    const face = (entries[0]?.inject as unknown as () => SidechatInjected)()
+    const face = (entries[0]?.inject as () => SidechatInjected & Record<string, unknown>)()
     expect(face.hooks.sidechat.getSnapshot()).toMatchObject({ phase: 'idle', threads: [] })
 
     await b.feature.dispose()

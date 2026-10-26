@@ -12,7 +12,10 @@ import type { RemoteResult, RemoteStreamHandle } from '@qilin-agent/typert-proto
 import type {} from '@qilin-agent/api-gateway/client'
 import type { ProductEvent, ProductEventMap } from '../events.ts'
 
-export type { ProductEvent, ProductEventMap, TrackProductEvent } from '../events.ts'
+export type {
+  AnalyticsPreset, EntryAnalyticsRegion, ProductEvent, ProductEventMap,
+  SidebarAnalyticsEntry, SidebarAnalyticsPosition, TrackProductEvent,
+} from '../events.ts'
 
 /** The authenticated analytics namespace mounted by the desktop Client assembly. */
 declare module '@qilin-agent/typert-protocol' {

@@ -2,7 +2,8 @@
  * Client access mount: follows the calling Peer's access snapshot, provides
  * the `remoteAccess` Client service, and publishes the global-resource `useRemoteAccess` Hook.
  * The entry module supplies the generated `remoteAccess` contribution, so
- * specs mount a fake one.
+ * specs mount a fake one; a namespace another owner already provides is
+ * followed instead of mounted a second time.
  * @module @qilin-agent/api-remote-access/src/client/mount
  */
 
@@ -72,11 +73,14 @@ class ClientRemoteAccessService extends Service implements ClientRemoteAccess {
  * Mount the `remoteAccess` namespace, follow the access snapshot, provide the
  * `remoteAccess` Client service, and publish the global-resource `useRemoteAccess` Hook.
  * Answers start from the page's injected baseline, or false without one,
- * and follow the stream's frames from then on.
+ * and follow the stream's frames from then on. The entry module supplies the
+ * generated `remoteAccess` contribution; when another owner already provides
+ * that namespace — the Remote assembly, or a test carrier standing in for it —
+ * the existing namespace is followed instead of mounting a second copy.
  * @param ctx - Client root Context injecting `remote` and `slots`.
  * @param contribution - generated `remoteAccess` Remote contribution.
  * @param initial - the page's injected opening baseline, read before the stream connects.
- * @returns disposer that withdraws the namespace after the stream stops.
+ * @returns disposer that withdraws a namespace this call mounted, after the stream stops.
  */
 export async function mountAccess(
   ctx: Context,
@@ -88,7 +92,9 @@ export async function mountAccess(
   ctx.slots.provideRoot({
     keyedHooks: { remoteAccess: action => state.global(action) },
   } satisfies RootStandardSourceContribution)
-  const unmount = await ctx.remote.$mount(contribution)
+  const unmount = ctx.get('remote.remoteAccess') === undefined
+    ? await ctx.remote.$mount(contribution)
+    : async () => {}
   const follow = ctx.inject(['remote.remoteAccess'], (remoteCtx) => {
     const control = createAccessStream(remoteCtx.remote, state, remoteCtx.logger)
     control.start()

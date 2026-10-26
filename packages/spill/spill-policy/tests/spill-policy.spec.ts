@@ -9,6 +9,7 @@
  */
 
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
+import type { Agent } from '@qilin-agent/agent'
 import { Context } from '@qilin-agent/kylin'
 import Loader from '@qilin-agent/kylin-plugin-loader'
 import { provideWorkingDirectoryFixture } from '@qilin-agent/agent-loop-testkit'
@@ -25,7 +26,7 @@ import SessionStore, { SessionId } from '@qilin-agent/session'
 import SystemPrompt from '@qilin-agent/system-prompt'
 import ToolRuntime, { defineContentToolFixture } from '@qilin-agent/tools'
 import type { ToolDefinition } from '@qilin-agent/tools'
-import type { PostToolDecision, ToolExecution, ToolExecutionToken } from '@qilin-agent/tools'
+import type { PostToolDecision, ToolExecution, ToolExecutionInput, ToolExecutionToken } from '@qilin-agent/tools'
 import { SpillLocator, SpillStore } from '@qilin-agent/spill'
 import type { SaveTextSpill, SpillRef } from '@qilin-agent/spill'
 import * as SpillPolicy from '@qilin-agent/spill-policy'
@@ -57,7 +58,7 @@ async function mountRuntime(ctx: Context, config: NodeRuntimeConfig = {}): Promi
 function observedAgent(ctx: Context, id: string, observe: (type: string, data: unknown) => void) {
   const session = ctx.sessions.create(SessionId(id), { meta: { cwd: process.cwd() } })
   ctx.on('session/event', (owner, event) => { if (owner === session) observe(event.type, event.data) })
-  return { session }
+  return { ctx, session }
 }
 
 const testToolSignal = new AbortController().signal
@@ -725,11 +726,12 @@ describe('image results', () => {
         requestHeader: () => options.routed === undefined ? undefined : { config: options.routed },
       },
       options: options.configured ?? {},
-    }
-    return {
+    } as Agent
+    const execution: ToolExecutionInput = {
       callId: ToolCallId(`call-${tool}`), name: tool, arguments: {}, agent, signal: testToolSignal,
       ...options.parent === undefined ? {} : { parent: options.parent },
-    } as unknown as ToolExecution
+    }
+    return execution as ToolExecution
   }
 
   /** A content tool returning a fixed image-bearing result. */

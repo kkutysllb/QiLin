@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-25-npm-release-vendor-resolution-gate.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/process/2026-10-25-npm-release-vendor-resolution-gate.md
+/agent-note-a-qilin-release-ships-only-when-the-registry-resolves-its-declared-ranges:
+  en: c32a3d485f1642d3
+  zh: 30a225a42af4b2f8
+/agent-note-a-qilin-release-ships-only-when-the-registry-resolves-its-declared-ranges/problem:
+  en: f9b766ccad424197
+  zh: edc1f05c1fb154d7
+/agent-note-a-qilin-release-ships-only-when-the-registry-resolves-its-declared-ranges/decision:
+  en: fabc1d4a5450e380
+  zh: dcbf841e80abf483
+/agent-note-a-qilin-release-ships-only-when-the-registry-resolves-its-declared-ranges/alternatives-considered:
+  en: c6d94e08842aa791
+  zh: 03211599cfd2c615
+/agent-note-a-qilin-release-ships-only-when-the-registry-resolves-its-declared-ranges/consequences:
+  en: 8fe8951696d54ac0
+  zh: 7369025ebf23c770
+/agent-note-a-qilin-release-ships-only-when-the-registry-resolves-its-declared-ranges/related:
+  en: 20290aec984c89c7
+  zh: 851a70fbe8e60c28

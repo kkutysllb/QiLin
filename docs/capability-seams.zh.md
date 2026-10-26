@@ -12,6 +12,9 @@ flowchart LR
   pkg_hmr["hmr"]
   svc_hmr["ctx.hmr<br/>Serialized module and configuration reloads"]
   pkg_app_boot["app-boot"]
+  pkg_ui_theme["ui-theme"]
+  svc_themeBoot["ctx.themeBoot<br/>Skin boot colours"]
+  pkg_ui_theme_brand["ui-theme-brand"]
   pkg_config_editor["config-editor"]
   svc_configEditor["ctx.configEditor<br/>Profile configuration edits"]
   pkg_settings["settings"]
@@ -429,6 +432,7 @@ flowchart LR
   pkg_tool_subagent --> svc_subagentModelSelection
   pkg_tools --> svc_tools
   pkg_typert_registry --> svc_typert
+  pkg_ui_theme --> svc_themeBoot
   pkg_user_approval --> svc_approval
   pkg_user_questions --> svc_userQuestions
   pkg_web --> svc_web
@@ -561,6 +565,7 @@ flowchart LR
   svc_systemPrompt --> pkg_tool_web
   svc_systemPrompt --> pkg_tools
   svc_terminals --> pkg_tool_terminal
+  svc_themeBoot --> pkg_ui_theme_brand
   svc_tokenMeter --> pkg_compaction_basic
   svc_toolResultPruner --> pkg_compaction_basic
   svc_tools --> pkg_agent_loop
@@ -598,6 +603,7 @@ flowchart LR
 | ctx 键 | 角色 | 所属包 | 实现 | 直接消费方 | 配套插件 | 说明 |
 | --- | --- | --- | --- | --- | --- | --- |
 | `ctx.hmr` | `core` | [`hmr`](../packages/boot/hmr) | - | [`app-boot`](../packages/boot/app-boot) | - | 负责模块和精确配置监听；应用修改共用其队列，自动重载等待应用文件锁。 |
+| `ctx.themeBoot` | `seam` | `ui-theme` | `ui-theme` | `ui-theme-brand` | - | 把各皮肤的启动底色从品牌包带到首屏绘制前的 shell。 |
 | `ctx.configEditor` | `core` | [`config-editor`](../packages/settings/config-editor) | - | [`settings`](../packages/settings/settings), [`agent-default-model`](../packages/core/agent-default-model) | - | 在应用文件锁与 HMR 队列下持久化 profile 配置补丁，然后协调 Loader 条目。 |
 | `ctx.inspector` | `core` | [`experimental-inspector`](../packages/experimental/inspector) | - | - | - | 拥有 Worker 承载的 CDP 目标，以及与传输无关的 Host/Client 观察和 Cordis 树查询 API。 |
 | `ctx.claudeCodeMods` | `seam` | [`experimental-claude-code-mods`](../packages/experimental/claude-code-mods) | - | [`experimental-client-ui-claude-code-mods`](../packages/experimental/client-ui-claude-code-mods) | - | 按加载顺序运行已加载的模组并绘制提示词上方的横幅，触发其可用的事件，并通过组合服务响应其 `$` 调用。 |

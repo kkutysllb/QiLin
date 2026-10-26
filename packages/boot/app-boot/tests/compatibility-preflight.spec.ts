@@ -364,7 +364,8 @@ describe('manifest resolution', () => {
       get(target, property) {
         if (property === 'version') return 'v1'
         if (property === 'resolveSync') return resolveSync
-        return Reflect.get(target, property) as unknown
+        const inherited: unknown = Reflect.get(target, property)
+        return inherited
       },
     })
     const resolver = vi.spyOn(ModuleLoader, 'fromInternal').mockReturnValue(legacy)

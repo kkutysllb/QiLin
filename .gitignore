@@ -1,5 +1,7 @@
 CLAUDE.local.md
 .env
+apps/desktop/.env.macos
+apps/desktop/.env.windows
 node_modules/
 lib/
 *.tsbuildinfo
@@ -63,3 +65,5 @@ config.yaml
 
 # Desktop packaging scratch: per-run logs and prepared trees.
 apps/desktop/.desktop-build/
+# Local Windows packaging configuration (never committed).
+apps/desktop/.env.windows

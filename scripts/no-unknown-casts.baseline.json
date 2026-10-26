@@ -199,15 +199,12 @@
     "35f4c7349b7474bef7d2d1c5a8beaab93bcfac1e0d002520f80207444e3f256b": 11,
     "4c16575f6e4a1c435b105717d0e05ad94779455de997597797059bd1668d7f99": 2,
     "53cc383237bafd28d032833825d5a99158e938f7884de5bc5ab0011d48845643": 6,
-    "5cbd6ad5d73374671c654d285cb43b7cd1f40691d2d33f4d58ad5c7d951314ac": 1,
     "665e53c977eb2565742192bbdd1861ca453b5b4ffd88d51a58533556235f335e": 1,
     "7fe58280287ff63d40e979e72329f975e11015a95e9a8eec207a5a78748d3c89": 1,
     "8f28ec738a702607e9ad458a76d5c695a459fed28009b6aac835ef4789026bfb": 1,
     "97b408a8e61b28b507aab6f709875826b82d6505d4b967aec56914e7f831b20b": 1,
     "a25e6d8d728e1de71699956f42f62a2e38af439317082fbb0354161ead666ab6": 1,
-    "b121cee14635b00f7891217013e4682493cf96f676710be60722fdf8b862aea3": 1,
-    "b428751e788e277116156e105c127f813dc300b61c6664b08d46e6c5ccdc3ae8": 1,
-    "da388e50e43adcb0b1331d55e3551780c382448686fe6a9dca486937c1667df0": 1
+    "b121cee14635b00f7891217013e4682493cf96f676710be60722fdf8b862aea3": 1
   },
   "packages/api/gateway/tests/gateway.host.spec.ts": {
     "344e2cbbed2a8ef8d5356a24def92ac3453ffaa2efa58f5481d59206f5b79cbc": 1,
@@ -342,7 +339,6 @@
   },
   "packages/api/settings-controller/tests/settings-controller.host.spec.ts": {
     "078036e2d4c406a7566edc7e7679a7acf05576e3a54324bca6fc55740f4715ac": 1,
-    "378e52325f972299c6e61e0393a39b49090f20d350a8030c32ae17b0c2360bbc": 1,
     "5855fa729ec1c783472f8a842ed103e826af49a2804fa354965dd0e217802ba1": 1,
     "ca53e010b333d3647e44212c1c86176d08215216696a7e6c0396431af06634f1": 1
   },
@@ -437,9 +433,6 @@
   "packages/bundle/web-app/tests/web-app.spec.ts": {
     "c1a15f4f2f4c675fbdb1fee2074725a5bd4ea46791881163e7262aaf5d24418d": 1,
     "d3e42793d23f7db944c16b863d9679951dc9b30cc7f118f7ce9abf0723e8424f": 1
-  },
-  "packages/client/connection/src/browser-auth.ts": {
-    "98acffd14d7c77e3412ce5a7d8e9c555b66de76eb12c14d4b22b251684b60447": 1
   },
   "packages/client/connection/src/client/fixture.ts": {
     "2e881364000bd1a4d98c74e34dff6339122937e8db584168a47bc1129897a964": 1,
@@ -540,12 +533,10 @@
     "67694f8f44eb8347cb38c39d368f4f0ce1b78bd33a6a57a55cf4664f3eaa7f98": 1
   },
   "packages/client/ui-agent-preset/tests/settings-store.client.spec.ts": {
-    "c0e852e6b0e2a8a040b65723f8ab1d650d9cb06c26be7f3a0709ddb9f7525595": 1,
     "d6a04d954aef7a8edd403910851015c0ce1597f6f300292b5158a8bf993fc1d8": 1
   },
   "packages/client/ui-approval/tests/ui-approval.client.spec.tsx": {
-    "3e392ff0165a51a6ac716515b99af35ec152f89607cff72080cb9afbcff63f46": 1,
-    "d3a081f97422a352526b7014a6aa4c6c8f78cb27587568bc4150232db2037198": 1
+    "3e392ff0165a51a6ac716515b99af35ec152f89607cff72080cb9afbcff63f46": 1
   },
   "packages/client/ui-attachment/src/AttachmentRail.tsx": {
     "326597b335539db945b2e3b7c86638d40849d2077c0a5670d064e45486f4e407": 1
@@ -600,6 +591,9 @@
   "packages/client/ui-chat/tests/tool-call-tree.client.spec.ts": {
     "427f7efc431dec431f6707ea0e4431c54fafc97efbcc9c93865d29f2488300d9": 1
   },
+  "packages/client/ui-chat/tests/transcript-view-policy.client.spec.ts": {
+    "170262bd341a02ef945bc23c7c3478bb84177f298f9478d3ac8a1aea7d501735": 1
+  },
   "packages/client/ui-commands/tests/browser-plugin.client.spec.ts": {
     "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 1
   },
@@ -622,10 +616,6 @@
     "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 4,
     "261cd24d1d5267f03778f141fa6dbc61d88d2a66e870fb41ac55f483b975376a": 1,
     "6f33d1be56374535d2ab180cc4b559ec376cd16e6386837884a5d15fa1d96e61": 1
-  },
-  "packages/client/ui-conversation/tests/content-width-row.client.spec.tsx": {
-    "6a54ea45a0e2eb29099962020b75d2b66a8a545d26bfcb8d1429f146b9a4a6ed": 1,
-    "978b5c82ed11f6640cc7d5b57223614b096d27075a7c7eb0fc79d527028f03c0": 1
   },
   "packages/client/ui-conversation/tests/conversation-assembler.client.spec.ts": {
     "a7d8cc8d42e37ad5cc4882241492ac572ed8163c7fb8663180e893c7178e906f": 2,
@@ -704,9 +694,6 @@
     "4269979029e56a91148c3f6ab876c2d1d380843249b4e1fc2c3bb535cf6ab421": 1,
     "fdc0ec545dc17a50bdc1c64102915706cfbfdbb65a2165ae4691f29d577063cd": 1
   },
-  "packages/client/ui-permission-presets/src/client/settings-store.ts": {
-    "b2df49a6ee30fc9061526ed8bcd8f32a8e011e38e0e378615637c3f41e130669": 1
-  },
   "packages/client/ui-permission-presets/tests/browser-plugin.client.spec.ts": {
     "dc36dd8f678695e3b84ce0573968470941c5b6fc5efe529cba17acb1f2799d1c": 1
   },
@@ -768,6 +755,9 @@
     "0861cbfb10a7adecf7a225d194f2a19015cd6fa54bed435d4a08480d1d5cd34e": 1,
     "3460653105a74d4c1e8f3e22b03492b225ca4e960f1a14ecc92e62b3d9453054": 1,
     "d0d7b677da65df97240f713995e20d0642ef32cf056864b11f2f4879a0d9e878": 1
+  },
+  "packages/client/ui-settings-general/tests/shell-entry.client.spec.tsx": {
+    "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 2
   },
   "packages/client/ui-settings-mcp/tests/section.client.spec.tsx": {
     "9cd156eee40c68500adf25181fab70a243b2b12311ff19393cb29ba4dd40a49b": 1,
@@ -1037,6 +1027,10 @@
   "packages/client/ui-workspace/tests/apply.client.spec.ts": {
     "b467270b0c2a95d6b29939f6baf4d5c8e5031e99a1d15437a3060f35735d8d37": 1
   },
+  "packages/client/ui-workspace/tests/toast.client.spec.tsx": {
+    "37759ea5cbc583206a8f6f57b1742231a73ec03f481efb6d0eaf2ef49da7213f": 1,
+    "59f2c955d91bb2fe815d5fc50ecc66efee7612dfccd2f1dd57d26b0d4338d326": 1
+  },
   "packages/client/web/tests/boot-client.client.spec.ts": {
     "5120c3da1b5c58832ad2e2fa40567b8c7ea59e7ebb53058f45eda7ea95b2620d": 1
   },
@@ -1224,10 +1218,7 @@
     "d1250fc465aac30c8474c1ee43ecbafc0a8c072d5e607961da1295acc710a257": 1
   },
   "packages/core/tools/tests/ptc.spec.ts": {
-    "05f243cc5759828058eed400ddb98c32a394915895dc14ddd49ea044652bab97": 1,
-    "4dd1f265ec710503bb27f057a582099a1e9d8b5db80fb45f148e32fd2afb5325": 1,
-    "52faf4558fcd91bd27dbdfa7e497843e8eeb75ea5f68ee231335018d5b3f2053": 1,
-    "88c6953a5e4dd96aede7a09416b7f34dc76d8d917220bb5d0c6b0a04d0d73956": 1
+    "52faf4558fcd91bd27dbdfa7e497843e8eeb75ea5f68ee231335018d5b3f2053": 1
   },
   "packages/core/tools/tests/py-types.spec.ts": {
     "0d733b2c7c458f6a7c4d287ed741c321842339cbe5908a8720660883423474c0": 9,
@@ -1324,9 +1315,6 @@
   "packages/experimental/hook-protocol/tests/events.spec.ts": {
     "a59fe57e5f3994018a6bd25208b9c2f56a7bcf7353d6ec2d453564f3f5c225f2": 1
   },
-  "packages/experimental/hook-protocol/tests/runner.spec.ts": {
-    "09500884210bc2ec2161286a539ca63f8c2627ca73a82ca00d24c58d600118f3": 1
-  },
   "packages/experimental/hooks-claude-code/tests/bridge.spec.ts": {
     "38a7cf3dfd5da2f739390f5b233b97731f3bfa1ac3a51fdb8e1594735764bb80": 1
   },
@@ -1337,6 +1325,77 @@
   },
   "packages/experimental/hooks-codex/tests/bridge.spec.ts": {
     "bced8a97654435422589a4bdd1b46b5147d4120cd5b496dcf055c453494ce0ab": 1
+  },
+  "packages/experimental/inspector/src/client/cdp/console.ts": {
+    "8e933eb759fc1e8a1eacb9cf2c152713d00eb46d47ca7d3b1f2d072c49527ca8": 1
+  },
+  "packages/experimental/inspector/src/client/cdp/runtime.ts": {
+    "392585a96b7dfe0976d95276c523004ae45f1ad3c3f9454256d754c7a88a578f": 1
+  },
+  "packages/experimental/inspector/src/client/cdp/stack.ts": {
+    "130ead859312eee64805093e7e060fab76b9c1bab33b973231587fd8ba833811": 1
+  },
+  "packages/experimental/inspector/src/shared/bridge/buffer.ts": {
+    "3f287e7468b58a0221e1f58e0add0d93ed4d1d8ec3bb608425a13f2db111f793": 1,
+    "487a58a6269113d4cbfd31915a9abdbf016e672be9a2af2c6d5d57b087d0b011": 1
+  },
+  "packages/experimental/inspector/src/shared/bridge/rpc.ts": {
+    "ac27d4e89088933a10cd991087d462ec6159a2174c42d2edf4ee2cdbfe212062": 2
+  },
+  "packages/experimental/inspector/src/shared/cordis/collector.ts": {
+    "539af7158f6057075289d3b1543bd5b692887755287d81f91d9b9c7cc14cf9cb": 2,
+    "b49bec37d69d567c1d190deba3d328cc9249239df7f68457e38f48b61a11ba28": 1
+  },
+  "packages/experimental/inspector/src/shared/cordis/publisher.ts": {
+    "539af7158f6057075289d3b1543bd5b692887755287d81f91d9b9c7cc14cf9cb": 1
+  },
+  "packages/experimental/inspector/src/worker/bridge/endpoint.ts": {
+    "476641b6b1a453ed291d178449a59525cad998a29cab5c3578bb2f40580426fb": 1
+  },
+  "packages/experimental/inspector/src/worker/bridge/hub.ts": {
+    "ac27d4e89088933a10cd991087d462ec6159a2174c42d2edf4ee2cdbfe212062": 2
+  },
+  "packages/experimental/inspector/src/worker/inspection/query-router.ts": {
+    "46197efe57255c9d92d64476470c89d0602c7333bf98ad75509bf43c1b357a3b": 2,
+    "ac27d4e89088933a10cd991087d462ec6159a2174c42d2edf4ee2cdbfe212062": 1
+  },
+  "packages/experimental/inspector/src/worker/realms/host/runtime.ts": {
+    "67b3449f6e9ef4d8549d4f8a884f7b145729a874c6932021cdbd172f039467ed": 1
+  },
+  "packages/experimental/inspector/tests/built-lib.e2e.ts": {
+    "e6d717ef24b9cd1d6e495964b92fbf63ee76c92f6335c0a3a61196cc88611dcc": 1
+  },
+  "packages/experimental/inspector/tests/client-browser.e2e.ts": {
+    "1ac632125c7236caec63ed82aa837557d2f1f251a140654c830812be3d817b48": 1
+  },
+  "packages/experimental/inspector/tests/cordis-model.host.spec.ts": {
+    "b7989cffe0567e32b0f861c65eb3ff18a90e2229e51984d863799568fb5b3c85": 1
+  },
+  "packages/experimental/inspector/tests/cordis-query.host.spec.ts": {
+    "6fe9024d30e0d4757a348b83d246925b3f5aeaf2e79a0eff4bf12f3c9fb5826b": 1
+  },
+  "packages/experimental/inspector/tests/cordis-tree.host.spec.ts": {
+    "6fe9024d30e0d4757a348b83d246925b3f5aeaf2e79a0eff4bf12f3c9fb5826b": 1,
+    "ba88ac61a16f289db489af5cc40cd7da634e169c6108befc36d22bd3090e92cb": 1
+  },
+  "packages/experimental/inspector/tests/fetch-observer.host.spec.ts": {
+    "5a3201df0da2f36bc7f4b81ab08dae1fcb66e7cca91014c75365d13d8e5e95bd": 3
+  },
+  "packages/experimental/inspector/tests/fixtures/client-source.client.ts": {
+    "228ef60d37fc4d6ce787a98f826ac491b306a563b72caa5eb7ed3e34687ad6a0": 1
+  },
+  "packages/experimental/inspector/tests/fixtures/client-source.host.ts": {
+    "e538f1f3d9dadee6079b7ae4f6063b9106492e8c15c246a30c0c36f44215d593": 1
+  },
+  "packages/experimental/inspector/tests/loader-composition.host.spec.ts": {
+    "59c63f734e8bba862325f776e3fcbebd78a84cfb4161f8df41c216950d9bf351": 1
+  },
+  "packages/experimental/inspector/tests/network.host.spec.ts": {
+    "1445c240aa0eb4e86eb90abafa475e07f762ffcabc59286fb620764eb652249d": 2
+  },
+  "packages/experimental/inspector/tests/plugin.client.spec.ts": {
+    "148509a0193d8d3c16a606a15f5145770f454c2ebc70dd0ccaa51fc1a0f43e99": 1,
+    "2066ad746457f15b6737d62124c4ec81f2140fc3fa425187eac8e3b1c3b6ab0b": 8
   },
   "packages/experimental/ptc-runtime-python/src/index.ts": {
     "7fe58280287ff63d40e979e72329f975e11015a95e9a8eec207a5a78748d3c89": 1,
@@ -1586,13 +1645,6 @@
   "packages/llm/deepseek-llm-api-extensions/src/index.ts": {
     "1f519aabb00553384bc9c1c57064a1ed6fcd757032061e1b14e0718d91dd4817": 1
   },
-  "packages/llm/llm-deepseek-api-key/src/index.ts": {
-    "09b57a2aad419c90d1b26cf7c997a3e077206dd25b2c04d438411d7a6fbdd57f": 1,
-    "7f314e2c378f30eae0941828301e5e91506e6ed019db8b998f8ccf1caf8dc802": 1
-  },
-  "packages/llm/llm-deepseek/tests/loader-composition.spec.ts": {
-    "59c63f734e8bba862325f776e3fcbebd78a84cfb4161f8df41c216950d9bf351": 1
-  },
   "packages/llm/llm-pi-ai/src/catalog.ts": {
     "5b1064d0195802d24eaa5155c66eb381da6046a8ccd0cacc3d852336475da7ef": 1
   },
@@ -1614,9 +1666,6 @@
     "12712253c43410ab721190981c8b815d102f799ce6942bee3975b035c203dfa8": 1,
     "34a631902f39d3a40e1baabacdccb986c3a2205cf2a6c8c1880061b87f39609d": 1,
     "98bef9260e144cee077af05112a07d3e9626caa43f06c66ad08f9c024f5469b1": 1
-  },
-  "packages/llm/llm-pi-ai/tests/loader-composition.spec.ts": {
-    "59c63f734e8bba862325f776e3fcbebd78a84cfb4161f8df41c216950d9bf351": 1
   },
   "packages/llm/llm-pi-ai/tests/login.spec.ts": {
     "430df7f7adc302969806296226e1cfda66bccf28e759a7b67a78e386a87db68f": 1
@@ -1719,9 +1768,6 @@
   },
   "packages/preset/agent-presets/tests/mount.spec.ts": {
     "92cb9ce1fc5e337381501a17571425bff9c50e31b92c9a8c2460976b652d6283": 3
-  },
-  "packages/preset/agent-presets/tests/user-root.spec.ts": {
-    "4b091634b70445a68ff23a94065070b1c0b75a68712b1813bf417120a174422d": 1
   },
   "packages/ptc-runtime/ptc-runtime-node/tests/host-failures.spec.ts": {
     "aa5de2d4958ec64219565d53ec5a9d7f40f1f60037a2d52d1a9c3c65db034d73": 1,
@@ -2026,10 +2072,6 @@
     "2312a66ba30733088a1b1be2553279db1d74f2ddc20523b139b4a18097711885": 1,
     "9c94646da4d72698d375ad0039413d63560987679cbd3059bfe8c7863e699592": 1
   },
-  "packages/settings/settings/tests/settings.spec.ts": {
-    "2d7f707771049cc7d16595e3e16fdaafdbca2d271008f5b55a88c407cef7173c": 4,
-    "95afde3aecf8bd5da9a57f1a68c363f789a7634ebd97eb7e4ae8b207037c73a0": 1
-  },
   "packages/shell/bash-sandbox/tests/partial-landlock.spec.ts": {
     "50ac027a8a646160d7f7f539375421b31a9aa3da906d9a6be03222aaa8cb029a": 2
   },
@@ -2103,6 +2145,29 @@
   "packages/subagent/subagent-acp/tests/subagent-acp.spec.ts": {
     "daa15206e19d6a8fbae646d678889b2e6933ece824e48dd06c95d2096861d5c1": 1,
     "f77e5cbd2d2d911087f7faecc4b0b5bffdfb44ca5d0bcf7823ba9777feca7799": 2
+  },
+  "packages/subagent/subagent-claude-code/tests/real-product.spec.ts": {
+    "03847806b1cfd410cc85f1e90d671aac43e667c5c41e5792c729fd4ff655fb6b": 1,
+    "656905a0db6cd229fa72610416ef7ba9d2d320c8c99352bd0d205dee4e13bd8d": 1,
+    "adda026f7ad49b47496f381a0c04997300597d040b8a81045a848573485ed299": 1
+  },
+  "packages/subagent/subagent-claude-code/tests/subagent-claude-code.spec.ts": {
+    "2cedee48f4fb8ce4bbd10567fdfbee69e8dd11dbc85af9b824de33c2b77abfbf": 1,
+    "4e94c461ab08f535e20f71ebe8bb9a8c911a936c7068f24e259956c06d17c05d": 1,
+    "cdcbd6cc73a09b6613864cdfb5b14d0cf66dc2484d26916cb32929deca1032de": 3,
+    "f85c96616fff1bb1e21886bd2fad64e9e34d89d090ab96ab7804f702278cd23d": 4,
+    "fa05a5e504ed74b5a07cb6281c787b507eb6c44db768803f4dad034dd69cb3b9": 1
+  },
+  "packages/subagent/subagent-codex/tests/real-deepseek.e2e.ts": {
+    "dee4487a97778a2383f1b378d59b3dae098152273d956dc360f23c69680fe0ea": 1
+  },
+  "packages/subagent/subagent-codex/tests/real-product.spec.ts": {
+    "03847806b1cfd410cc85f1e90d671aac43e667c5c41e5792c729fd4ff655fb6b": 1,
+    "656905a0db6cd229fa72610416ef7ba9d2d320c8c99352bd0d205dee4e13bd8d": 1,
+    "adda026f7ad49b47496f381a0c04997300597d040b8a81045a848573485ed299": 1
+  },
+  "packages/subagent/subagent-codex/tests/subagent-codex.spec.ts": {
+    "fa05a5e504ed74b5a07cb6281c787b507eb6c44db768803f4dad034dd69cb3b9": 1
   },
   "packages/subagent/subagent-qilin-sdk/tests/subagent-qilin-sdk.spec.ts": {
     "daa15206e19d6a8fbae646d678889b2e6933ece824e48dd06c95d2096861d5c1": 1,
@@ -2341,9 +2406,6 @@
     "2f2c5a76501f35183d9708040f1f79cc30c8c9da5278823aa19ece7af67f5812": 1,
     "ec229b2914993fe3b9cabeffe88aaca92dac0aed964d27a4704cd64202044127": 1
   },
-  "packages/typert/protocol/src/index.ts": {
-    "35e98b658709d2dead42b6fc80150e0cac9075c55ea512cae80951983bd1f69c": 1
-  },
   "packages/typert/protocol/src/remote-error.ts": {
     "6fe9024d30e0d4757a348b83d246925b3f5aeaf2e79a0eff4bf12f3c9fb5826b": 1
   },
@@ -2429,109 +2491,5 @@
   },
   "website/tests/raw-markdown.spec.ts": {
     "016337c62f55ffcdfc006da693aaf9bb20c3bb49260939c0d50191117c48934e": 1
-  },
-  "packages/experimental/inspector/src/client/cdp/console.ts": {
-    "8e933eb759fc1e8a1eacb9cf2c152713d00eb46d47ca7d3b1f2d072c49527ca8": 1
-  },
-  "packages/experimental/inspector/src/client/cdp/runtime.ts": {
-    "392585a96b7dfe0976d95276c523004ae45f1ad3c3f9454256d754c7a88a578f": 1
-  },
-  "packages/experimental/inspector/src/client/cdp/stack.ts": {
-    "130ead859312eee64805093e7e060fab76b9c1bab33b973231587fd8ba833811": 1
-  },
-  "packages/experimental/inspector/src/shared/bridge/buffer.ts": {
-    "487a58a6269113d4cbfd31915a9abdbf016e672be9a2af2c6d5d57b087d0b011": 1,
-    "3f287e7468b58a0221e1f58e0add0d93ed4d1d8ec3bb608425a13f2db111f793": 1
-  },
-  "packages/experimental/inspector/src/shared/bridge/rpc.ts": {
-    "ac27d4e89088933a10cd991087d462ec6159a2174c42d2edf4ee2cdbfe212062": 2
-  },
-  "packages/experimental/inspector/src/shared/cordis/collector.ts": {
-    "539af7158f6057075289d3b1543bd5b692887755287d81f91d9b9c7cc14cf9cb": 2,
-    "b49bec37d69d567c1d190deba3d328cc9249239df7f68457e38f48b61a11ba28": 1
-  },
-  "packages/experimental/inspector/src/shared/cordis/publisher.ts": {
-    "539af7158f6057075289d3b1543bd5b692887755287d81f91d9b9c7cc14cf9cb": 1
-  },
-  "packages/experimental/inspector/src/worker/bridge/endpoint.ts": {
-    "476641b6b1a453ed291d178449a59525cad998a29cab5c3578bb2f40580426fb": 1
-  },
-  "packages/experimental/inspector/src/worker/bridge/hub.ts": {
-    "ac27d4e89088933a10cd991087d462ec6159a2174c42d2edf4ee2cdbfe212062": 2
-  },
-  "packages/experimental/inspector/src/worker/inspection/query-router.ts": {
-    "ac27d4e89088933a10cd991087d462ec6159a2174c42d2edf4ee2cdbfe212062": 1,
-    "46197efe57255c9d92d64476470c89d0602c7333bf98ad75509bf43c1b357a3b": 2
-  },
-  "packages/experimental/inspector/src/worker/realms/host/runtime.ts": {
-    "67b3449f6e9ef4d8549d4f8a884f7b145729a874c6932021cdbd172f039467ed": 1
-  },
-  "packages/experimental/inspector/tests/built-lib.e2e.ts": {
-    "e6d717ef24b9cd1d6e495964b92fbf63ee76c92f6335c0a3a61196cc88611dcc": 1
-  },
-  "packages/experimental/inspector/tests/client-browser.e2e.ts": {
-    "1ac632125c7236caec63ed82aa837557d2f1f251a140654c830812be3d817b48": 1
-  },
-  "packages/experimental/inspector/tests/cordis-model.host.spec.ts": {
-    "b7989cffe0567e32b0f861c65eb3ff18a90e2229e51984d863799568fb5b3c85": 1
-  },
-  "packages/experimental/inspector/tests/cordis-query.host.spec.ts": {
-    "6fe9024d30e0d4757a348b83d246925b3f5aeaf2e79a0eff4bf12f3c9fb5826b": 1
-  },
-  "packages/experimental/inspector/tests/cordis-tree.host.spec.ts": {
-    "ba88ac61a16f289db489af5cc40cd7da634e169c6108befc36d22bd3090e92cb": 1,
-    "6fe9024d30e0d4757a348b83d246925b3f5aeaf2e79a0eff4bf12f3c9fb5826b": 1
-  },
-  "packages/experimental/inspector/tests/fetch-observer.host.spec.ts": {
-    "5a3201df0da2f36bc7f4b81ab08dae1fcb66e7cca91014c75365d13d8e5e95bd": 3
-  },
-  "packages/experimental/inspector/tests/fixtures/client-source.client.ts": {
-    "228ef60d37fc4d6ce787a98f826ac491b306a563b72caa5eb7ed3e34687ad6a0": 1
-  },
-  "packages/experimental/inspector/tests/fixtures/client-source.host.ts": {
-    "e538f1f3d9dadee6079b7ae4f6063b9106492e8c15c246a30c0c36f44215d593": 1
-  },
-  "packages/experimental/inspector/tests/loader-composition.host.spec.ts": {
-    "59c63f734e8bba862325f776e3fcbebd78a84cfb4161f8df41c216950d9bf351": 1
-  },
-  "packages/experimental/inspector/tests/network.host.spec.ts": {
-    "1445c240aa0eb4e86eb90abafa475e07f762ffcabc59286fb620764eb652249d": 2
-  },
-  "packages/experimental/inspector/tests/plugin.client.spec.ts": {
-    "2066ad746457f15b6737d62124c4ec81f2140fc3fa425187eac8e3b1c3b6ab0b": 8,
-    "148509a0193d8d3c16a606a15f5145770f454c2ebc70dd0ccaa51fc1a0f43e99": 1
-  },
-  "packages/client/ui-chat/tests/transcript-view-policy.client.spec.ts": {
-    "170262bd341a02ef945bc23c7c3478bb84177f298f9478d3ac8a1aea7d501735": 1
-  },
-  "packages/client/ui-settings-general/tests/shell-entry.client.spec.tsx": {
-    "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 2
-  },
-  "packages/client/ui-workspace/tests/toast.client.spec.tsx": {
-    "37759ea5cbc583206a8f6f57b1742231a73ec03f481efb6d0eaf2ef49da7213f": 1,
-    "59f2c955d91bb2fe815d5fc50ecc66efee7612dfccd2f1dd57d26b0d4338d326": 1
-  },
-  "packages/subagent/subagent-claude-code/tests/real-product.spec.ts": {
-    "adda026f7ad49b47496f381a0c04997300597d040b8a81045a848573485ed299": 1,
-    "656905a0db6cd229fa72610416ef7ba9d2d320c8c99352bd0d205dee4e13bd8d": 1,
-    "03847806b1cfd410cc85f1e90d671aac43e667c5c41e5792c729fd4ff655fb6b": 1
-  },
-  "packages/subagent/subagent-claude-code/tests/subagent-claude-code.spec.ts": {
-    "fa05a5e504ed74b5a07cb6281c787b507eb6c44db768803f4dad034dd69cb3b9": 1,
-    "f85c96616fff1bb1e21886bd2fad64e9e34d89d090ab96ab7804f702278cd23d": 4,
-    "4e94c461ab08f535e20f71ebe8bb9a8c911a936c7068f24e259956c06d17c05d": 1,
-    "2cedee48f4fb8ce4bbd10567fdfbee69e8dd11dbc85af9b824de33c2b77abfbf": 1,
-    "cdcbd6cc73a09b6613864cdfb5b14d0cf66dc2484d26916cb32929deca1032de": 3
-  },
-  "packages/subagent/subagent-codex/tests/real-deepseek.e2e.ts": {
-    "dee4487a97778a2383f1b378d59b3dae098152273d956dc360f23c69680fe0ea": 1
-  },
-  "packages/subagent/subagent-codex/tests/real-product.spec.ts": {
-    "adda026f7ad49b47496f381a0c04997300597d040b8a81045a848573485ed299": 1,
-    "656905a0db6cd229fa72610416ef7ba9d2d320c8c99352bd0d205dee4e13bd8d": 1,
-    "03847806b1cfd410cc85f1e90d671aac43e667c5c41e5792c729fd4ff655fb6b": 1
-  },
-  "packages/subagent/subagent-codex/tests/subagent-codex.spec.ts": {
-    "fa05a5e504ed74b5a07cb6281c787b507eb6c44db768803f4dad034dd69cb3b9": 1
   }
 }

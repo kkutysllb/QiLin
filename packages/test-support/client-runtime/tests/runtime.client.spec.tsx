@@ -879,7 +879,7 @@ interface StubShortcuts {
 
 /** Read the runtime's provided shortcuts service without a service-name augmentation. */
 function shortcutsOf(runtime: SlotTestRuntime): StubShortcuts | undefined {
-  const lookup = runtime.ctx as unknown as { get(name: string): unknown }
+  const lookup = runtime.ctx as Context & { get(name: string): unknown }
   return lookup.get('shortcuts') as StubShortcuts | undefined
 }
 

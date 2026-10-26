@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-22-deepseek-official-model-listing.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-22-deepseek-official-model-listing.md
+/agent-note-the-official-deepseek-route-follows-the-official-model-listing-until-its-catalog-is-customized:
+  en: 0fe88fbe89a5af83
+  zh: e4331dfe8ce7460e
+/agent-note-the-official-deepseek-route-follows-the-official-model-listing-until-its-catalog-is-customized/problem:
+  en: 713db3be5968342c
+  zh: 95d0d610fa4c5fcf
+/agent-note-the-official-deepseek-route-follows-the-official-model-listing-until-its-catalog-is-customized/decision:
+  en: 18af81dba959354c
+  zh: 51887b459c33ea89
+/agent-note-the-official-deepseek-route-follows-the-official-model-listing-until-its-catalog-is-customized/alternatives-considered:
+  en: a615eb866033c54a
+  zh: 775f76a8a14165a8
+/agent-note-the-official-deepseek-route-follows-the-official-model-listing-until-its-catalog-is-customized/consequences:
+  en: 23d3c2045d099998
+  zh: 4fd662c1ef341a72

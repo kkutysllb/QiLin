@@ -3,6 +3,7 @@ import type { Volatile } from '@qilin-agent/kylin'
 
 import z from '@qilin-agent/schemastery'
 import { isVolatile } from '@qilin-agent/cosmokit'
+import { deepEqualJson } from '@qilin-agent/util-values'
 import { resolveRetryPolicy, RetryPolicySchema } from '@qilin-agent/llm'
 import type { ModelModality, RetryPolicyConfig } from '@qilin-agent/llm'
 import type { LaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
@@ -110,6 +111,16 @@ const BASE_URL_ENV = 'DEEPSEEK_BASE_URL'
 
 /** Complete protocol settings captured for one request operation. */
 export type ResolvedDeepSeekOptions = DeepSeekConnectionOptions
+
+/**
+ * Whether a resolved catalog is the built-in one, which is what a `models`
+ * setting nobody customized resolves to.
+ * @param models - catalog resolved by {@link resolveAdapterOptions}.
+ * @returns whether `models` equals the resolved built-in catalog, entry by entry and in order.
+ */
+export function isBuiltInCatalog(models: readonly DeepSeekCatalogModel[]): boolean {
+  return deepEqualJson(models, resolveModels(DEFAULT_MODELS))
+}
 
 /** Resolve, validate, and detach the advisory model catalog. */
 function resolveModels(models: readonly DeepSeekCatalogModel[] | undefined): DeepSeekCatalogModel[] {

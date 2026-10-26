@@ -33,7 +33,9 @@ qilin Web 客户端的侧边栏让用户识别当前构建、启动新会话、�
 
 ### 全局面板入口
 
-插件在 root 作用域的 `sidebar.panellist` list 中注册图标组件，提供 `id`、可选 `order`，以及字符串或随语言变化的 `label`。同一个 id 寻址布局中 root 作用域 `main` keyed slot 的组件；选择不存在的主面板条目会抛错，并保留当前选中态。标签提供普通可见文字、无障碍名称和折叠提示。每一行通过 `usePanelInfo` 读取自己的选中态；DOM 焦点移到搜索框或目录选择器时，显示的面板及其列表项选中态不变。没有注册项时，列表及其间距均不渲染。默认组合不注册示例面板。
+插件在 root 作用域的 `sidebar.panellist` list 中注册图标组件，提供 `id`、可选 `order`，以及字符串或随语言变化的 `label`。同一个 id 寻址布局中 root 作用域 `main` keyed slot 的组件；选择不存在的主面板条目会抛错，并保留当前选中态。标签提供普通可见文字、无障碍名称和折叠提示。展开的导航行间距为 2px。每一行通过 `usePanelInfo` 读取自己的选中态；DOM 焦点移到搜索框或目录选择器时，显示的面板及其列表项选中态不变。没有面板注册项时，列表及其间距均不渲染。默认组合不注册示例面板。
+
+当 root 作用域的 `sidebar.panellist.actions` list 存在注册项时，导航地标内的面板行之后会出现一个同样式样的**更多**按钮；收起轨道把它的标签作为提示显示。点击打开菜单，菜单行来自该 list 的注册项。每个注册项收到 `entries`（按注册顺序的可自定义面板，含 `id`、`label`、`pinned`、`active`；Plugins 永不列出）、`onOpen(id)`（选中该面板）、`onPinnedChange(id, pinned)` 与 `onDismiss()`（关闭菜单）。侧边栏只在内存中保存一份未固定面板 id 列表，所有 Session 共用；Plugins 始终显示。取消固定只隐藏该行，主面板、其注册与当前选中态都不变。未注册的面板 id 会留在内存列表中，直到插件重新加载。
 
 ### 折叠行为
 
@@ -53,6 +55,15 @@ qilin Web 客户端的侧边栏让用户识别当前构建、启动新会话、�
 
 栏内的滚动条是一种指针可供性：只要指针不在栏内，外壳就把滚动条间接层重新绑定为 `transparent`；指针离开后滑块再保留 2 秒，因此没人指向的列表不会带着滚动条。避免行位移的空间预留属于滚动区域本身（ui-workspace），所以显示滑块不会引起重排。
 
+### 点击分析
+
+在桌面端，官方导航控件在执行动作前上报 `sidebar_menu_click`，携带 `menu_name` 与 `position`。没有分析服务时，控件只做导航。通过其他方式选中面板不上报，侧边栏也不上报曝光事件。
+
+- 展开的品牌与 New Session 按钮上报 `menu_name=new_session` 与 `position=sidebar`。Windows 标题栏承载收起态 New Session 时，该按钮上报 `position=titlebar`；macOS 红绿灯旁的 New Session 控件同样上报 `position=titlebar`。
+- **插件**与**自动化任务**行上报 `menu_name=plugin` 与 `menu_name=cron`，位置为 `sidebar`。其他面板行不上报。
+- 每次点击**更多**按钮（无论打开还是关闭菜单）上报 `menu_name=more` 与 `position=sidebar`。
+- 第三方「更多」菜单行若为插件或自动化任务调用 `onOpen(id)`，上报 `menu_name=plugin` 或 `menu_name=cron`，位置为 `sidebar_more`。上报发生在注册检查之前，因此已注销面板的请求仍会计数，尽管不会有任何选中。
+
 -----
 
 <a id="understand-the-implementation"></a>
@@ -61,7 +72,7 @@ qilin Web 客户端的侧边栏让用户识别当前构建、启动新会话、�
 <details>
 <summary>实现细节——点击展开</summary>
 
-外壳是纯组合：`SidebarRootComponentProps` 组合布局 owner share、全局 `useSessions` 与 `useWorkspaces` 钩子、已声明的品牌、`sidebar.workspaces` 与 `sidebar.settings` 子 slot，以及注入的导航回调。面板入口及其可选标题使用相同的组合方式。面板元数据由列表注册和语言变化派生；选中态属于布局存储。
+外壳是纯组合：`SidebarRootComponentProps` 组合布局 owner share、全局 `useSessions` 与 `useWorkspaces` 钩子、已声明的品牌、`sidebar.workspaces` 与 `sidebar.settings` 子 slot，以及注入的导航回调。面板元数据由列表注册和语言变化派生；选中态属于布局存储。注入的 `trackEntryClick(attributes)` 转发到 `ctx.get('productAnalytics')?.track('sidebar_menu_click', attributes)`，而 `selectPanel` 只负责选中，因此每个控件各自提供入口与位置。
 
 ### Slot 纪律
 

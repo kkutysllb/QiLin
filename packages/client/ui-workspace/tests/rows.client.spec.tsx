@@ -273,7 +273,7 @@ describe('workspace browser rows', () => {
 
   it('jumps to the far edge under reduced motion instead of crawling', () => {
     vi.useFakeTimers()
-    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true }) as unknown as MediaQueryList))
+    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true }) as MediaQueryList))
     try {
       const { row, title } = renderClippedRow('A Session Title Long Enough To Be Clipped (1)')
       stubTitleGeometry(title, 320, 180)

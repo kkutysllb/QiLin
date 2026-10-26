@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-Upstream removed its experimental Schedule bundle in release 0.2.1-alpha.1 and moved the capability into the Web composition and the presets: `@deepseek-ai/dsh-web-app` mounts the `schedule` service and the `ui-schedule` page in every Web profile, and its `standard`, `cordis`, and `ptc` presets declare the clock reading with the four `schedule_*` tools. QiLin keeps the earlier supply form.
+Upstream removed its experimental Schedule bundle in release 0.2.1-alpha.1 and moved the capability into the Web composition and the presets: `@deepseek-ai/dsh-web-app` mounts the `schedule` service and the `ui-schedule` page in every Web profile, and its `standard`, `@qilin-agent/kylin`, and `ptc` presets declare the clock reading with the four `schedule_*` tools. QiLin keeps the earlier supply form.
 
 `@qilin-agent/experimental-schedule-bundle` is listed in `OPTIONAL_BUNDLES` in `packages/boot/app-boot/src/profile.ts`, so every installation ships it switched off and the Plugins page offers it in the Official group as Automation tasks. Enabling it appends the package to the profile's `qilin.profile.bundles` list, and its patch inserts the `time-context`, `schedule`, and `ui-schedule` rows at the profile root. The shipped Web composition carries none of the three rows, and the shipped `ptc` preset declares the `tool-schedule` row, which registers the four tools only while the `schedule` service is in scope.
 
@@ -17,7 +17,7 @@ What a consumer observes differently from the upstream form:
 
 - With the bundle off, the shipped Web profile has no Automation tasks page, no Session reminder catalog, no clock reading, and no reminder tools. The page and the catalog are absent, not empty.
 - The clock row is a profile-root row here, so a top-level `- id: time-context` override reaches it. Upstream declares the clock row in Web presets, where a top-level override matches no row.
-- At that release QiLin shipped one preset, `ptc`. Upstream's `standard`, `cordis`, and `ptc` presets declare the clock row and the four tools; `minimal` declares neither.
+- At that release QiLin shipped one preset, `ptc`. Upstream's `standard`, `@qilin-agent/kylin`, and `ptc` presets declare the clock row and the four tools; `minimal` declares neither.
 - The selection lives in `qilin.profile.bundles`; switching the bundle off in Plugins removes it.
 
 The [bundle README](../../../../packages/experimental/schedule-bundle/README.md) records why this deployment keeps the bundle instead of folding the three rows into the Web composition.

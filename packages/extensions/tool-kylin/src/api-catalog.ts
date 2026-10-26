@@ -3362,6 +3362,25 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'themeBoot',
+    summary: 'Registry of skin canvas colors for the pre-plugin interval.',
+    description: 'Registry of skin canvas colors for the pre-plugin interval. A skin provider\'s node half registers its palette here before the first index render; the bootstrap resolves the selected skin against it so first paint matches the user\'s palette instead of the platform canvas.',
+    methods: [
+      {
+        signature: 'register(id: string, colors: SkinBootColors): () => void',
+        description: 'Register one skin\'s canvas colors, replacing an earlier registration.',
+        parameters: [{ name: 'id', description: 'skin id; the empty id is the platform palette selector, not a skin.' }, { name: 'colors', description: 'background for each base palette.' }],
+        returns: 'disposer removing exactly this registration; a no-op once the id was re-registered.',
+      },
+      {
+        signature: 'resolve(id: string): SkinBootColors',
+        description: 'Resolve the selected skin\'s canvas colors.',
+        parameters: [{ name: 'id', description: 'persisted skin selection.' }],
+        returns: 'the registered colors, or {@link PLATFORM_BOOT_COLORS} for an unregistered or empty id.',
+      },
+    ],
+  },
+  {
     key: 'timer',
     summary: 'Disposable timer helpers mixed into Cordis contexts.',
     description: 'Disposable timer helpers mixed into Cordis contexts.',
@@ -7878,6 +7897,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'SkillViewOptions',
     declaration: 'export interface SkillViewOptions extends SkillLookupOptions {\n    readonly scope?: ScopeKey | undefined;\n}',
+  },
+  {
+    name: 'SkinBootColors',
+    declaration: 'export interface SkinBootColors {\n    light: string;\n    dark: string;\n}',
   },
   {
     name: 'SpawnTeammateRequest',

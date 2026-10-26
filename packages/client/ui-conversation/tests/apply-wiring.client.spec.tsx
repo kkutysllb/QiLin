@@ -164,4 +164,33 @@ describe('target-neutral Conversation apply wiring', () => {
     expect(b.runtime.slots.spec('conversation.view')).toBeUndefined()
     await b.runtime.dispose()
   })
+
+  it('hands every Session header the same in-memory View pins without restoring saved choices', async () => {
+    localStorage.setItem('dsh.slot.manual-order.conversation.view.v1', JSON.stringify({ unpinned: ['trajectory'] }))
+    try {
+      const b = await bench()
+      const header = b.runtime.slots.entries('conversation.session.header')[0]!
+      type PinHooks = {
+        hooks: { entryPins: ObservableSnapshot<readonly string[]>; entryActions: ObservableSnapshot<boolean> }
+        setPinned: (id: string, pinned: boolean) => void
+      }
+      const inject = header.inject as (sessionId: SessionId) => PinHooks
+      const injected = inject(SID)
+      const first = injected.hooks.entryPins
+      expect(first.getSnapshot()).toEqual([])
+      expect(inject('session-2' as SessionId).hooks.entryPins).toBe(first)
+      injected.setPinned('timeline', false)
+      expect(first.getSnapshot()).toEqual(['timeline'])
+      const actions = injected.hooks.entryActions
+      const changed = vi.fn()
+      actions.subscribe(changed)
+      expect(actions.getSnapshot()).toBe(false)
+      b.runtime.slots.register({ name: 'conversation.session.header.views.actions', id: 'probe' }, (() => null) as never)
+      expect(actions.getSnapshot()).toBe(true)
+      await vi.waitFor(() => { expect(changed).toHaveBeenCalled() })
+      await b.runtime.dispose()
+    } finally {
+      localStorage.clear()
+    }
+  })
 })

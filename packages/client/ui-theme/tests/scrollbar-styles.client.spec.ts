@@ -20,6 +20,9 @@ const read = (name: string): string => readFileSync(fileURLToPath(new URL(name, 
 const platformCss = read('design-platform.css')
 const scrollbarCss = read('scrollbar.css')
 
+/** The base binding sheet, in the forward-slash spelling `packageStylesheets()` reports. */
+const SCROLLBAR_SHEET = fileURLToPath(new URL('scrollbar.css', STYLES)).replaceAll('\\', '/')
+
 /** Body attribute selecting the dark palette; ui-layout's ThemePresenter sets it. */
 const DARK_ATTRIBUTE = '[data-ds-dark-theme]'
 /** Alias tokens under test: the prefix the elevation pairs share. */
@@ -231,7 +234,7 @@ for (const file of packageStylesheets()) {
     let rebindsElevation = false
     const ruleSurfaces: string[] = []
     for (const [property, value] of rule.declarations) {
-      if (COLOUR_INDIRECTIONS.has(property) && file !== fileURLToPath(new URL('scrollbar.css', STYLES))) {
+      if (COLOUR_INDIRECTIONS.has(property) && file !== SCROLLBAR_SHEET) {
         rebinds = true
         if (value !== HIDDEN_THUMB) rebindsElevation = true
       }

@@ -169,6 +169,31 @@ Types: [Principal](typert.zh.md)
 
 Source: [`packages/client/connection/src/rpc.ts`](../../packages/client/connection/src/rpc.ts)
 
+<a id="ctxthemeboot--themebootregistry"></a>
+
+### `ctx.themeBoot` — `ThemeBootRegistry`
+
+Registry of skin canvas colors for the pre-plugin interval. A skin provider's node half registers its palette here before the first index render; the bootstrap resolves the selected skin against it so first paint matches the user's palette instead of the platform canvas.
+
+```ts cordis-catalog
+/**
+ * Register one skin's canvas colors, replacing an earlier registration.
+ * @param id - skin id; the empty id is the platform palette selector, not a skin.
+ * @param colors - background for each base palette.
+ * @returns disposer removing exactly this registration; a no-op once the id was re-registered.
+ */
+register(id: string, colors: SkinBootColors): () => void
+
+/**
+ * Resolve the selected skin's canvas colors.
+ * @param id - persisted skin selection.
+ * @returns the registered colors, or {@link PLATFORM_BOOT_COLORS} for an unregistered or empty id.
+ */
+resolve(id: string): SkinBootColors
+```
+
+Source: [`packages/client/ui-theme/src/index.ts`](../../packages/client/ui-theme/src/index.ts)
+
 <a id="ctxwebserver--webserver"></a>
 
 ### `ctx.webServer` — `WebServer`

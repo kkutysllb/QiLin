@@ -41,6 +41,7 @@ import { AgentPresetSectionController } from './section-store.ts'
 import { en, zh, type AgentPresetSettingsKey } from './locales.ts'
 import { SHIPPED_PRESET_ID } from './shipped-preset.ts'
 import { AGENT_PRESET_SETTINGS_NS, AgentPresetSettingsController } from './settings-store.ts'
+import { analyticsMode } from './analytics.ts'
 
 declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
@@ -95,12 +96,13 @@ export function apply(ctx: ClientContext): void {
     void unboundSeat.load()
     for (const seat of seats.values) void seat.load()
   })
+  const mainBlank = (scope: ClientContext) => Object.values(scope.sessions.list.getSnapshot().byId)
+    .find((session) => {
+      /* v8 ignore next -- retained source counts omit zero-valued entries. */
+      return session.blank && (session.retainedBy.mainView ?? 0) > 0
+    })
   const mainBlankSeat = (scope: ClientContext): AgentPresetSeatController | undefined => {
-    const summary = Object.values(scope.sessions.list.getSnapshot().byId)
-      .find((session) => {
-        /* v8 ignore next -- retained source counts omit zero-valued entries. */
-        return session.blank && (session.retainedBy.mainView ?? 0) > 0
-      })
+    const summary = mainBlank(scope)
     const binding = summary === undefined ? undefined : scope.sessions.binding(summary.id)
     return binding === undefined ? undefined : seatFor(scope, binding)
   }
@@ -143,7 +145,21 @@ export function apply(ctx: ClientContext): void {
       return {
         hooks: { agentPresetSeat: seat.store },
         load: () => seat.load(),
-        select: (id: string) => seat.select(id),
+        select: async (id: string) => {
+          const state = seat.store.getSnapshot()
+          const from = analyticsMode(state.current)
+          const to = analyticsMode(id)
+          const enabled = ctx.get('configForms')?.developerTools.enabled.getSnapshot()
+          const refused = await seat.select(id)
+          // A pick counts once the seat records it as the staged choice.
+          const accepted = refused === undefined && seat.store.getSnapshot().current === id
+          if (accepted && from !== undefined && to !== undefined && to !== 'other' && from !== to && enabled !== undefined) {
+            ctx.get('productAnalytics')?.track('agent_preset_switch', {
+              switch_from: from, switch_to: to, code_work_view_enabled: enabled,
+            })
+          }
+          return refused
+        },
         dismissRefusal: (error) => { seat.dismissRefusal(error) },
         introduced: () => { seat.introduced() },
       }
@@ -160,9 +176,12 @@ export function apply(ctx: ClientContext): void {
     // the model here — the draft the visitor typed stays until it is sent.
     const startCreatorDraft = (): void => {
       if (!section.store.getSnapshot().showPicker) return
+      // Navigation opens another blank when the main blank lists a different
+      // preset, so that blank is not staged.
+      const listed = mainBlank(scope)?.projectionValues?.agentPreset
       const seat = mainBlankSeat(scope) ?? unboundSeat
-      seat.stage(SHIPPED_PRESET_ID, true)
-      scope.uiWorkspace.startSession()
+      if (typeof listed !== 'string' || listed === SHIPPED_PRESET_ID) seat.stage(SHIPPED_PRESET_ID, true)
+      scope.uiWorkspace.startSession(undefined, { agentPreset: SHIPPED_PRESET_ID })
       void seat.apply()
     }
 

@@ -83,8 +83,9 @@ function mountShell({
     <SidebarRoot
       collapsed={current.collapsed} width={current.width}
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
-      usePanelInfo={usePanelInfo} selectPanel={() => {}}
+      usePanelInfo={usePanelInfo} selectPanel={() => {}} setPinned={() => {}} trackEntryClick={() => {}}
       usePanels={selector => selector(panels)} useShortcuts={selector => selector(shortcuts)}
+      useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useWorkspaces={neverHook}
       startSession={startSession} toggleSidebar={toggleSidebar} t={t}
       renderSlot={((
@@ -159,7 +160,9 @@ describe('SidebarRoot shell', () => {
     const { container } = render(<SidebarRoot
       collapsed={false} width={300}
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
-      usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+      usePanelInfo={usePanelInfo} selectPanel={() => {}} setPinned={() => {}} trackEntryClick={() => {}}
+      usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+      useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useWorkspaces={neverHook}
       startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
       renderSlot={((_key: string, _owner: unknown, options?: { fallback?: ReactNode }) =>
@@ -184,7 +187,9 @@ describe('SidebarRoot shell', () => {
     render(<SidebarRoot
       collapsed={false} width={300}
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
-      usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+      usePanelInfo={usePanelInfo} selectPanel={() => {}} setPinned={() => {}} trackEntryClick={() => {}}
+      usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+      useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useWorkspaces={neverHook}
       startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
       renderSlot={((_key: string, _owner: unknown, options?: { fallback?: ReactNode }) =>
@@ -199,7 +204,9 @@ describe('SidebarRoot shell', () => {
     render(<SidebarRoot
       collapsed={false} width={300}
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
-      usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+      usePanelInfo={usePanelInfo} selectPanel={() => {}} setPinned={() => {}} trackEntryClick={() => {}}
+      usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+      useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useWorkspaces={neverHook}
       startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
       renderSlot={((_key: string, _owner: unknown, options?: { fallback?: ReactNode }) =>
@@ -248,7 +255,9 @@ describe('SidebarRoot shell', () => {
     render(<SidebarRoot
       collapsed width={56}
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
-      usePanelInfo={usePanelInfo} selectPanel={() => {}} usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+      usePanelInfo={usePanelInfo} selectPanel={() => {}} setPinned={() => {}} trackEntryClick={() => {}}
+      usePanels={selector => selector([])} useShortcuts={selector => selector([])}
+      useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useWorkspaces={neverHook}
       startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
       renderSlot={((key: string) => key === 'sidebar.toggle.badge'
@@ -350,6 +359,7 @@ it.each([undefined, 'win32', 'linux', 'darwin'])('shows header sidebar controls 
   const props = {
     toggleSidebar,
     startSession,
+    trackEntryClick: vi.fn(),
     useShortcuts: (selector: (rows: readonly never[]) => unknown) => selector([]),
     t,
   } as HeaderLeadingControlsProps

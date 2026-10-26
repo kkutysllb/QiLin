@@ -194,9 +194,21 @@ export function checkPresetCopy(corpus: PresetCopyCorpus): string[] {
   return failures
 }
 
-const shippedIds = globSync(`${PRESETS_DIR}/*/preset.yml`, { cwd: root })
-  .map(path => path.slice(PRESETS_DIR.length + 1, path.indexOf('/preset.yml')))
-  .sort()
+/**
+ * Shipped preset ids from the `presets/<id>/preset.yml` paths of the scan.
+ * `globSync` reports the platform separator, so Windows results arrive with
+ * backslashes.
+ * @param paths - matched preset metadata paths.
+ * @returns preset directory names in the paths' order.
+ */
+export function shippedPresetIds(paths: readonly string[]): string[] {
+  return paths.map((path) => {
+    const normalized = path.replaceAll('\\', '/')
+    return normalized.slice(PRESETS_DIR.length + 1, normalized.indexOf('/preset.yml'))
+  })
+}
+
+const shippedIds = shippedPresetIds(globSync(`${PRESETS_DIR}/*/preset.yml`, { cwd: root })).sort()
 const dictionaryKeys = Object.fromEntries(DICTIONARIES.map(file => [
   file,
   parseDictionaryKeys(readFileSync(resolve(root, file), 'utf8')),

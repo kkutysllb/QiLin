@@ -22,7 +22,9 @@ import type {
 import type {
   ArbitrateKey, ArbitrateOutcome, ComposerKeyboard, DraftInput, DraftSnapshot, Occurrence, ReferenceInsert, TokenSpan,
 } from '../contract/draft-editor.ts'
-import type { InputSubmitMode } from '../contract/composer-submission.ts'
+import type {
+  InputSubmitMode, MessageSubmission, MessageSubmissionState,
+} from '../contract/composer-submission.ts'
 import { SubmitMachine } from './machine.ts'
 import { resolveDraftInput, snapshotDraft } from '../draft.ts'
 import { DraftEditorRuntime } from './editor/runtime.ts'
@@ -69,6 +71,10 @@ export interface SessionInputDeps {
     /** Localized composer notice for a claimed command that does not accept attachments. */
     unsupportedNotice(token: string): string
   }
+  /** Capture the Session facts an ordinary-message notification reports; optional observations cannot interrupt submission. */
+  submissionState?: () => MessageSubmissionState
+  /** Receive the ordinary-message occurrence once, before reference serialization. */
+  messageSubmitted?: (submission: MessageSubmission) => void
 }
 
 /** Guard tier from the machine phase. */
@@ -281,16 +287,24 @@ export class SessionInputShell implements SessionInput {
 
   /**
    * Apply one new-task request to this already-initialized input model.
-   * @param options - replacement content and explicit permission to clear existing text.
-   * @returns whether text changed, was preserved, or submission prevented editing.
+   * @param options - content to adopt and the handling of an existing draft.
+   * @returns applied when the requested text is adopted, even if unchanged;
+   * preserved when the current draft is kept; blocked after disposal or during a pending submission.
    */
   requestDraftInitialization(options: DraftInitializationOptions): DraftInitializationResult {
     if (this.draftInitializationBlocked()) return 'blocked'
-    if (options.prompt === undefined && options.clearPreviousDraft !== true) return 'preserved'
-    if (options.clearPreviousDraft !== true && (this.snapshot.draft !== '' || this.attachmentIds.length > 0)) {
-      return 'preserved'
+    const whenDraftExists = options.whenDraftExists ?? (options.clearPreviousDraft === true ? 'replace' : 'keep')
+    if (whenDraftExists === 'replace') {
+      this.setDraft(options.prompt ?? '')
+      return 'applied'
     }
-    this.setDraft(options.prompt ?? '')
+    if (options.prompt === undefined) return 'preserved'
+    if (this.snapshot.draft === '' && this.attachmentIds.length === 0) {
+      this.setDraft(options.prompt)
+      return 'applied'
+    }
+    if (whenDraftExists === 'keep') return 'preserved'
+    this.draftEditor.appendDraft(options.prompt)
     return 'applied'
   }
 
@@ -387,6 +401,7 @@ export class SessionInputShell implements SessionInput {
         const flight = this.attachmentFlightSeq
         this.attachmentFlights.set(flight, { controller, attachmentIds })
         this.commitSend(attachmentIds)
+        this.notifySubmission(this.submissionFor(mode))
         void this.deps.defaultSink('', attachmentIds, mode, controller.signal).then((outcome) => {
           if (this.disposed || !this.attachmentFlights.delete(flight)) return
           if (outcome.kind === 'success') return
@@ -721,6 +736,7 @@ export class SessionInputShell implements SessionInput {
     draft: string,
     mode: InputSubmitMode,
   ): void {
+    this.notifySubmission(this.submissionFor(mode))
     const attachmentIds = [...this.attachmentIds]
     this.attachmentIds = []
     const occurrences = this.projection.occurrences
@@ -763,6 +779,37 @@ export class SessionInputShell implements SessionInput {
         this.settleDetachedFailure(attempt, message)
       },
     )
+  }
+
+  /**
+   * Capture the notification's Session facts; an observation failure leaves them unknown.
+   * @param mode - delivery mode requested for this attempt.
+   * @returns the immutable occurrence.
+   */
+  private submissionFor(mode: InputSubmitMode): MessageSubmission {
+    let state: MessageSubmissionState | undefined
+    try {
+      state = this.deps.submissionState?.()
+    } catch (_error) {
+      /* Optional Session observations cannot interrupt submission. */
+    }
+    return Object.freeze({
+      timestamp: Date.now(),
+      mode,
+      ...state === undefined ? {} : { state },
+    })
+  }
+
+  /**
+   * Hand one occurrence to the notification consumer; a consumer failure cannot interrupt sending.
+   * @param submission - captured occurrence.
+   */
+  private notifySubmission(submission: MessageSubmission): void {
+    try {
+      this.deps.messageSubmitted?.(submission)
+    } catch (_error) {
+      /* Notification consumers cannot interrupt submission. */
+    }
   }
 
   /** Settle one detached default send independently of other sends. */

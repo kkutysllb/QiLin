@@ -10,7 +10,7 @@ it('probes the preset across the restore paths', () => {
     const p = join(ROOT, 'home/sessions/--qilin-workspace--/preview-showcase', name)
     let content: string
     try { content = readFileSync(p, 'utf8') } catch { console.log(name, 'MISSING'); continue }
-    const [header, ...events] = content.trimEnd().split('\n').map(l => JSON.parse(l) as unknown)
+    const [header, ...events] = content.trimEnd().split('\n').map((l): unknown => JSON.parse(l))
     const restore = createSessionFormatCatalogWithChildren([]).createRestore(header, { recovery: 'strict', validation: 'current' })
     for (const event of events) restore.decodeRow(event)
     const finished = restore.finish() as { header: Record<string, unknown> }

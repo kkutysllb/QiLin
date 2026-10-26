@@ -8,7 +8,7 @@ function frame(clearance: string | null, fullscreen: boolean): void {
   else document.documentElement.removeAttribute('data-fullscreen')
   vi.spyOn(window, 'getComputedStyle').mockReturnValue({
     getPropertyValue: (name: string) => (name === '--dsh-frame-top-clearance' ? clearance ?? '' : ''),
-  } as unknown as CSSStyleDeclaration)
+  } as CSSStyleDeclaration)
 }
 
 afterEach(() => {

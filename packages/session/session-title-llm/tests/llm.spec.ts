@@ -158,13 +158,18 @@ describe('executeSessionTitleLlm', () => {
     })).rejects.toThrow('at least one source message is required')
   })
 })
+/** An invalid configuration image typed for the resolver entry; the resolver must refuse it. */
+function invalidConfig(value: unknown): SessionTitleLlmConfig {
+  return value as SessionTitleLlmConfig
+}
+
 describe('resolveSessionTitleLlmConfig', () => {
   it('refuses a missing object, unknown keys, and invalid limits', () => {
-    expect(() => resolveSessionTitleLlmConfig(null as unknown as SessionTitleLlmConfig))
+    expect(() => resolveSessionTitleLlmConfig(invalidConfig(null)))
       .toThrow('session-title-llm: configuration is required')
-    expect(() => resolveSessionTitleLlmConfig('nope' as unknown as SessionTitleLlmConfig))
+    expect(() => resolveSessionTitleLlmConfig(invalidConfig('nope')))
       .toThrow('session-title-llm: configuration is required')
-    expect(() => resolveSessionTitleLlmConfig({ ...CONFIG, extra: 1 } as unknown as SessionTitleLlmConfig))
+    expect(() => resolveSessionTitleLlmConfig({ ...CONFIG, extra: 1 } as SessionTitleLlmConfig))
       .toThrow('session-title-llm: unknown config key "extra"')
     expect(() => resolveSessionTitleLlmConfig({ ...CONFIG, maxInputBytes: 0 }))
       .toThrow('session-title-llm: maxInputBytes must be a positive integer')

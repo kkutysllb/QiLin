@@ -210,6 +210,8 @@
       "@qilin-agent/client-ui-attachment": ["./packages/client/ui-attachment/src"],
       "@qilin-agent/client-ui-primitives": ["./packages/client/ui-primitives/src"],
       "@qilin-agent/client-ui-dockkit": ["./packages/client/ui-dockkit/src"],
+      "@qilin-agent/client-ui-entry-customization": ["./packages/client/ui-entry-customization/src"],
+      "@qilin-agent/client-ui-entry-customization/client": ["./packages/client/ui-entry-customization/src/client"],
       "@qilin-agent/client-ui-sidebar-right": ["./packages/client/ui-sidebar-right/src"],
       "@qilin-agent/client-ui-sidebar-right/client": ["./packages/client/ui-sidebar-right/src/client"],
       "@qilin-agent/client-ui-sidebar-documentpreview": ["./packages/client/ui-sidebar-documentpreview/src"],
@@ -391,6 +393,13 @@
       "@qilin-agent/kylin-host-runner/types": ["./packages/extensions/kylin-host-runner/src/types.ts"],
       // Hand-written: package names that don't match their directory cannot be generated.
       "@qilin-agent/tool-kylin/host": ["./packages/extensions/tool-kylin/src/host.ts"],
+      // Hand-written: typed subpath exports resolve to source for the host
+      // program; the generated region maps bare package specifiers only.
+      "@qilin-agent/mcp-servers/types": ["./packages/mcp/mcp-servers/src/types.ts"],
+      "@qilin-agent/message-feedback/types": ["./packages/feedback/message-feedback/src/types.ts"],
+      "@qilin-agent/permission-presets/types": ["./packages/interaction/permission-presets/src/types.ts"],
+      "@qilin-agent/permission-presets/client": ["./packages/interaction/permission-presets/src/client.ts"],
+      "@qilin-agent/sidebar-opens/types": ["./packages/host/sidebar-opens/src/types.ts"],
 
       "@qilin-agent/otel": ["./packages/telemetry/otel/src"],
       "@qilin-agent/client-ui-settings-session-log": ["./packages/client/ui-settings-session-log/src"],
