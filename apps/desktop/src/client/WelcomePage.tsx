@@ -234,90 +234,95 @@ export function Welcome({ api }: { api: WelcomeApi }) {
     <div className="titlebar" aria-hidden="true" />
     <main className="welcome" aria-labelledby={heading}>
       <div className="brand">
-        <img src="assets/qilin-mark.svg" alt="" width="40" height="40" />
+        <img src="assets/ktoon-mark.svg" alt="" width="40" height="40" />
         <span className="brand-name">{m.welcomeBrand}</span>
       </div>
       <div id="tagline" className="tagline" hidden={page !== 'entry'}>
+        <p className="welcome-kicker">{m.welcomeKicker}</p>
         <h1 id="welcome-heading"><span>{m.welcomeTaglineBefore}</span><em>{m.welcomeTaglineBrand}</em><span>{m.welcomeTaglineAfter}</span></h1>
         <p id="welcome-description">{m.welcomeDescription}</p>
+        <p className="welcome-local">{m.welcomeLocalNote}</p>
       </div>
-      <form id="key-form" className="key-form" hidden={page !== 'key'} noValidate onSubmit={(event) => { void saveKey(event) }} aria-busy={busy}>
-        <header className="key-heading"><h1 id="key-title">{m.welcomeKeyTitle}</h1><p id="key-description">{m.welcomeKeyDescription}</p></header>
-        <div className="key-field">
-          <label className="visually-hidden" htmlFor="key-input">{m.welcomeKeyPlaceholder}</label>
-          <input ref={input} id="key-input" type="password" autoComplete="new-password" autoCapitalize="off" spellCheck={false} required
-            aria-describedby="key-description key-error" aria-invalid={error !== ''} placeholder={m.welcomeKeyPlaceholder}
-            value={draft} disabled={busy} onChange={(event) => { setDraft(event.target.value); setError('') }} />
-          <p id="key-error" className="key-error" role="alert" hidden={error === ''}>{error}</p>
+      <div className="auth-stack">
+        <div className="auth-stack-kicker">{m.welcomeAccountKicker}</div>
+        <form id="key-form" className="key-form" hidden={page !== 'key'} noValidate onSubmit={(event) => { void saveKey(event) }} aria-busy={busy}>
+          <header className="key-heading"><h1 id="key-title">{m.welcomeKeyTitle}</h1><p id="key-description">{m.welcomeKeyDescription}</p></header>
+          <div className="key-field">
+            <label className="visually-hidden" htmlFor="key-input">{m.welcomeKeyPlaceholder}</label>
+            <input ref={input} id="key-input" type="password" autoComplete="new-password" autoCapitalize="off" spellCheck={false} required
+              aria-describedby="key-description key-error" aria-invalid={error !== ''} placeholder={m.welcomeKeyPlaceholder}
+              value={draft} disabled={busy} onChange={(event) => { setDraft(event.target.value); setError('') }} />
+            <p id="key-error" className="key-error" role="alert" hidden={error === ''}>{error}</p>
+          </div>
+        </form>
+        <section id="auth-page" className={`key-heading ${waiting ? 'auth-waiting' : phase === 'expired' ? 'auth-expired' : ''}`}
+          hidden={page !== 'account'} aria-live="polite">
+          <h1 id="auth-status">{title}</h1>
+          <p id="auth-description" hidden={!waiting && phase !== 'expired'}>{waiting ? m.welcomeAuthWaitingDescription : m.welcomeAuthExpiredDescription}</p>
+          <button id="auth-copy" className="copy-link" type="button" hidden={!waiting} disabled={!waiting || (copyState === 'busy' || copyState === 'copied')} onClick={() => { void copyLink() }}>
+            {copyState === 'copied' ? m.welcomeAuthCopied : copyState === 'failed' ? m.welcomeAuthCopyFailed : m.welcomeAuthCopyLink}
+          </button>
+        </section>
+        <div id="auth-actions" className="actions" hidden={page !== 'account'}>
+          <button id="auth-loading" className="primary" type="button" hidden={failed} disabled aria-label={m.welcomeAuthExchanging}>
+            <StateDot state="ongoing" size={16} className="welcome-loading" />
+          </button>
+          <button id="auth-retry" className="primary" type="button" hidden={!failed} onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'sign_in' }); setAuthError(''); navigate('login') }}>{m.welcomeAuthRetry}</button>
+          <button id="auth-api-key" className="secondary" type="button" hidden={!failed} onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'api-key' }); navigate('key') }}>{m.welcomeApiKey}</button>
+          <button id="auth-cancel" className="secondary" type="button" hidden={failed}
+            disabled={cancelling || phase === 'committing' || phase === 'succeeded' || (phase === 'initializing' && !attempt?.id)}
+            onClick={() => { void cancel() }}>{m.welcomeAuthCancel}</button>
         </div>
-      </form>
-      <section id="auth-page" className={`key-heading ${waiting ? 'auth-waiting' : phase === 'expired' ? 'auth-expired' : ''}`}
-        hidden={page !== 'account'} aria-live="polite">
-        <h1 id="auth-status">{title}</h1>
-        <p id="auth-description" hidden={!waiting && phase !== 'expired'}>{waiting ? m.welcomeAuthWaitingDescription : m.welcomeAuthExpiredDescription}</p>
-        <button id="auth-copy" className="copy-link" type="button" hidden={!waiting} disabled={!waiting || (copyState === 'busy' || copyState === 'copied')} onClick={() => { void copyLink() }}>
-          {copyState === 'copied' ? m.welcomeAuthCopied : copyState === 'failed' ? m.welcomeAuthCopyFailed : m.welcomeAuthCopyLink}
-        </button>
-      </section>
-      <div id="auth-actions" className="actions" hidden={page !== 'account'}>
-        <button id="auth-loading" className="primary" type="button" hidden={failed} disabled aria-label={m.welcomeAuthExchanging}>
-          <StateDot state="ongoing" size={16} className="welcome-loading" />
-        </button>
-        <button id="auth-retry" className="primary" type="button" hidden={!failed} onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'sign_in' }); setAuthError(''); navigate('login') }}>{m.welcomeAuthRetry}</button>
-        <button id="auth-api-key" className="secondary" type="button" hidden={!failed} onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'api-key' }); navigate('key') }}>{m.welcomeApiKey}</button>
-        <button id="auth-cancel" className="secondary" type="button" hidden={failed}
-          disabled={cancelling || phase === 'committing' || phase === 'succeeded' || (phase === 'initializing' && !attempt?.id)}
-          onClick={() => { void cancel() }}>{m.welcomeAuthCancel}</button>
-      </div>
-      <div id="entry-actions" className="actions" hidden={page !== 'entry'}>
-        <button id="sign-in" className="primary" type="button" onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'sign_in' }); setAuthError(''); navigate('login') }}>{m.welcomeSignIn}</button>
-
-      </div>
-      <form id="login-form" className="key-form" hidden={page !== 'login'} noValidate onSubmit={(event) => { event.preventDefault(); void submitLocal('login') }} aria-busy={authBusy}>
-        <header className="key-heading"><h1 id="login-title">{m.welcomeLoginTitle}</h1><p id="login-description">{m.welcomeLoginDescription}</p></header>
-        <div className="key-field">
-          <label className="visually-hidden" htmlFor="login-name">{m.welcomeLoginName}</label>
-          <input id="login-name" type="text" autoComplete="username" autoCapitalize="off" spellCheck={false} required placeholder={m.welcomeLoginName}
-            value={loginName} disabled={authBusy} onChange={(event) => { setLoginName(event.target.value); setAuthError('') }} />
-          <label className="visually-hidden" htmlFor="login-password">{m.welcomeLoginPassword}</label>
-          {passwordField('login-password', loginPassword, loginPasswordVisible, m.welcomeLoginPassword, 'current-password',
-            setLoginPassword, () => { setLoginPasswordVisible(!loginPasswordVisible) })}
-          <p id="login-error" className="key-error" role="alert" hidden={authError === ''}>{authError}</p>
+        <div id="entry-actions" className="actions" hidden={page !== 'entry'}>
+          <button id="sign-in" className="primary" type="button" onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'sign_in' }); setAuthError(''); navigate('login') }}>{m.welcomeSignIn}</button>
+          <button id="entry-register" className="secondary" type="button" onClick={() => { setAuthError(''); navigate('register') }}>{m.welcomeEntryRegister}</button>
         </div>
-      </form>
-      <form id="register-form" className="key-form" hidden={page !== 'register'} noValidate onSubmit={(event) => { event.preventDefault(); void submitLocal('register') }} aria-busy={authBusy}>
-        <header className="key-heading"><h1 id="register-title">{m.welcomeRegisterTitle}</h1><p id="register-description">{m.welcomeRegisterDescription}</p></header>
-        <div className="key-field">
-          <label className="visually-hidden" htmlFor="register-name">{m.welcomeRegisterName}</label>
-          <input id="register-name" type="text" autoComplete="username" autoCapitalize="off" spellCheck={false} required placeholder={m.welcomeRegisterName}
-            value={registerName} disabled={authBusy} onChange={(event) => { setRegisterName(event.target.value); setAuthError('') }} />
-          <label className="visually-hidden" htmlFor="register-email">{m.welcomeRegisterEmail}</label>
-          <input id="register-email" type="email" autoComplete="email" autoCapitalize="off" spellCheck={false} placeholder={m.welcomeRegisterEmail}
-            value={registerEmail} disabled={authBusy} onChange={(event) => { setRegisterEmail(event.target.value); setAuthError('') }} />
-          <label className="visually-hidden" htmlFor="register-password">{m.welcomeRegisterPassword}</label>
-          {passwordField('register-password', registerPassword, registerPasswordVisible, m.welcomeRegisterPassword, 'new-password',
-            setRegisterPassword, () => { setRegisterPasswordVisible(!registerPasswordVisible) })}
-          <label className="visually-hidden" htmlFor="register-confirm">{m.welcomeRegisterPasswordConfirm}</label>
-          {passwordField('register-confirm', registerConfirm, registerConfirmVisible, m.welcomeRegisterPasswordConfirm, 'new-password',
-            setRegisterConfirm, () => { setRegisterConfirmVisible(!registerConfirmVisible) })}
-          <p id="register-error" className="key-error" role="alert" hidden={authError === ''}>{authError}</p>
+        <form id="login-form" className="key-form" hidden={page !== 'login'} noValidate onSubmit={(event) => { event.preventDefault(); void submitLocal('login') }} aria-busy={authBusy}>
+          <header className="key-heading"><h1 id="login-title">{m.welcomeLoginTitle}</h1><p id="login-description">{m.welcomeLoginDescription}</p></header>
+          <div className="key-field">
+            <label className="visually-hidden" htmlFor="login-name">{m.welcomeLoginName}</label>
+            <input id="login-name" type="text" autoComplete="username" autoCapitalize="off" spellCheck={false} required placeholder={m.welcomeLoginName}
+              value={loginName} disabled={authBusy} onChange={(event) => { setLoginName(event.target.value); setAuthError('') }} />
+            <label className="visually-hidden" htmlFor="login-password">{m.welcomeLoginPassword}</label>
+            {passwordField('login-password', loginPassword, loginPasswordVisible, m.welcomeLoginPassword, 'current-password',
+              setLoginPassword, () => { setLoginPasswordVisible(!loginPasswordVisible) })}
+            <p id="login-error" className="key-error" role="alert" hidden={authError === ''}>{authError}</p>
+          </div>
+        </form>
+        <form id="register-form" className="key-form" hidden={page !== 'register'} noValidate onSubmit={(event) => { event.preventDefault(); void submitLocal('register') }} aria-busy={authBusy}>
+          <header className="key-heading"><h1 id="register-title">{m.welcomeRegisterTitle}</h1><p id="register-description">{m.welcomeRegisterDescription}</p></header>
+          <div className="key-field">
+            <label className="visually-hidden" htmlFor="register-name">{m.welcomeRegisterName}</label>
+            <input id="register-name" type="text" autoComplete="username" autoCapitalize="off" spellCheck={false} required placeholder={m.welcomeRegisterName}
+              value={registerName} disabled={authBusy} onChange={(event) => { setRegisterName(event.target.value); setAuthError('') }} />
+            <label className="visually-hidden" htmlFor="register-email">{m.welcomeRegisterEmail}</label>
+            <input id="register-email" type="email" autoComplete="email" autoCapitalize="off" spellCheck={false} placeholder={m.welcomeRegisterEmail}
+              value={registerEmail} disabled={authBusy} onChange={(event) => { setRegisterEmail(event.target.value); setAuthError('') }} />
+            <label className="visually-hidden" htmlFor="register-password">{m.welcomeRegisterPassword}</label>
+            {passwordField('register-password', registerPassword, registerPasswordVisible, m.welcomeRegisterPassword, 'new-password',
+              setRegisterPassword, () => { setRegisterPasswordVisible(!registerPasswordVisible) })}
+            <label className="visually-hidden" htmlFor="register-confirm">{m.welcomeRegisterPasswordConfirm}</label>
+            {passwordField('register-confirm', registerConfirm, registerConfirmVisible, m.welcomeRegisterPasswordConfirm, 'new-password',
+              setRegisterConfirm, () => { setRegisterConfirmVisible(!registerConfirmVisible) })}
+            <p id="register-error" className="key-error" role="alert" hidden={authError === ''}>{authError}</p>
+          </div>
+        </form>
+        <div id="login-actions" className="actions" hidden={page !== 'login'}>
+          <button id="login-submit" className="primary" type="submit" form="login-form" disabled={authBusy || loginName.trim() === '' || loginPassword === ''}>{m.welcomeLoginSubmit}</button>
+          <button id="to-register" className="secondary" type="button" disabled={authBusy} onClick={() => { setAuthError(''); navigate('register') }}>{m.welcomeLoginToRegister}</button>
         </div>
-      </form>
-      <div id="login-actions" className="actions" hidden={page !== 'login'}>
-        <button id="login-submit" className="primary" type="submit" form="login-form" disabled={authBusy || loginName.trim() === '' || loginPassword === ''}>{m.welcomeLoginSubmit}</button>
-        <button id="to-register" className="secondary" type="button" disabled={authBusy} onClick={() => { setAuthError(''); navigate('register') }}>{m.welcomeLoginToRegister}</button>
-      </div>
-      <div id="register-actions" className="actions" hidden={page !== 'register'}>
-        <button id="register-submit" className="primary" type="submit" form="register-form" disabled={authBusy || registerName.trim() === '' || registerPassword === '' || registerConfirm === ''}>{m.welcomeRegisterSubmit}</button>
-        <button id="to-login" className="secondary" type="button" disabled={authBusy} onClick={() => { setAuthError(''); navigate('login') }}>{m.welcomeRegisterToLogin}</button>
-      </div>
-      <div id="key-actions" className="actions" hidden={page !== 'key'}>
-        <button id="save-key" className="primary" type="submit" form="key-form" disabled={busy || draft.trim() === ''}>{m.welcomeKeySave}</button>
-        <button id="skip-key" className="secondary" type="button" disabled={busy} onClick={() => { void skip() }}>{m.welcomeKeyLater}</button>
-        <button id="back-to-login" className="back" type="button" disabled={busy} onClick={() => {
-          if (busyRef.current) return
-          setDraft(''); setError(''); focusEntry.current = true; navigate('entry')
-        }}>{m.welcomeKeyBack}</button>
+        <div id="register-actions" className="actions" hidden={page !== 'register'}>
+          <button id="register-submit" className="primary" type="submit" form="register-form" disabled={authBusy || registerName.trim() === '' || registerPassword === '' || registerConfirm === ''}>{m.welcomeRegisterSubmit}</button>
+          <button id="to-login" className="secondary" type="button" disabled={authBusy} onClick={() => { setAuthError(''); navigate('login') }}>{m.welcomeRegisterToLogin}</button>
+        </div>
+        <div id="key-actions" className="actions" hidden={page !== 'key'}>
+          <button id="save-key" className="primary" type="submit" form="key-form" disabled={busy || draft.trim() === ''}>{m.welcomeKeySave}</button>
+          <button id="skip-key" className="secondary" type="button" disabled={busy} onClick={() => { void skip() }}>{m.welcomeKeyLater}</button>
+          <button id="back-to-login" className="back" type="button" disabled={busy} onClick={() => {
+            if (busyRef.current) return
+            setDraft(''); setError(''); focusEntry.current = true; navigate('entry')
+          }}>{m.welcomeKeyBack}</button>
+        </div>
       </div>
     </main>
   </>
