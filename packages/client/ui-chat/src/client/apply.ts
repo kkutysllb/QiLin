@@ -229,6 +229,14 @@ export function apply(ctx: Context): void {
           // 400, so the same tab is revealed and told where to land — and a
           // line names the code view, so it keeps the ranked claim.
           openFile: async (path, options) => {
+            // Product hook: a provided fileOpenOverride service claims the path
+            // first — KToon pops its own media/text preview instead of the right
+            // column. Standard builds ship no such service and keep the sidebar
+            // routing below untouched. The global function is a fallback for
+            // product builds whose provider plugin resolves in another scope.
+            if (ctx.get('fileOpenOverride')?.claim(path, options) === true) return
+            const globalClaim = (globalThis as { __KTOON_FILE_OPEN__?: (value: unknown) => boolean }).__KTOON_FILE_OPEN__
+            if (typeof globalClaim === 'function' && globalClaim(path) === true) return
             const cwd = ctx.sessions.list.getSnapshot().byId[sessionId]?.cwd
             const url = fileAddressFor(sessionId, cwd, path)
             if (options?.line !== undefined) ctx.sidebarRight.openResource(url, { params: { line: options.line } })
