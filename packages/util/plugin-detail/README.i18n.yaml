@@ -1,0 +1,40 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/util/plugin-detail/README.md
+/:
+  en: 6fb5102001d20cc6
+  zh: fe509804f946bfde
+/qilin-agent-plugin-detail:
+  en: f8b917cdb381d99e
+  zh: 93ba6b1d89e4bca0
+/qilin-agent-plugin-detail/summary:
+  en: 00fe4b8da2e7f4e0
+  zh: f47097d79ab65ae8
+/qilin-agent-plugin-detail/table-of-contents:
+  en: cb3936157ab5b6ea
+  zh: 3687f20ac4ceff07
+/qilin-agent-plugin-detail/use-this-package:
+  en: ccdf3fdf80317f76
+  zh: 023b893b30d1dd5b
+/qilin-agent-plugin-detail/use-this-package/document-order:
+  en: 3975d9938b8e0a9a
+  zh: 53803cf53339b53f
+/qilin-agent-plugin-detail/use-this-package/images:
+  en: abeb7bb1f7695e5e
+  zh: 59b87c9abea17dfb
+/qilin-agent-plugin-detail/use-this-package/file-sources:
+  en: 9542401a7d104851
+  zh: 99f80d2960b77bc8
+/qilin-agent-plugin-detail/use-this-package/image-responses:
+  en: d6e7da207ee7f2fb
+  zh: c7b6acaa4d2839a2
+/qilin-agent-plugin-detail/api:
+  en: 3a13ceb3df59a17b
+  zh: 63babd1c00fc951f
+/qilin-agent-plugin-detail/known-limitations-and-deferred-work:
+  en: 5d8abfbb06761f7f
+  zh: 8515079f96e513bf
+/qilin-agent-plugin-detail/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

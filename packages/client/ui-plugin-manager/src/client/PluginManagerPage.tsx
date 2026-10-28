@@ -29,6 +29,7 @@ import {
   type InstallInputError, type InstallState, type InstallSubject, type PackageRow, type PackageView,
   type PluginManagerFace, type RegistryChoice,
 } from './manager-store.ts'
+import { BundleDetailSection } from './BundleDetailSection.tsx'
 import { managementText, noticeText, packageText, registryText, restartText, rowText, type Translate } from './presentation.ts'
 import type { PluginPackageRef, PluginRowRef, PluginsSubject } from './slot-contract.ts'
 import type { ConfigPageForm } from './slot-contract.ts'
@@ -640,10 +641,12 @@ function ItemDetail({ item, t, onBack, renderSlot, form }: {
  * and where it comes from.
  */
 function PackageDetail({
-  pkg, t, resolveText, busy, rowBusy, configured, renderSlot, inMore,
+  pkg, t, resolveText, busy, rowBusy, configured, renderSlot, inMore, detail,
   onBack, onSetEnabled, onUninstall, onUpdate, onSetRowEnabled,
 }: {
   readonly pkg: PackageView
+  /** The bundle's detail document section, shown first among the page's sections. */
+  readonly detail: ReactNode
   readonly t: Translate
   readonly resolveText: ResolveText
   readonly busy: boolean
@@ -717,6 +720,7 @@ function PackageDetail({
       {pkg.readOnlyReason === undefined ? null : <p className={css.reason} role="status">{managementText({ code: pkg.readOnlyReason }, t)}</p>}
       {preview === undefined ? null : <PackagePreview src={preview} title={title} t={t} />}
       <div className={css.detailSections}>
+        {detail}
         {configured
           ? (
             <section className={css.detailSection} data-plugin-config>
@@ -1455,6 +1459,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   // What is open; a package that leaves the list (uninstalled) drops back to the cards.
   const view = props.useStore(state => state.view), { setView, setTab } = props.actions
   const tabs = props.usePluginTabs(snapshot => snapshot)
+  const bundleDetails = props.useBundleDetails(snapshot => snapshot)
+  const language = props.useLocale(snapshot => snapshot.active)
   const selectedTab = props.useStore(state => state.tab)
   // A contributed tab that left the ledger falls back to Installed, and stays there when it returns.
   const tab = tabs.some(item => item.id === selectedTab) ? selectedTab : INSTALLED_TAB
@@ -1654,6 +1660,11 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             configured={ledger.bundles.has(openPkg.name)}
             renderSlot={renderSlot}
             inMore={openPkgInMore}
+            detail={(
+              <BundleDetailSection name={openPkg.name} version={openPkg.version} fromNpm={openPkg.availability === 'missing'}
+                language={language} details={bundleDetails} t={t}
+                load={props.loadDetail} retry={props.retryDetail} image={props.detailImage} />
+            )}
             onBack={() => { setView({ kind: openPkgInMore ? 'more' : 'list' }) }}
             onSetEnabled={(enabled) => { props.setEnabled(openPkg.name, enabled) }}
             onUninstall={() => { props.uninstall(openPkg.name) }}

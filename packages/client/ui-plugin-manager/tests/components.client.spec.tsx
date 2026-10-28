@@ -16,6 +16,8 @@ import { PluginRefreshToast } from '../src/client/PluginRefreshToast.tsx'
 import type { PluginManagerPageProps } from '../src/client/index.ts'
 import type { PluginTab } from '../src/client/tab-ledger.ts'
 import type { ConfigLedger } from '../src/client/config-ledger.ts'
+import type { BundleDetailsState } from '../src/client/detail-store.ts'
+import type { LocaleSnapshot } from '@qilin-agent/client-locale/client'
 import { rowKey, type InstallState, type PackageRow, type PackageView, type PluginManagerState } from '../src/client/manager-store.ts'
 import { INSTALL_GIT_EXAMPLE, INSTALL_PATH_EXAMPLE, en, zh, type PluginManagerLocaleKey } from '../src/client/locales.ts'
 import type { PluginActivationOwnerProps, PluginAddActionsProps, PluginDetailProps, PluginTabProps, PluginsSubject } from '../src/client/slot-contract.ts'
@@ -134,6 +136,8 @@ function renderTab(
     setRowEnabled: vi.fn(),
     dismissNotice: vi.fn(),
   }
+  /** No bundle detail read is in flight until a case publishes one. */
+  const detailReads: BundleDetailsState = {}
   const unusedStandardHook = (): never => { throw new Error('Plugin manager fixture does not provide global state') }
   const standard = {
     usePanelInfo: unusedStandardHook,
@@ -154,6 +158,11 @@ function renderTab(
     usePluginManager: bindSnapshotSelector(store),
     useConfigLedger: bindSnapshotSelector(ledger),
     usePluginTabs: bindSnapshotSelector(tabLedger),
+    useBundleDetails: <T,>(select: (value: BundleDetailsState) => T): T => select(detailReads),
+    useLocale: <T,>(select: (value: LocaleSnapshot) => T): T => select({ active: 'en', locales: [], revision: 0 }),
+    loadDetail: vi.fn(),
+    retryDetail: vi.fn(),
+    detailImage: () => undefined,
     useConfigurations: bindSnapshotSelector(createSnapshotStore<SettingsMirrorSnapshot>({
       status: 'ready', error: null,
       view: { writable: true, hasDocument: true, namespaces: Object.keys(forms).map(ns => ({
@@ -792,12 +801,12 @@ describe('PluginManagerPage', () => {
     expect(chinese.getAttribute('src')).toMatch(/badge-skill-preview\.zh\.svg$/)
     fireEvent.error(chinese)
     expect(screen.queryByRole('img')).toBeNull()
-    expect(screen.getByRole('status').textContent).toBe(zh.previewUnavailable)
+    expect(screen.getByText(zh.previewUnavailable)).toBeTruthy()
     fireEvent.click(screen.getByRole('switch', { name: zh.enableToggle.replace('{name}', name) }))
     expect(actions.setEnabled).toHaveBeenCalledWith(name, true)
     setLanguage(en)
     expect(screen.getByRole('img').getAttribute('src')).toBe(english)
-    expect(screen.queryByRole('status')).toBeNull()
+    expect(screen.queryByText(zh.previewUnavailable)).toBeNull()
   })
 
   it('shows no preview for bundles without one', () => {

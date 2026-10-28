@@ -86,6 +86,21 @@ The CLI exposes `qilin plugin --profile <profile> version-exemptions`, `allow-ve
 | `outputBytes` | `16384` | Maximum pnpm diagnostic bytes returned per operation; the full output remains in the returned log path. |
 | `lockWaitMs` | `120000` | Maximum time in milliseconds to acquire the profile write lock. |
 | `idleTimeoutMs` | `600000` | Maximum time in milliseconds a service package run may capture no output before the manager terminates it; a run with inherited descriptors (`qilin plugin`) is never bound. |
+| `detailMaxBytes` | `1048576` | Largest bundle detail document, and largest locale file read for one, in bytes. |
+| `detailImageMaxBytes` | `5242880` | Largest image served beside a bundle detail document, in bytes. |
+| `detailFetchTimeoutMs` | `15000` | Deadline of one npm file CDN request for an offered bundle's detail document. |
+| `detailNpmFileSources` | `['jsdelivr', 'unpkg', 'npmmirror']` | npm file CDNs offered bundles are read from, in order; a read's `npmFileSources` moves the CDNs it names first. |
+
+<a id="bundle-detail-documents"></a>
+### Bundle detail documents
+
+`readBundleDetail(name, language, { npmFileSources? })` reads the long description that a bundle's page in **Plugins** shows, for a bundle `listBundles()` lists: the locale `meta.detail` file, otherwise the README, as steps 1 and 2 of the [document order](../../util/plugin-detail/README.md#document-order) define them. Without either, the result is `{ status: 'none' }`; the repository a bundle declares is not read. `npmFileSources` names npm file CDNs to ask first for an offered bundle, in order; configured CDNs it omits follow, and CDNs that `detailNpmFileSources` does not list are not asked. A found document carries its `origin` (`locale` or `readme`), its `path` inside the package, and its Markdown without a leading YAML front matter block.
+
+An installed bundle is read from its directory, without network access. An official bundle the installation offers before it is installed is read from the npm file CDNs at its offered version; one offered as a development link has no document. Nothing is cached, so a reinstalled bundle shows its own document.
+
+`GET /api/plugin-manager/detail-file?bundle=<name>&document=<path>&path=<destination>`, with `&sources=<cdn>,...` to ask those CDNs first, serves an image beside a bundle's document to authenticated owner connections. The destination is relative to the document, or to the package root when it starts with `/`. Only PNG, JPEG, GIF, WebP, AVIF, and SVG files inside the package are served, with `Content-Security-Policy: sandbox`, `X-Content-Type-Options: nosniff`, and `Cache-Control: no-store`; another path or an unlisted bundle answers 404.
+
+Failures: `plugin-manager/unknown-bundle` for a bundle `listBundles()` does not list or whose directory cannot be resolved, `plugin-manager/invalid-language`, and `plugin-manager/detail-unavailable` with `reason` `too-large`, `network`, or `invalid` for a malformed locale file or `meta.detail`, or a named file that does not exist. The image route answers them with 404, 413, 502, and 400.
 
 -----
 

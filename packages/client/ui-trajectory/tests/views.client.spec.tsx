@@ -305,6 +305,8 @@ async function bench(snapshot = historySnapshot(NODES)) {
     trajectory: trajectoryStore,
     // The Tool layer's recorded todo history target; this bench renders no todo row.
     'tool-todo-history': createSnapshotStore<ConversationViewSnapshotMap['tool-todo-history'] | undefined>(undefined),
+    // The Statistics View registers a target too; this bench renders no statistics view.
+    stats: createSnapshotStore<ConversationViewSnapshotMap['stats'] | undefined>(undefined),
   }
   const binding: ConversationBinding = {
     snapshot: conversationStore,

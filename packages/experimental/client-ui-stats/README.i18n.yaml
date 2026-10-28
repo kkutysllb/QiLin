@@ -1,0 +1,43 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/client-ui-stats/README.md
+/:
+  en: db1b5b42664d338d
+  zh: 6985139d86d1b08f
+/qilin-agent-experimental-client-ui-stats:
+  en: e09b0d1e5f9617e1
+  zh: 434440b5da0c5f7e
+/qilin-agent-experimental-client-ui-stats/summary:
+  en: cd8563fb8d8a9a3f
+  zh: a5fd771cabccedd7
+/qilin-agent-experimental-client-ui-stats/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-agent-experimental-client-ui-stats/use-this-package:
+  en: 0fde622d41dedcbf
+  zh: a5d6e96e732f81ce
+/qilin-agent-experimental-client-ui-stats/use-this-package/when-to-choose-it:
+  en: 7acb31b30d633880
+  zh: f0c34a26541c1dc3
+/qilin-agent-experimental-client-ui-stats/use-this-package/minimal-configuration:
+  en: e001601f2f9779b1
+  zh: 077d3703b8c82774
+/qilin-agent-experimental-client-ui-stats/understand-the-implementation:
+  en: 14f55f3e92f03746
+  zh: bb71145b4346eacb
+/qilin-agent-experimental-client-ui-stats/further-exploration:
+  en: 9e06d25d431efa95
+  zh: ecec9f0c011569a3
+/qilin-agent-experimental-client-ui-stats/model-experience:
+  en: 9cc467886fff1f2d
+  zh: 4b10d95f64769bad
+/qilin-agent-experimental-client-ui-stats/model-experience/kv-cache-effect:
+  en: 7605bb868f93b4a8
+  zh: 184ca10ce6680499
+/qilin-agent-experimental-client-ui-stats/known-limitations-and-deferred-work:
+  en: e5759ea8865f7666
+  zh: cdeaf6aa86a405e3
+/qilin-agent-experimental-client-ui-stats/known-limitations-and-deferred-work/dev-note:
+  en: 682723e824a627a6
+  zh: 58c458147256fbd7

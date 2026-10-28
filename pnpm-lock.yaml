@@ -1869,9 +1869,15 @@ importers:
       '@qilin-agent/dsh-compat':
         specifier: workspace:*
         version: link:../../util/dsh-compat
+      '@qilin-agent/plugin-detail':
+        specifier: workspace:*
+        version: link:../../util/plugin-detail
       '@qilin-agent/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin-agent/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
       '@qilin-agent/util-values':
         specifier: workspace:*
         version: link:../../util/values
@@ -1891,6 +1897,9 @@ importers:
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
+      '@qilin-agent/client-connection':
+        specifier: workspace:*
+        version: link:../../client/connection
       '@qilin-agent/hmr':
         specifier: workspace:*
         version: link:../hmr
@@ -8521,6 +8530,81 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
 
+  packages/experimental/client-ui-stats:
+    devDependencies:
+      '@qilin-agent/api-session-controller':
+        specifier: workspace:*
+        version: link:../../api/session-controller
+      '@qilin-agent/attachment':
+        specifier: workspace:*
+        version: link:../../attachment/attachment
+      '@qilin-agent/client-locale':
+        specifier: workspace:*
+        version: link:../../client/locale
+      '@qilin-agent/client-store':
+        specifier: workspace:*
+        version: link:../../client/store
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-conversation':
+        specifier: workspace:*
+        version: link:../../client/ui-conversation
+      '@qilin-agent/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../../client/ui-primitives
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../../client/ui-renderer
+      '@qilin-agent/client-ui-session':
+        specifier: workspace:*
+        version: link:../../client/ui-session
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../../client/ui-slots
+      '@qilin-agent/compaction':
+        specifier: workspace:*
+        version: link:../../compaction/compaction
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/llm-retry':
+        specifier: workspace:*
+        version: link:../../llm/llm-retry
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-stats':
+        specifier: workspace:*
+        version: link:../../session/session-stats
+      '@qilin-agent/token-meter':
+        specifier: workspace:*
+        version: link:../../llm/token-meter
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+      '@qilin-agent/user-approval':
+        specifier: workspace:*
+        version: link:../../interaction/user-approval
+      '@testing-library/react':
+        specifier: ^16.1.0
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ~18.3.0
+        version: 18.3.7(@types/react@18.3.31)
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+
   packages/experimental/client-ui-voice-input:
     devDependencies:
       '@qilin-agent/api-gateway':
@@ -9128,6 +9212,9 @@ importers:
 
   packages/experimental/inspector-profile:
     dependencies:
+      '@qilin-agent/experimental-client-ui-stats':
+        specifier: workspace:*
+        version: link:../client-ui-stats
       '@qilin-agent/experimental-inspector':
         specifier: workspace:*
         version: link:../inspector
@@ -15486,6 +15573,12 @@ importers:
         version: link:../../../vendor/cordis
 
   packages/util/package-manifest:
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
+  packages/util/plugin-detail:
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~

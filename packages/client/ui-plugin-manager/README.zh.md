@@ -27,6 +27,8 @@ kind: "package-reference"
 
 打开设置、选择**插件**，进入**插件管理**标签页。页面首次打开时通过 `api-remotes` 读取清单与组合包；没有受管 profile 的 Host 上页面显示为不可用。**官方**排在前面，列出安装随附、供开启的组合包——开启前保持关闭、没有卸载、属于 beta 功能的带 **Beta** 标签——其后是注册了配置页的官方插件；**已安装**列出 profile 持有的组合包。卡片按名称排序，启停组合包不会挪动它的卡片。没有组合包 patch 的依赖不是插件，除非 profile 选中了它才会带异常标签列出。全局配置仍由本视图承载的配置页编辑。
 
+组合包页面在其各部分中首先显示该组合包的详细介绍文档，不带单独的标题：以当前界面语言、带图片的 Markdown 显示该组合包的详细介绍。该文档是组合包 `locale/<language>.json` 中 `meta.detail` 指定的 Markdown 文件，没有时为组合包的 README，由 [`pluginManager.readBundleDetail`](../../boot/plugin-manager/README.zh.md#bundle-detail-documents) 按 [`plugin-detail` 的文档顺序](../../util/plugin-detail/README.zh.md#document-order)读取；不读取组合包声明的仓库。已安装组合包的文档来自其自身文件，不访问网络；按需官方组合包的文档按其提供的版本从 npm 文件 CDN 读取。文档加载期间，该部分显示三行骨架屏；没有文档的组合包不显示该部分；读取失败时说明原因，并提供**重试**。原始 HTML 会被省略，相对路径的图片从 Host 上该文档旁的位置加载，相对链接保持为文本，文档高度超过该部分的高度上限时在该部分内滚动。文件未安装的组合包（例如按需官方组合包）从 npm 文件 CDN 读取：读取前先询问 Host 的注册表比较，npmmirror 响应最快时，先从 npmmirror 读取该文档及其图片。已安装组合包的读取不等待该比较。任何 profile 变化和连接重置都会重新读取已显示的文档。
+
 Agent Teams、Agent Teams Web UI 和 Auto Authorization Review 三个包使用随界面语言切换的本地化名称和描述。详情页保留完整 npm 包名；其他包显示简写包名和原始描述。
 
 ### 安装一个组合包

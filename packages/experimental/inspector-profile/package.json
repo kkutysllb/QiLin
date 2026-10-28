@@ -42,7 +42,8 @@
   },
   "dependencies": {
     "@qilin-agent/experimental-inspector": "workspace:*",
-    "@qilin-agent/experimental-session-inspector": "workspace:*"
+    "@qilin-agent/experimental-session-inspector": "workspace:*",
+    "@qilin-agent/experimental-client-ui-stats": "workspace:*"
   },
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~"

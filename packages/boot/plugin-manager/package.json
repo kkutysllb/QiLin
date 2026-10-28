@@ -66,7 +66,9 @@
     "execa": "^10.0.0",
     "yaml": "^2.9.0",
     "zod": "^4.4.3",
-    "@qilin-agent/util-values": "workspace:*"
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/plugin-detail": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*"
   },
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~",
@@ -107,6 +109,7 @@
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",
     "@qilin-agent/user-approval": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
     "chokidar": "^4.0.3"
   }
 }

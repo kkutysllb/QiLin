@@ -28,6 +28,7 @@ kind: "package-group"
 |---|---|
 | [`brand/`](brand/README.zh.md) | 提供名义字符串类型及其无状态构造函数 |
 | [`package-manifest/`](package-manifest/README.zh.md) | 包 manifest（元数据清单）的共享 TypeScript 声明 |
+| [`plugin-detail/`](plugin-detail/README.zh.md) | 为插件管理详情页读取包文档与图片 |
 | [`crypto/`](crypto/README.zh.md) | 基于跨运行时 `crypto.getRandomValues` 原语生成 RFC 9562 v4 UUID |
 | [`deque/`](deque/README.zh.md) | 提供摊销常数时间的队列操作和有界空闲存储 |
 | [`chunked-list/`](chunked-list/README.zh.md) | 通过有界追加复制和检查点校验保留不可变列表版本 |

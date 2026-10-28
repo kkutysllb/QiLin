@@ -229,6 +229,17 @@ export const zh = {
   reasonIncompatibleInstall: '请安装与当前 QiLin 兼容的插件版本。',
   reasonIncompatibleInstalled: '请卸载后重新安装与当前 QiLin 兼容的版本。',
   reasonOperationError: 'Host 报告了一个错误',
+  copy: '复制',
+  copied: '复制成功',
+  diagram: 'Mermaid 图',
+  enlarged: 'Mermaid 图（放大）',
+  detailTitle: '详细介绍',
+  detailLoading: '正在读取详细介绍',
+  detailTooLarge: '详细介绍超过大小限制，未加载',
+  detailNetwork: '无法连接到详细介绍的来源',
+  detailInvalid: '插件声明的详细介绍文件无效',
+  detailFailed: '无法读取详细介绍',
+  detailFootnotes: '脚注',
 } satisfies Record<string, string>
 
 /** Plugin manager locale key union. */
@@ -458,4 +469,15 @@ export const en = {
   reasonIncompatibleInstall: 'Install a plugin version compatible with this QiLin.',
   reasonIncompatibleInstalled: 'Uninstall it and install a version compatible with this QiLin.',
   reasonOperationError: 'The Host reported an error.',
+  copy: 'Copy',
+  copied: 'Copied',
+  diagram: 'Mermaid diagram',
+  enlarged: 'Mermaid diagram (enlarged)',
+  detailTitle: 'Details',
+  detailLoading: 'Reading details',
+  detailTooLarge: 'The details exceed the size limit and were not loaded.',
+  detailNetwork: 'Could not reach the source of the details.',
+  detailInvalid: 'The plugin declares an invalid details file.',
+  detailFailed: 'Could not read the details.',
+  detailFootnotes: 'Footnotes',
 } satisfies Record<PluginManagerLocaleKey, string>
