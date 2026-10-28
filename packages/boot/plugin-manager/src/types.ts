@@ -5,7 +5,7 @@ import type { PluginInventoryEntry } from '@qilin-agent/host-plugin-inventory/ty
 export type { PluginEntryId } from '@qilin-agent/host-plugin-inventory/types'
 import type { PluginEntryId } from '@qilin-agent/host-plugin-inventory/types'
 import type {} from '@qilin-agent/typert-protocol'
-import type { DetailFailureReason } from '@qilin-agent/plugin-detail/types'
+import type { DetailFailureReason } from '@qilin-agent/plugin-detail'
 
 declare module '@qilin-agent/typert-protocol' {
   interface RemoteErrorDetailsMap {
