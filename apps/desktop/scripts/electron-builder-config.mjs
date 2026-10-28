@@ -106,6 +106,9 @@ export function createElectronBuilderConfig(
   const buildVersion = resolveDesktopBuildVersion(env, productVersion)
   if (update?.channel === 'latest' && buildVersion.includes('-')) throw new Error('desktop package: latest requires a stable version')
   const packaged = resolveDesktopBuildCommit(env)
+  // Product payload (product.json + engine plugins/presets) staged by the product build.
+  // KToon's package script sets this env; an engine-only build leaves it unset.
+  const productPayload = env.QILIN_DESKTOP_PRODUCT_PAYLOAD?.trim()
   return {
     appId,
     protocols: [{ name: 'KToon', schemes: ['ktoon'] }],
@@ -148,6 +151,9 @@ export function createElectronBuilderConfig(
       'lib/preload-welcome.cjs',
       'renderer/**/*',
       'package.json',
+      ...(productPayload === undefined || productPayload === ''
+        ? []
+        : [{ from: join(productPayload, 'product.json'), to: 'product.json' }]),
       '!node_modules/**/*.{js,cjs,mjs,ts,cts,mts,css}.map',
       '!node_modules/**/*.tsbuildinfo',
       { from: buildPaths.qilin, to: 'qilin', filter: ['**/*'] },
@@ -156,6 +162,9 @@ export function createElectronBuilderConfig(
     ],
     asarUnpack: unpack,
     extraResources: [
+      ...(productPayload === undefined || productPayload === ''
+        ? []
+        : [{ from: join(productPayload, 'engine'), to: 'engine' }]),
       { from: buildPaths.runtime, to: 'runtime' },
       { from: fileURLToPath(new URL('../resources/icon-windows.png', import.meta.url)), to: 'icon.png' },
       // Windows tray bitmaps; macOS keeps the Dock and ships no menu bar icon.
