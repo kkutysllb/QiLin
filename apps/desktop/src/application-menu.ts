@@ -69,6 +69,8 @@ function applicationMenuItems(actions: ApplicationMenuActions): MenuItemConstruc
     ] : [],
     { type: 'separator' },
     ...platform === 'darwin' ? [
+      { role: 'services' as const, label: messages.servicesMenu, submenu: [] },
+      { type: 'separator' as const },
       { role: 'hide' as const, label: messages.hideApplication },
       { role: 'hideOthers' as const, label: messages.hideOtherApplications },
       { role: 'unhide' as const, label: messages.showAllApplications },
@@ -138,11 +140,41 @@ function helpMenuItems(actions: ApplicationMenuActions): MenuItemConstructorOpti
   ]
 }
 
-/** Edit menu: native roles, or the editor-owned keys the Windows caption bar needs. */
+/** Edit menu: native roles with this product's labels, or the editor-owned keys the Windows caption bar needs. */
 function editMenu(actions: ApplicationMenuActions): MenuItemConstructorOptions {
-  return actions.platform === 'win32'
-    ? { label: actions.messages.edit, submenu: actions.editItems() }
-    : { role: 'editMenu' }
+  if (actions.platform === 'win32') return { label: actions.messages.edit, submenu: actions.editItems() }
+  const { messages } = actions
+  // Explicit labels keep one dictionary's language; role menus take their text from the OS language.
+  return {
+    label: messages.edit,
+    submenu: [
+      { role: 'undo', label: messages.undo },
+      { role: 'redo', label: messages.redo },
+      { type: 'separator' },
+      { role: 'cut', label: messages.cut },
+      { role: 'copy', label: messages.copy },
+      { role: 'paste', label: messages.paste },
+      { role: 'delete', label: messages.delete },
+      { type: 'separator' },
+      { role: 'selectAll', label: messages.selectAll },
+    ],
+  }
+}
+
+/** Window menu with this product's labels; Electron's role menu would follow the OS language. */
+function windowMenu(actions: ApplicationMenuActions): MenuItemConstructorOptions {
+  const { messages, platform } = actions
+  return {
+    label: messages.windowMenu,
+    submenu: [
+      { role: 'minimize' as const, label: messages.minimizeMenu },
+      { role: 'zoom' as const, label: messages.zoomWindowMenu },
+      ...platform === 'darwin' ? [
+        { type: 'separator' as const },
+        { role: 'front' as const, label: messages.bringAllToFrontMenu },
+      ] : [],
+    ],
+  }
 }
 
 /**
@@ -160,7 +192,7 @@ export function applicationMenu(actions: ApplicationMenuActions): MenuItemConstr
     { label: actions.messages.fileMenu, submenu: fileMenuItems(actions) },
     editMenu(actions),
     { label: actions.messages.viewMenu, submenu: viewMenuItems(actions) },
-    { role: 'windowMenu' },
+    windowMenu(actions),
     { label: actions.messages.helpMenu, submenu: helpMenuItems(actions) },
   ]
 }

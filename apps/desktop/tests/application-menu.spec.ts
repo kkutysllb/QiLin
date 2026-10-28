@@ -33,7 +33,7 @@ describe('application menu', () => {
     const template = applicationMenu(actions({ platform }))
     expect(template.map(item => item.label ?? item.role)).toEqual([
       platform === 'darwin' ? 'QiLin Desktop' : en.application,
-      en.fileMenu, 'editMenu', en.viewMenu, 'windowMenu', en.helpMenu,
+      en.fileMenu, en.edit, en.viewMenu, en.windowMenu, en.helpMenu,
     ])
   })
 
@@ -45,7 +45,7 @@ describe('application menu', () => {
     const [application] = applicationMenu(actions())
     expect(labels(application!.submenu as MenuItemConstructorOptions[])).toEqual([
       'about', 'separator', en.settingsMenu, en.checkUpdatesMenu, en.cliCommandMenu, 'separator',
-      'hide', 'hideOthers', 'unhide', 'separator', 'quit',
+      'services', 'separator', 'hide', 'hideOthers', 'unhide', 'separator', 'quit',
     ])
   })
 

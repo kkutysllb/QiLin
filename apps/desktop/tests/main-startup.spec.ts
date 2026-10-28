@@ -1043,16 +1043,18 @@ describe('desktop main startup', () => {
     await harness.preparing.promise
     const describeItem = (item: MenuItemConstructorOptions): string | undefined =>
       item.role ?? (item.type === 'separator' ? 'separator' : item.label)
+    // The application menu is the multi-menu template whose first entry names the product.
     const template = harness.menu.buildFromTemplate.mock.calls
       .map(call => call[0])
-      .find(items => items.some(item => item.role === 'editMenu'))
+      .find(items => items.length > 1
+        && [harness.app.name, en.application, zh.application].includes(items[0]?.label ?? ''))
     if (template === undefined) throw new Error('application menu missing')
     expect(template.map(describeItem)).toEqual(platform === 'darwin'
-      ? ['Desktop test', en.fileMenu, 'editMenu', en.viewMenu, 'windowMenu', en.helpMenu]
-      : ['Application', en.fileMenu, 'editMenu', en.viewMenu, 'windowMenu', en.helpMenu])
+      ? ['Desktop test', en.fileMenu, en.edit, en.viewMenu, en.windowMenu, en.helpMenu]
+      : ['Application', en.fileMenu, en.edit, en.viewMenu, en.windowMenu, en.helpMenu])
     const application = template[0]!.submenu as MenuItemConstructorOptions[]
     expect(application.filter(item => item.visible !== false).map(describeItem)).toEqual(platform === 'darwin'
-      ? ['about', 'separator', en.settingsMenu, en.checkUpdatesMenu, en.cliCommandMenu, 'separator', 'hide', 'hideOthers', 'unhide', 'separator', 'quit']
+      ? ['about', 'separator', en.settingsMenu, en.checkUpdatesMenu, en.cliCommandMenu, 'separator', 'services', 'separator', 'hide', 'hideOthers', 'unhide', 'separator', 'quit']
       : [en.aboutMenu, 'separator', en.settingsMenu, en.checkUpdatesMenu, 'separator', en.exitApplication])
     expect(harness.menu.setApplicationMenu).toHaveBeenCalledOnce()
   })
