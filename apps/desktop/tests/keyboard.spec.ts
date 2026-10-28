@@ -359,7 +359,7 @@ it.each([
   expect(menu[0]?.accelerator).toBe(accelerator)
 })
 
-it('refreshes the native menu only when its accelerator or availability changes', async () => {
+it('refreshes the native menu when a command binding or its availability changes', async () => {
   const f = await fixture()
   const close = { id: 'page.close', defaults: desktopDefaults({ code: 'KeyW', modifiers: ['primary'] }) }
   expect(f.updateMenu).not.toHaveBeenCalled()
@@ -370,7 +370,8 @@ it('refreshes the native menu only when its accelerator or availability changes'
   const edited = await f.call<ShortcutSaveResult>(DESKTOP_IPC.shortcutsEdit,
     { type: 'set', id: 'sidebar.left.toggle', binding: { code: 'KeyJ', modifiers: ['primary'] } }, registered.revision)
   expect(edited.status).toBe('saved')
-  expect(f.updateMenu).toHaveBeenCalledOnce()
+  // Registering more commands and editing one binding both change menu accelerators.
+  expect(f.updateMenu).toHaveBeenCalledTimes(3)
   f.contents.send.mockClear()
   const click = menu[0]!.click as () => void
   click()
@@ -378,11 +379,11 @@ it('refreshes the native menu only when its accelerator or availability changes'
     { kind: 'menu', commandId: 'page.close', revision: edited.snapshot.revision })
   await f.call(DESKTOP_IPC.shortcutsEdit,
     { type: 'set', id: 'page.close', binding: { code: 'KeyQ', modifiers: ['primary'] } }, edited.snapshot.revision)
-  expect(f.updateMenu).toHaveBeenCalledTimes(2)
+  expect(f.updateMenu).toHaveBeenCalledTimes(4)
   f.contents.emit('did-start-navigation', { isMainFrame: true, isSameDocument: false })
-  expect(f.updateMenu).toHaveBeenCalledTimes(3)
+  expect(f.updateMenu).toHaveBeenCalledTimes(5)
   f.contents.emit('did-start-navigation', { isMainFrame: true, isSameDocument: false })
-  expect(f.updateMenu).toHaveBeenCalledTimes(3)
+  expect(f.updateMenu).toHaveBeenCalledTimes(5)
 })
 
 it.each(['macos', 'windows'] as const)('prioritizes %s custom editing bindings before both main and embedded frame handlers', async (platform) => {

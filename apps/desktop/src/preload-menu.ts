@@ -1,7 +1,21 @@
 /** Windows caption menu labels and native popup anchors, isolated from the Web client. */
 import { ipcRenderer } from 'electron'
+import { CAPTION_MENUS, captionMenuLabels, type CaptionMenu } from './application-menu.ts'
 import { DESKTOP_IPC } from './ipc.ts'
-import { resolveDesktopLocale } from './locale.ts'
+import { resolveDesktopLocale, type DesktopMessages } from './locale.ts'
+
+/**
+ * Write one caption-bar label per menu button.
+ * @param buttons - buttons in bar order, matching `CAPTION_MENUS`.
+ * @param messages - selected Desktop dictionary.
+ */
+function applyLabels(buttons: readonly HTMLButtonElement[], messages: DesktopMessages): void {
+  const labels = captionMenuLabels(messages)
+  for (const [index, button] of buttons.entries()) {
+    const entry = labels[index]
+    if (entry !== undefined) button.textContent = entry.label
+  }
+}
 
 /**
  * Mount the Windows caption menubar without moving focus out of the active editor.
@@ -50,7 +64,7 @@ export function installWindowsMenu(): { update(): void; dispose(): void } {
     }
   }
   document.addEventListener('focusout', rememberEditor, true)
-  const createButton = (name: 'application' | 'edit', index: 0 | 1): HTMLButtonElement => {
+  const createButton = (name: CaptionMenu, index: number): HTMLButtonElement => {
     const button = document.createElement('button')
     button.type = 'button'
     button.setAttribute('role', 'menuitem')
@@ -72,7 +86,9 @@ export function installWindowsMenu(): { update(): void; dispose(): void } {
     button.addEventListener('keydown', (event) => {
       if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
         event.preventDefault()
-        const next = buttons[index === 0 ? 1 : 0]
+        const step = event.key === 'ArrowLeft' ? CAPTION_MENUS.length - 1 : 1
+        const next = buttons[(index + step) % CAPTION_MENUS.length]
+        if (next === undefined) return
         button.tabIndex = -1
         next.tabIndex = 0
         next.focus()
@@ -84,7 +100,7 @@ export function installWindowsMenu(): { update(): void; dispose(): void } {
     bar.append(button)
     return button
   }
-  const buttons = [createButton('application', 0), createButton('edit', 1)] as const
+  const buttons = CAPTION_MENUS.map((name, index) => createButton(name, index))
   shadow.append(style, bar)
   const mount = (): void => {
     // AppFrame owns this seat; boot readiness alone precedes the rendered application.
@@ -98,8 +114,7 @@ export function installWindowsMenu(): { update(): void; dispose(): void } {
   const update = (): void => {
     const { messages } = resolveDesktopLocale(document.documentElement.lang)
     bar.setAttribute('aria-label', messages.menuBar)
-    buttons[0].textContent = messages.application
-    buttons[1].textContent = messages.edit
+    applyLabels(buttons, messages)
   }
   update()
   return {

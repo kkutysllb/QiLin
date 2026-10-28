@@ -15,6 +15,7 @@ Desktop 在原生应用中运行 Harness 工作区。本参考文档说明应用
 - [应用概览](#application-overview)
 - [终端命令](#terminal-command)
 - [关闭窗口与退出](#closing-the-window-and-quitting)
+- [菜单](#menus)
 - [关键技术决策](#key-technical-decisions)
 - [内置命令运行时](#bundled-command-runtime)
 - [安装归属](#installation-ownership)
@@ -36,8 +37,6 @@ Desktop 在原生应用中运行 Harness 工作区。本参考文档说明应用
 
 Desktop 绑定 `127.0.0.1`，即 Electron 为就绪 URL 与 WebSocket 凭据过滤器拨号的地址。WebSocket 流按 Host 监听器使用 `ws:` 或 `wss:`；附加凭据要求 authority 与 scheme 均匹配。
 
-应用菜单第一项“**关于 QiLin Desktop**”打开 Electron 原生关于面板，展示应用图标、产品名称和当前安装的发布版本。菜单文案跟随桌面壳的语言。macOS 的隐藏、隐藏其他、显示全部和退出条目使用本地化文案，隐藏和退出条目包含 QiLin Desktop 产品名称。这些条目保留原生动作和快捷键。macOS 从应用包读取图标，因此未打包的开发启动会显示 Electron 图标；Windows 使用随包分发的 PNG。
-
 Desktop 的本地原生目录流程打开绑定应用窗口的 Electron 文件夹对话框，并先恢复、显示和聚焦该窗口。并发请求共用一个对话框；取消不返回路径，失败后可以重试。普通 Web 使用 Host 选择器。浏览模式列出 Host 目录。Linux 缺少 zenity 或 kdialog 时，自动选择使用浏览模式，不使用 Electron 对话框。
 
 Desktop 在 `resources/runtime/primary-runtime/dependencies/pnpm` 中携带一份 pnpm 分发包。构建时的生产依赖安装、安装版 `qilin` CLI、Creator 和 Web 插件管理器通过 Electron Node 模式执行其中的 `bin/pnpm.mjs`；包操作不要求 PATH 上存在 pnpm。私有 Node 启动器环境仅用于包操作。agent（智能体）的工作区依赖将同一份完整 primary-runtime 复制到 Harness 主目录，并使用其中的独立 Node 执行 pnpm。
@@ -51,6 +50,18 @@ Desktop Host 的 Platform API 请求与更新策略请求用相同的 Platform �
 桌面麦克风访问仅允许主 `qilin-app://app` 页面发起的音频请求。macOS 使用系统麦克风授权、随包用途说明，以及主应用与 Helper 签名中的 `com.apple.security.device.audio-input` 权限。
 
 按 F12（多媒体功能键键盘上为 Fn+F12）、macOS 的 Command+Option+I 或 Windows 的 Ctrl+Shift+I，可切换当前获得焦点的应用页面的 DevTools，打包版本同样支持。这些原生快捷键通过隐藏的应用菜单项注册。更新遮罩和打包版本的内嵌浏览器禁用 DevTools。
+
+<a id="menus"></a>
+
+## 菜单
+
+菜单栏文案跟随桌面壳的语言，执行的动作与 Web 客户端一致。macOS 与 Linux 渲染原生菜单栏，含应用、文件、编辑、视图、窗口和帮助菜单；Windows 在标题栏内绘制文件、编辑、视图和帮助菜单，由它们弹出同一批原生菜单，其原生菜单只保留隐藏的开发者快捷键。
+
+文件菜单提供新建会话、搜索会话、添加工作区、macOS 之外的设置、关闭窗口，以及 macOS 之外的退出。编辑菜单在 macOS 与 Linux 上使用原生编辑条目；Windows 由桌面壳转发编辑器自有的撤销、重做、剪切、复制、粘贴、删除和全选按键，因此生效的是 Web 输入框自己的历史。视图菜单切换左右侧栏、调整页面缩放、切换全屏，并在开发构建中提供刷新页面、强制重新加载和开发者工具。帮助菜单打开项目主页与问题反馈，在 macOS 之外还含检查更新与关于。应用菜单保留关于、设置、检查更新、管理 qilin 命令，以及原生的隐藏与退出条目；开发构建额外提供刷新页面和重启应用与 Host。
+
+“关于”打开 Electron 原生关于面板，展示应用图标、产品名称和当前安装的发布版本；macOS 从应用包读取图标，因此未打包的开发启动显示 Electron 图标，Windows 使用随包分发的 PNG。隐藏、隐藏其他、显示全部和退出条目使用本地化文案并写出 QiLin Desktop 产品名称，同时保留原生动作与快捷键。
+
+渲染进程条目显示用户当前的绑定，并在 Web 客户端发布快捷键配置前保持禁用。每个条目按命令 id 经与物理按键相同的通道派发，因此自定义绑定会同时改变显示的加速键与实际执行的命令。绑定、可用命令集合或桌面壳语言变化时，菜单重建。
 
 <a id="terminal-command"></a>
 

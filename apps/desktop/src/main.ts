@@ -22,6 +22,7 @@ import {
   type IpcMainInvokeEvent,
   type MenuItemConstructorOptions,
 } from 'electron'
+import { applicationMenu, captionMenu, CAPTION_MENUS, type ApplicationMenuActions } from './application-menu.ts'
 import { resolveDesktopPaths } from './paths.ts'
 import { DesktopProjectManager } from './project-manager.ts'
 import { DesktopHostFatalError, DesktopHostProcess, DesktopHostUncleanExitError } from './host-process.ts'
@@ -1067,48 +1068,59 @@ async function main(): Promise<void> {
   // its standard menus and application hide commands declared explicitly.
   // Keep app.name stable: Electron derives its default userData directory from it.
   const darwin = process.platform === 'darwin'
-  const platformMenus = (): MenuItemConstructorOptions[] => darwin
-    ? [shortcuts.fileMenu(currentDesktopLocale().messages), { role: 'editMenu' }, { role: 'windowMenu' }]
-    : [{ role: 'editMenu' }]
-  const hideCommands: MenuItemConstructorOptions[] = darwin
-    ? [{ role: 'hide', label: currentDesktopLocale().messages.hideApplication },
-      { role: 'hideOthers', label: currentDesktopLocale().messages.hideOtherApplications },
-      { role: 'unhide', label: currentDesktopLocale().messages.showAllApplications }, { type: 'separator' }]
-    : []
-  const applicationItems = (): MenuItemConstructorOptions[] => [
+  /** Windows editing entries, whose history the editor owns instead of Chromium's undo stack. */
+  const windowsEditItems = (): MenuItemConstructorOptions[] => {
+    // Editor-owned history listens to key events rather than Chromium's native undo stack.
+    const editItem = (label: string, keyCode: string, modifiers: Array<'control'>, accelerator?: string): MenuItemConstructorOptions => ({
+      label,
+      ...(accelerator === undefined ? {} : { accelerator }),
+      click: () => {
+        shortcuts.sendEditingKey(keyCode, modifiers)
+      },
+    })
+    const messages = currentDesktopLocale().messages
+    return [
+      editItem(messages.undo, 'Z', ['control'], 'Ctrl+Z'),
+      editItem(messages.redo, 'Y', ['control'], 'Ctrl+Y'),
+      { type: 'separator' },
+      editItem(messages.cut, 'X', ['control'], 'Ctrl+X'),
+      editItem(messages.copy, 'C', ['control'], 'Ctrl+C'),
+      editItem(messages.paste, 'V', ['control'], 'Ctrl+V'),
+      editItem(messages.delete, 'Delete', []),
+      { type: 'separator' },
+      editItem(messages.selectAll, 'A', ['control'], 'Ctrl+A'),
+    ]
+  }
+  const menuActions = (): ApplicationMenuActions => ({
+    platform: darwin ? 'darwin' : process.platform === 'win32' ? 'win32' : 'linux',
+    messages: currentDesktopLocale().messages,
+    applicationName: app.name,
+    development,
     // Windows has no system About panel; Electron's fallback is a plain
     // message box, so the shell shows its own dimmed dialog instead.
-    process.platform === 'win32'
-      ? { label: currentDesktopLocale().messages.aboutMenu,
-        click: () => { void showAbout().catch((error: unknown) => { console.error(error) }) } }
-      : { label: currentDesktopLocale().messages.aboutMenu, role: 'about' },
-    { type: 'separator' },
-    { label: currentDesktopLocale().messages.checkUpdatesMenu, click: () => { void openUpdatePrompt(true) } },
-    ...process.platform === 'darwin' || process.platform === 'win32'
-      ? [{ label: currentDesktopLocale().messages.cliCommandMenu, click: () => { void commandManager.show() } }] : [],
-    ...development ? [
-      { type: 'separator' as const },
-      { label: currentDesktopLocale().messages.reloadPageMenu, role: 'reload' as const },
-      { label: currentDesktopLocale().messages.restartAppHostMenu, click: () => {
-        if (quitting) return
-        app.relaunch()
-        quitWithoutConfirmation()
-      } },
-    ] : [],
-    { type: 'separator' },
-    ...hideCommands,
-    { role: 'quit', ...(darwin ? { label: currentDesktopLocale().messages.quitApplication }
-      : process.platform === 'win32' ? { label: currentDesktopLocale().messages.exitApplication } : {}) },
-  ]
+    showAbout: () => { void showAbout().catch((error: unknown) => { console.error(error) }) },
+    checkUpdates: () => { void openUpdatePrompt(true) },
+    manageCommand: () => { void commandManager.show() },
+    restart: () => {
+      if (quitting) return
+      app.relaunch()
+      quitWithoutConfirmation()
+    },
+    openExternal: (url) => { void shell.openExternal(url) },
+    quit: () => { app.quit() },
+    command: (id, label) => shortcuts.commandItem(id, label),
+    editItems: windowsEditItems,
+  })
   const devToolsItems: MenuItemConstructorOptions[] = [
     { role: 'toggleDevTools', visible: false },
     { role: 'toggleDevTools', visible: false, accelerator: 'F12' },
   ]
   const refreshApplicationMenu = (): void => {
-    Menu.setApplicationMenu(Menu.buildFromTemplate(process.platform === 'win32' ? devToolsItems : [{
-      label: darwin ? app.name : currentDesktopLocale().messages.application,
-      submenu: [...applicationItems(), ...devToolsItems],
-    }, ...platformMenus()]))
+    // Windows draws its menu bar in the title bar; the native menu only carries
+    // the invisible developer shortcuts there.
+    const template = process.platform === 'win32' ? devToolsItems : applicationMenu(menuActions()).map((menu, index) =>
+      index === 0 ? { ...menu, submenu: [...menu.submenu as MenuItemConstructorOptions[], ...devToolsItems] } : menu)
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template))
     tray?.relabel()
   }
   refreshApplicationMenu()
@@ -1142,29 +1154,12 @@ async function main(): Promise<void> {
       assertDesktopSender(event, ['app'])
       if (mainWindow === undefined || event.sender !== mainWindow.webContents
         || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('desktop menu: rejected sender')
-      if ((name !== 'application' && name !== 'edit')
+      const menu = CAPTION_MENUS.find(candidate => candidate === name)
+      if (menu === undefined
         || typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x) || !Number.isFinite(y)
         || x < 0 || y < 0 || x > 100_000 || y > 100_000) throw new Error('desktop menu: invalid popup request')
       const window = mainWindow
-      // Editor-owned history listens to key events rather than Chromium's native undo stack.
-      const editItem = (label: string, keyCode: string, modifiers: Array<'control'>, accelerator?: string): MenuItemConstructorOptions => ({
-        label,
-        ...(accelerator === undefined ? {} : { accelerator }),
-        click: () => {
-          shortcuts.sendEditingKey(keyCode, modifiers)
-        },
-      })
-      const items: MenuItemConstructorOptions[] = name === 'application' ? applicationItems() : [
-        editItem(currentDesktopLocale().messages.undo, 'Z', ['control'], 'Ctrl+Z'),
-        editItem(currentDesktopLocale().messages.redo, 'Y', ['control'], 'Ctrl+Y'),
-        { type: 'separator' },
-        editItem(currentDesktopLocale().messages.cut, 'X', ['control'], 'Ctrl+X'),
-        editItem(currentDesktopLocale().messages.copy, 'C', ['control'], 'Ctrl+C'),
-        editItem(currentDesktopLocale().messages.paste, 'V', ['control'], 'Ctrl+V'),
-        editItem(currentDesktopLocale().messages.delete, 'Delete', []),
-        { type: 'separator' },
-        editItem(currentDesktopLocale().messages.selectAll, 'A', ['control'], 'Ctrl+A'),
-      ]
+      const items = captionMenu(menuActions(), menu)
       const zoom = mainWindow.webContents.getZoomFactor()
       return new Promise<void>((resolve) => {
         Menu.buildFromTemplate(items).popup({ window, x: Math.round(x * zoom), y: Math.round(y * zoom), callback: resolve })

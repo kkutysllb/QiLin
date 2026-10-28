@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-28-desktop-standard-menus.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-10-28-desktop-standard-menus.md
+/agent-note-the-desktop-menu-bar-follows-the-standard-application-menus:
+  en: c6c441d22457aaa2
+  zh: c14ec4c44547c5c8
+/agent-note-the-desktop-menu-bar-follows-the-standard-application-menus/problem:
+  en: 532aaeef5f935ea1
+  zh: ed28bbff5ed68d86
+/agent-note-the-desktop-menu-bar-follows-the-standard-application-menus/decision:
+  en: 18d14f29e571580f
+  zh: 529f6d181d6b6960
+/agent-note-the-desktop-menu-bar-follows-the-standard-application-menus/alternatives-considered:
+  en: 1e0d69b0eb8ab0aa
+  zh: 9a0145670cad91f8
+/agent-note-the-desktop-menu-bar-follows-the-standard-application-menus/consequences:
+  en: 1ddff8e44a6eba6f
+  zh: bf219cb92ec6e3ef
+/agent-note-the-desktop-menu-bar-follows-the-standard-application-menus/verification:
+  en: 9118887a5bb76402
+  zh: 94fb2e112851cbe6

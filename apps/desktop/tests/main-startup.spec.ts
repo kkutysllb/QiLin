@@ -393,12 +393,32 @@ function invoke(channel: string, origin = channel === DESKTOP_IPC.boot ? 'app' :
   return handler({ senderFrame: { url: `qilin-app://${origin}/index.html` } }, ...args)
 }
 
+/** The application menu entries: the native first submenu, or Windows' Help caption menu carrying About and updates. */
 function applicationMenuItems(): MenuItemConstructorOptions[] {
   const native = harness.menu.mock.calls[0]?.[0][0]?.submenu
   if (Array.isArray(native)) return native
+  return captionMenuItems('help')
+}
+
+function captionMenuItems(name: 'file' | 'edit' | 'view' | 'help'): MenuItemConstructorOptions[] {
   const sender = harness.windows[0]!.webContents
-  void harness.handlers.get(DESKTOP_IPC.windowsMenu)!({ sender, senderFrame: sender.mainFrame }, 'application', 0, 0)
+  void harness.handlers.get(DESKTOP_IPC.windowsMenu)!({ sender, senderFrame: sender.mainFrame }, name, 0, 0)
   return harness.menu.mock.lastCall![0]
+}
+
+/** About's label for one locale without shadowing the dictionary inside a test body. */
+function aboutMenuLabel(locale: string): string {
+  return locale.startsWith('zh') ? zh.aboutMenu : en.aboutMenu
+}
+
+/** One menu entry by label, across the native bar or the Windows caption menus. */
+function findMenuItem(label: string): MenuItemConstructorOptions {
+  const menus = process.platform === 'win32'
+    ? [applicationMenuItems(), captionMenuItems('file'), captionMenuItems('view')]
+    : [applicationMenuItems()]
+  const found = menus.flat().find(item => item.label === label)
+  if (found === undefined) throw new Error('menu item missing: ' + label)
+  return found
 }
 
 beforeEach(() => {
@@ -549,9 +569,13 @@ describe('desktop main startup', () => {
     const submenu = applicationMenuItems()
     const options = harness.app.setAboutPanelOptions.mock.calls[0]![0]
     const expected = JSON.parse(readFileSync(new URL('./expected/about-panel.json', import.meta.url), 'utf8')) as Record<string, unknown>
-    const [about, separator] = submenu
-    expect({ menu: [{ label: about!.label, role: about!.role }, separator], options: { ...options, iconPath: '<app icon>' } })
-      .toEqual(expected[`${platform}:${locale}`])
+    // macOS and Linux lead the application menu with About; Windows keeps it at the end of Help.
+    const about = platform === 'win32'
+      ? submenu.find(item => item.label === aboutMenuLabel(locale))!
+      : submenu[0]!
+    const separator = { type: 'separator' as const }
+    expect({ menu: [{ label: about.label, role: about.role }, separator], options: { ...options, iconPath: '<app icon>' } })
+      .toEqual(expected[platform + ':' + locale])
     expect(options.iconPath).toBe(packaged ? join('desktop-test-resources', 'icon.png')
       : join('desktop-test-app', 'resources', 'icon-windows.png'))
     if (platform !== 'win32') { expect(about!.click).toBeUndefined(); return }
@@ -612,7 +636,7 @@ describe('desktop main startup', () => {
     await vi.advanceTimersByTimeAsync(0)
     request.mockClear()
     harness.updateCheck.mockClear()
-    const checkUpdates = applicationMenuItems().find(item => item.label === en.checkUpdatesMenu)!.click as () => void
+    const checkUpdates = findMenuItem(en.checkUpdatesMenu).click as () => void
     checkUpdates()
     await vi.advanceTimersByTimeAsync(10_000)
     expect(request).toHaveBeenCalled()
@@ -974,17 +998,17 @@ describe('desktop main startup', () => {
     appearance(event, 'zh-CN', '#fff', '#000')
     const handler = harness.handlers.get(DESKTOP_IPC.windowsMenu)!
     const foreignEvent = { ...event, sender: {} }
-    expect(() => handler(foreignEvent, 'application', 48, 34)).toThrow('rejected sender')
+    expect(() => handler(foreignEvent, 'file', 48, 34)).toThrow('rejected sender')
     expect(() => handler(event, 'arbitrary-command', 48, 34)).toThrow('invalid popup request')
-    expect(() => handler(event, 'application', NaN, 34)).toThrow('invalid popup request')
-    const application = handler(event, 'application', 48, 34)
+    expect(() => handler(event, 'file', NaN, 34)).toThrow('invalid popup request')
+    const file = handler(event, 'file', 48, 34)
     expect(harness.menu.buildFromTemplate.mock.lastCall![0].map(item => item.label ?? item.type)).toEqual([
-      '关于 QiLin Desktop', 'separator', '检查更新…', '管理 qilin 命令…', 'separator', '退出',
+      '新建会话', '搜索会话…', '添加工作区…', 'separator', '设置…', 'separator', '关闭窗口', 'separator', '退出',
     ])
     expect(harness.popup.mock.lastCall![0]).toMatchObject({ window, x: 48, y: 34 })
     expect(harness.popup.mock.lastCall![0].callback).toBeTypeOf('function')
     harness.popup.mock.lastCall![0].callback!()
-    await application
+    await file
     const edit = handler(event, 'edit', 104, 34)
     expect(harness.menu.buildFromTemplate.mock.lastCall![0].map(item => item.label ?? item.type)).toEqual([
       '撤销', '重做', 'separator', '剪切', '复制', '粘贴', '删除', 'separator', '全选',
@@ -999,6 +1023,18 @@ describe('desktop main startup', () => {
     }
     harness.popup.mock.lastCall![0].callback!()
     await edit
+    const view = handler(event, 'view', 160, 34)
+    expect(harness.menu.buildFromTemplate.mock.lastCall![0].map(item => item.label ?? item.type)).toEqual([
+      '显示或隐藏左侧栏', '显示或隐藏右侧栏', 'separator', '实际大小', '放大', '缩小', 'separator', '切换全屏',
+    ])
+    harness.popup.mock.lastCall![0].callback!()
+    await view
+    const help = handler(event, 'help', 216, 34)
+    expect(harness.menu.buildFromTemplate.mock.lastCall![0].map(item => item.label ?? item.type)).toEqual([
+      'QiLin 项目主页', '报告问题', 'separator', '检查更新…', '关于 QiLin Desktop',
+    ])
+    harness.popup.mock.lastCall![0].callback!()
+    await help
   })
 
   it.each(['darwin', 'linux'] as const)('adds the product File menu and standard window commands only on macOS (%s)', async (platform) => {
@@ -1012,12 +1048,12 @@ describe('desktop main startup', () => {
       .find(items => items.some(item => item.role === 'editMenu'))
     if (template === undefined) throw new Error('application menu missing')
     expect(template.map(describeItem)).toEqual(platform === 'darwin'
-      ? ['Desktop test', en.fileMenu, 'editMenu', 'windowMenu']
-      : ['Application', 'editMenu'])
+      ? ['Desktop test', en.fileMenu, 'editMenu', en.viewMenu, 'windowMenu', en.helpMenu]
+      : ['Application', en.fileMenu, 'editMenu', en.viewMenu, 'windowMenu', en.helpMenu])
     const application = template[0]!.submenu as MenuItemConstructorOptions[]
     expect(application.filter(item => item.visible !== false).map(describeItem)).toEqual(platform === 'darwin'
-      ? ['about', 'separator', en.checkUpdatesMenu, en.cliCommandMenu, 'separator', 'hide', 'hideOthers', 'unhide', 'separator', 'quit']
-      : ['about', 'separator', en.checkUpdatesMenu, 'separator', 'quit'])
+      ? ['about', 'separator', en.settingsMenu, en.checkUpdatesMenu, en.cliCommandMenu, 'separator', 'hide', 'hideOthers', 'unhide', 'separator', 'quit']
+      : [en.aboutMenu, 'separator', en.settingsMenu, en.checkUpdatesMenu, 'separator', en.exitApplication])
     expect(harness.menu.setApplicationMenu).toHaveBeenCalledOnce()
   })
 
@@ -1358,7 +1394,7 @@ describe('desktop main startup', () => {
     host.inspectQuit.mockReturnValue(inspected.promise)
     harness.app.quit()
     await vi.advanceTimersByTimeAsync(0)
-    const restart = applicationMenuItems().find(item => item.label === en.restartAppHostMenu)!
+    const restart = findMenuItem(en.restartAppHostMenu)
     ;(restart as { click: () => void }).click()
     await vi.advanceTimersByTimeAsync(0)
     inspected.resolve({ activeTasks: true, scheduledTasks: true })
@@ -1408,7 +1444,7 @@ describe('desktop main startup', () => {
     await vi.advanceTimersByTimeAsync(0)
     expect(harness.dialog.showMessageBox).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ detail: en.quitActiveTasks }))
     expect(host.stop).not.toHaveBeenCalled()
-    const restart = applicationMenuItems().find(item => item.label === en.restartAppHostMenu)!
+    const restart = findMenuItem(en.restartAppHostMenu)
     harness.dialog.showMessageBox.mockClear()
     ;(restart as { click: () => void }).click()
     await vi.advanceTimersByTimeAsync(0)

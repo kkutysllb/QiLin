@@ -75,7 +75,7 @@ it('opens native menus without stealing pointer focus and resets popup state whe
   button.dispatchEvent(mouse)
   expect(mouse.defaultPrevented).toBe(true)
   button.click()
-  expect(invoke).toHaveBeenCalledExactlyOnceWith(DESKTOP_IPC.windowsMenu, 'application', 48, 34)
+  expect(invoke).toHaveBeenCalledExactlyOnceWith(DESKTOP_IPC.windowsMenu, 'file', 48, 34)
   expect(button.getAttribute('aria-expanded')).toBe('true')
   close()
   await vi.waitFor(() => { expect(button.getAttribute('aria-expanded')).toBe('false') })

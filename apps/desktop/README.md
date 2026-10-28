@@ -15,6 +15,7 @@ Desktop runs the Harness workspace in a native application. This reference cover
 - [Application overview](#application-overview)
 - [Terminal command](#terminal-command)
 - [Closing the window and quitting](#closing-the-window-and-quitting)
+- [Menus](#menus)
 - [Key technical decisions](#key-technical-decisions)
 - [Bundled command runtime](#bundled-command-runtime)
 - [Installation ownership](#installation-ownership)
@@ -36,8 +37,6 @@ The desktop application is an Electron shell around the complete qilin Web appli
 
 Desktop binds `127.0.0.1`, the address Electron dials for the ready URL and the WebSocket credential filter. WebSocket streams use `ws:` or `wss:` according to the Host listener; credentials require matching authority and scheme.
 
-The first application-menu command, **About QiLin Desktop**, opens Electron's native About panel with the application icon, product name, and installed release version. The menu follows the Desktop shell locale. On macOS, Hide, Hide Others, Show All, and Quit use localized labels; Hide and Quit include the QiLin Desktop product name. These commands retain their native actions and shortcuts. macOS reads the icon from its application bundle, so an unpackaged development launch displays Electron's icon; Windows receives the packaged PNG.
-
 Desktop’s local native directory flow opens an Electron folder dialog attached to the application window, restoring, showing, and focusing that window first. Concurrent requests share one dialog; cancellation returns no path and failures remain retryable. Ordinary Web uses the Host chooser. Browse mode lists Host directories. On Linux without zenity or kdialog, automatic selection uses browse instead of the Electron dialog.
 
 Desktop ships one pnpm distribution at `resources/runtime/primary-runtime/dependencies/pnpm`. Build-time production installation, the installed `qilin` CLI, Creator and the Web Plugin Manager execute its `bin/pnpm.mjs` with Electron Node mode; package operations do not require pnpm on PATH. The private Node launcher environment applies only to package operations. Agent workspace dependencies copy the same self-contained primary-runtime payload into the Harness home and execute pnpm with its standalone Node.
@@ -51,6 +50,18 @@ A server-expired account credential returns to Welcome when no official API key 
 Desktop microphone access is restricted to audio requests from the primary `qilin-app://app` frame. macOS uses system microphone authorization, a packaged usage description, and `com.apple.security.device.audio-input` in the main application and Helper signatures.
 
 Press F12 (Fn+F12 on media-key keyboards), Command+Option+I on macOS, or Ctrl+Shift+I on Windows to toggle DevTools for the focused application page, including in packaged builds. These native shortcuts use hidden application-menu items. Update overlays and packaged embedded browser guests disable DevTools.
+
+<a id="menus"></a>
+
+## Menus
+
+The menu bar follows the Desktop shell locale and drives the same commands as the Web client. macOS and Linux render a native bar with Application, File, Edit, View, Window, and Help menus; Windows draws File, Edit, View, and Help inside the title bar, pops the same native menus from them, and keeps only the hidden developer shortcuts on its native menu.
+
+File offers New Session, Search Sessions, Add Workspace, Settings outside macOS, Close Window, and Exit outside macOS. Edit keeps the native editing roles on macOS and Linux; on Windows the shell forwards the editor-owned undo, redo, cut, copy, paste, delete, and select-all keys, so the Web composer's own history applies. View toggles the left and right sidebars, adjusts page zoom, toggles full screen, and, in development builds, reloads the page, force-reloads it, and toggles developer tools. Help opens the project home and issue tracker, and outside macOS carries Check for Updates and About. The application menu keeps About, Settings, Check for Updates, Manage qilin Command, and the native Hide and Quit commands, and development builds add Reload Page and Restart App and Host.
+
+About opens Electron's native About panel with the application icon, product name, and installed release version; macOS reads the icon from its application bundle, so an unpackaged development launch displays Electron's icon, while Windows receives the packaged PNG. Hide, Hide Others, Show All, and Quit use localized labels that name the QiLin Desktop product, and keep their native actions and shortcuts.
+
+Renderer entries show the binding the user currently has and stay disabled until the Web client publishes its shortcut configuration. Each entry dispatches by command id through the same channel as a physical key, so a customized binding changes both the shown accelerator and the dispatched command. The menu rebuilds when a binding, the available command set, or the shell locale changes.
 
 <a id="terminal-command"></a>
 

@@ -1,7 +1,7 @@
 /** Product-window preference IPC and native menu interception during physical-key dispatch/recording. */
 import { ipcMain, type BrowserWindow, type IpcMainInvokeEvent, type Input, type MenuItemConstructorOptions, type WebContents } from 'electron'
 import { bindingKey, effectiveShortcuts, presentBinding, parseShortcutDefinitions, parseShortcutEdit } from '@qilin-agent/client-shortcuts/protocol'
-import type { NormalizedBinding, ShortcutConfigSnapshot, ShortcutDefinition, ShortcutPlatform, ShortcutRevision } from '@qilin-agent/client-shortcuts/protocol'
+import type { NormalizedBinding, ShortcutCommandId, ShortcutConfigSnapshot, ShortcutDefinition, ShortcutPlatform, ShortcutRevision } from '@qilin-agent/client-shortcuts/protocol'
 import { desktopKeybindings } from './keybindings.ts'
 /** Name a sidebar browser lease carries in the main process, declared here because the client package ships no such type. */
 
@@ -21,6 +21,16 @@ export function installDesktopShortcuts(
   getWindow: () => BrowserWindow | undefined, userData: string, platform: ShortcutPlatform, updateMenu: () => void,
   overlayInput: (window: BrowserWindow) => { readonly revision: number; readonly blocked: boolean },
 ): {
+  /**
+   * One native menu entry that runs a renderer-owned command with the binding the user currently has.
+   * @param id - registered command identity.
+   * @param label - localized entry label.
+   * @param extra - additional fixed properties, such as a role or visibility.
+   * @returns the menu item, disabled until the Web client publishes its shortcuts.
+   */
+  commandItem(id: ShortcutCommandId, label: string, extra?: MenuItemConstructorOptions): MenuItemConstructorOptions
+  /** Whether the renderer published a shortcut configuration this window can command. */
+  menuEnabled(): boolean
   fileMenu(labels: { fileMenu: string; closePage: string }): MenuItemConstructorOptions
   /**
    * Send a native Edit action to the editor without matching user shortcuts.
@@ -42,30 +52,50 @@ export function installDesktopShortcuts(
   let definitions: readonly ShortcutDefinition[] = []
   let recording = false
   let revision: ShortcutRevision | undefined
-  let closeBinding: NormalizedBinding | null = null
+  let menuRows: ReturnType<typeof effectiveShortcuts> = []
   let editingInput: BrowserWindow['webContents'] | undefined
   const scopedDesktop = platform === 'windows' || platform === 'macos'
   const disposers = new Set<() => void>()
   const guestInputs = new Map<WebContents, { window: BrowserWindow; reset(): void }>()
-  const closeAccelerator = (): string | undefined => presentBinding(closeBinding, platform).aria
-    ?.replace('Meta+', 'Command+').replace(/Arrow(Up|Down|Left|Right)$/u, '$1')
-  const sendMenuClose = (): void => {
+  /** The current binding of one command in Electron accelerator syntax; `undefined` when it has none. */
+  const acceleratorOf = (id: ShortcutCommandId): string | undefined => {
+    const row = menuRows.find(candidate => candidate.id === id)
+    const usable = row !== undefined && row.issue === null && row.conflicts.length === 0 ? row.binding : null
+    return usable === null ? undefined : presentBinding(usable, platform).aria
+      ?.replace('Meta+', 'Command+').replace(/Arrow(Up|Down|Left|Right)$/u, '$1')
+  }
+  const menuSignature = (): string => menuRows
+    .map(row => row.id + ':'
+      + (row.issue === null && row.conflicts.length === 0 && row.binding !== null ? bindingKey(row.binding) : ''))
+    .join('|')
+  const sendCommand = (commandId: ShortcutCommandId): void => {
     const window = getWindow()
     if (window === undefined || window.isDestroyed() || !window.isFocused() || !window.isEnabled()
       || revision === undefined || recording || overlayInput(window).blocked) return
-    window.webContents.send(DESKTOP_IPC.shortcutsInput, { kind: 'menu', commandId: 'page.close', revision })
+    window.webContents.send(DESKTOP_IPC.shortcutsInput, { kind: 'menu', commandId, revision })
+  }
+  const commandItem = (id: ShortcutCommandId, label: string,
+    extra: MenuItemConstructorOptions = {}): MenuItemConstructorOptions => {
+    const accelerator = acceleratorOf(id)
+    return {
+      id: 'dsh-menu-' + String(id),
+      label,
+      enabled: revision !== undefined,
+      ...accelerator === undefined ? {} : { accelerator },
+      click: () => { sendCommand(id) },
+      ...extra,
+    }
   }
   let keys = new Set<string>()
   const publish = (snapshot: ShortcutConfigSnapshot): void => {
     const wasEnabled = revision !== undefined
-    const previousAccelerator = closeAccelerator()
+    const previousSignature = menuSignature()
     revision = definitions.length === 0 || snapshot.status === 'loading' ? undefined : snapshot.revision
     const rows = snapshot.status === 'loading' ? [] : effectiveShortcuts(definitions, snapshot.document, 'desktop', platform)
     keys = new Set(rows.flatMap(row => row.binding !== null && row.issue === null && row.conflicts.length === 0
       ? [bindingKey(row.binding)] : []))
-    const close = rows.find(row => row.id === 'page.close')
-    closeBinding = close?.issue === null && close.conflicts.length === 0 ? close.binding : null
-    if (wasEnabled !== (revision !== undefined) || previousAccelerator !== closeAccelerator()) updateMenu()
+    menuRows = rows
+    if (wasEnabled !== (revision !== undefined) || previousSignature !== menuSignature()) updateMenu()
     const window = getWindow()
     if (window !== undefined && !window.isDestroyed() && window.webContents.mainFrame.url.startsWith('qilin-app://app/')) {
       window.webContents.send(DESKTOP_IPC.shortcutsChanged, snapshot)
@@ -148,8 +178,13 @@ export function installDesktopShortcuts(
       const modifiers = (['control', 'alt', 'shift', 'meta'] as const).filter(modifier => input[modifier])
       const key = bindingKey({ code: input.code, modifiers })
       const match = keys.has(key)
-      const menuMatch = closeBinding !== null && closeBinding.secondCode === undefined && modifiers.join('+') === closeBinding.modifiers.join('+')
-        && input.key.toUpperCase() === (closeBinding.code.startsWith('Key') ? closeBinding.code.slice(3) : input.code === closeBinding.code ? input.key.toUpperCase() : '')
+      // Native menu accelerators match the produced character, so a layout can fire one for a
+      // physical key the Web client owns; suppress them for every command that owns a menu entry.
+      const menuMatch = menuRows.some(row => row.issue === null && row.conflicts.length === 0
+        && row.binding !== null && row.binding.secondCode === undefined
+        && row.binding.modifiers.join('+') === modifiers.join('+')
+        && input.key.toUpperCase() === (row.binding.code.startsWith('Key')
+          ? row.binding.code.slice(3) : input.code === row.binding.code ? input.key.toUpperCase() : ''))
       contents.setIgnoreMenuShortcuts(recording || match || menuMatch)
       const frame = contents.focusedFrame
       const composing = input.isComposing || input.key === 'Dead' || deadKey || input.modifiers.includes('altgr')
@@ -241,14 +276,12 @@ export function installDesktopShortcuts(
         if (!contents.isDestroyed()) contents.setIgnoreMenuShortcuts(recording)
       }
     },
-    fileMenu: (labels) => {
-      const accelerator = closeAccelerator()
-      return { label: labels.fileMenu, submenu: [{
-        id: 'dsh-page-close', label: labels.closePage, enabled: revision !== undefined,
-        ...accelerator === undefined ? {} : { accelerator },
-        click: sendMenuClose,
-      }] }
-    },
+    commandItem,
+    menuEnabled: () => revision !== undefined,
+    fileMenu: labels => ({
+      label: labels.fileMenu,
+      submenu: [commandItem('page.close' as ShortcutCommandId, labels.closePage)],
+    }),
     attach(window) { attachInput(window, window.webContents) },
     attachGuest: attachInput,
     dispose() {
