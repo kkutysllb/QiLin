@@ -520,7 +520,7 @@ async function main(): Promise<void> {
   })
   const appPreload = fileURLToPath(new URL('./preload-app.cjs', import.meta.url))
   // The product may open a path other than the engine root (KToon opens its own studio).
-const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/'}`
+  const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/'}`
   let hostUrl: string | undefined
   let hostCookie: string | undefined
   let accountSession: WebSessionCookie | undefined
@@ -1248,11 +1248,17 @@ const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/
     tray?.relabel()
   }
   refreshApplicationMenu()
-  const trayIconPath = development ? join(app.getAppPath(), 'resources', 'tray-windows.ico') : join(process.resourcesPath, 'tray.ico')
-  if (process.platform === 'win32') {
+  const darwinTrayIcon = development ? join(app.getAppPath(), 'resources', 'tray-template.png') : join(process.resourcesPath, 'tray-template.png')
+  const trayIconPath = process.platform === 'darwin'
+    ? darwinTrayIcon
+    : development ? join(app.getAppPath(), 'resources', 'tray-windows.ico') : join(process.resourcesPath, 'tray.ico')
+  if (process.platform === 'win32' || process.platform === 'darwin') {
     // The tray is the way back to a hidden window; without it, relaunching the application still focuses it.
+    // macOS uses a template image and leaves click to the context menu; Windows opens on click.
     try {
       tray = new DesktopTray({ iconPath: trayIconPath, locale: currentDesktopLocale,
+        templateImage: process.platform === 'darwin',
+        openOnClick: process.platform !== 'darwin',
         open: () => { focusPrimaryWindow() }, quit: () => { app.quit() } })
     } catch (error) { console.warn('desktop tray: unavailable', error) }
   }

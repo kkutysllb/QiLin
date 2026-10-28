@@ -15,7 +15,7 @@ const native = await vi.hoisted(async () => {
   const menus: MenuItemConstructorOptions[][] = []
   return {
     trays, FakeTray, menus,
-    createFromPath: vi.fn((path: string) => ({ path })),
+    createFromPath: vi.fn((path: string) => ({ path, setTemplateImage: vi.fn() })),
     buildFromTemplate: vi.fn((template: MenuItemConstructorOptions[]) => { menus.push(template); return { template } }),
   }
 })
@@ -42,7 +42,8 @@ function labels(menu: MenuItemConstructorOptions[]): (string | undefined)[] {
 it('shows the application icon with its name as the tooltip and an Open / Quit menu', () => {
   const f = setup()
   expect(native.createFromPath).toHaveBeenCalledWith('C:/app/resources/tray.ico')
-  expect(f.native.image).toEqual({ path: 'C:/app/resources/tray.ico' })
+  expect(f.native.image).toMatchObject({ path: 'C:/app/resources/tray.ico' })
+  expect((f.native.image as { setTemplateImage: ReturnType<typeof vi.fn> }).setTemplateImage).not.toHaveBeenCalled()
   expect(f.native.setToolTip).toHaveBeenCalledWith('KToon')
   expect(labels(native.menus[0]!)).toEqual(['Open KToon', 'separator', 'Quit KToon'])
   expect(f.native.setContextMenu).toHaveBeenCalledWith({ template: native.menus[0] })
@@ -57,6 +58,23 @@ it('opens the window on a single click and routes menu entries to the open and q
   ;(menu[2] as { click: () => void }).click()
   expect(f.open).toHaveBeenCalledTimes(2)
   expect(f.quit).toHaveBeenCalledOnce()
+})
+
+it('uses a macOS template image and leaves click to the context menu', () => {
+  const open = vi.fn()
+  const image = { path: '/app/resources/tray-template.png', setTemplateImage: vi.fn() }
+  native.createFromPath.mockReturnValueOnce(image)
+  new DesktopTray({
+    iconPath: '/app/resources/tray-template.png',
+    templateImage: true,
+    openOnClick: false,
+    locale: () => resolveDesktopLocale('en'),
+    open,
+    quit: vi.fn(),
+  })
+  expect(image.setTemplateImage).toHaveBeenCalledWith(true)
+  native.trays[0]!.emit('click')
+  expect(open).not.toHaveBeenCalled()
 })
 
 it('relabels the menu in the current locale and ignores relabel after disposal', () => {

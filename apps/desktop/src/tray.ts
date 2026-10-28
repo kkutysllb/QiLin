@@ -5,8 +5,12 @@ import type { DesktopLocale } from './locale.ts'
 
 /** Main-process actions the tray triggers; both run the same paths as the window and application menu. */
 export interface DesktopTrayOptions {
-  /** Multi-size ICO rendered by `scripts/render-tray-icon.ts`; Windows picks the bitmap for the display scale. */
+  /** Multi-size ICO on Windows; template PNG (+@2x) on macOS. */
   readonly iconPath: string
+  /** macOS: let the system tint the monochrome image for light and dark menu bars. */
+  readonly templateImage?: boolean
+  /** Bind a click to open the window; macOS opens the context menu instead. */
+  readonly openOnClick?: boolean
   readonly locale: () => DesktopLocale
   /** Show and focus the primary window. */
   readonly open: () => void
@@ -20,9 +24,12 @@ export class DesktopTray {
 
   /** @param options - Icon path, locale reader, and the open and quit actions. */
   constructor(private readonly options: DesktopTrayOptions) {
-    const tray = new Tray(nativeImage.createFromPath(options.iconPath))
+    const image = nativeImage.createFromPath(options.iconPath)
+    if (options.templateImage === true) image.setTemplateImage(true)
+    const tray = new Tray(image)
     this.tray = tray
-    tray.on('click', () => { options.open() })
+    // macOS status items own their menu; opening the window is the menu's first entry.
+    if (options.openOnClick !== false) tray.on('click', () => { options.open() })
     this.relabel()
   }
 
