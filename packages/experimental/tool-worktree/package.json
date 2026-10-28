@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/experimental-tool-worktree",
   "description": "Model tool that creates and enters a new Git worktree",
-  "version": "3.1.7",
+  "version": "3.1.8-rc.1",
   "icon": "./icon.svg",
   "publishConfig": {
     "access": "public"

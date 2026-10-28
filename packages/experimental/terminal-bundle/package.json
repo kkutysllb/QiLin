@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/experimental-terminal-bundle",
   "description": "Keep shell processes alive across tool calls.",
-  "version": "3.1.7",
+  "version": "3.1.8-rc.1",
   "icon": "./icon.svg",
   "publishConfig": {
     "access": "public"
