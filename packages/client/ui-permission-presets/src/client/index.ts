@@ -153,10 +153,12 @@ export function apply(ctx: ClientContext): void {
     ctx)
   const load = (): Promise<void> => controller.load()
   const select = (preset: string): Promise<void> => controller.select(preset)
+  const clear = (): Promise<void> => controller.clear()
   const injected = (): PermissionRowInjected => ({
     hooks: { permission: controller.store },
     load,
     select,
+    clear,
   })
 
   ctx.effect(() => () => { controller.dispose() }, 'ui-permission: settings row directory')

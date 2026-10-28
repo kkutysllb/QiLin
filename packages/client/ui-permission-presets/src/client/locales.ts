@@ -7,8 +7,8 @@ export const PERMISSION_ACCESS_NS = 'permission.access'
 export const zh = {
   'title': '权限',
   'description': '选择新会话的默认权限模式',
-  'unset': '未设定',
-  'unsetDescription': '尚未设定；新会话先使用主机默认，可在此选择一个预设固定下来',
+  'unset': '未选择',
+  'unsetDescription': '尚未选择；新会话使用主机默认。选择下面任一预设即可固定下来，选择此项则恢复为主机默认',
   'loading': '加载中',
   'unavailable': '不可用',
   'preset.readOnly': '仅可查看',
@@ -28,8 +28,8 @@ export type PermissionSettingsKey = keyof typeof zh
 export const en = {
   'title': 'Permission',
   'description': 'Choose the default permission mode for new sessions',
-  'unset': 'Not set',
-  'unsetDescription': 'Not set yet; new sessions use the host default. Pick a preset here to pin it.',
+  'unset': 'Not selected',
+  'unsetDescription': 'Nothing is pinned, so new sessions use the host default. Pick a preset below to pin one, or this entry to follow the host default again.',
   'loading': 'Loading',
   'unavailable': 'Unavailable',
   'preset.readOnly': 'Read Only',

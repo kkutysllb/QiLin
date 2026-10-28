@@ -25,6 +25,8 @@ export interface PermissionRowInjected {
   load: () => Promise<void>
   /** Persist one advertised preset. */
   select: (preset: string) => Promise<void>
+  /** Drop the pinned preset so new sessions follow the Host default again. */
+  clear: () => Promise<void>
 }
 
 /** Full component props. */
@@ -38,7 +40,10 @@ export type PermissionRowProps =
  * @param props - composed slot props.
  * @returns the row, or null when the host does not expose permission settings.
  */
-export function PermissionRow({ load, select, usePermission, t }: PermissionRowProps) {
+/** Menu identity of the entry that drops the pin; the stored value is empty while unset. */
+const UNSET_OPTION = 'unset'
+
+export function PermissionRow({ load, select, clear, usePermission, t }: PermissionRowProps) {
   const state = usePermission(snapshot => snapshot)
   const [open, setOpen] = useState(false)
   const [confirmingFullAccess, setConfirmingFullAccess] = useState(false)
@@ -74,10 +79,17 @@ export function PermissionRow({ load, select, usePermission, t }: PermissionRowP
         <Menu
           open={open}
           onClose={() => { setOpen(false) }}
-          items={state.options.map(option => ({ id: option.id, label: optionLabel(option) }))}
-          selectedId={state.currentValue}
+          items={[
+            { id: UNSET_OPTION, label: t('unset') },
+            ...state.options.map(option => ({ id: option.id, label: optionLabel(option) })),
+          ]}
+          selectedId={state.currentValue === '' ? UNSET_OPTION : state.currentValue}
           onSelect={(id) => {
             setOpen(false)
+            if (id === UNSET_OPTION) {
+              if (state.currentValue !== '') void clear()
+              return
+            }
             if (id === state.currentValue) return
             if (id === FULL_ACCESS_PRESET) {
               setAcknowledged(false)

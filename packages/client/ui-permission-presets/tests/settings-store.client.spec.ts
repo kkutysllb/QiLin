@@ -107,6 +107,18 @@ describe('permission settings store', () => {
     expect(describe).toHaveBeenCalledTimes(1)
   })
 
+  it('clears the pinned default back to the unset state', async () => {
+    const describe = vi.fn(() => Promise.resolve(ok({ writable: true, hasDocument: false, namespaces: [view('workspace-write', 4)] })))
+    const mutate = vi.fn(() => Promise.resolve(ok({ ...view('workspace-write', 5), value: {} })))
+    const { controller } = permissionController({ describe, mutate })
+    await controller.load()
+    expect(controller.store.getSnapshot().currentValue).toBe('workspace-write')
+    await controller.clear()
+    expect(mutate).toHaveBeenCalledWith('permission', [{ op: 'unset', path: ['defaultPreset'] }], 4)
+    expect(controller.store.getSnapshot()).toMatchObject({ status: 'ready', currentValue: '', revision: 5 })
+    expect(describe).toHaveBeenCalledTimes(1)
+  })
+
   it('hides the row when the namespace is absent and contains write failures', async () => {
     const describe = vi.fn(() => Promise.resolve(ok({ writable: true, hasDocument: false, namespaces: [] })))
     const { controller } = permissionController({ describe, mutate: vi.fn() })

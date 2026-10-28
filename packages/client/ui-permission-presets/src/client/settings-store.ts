@@ -128,6 +128,20 @@ export class PermissionPresetSettingsController {
    * @returns nothing; {@link store} carries success or failure.
    */
   async select(preset: string): Promise<void> {
+    await this.write({ op: 'set', path: ['defaultPreset'], value: preset })
+  }
+
+  /**
+   * Drop the pinned default so newly created sessions follow the Host's
+   * composed default again; the row returns to its unset presentation.
+   * @returns nothing; {@link store} carries success or failure.
+   */
+  async clear(): Promise<void> {
+    await this.write({ op: 'unset', path: ['defaultPreset'] })
+  }
+
+  /** Write one settings operation, folding an accepted answer back into the mirror. */
+  private async write(op: { op: 'set'; path: string[]; value: string } | { op: 'unset'; path: string[] }): Promise<void> {
     const state = this.store.getSnapshot()
     const view = this.describeFace.getSnapshot().view?.namespaces
       .find(entry => entry.ns === PERMISSION_SETTINGS_NS)
@@ -141,7 +155,7 @@ export class PermissionPresetSettingsController {
     try {
       response = await this.ctx.remote.settings.mutate(
         PERMISSION_SETTINGS_NS,
-        [{ op: 'set', path: ['defaultPreset'], value: preset }],
+        [op],
         view.revision,
       )
     } finally {

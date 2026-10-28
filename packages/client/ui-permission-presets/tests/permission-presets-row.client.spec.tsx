@@ -89,6 +89,7 @@ function mount(controller: PermissionPresetSettingsController) {
       {...runtime}
       load={() => controller.load()}
       select={preset => controller.select(preset)}
+      clear={() => controller.clear()}
       usePermission={bindSnapshotSelector(controller.store)}
       t={t}
     />,
@@ -140,6 +141,24 @@ describe('PermissionRow', () => {
     expect(screen.getByRole('menuitem', { name: '工作区内修改' })).toBeDefined()
     fireEvent.click(screen.getByRole('menuitem', { name: '工作区内修改' }))
     await screen.findByRole('button', { name: '工作区内修改' })
+  })
+
+  it('clears the pinned default back to the unset state', async () => {
+    const mutate = vi.fn(() => Promise.resolve(ok({ ...view('read-only', 1), value: {} })))
+    const controller = derivedController({
+      settings: {
+        describe: () => Promise.resolve(ok({ writable: true, hasDocument: false, namespaces: [view('workspace-write')] })),
+        mutate,
+      },
+    })
+    mount(controller)
+    const button = await screen.findByRole('button', { name: '工作区内修改' })
+    fireEvent.click(button)
+    fireEvent.click(screen.getByRole('menuitem', { name: zh['unset'] }))
+    const reset = await screen.findByRole('button', { name: zh['unset'] })
+    expect(reset).toBeDefined()
+    expect(screen.getByText(zh['unsetDescription'])).toBeDefined()
+    expect(mutate).toHaveBeenCalledWith('permission', [{ op: 'unset', path: ['defaultPreset'] }], 0)
   })
 
   it('requires explicit acknowledgement before saving full access', async () => {

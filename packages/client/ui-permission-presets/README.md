@@ -37,6 +37,8 @@ When the live catalog withdraws a preset, the composer closes its pending confir
 
 The row derives its options from the host's dynamic `defaultPreset` enum, uses the same localized built-in labels as the current-session picker, and writes one settings mutation. Current-session-only contributions such as `auto` are absent. The value applies only when a later session is created; changing it never switches or rewrites the current session.
 
+Nothing is pinned until someone chooses a preset: the row then reads **Not selected** and describes the host default. The menu keeps that entry first, and choosing it again drops the pin with an `unset` mutation, so new sessions follow the host default without a stored value.
+
 -----
 
 <a id="understand-the-implementation"></a>
