@@ -31,6 +31,14 @@ it('opens inline images in the shared lightbox, restores focus, and never opens 
   expect(openFile).not.toHaveBeenCalled()
 })
 
+it('gives an inline image one tagged source shared with its lightbox', () => {
+  mount('![Compare](image.png)')
+  const inline = screen.getByRole('img').getAttribute('src')
+  expect(inline).toMatch(/^https:\/\/example\.com\/api\/file\?path=%2Fworkspace%2Fimage\.png&load=\d+$/u)
+  fireEvent.click(screen.getByRole('button', { name: 'View full image: Compare' }))
+  expect(screen.getByRole('dialog').querySelector('img')?.getAttribute('src')).toBe(inline)
+})
+
 it('loads a link preview only after hover dwell and keeps its existing sidebar activation', () => {
   vi.useFakeTimers()
   const { openFile } = mount('[View comparison](.artifacts/对比%20image.png)')

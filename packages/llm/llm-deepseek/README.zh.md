@@ -117,7 +117,7 @@ Files 模式通过 `maxRequestFilesBytes` 与 `maxImagesPerRequest` 限制保留
 
 非 2xx 响应以稳定 code 失败：`AUTH`（401/403）、`QUOTA`、`RATE_LIMIT`、`CONTEXT_WINDOW_EXCEEDED`、`INVALID_REQUEST`、`SERVER` 以及其他情况的 `HTTP_<status>`；响应前传输失败抛出 `TRANSPORT`，调用方中止抛出 `ABORTED`，流空闲超时抛出 `TIMEOUT`。请求扩展字段冲突，或直接提供的 `prepareExtensions` 拒绝准备时，使用 `REQUEST_EXTENSION` 失败，并在消息中附上原因链；2xx 后接受失败只记录告警，响应仍会继续流式返回。当提供方未指出 file id 时，规范化图片拒绝会列出所有可能附件及其持久位置。陈旧文件拒绝会使点名映射（或该次尝试使用的全部映射）失效，并允许一次替换模型请求。协议违规抛出 `STREAM_CLOSED` 或 `MALFORMED_RESPONSE`；不带内容块的终止 `stop` 变成 `EMPTY_RESPONSE`，默认重试策略会重试它。官方路由缺少 API Key 的请求以 `MISSING_CREDENTIAL` 失败；格式错误的凭据以 `INVALID_CREDENTIAL` 失败，并点名需要修复的引用——绝不包含密钥的任何部分。
 
-提供方插件负责目录可用性。二者的目录独立配置；传输层提供共享的默认模型元数据、能力解析，以及路由沿用列表所需的机制：`requestModelListing`、按凭据隔离的 `ModelListingCache`，以及带客户端版本门槛与 `refuseListedModel` 的 `resolveListedCatalog`。提供方还可以提供 `connect(signal)`（在目录加载等提供方自有工作之后，为精确模型查询与已准备调用解析连接）和 `admit(connection, model)`（在任何网络 I/O 之前拒绝模型）。
+提供方插件负责目录可用性。二者的目录独立配置；传输层提供共享的默认模型元数据、能力解析，以及路由沿用列表所需的机制：`requestModelListing`、按凭据隔离的 `ModelListingCache`，以及带客户端版本门槛、`badges` 映射与 `refuseListedModel` 的 `resolveListedCatalog`。列表条目的 `client_metadata` 徽章成为 `listModels` 条目的选择器文本；不可读的徽章文本只丢弃徽章，并只报告一次。`ModelListingCache` 接收 `settings` 与 `changed`，因此能按自身间隔刷新而不依赖访问；`dispose()` 返回在活动加载结束后结算的 promise。提供方还可以提供 `connect(signal)`（在目录加载等提供方自有工作之后，为精确模型查询与已准备调用解析连接）和 `admit(connection, model)`（在任何网络 I/O 之前拒绝模型）。
 
 -----
 

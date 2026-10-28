@@ -2,7 +2,7 @@
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createContext, useContext, type ComponentType, type ReactNode } from 'react'
-import { act, cleanup, fireEvent, render } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import type { Context } from '@qilin-agent/kylin'
 import type { SessionListState, SessionSnapshot } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceSnapshot, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
@@ -958,5 +958,27 @@ describe('View row More menu', () => {
     })
     expect(b.view.getAllByRole('tab')).toHaveLength(2)
     expect(b.view.queryByRole('button', { name: '更多会话视图' })).toBeNull()
+  })
+
+  it('offers a View tab tooltip only when the label is expected to overflow', () => {
+    const b = mount(sessionSnapshotOf(), undefined, undefined, {
+      viewTabs: [
+        { id: 'chat', label: 'Chat' },
+        { id: 'short', label: '轨迹' },
+        { id: 'long-cjk', label: '很长的视图名称' },
+        { id: 'long-latin', label: 'A very long view name' },
+      ],
+    })
+    const tooltipFor = (label: string): string | null => {
+      const span = within(b.view.getByRole('tab', { name: label })).getByText(label)
+      fireEvent.mouseEnter(span)
+      const tooltip = screen.queryByRole('tooltip', { hidden: true })?.textContent ?? null
+      fireEvent.mouseLeave(span)
+      return tooltip
+    }
+    expect(tooltipFor('Chat')).toBeNull()
+    expect(tooltipFor('轨迹')).toBeNull()
+    expect(tooltipFor('很长的视图名称')).toBe('很长的视图名称')
+    expect(tooltipFor('A very long view name')).toBe('A very long view name')
   })
 })

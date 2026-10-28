@@ -39,7 +39,7 @@ kind: "package-reference"
 
 `models` 是该 provider 独立的可配置目录；默认值和协议能力来自共享传输包。当 `models` 等于内置目录且 Messages 源站是官方 API `https://api.deepseek.com` 时，路由改为沿用官方 `GET https://api.deepseek.com/models` 列表。列表请求以 `x-api-key` 携带 API key、以 harness `User-Agent` 标识自身，并拒绝重定向；没有 API key 时路由不发起请求。其他端点（包括由 `baseURL` 或 `$DEEPSEEK_BASE_URL` 指定的端点）只使用 `models`，不请求列表。目录判断不探测推理端点。
 
-首次访问最多等待 `modelsTimeoutMs`；后续访问使用已加载的列表，并在其超过 `modelsMaxAgeMs` 后在后台刷新；空闲路由不发送请求。失败或为空的列表保留上一份；在任何列表加载成功前，路由使用当前版本的内置目录（`deepseek-flash` 与 `deepseek-v4-pro`）。列表返回 HTTP 401 只让本次加载失败。每次成功加载、连续失败中的第一次失败（连同回退目录）、以及每个因声明不可读或不可用而被隐藏的列表条目，都会带 `[llm-deepseek-api-key]` 标签写入 stderr；stdout 保留给协议消息，日志不包含任何密钥。
+首次访问最多等待 `modelsTimeoutMs`。首次使用之后，Host 每隔 `modelsMaxAgeMs`（默认十分钟）自动刷新，页面空闲时同样生效；后续访问在刷新进行中返回已缓存的列表。失败或为空的列表保留上一份（含徽章）；在任何列表加载成功前，路由使用当前版本的内置目录（`deepseek-flash` 与 `deepseek-v4-pro`）。列表返回 HTTP 401 只让本次加载失败。每次成功加载、连续失败中的第一次失败（连同回退目录）、每个因声明不可读或不可用而被隐藏的列表条目，以及每个被丢弃的徽章，都会带 `[llm-deepseek-api-key]` 标签写入 stderr；stdout 保留给协议消息，日志不包含任何密钥。列表变化时发布 `llm/models-updated`，打开的选择器无需刷新页面即可重载。省略徽章元数据或写为 `null` 即清除既有徽章，无需单独的清除操作。插件销毁时停止刷新并等待活动加载结束。
 
 列表中的模型被提供，与本版本条目合并，并在任何网络 I/O 之前以 `CLIENT_UPGRADE_REQUIRED` 或 `MODEL_UNSUPPORTED` 拒绝；条目可声明本产品 token 或上游 `deepseek-harness` token 的客户端要求，本产品 token 优先。列表未列出的模型 id 原样通过。
 
@@ -48,7 +48,7 @@ kind: "package-reference"
 | 字段 | 默认值 | 含义 |
 |---|---|---|
 | `modelsTimeoutMs` | `5,000` | 单次列表请求与首次访问等待的截止时间 |
-| `modelsMaxAgeMs` | `600,000` | 列表超过该时长后下次访问在后台刷新；失败的加载以同样时长重试 |
+| `modelsMaxAgeMs` | `600,000` | 首次使用后的自动刷新间隔，失败后同样使用；`0` 表示只在访问时刷新 |
 
 设置命名空间采用 Cordis entry id，没有 entry 时采用插件名。产品保留 official 的 `llm-deepseek` entry id。
 

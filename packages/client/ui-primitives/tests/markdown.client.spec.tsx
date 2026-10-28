@@ -61,6 +61,16 @@ describe('MarkdownText', () => {
     expect(screen.getByRole('link', { name: 'https://deepseek.com' })).toBeTruthy()
   })
 
+  it('keeps single tildes literal and strikes only double-tilde runs', () => {
+    const source = '约 10~20 分钟，或 30~40 分钟，~~删除~~'
+    for (const streaming of [false, true]) {
+      const rendered = render(<MarkdownText text={source} streaming={streaming} />)
+      expect([...rendered.container.querySelectorAll('del')].map(node => node.textContent)).toEqual(['删除'])
+      expect(rendered.container.textContent).toContain('约 10~20 分钟，或 30~40 分钟')
+      rendered.unmount()
+    }
+  })
+
   it('closes punctuation-terminated strong emphasis before adjacent CJK text', () => {
     const cases = [
       ['**注意：**内容', '注意：'],
@@ -489,6 +499,25 @@ describe('MarkdownText', () => {
       const rendered = render(<MarkdownText text={item.source} />)
       expect(rendered.container.querySelectorAll('.katex')).toHaveLength(item.math)
       expect(rendered.container.querySelectorAll('.katex-display')).toHaveLength(item.display)
+      expect(rendered.container.querySelector('.katex-error')).toBeNull()
+      rendered.unmount()
+    }
+  })
+
+  it('renders a display-dollar block whose opening line carries math across lines', () => {
+    const cases = [
+      { source: '$$a+b\nc+d$$', value: 'a+b\nc+d' },
+      { source: '$$a+b\nc+d\n$$', value: 'a+b\nc+d' },
+      { source: 'Prose line\n$$a+b\nc+d$$', value: 'a+b\nc+d' },
+      { source: '- item\n  $$a+b\n  c+d$$', value: 'a+b\nc+d' },
+      { source: '- item\n$$\na+b\n$$', value: 'a+b' },
+    ]
+
+    for (const item of cases) {
+      const rendered = render(<MarkdownText text={item.source} />)
+      expect(rendered.container.querySelectorAll('.katex')).toHaveLength(1)
+      expect(rendered.container.querySelectorAll('.katex-display')).toHaveLength(1)
+      expect(rendered.container.querySelector('annotation')?.textContent).toBe(item.value)
       expect(rendered.container.querySelector('.katex-error')).toBeNull()
       rendered.unmount()
     }

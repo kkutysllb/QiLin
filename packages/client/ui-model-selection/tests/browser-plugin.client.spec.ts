@@ -75,6 +75,9 @@ async function bench(locale: 'zh' | 'en' = 'zh') {
   // block follows this, never catalog membership.
   let routable = true
   let selectionFailure: RemoteError<'session/writer-held'> | undefined
+  // The advertised catalog the fake Host answers with; a test can swap it
+  // before emitting the notification that makes the clients refetch.
+  let groups = GROUPS
   const sessionRemote = {
     modelCatalog: () => {
       calls.models += 1
@@ -83,7 +86,7 @@ async function bench(locale: 'zh' | 'en' = 'zh') {
         value: {
           default: defaultSelection,
           routableProviders: routable ? ['deepseek-official'] : [],
-          groups: GROUPS,
+          groups,
           failures: [],
         },
       })
@@ -186,6 +189,7 @@ async function bench(locale: 'zh' | 'en' = 'zh') {
     setHostCurrent: (selection: ModelSelection) => { defaultSelection = selection },
     setProjected: (id: SessionId, value: ModelSelectionProjection) => { projections.get(id)?.set(value) },
     address: (id: SessionId) => { addressed.add(id) },
+    setGroups: (next: typeof GROUPS) => { groups = next },
     setRoutable: (next: boolean) => { routable = next },
     blockOf: (key: string) => blocks.get(sid(key)),
   }
@@ -213,6 +217,14 @@ describe('ui-model-selection dual entry', () => {
     expect(b.seat().inject).toBeTypeOf('function')
     // Copy rides the standard locale seat.
     expect(b.seat().locale).toBe('model')
+  })
+
+  it.each([['zh', '新'], ['en', 'New']] as const)('resolves seat badge text for the active %s locale', async (locale, expected) => {
+    const b = await bench(locale)
+    b.mint('s1')
+    const face = b.seat().inject!(sid('s1'))
+    expect(face.resolveText({ en: 'New', zh: '新' })).toBe(expected)
+    expect(face.resolveText('1017')).toBe('1017')
   })
 
 
@@ -291,6 +303,27 @@ describe('ui-model-selection dual entry', () => {
       current: { provider: 'deepseek-official', model: 'deepseek-v4-pro' },
       status: 'ready',
     })
+  })
+
+  it('replaces and removes badges in an open directory on model catalog notifications', async () => {
+    const b = await bench()
+    try {
+      b.mint('s1')
+      const face = b.seat().inject!(sid('s1'))
+      for (const badge of [{ text: 'New', tone: 'info' as const }, { text: 'Updated', tone: 'success' as const }, undefined]) {
+        b.setGroups(GROUPS.map(group => ({
+          ...group, models: group.models.map(model => ({ ...model, ...(badge === undefined ? {} : { badge }) })),
+        })))
+        b.remote.emit('llm/models-updated', ['deepseek-official'])
+        await vi.waitFor(() => {
+          expect(face.directory.getSnapshot().status).toBe('ready')
+          expect(face.directory.getSnapshot().groups[0]?.models[0]?.badge).toEqual(badge)
+        })
+      }
+      expect(face.directory.getSnapshot().current?.model).toBe('deepseek-v4-flash')
+    } finally {
+      await b.ctx.fiber.dispose()
+    }
   })
 
   it('keeps the last complete view while a refreshed catalog catches up with projection', async () => {

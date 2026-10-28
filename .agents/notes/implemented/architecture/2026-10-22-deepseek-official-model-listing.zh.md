@@ -11,7 +11,9 @@ Status: implemented
 ## 决策
 
 - [`llm-deepseek-api-key`](../../../../packages/llm/llm-deepseek-api-key/README.zh.md) 只在 Messages 的 origin 是 `https://api.deepseek.com`、且 `models` 等于内置目录时，跟随 `GET https://api.deepseek.com/models`，并用 `x-api-key` 携带 API key 鉴权。其他端点或目录不发列表请求。
-- 加载、刷新、兜底、合并与客户端版本门控沿用上游账号路由的规则，本仓不移植账号栈（[边界](2026-09-25-desktop-and-account-alignment-boundaries.zh.md)）：首次访问最多等待 `modelsTimeoutMs`，列表超过 `modelsMaxAgeMs` 后在下一次访问时后台刷新，失败时保留上一份成功的列表或使用内置目录，缓存只在内存中，以端点和 key 指纹为键。条目可声明本产品 token 或上游 `deepseek-harness` token 的客户端要求，本产品 token 优先。
+- 加载、刷新、兜底、合并与客户端版本门控沿用上游账号路由的规则，本仓不移植账号栈（[边界](2026-09-25-desktop-and-account-alignment-boundaries.zh.md)）：首次访问最多等待 `modelsTimeoutMs`，首次使用之后缓存按自身的 `modelsMaxAgeMs` 间隔自动刷新（无需请求触发），失败时保留上一份成功的列表或使用内置目录，缓存只在内存中，以端点和 key 指纹为键。条目可声明本产品 token 或上游 `deepseek-harness` token 的客户端要求，本产品 token 优先。
+- 条目还可以在同一个 `client_metadata` token 下声明选择器徽章：单个字面量文本，或键包含 `en` 的译文，最多十二个字素，且只有一行；缺失或无法识别的强调级别按 `neutral` 读取。徽章只进入 `listModels`，不进入 `resolveModelInfo`，也不进入任何模型请求；不可读的徽章文本只丢弃徽章，且每份列表只报告一次；省略元数据或写为 `null` 即清除徽章。
+- 加载到的列表发生变化时，缓存发布 `llm/models-updated(provider)`，打开的选择器无需刷新页面即可重载；销毁时停止计时器并在活动加载结束后结算。
 - 自定义的 `models` 列表整份优先：它替换目录，并停止列表请求。解析结果与内置目录不同的列表才算自定义，因为 schema 默认值会把缺省的 `models` 物化为内置列表，模型页也把这个默认值显示为继承的行。
 - 在自定义目录与列表之间切换时，一个 `loader/volatile-update` 监听器会让缓存失效，因此点恢复默认后，即使缓存的列表尚未过期，下一次访问也会重新加载。
 - 列表请求、缓存、目录解析和门控放在共享的 [Messages 传输包](../../../../packages/llm/llm-deepseek/README.zh.md)中，因为上游有两条路由使用它们；传输层的提供方钩子仍然只有 `connect` 和 `admit`。

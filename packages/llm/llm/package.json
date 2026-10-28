@@ -72,6 +72,7 @@
   },
   "devDependencies": {
     "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/package-manifest": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   }
 }

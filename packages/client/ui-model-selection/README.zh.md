@@ -35,7 +35,7 @@ Web GUI 允许用户通过 `/model` 弹窗或 composer 模型控件切换既有�
 
 `conversation.input.model.label` 是会话作用域的 `single` slot，覆盖 composer 触发按钮（`placement: 'trigger'`）、根菜单中的当前值（`'menu'`）和各模型选项（`'option'`）。owner props 提供 `provider: { id, name }`、准确的目录 `model`、`placement` 和 `selected`。提供方名称是本地化显示名称；按 `provider.id` 匹配渠道，按提供方与模型 ID 的组合识别模型。slot 不接收连接 URL 或凭据。
 
-扩展必须渲染非交互内容，例如带颜色的名称或徽标。选择器负责点击、搜索、焦点、禁用状态、勾选标记、推理强度和触发按钮的无障碍文字。没有扩展（包括插件卸载后）时显示目录名称。加载中或当前选择不可用时不调用 slot。`/model` 命令行使用命令弹窗独立的渲染 API。
+扩展必须渲染非交互内容，例如带颜色的名称或徽标。选择器负责点击、搜索、焦点、禁用状态、勾选标记、推理强度和触发按钮的无障碍文字。没有扩展（包括插件卸载后）时显示目录名称；模型带有目录角标 `model.badge` 时，触发按钮在名称前、菜单在名称后显示一个按角标语调着色的 `Tag`，文字按当前语言解析。较长的目录名称会在可用宽度内省略，角标保持可见。扩展会同时替换两者，并从 owner props 收到角标。加载中或当前选择不可用时不调用 slot。`/model` 命令行使用命令弹窗独立的渲染 API。
 
 以 type-only 方式导入本包的 `/client` 声明，再通过 `ctx.slots.inject('conversation.input.model.label', () => ctx.slots.register({ name: 'conversation.input.model.label' }, ModelLabel))` 注册。`ModelLabel` 的 props 从 `PropsRuntime<'conversation.input.model.label'>` 派生；用提供方 ID 选择 CSS Module 类，并保留 `model.name` 作为文字。注册随声明和贡献插件的生命周期清理。不替换组件时，样式也可以在三个显示位置通过名称外层的 `data-provider-id` 和 `data-model-id` 属性定位。
 
@@ -55,7 +55,7 @@ Web GUI 允许用户通过 `/model` 弹窗或 composer 模型控件切换既有�
 <details>
 <summary>实现细节——点击展开</summary>
 
-两个入口共用一份由 `ModelDirectoryResolver`（`ctx.modelDirectories`）持有的会话级目录：`/model` popupSelect 贡献项（经 `ctx.commandUi` 注册）与 composer 的具名 `conversation.input.model` 位都经 `session.models` 加载会话的建议目录、经 `session.selectModel` 通过同一个 `ModelDirectory` 实例提交，因此任一入口所做的切换正是另一个入口接下来显示的。目录加载与选择共享一个代次计数器，旧响应不会覆盖新结果；连接重置丢弃所有常驻投影，并在显示前重新拉取 Host 恢复的选择。目录按会话惰性解析，随会话作用域一并 dispose（资源释放）；已寻址 subagent 会话不公开任一入口。每份常驻目录都会直接在转发的 `llm/adapters-updated` 与 `settings/document-updated` owner 事件上重拉。
+两个入口共用一份由 `ModelDirectoryResolver`（`ctx.modelDirectories`）持有的会话级目录：`/model` popupSelect 贡献项（经 `ctx.commandUi` 注册）与 composer 的具名 `conversation.input.model` 位都经 `session.models` 加载会话的建议目录、经 `session.selectModel` 通过同一个 `ModelDirectory` 实例提交，因此任一入口所做的切换正是另一个入口接下来显示的。目录加载与选择共享一个代次计数器，旧响应不会覆盖新结果；连接重置丢弃所有常驻投影，并在显示前重新拉取 Host 恢复的选择。目录按会话惰性解析，随会话作用域一并 dispose（资源释放）；已寻址 subagent 会话不公开任一入口。每份常驻目录都会直接在转发的 `llm/adapters-updated`、`llm/models-updated` 与 `settings/document-updated` owner 事件上重拉。
 
 </details>
 
@@ -92,6 +92,7 @@ Web GUI 允许用户通过 `/model` 弹窗或 composer 模型控件切换既有�
 - **无创建期或已寻址 subagent 选择**——两个入口都要求既有普通会话的 agent（智能体）；没有可纳入会话创建的草稿阶段模型选择，subagent 继续执行也有意不公开独立的模型选择约定。
 - **目录名仅供呈现**——选择与持久化使用提供方／模型／推理强度 id；目录查询或确切模型元数据查询失败的提供方以不可选失败行列出，重新加载前保持原样。
 - **不能任意输入推理强度**——composer 仅提供确切模型由适配器公布的推理强度；适配器没有推理元数据时不显示 Effort 行。
+- **角标只出现在 composer 模型位**——`/model` 弹窗各行、触发按钮的无障碍名称及其提示仍只显示目录名称。
 
 <a id="dev-note"></a>
 ### 开发备注

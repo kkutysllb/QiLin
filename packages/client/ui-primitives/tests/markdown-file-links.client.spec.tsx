@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MarkdownDelegateProvider } from '../src/index.ts'
+import { parseGfm, parseGfmWithMath } from '../src/markdown/parse.ts'
 import { MarkdownText } from './markdown-test-components.tsx'
 
 afterEach(cleanup)
@@ -62,6 +63,42 @@ describe('Markdown file links', () => {
     expect(openFile).toHaveBeenCalledWith('src/index.ts', { line: 3 })
     expect(resolve).not.toHaveBeenCalled()
     expect(view.container.querySelector('button button')).toBeNull()
+  })
+
+  it.each([
+    ['D:\\qilin\\toc-agent\\.deploy\\notes.md', 'D:\\qilin\\toc-agent\\.deploy\\notes.md', undefined],
+    ['<D:\\My Files\\.config\\a_b.md>', 'D:\\My Files\\.config\\a_b.md', undefined],
+    ['D:\\.deploy\\notes.md#L4', 'D:\\.deploy\\notes.md', { line: 4 }],
+    ['D:/repo\\.github\\ci.yml', 'D:/repo\\.github\\ci.yml', undefined],
+    ['D:\\R&amp;D\\a&#32;b.md', 'D:\\R&D\\a b.md', undefined],
+    ['D:\\a\\(b\\).md', 'D:\\a\\(b\\).md', undefined],
+    ['src\\.github\\ci.yml', 'src\\.github\\ci.yml', undefined],
+    ['.\\.env', '.\\.env', undefined],
+    ['..\\.gitignore', '..\\.gitignore', undefined],
+    ['docs\\_draft.md', 'docs\\_draft.md', undefined],
+    ['docs/\\_draft.md', 'docs/_draft.md', undefined],
+    ['C:/work/\\_draft.md', 'C:/work/_draft.md', undefined],
+  ])('keeps backslashes only where %s is a Windows path', (target, path, options) => {
+    const openFile = vi.fn()
+    const view = render(
+      <MarkdownDelegateProvider openFile={openFile}>
+        <MarkdownText text={`[source](${target})\n\n[ref][r]\n\n[r]: ${target}`} />
+      </MarkdownDelegateProvider>,
+    )
+    expect(view.getAllByRole('button').map(button => button.getAttribute('title'))).toEqual([path, path])
+    fireEvent.click(view.getByRole('button', { name: 'source' }))
+    expect(openFile).toHaveBeenCalledOnce()
+    expect(openFile).toHaveBeenCalledWith(path, options)
+  })
+
+  it.each([parseGfm, parseGfmWithMath])('keeps Windows image destinations in %o', (parse) => {
+    const [paragraph] = parse('![chart](D:\\img\\.cache\\a.png)').children
+    expect(paragraph).toMatchObject({ children: [{ type: 'image', url: 'D:\\img\\.cache\\a.png' }] })
+  })
+
+  it('reads backslash escapes in URLs', () => {
+    const view = render(<MarkdownText text={'[source](https://example.com/a\\b\\_c)'} />)
+    expect(view.getByRole('link').getAttribute('href')).toBe('https://example.com/a%5Cb_c')
   })
 
   it.each([
