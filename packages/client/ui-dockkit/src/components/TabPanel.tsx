@@ -28,6 +28,7 @@ import type { DockZone, LayoutState, PaneNode, TabId, TabRecord } from '../contr
 import { getTab } from '../engine/tree.ts'
 import type { PaneCallbacks, SplitBlock } from './render.ts'
 import type { TabRenderer } from '../contract/adapter.ts'
+import { TabBody } from './TabBody.tsx'
 import { TabMenu } from './TabMenu.tsx'
 import { TabTitle } from './TabTitle.tsx'
 import css from './dockkit.module.css'
@@ -477,7 +478,7 @@ export function TabPanel({ state, pane, callbacks }: TabPanelProps): ReactNode {
       <div className={css.paneBody}>
         {active === undefined
           ? <p className={css.empty}>{callbacks.labels.emptyPane}</p>
-          : callbacks.renderTab(active)}
+          : <TabBody tab={active} renderTab={callbacks.renderTab} />}
         <PaneDropHints pane={pane} callbacks={callbacks} />
       </div>
     </section>

@@ -734,6 +734,15 @@
 
 .float {
   position: fixed;
+  /* A resting panel publishes its rectangle in these variables (`floatStyle`).
+     The clamp keeps its position and size inside the viewport even when the
+     gesture hook read a stale viewport; `dvh` follows `window.innerHeight` as
+     the hook does. A gesture or return writes left, top and the size inline
+     instead. */
+  left: max(0px, min(var(--qilin-dockkit-float-x), 100vw - var(--qilin-dockkit-float-width)));
+  top: max(0px, min(var(--qilin-dockkit-float-y), 100dvh - var(--qilin-dockkit-float-height)));
+  width: min(var(--qilin-dockkit-float-width), 100vw);
+  height: min(var(--qilin-dockkit-float-height), 100dvh);
   display: flex;
   flex-direction: column;
   /* The body inside is unpadded and reaches the edges, so the frame clips it

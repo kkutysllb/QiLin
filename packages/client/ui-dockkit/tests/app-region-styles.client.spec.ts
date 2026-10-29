@@ -25,6 +25,14 @@ const regionRules = [...css.matchAll(/(?<sel>[^{}]+)\{(?<body>[^{}]*)\}/g)]
     /-webkit-app-region:\s*([^;]+);/.exec(body)?.[1]?.trim(),
   ] as const)
 
+it('clamps a resting floating panel\'s position and size into the viewport', () => {
+  const floatRule = /(?:^|\})\s*\.float\s*\{(?<body>[^}]*)\}/.exec(css)?.groups?.['body']
+  expect(floatRule).toContain('left: max(0px, min(var(--qilin-dockkit-float-x), 100vw - var(--qilin-dockkit-float-width)));')
+  expect(floatRule).toContain('top: max(0px, min(var(--qilin-dockkit-float-y), 100dvh - var(--qilin-dockkit-float-height)));')
+  expect(floatRule).toContain('width: min(var(--qilin-dockkit-float-width), 100vw);')
+  expect(floatRule).toContain('height: min(var(--qilin-dockkit-float-height), 100dvh);')
+})
+
 describe('macOS app-region ownership', () => {
   it('subtracts the chip run, strip-end chrome, pane body, floating pane, and divider, and declares no drag itself', () => {
     // The strip row's drag is the markup mark's job: a sheet that declares it
