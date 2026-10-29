@@ -26,6 +26,9 @@
 /qilin-agent-client-ui-plugin-manager/use-this-package/browsing-the-plugin-catalog:
   en: 62f539bfb416bfb6
   zh: f0c8237c08a75efa
+/qilin-agent-client-ui-plugin-manager/use-this-package/updating-a-registry-bundle:
+  en: f74fa81b9a66f083
+  zh: 486b1de0b8f07371
 /qilin-agent-client-ui-plugin-manager/use-this-package/switching-a-bundle:
   en: a9e507f396c7947d
   zh: 62e7a87607572c63
@@ -42,8 +45,8 @@
   en: 0ddc309e7a00601a
   zh: 68d9651b140a277f
 /qilin-agent-client-ui-plugin-manager/understand-the-implementation/the-store:
-  en: 2879e07b9d04eea4
-  zh: 3174ca681c42ac6a
+  en: e05f17cab6dba43f
+  zh: 5d199a5cc2cb6091
 /qilin-agent-client-ui-plugin-manager/understand-the-implementation/configuration-slots:
   en: ce31c76e9a091fc5
   zh: 0287e46e6492e6af

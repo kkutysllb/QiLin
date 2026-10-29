@@ -10,11 +10,13 @@
 
 `PluginInfo` 包含模块标识、实际启停状态和 fiber 阶段，以及唯一的 `patchId` 或 `readOnlyReason`。
 
-`BundleInfo` 包含包名、可选的安装版本、组合层选择状态、删除可用性及可选的解析错误。
+`BundleInfo` 包含包名、可选的安装版本、组合层选择状态、删除可用性、更新资格（`updatable`）及可选的解析错误。
 
 `InstallBundleOptions.enabled` 默认为 true，false 表示安装但不选择组合包层。`approvedBuilds` 在安装前向指定的待审批包名授予持久脚本权限。
 
 `ChangeResult.changed` 报告磁盘修改，独立于 `application`：`applied`、`restart-required`、`overridden` 或 `failed`。可选的 `error` 包含可本地化的错误码和外部诊断。`packageResult` 记录 pnpm 退出码、有界输出、截断标志及完整诊断日志路径。`pendingBuilds` 列出整个 profile 尚未决定的包；`approvedBuilds` 记录本次操作授予权限的包名。
+
+版本检查通过 `listVersions` 读取注册表清单；`updateBundle` 用已发布版本替换已安装的 bundle，替换失败时恢复旧版本。[view 字段指南](../cookbook/plugin-manager-view-fields/guide.zh.md)列出每个操作读取的包与版本字段。
 
 ## Profile 重新组合
 
@@ -159,6 +161,30 @@ Manage profile files and apply their declared reload lifecycle.
  * @returns The package the spec names, or why it is refused.
  */
 @Remote async inspect(spec: string, options?: InspectOptions, signal?: AbortSignal): Promise<PluginSpecInspection>
+
+/** Read the published versions newer than an installed registry package's version, from the first registry that answers.
+ * Official bundles follow the QiLin version and are not listed.
+ * @param name Installed profile dependency name.
+ * @param options The registry asked first; absent, the one the package was installed from in this process, else the configured one.
+ * @param signal Ends the lookups early.
+ * @returns At most `versionListLimit` newer versions, newest first, with their tags, deprecation, bundle declaration,
+ * and QiLin compatibility, and the registry that answered; or why no list could be read, with every registry asked.
+ */
+@Remote async listVersions(name: string, options?: ListVersionsOptions, signal?: AbortSignal): Promise<PluginVersionList>
+
+/**
+ * Replace an installed registry bundle with a newer published version. The target is checked on the registry first:
+ * it must exist, declare a bundle, and accept the running QiLin version, or nothing changes. With HMR the installed
+ * version is removed, so its plugins stop, and the target is installed with the same selection; when that
+ * installation fails or is cancelled, the removed version is installed again from the registry it came from.
+ * Without HMR the target is installed over the running version and the result reports the restart.
+ * @param name Installed profile dependency name.
+ * @param version Exact published version newer than the installed one.
+ * @param options The registry asked first, as for `listVersions`, and the request id naming the progress and the
+ * target installation's logs and cancellation.
+ * @returns The versions, the last step that ran with its result, and the reinstallation when one ran.
+ */
+@Remote async updateBundle(name: string, version: string, options?: UpdateBundleOptions): Promise<PluginUpdateResult>
 
 /** Persist a plugin entry's desired enablement and apply it on live profiles.
  * @param id Loader entry identity returned by listPlugins.
@@ -398,6 +424,24 @@ An installation moved between its Host phases. `installing` is announced once pe
  * @param progress - the installation's request id and phase, with the attempt while installing.
  */
 'plugin-manager/install-state'(progress: PluginInstallProgress): void
+```
+
+Source: [`packages/boot/plugin-manager/src/types.ts`](../../packages/boot/plugin-manager/src/types.ts)
+
+<a id="plugin-managerupdate-state--emit"></a>
+
+#### `plugin-manager/update-state` — emit
+
+An update moved to its next step: checking the target, removing the installed version, installing the target, or reinstalling the removed version after the target failed. Announced once per step.
+
+```ts cordis-catalog
+/**
+ * An update moved to its next step: checking the target, removing the installed version, installing the target,
+ * or reinstalling the removed version after the target failed. Announced once per step.
+ * @mode emit
+ * @param progress - the update's request id and step.
+ */
+'plugin-manager/update-state'(progress: PluginUpdateProgress): void
 ```
 
 Source: [`packages/boot/plugin-manager/src/types.ts`](../../packages/boot/plugin-manager/src/types.ts)

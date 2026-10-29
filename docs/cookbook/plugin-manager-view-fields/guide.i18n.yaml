@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for guide.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/cookbook/plugin-manager-view-fields/guide.md
+/cookbook-plugin-manager-view-fields:
+  en: 1b2eed6959e7937b
+  zh: c4a2638b28563560
+/cookbook-plugin-manager-view-fields/bundle-rows:
+  en: 3119e196a51bfb1d
+  zh: 4a960c4a3c189113
+/cookbook-plugin-manager-view-fields/version-fields:
+  en: 9acc553b3a238d12
+  zh: add51d1a3846ca3d
+/cookbook-plugin-manager-view-fields/update-fields:
+  en: eb91850a00afc125
+  zh: 2740634082a1a146

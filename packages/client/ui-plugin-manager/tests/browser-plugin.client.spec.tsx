@@ -195,7 +195,20 @@ describe('ui-plugin-manager browser plugin', () => {
     face.editInstallSpec('pkg')
     b.remote.emit('plugin-manager/install-log', [{ jobId: 'j', argv: ['pnpm', 'add', 'pkg'], cwd: '/p', stream: 'stdout', text: 'early' }])
     b.remote.emit('plugin-manager/install-state', [{ requestId: 'foreign', phase: 'installing' }])
+    // An update step of another request leaves the page's own update state alone.
+    b.remote.emit('plugin-manager/update-state', [{ requestId: 'foreign', step: 'checking' }])
     expect(face.hooks.pluginManager.getSnapshot().install.runs).toEqual([])
+    expect(face.hooks.pluginManager.getSnapshot().update).toBeNull()
+
+    // Another plugin's navigation opens the panel on its list or on one bundle.
+    const navigation = b.ctx.get('pluginNavigation') as {
+      openList: () => void
+      openBundle: (name: string) => void
+    }
+    navigation.openList()
+    expect(b.selectPanel).toHaveBeenLastCalledWith(PANEL_ID)
+    navigation.openBundle('dsh-better-sidebar')
+    expect(b.selectPanel).toHaveBeenLastCalledWith(PANEL_ID)
 
     await fiber.dispose()
     expect(b.ctx.get('pluginNavigation')).toBeUndefined()

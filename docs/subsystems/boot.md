@@ -10,11 +10,13 @@ The [boot package group](../../packages/boot/README.md) owns launcher-provided p
 
 `PluginInfo` carries module identity, effective enablement and fiber phase, plus a unique `patchId` or a `readOnlyReason`.
 
-`BundleInfo` carries the package name, optional installed version, selected enablement, removal availability and optional resolution error.
+`BundleInfo` carries the package name, optional installed version, selected enablement, removal availability, update eligibility (`updatable`), and optional resolution error.
 
 `InstallBundleOptions.enabled` defaults to true. False installs without selecting the bundle layer. `approvedBuilds` grants persistent script permission to the supplied pending package names before installation.
 
 `ChangeResult.changed` reports a disk edit independently of `application`: `applied`, `restart-required`, `overridden` or `failed`. Optional `error` carries a localizable code and external diagnostic. `packageResult` records the pnpm exit code, bounded output, truncation flag and complete diagnostic log path. `pendingBuilds` lists undecided packages across the profile; `approvedBuilds` records the names granted permission by this operation.
+
+Version checks read a registry listing through `listVersions`, and `updateBundle` replaces an installed bundle with a published version and restores the previous one when the replacement fails. [The view-fields guide](../cookbook/plugin-manager-view-fields/guide.md) lists the package and version fields each operation reads.
 
 ## Profile reconciliation
 
@@ -159,6 +161,30 @@ Manage profile files and apply their declared reload lifecycle.
  * @returns The package the spec names, or why it is refused.
  */
 @Remote async inspect(spec: string, options?: InspectOptions, signal?: AbortSignal): Promise<PluginSpecInspection>
+
+/** Read the published versions newer than an installed registry package's version, from the first registry that answers.
+ * Official bundles follow the QiLin version and are not listed.
+ * @param name Installed profile dependency name.
+ * @param options The registry asked first; absent, the one the package was installed from in this process, else the configured one.
+ * @param signal Ends the lookups early.
+ * @returns At most `versionListLimit` newer versions, newest first, with their tags, deprecation, bundle declaration,
+ * and QiLin compatibility, and the registry that answered; or why no list could be read, with every registry asked.
+ */
+@Remote async listVersions(name: string, options?: ListVersionsOptions, signal?: AbortSignal): Promise<PluginVersionList>
+
+/**
+ * Replace an installed registry bundle with a newer published version. The target is checked on the registry first:
+ * it must exist, declare a bundle, and accept the running QiLin version, or nothing changes. With HMR the installed
+ * version is removed, so its plugins stop, and the target is installed with the same selection; when that
+ * installation fails or is cancelled, the removed version is installed again from the registry it came from.
+ * Without HMR the target is installed over the running version and the result reports the restart.
+ * @param name Installed profile dependency name.
+ * @param version Exact published version newer than the installed one.
+ * @param options The registry asked first, as for `listVersions`, and the request id naming the progress and the
+ * target installation's logs and cancellation.
+ * @returns The versions, the last step that ran with its result, and the reinstallation when one ran.
+ */
+@Remote async updateBundle(name: string, version: string, options?: UpdateBundleOptions): Promise<PluginUpdateResult>
 
 /** Persist a plugin entry's desired enablement and apply it on live profiles.
  * @param id Loader entry identity returned by listPlugins.
@@ -398,6 +424,24 @@ An installation moved between its Host phases. `installing` is announced once pe
  * @param progress - the installation's request id and phase, with the attempt while installing.
  */
 'plugin-manager/install-state'(progress: PluginInstallProgress): void
+```
+
+Source: [`packages/boot/plugin-manager/src/types.ts`](../../packages/boot/plugin-manager/src/types.ts)
+
+<a id="plugin-managerupdate-state--emit"></a>
+
+#### `plugin-manager/update-state` — emit
+
+An update moved to its next step: checking the target, removing the installed version, installing the target, or reinstalling the removed version after the target failed. Announced once per step.
+
+```ts cordis-catalog
+/**
+ * An update moved to its next step: checking the target, removing the installed version, installing the target,
+ * or reinstalling the removed version after the target failed. Announced once per step.
+ * @mode emit
+ * @param progress - the update's request id and step.
+ */
+'plugin-manager/update-state'(progress: PluginUpdateProgress): void
 ```
 
 Source: [`packages/boot/plugin-manager/src/types.ts`](../../packages/boot/plugin-manager/src/types.ts)
