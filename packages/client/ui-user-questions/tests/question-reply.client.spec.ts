@@ -1,11 +1,16 @@
 /** Late-reply conversation node: source matching and payload projection. */
 import { describe, expect, it } from 'vitest'
+import { ConversationNodeAssembler } from '@qilin-agent/client-ui-conversation/client'
+import type { ChatSnapshot } from '@qilin-agent/client-ui-chat/client'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { SessionSeq } from '@qilin-agent/session'
+import { chatViewDefinition } from '../../ui-chat/src/client/conversation-nodes/chat-snapshot-builder.ts'
 import { messageDefinition } from '../../ui-chat/src/client/conversation-nodes/message.ts'
 import { en } from '../src/client/locales.ts'
 import type { QuestionReplyData } from '../src/client/question-reply.ts'
-import { questionReplyDefinition, replyAnswerValues, replyClipboardText, replyPairsOf } from '../src/client/question-reply.ts'
+import {
+  answeredQuestionDefinition, questionReplyDefinition, replyAnswerValues, replyClipboardText, replyPairsOf,
+} from '../src/client/question-reply.ts'
 
 const answered = JSON.stringify({
   kind: 'answer_to_pending_question',
@@ -35,20 +40,19 @@ describe('replyPairsOf', () => {
   it('reads question and answer pairs, tolerating a payload without answers', () => {
     expect(replyPairsOf(answered)).toEqual({
       questions: [{
-        id: 'scope', question: 'Which scope?', header: 'Scope', detail: 'Choose the smallest useful surface.',
-        options: [{ label: 'Tool only', description: 'Keep the change narrow.' }], multiSelect: false,
+        id: 'scope', question: 'Which scope?', header: 'Scope',
       }, { id: 'notes', question: 'Any notes?' }],
       answers: [{ id: 'scope', selected: ['Tool only'], custom: 'note' }, { id: 'notes', selected: [] }],
     })
     expect(replyPairsOf(noAnswers)).toEqual({ questions: [{ id: 'scope', question: 'Which scope?' }], answers: [] })
   })
 
-  it('keeps only the well-formed options of a question and drops the rest', () => {
+  it('omits options and details from the projected question', () => {
     const text = JSON.stringify({
-      questions: [{ id: 'scope', question: 'Which scope?', options: [{ label: 'Tool only', description: 1 }, 'nope', { description: 'no label' }] }],
+      questions: [{ id: 'scope', question: 'Which scope?', detail: 'Hidden detail', options: [{ label: 'Tool only', description: 1 }, 'nope', { description: 'no label' }] }],
       answers: [],
     })
-    expect(replyPairsOf(text).questions).toEqual([{ id: 'scope', question: 'Which scope?', options: [{ label: 'Tool only' }] }])
+    expect(replyPairsOf(text).questions).toEqual([{ id: 'scope', question: 'Which scope?' }])
   })
 
   it('renders nothing structured for text it cannot read', () => {
@@ -62,10 +66,7 @@ const t = makeTranslate(en)
 const replyData = (overrides: Partial<QuestionReplyData> = {}): QuestionReplyData => ({
   callId: 'call-1',
   outcome: 'answered',
-  questions: [{
-    id: 'scope', question: 'Which scope?', header: 'Scope',
-    options: [{ label: 'Tool only', description: 'Keep the change narrow.' }, { label: 'Whole package' }],
-  }, { id: 'notes', question: 'Any notes?' }],
+  questions: [{ id: 'scope', question: 'Which scope?', header: 'Scope' }, { id: 'notes', question: 'Any notes?' }],
   answers: [{ id: 'scope', selected: ['Tool only'], custom: 'note' }, { id: 'notes', selected: [] }],
   text: answered,
   time: 7_000,
@@ -153,5 +154,171 @@ describe('questionReplyDefinition', () => {
     expect(() => questionReplyDefinition.start({} as never, {
       event: { ...(event as object), type: 'tool/call' }, id: 'x', role: 'start',
     } as never, {} as never)).toThrow(/requires user\/message/)
+  })
+})
+function toolCall(argumentsText = JSON.stringify({ questions: [
+  { id: 'scope', question: 'Which scope?', header: 'Scope', detail: 'Hidden detail', options: [{ label: 'Tool only' }] },
+  { id: 'notes', question: 'Any notes?' },
+] }), name = 'ask_user_question') {
+  return { type: 'tool/call', seq: 5, time: 5_000,
+    data: { turn: 1, step: 1, callId: 'call-1', name, arguments: argumentsText } } as never
+}
+
+function toolResult(text = JSON.stringify({ answers: [
+  { id: 'notes', selected: [] }, { id: 'scope', selected: ['Tool only'], custom: 'note' },
+] }), isError = false, surfaceOp = 'append') {
+  return { type: 'tool/result', seq: 6, time: 6_000, surfaceOp,
+    data: { turn: 1, step: 1, message: { role: 'tool', isError,
+      source: { kind: 'tool', callId: 'call-1' }, content: [{ type: 'text', text }] } } } as never
+}
+
+function ptcCall(argumentsValue: unknown = { questions: [{ id: 'scope', question: 'Which scope?', header: 'Scope' }, { id: 'notes', question: 'Any notes?' }] }, name = 'ask_user_question') {
+  return { type: 'tool/ptc-dispatch-start', seq: 5, time: 5_000,
+    data: { rootCallId: 'root', parentCallId: 'root', subCallId: 'call-1', name, arguments: argumentsValue } } as never
+}
+
+function ptcResult(text = JSON.stringify({ answers: [{ id: 'notes', selected: [] }, { id: 'scope', selected: ['Tool only'], custom: 'note' }] }), isError = false, name = 'ask_user_question') {
+  return { type: 'tool/ptc-dispatch', seq: 6, time: 6_000,
+    data: { rootCallId: 'root', parentCallId: 'root', subCallId: 'call-1', name, arguments: {}, isError,
+      content: [{ type: 'text', text }] } } as never
+}
+
+/** Assemble the answered-question projection over its dependencies and read the Chat nodes. */
+function answerNodes(events: readonly unknown[]) {
+  const assembler = new ConversationNodeAssembler(
+    { entries: () => [answeredQuestionDefinition, questionReplyDefinition, messageDefinition], fallbackEntry: () => undefined },
+    { entries: () => [chatViewDefinition] },
+  )
+  assembler.replaceWindow(events.map((event, index) => ({
+    type: 'event' as const,
+    event: {
+      ...(event as object),
+      seq: index + 1,
+      time: (event as { time?: number }).time ?? (index + 1) * 1_000,
+    } as never,
+  })), false)
+  assembler.activateTarget('chat')
+  return (assembler.snapshot('chat') as ChatSnapshot).nodes.values()
+}
+
+describe('answeredQuestionDefinition', () => {
+  it('pairs one batch at the result position and hides it until the answer arrives', () => {
+    expect(answerNodes([toolCall()])).toEqual([])
+    const nodes = answerNodes([toolCall(), toolResult()])
+    expect(nodes).toHaveLength(1)
+    expect(nodes[0]).toMatchObject({
+      kind: 'question-reply', anchorSeq: 2, visibility: 'visible',
+      data: {
+        callId: 'call-1', time: 6_000, outcome: 'answered',
+        questions: [{ id: 'scope', question: 'Which scope?', header: 'Scope' }, { id: 'notes', question: 'Any notes?' }],
+        answers: [{ id: 'notes', selected: [] }, { id: 'scope', selected: ['Tool only'], custom: 'note' }],
+      },
+    })
+    expect(nodes[0]?.data).not.toHaveProperty('seq')
+  })
+
+  it('pairs a PTC sub-dispatch by its subCallId', () => {
+    const nodes = answerNodes([ptcCall(), ptcResult()])
+    expect(nodes).toHaveLength(1)
+    expect(nodes[0]).toMatchObject({ kind: 'question-reply', anchorSeq: 2, data: { callId: 'call-1' } })
+  })
+
+  it('derives the batch when its call is prepended after an update-only result', () => {
+    const assembler = new ConversationNodeAssembler(
+      { entries: () => [answeredQuestionDefinition, questionReplyDefinition, messageDefinition], fallbackEntry: () => undefined },
+      { entries: () => [chatViewDefinition] },
+    )
+    const entries = (events: readonly unknown[], base: number) => events.map((event, index) => ({
+      type: 'event' as const,
+      event: {
+        ...(event as object),
+        seq: base + index,
+        time: (event as { time?: number }).time ?? (base + index) * 1_000,
+      } as never,
+    }))
+    assembler.replaceWindow(entries([toolResult()], 10), false)
+    assembler.activateTarget('chat')
+    assembler.flush()
+    expect((assembler.snapshot('chat') as ChatSnapshot).nodes.values()).toEqual([])
+    assembler.prepend(entries([toolCall()], 1), false)
+    assembler.flush()
+    expect((assembler.snapshot('chat') as ChatSnapshot).nodes.values()).toHaveLength(1)
+  })
+
+  it.each([
+    'null', '[]', 'not json', '{"answers":"wrong"}', '{"answers":[]}',
+    '{"answers":[{"id":"scope","selected":[]},{"id":"scope","selected":[]}]}',
+    '{"answers":[{"id":"scope","selected":[1]},{"id":"notes","selected":[]}]}',
+    '{"answers":[{"id":"scope","selected":[],"custom":1},{"id":"notes","selected":[]}]}',
+    '{"answers":[{"id":"wrong","selected":[]},{"id":"notes","selected":[]}]}',
+    '{"pending":true,"callId":"call-1"}',
+  ])('leaves the generic Tool presentation in place for result %s', (text) => {
+    expect(answerNodes([toolCall(), toolResult(text)])).toEqual([])
+  })
+
+  it.each(['not json', '{"questions":[]}', '{"questions":[{"id":1}]}',
+    '{"questions":[{"id":"scope","question":"A"},{"id":"scope","question":"B"}]}',
+    '{"questions":[{"id":"scope","question":"Approve?","intent":{"kind":"plan-review"}}]}',
+  ])('does not pair unsafe or plan-review call arguments %s', (args) => {
+    expect(answerNodes([toolCall(args), toolResult()])).toEqual([])
+  })
+
+  it.each([{ content: [] }, { content: [{ type: 'image', source: { kind: 'inline', data: '', mediaType: 'image/png' } }] },
+    { content: [{ type: 'text', text: '{}' }, { type: 'text', text: '{}' }] },
+  ])('leaves unsupported result content in the generic Tool presentation', ({ content }) => {
+    const result = { type: 'tool/result', seq: 6, time: 6_000, surfaceOp: 'append',
+      data: { turn: 1, step: 1, message: { role: 'tool', source: { kind: 'tool', callId: 'call-1' }, content } } } as never
+    expect(answerNodes([toolCall(), result])).toEqual([])
+  })
+
+  it('matches only its own tool, and only appended results', () => {
+    expect(answeredQuestionDefinition.match(toolCall(undefined, 'bash'))).toBeNull()
+    expect(answeredQuestionDefinition.match(ptcCall(undefined, 'bash'))).toBeNull()
+    expect(answeredQuestionDefinition.match(ptcResult(undefined, false, 'bash'))).toBeNull()
+    const failed = toolResult()
+    expect(answeredQuestionDefinition.match(toolCall())).toEqual({ id: 'call-1', role: 'start' })
+    expect(answeredQuestionDefinition.match(ptcCall())).toEqual({ id: 'call-1', role: 'start' })
+    expect(answeredQuestionDefinition.match(ptcResult())).toEqual({ id: 'call-1', role: 'update' })
+    expect(answeredQuestionDefinition.match(toolResult())).toEqual({ id: 'call-1', role: 'update' })
+    expect(answeredQuestionDefinition.match(toolResult(JSON.stringify({ answers: [] }), false, 'shadow'))).toBeNull()
+    expect(answeredQuestionDefinition.match(failed)).toEqual({ id: 'call-1', role: 'update' })
+    expect(answeredQuestionDefinition.match({ type: 'turn/start', seq: 1, data: { turn: 1 } } as never)).toBeNull()
+  })
+
+  it('retains a published node key while replay withdraws its answer evidence', () => {
+    const event = toolCall()
+    const state = answeredQuestionDefinition.start({} as never, { event, id: 'call-1', role: 'start' } as never, {} as never)
+    const answeredState = answeredQuestionDefinition.update({ state } as never,
+      { event: toolResult(), id: 'call-1', role: 'update' } as never)
+    const current = new Map()
+    const node = answeredQuestionDefinition.buildViewNode!({ state: answeredState, current,
+      key: 'answered:1', id: 'call-1', start: undefined } as never)
+    expect(node).toMatchObject({ key: 'answered:1', kind: 'question-reply', anchorSeq: 6, visibility: 'visible',
+      location: { kind: 'unresolved' } })
+    current.set('chat', node)
+    const hidden = answeredQuestionDefinition.buildViewNode!({ state, current,
+      key: 'answered:1', id: 'call-1', start: undefined } as never)
+    expect(hidden).toMatchObject({ key: 'answered:1', visibility: 'hidden' })
+    expect(answeredQuestionDefinition.buildViewNode!({ state: undefined, current: new Map() } as never)).toBeNull()
+  })
+
+  it('keeps a failed or pending result pending and ignores non-answer updates', () => {
+    const event = toolCall()
+    const state = answeredQuestionDefinition.start({} as never, { event, id: 'call-1', role: 'start' } as never, {} as never)
+    const failed = answeredQuestionDefinition.update({ state } as never,
+      { event: toolResult(JSON.stringify({ answers: [{ id: 'notes', selected: [] }] }), true), id: 'call-1', role: 'update' } as never)
+    expect(failed.reply).toBeUndefined()
+    const unrelated = answeredQuestionDefinition.update({ state } as never,
+      { event: { type: 'user/message', seq: 8, data: {} }, id: 'call-1', role: 'update' } as never)
+    expect(unrelated).toBe(state)
+    const unparsed = answeredQuestionDefinition.start({} as never,
+      { event: toolCall('not json'), id: 'call-1', role: 'start' } as never, {} as never)
+    expect(unparsed).toEqual({ questions: null, reply: undefined })
+    const settled = answeredQuestionDefinition.update({ state: unparsed } as never,
+      { event: toolResult(), id: 'call-1', role: 'update' } as never)
+    expect(settled).toBe(unparsed)
+    expect(() => answeredQuestionDefinition.start({} as never,
+      { event: { type: 'turn/start', seq: 1, data: {} }, id: 'x', role: 'start' } as never, {} as never))
+      .toThrow(/requires tool\/call or tool\/ptc-dispatch-start/)
   })
 })

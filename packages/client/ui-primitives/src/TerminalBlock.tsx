@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import { parseAnsiLines, type AnsiLine } from './ansi.ts'
 import { headTailCap } from './head-tail-cap.ts'
-import { useCopyFeedback } from './use-copy-feedback.ts'
+import { useClipboardCopy } from './use-clipboard-copy.ts'
 import { Pill } from './Pill.tsx'
 import { StateDot, type StateDotState } from './StateDot.tsx'
 import { CommandText } from './CommandText.tsx'
@@ -190,7 +190,7 @@ export function TerminalBlock({
   const [expanded, setExpanded] = useState(false)
   // The raw output, never the rendered tree: the prompt line and the status pill
   // are chrome the user did not run.
-  const { copied, onCopy } = useCopyFeedback(text)
+  const { copied, onCopy } = useClipboardCopy(text)
 
   const onToggle = useCallback(() => { setExpanded(value => !value) }, [])
 

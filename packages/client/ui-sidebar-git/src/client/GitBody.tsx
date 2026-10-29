@@ -14,7 +14,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import clsx from 'clsx'
 import {
   Button, IconBranchOutlineRegular, IconChevronDownOutlineMedium, IconCloseOutlineRegular, IconCopyOutlineRegular, IconPlusOutlineRegular,
-  IconRefreshOutlineRegular, IconTrashOutlineRegular, Input, Menu, useCopyFeedback, writeClipboard,
+  IconRefreshOutlineRegular, IconTrashOutlineRegular, Input, Menu, useClipboardCopy, writeClipboard,
   type MenuEntry,
 } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
@@ -96,8 +96,8 @@ export function GitBody({
   const [ghOpen, setGhOpen] = useState(false)
   const [prForm, setPrForm] = useState<{ title: string; body: string; base: string } | null>(null)
   const [merging, setMerging] = useState<{ number: number; method: MergeMethod } | null>(null)
-  const { copied, onCopy } = useCopyFeedback(diffText)
-  const { copied: urlCopied, onCopy: onCopyUrl } = useCopyFeedback(state?.created?.url ?? '')
+  const { copied, onCopy } = useClipboardCopy(diffText)
+  const { copied: urlCopied, onCopy: onCopyUrl } = useClipboardCopy(state?.created?.url ?? '')
   useEffect(() => {
     if (state !== undefined || signal.aborted) return
     start(tab.id, signal)

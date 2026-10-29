@@ -25,11 +25,15 @@ When an agent asks a question in the Web client, this package replaces the chat 
 <a id="use-this-package"></a>
 ## Use this package
 
-When the agent asks a question, the composer becomes the question surface: answer each question, navigate with the pager, or skip it. Single-select choices advance immediately; Enter continues the flow and submits once every question is answered or skipped, while Shift+Enter breaks a line instead (during IME composition Enter only confirms the input candidate without advancing).
+When the agent asks a question, the composer becomes the question surface: answer each question, navigate with the pager, or skip it. A single-select question's first recommended choice starts selected, as does every recommended choice of a multi-select question; those preselections stay unsubmitted drafts and do not pause a timed countdown. Single-select choices advance immediately; Enter continues the flow and submits once every question is answered or skipped, while Shift+Enter breaks a line instead (during IME composition Enter only confirms the input candidate without advancing).
 
 ### Answering
 
 A multi-select draft keeps its selected labels while the user opens or edits the custom answer, so its submitted item may carry both `selected` and `custom`; a single-select custom answer remains exclusive. Question detail reuses the assistant-output `MarkdownText` primitive, including its GFM rendering and untrusted-content policy. The capped card keeps its title, navigation, and submission actions fixed while long detail and choices share an internal scroll region. "Skip" retains other drafts and emits the existing blank `{ selected: [] }` result for that item, while close rejects the whole wait as `ASK_CANCELLED`.
+
+### Reading a settled question back
+
+Each answered batch appears once as a right-aligned user-style bubble after its answer is recorded, for native and PTC blocking questions and for late replies. The bubble lists every question above its selected choices and custom answer, omits question detail and unselected options, and stays visible while process groups or the containing Turn are folded; a late reply admitted after the opening step keeps its Turn open. Unanswered questions stay in the question card and its tool row. The bubble has no disclosure control, and its copy action writes each question with the answer the user gave.
 
 ### The plan-review card
 

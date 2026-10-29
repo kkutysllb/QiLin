@@ -333,11 +333,12 @@ describe('apply', () => {
     expect(b.pending.getSnapshot()).toEqual([])
   })
 
-  it('registers the late-reply conversation node with the conversation runtime', async () => {
+  it('registers the late-reply and answered-batch conversation nodes with the conversation runtime', async () => {
     const b = await bench()
 
-    expect(b.registerNode).toHaveBeenCalledOnce()
+    expect(b.registerNode).toHaveBeenCalledTimes(2)
     expect(b.registerNode.mock.calls[0]![0]).toMatchObject({ kind: 'user-question-reply', target: 'chat' })
+    expect(b.registerNode.mock.calls[1]![0]).toMatchObject({ kind: 'answered-user-question', target: 'chat' })
     expect(b.slots.entries('conversation.chat.node').map(entry => entry.options.key)).toEqual(['question-reply'])
   })
 

@@ -2,7 +2,9 @@ import { Fragment, memo, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { PendingSubmission } from '@qilin-agent/api-session-controller/client'
 import type { MessageImageSource } from '@qilin-agent/client-ui-conversation/client'
-import { fileExtension, FileTypeIcon, fileSizeText, JsonBlock, projectUserText, StateDot } from '@qilin-agent/client-ui-primitives'
+import {
+  fileExtension, FileTypeIcon, fileSizeText, JsonBlock, projectUserText, StateDot, UserMessageBubble,
+} from '@qilin-agent/client-ui-primitives'
 import type { ChatNodeOwnerProps, ChatNodeViewProps, ChatViewSlotProps } from '../contract/slots.ts'
 import type { ModelRetryNode, TurnErrorNode, UserMessageNode } from '../contract/snapshot.ts'
 import { CompactionItem } from './CompactionItem.tsx'
@@ -217,13 +219,13 @@ function UserStyleBubble({
               ))}
           </div>
         )}
-        {showBubble && <div className={css.bubble}>
+        {showBubble && <UserMessageBubble>
           {projectUserText(text, referenceLabels, skillNames, 'skill', references, {
             reveal: t('secret.reveal'),
             hide: t('secret.hide'),
           })}
           {rest.map((block, i) => <JsonBlock key={i} label={t('message.extraBlock')} payload={block} truncatedLabel={truncated} />)}
-        </div>}
+        </UserMessageBubble>}
         {referenceLabels.length > 0 && (
           <div className={css.referenceSummary}>
             {t('message.referenceSummary', { labels: referenceLabels.join(t('message.referenceSeparator')) })}

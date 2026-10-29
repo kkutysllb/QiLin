@@ -232,6 +232,48 @@ describe('QuestionComposer', () => {
     }
   })
 
+  it('preselects every recommended multi-select choice without pausing a timed wait', () => {
+    const { carrier } = wait([
+      {
+        id: 'checks', question: '选择检查项', multiSelect: true,
+        options: [
+          { label: '单元测试 (Recommended)' }, { label: 'Lint' }, { label: '类型检查 (Recommended)' },
+        ],
+      },
+      { id: 'note', question: '还需要什么？' },
+    ], Date.now() + 30_000)
+    try {
+      const view = render(<QuestionComposer matched={carrier} {...kit} />)
+      expect(screen.getByRole('checkbox', { name: '单元测试' }).getAttribute('aria-checked')).toBe('true')
+      expect(screen.getByRole('checkbox', { name: 'Lint' }).getAttribute('aria-checked')).toBe('false')
+      expect(screen.getByRole('checkbox', { name: '类型检查' }).getAttribute('aria-checked')).toBe('true')
+
+      fireEvent.click(screen.getByLabelText('下一题'))
+      view.unmount()
+      render(<QuestionComposer matched={carrier} {...kit} />)
+      expect(carrier.snapshot().countdown?.running).toBe(true)
+      fireEvent.click(screen.getByLabelText('上一题'))
+      expect(screen.getByRole('checkbox', { name: '单元测试' }).getAttribute('aria-checked')).toBe('true')
+      expect(screen.getByRole('checkbox', { name: '类型检查' }).getAttribute('aria-checked')).toBe('true')
+    } finally {
+      carrier.timeout()
+    }
+  })
+
+  it('starts only a recommended first choice of a single-select question selected', () => {
+    const { carrier } = wait([
+      { id: 'first', question: '第一题？', options: [{ label: 'A (Recommended)' }, { label: 'B (Recommended)' }] },
+      { id: 'later', question: '后面？', options: [{ label: 'C' }, { label: 'D (Recommended)' }] },
+    ])
+    render(<QuestionComposer matched={carrier} {...kit} />)
+    expect(screen.getByRole('radio', { name: 'A' }).getAttribute('aria-checked')).toBe('true')
+    expect(screen.getByRole('radio', { name: 'B' }).getAttribute('aria-checked')).toBe('false')
+
+    fireEvent.click(screen.getByLabelText('下一题'))
+    expect(screen.getByRole('radio', { name: 'C' }).getAttribute('aria-checked')).toBe('false')
+    expect(screen.getByRole('radio', { name: 'D' }).getAttribute('aria-checked')).toBe('false')
+  })
+
   it('treats Enter on an unselected option as submit, without selecting it', () => {
     const { carrier, answer } = wait([{
       id: 'mode', question: 'Which mode?', options: [{ label: 'Alpha' }, { label: 'Beta' }],
@@ -882,6 +924,32 @@ describe('review card', () => {
     expect(screen.getByText(zh['review.skipped'])).toBeTruthy()
     expect(screen.getByRole('checkbox', { name: '系统设计' }).getAttribute('aria-checked')).toBe('false')
     expect(screen.queryByPlaceholderText('输入你的答案')).toBeNull()
+  })
+
+  it('shows recorded multi-select answers without restoring recommended defaults', () => {
+    const questions: PendingQuestion['questions'] = [
+      {
+        id: 'checks', question: '选择检查项', multiSelect: true,
+        options: [
+          { label: '单元测试 (Recommended)' }, { label: 'Lint' }, { label: '类型检查 (Recommended)' },
+        ],
+      },
+      {
+        id: 'targets', question: '选择目标', multiSelect: true,
+        options: [{ label: 'Web (Recommended)' }, { label: '桌面端' }],
+      },
+    ]
+    const carrier = new PendingQuestion(
+      SID, questions, ToolCallId(REVIEWED_CALL), undefined, [{ id: 'checks', selected: ['Lint'] }],
+    )
+    carrier.attachSeat({ hide: vi.fn() })
+    render(<QuestionComposer matched={carrier} {...kit} />)
+
+    expect(screen.getByRole('checkbox', { name: '单元测试' }).getAttribute('aria-checked')).toBe('false')
+    expect(screen.getByRole('checkbox', { name: 'Lint' }).getAttribute('aria-checked')).toBe('true')
+    expect(screen.getByRole('checkbox', { name: '类型检查' }).getAttribute('aria-checked')).toBe('false')
+    fireEvent.click(screen.getByLabelText('下一题'))
+    expect(screen.getByRole('checkbox', { name: 'Web' }).getAttribute('aria-checked')).toBe('false')
   })
 
   it('reads the record back instead of a draft the live card left under the same key', () => {

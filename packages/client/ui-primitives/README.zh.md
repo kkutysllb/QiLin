@@ -59,6 +59,8 @@ kind: "package-library"
 | `JsonTree`、`JsonBlock` | 只读 JSON 查看。 |
 | `MarkdownText`、`MarkdownDelegateProvider`、`CodeBlock` | 不可信 GFM 与 TeX 数学、owner 委托的 HTTP(S) 导航，以及高亮代码。`CodeBlock` 可通过 `lineNumbers` 开启行号；复制的源码不含行号栏，`contentRef` 则向需要把稳定源码包装节点用作滚动区的 owner 提供该节点。调用方提供自己的语言与复制工具栏时，设置 `showHeader={false}`。 |
 | `TerminalBlock`、`ReadBlock`、`DiffBlock`、`SearchBlock`、`WebBlock` | 与各类工具结果意图对应的 agent 输出卡片。 |
+| `useClipboardCopy` | 复制当前文本并显示一秒成功反馈，阻止写入期间及成功反馈期间的重复操作，卸载时清除重置计时器；迟到的写入结果不会更新已卸载控件。 |
+| `UserMessageBubble` | 用户消息的背景、圆角、内容内边距、字体与纯文本换行规则。接收原生 div props；行对齐、宽度、内容和操作由调用方拥有。 |
 | `SettingsForm`、`SettingsValueField`、`SettingsSecretField` | 基于 `SettingsFormModel` 的分阶段配置表单：字段如实报告读者输入，保存是草稿变成文档变更的唯一入口。 |
 | `icons/*`、`QilinSeal`、`ReferenceIcon`、`LinkIcon` | 字形与品牌标识。`LinkIcon` 用于 14px 的可点击链接分类及已知站点标记。 |
 | `FileTypeIcon`、`classifyFileType`、`fileExtension` | 按类别着色的 28px 文件或文件夹图形，以及它背后共享的不区分大小写文件名映射。代码与配置文件使用细分的全彩技术图形；链接前置图形使用 `LinkIcon`，图片内容使用图片预览。 |
