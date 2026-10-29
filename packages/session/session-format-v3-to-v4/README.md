@@ -95,6 +95,8 @@ No preset id, PTC dispatch event tag, file attachment, or physical filename is r
 
 The wrapper alone supplies the interpreted call id, content, and optional error flag. Other wrapper fields become `plugin:result:<original-field>`; outer message fields other than `id`, `role`, `source`, and `content` become `plugin:message:<original-field>`. Complete original names remain in the suffix, including existing prefixes. Distinct owners and colliding names retain separate values; own `__proto__` and `constructor` data stays intact. No metadata container or new content type is added.
 
+Admission normalizes a divergent call id before validating: when `source.callId` is a nonempty string and the message `toolCallId` differs, [normalizeV4ToolResultCallIds](src/tool-role.ts) adopts `source.callId` on encode, decode, and artifact restore, because the scheduler, replay, and repair paths link results by that field. Fork not-started results keep their identity and are never rewritten.
+
 A malformed canonical wrapper raises a format error. Nested results are unsupported by this converter and refuse without publishing a successor. The transformation does not repair contradictory `data.error`; native target validation requires it to accompany the wrapper's `isError: true`. Converter support may expand later while preserving the established native V4 representation.
 
 <a id="extension-data"></a>
@@ -330,6 +332,7 @@ The edge preserves the recorded request prefix. Provider cache availability and 
 
 <a id="known-limitations-and-deferred-work"></a>
 
+- **Tool-result id divergence source** — a `tool/result` row with a nonempty `source.callId` is normalized to that id; rows without one still fail admission. The producer that writes a divergent message id at a retry or attempt boundary is not yet attributed.
 - **Historical converter coverage** — Unsupported source forms may fail without publishing a successor or changing the source. First-party recordings do not enumerate third-party extensions. Later converter fixes may add support after V4 publication if their V4 output remains compatible. Interpreting extra stream-start fields and preparing future delivery generations require a concrete format change.
 - **Accepted V4 transition** — the [checkpoint](../../../docs/session-format-status.md#finalization-record) protects the accepted history. Backward-compatible additions can remain V4 through new acknowledgements; breaking changes require a successor. Already-written V4 files do not rerun this incoming edge, and historical inputs remain intact.
 - **V5 prerequisite readers** — V4 child evidence currently goes through the installed catalog. A future writer must bind fixed-generation V4 prerequisite reading before changing that catalog. The exported V4 restorer supplies generation-owned checks; full common message admission additionally uses installed Session validation.

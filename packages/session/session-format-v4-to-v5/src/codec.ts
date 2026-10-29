@@ -3,7 +3,7 @@
 import { SessionFormatError, isSessionFormatJsonObject } from '@qilin-agent/session-format'
 import type { SessionFormatCodec, SessionFormatCurrentEncoder, SessionFormatHeader, SessionFormatEvent } from '@qilin-agent/session-format'
 import { releasedV2SessionFormatCodec } from '@qilin-agent/session-format-v2-to-v3'
-import { assertV4DeveloperData, assertV4RetiredSyntax, assertV4RowAdmission } from '@qilin-agent/session-format-v3-to-v4'
+import { assertV4DeveloperData, assertV4RetiredSyntax, assertV4RowAdmission, normalizeV4ToolResultCallIds } from '@qilin-agent/session-format-v3-to-v4'
 import { assertReleasedV5Header } from './validation.ts'
 
 function physicalV2(value: unknown): SessionFormatHeader {
@@ -27,8 +27,10 @@ export const releasedV5SessionFormatCodec = Object.freeze({
       ...decoder,
       header: { ...decoder.header, version: 5 },
       decodeRow(row, context) {
-        assertV4RowAdmission(row)
-        decoder.decodeRow(row, {
+        // 与 V4 同规则：历史脏行按 source.callId 修正后再准入。
+        const normalized = normalizeV4ToolResultCallIds(row)
+        assertV4RowAdmission(normalized)
+        decoder.decodeRow(normalized, {
           emitRun: context.emitRun.bind(context),
           emitEvent: context.emitEvent.bind(context),
         })
@@ -40,11 +42,13 @@ export const releasedV5SessionFormatCodec = Object.freeze({
     return { ...releasedV2SessionFormatCodec.encodeHeader({ ...header, version: 2 }, inheritedEventCount), version: 5 }
   },
   encodeEvent(event: SessionFormatEvent) {
-    if (event.type === 'developer/message' && event['ignorable'] === true) {
-      assertV4DeveloperData(event)
-      assertV4RetiredSyntax(event)
+    // 以 source.callId 为准修正 toolCallId：重试/恢复产生的分叉不应让整轮落盘失败。
+    const normalized = normalizeV4ToolResultCallIds(event)
+    if (normalized.type === 'developer/message' && normalized['ignorable'] === true) {
+      assertV4DeveloperData(normalized)
+      assertV4RetiredSyntax(normalized)
     }
-    assertV4RowAdmission(event)
-    return releasedV2SessionFormatCodec.encodeEvent(event)
+    assertV4RowAdmission(normalized)
+    return releasedV2SessionFormatCodec.encodeEvent(normalized)
   },
 } satisfies SessionFormatCodec & SessionFormatCurrentEncoder)
