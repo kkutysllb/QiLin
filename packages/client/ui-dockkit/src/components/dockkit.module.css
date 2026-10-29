@@ -732,17 +732,30 @@
   height: 40%;
 }
 
+/* A Windows caption pushes floating panels below it: the caption height plus
+   the header gap `floatBounds` applies. The desktop publishes both spellings;
+   ui-layout still reads the dsh one, so the fallback chain keeps every root
+   with the attribute on one floor. */
+:global(html[data-windows-titlebar]) .float {
+  --qilin-dockkit-float-top: calc(var(--qilin-windows-titlebar-height, var(--dsh-windows-titlebar-height, 40px)) + 20px);
+}
+
+/* Native fullscreen paints no caption, so the floor is the gap alone. */
+:global(html[data-windows-titlebar][data-fullscreen]) .float {
+  --qilin-dockkit-float-top: 20px;
+}
+
 .float {
   position: fixed;
   /* A resting panel publishes its rectangle in these variables (`floatStyle`).
-     The clamp keeps its position and size inside the viewport even when the
-     gesture hook read a stale viewport; `dvh` follows `window.innerHeight` as
-     the hook does. A gesture or return writes left, top and the size inline
-     instead. */
+     The clamp keeps its position and size inside the viewport and below the
+     caption floor even when the gesture hook read a stale viewport; `dvh`
+     follows `window.innerHeight` as the hook does. A gesture or return writes
+     left, top and the size inline instead. */
   left: max(0px, min(var(--qilin-dockkit-float-x), 100vw - var(--qilin-dockkit-float-width)));
-  top: max(0px, min(var(--qilin-dockkit-float-y), 100dvh - var(--qilin-dockkit-float-height)));
+  top: max(var(--qilin-dockkit-float-top, 0px), min(var(--qilin-dockkit-float-y), 100dvh - var(--qilin-dockkit-float-height)));
   width: min(var(--qilin-dockkit-float-width), 100vw);
-  height: min(var(--qilin-dockkit-float-height), 100dvh);
+  height: min(var(--qilin-dockkit-float-height), 100dvh - var(--qilin-dockkit-float-top, 0px));
   display: flex;
   flex-direction: column;
   /* The body inside is unpadded and reaches the edges, so the frame clips it

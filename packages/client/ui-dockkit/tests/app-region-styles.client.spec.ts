@@ -25,12 +25,20 @@ const regionRules = [...css.matchAll(/(?<sel>[^{}]+)\{(?<body>[^{}]*)\}/g)]
     /-webkit-app-region:\s*([^;]+);/.exec(body)?.[1]?.trim(),
   ] as const)
 
-it('clamps a resting floating panel\'s position and size into the viewport', () => {
+it('keeps Windows floating headers 20px below the caption, including restored positions', () => {
+  const captionRule = css.split(':global(html[data-windows-titlebar]) .float')[1]?.split('}')[0]
+  expect(captionRule).toContain('--qilin-dockkit-float-top: calc(var(--qilin-windows-titlebar-height, var(--dsh-windows-titlebar-height, 40px)) + 20px);')
+  expect(css).toMatch(/:global\(html\[data-windows-titlebar\]\[data-fullscreen\]\) \.float\s*\{\s*--qilin-dockkit-float-top: 20px;/)
+})
+
+it('clamps a resting floating panel\'s position and size into the viewport and below the caption floor', () => {
   const floatRule = /(?:^|\})\s*\.float\s*\{(?<body>[^}]*)\}/.exec(css)?.groups?.['body']
   expect(floatRule).toContain('left: max(0px, min(var(--qilin-dockkit-float-x), 100vw - var(--qilin-dockkit-float-width)));')
-  expect(floatRule).toContain('top: max(0px, min(var(--qilin-dockkit-float-y), 100dvh - var(--qilin-dockkit-float-height)));')
+  expect(floatRule).toContain(
+    'top: max(var(--qilin-dockkit-float-top, 0px), min(var(--qilin-dockkit-float-y), 100dvh - var(--qilin-dockkit-float-height)));',
+  )
   expect(floatRule).toContain('width: min(var(--qilin-dockkit-float-width), 100vw);')
-  expect(floatRule).toContain('height: min(var(--qilin-dockkit-float-height), 100dvh);')
+  expect(floatRule).toContain('height: min(var(--qilin-dockkit-float-height), 100dvh - var(--qilin-dockkit-float-top, 0px));')
 })
 
 describe('macOS app-region ownership', () => {

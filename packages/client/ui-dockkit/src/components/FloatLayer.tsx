@@ -74,12 +74,27 @@ function raised(state: LayoutState, paneId: PaneId): boolean {
   return state.activePaneId === paneId && state.floats.at(-1) === paneId
 }
 
+/** Gap between the Windows caption and a floating panel's header, in CSS pixels; the `.float` rules keep the same 20px. */
+const CAPTION_GAP = 20
+
 /**
- * The viewport region panels stay inside. It reads the window size only, so
- * starting a gesture never forces layout.
+ * The viewport region panels stay inside. It reads the window size and the
+ * root's caption attributes only, so starting a gesture never forces layout.
  */
 function floatBounds(): FloatBounds {
-  return { top: 0, width: window.innerWidth, height: window.innerHeight }
+  const root = document.documentElement
+  const windows = root.hasAttribute('data-windows-titlebar')
+  // Desktop publishes the caption height in pixels on the root's inline style
+  // under both spellings; a root without either keeps the gap alone.
+  const caption = windows && !root.hasAttribute('data-fullscreen')
+    ? Number.parseFloat(root.style.getPropertyValue('--qilin-windows-titlebar-height')
+      || root.style.getPropertyValue('--dsh-windows-titlebar-height'))
+    : 0
+  return {
+    top: windows ? (Number.isFinite(caption) ? caption : 0) + CAPTION_GAP : 0,
+    width: window.innerWidth,
+    height: window.innerHeight,
+  }
 }
 
 /** Whether the platform asks for reduced motion; environments without `matchMedia` (jsdom) report no preference. */

@@ -13,7 +13,7 @@ import { resolve } from 'node:path'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import type { DockIntents } from '../src/contract/adapter.ts'
-import type { PaneId, TabId } from '../src/contract/types.ts'
+import type { FloatRect, PaneId, TabId } from '../src/contract/types.ts'
 import { DockController } from '../src/engine/controller.ts'
 import { applyOp } from '../src/engine/operations.ts'
 import { FLOAT_DEFAULT_SIZE, FLOAT_MIN_SIZE } from '../src/engine/constraints.ts'
@@ -1359,8 +1359,11 @@ describe('FloatLayer', () => {
     return { intents, lower, upper, panel, part }
   }
 
-  /** One floating panel over a spied intent set. */
-  function floating(canCloseTab?: FloatLayerProps['canCloseTab']): {
+  /** One floating panel over a spied intent set, at `rect` when the case needs a displaced one. */
+  function floating(
+    canCloseTab?: FloatLayerProps['canCloseTab'],
+    rect: FloatRect = { x: 100, y: 80, width: 300, height: 200 },
+  ): {
     intents: ReturnType<typeof spyIntents>
     paneId: PaneId
     tabId: TabId
@@ -1368,7 +1371,7 @@ describe('FloatLayer', () => {
   } {
     const controller = seededController()
     const tabId = controller.openContent({ contentId: 'qilin-resource://file/session/s/a.txt', title: 'a.txt', kind: 'file' })
-    const paneId = controller.floatTab(tabId, { x: 100, y: 80, width: 300, height: 200 })
+    const paneId = controller.floatTab(tabId, rect)
     const intents = spyIntents()
     render(
       <FloatLayer
@@ -1383,6 +1386,24 @@ describe('FloatLayer', () => {
     if (panel === null) throw new Error('expected a floating panel')
     return { intents, paneId, tabId, panel }
   }
+
+  it.each(['move', 'resize'] as const)('starts %s from the displayed position when the Windows caption displaces a saved float', (mode) => {
+    const root = document.documentElement
+    root.setAttribute('data-windows-titlebar', '')
+    // A 28px caption plus the 20px gap draws the saved y of 20 at 48.
+    root.style.setProperty('--qilin-windows-titlebar-height', '28px')
+    try {
+      const { intents, paneId, panel } = floating(undefined, { x: 100, y: 20, width: 300, height: 200 })
+      expect(panel.style.getPropertyValue('--qilin-dockkit-float-y')).toBe('48px')
+      const handle = panel.querySelector(`[data-dockkit-float-${mode === 'move' ? 'grip' : 'resize'}]`)!
+      drag(handle, [150, 58], [170, 78])
+      if (mode === 'move') expect(intents.moveFloat).toHaveBeenCalledWith(paneId, 120, 68)
+      else expect(intents.resizeFloat).toHaveBeenCalledWith(paneId, { x: 100, y: 48, width: 320, height: 220 })
+    } finally {
+      root.removeAttribute('data-windows-titlebar')
+      root.style.removeProperty('--qilin-windows-titlebar-height')
+    }
+  })
 
   it('draws one panel per floating pane, without a tab strip', () => {
     const { intents } = floating()

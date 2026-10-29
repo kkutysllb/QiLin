@@ -426,6 +426,48 @@ describe('the viewport projection', () => {
     expect(h.resizeFloat).toHaveBeenCalledWith(h.paneId, { x: 280, y: 80, width: 220, height: 200 })
   })
 
+  it('keeps the 20px floor on a Windows root that publishes no caption height', () => {
+    const root = document.documentElement
+    root.setAttribute('data-windows-titlebar', '')
+    try {
+      const h = mounted({ x: 100, y: 0, width: 300, height: 200 })
+      expect(h.top()).toBe(20)
+    } finally {
+      root.removeAttribute('data-windows-titlebar')
+    }
+  })
+
+  it.each(['--qilin-windows-titlebar-height', '--dsh-windows-titlebar-height'])(
+    'keeps the header below a caption the desktop publishes as %s',
+    (name) => {
+      const root = document.documentElement
+      root.setAttribute('data-windows-titlebar', '')
+      root.style.setProperty(name, '40px')
+      try {
+        const h = mounted({ x: 100, y: 0, width: 300, height: 200 })
+        expect(h.top()).toBe(60)
+      } finally {
+        root.removeAttribute('data-windows-titlebar')
+        root.style.removeProperty(name)
+      }
+    },
+  )
+
+  it('keeps only the gap once native fullscreen hides the caption', () => {
+    const root = document.documentElement
+    root.setAttribute('data-windows-titlebar', '')
+    root.setAttribute('data-fullscreen', '')
+    root.style.setProperty('--qilin-windows-titlebar-height', '40px')
+    try {
+      const h = mounted({ x: 100, y: 0, width: 300, height: 200 })
+      expect(h.top()).toBe(20)
+    } finally {
+      root.removeAttribute('data-windows-titlebar')
+      root.removeAttribute('data-fullscreen')
+      root.style.removeProperty('--qilin-windows-titlebar-height')
+    }
+  })
+
   it('draws a stored rectangle from outside the viewport inside it', () => {
     const h = mounted({ x: 2000, y: 900, width: 300, height: 200 })
     expect(h.left()).toBe(724)
