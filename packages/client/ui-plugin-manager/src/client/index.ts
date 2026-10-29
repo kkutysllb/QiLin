@@ -21,6 +21,7 @@ import type {} from '@qilin-agent/api-remotes/client'
 // through the owning package's client-safe types subpath).
 import type {} from '@qilin-agent/plugin-manager/types'
 import { PluginManagerPage } from './PluginManagerPage.tsx'
+import { createPluginHeaderRef } from './header-scroll.ts'
 import { PluginRefreshToast, type PluginRefreshToastFace } from './PluginRefreshToast.tsx'
 import { PluginsPanelIcon } from './PluginsPanelIcon.tsx'
 import { configLedgerSource } from './config-ledger.ts'
@@ -121,7 +122,7 @@ export function apply(ctx: ClientContext): void {
       key: PANEL_ID,
       locale: NS,
       store,
-      inject: () => face,
+      inject: () => ({ ...face, createHeaderRef: createPluginHeaderRef }),
       children: {
         'plugins.add.actions': { kind: 'list', scope: 'root' },
         'plugins.tab': { kind: 'list', scope: 'root' },

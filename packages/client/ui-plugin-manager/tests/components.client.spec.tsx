@@ -163,6 +163,7 @@ function renderTab(
   }
   const navigation = createNavigationStore().create()
   const props: PluginManagerPageProps = {
+    createHeaderRef: vi.fn(() => vi.fn()),
     useStore: bindSnapshotSelector(navigation), actions: navigation.actions,
     ...standard,
     t,
@@ -243,10 +244,13 @@ describe('PluginManagerPage', () => {
     expect(screen.queryByRole('tablist')).toBeNull()
     setTabs([{ id: 'discover', label: 'Discover' }])
     expect(screen.getByRole('tab', { name: en.installedTab }).getAttribute('aria-selected')).toBe('true')
+    // The tabs stay in the pinned page bar with the title; the tab panel scrolls in the page body.
+    expect(screen.getByRole('tablist').closest('[data-plugin-bar]')).not.toBeNull()
     expect(document.querySelector('[data-plugin-group="bundles"]')).not.toBeNull()
     fireEvent.click(screen.getByRole('tab', { name: 'Discover' }))
     expect(navigation.getSnapshot().tab).toBe('discover')
     expect(screen.getByRole('tabpanel').getAttribute('aria-labelledby')).toBe(screen.getByRole('tab', { name: 'Discover' }).id)
+    expect(screen.getByRole('tabpanel').closest('[data-plugin-body]')).not.toBeNull()
     expect(document.querySelector('[data-plugin-group="bundles"]')).toBeNull()
     expect(screen.queryByRole('button', { name: en.refresh })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Discover install' }))
@@ -267,6 +271,23 @@ describe('PluginManagerPage', () => {
     set({ highlight: 'dsh-better-sidebar' })
     expect(navigation.getSnapshot().tab).toBe('installed')
     expect(screen.getByRole('tabpanel', { name: en.installedTab })).toBeTruthy()
+  })
+
+  it('keeps the header controls in the scrolling page without remounting them', () => {
+    const { setTabs, props, hidePage } = renderTab({ packages: [pkg()] })
+    const bar = document.querySelector('[data-plugin-bar]')
+    const body = document.querySelector('[data-plugin-body]')!
+    const refresh = screen.getByRole('button', { name: en.refresh })
+    // The bar is the body's own child: the list scrolls under a pinned bar without a second scrollport.
+    expect(bar?.parentElement).toBe(body)
+    expect(props.createHeaderRef).toHaveBeenCalledTimes(1)
+    setTabs([{ id: 'discover', label: 'Discover' }])
+    expect(screen.getByRole('tablist').closest('header')?.closest('[data-plugin-bar]')).toBe(bar)
+    act(() => { body.scrollTop = 160; fireEvent.scroll(body) })
+    expect(screen.getByRole('button', { name: en.refresh })).toBe(refresh)
+    expect(props.createHeaderRef).toHaveBeenCalledTimes(1)
+    hidePage()
+    expect(document.querySelector('[data-plugin-bar]')).toBeNull()
   })
 
   it('keeps the Installed tab panel through loading and the More list out of the tabs', () => {
