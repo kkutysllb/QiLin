@@ -1884,6 +1884,9 @@ importers:
       execa:
         specifier: ^10.0.0
         version: 10.0.0
+      semver:
+        specifier: ^7.8.5
+        version: 7.8.5
       yaml:
         specifier: ^2.9.0
         version: 2.9.0
@@ -1945,6 +1948,9 @@ importers:
       '@qilin-agent/user-approval':
         specifier: workspace:*
         version: link:../../interaction/user-approval
+      '@types/semver':
+        specifier: ^7.8.0
+        version: 7.8.0
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3
@@ -9005,6 +9011,126 @@ importers:
       sharp:
         specifier: ^0.35.5
         version: 0.35.5(@types/node@22.20.0)
+
+  packages/experimental/forge:
+    dependencies:
+      '@qilin-agent/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin-agent/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
+  packages/experimental/forge-github:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin-agent/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
+      execa:
+        specifier: ^10.0.0
+        version: 10.0.0
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@qilin-agent/experimental-forge':
+        specifier: workspace:*
+        version: link:../forge
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/subprocess':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess
+
+  packages/experimental/forge-session:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin-agent/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
+      '@qilin-agent/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+      shell-quote:
+        specifier: ^1.12.0
+        version: 1.12.0
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-loop':
+        specifier: workspace:*
+        version: link:../../core/agent-loop
+      '@qilin-agent/bash-local':
+        specifier: workspace:*
+        version: link:../../shell/bash-local
+      '@qilin-agent/experimental-forge':
+        specifier: workspace:*
+        version: link:../forge
+      '@qilin-agent/experimental-forge-github':
+        specifier: workspace:*
+        version: link:../forge-github
+      '@qilin-agent/fs-local':
+        specifier: workspace:*
+        version: link:../../fs/fs-local
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/sandbox-policy':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-policy
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/shell':
+        specifier: workspace:*
+        version: link:../../shell/shell
+      '@qilin-agent/shell-env':
+        specifier: workspace:*
+        version: link:../../shell/shell-env
+      '@qilin-agent/subprocess-local':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess-local
+      '@qilin-agent/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@qilin-agent/tool-bash':
+        specifier: workspace:*
+        version: link:../../shell/tool-bash
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
 
   packages/experimental/hook-protocol:
     devDependencies:
@@ -23153,6 +23279,10 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
 
+  shell-quote@1.12.0:
+    resolution: {integrity: sha512-PcByqNyT/38F2kDNi006HAMRJaULuBzq/FOsw3qdZvX/GA9W/jamDaRskgHjubHiftXK5sIFxLNkvrXUwcof6Q==}
+    engines: {node: '>= 0.4'}
+
   sherpa-onnx-darwin-arm64@1.13.8:
     resolution: {integrity: sha512-FPNgJMgnWVl/KhRTIhG3KL3A4Om63Rn4YKXc9/uHY7SzLcvqLJLc/h7UBWJwduXvv7K18t5NpxHR6XgXn4sjWw==}
     cpu: [arm64]
@@ -31139,6 +31269,8 @@ snapshots:
       shebang-regex: 3.0.0
 
   shebang-regex@3.0.0: {}
+
+  shell-quote@1.12.0: {}
 
   sherpa-onnx-darwin-arm64@1.13.8:
     optional: true

@@ -33,6 +33,9 @@ The experimental group contains prototype capabilities whose contracts can chang
 | [`agent-team-profile`](agent-team-profile/README.md) | Published opt-in profile layer for Agent Teams | — |
 | [`agent-team`](agent-team/README.md) | Named teammates with durable messages and a shared task board | `ctx.agentTeams` |
 | [`client-ui-agent-team`](client-ui-agent-team/README.md) | Team roster, task board, and teammate navigation for Web | — |
+| [`forge`](forge/README.md) | Provider-neutral registry of code-host change requests with one shared polling loop | `ctx.forge` |
+| [`forge-github`](forge-github/README.md) | GitHub provider reading the host `gh` CLI | — |
+| [`forge-session`](forge-session/README.md) | Binds a Session to the change requests its commands touch | `ctx.forgeSession` |
 | [`auto-review`](auto-review/README.md) | Explicit Web layer for same-model review before each native or PTC inner tool call | — |
 | [`claude-code-mods`](claude-code-mods/README.md) | Run Claude Code mods as plugins: their hook chains on harness extension points and a band above the prompt | `ctx.claudeCodeMods` |
 | [`client-ui-claude-code-mods`](client-ui-claude-code-mods/README.md) | The Web band that draws a mod's tree above the prompt and sends button clicks back | — |
@@ -58,6 +61,7 @@ The experimental group contains prototype capabilities whose contracts can chang
 - [Computer use](../../docs/subsystems/computer-use.md) — desktop provider choices.
 - [Browser use](../../docs/subsystems/browser-use.md) — browser provider choices and Session ownership.
 - [Agent Teams subsystem](../../docs/subsystems/agent-team.md) — durable Team types and the `ctx.agentTeams` service API.
+- [Forges](../../docs/subsystems/forge.md) — change request providers, the shared polling loop, and Session bindings.
 - [Experimental subtree rules](AGENTS.md) — what experimental status does and does not relax.
 
 -----

@@ -33,6 +33,9 @@ kind: "package-group"
 | [`agent-team-profile`](agent-team-profile/README.zh.md) | Agent Teams 的公开 opt-in profile 层 | — |
 | [`agent-team`](agent-team/README.zh.md) | 具名 teammate，成员之间持久消息与共享任务板 | `ctx.agentTeams` |
 | [`client-ui-agent-team`](client-ui-agent-team/README.zh.md) | Web Team roster、任务板与 teammate 导航 | — |
+| [`forge`](forge/README.zh.md) | 提供方无关的代码托管平台变更请求注册表与共享轮询循环 | `ctx.forge` |
+| [`forge-github`](forge-github/README.zh.md) | 通过宿主 `gh` CLI 读取 GitHub 的提供方 | — |
+| [`forge-session`](forge-session/README.zh.md) | 把 Session 与它命令涉及的变更请求绑定 | `ctx.forgeSession` |
 | [`auto-review`](auto-review/README.zh.md) | 显式 Web 层，在每个原生或 PTC inner 工具调用前使用同一模型审查 | — |
 | [`claude-code-mods`](claude-code-mods/README.zh.md) | 把 Claude Code 模组作为插件运行：其钩子链落在 harness 扩展点上，并在提示框上方绘制横幅 | `ctx.claudeCodeMods` |
 | [`client-ui-claude-code-mods`](client-ui-claude-code-mods/README.zh.md) | 在提示框上方绘制模组树的 Web 横幅，并把按钮点击送回桥接 | — |
@@ -58,6 +61,7 @@ kind: "package-group"
 - [计算机操作](../../docs/subsystems/computer-use.zh.md)——桌面提供方选择。
 - [浏览器操作](../../docs/subsystems/browser-use.zh.md)——浏览器提供方选择与 Session 所有权。
 - [Agent Teams 子系统](../../docs/subsystems/agent-team.zh.md)——持久 Team 类型与 `ctx.agentTeams` 服务 API。
+- [Forge 能力](../../docs/subsystems/forge.zh.md)——变更请求提供方、共享轮询循环与 Session 绑定。
 - [实验子树规则](AGENTS.md)——实验状态放宽了什么、不放宽什么。
 
 -----

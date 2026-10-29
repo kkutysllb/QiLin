@@ -1,0 +1,50 @@
+{
+  "name": "@qilin-agent/experimental-forge-github",
+  "description": "GitHub provider for the experimental forge registry, read through the GitHub CLI on the host",
+  "version": "3.1.8-rc.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/experimental/forge-github"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./locale/*.json": "./locale/*.json",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "locale/*.json",
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@qilin-agent/schemastery": "workspace:~",
+    "@qilin-agent/timeout": "workspace:*",
+    "execa": "^10.0.0",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/experimental-forge": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*"
+  },
+  "devDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/experimental-forge": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*"
+  }
+}

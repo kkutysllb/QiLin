@@ -206,6 +206,22 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Explicit experimental creation from a pinned local commit. Existing write permissions govern checkout and shared Git metadata; the working-directory service owns the resulting Session directory.',
   },
   {
+    key: 'forge',
+    pkg: 'experimental-forge',
+    title: 'Code-host change requests',
+    mode: 'seam',
+    implementations: ['experimental-forge-github'],
+    consumers: ['experimental-forge-session'],
+    note: 'Provider-neutral repository and change request references with one shared polling loop per change request; the GitHub provider reads a host-tracked code host and credentials never enter a Session execution world.',
+  },
+  {
+    key: 'forgeSession',
+    pkg: 'experimental-forge-session',
+    title: 'Session change request bindings',
+    mode: 'core',
+    note: 'Derives the change requests a Session works on from committed shell evidence, records caller actions and discovery as plugin records, and keeps polled status process-local.',
+  },
+  {
     key: 'translator',
     pkg: 'experimental-translator',
     title: 'Anonymous text translation',

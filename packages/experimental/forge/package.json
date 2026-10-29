@@ -1,0 +1,48 @@
+{
+  "name": "@qilin-agent/experimental-forge",
+  "description": "Provider-neutral change request registry with shared status polling",
+  "version": "3.1.8-rc.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/experimental/forge"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts"
+    },
+    "./locale/*.json": "./locale/*.json",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "locale/*.json",
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
+    "@qilin-agent/timeout": "workspace:*"
+  },
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  }
+}

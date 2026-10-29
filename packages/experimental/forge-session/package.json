@@ -1,0 +1,92 @@
+{
+  "name": "@qilin-agent/experimental-forge-session",
+  "description": "Binds change requests to the Session that created, pushed, or tracked them",
+  "version": "3.1.8-rc.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/experimental/forge-session"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
+    "./locale/*.json": "./locale/*.json",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "locale/*.json",
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
+    "shell-quote": "^1.12.0",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/experimental-forge": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/shell": "workspace:*",
+    "@qilin-agent/shell-env": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@qilin-agent/shell": {
+      "optional": true
+    },
+    "@qilin-agent/shell-env": {
+      "optional": true
+    },
+    "@qilin-agent/tools": {
+      "optional": true
+    },
+    "@qilin-agent/sandbox-policy": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop": "workspace:*",
+    "@qilin-agent/bash-local": "workspace:*",
+    "@qilin-agent/experimental-forge": "workspace:*",
+    "@qilin-agent/experimental-forge-github": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/shell": "workspace:*",
+    "@qilin-agent/shell-env": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/tool-bash": "workspace:*",
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*"
+  }
+}
