@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/plugin-market-index",
   "description": "Plugin market index format 1: JSON validation, relative icon resolution, and pinned install arguments",
-  "version": "3.1.8-rc.1",
+  "version": "3.1.8-rc.2",
   "publishConfig": {
     "access": "public"
   },

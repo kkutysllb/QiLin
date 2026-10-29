@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/experimental-ralph-bundle",
   "description": "Run explicitly requested repeated work with fresh agents.",
-  "version": "3.1.8-rc.1",
+  "version": "3.1.8-rc.2",
   "icon": "./icon.svg",
   "publishConfig": {
     "access": "public"
