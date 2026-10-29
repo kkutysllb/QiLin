@@ -193,7 +193,7 @@ export const turnTailDefinition: ConversationNodeDefinition<TurnTailState> = {
   buildViewNode: (context) => {
     const turn = turnLocation(context)
     const data = turn?.data.get('turn-tail')
-    return data === undefined ? null : chatNode(context, 'turn-tail', closingAnchor(context), data)
+    return data === undefined ? null : chatNode(context, 'turn-tail', closingAnchor(context), data, { groupTree: 'turn' })
   },
 }
 

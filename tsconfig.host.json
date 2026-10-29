@@ -72,6 +72,7 @@
     "apps/web/tests/seeded-history.e2e.ts",
     "apps/web/tests/cold-blank-session.e2e.ts",
     "apps/web/tests/collapse-timing.e2e.ts",
+    "apps/web/tests/notice-wake-tail.e2e.ts",
     "apps/web/tests/coding-file-open.e2e.ts",
     "apps/web/tests/stats-paged-history.e2e.ts",
     "apps/web/tests/sidebar-scrollbar.e2e.ts",

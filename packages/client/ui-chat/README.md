@@ -77,7 +77,7 @@ Consecutive reasoning, Tool, and Assistant rows between independent inputs becom
 
 The Settings row below Work details offers an [independent collapse-timing preference](src/client/conversation-nodes/README.md#collapse-timing), saved through the same Host profile configuration.
 
-The Chat Builder publishes `bottomSource` per Node: true for visible Nodes belonging to the last Turn in the loaded timeline, not just the final row. Advancing the bottom Turn notifies only Nodes in the old and new bottom Turns. Groups read their first member's position. Pending-input deduplication and collapse decisions remain in the Chat view, outside the Builder.
+The Chat Builder publishes `bottomSource` per Node: true for visible Nodes belonging to the latest loaded exchange, not just the final row. Nodes declare their group-tree position through `groupTree`; a Turn holding an `exchange` Node opens an exchange, and the exchange lasts until the next opening Turn. Moving the exchange start notifies only Nodes in Turns that entered or left it. Groups read their first member's position. Pending-input deduplication and collapse decisions remain in the Chat view, outside the Builder.
 
 
 -----

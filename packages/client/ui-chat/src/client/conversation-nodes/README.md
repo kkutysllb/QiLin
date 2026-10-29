@@ -70,7 +70,7 @@ If steering, a User message, or a trigger notice follows process output, the Tur
 
 Whole-Turn folding controls the loaded process range, independently of secondary groups, in Compact, Standard, and Detailed. Verbose keeps that range visible and retains the duration/status header without a collapse action. A recorded Turn end makes that range eligible even when paging has not loaded the Turn start.
 
-The rules below use the default completion-time folding. The [collapse-timing preference](#collapse-timing) can defer the latest Turn's historical presentation without changing whole-Turn eligibility.
+The rules below use the default completion-time folding. The [collapse-timing preference](#collapse-timing) can defer the latest exchange's historical presentation without changing whole-Turn eligibility.
 
 The Turn control follows all its opening inputs, including human steering and non-human trigger notices, while waiting for the first Assistant output and after that output arrives. Consecutive inputs before the first process evidence are opening inputs, anchored by the last one. Later inputs retain their positions: even when paging has not loaded their inbox insertions and they temporarily appear as ordinary User messages, preceding process content must not move after them.
 
@@ -94,7 +94,7 @@ Trigger titles and icons use the recorded `source.kind`: `schedule`, `tool-jobs`
 | Neither start nor end is loaded | Keep process rows visible and withhold the whole-Turn control. |
 | A Turn control exists, but there is no process content | Retain its title, without a collapse action. |
 
-The final answer is the latest Step's settled Assistant reply, provided it has visible reply content and no tool-call block. Its response remains outside whole-Turn folding; its reasoning remains process content. User and steering inputs, trigger notices, terminal errors, max-token notices, and the completed-turn footer remain independent. Secondary grouping treats model retries as separators, but whole-Turn folding still includes retry rows.
+The final answer is the latest Step's settled Assistant reply, provided it has visible reply content and no tool-call block. Its response remains outside whole-Turn folding; its reasoning remains process content. A Node whose [group-tree position](../contract/group-tree.ts) is `turn` or outer remains independent of whole-Turn folding. Turn inputs stand at `input` or `exchange`: user and steering messages and trigger notices; an input after the process start keeps the whole Turn open. Terminal errors, max-token notices, the completed-turn footer, and the Turn control stand at `turn`. A `process` Node, such as a model retry, separates secondary groups but whole-Turn folding still includes it.
 
 Loading an older page preserves the reader's group-opening choices. Newly loaded process content follows the same Turn state while the final answer is unchanged and whole-Turn folding remains eligible. If the page reveals an intervening input, individual group disclosures replace whole-Turn hiding. When the real start arrives, the duration becomes available; loading all history is not an additional folding condition. When new content only extends an existing group at its beginning, that group and its old message rows retain their identities and opening choices. Replies, steering, and other real boundaries in the new page still separate groups; not every new row joins the old group.
 
@@ -128,7 +128,7 @@ A closed group's header names the first three categories from its ranked summary
 
 Settings → General → Collapse work details appears directly below Work details and is independent of the display mode. On completion is the default and retains immediate folding and tail positioning. On next message enables delayed folding and its coordinated transitions. The choice is saved as `ui-chat.collapseTiming` through the same Host profile settings as Work details and is restored after reload or reopening the app. Profiles without a saved value use On completion without writing that default. It does not write browser storage or Session data.
 
-With On next message, the latest Turn keeps its running presentation after completion: Compact and Standard retain their process headers, and Detailed retains its flat process rows. A pending ordinary transcript submission or a newer Turn ends this exemption without clearing the reader's manual whole-Turn choice. Inner disclosures reset only when their outer process actually hides. Queued input and steering alone do not end it. The latest Turn of a reopened Session also receives the exemption; manual whole-Turn choices still take precedence. Switching back to On completion ends the exemption immediately.
+With On next message, the latest exchange keeps its running presentation after completion: Compact and Standard retain their process headers, and Detailed retains its flat process rows. An exchange starts with the Turn whose first Step admits human input and includes every later Turn until the next such Turn, so a Turn woken by a notice (a settled subagent, goal round, schedule, or job) leaves the preceding Turns of its exchange expanded. A pending ordinary transcript submission or a Turn that opens a newer exchange ends this exemption without clearing the reader's manual whole-Turn choice; a bare Turn start does not, because the host claims the waking input before it logs Step 1. Inner disclosures reset only when their outer process actually hides. Queued input and steering alone do not end it. The latest exchange of a reopened Session also receives the exemption, starting at the first loaded Turn when the loaded window holds no opening Turn; manual whole-Turn choices still take precedence. Switching back to On completion ends the exemption immediately.
 
 Verbose retains its flat process rows under either timing. Failed, stopped, and interleaved-input Turns retain their existing whole-Turn eligibility rules; delayed folding can still postpone Detailed's conversion from flat rows to historical groups.
 
@@ -188,9 +188,8 @@ A group collects adjacent process content within one Turn. Step-number changes a
 |---|---|
 | Non-blank Assistant reasoning | Append one `reasoning` reference for that Assistant to the current group, creating a group if necessary. |
 | Assistant reply | End the preceding group and emit an independent `response` reference. If the same Node has reasoning, append that reasoning before ending the group. |
-| `user`, `steering`, `turn-trigger`, `model-retry`, `turn-error`, `turn-max-tokens`, `turn-tail` | End the preceding group and retain the Node as an independent root. |
-| `turn-process` | Retain the control as an independent root without ending the current group. |
-| Other visible Nodes owned by a Turn, including tools | Append the whole Node to the current group, creating a group if necessary. |
+| Node at `process` or an outer position: `model-retry`, Turn inputs, `turn-error`, `turn-max-tokens`, `turn-tail`, and the `turn-process` control | End the preceding group and retain the Node as an independent root. |
+| Other visible Nodes owned by a Turn without a position, including tools | Append the whole Node to the current group, creating a group if necessary. |
 | Node from another Turn or without a Turn | Break the same-Turn sequence. A Node without a Turn remains independent, including an unsplit Assistant. |
 | Hidden Nodes, system prompts, ordinary Context injection, and `permission` commands | Removed from the visible order by `isVisibleChatNode`, so they never enter the grouping input and neither join nor end a group. A Context carrying tool additions or removals keeps its visible notice row. |
 

@@ -1,10 +1,14 @@
 /** Late-reply conversation node: source matching and payload projection. */
 import { describe, expect, it } from 'vitest'
 import { ConversationNodeAssembler } from '@qilin-agent/client-ui-conversation/client'
-import type { ChatSnapshot } from '@qilin-agent/client-ui-chat/client'
+import type {
+  ConversationTimelineSnapshot, ConversationViewNode, TurnLocation,
+} from '@qilin-agent/client-ui-conversation/client'
+import type { ChatConversationViewNode, ChatSnapshot } from '@qilin-agent/client-ui-chat/client'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { SessionSeq } from '@qilin-agent/session'
-import { chatViewDefinition } from '../../ui-chat/src/client/conversation-nodes/chat-snapshot-builder.ts'
+import { isAtOrOutside } from '../../ui-chat/src/client/contract/group-tree.ts'
+import { ChatSnapshotBuilder, chatViewDefinition } from '../../ui-chat/src/client/conversation-nodes/chat-snapshot-builder.ts'
 import { messageDefinition } from '../../ui-chat/src/client/conversation-nodes/message.ts'
 import { en } from '../src/client/locales.ts'
 import type { QuestionReplyData } from '../src/client/question-reply.ts'
@@ -107,16 +111,33 @@ describe('replyClipboardText', () => {
 
 describe('questionReplyDefinition', () => {
   it('claims only appended user messages carrying the reply source', () => {
-    expect(questionReplyDefinition.match(message(replySource('answered'), answered))).toEqual({ id: 'msg-1', role: 'start' })
+    expect(questionReplyDefinition.match(message(replySource('answered'), answered)))
+      .toEqual({ id: 'msg-1', role: 'start', exclusive: true })
     expect(questionReplyDefinition.match(message({ kind: 'user' }, answered))).toBeNull()
     expect(questionReplyDefinition.match(message({ kind: 'plugin', plugin: 'user-questions' }, answered))).toBeNull()
     expect(questionReplyDefinition.match(message(replySource('answered'), answered, null))).toBeNull()
   })
 
-  it('shares the message id with the generic projection', () => {
+  it('claims the message the generic projection also matches, so Chat holds one Node for it', () => {
     const event = message(replySource('answered'), answered)
     expect(messageDefinition.match(event)).toEqual({ id: 'msg-1', role: 'start' })
-    expect(questionReplyDefinition.match(event)).toEqual(messageDefinition.match(event))
+    let chat: readonly ConversationViewNode[] = []
+    const definitions = [messageDefinition, questionReplyDefinition]
+    const assembler = new ConversationNodeAssembler(
+      { entries: () => definitions, fallbackEntry: () => undefined },
+      { entries: () => [{
+        target: 'chat',
+        create: () => ({
+          empty: chat,
+          replace: ({ nodes }: { readonly nodes: readonly ConversationViewNode[] }) => (chat = nodes),
+          apply: ({ upserts }: { readonly upserts: readonly ConversationViewNode[] }) => (chat = [...chat, ...upserts]),
+        }),
+      }] },
+    )
+    assembler.activateTarget('chat')
+    assembler.replaceWindow([{ type: 'event', event }], false)
+    assembler.flush()
+    expect(chat.map(node => node.kind)).toEqual(['question-reply'])
   })
 
   it('projects the outcome from the source and the pairs from the text into its own node', () => {
@@ -320,5 +341,60 @@ describe('answeredQuestionDefinition', () => {
     expect(() => answeredQuestionDefinition.start({} as never,
       { event: { type: 'turn/start', seq: 1, data: {} }, id: 'x', role: 'start' } as never, {} as never))
       .toThrow(/requires tool\/call or tool\/ptc-dispatch-start/)
+  })
+})
+describe('question reply group-tree positions', () => {
+  /** One open Turn with no steps yet: only its start and Location data matter here. */
+  const turn = (): TurnLocation => ({
+    turn: 1, status: 'open', steps: [], end: undefined,
+    start: { type: 'turn/start', seq: SessionSeq(1), time: 1, data: { turn: 1 } } as never,
+    data: { get: () => undefined, source: () => ({ getSnapshot: () => undefined, subscribe: () => () => {} }) },
+  })
+  const timeline = (value: TurnLocation): ConversationTimelineSnapshot =>
+    ({ turnOrder: [value.turn], turns: new Map([[value.turn, value]]) })
+
+  function reply(step: number, value: TurnLocation, seq: number): ChatConversationViewNode {
+    const event = message(replySource('answered'), answered)
+    const state = questionReplyDefinition.start({} as never, { event, id: 'msg-1', role: 'start' } as never, {} as never)
+    const node = questionReplyDefinition.buildViewNode!({
+      state, key: 'reply:1', id: 'msg-1',
+      start: { event, location: { kind: 'step', turn: value, step: { turn: value, step } } },
+    } as never) as ChatConversationViewNode
+    return { ...node, anchorSeq: seq }
+  }
+
+  const control = (value: TurnLocation, controlAnchorSeq: number): ChatConversationViewNode => ({
+    key: 'control', id: '1', kind: 'turn-process', target: 'chat', anchorSeq: controlAnchorSeq - 0.1,
+    location: { kind: 'turn', turn: value }, visibility: 'visible', groupTree: 'turn',
+    data: {
+      turn: 1, controlAnchorSeq, processStartSeq: 1, answerAnchorSeq: null,
+      answerStep: null, inlineReasoning: false, messageCount: 0, toolCallCount: 1, subagentCount: 0,
+    },
+  })
+
+  it('opens an exchange for a reply admitted in Step 1 and stands later replies at input', () => {
+    const value = turn()
+    const opening = reply(1, value, 3)
+    const late = reply(2, value, 7)
+    expect(opening.groupTree).toBe('exchange')
+    expect(late.groupTree).toBe('input')
+    expect(isAtOrOutside(opening, 'exchange')).toBe(true)
+    expect(isAtOrOutside(late, 'exchange')).toBe(false)
+    expect(isAtOrOutside(late, 'turn')).toBe(true)
+  })
+
+  it('keeps a late reply Turn expanded as an interleaved input', () => {
+    const value = turn()
+    const builder = new ChatSnapshotBuilder()
+    const opening = reply(1, value, 3)
+    const late = reply(2, value, 7)
+    const snapshot = builder.replace({
+      nodes: [control(value, 3), opening, late],
+      timeline: timeline(value),
+    })
+    builder.publish()
+    expect(snapshot.nodes.processSource(late.key).getSnapshot()).toMatchObject({
+      turn: 1, turnClosed: false, hasInterleavedInput: true, compactAnswer: false,
+    })
   })
 })

@@ -235,18 +235,21 @@ export const answeredQuestionDefinition: ConversationNodeDefinition<AnsweredQues
     return {
       key: context.key, id: context.id, kind: 'question-reply', target: 'chat',
       anchorSeq: seq, location: context.start?.location ?? { kind: 'unresolved' },
-      visibility: 'visible', data,
+      groupTree: 'turn', visibility: 'visible', data,
     }
   },
 }
 
-/** Late-reply projection owned by the questions UI. */
+/**
+ * Late-reply projection owned by the questions UI. It claims the reply message
+ * on the Chat target, so the generic message Definition never presents it.
+ */
 export const questionReplyDefinition: ConversationNodeDefinition<QuestionReplyState> = {
   kind: 'user-question-reply',
   target: 'chat',
   match: (event) => {
     if (event.type !== 'user/message' || !isAppendSurfaceEvent(event)) return null
-    return replySource(event) === null ? null : { id: String(event.data.id), role: 'start' }
+    return replySource(event) === null ? null : { id: String(event.data.id), role: 'start', exclusive: true }
   },
   start: (_context, match) => {
     if (match.event.type !== 'user/message') throw new Error('user-question-reply start requires user/message')
@@ -268,13 +271,18 @@ export const questionReplyDefinition: ConversationNodeDefinition<QuestionReplySt
   buildViewNode: (context) => {
     if (context.state === undefined) return null
     const { seq, ...data } = context.state
+    // An opening reply at Step 1 opens an exchange; a later late reply is an
+    // interleaved input, which keeps its Turn expanded instead of folding it.
+    const location = context.start?.location ?? { kind: 'unresolved' }
+    const opening = location.kind === 'step' && location.step.step === 1
     return {
       key: context.key,
       kind: 'question-reply',
       id: context.id,
       target: 'chat',
       anchorSeq: seq,
-      location: context.start?.location ?? { kind: 'unresolved' },
+      location,
+      groupTree: opening ? 'exchange' : 'input',
       visibility: 'visible',
       data,
     }

@@ -79,7 +79,7 @@ Assistant 回复结算后，已完成轮次的页脚只保留用量入口：轮�
 
 工作步骤展示下方的设置行提供[独立的收起时机设置](src/client/conversation-nodes/README.zh.md#collapse-timing)，通过相同的 Host profile 配置保存。
 
-Chat Builder 按节点发布 `bottomSource`：节点可见且属于已加载时间线的最后一轮时为 true，而不只是列表最后一行。底部轮次推进时，只有旧、新底部轮次的节点收到位置变化通知。Group 读取其首个成员的位置。待发送消息去重与收起判断仍由 Chat 视图处理，不进入 Builder。
+Chat Builder 按节点发布 `bottomSource`：节点可见且属于已加载的最新交互段时为 true，而不只是列表最后一行。节点通过 `groupTree` 声明自己在分组树中的位置；含 `exchange` 节点的轮次开启一个交互段，交互段持续到下一个开启轮次。交互段起点移动时，只有进入或离开该交互段的轮次中的节点收到通知。Group 读取其首个成员的位置。待发送消息去重与收起判断仍由 Chat 视图处理，不进入 Builder。
 
 
 -----
