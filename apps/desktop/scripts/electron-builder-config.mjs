@@ -159,13 +159,17 @@ export function createElectronBuilderConfig(
     mac: {
       icon: fileURLToPath(new URL('../resources/icon-macos.png', import.meta.url)),
       category: 'public.app-category.developer-tools',
-      // macOS matches the application locale against this bundle, not Electron Framework resources.
-      extendInfo: { CFBundleLocalizations: ['en', 'zh_CN'] },
       // Ad-hoc signing keeps the modified Electron executable runnable without a Developer ID.
       identity: unsigned ? '-' : macOSSigning?.signingIdentity,
       forceCodeSigning: !unsigned,
       hardenedRuntime: true,
-      extendInfo: { NSMicrophoneUsageDescription: 'QiLin Desktop uses your microphone to transcribe speech into message drafts.' },
+      // 单条 extendInfo：重复键会被后一条整体覆盖（曾因此丢掉本地化与麦克风说明）。
+      // macOS「本地网络」：缺少 NSLocalNetworkUsageDescription 时系统既不弹窗也不放行，局域网连接直接 EHOSTUNREACH。
+      extendInfo: {
+        CFBundleLocalizations: ['en', 'zh_CN'],
+        NSMicrophoneUsageDescription: 'QiLin Desktop uses your microphone to transcribe speech into message drafts.',
+        NSLocalNetworkUsageDescription: 'QiLin Desktop connects to local services you configure, such as a media gateway on your local network.',
+      },
       entitlements: fileURLToPath(new URL('./macos-entitlements.plist', import.meta.url)),
       entitlementsInherit: fileURLToPath(new URL('./macos-entitlements.plist', import.meta.url)),
       // Prepared runtime files retain their signatures; PAK resources are sealed by their enclosing bundle.
