@@ -22,6 +22,7 @@ One page per subsystem of the QiLin: what it is, the data structures it moves, a
 | [working-directory.md](working-directory.md) | Session execution directories, durable changes, recovery, and user context |
 | [translation.md](translation.md) | anonymous and paid text translation: request/result types, failure taxonomy, and durable Session reuse |
 | [worktrees.md](worktrees.md) | retained Git worktree creation: request and result types, checkout allocation and filter handling, and the entered Session directory |
+| [forge.md](forge.md) | code-host change requests behind one provider seam: repository and reference types, the shared polling loop, Session bindings, and the forge panel |
 | [persistence.md](persistence.md) | the durability seam: `SessionPersistence`, the JSONL provider, `session/flush`, crash recovery, `SessionHeader` |
 | [settings.md](settings.md) | the user-settings seam: `SettingsNamespace` registration, layered resolution (defaults → composition `base` → user document), owner scopes, hot commits |
 | [credentials.md](credentials.md) | the credential seam: `CredentialRef` references (never values) in configuration, per-operation resolution, UI-safe `CredentialInfo`, provider source layers |

@@ -48,6 +48,11 @@ flowchart LR
   pkg_experimental_worktree["experimental-worktree"]
   svc_worktrees["ctx.worktrees<br/>Git worktree creation"]
   pkg_experimental_tool_worktree["experimental-tool-worktree"]
+  pkg_experimental_forge["experimental-forge"]
+  svc_forge["ctx.forge<br/>Code-host change requests"]
+  pkg_experimental_forge_github["experimental-forge-github"]
+  pkg_experimental_forge_session["experimental-forge-session"]
+  svc_forgeSession["ctx.forgeSession<br/>Session change request bindings"]
   pkg_experimental_translator["experimental-translator"]
   svc_translator["ctx.translator<br/>Anonymous text translation"]
   pkg_experimental_client_ui_cot_translation["experimental-client-ui-cot-translation"]
@@ -342,6 +347,9 @@ flowchart LR
   pkg_experimental_computer_use_cua_driver_mcp --> svc_computerUse
   pkg_experimental_computer_use_cua_driver_native --> svc_computerUse
   pkg_experimental_cua_macos --> svc_computerUse
+  pkg_experimental_forge --> svc_forge
+  pkg_experimental_forge_github --> svc_forge
+  pkg_experimental_forge_session --> svc_forgeSession
   pkg_experimental_inspector --> svc_inspector
   pkg_experimental_ptc_runtime_python --> svc_ptcRuntime
   pkg_experimental_speech_to_text --> svc_speechToText
@@ -486,6 +494,7 @@ flowchart LR
   svc_dynamicCordisRunner --> pkg_tool_kylin
   svc_fileReferences --> pkg_api_session_controller
   svc_fileUploads --> pkg_api_session_controller
+  svc_forge --> pkg_experimental_forge_session
   svc_fs --> pkg_tool_fs
   svc_hmr --> pkg_app_boot
   svc_jobs --> pkg_tool_bash
@@ -614,6 +623,8 @@ flowchart LR
 | `ctx.connection` | `core` | [`client-connection`](../packages/client/connection) | - | [`api-gateway`](../packages/api/gateway), [`host-frontend-static`](../packages/host/frontend-static) | - | 负责浏览器认证与共享 HTTP 请求分发；API 适配器注册端点和流。 |
 | `ctx.workingDirectory` | `seam` | [`working-directory`](../packages/session/working-directory) | [`working-directory`](../packages/session/working-directory) | [`tool-working-directory`](../packages/session/tool-working-directory)、[`tool-fs`](../packages/fs/tool-fs)、[`tool-bash`](../packages/shell/tool-bash)、[`tool-pwsh`](../packages/shell/tool-pwsh)、[`subagent`](../packages/subagent/subagent)、[`sdk-jsonrpc-server`](../packages/sdk/server) | - | 一个 Session 投影拥有生效的执行目录。文件系统校验变更；用户上下文报告变更，而原始元数据与写入授权保持不变。 |
 | `ctx.worktrees` | `seam` | [`experimental-worktree`](../packages/experimental/worktree) | [`experimental-worktree`](../packages/experimental/worktree) | [`experimental-tool-worktree`](../packages/experimental/tool-worktree) | - | 从固定的本地提交进行显式实验性创建。既有的写权限约束检出目录与共享 Git 元数据；由工作目录服务拥有生成的 Session 目录。 |
+| `ctx.forge` | `seam` | [`experimental-forge`](../packages/experimental/forge) | [`experimental-forge-github`](../packages/experimental/forge-github) | [`experimental-forge-session`](../packages/experimental/forge-session) | - | 与提供方无关的仓库与变更请求引用，同一变更请求共享一个轮询循环；GitHub 提供方读取宿主跟踪的代码托管平台，凭据从不进入 Session 的执行环境。 |
+| `ctx.forgeSession` | `core` | [`experimental-forge-session`](../packages/experimental/forge-session) | - | - | - | 从已提交的 shell 证据派生 Session 正在处理的变更请求，把调用方操作与发现记录为插件记录，轮询到的状态只存在于进程内。 |
 | `ctx.translator` | `core` | [`experimental-translator`](../packages/experimental/translator) | - | - | - | 解析 Google 或 Bing 请求，并通过已激活 Session 的写入器保留共享的实验性记录。 |
 | `ctx.cotTranslation` | `seam` | [`experimental-client-ui-cot-translation`](../packages/experimental/client-ui-cot-translation) | - | [`experimental-cot-translation-bundle`](../packages/experimental/cot-translation-bundle) | - | Host 控制器拥有提供方选择与按 Session 的翻译记录；Client 半边把结果渲染到 reasoning body 槽位，线上契约仍由 Remote 拥有。 |
 | `ctx.mcpResources` | `seam` | [`mcp-resources`](../packages/mcp/mcp-resources) | [`mcp-client`](../packages/mcp/mcp-client) | [`mcp-resources`](../packages/mcp/mcp-resources) | - | 连接所有者提供的操作在调用 agent 的作用域内服务于共享资源工具。 |

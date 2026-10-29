@@ -1019,6 +1019,68 @@ export type Config = CuaConfig
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-cua-macos -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-forge -->
+<a id="qilin-agentexperimental-forge"></a>
+
+## `@qilin-agent/experimental-forge`
+
+- `source`: [`packages/experimental/forge/src/types.ts:205`](../packages/experimental/forge/src/types.ts)
+
+```ts config-catalog
+/** Poll cadence and fetch deadline for watched change requests. */
+export interface Config {
+  /** Poll interval in milliseconds while checks run or mergeability is unknown. */
+  activeIntervalMs?: number
+  /** Poll interval in milliseconds for a closed request or an open request whose checks have settled. */
+  idleIntervalMs?: number
+  /** Largest delay in milliseconds between polls after consecutive failures. */
+  maxBackoffMs?: number
+  /** Deadline in milliseconds for one provider fetch. */
+  fetchTimeoutMs?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-forge -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-forge-github -->
+<a id="qilin-agentexperimental-forge-github"></a>
+
+## `@qilin-agent/experimental-forge-github`
+
+- `inject`: `forge`
+- `source`: [`packages/experimental/forge-github/src/index.ts:14`](../packages/experimental/forge-github/src/index.ts)
+
+```ts config-catalog
+/** GitHub CLI executable, served hosts, and invocation limits. */
+export interface Config {
+  /** GitHub CLI executable name or absolute host path. */
+  ghCommand?: string
+  /** Host names this provider serves; list GitHub Enterprise hosts explicitly. */
+  hosts?: string[]
+  /** Deadline in milliseconds for one `gh` invocation. */
+  timeoutMs?: number
+  /** Maximum captured bytes per `gh` output stream. */
+  maxOutputBytes?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-forge-github -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-forge-session -->
+<a id="qilin-agentexperimental-forge-session"></a>
+
+## `@qilin-agent/experimental-forge-session`
+
+- `inject`: `forge` · `sessions` · `sessionProjections`
+- `source`: [`packages/experimental/forge-session/src/types.ts:91`](../packages/experimental/forge-session/src/types.ts)
+
+```ts config-catalog
+/** Deployment settings of `forgeSession`. */
+export interface Config {
+  /** Deadline in milliseconds for one change request lookup after a push. */
+  discoveryTimeoutMs?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-forge-session -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-hooks-claude-code -->
 <a id="qilin-agentexperimental-hooks-claude-code"></a>
 
@@ -1474,7 +1536,7 @@ export interface Config {
 ## `@qilin-agent/experimental-worktree`
 
 - `inject`: `workingDirectory` · `fs` · `subprocess` · `sandbox` · `sandboxPolicy`
-- `source`: [`packages/experimental/worktree/src/index.ts:19`](../packages/experimental/worktree/src/index.ts)
+- `source`: [`packages/experimental/worktree/src/index.ts:21`](../packages/experimental/worktree/src/index.ts)
 
 ```ts config-catalog
 /** Worktree location, generated names, executables, and subprocess resource limits. */
@@ -2507,8 +2569,8 @@ export interface PlanModeConfig {
 ## `@qilin-agent/plugin-manager`
 
 - `inject`: `loader` · `profileContext`
-- `refs`: `NpmFileSource` (`@qilin-agent/plugin-detail/types`)
-- `source`: [`packages/boot/plugin-manager/src/index.ts:47`](../packages/boot/plugin-manager/src/index.ts)
+- `refs`: [`NpmFileSource`](subsystems/boot.zh.md)
+- `source`: [`packages/boot/plugin-manager/src/index.ts:50`](../packages/boot/plugin-manager/src/index.ts)
 
 ```ts config-catalog
 /** The pnpm executable, registries, and limits for diagnostics, lookups and connection checks. */
@@ -2541,6 +2603,10 @@ export interface Config {
   detailFetchTimeoutMs?: number
   /** npm file CDNs that offered bundles are read from, in order; a read's `npmFileSources` moves the CDNs it names first. */
   detailNpmFileSources?: NpmFileSource[]
+  /** How many of the newest versions above the installed one a version listing reads and returns. */
+  versionListLimit?: number
+  /** How many single-version registry lookups a version listing runs at once. */
+  versionLookupConcurrency?: number
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/plugin-manager -->

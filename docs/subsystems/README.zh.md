@@ -22,6 +22,7 @@
 | [working-directory.md](working-directory.zh.md) | Session 执行目录、持久变更、恢复与用户上下文 |
 | [translation.md](translation.zh.md) | 免登录与付费文本翻译：请求/结果类型、失败分类与可复用的持久化 Session 记录 |
 | [worktrees.md](worktrees.zh.md) | 保留的 Git 工作树创建：请求与结果类型、检出目录分配与过滤器处理，以及进入的 Session 目录 |
+| [forge.md](forge.zh.md) | 通过同一提供方 seam 读取代码托管平台的变更请求：仓库与引用类型、共享轮询循环、Session 绑定与 forge 面板 |
 | [persistence.md](persistence.zh.md) | 持久性 seam：`SessionPersistence`、JSONL 提供方、`session/flush`、崩溃恢复、`SessionHeader` |
 | [settings.md](settings.zh.md) | 用户设置 seam：`SettingsNamespace` 注册、分层解析（默认值 → 组合 `base` → 用户文档）、owner scope、热提交 |
 | [credentials.md](credentials.zh.md) | 凭据 seam：配置中的 `CredentialRef` 引用（绝不含值）、按操作解析、对 UI 安全的 `CredentialInfo`、提供方来源层 |

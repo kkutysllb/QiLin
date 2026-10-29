@@ -2647,7 +2647,7 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
 
 ### `create_worktree`
 
-从本地提交、分支或标签创建新的 Git 分支与工作树，并将会话的工作目录切换到该工作树。默认使用 HEAD 与自动生成的名称。未提交的文件留在源检出目录中。已存在的名称会失败。使用带 cd 的 working_directory 离开；检出目录与分支会保留。
+从本地提交、分支或标签创建新的 Git 分支与工作树，并将会话的工作目录切换到该工作树。未提交的文件留在源检出目录中。已存在的名称会失败。使用带 cd 的 working_directory 离开；检出目录与分支会保留。
 
 ```json
 {
@@ -2655,7 +2655,7 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
   "properties": {
     "name": {
       "type": "string",
-      "description": "New branch name, also used as the checkout directory. Omit to generate a unique name."
+      "description": "New branch name, also used as the checkout directory: a few lowercase words joined by hyphens that describe the task, such as fix-login-retry. Omit to generate a unique name."
     },
     "from": {
       "type": "string",
