@@ -150,7 +150,7 @@ const SERVICE_ROLES: ServiceRole[] = [
   {
     key: 'pluginMarket',
     pkg: 'plugin-market',
-    title: 'Plugin market index reader',
+    title: 'Plugin index reader',
     mode: 'core',
     consumers: ['client-ui-plugin-market', 'plugin-market'],
     note: 'Fetches and validates the index sources the user configures; installation goes through the plugin manager.',

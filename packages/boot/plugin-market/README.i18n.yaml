@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/boot/plugin-market/README.md
 /:
-  en: 847c61ab6dac5fd2
-  zh: 4107ba58fbda723e
+  en: 043de7aa04105a53
+  zh: b3d966c6029037e1
 /qilin-agent-plugin-market:
   en: c048794d8ae65646
   zh: d803d9743856a38e
 /qilin-agent-plugin-market/summary:
-  en: 05bb1ab3bdf81673
-  zh: 7d99797dfc7a7a61
+  en: c578a2198cf2d798
+  zh: 7ed3b9daf2e3f96f
 /qilin-agent-plugin-market/table-of-contents:
   en: 76368b6b1da79c80
   zh: 52384aee991ac542
 /qilin-agent-plugin-market/use-this-package:
-  en: 7556b3caa7e8cd33
-  zh: 0c5362fe6eb7b50b
+  en: bd58ac5ae6963e11
+  zh: 85c22ecbd885b706
 /qilin-agent-plugin-market/understand-the-implementation:
   en: 7a90abf22567914f
   zh: 1f3b6a96c22b0a2b
@@ -36,8 +36,8 @@
   en: 02cf6033092eb236
   zh: cb928bfa6d39a7f7
 /qilin-agent-plugin-market/known-limitations-and-deferred-work:
-  en: fc56471f5c57f635
-  zh: d9b545175346703c
+  en: f35a1ba8c8afbb16
+  zh: 4a224b3edecf6fb7
 /qilin-agent-plugin-market/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

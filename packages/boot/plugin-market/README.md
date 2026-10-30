@@ -1,5 +1,5 @@
 ---
-description: "Host reader of the plugin market indexes a user configures, with installation status, compatibility, and the read-only plugin_market tool."
+description: "Host reader of the plugin indexes a user configures, with installation status, compatibility, and the read-only plugin_market tool."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`pluginMarket` reads the plugin market indexes the user configures, validates them with [`plugin-market-index`](../../util/plugin-market-index/README.md), and annotates every entry with the profile's installation status, QiLin compatibility, and the exact arguments that install it. The Web Discover tab and the `plugin_market` agent tool read through it; installation itself goes through [`pluginManager.installBundle`](../plugin-manager/README.md). Index fields keep the names the plugin ecosystem declares, `engines.dsh` included.
+`pluginMarket` reads the plugin indexes the user configures, validates them with [`plugin-market-index`](../../util/plugin-market-index/README.md), and annotates every entry with the profile's installation status, QiLin compatibility, and the exact arguments that install it. The Web Discover tab and the `plugin_market` agent tool read through it; installation itself goes through [`pluginManager.installBundle`](../plugin-manager/README.md). Index fields keep the names the plugin ecosystem declares, `engines.dsh` included.
 
 ## Table of Contents
 
@@ -24,7 +24,7 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
-A profile mounts the service as the `plugin-market` row; shipped profiles carry no such row until a market bundle adds one. Like `plugin-manager`, the row is disabled without a profile, and it waits for `pluginManager`. No index source is configured by default, so the Host sends no market request until a user adds one.
+A profile mounts the service as the `plugin-market` row; shipped profiles carry no such row until a plugin index bundle adds one. Like `plugin-manager`, the row is disabled without a profile, and it waits for `pluginManager`. No index source is configured by default, so the Host sends no index request until a user adds one.
 
 | Config | Default | Meaning |
 |---|---|---|
@@ -101,10 +101,10 @@ Append-only: results enter the conversation as ordinary tool results and do not 
 
 - **Settings section required to save** — `setIndexes` writes through `ctx.settings`, whose providers store registered namespaces. The row installs its section under its Loader entry id once a provider is mounted, so a composition without one keeps composition indexes and refuses to save; `config.indexes` and that section are then the same single source.
 - **No upgrade** — an installed bundle with a newer index version is reported as `update-available`; upgrading remains uninstall followed by install.
-- **Unsigned indexes** — index content, including a Git entry's name and version, is the market's claim; the installed manifest decides what is installed.
+- **Unsigned indexes** — index content, including a Git entry's name and version, is the index's claim; the installed manifest decides what is installed.
 - **Last write wins** — `setIndexes` replaces the whole list, so two windows editing sources at the same time can overwrite each other's change.
 - **Redirects refused** — an index served only behind a redirect must be configured at its final URL.
-- **Whole-document reads** — the Host downloads and keeps each index up to `maxBytes` and builds its text index in memory; a synthetic index of 20,000 plugins took about 0.8 s of build time and 130 MiB of heap. Parsing runs in a Worker, but receiving the validated index still blocks the Host event loop while the clone is deserialized: about 35 ms for a synthetic 7.6 MiB index of 20,000 plugins and about 190 ms for 38 MiB and 100,000 plugins. Larger markets need a server-side query protocol.
+- **Whole-document reads** — the Host downloads and keeps each index up to `maxBytes` and builds its text index in memory; a synthetic index of 20,000 plugins took about 0.8 s of build time and 130 MiB of heap. Parsing runs in a Worker, but receiving the validated index still blocks the Host event loop while the clone is deserialized: about 35 ms for a synthetic 7.6 MiB index of 20,000 plugins and about 190 ms for 38 MiB and 100,000 plugins. Larger indexes need a server-side query protocol.
 - **Pages can change** — `fetchedAt` pins pages only while the document is cached; after another read replaces it, a reader must start again from the first page.
 
 <a id="dev-note"></a>

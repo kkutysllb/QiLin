@@ -48,6 +48,8 @@ kind: "package-library"
 | `StateDot` | 状态标记：`done`、`warning`、`ongoing`、`error` 或 `idle`。`ongoing` loading 的动画在挂载时以及每次动画重启（如列表重排）时固定到文档时间零点，所以所有可见 loading 同相动画。它是 `aria-hidden` 的，名称由渲染点提供。 |
 | `ConnectionIndicator` | 行内连接恢复控件，覆盖断线、重试与已恢复三种状态。 |
 | `DisclosureRow` | 24px 紧凑折叠行，标题与内容左右排列。 |
+| `AnimatedRows` | 带键列表的位移动画：移动 200 ms，进出淡变 100 ms。列表内发生指针或键盘输入后才启用，遵循减少动态效果设置，加载或替换视图时直接完成。为行标记 `data-row-key` 并传入对应的 `rowKeys`，为父容器设置定位以承载不可交互的退出层；`role` 与 `label` 由调用方提供。 |
+| `useRowDragPreview` | 使用不可交互的离屏行副本生成原生拖拽预览。传入设置表面底色的类名；拖拽来自子级手柄时，将行元素传给 `start`；`clear` 与卸载会移除副本。 |
 | `CommandText` | 一行命令文本：仅在横向溢出时才获得 Tab 停靠、group 角色与可访问名。 |
 | `Modal` | 页面遮罩之上的居中对话框。 |
 | `RiskConfirmation` | 以显式复选框把关的敏感操作确认。 |

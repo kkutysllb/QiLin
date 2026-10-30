@@ -48,6 +48,8 @@ Check this table before writing a control in a feature package. A plugin cannot 
 | `StateDot` | Status mark: `done`, `warning`, `ongoing`, `error`, or `idle`. The `ongoing` loader's animations pin to document time zero on mount and on every animation restart, such as a list reorder, so every visible loader animates in phase. `aria-hidden`, so the render site owns the name. |
 | `ConnectionIndicator` | Inline connection-recovery control across outage, retry, and recovered states. |
 | `DisclosureRow` | 24px compact disclosure that lays title and content side by side. |
+| `AnimatedRows` | Keyed list movement with 200 ms glides and 100 ms entry/exit fades. Starts after local pointer or keyboard input, honors reduced motion, and settles loading or view replacement. Mark rows with `data-row-key`, supply matching `rowKeys`, and position the parent for the inert exit overlay; `role` and `label` belong to the caller. |
+| `useRowDragPreview` | Native drag preview using an inert offscreen row copy. Supply a class for the surface background and, for a child drag handle, pass the row to `start`; `clear` and unmount remove the copy. |
 | `CommandText` | One command line, gaining a Tab stop, a group role, and its accessible name only while it overflows horizontally. |
 | `Modal` | Centered dialog over a page mask. |
 | `RiskConfirmation` | Sensitive action gated behind an explicit checkbox. |

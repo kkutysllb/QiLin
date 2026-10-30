@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-plugin-market/README.md
 /:
-  en: af3fe4b70bddbc1b
-  zh: ac1c4326165266d9
+  en: b77d6d729562a88f
+  zh: b1634cc1d027424c
 /qilin-agent-client-ui-plugin-market:
   en: 2c187f5e9f9f09c6
   zh: bffb4896ba3dd61e
 /qilin-agent-client-ui-plugin-market/summary:
-  en: 614602a11cfda8c8
-  zh: 9b980f9057ac4d17
+  en: 5b06dd396d0f79ec
+  zh: 353c5246ed81701d
 /qilin-agent-client-ui-plugin-market/table-of-contents:
   en: 76368b6b1da79c80
   zh: 52384aee991ac542
 /qilin-agent-client-ui-plugin-market/use-this-package:
-  en: 7a65338051c0aee3
-  zh: 0725a7d1996a0372
+  en: 8efb6d2bf93d0fd2
+  zh: 9a9b6003593dbf8a
 /qilin-agent-client-ui-plugin-market/understand-the-implementation:
-  en: edd0daf85f138630
-  zh: 3307ad6aa788a13f
+  en: 5cfd6a456a97a0c1
+  zh: d8b468c40d7a82a4
 /qilin-agent-client-ui-plugin-market/model-experience:
   en: 08d25ab9cbdd7567
   zh: 26e6e75c123951ee

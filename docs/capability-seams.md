@@ -23,7 +23,7 @@ flowchart LR
   svc_claudeCodeMods["ctx.claudeCodeMods<br/>Claude Code mod bridge"]
   pkg_experimental_client_ui_claude_code_mods["experimental-client-ui-claude-code-mods"]
   pkg_plugin_market["plugin-market"]
-  svc_pluginMarket["ctx.pluginMarket<br/>Plugin market index reader"]
+  svc_pluginMarket["ctx.pluginMarket<br/>Plugin index reader"]
   pkg_client_ui_plugin_market["client-ui-plugin-market"]
   pkg_plugin_manager["plugin-manager"]
   svc_pluginManager["ctx.pluginManager<br/>Current-profile plugin and bundle management"]

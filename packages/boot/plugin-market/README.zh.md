@@ -1,5 +1,5 @@
 ---
-description: "读取用户配置的插件市场索引的 Host 服务，提供安装状态、兼容性以及只读的 plugin_market 工具。"
+description: "读取用户配置的插件索引的 Host 服务，提供安装状态、兼容性以及只读的 plugin_market 工具。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`pluginMarket` 读取用户配置的插件市场索引，用 [`plugin-market-index`](../../util/plugin-market-index/README.zh.md) 校验，并为每个条目标注 profile 中的安装状态、QiLin 兼容性以及安装它所需的精确参数。Web 发现标签页和 `plugin_market` agent 工具通过它读取；安装本身经由 [`pluginManager.installBundle`](../plugin-manager/README.zh.md) 进行。索引字段沿用插件生态已声明的名称，`engines.dsh` 亦然。
+`pluginMarket` 读取用户配置的插件索引，用 [`plugin-market-index`](../../util/plugin-market-index/README.zh.md) 校验，并为每个条目标注 profile 中的安装状态、QiLin 兼容性以及安装它所需的精确参数。Web 发现标签页和 `plugin_market` agent 工具通过它读取；安装本身经由 [`pluginManager.installBundle`](../plugin-manager/README.zh.md) 进行。索引字段沿用插件生态已声明的名称，`engines.dsh` 亦然。
 
 ## 目录
 
@@ -24,7 +24,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-profile 把该服务挂载为 `plugin-market` 行；随附的 profile 在加入市场组合包之前不包含该行。与 `plugin-manager` 一样，该行在没有 profile 时被禁用，并等待 `pluginManager`。默认不配置任何索引源，因此在用户添加索引源之前，Host 不发送任何市场请求。
+profile 把该服务挂载为 `plugin-market` 行；随附的 profile 在加入插件索引组合包之前不包含该行。与 `plugin-manager` 一样，该行在没有 profile 时被禁用，并等待 `pluginManager`。默认不配置任何索引源，因此在用户添加索引源之前，Host 不发送任何索引请求。
 
 | 配置 | 默认值 | 含义 |
 |---|---|---|
@@ -101,10 +101,10 @@ Host 使用进程的 `fetch` 获取，因此配置的出站代理生效，并拒
 
 - **保存需要设置区段**——`setIndexes` 通过 `ctx.settings` 写入，而该服务的提供者存储已注册的命名空间。挂载提供者后，该行以自己的 Loader 条目 id 安装区段，因此没有提供者的组合沿用组合配置的索引，并拒绝保存；此时 `config.indexes` 与该区段是同一个唯一来源。
 - **不支持升级**——索引版本更新的已安装组合包报告为 `update-available`；升级仍需先卸载再安装。
-- **索引没有签名**——索引内容（包括 Git 条目的名称和版本）是市场的声明；实际安装什么由已安装的 manifest（元数据清单）决定。
+- **索引没有签名**——索引内容（包括 Git 条目的名称和版本）是索引的声明；实际安装什么由已安装的 manifest（元数据清单）决定。
 - **后写入者覆盖**——`setIndexes` 会替换整个列表，因此两个窗口同时编辑索引源时，可能互相覆盖对方的修改。
 - **拒绝重定向**——只能经重定向访问的索引必须以其最终 URL 配置。
-- **读取整份文档**——Host 下载并保留每个不超过 `maxBytes` 的索引，并在内存中构建其文本索引；一个包含 20,000 个插件的合成索引构建用时约 0.8 秒，占用约 130 MiB 堆内存。解析在 Worker 中运行，但接收校验后的索引时，反序列化 clone 仍会阻塞 Host 事件循环：包含 20,000 个插件的 7.6 MiB 合成索引约 35 毫秒，包含 100,000 个插件的 38 MiB 索引约 190 毫秒。更大的市场需要服务端查询协议。
+- **读取整份文档**——Host 下载并保留每个不超过 `maxBytes` 的索引，并在内存中构建其文本索引；一个包含 20,000 个插件的合成索引构建用时约 0.8 秒，占用约 130 MiB 堆内存。解析在 Worker 中运行，但接收校验后的索引时，反序列化 clone 仍会阻塞 Host 事件循环：包含 20,000 个插件的 7.6 MiB 合成索引约 35 毫秒，包含 100,000 个插件的 38 MiB 索引约 190 毫秒。更大的索引需要服务端查询协议。
 - **分页可能变化**——`fetchedAt` 只在文档仍被缓存时固定分页；另一次读取替换文档后，读取方必须从第一页重新开始。
 
 <a id="dev-note"></a>
