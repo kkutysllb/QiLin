@@ -168,6 +168,9 @@ export function createElectronBuilderConfig(
       ...(env.QILIN_DESKTOP_PRODUCT_RUNTIME_TAR?.trim()
         ? [{ from: env.QILIN_DESKTOP_PRODUCT_RUNTIME_TAR.trim(), to: 'runtime-runtime.tar.gz' }]
         : []),
+      ...(env.QILIN_DESKTOP_ICON_CAR?.trim()
+        ? [{ from: env.QILIN_DESKTOP_ICON_CAR.trim(), to: 'Assets.car' }]
+        : []),
       { from: buildPaths.runtime, to: 'runtime' },
       { from: fileURLToPath(new URL('../resources/icon-windows.png', import.meta.url)), to: 'icon.png' },
       // Platform tray bitmaps: Windows multi-size ICO, macOS monochrome template PNG (+@2x).
@@ -180,13 +183,18 @@ export function createElectronBuilderConfig(
     mac: {
       icon: fileURLToPath(new URL('../resources/icon-macos.png', import.meta.url)),
       category: 'public.app-category.developer-tools',
+      // One extendInfo object, not two: a second literal key silently replaces the first.
       // macOS matches the application locale against this bundle, not Electron Framework resources.
-      extendInfo: { CFBundleLocalizations: ['en', 'zh_CN'] },
+      // A product icon compiled to Assets.car (Tahoe composed format) is named here.
+      extendInfo: {
+        CFBundleLocalizations: ['en', 'zh_CN'],
+        NSMicrophoneUsageDescription: 'KToon uses your microphone to transcribe speech into message drafts.',
+        ...(env.QILIN_DESKTOP_ICON_CAR?.trim() ? { CFBundleIconName: 'AppIcon' } : {}),
+      },
       // Ad-hoc signing keeps the modified Electron executable runnable without a Developer ID.
       identity: unsigned ? '-' : macOSSigning?.signingIdentity,
       forceCodeSigning: !unsigned,
       hardenedRuntime: true,
-      extendInfo: { NSMicrophoneUsageDescription: 'KToon uses your microphone to transcribe speech into message drafts.' },
       entitlements: fileURLToPath(new URL('./macos-entitlements.plist', import.meta.url)),
       entitlementsInherit: fileURLToPath(new URL('./macos-entitlements.plist', import.meta.url)),
       // Prepared runtime files retain their signatures; PAK resources are sealed by their enclosing bundle.
