@@ -1,19 +1,22 @@
 /**
- * Plugin manager, browser half: the **Plugins** entry of the sidebar and the
- * management page it opens in the main column. The page installs, enables,
- * disables, and removes the bundles of the Host's profile through the
- * `pluginManager` Remote and switches their rows in the profile's user layer.
- * A plugin that carries its own configuration renders it on this page through
- * the slots the page declares (`slot-contract.ts`).
+ * Plugin manager, browser half: the **Plugins** settings section of the
+ * settings shell. The page installs, enables, disables, and removes the
+ * bundles of the Host's profile through the `pluginManager` Remote and
+ * switches their rows in the profile's user layer. A plugin that carries its
+ * own configuration renders it on this page through the slots the page
+ * declares (`slot-contract.ts`).
  */
 import type {} from '@qilin-agent/client-product-analytics/client'
 import type {} from '@qilin-agent/client-locale/client'
 import type { Context as ClientContext } from '@qilin-agent/kylin'
-// Type-only: the root `main` keyed slot the page registers into, declared by
-// ui-layout with the panel id brand, and the `sidebar.panellist` list the
-// entry registers into, declared by ui-sidebar.
-import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
-import type {} from '@qilin-agent/client-ui-sidebar/client'
+// Type-only: the `shell.overlay` slot the refresh toast registers into, declared
+// by ui-layout (the settings page no longer owns any panel of its own).
+import type {} from '@qilin-agent/client-ui-layout/client'
+// Type-only: the settings slot declarations the page registers into, and the
+// settingsShell open channel this plugin calls (both merges arrive through the
+// settings packages' client-safe type subpaths).
+import type {} from '@qilin-agent/client-ui-settings/client'
+import type {} from '@qilin-agent/client-ui-settings-general/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
 import type {} from '@qilin-agent/api-remotes/client'
@@ -23,7 +26,6 @@ import type {} from '@qilin-agent/plugin-manager/types'
 import { PluginManagerPage } from './PluginManagerPage.tsx'
 import { createPluginHeaderRef } from './header-scroll.ts'
 import { PluginRefreshToast, type PluginRefreshToastFace } from './PluginRefreshToast.tsx'
-import { PluginsPanelIcon } from './PluginsPanelIcon.tsx'
 import { configLedgerSource } from './config-ledger.ts'
 import { tabLedgerSource } from './tab-ledger.ts'
 import { PluginManagerController } from './manager-store.ts'
@@ -66,11 +68,11 @@ declare module '@qilin-agent/client-ui-slots' {
 /** Dictionary namespace owned by this plugin. */
 export const NS = 'pluginManager'
 
-/** The id shared by the sidebar entry and the main panel it opens. */
-export const PANEL_ID = 'plugins' as MainPanelId
+/** The settings section id that renders the management page. */
+export const PANEL_ID = 'plugins'
 
 /** Services required by the sidebar registration and the Remote methods; the inventory says whether the Host manages a profile. */
-export const inject = ['slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms', 'layout']
+export const inject = ['slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms']
 
 /**
  * Contribute the Plugins entry to the sidebar with the management page it
@@ -101,10 +103,10 @@ export function apply(ctx: ClientContext): void {
     return () => { for (const dispose of disposers) dispose() }
   }, 'ui-plugin-manager: host invalidations')
 
-  // The page is a global panel: it belongs to the profile, not to a Session,
-  // and the sidebar's entry selects it. What is installed and switched on is
-  // the page's own; a plugin's configuration arrives through the slots the
-  // page declares here, so the page never names a configurable plugin.
+  // The page is a settings section: it belongs to the profile, not to a
+  // Session, and the settings shell's nav selects it. What is installed and
+  // switched on is the page's own; a plugin's configuration arrives through the
+  // slots the page declares here, so the page never names a configurable plugin.
   const configLedger = configLedgerSource(ctx)
   const face = controller.inject(configLedger, tabLedgerSource(ctx), text => ctx.locale.resolveText(text))
   ctx.slots.inject('shell.overlay', () => ctx.slots.register({
@@ -114,12 +116,16 @@ export function apply(ctx: ClientContext): void {
       dismissNotice: face.dismissNotice,
     }),
   }, PluginRefreshToast))
-  ctx.slots.inject('main', function* () {
-    const handle = createNavigationStore(), instance = handle.create()
-    const store: typeof handle = { ...handle, create: () => instance }
+  // The section's store and the cross-plugin navigation share one handle, so a
+  // request that arrives before the shell mounts still aims the next open.
+  const handle = createNavigationStore(), instance = handle.create()
+  const store: typeof handle = { ...handle, create: () => instance }
+  ctx.slots.inject('settings.section', function* () {
     yield ctx.slots.register({
-      name: 'main',
-      key: PANEL_ID,
+      name: 'settings.section',
+      id: PANEL_ID,
+      order: 15,
+      label: () => t('panel'),
       locale: NS,
       store,
       inject: () => ({ ...face, createHeaderRef: createPluginHeaderRef }),
@@ -134,29 +140,21 @@ export function apply(ctx: ClientContext): void {
         'plugins.detail.section': { kind: 'list', scope: 'root' },
       },
     }, PluginManagerPage)
-    yield ctx.layout.panelInfo.subscribe(() => {
-      if (ctx.layout.panelInfo.getSnapshot().activePanelId !== PANEL_ID) instance.actions.setView({ kind: 'list' })
-    })
-    const disposeNavigation = ctx.reflect.provide('pluginNavigation', {
-      openList: () => {
-        ctx.layout.selectPanel(PANEL_ID)
-        instance.actions.setTab('installed')
-        instance.actions.setView({ kind: 'list' })
-      },
-      openBundle: (packageName: string) => {
-        ctx.layout.selectPanel(PANEL_ID)
-        instance.actions.setTab('installed')
-        instance.actions.setView({ kind: 'package', name: packageName })
-      },
-    })
-    yield () => { void disposeNavigation() }
   })
-  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
-    name: 'sidebar.panellist',
-    id: PANEL_ID,
-    order: 0,
-    label: () => t('panel'),
-    locale: NS,
-  }, PluginsPanelIcon))
+  // Cross-plugin navigation reveals the section first, then aims the shared
+  // store at the requested list or bundle. The provider belongs to this plugin's
+  // fiber, not to the shell's section cell, so it outlives a shell remount.
+  ctx.effect(() => ctx.reflect.provide('pluginNavigation', {
+    openList: () => {
+      ctx.get('settingsShell')?.open(PANEL_ID)
+      instance.actions.setTab('installed')
+      instance.actions.setView({ kind: 'list' })
+    },
+    openBundle: (packageName: string) => {
+      ctx.get('settingsShell')?.open(PANEL_ID)
+      instance.actions.setTab('installed')
+      instance.actions.setView({ kind: 'package', name: packageName })
+    },
+  }), 'ui-plugin-manager: navigation')
 
 }

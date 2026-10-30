@@ -4,16 +4,18 @@
     - text: Settings
     - button "General"
     - button "Models"
-    - button "Built-in plugins"
+    - button "Plugins"
     - button "MCP servers"
+    - button "Agent presets"
+    - button "Usage"
     - button "Archived sessions"
     - button "Skills"
     - button "About QiLin"
     - separator "Resize settings navigation"
   - button "Open configuration file"
   - button "Close"
-  - text: Permission Choose the default permission mode for new sessions
-  - button "Workspace Write"
+  - text: Permission Nothing is pinned, so new sessions use the host default. Pick a preset below to pin one, or this entry to follow the host default again.
+  - button "Not selected"
   - text: Appearance
   - button "Light"
   - button "Dark"
@@ -21,23 +23,16 @@
   - text: Font size Only affects conversation content 14
   - button "Increase font size"
   - button "Decrease font size"
-  - text: px Work details Choose how much tool-call detail to show
+  - text: px
+  - button "More font settings"
+  - text: Work details Choose how much tool-call detail to show
   - button "Detailed"
-  - text: Line spacing Adds or removes pixels from the default line height of message text; 0 is the default 0
-  - button "Increase line spacing"
-  - button "Decrease line spacing"
-  - text: px Message width How wide the message area is; you can also drag the handles on either side of it Adaptive
-  - button "Set a custom message area width"
-  - button "Narrow message area" [disabled]
+  - text: Collapse work details Collapse work details when a task finishes, or keep them until you send the next message
+  - button "On completion"
   - text: Show coding view Shows trajectory, code diffs, and all Agent presets
   - switch "Show coding view" [checked]
   - text: Open chat links in Choose where web links from the conversation open
   - button "In-app sidebar"
-  - text: Terminal font The family and size the terminal measures its character grid with. An empty family uses the built-in monospace stack; icon fonts are appended as fallbacks. Font family
-  - textbox "Font family":
-    - /placeholder: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
-  - text: Size (px)
-  - textbox "Size (px)": "13"
   - text: Keyboard shortcuts
   - paragraph: View and edit available shortcuts and input actions
   - button "Edit shortcuts"
@@ -45,4 +40,6 @@
   - button "Queue"
   - text: Performance & usage Choose how much performance and usage information to show
   - button "Detailed"
+  - text: Upload Session Log when using the official model API Help improve DeepSeek models and products.
+  - switch "Upload Session Log when using the official model API"
   - text: "Current version: {{version}}"

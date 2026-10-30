@@ -40,8 +40,7 @@ it('cancels installation through the UI, restores files, and offers the spec aga
       await page.waitForSelector('[class*="frame"]')
       if (await page.getByRole('dialog', { name: '设置' }).count() > 0) await page.keyboard.press('Escape')
       const settings = await openSettingsDialog(page, '账户', '设置')
-      await settings.getByRole('button', { name: '内置插件', exact: true }).click()
-      await settings.getByRole('tab', { name: '插件管理', exact: true }).click()
+      await settings.getByRole('button', { name: '插件', exact: true }).click()
       const panel = page.locator('[data-plugin-panel]')
       await panel.getByRole('button', { name: '添加插件', exact: true }).click()
       // The install dialog is named after its current screen and now sits over

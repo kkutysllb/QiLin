@@ -163,6 +163,8 @@ function renderTab(
   }
   const navigation = createNavigationStore().create()
   const props: PluginManagerPageProps = {
+    // The settings shell owns the panel; the section receives only its close affordance.
+    close: vi.fn(),
     createHeaderRef: vi.fn(() => vi.fn()),
     useStore: bindSnapshotSelector(navigation), actions: navigation.actions,
     ...standard,

@@ -70,8 +70,7 @@ describe('web e2e: plugin manager', () => {
   async function openPluginsPanel() {
     await closeSettings()
     const dialog = await openSettingsDialog(page, '账户', '设置')
-    await dialog.getByRole('button', { name: '内置插件', exact: true }).click()
-    await dialog.getByRole('tab', { name: '插件管理', exact: true }).click()
+    await dialog.getByRole('button', { name: '插件', exact: true }).click()
     const panel = page.locator('[data-plugin-panel]')
     await panel.getByRole('heading', { name: '插件', exact: true }).waitFor({ timeout: 10_000 })
     return panel
@@ -130,9 +129,8 @@ describe('web e2e: plugin manager', () => {
       await page.getByRole('menuitem', { name: '语言', exact: true }).click()
       await page.getByRole('menuitem', { name: 'English', exact: true }).click()
       const english = await openSettingsDialog(page, 'Account', 'Settings')
-      await english.getByRole('button', { name: 'Built-in plugins', exact: true }).click()
-      // The tab row belongs to the Plugins section; the page mounts inside the selected tab.
-      await english.getByRole('tab', { name: 'Manage plugins', exact: true }).click()
+      await english.getByRole('button', { name: 'Plugins', exact: true }).click()
+      // The Plugins settings section renders the management page directly.
       const englishPanel = page.locator('[data-plugin-panel]')
       await englishPanel.getByRole('heading', { name: 'Plugins', exact: true }).waitFor({ timeout: 10_000 })
       await englishPanel.getByRole('button', { name: 'View Agent Teams', exact: true }).click()
@@ -248,8 +246,7 @@ describe('web e2e: startup-applied plugin management', () => {
       onTestFailed(() => saveFailureShot(page, 'web-e2e-plugin-manager-live'))
       await page.goto(scaffold.authenticatedUrl, { waitUntil: 'load' })
       const dialog = await openSettingsDialog(page, '账户', '设置')
-      await dialog.getByRole('button', { name: '内置插件', exact: true }).click()
-      await dialog.getByRole('tab', { name: '插件管理', exact: true }).click()
+      await dialog.getByRole('button', { name: '插件', exact: true }).click()
       const panel = page.locator('[data-plugin-panel]')
       await panel.getByRole('heading', { name: '插件', exact: true }).waitFor({ timeout: 10_000 })
       const toggle = panel.getByRole('switch', { name: '启用 bundle' })

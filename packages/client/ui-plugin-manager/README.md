@@ -93,7 +93,7 @@ Package management uses the profile's dependency records: installed bundles can 
 
 ### Registration
 
-The browser plugin registers the Plugins page into the shell's `main` panel and its sidebar entry into `sidebar.panellist` through `ctx.slots.inject()`, so both follow late slot declaration, locale changes and teardown. The page is global and belongs to no Session. Display text comes from package metadata and the page's dictionary.
+The browser plugin registers the Plugins page as the settings shell's `settings.section` entry (id `plugins`, order 15, nav label from this package's dictionary) through `ctx.slots.inject()`, so the page follows late slot declaration, locale changes and teardown. The page is global and belongs to no Session; the workspace has no Plugins panel or sidebar entry of its own. Display text comes from package metadata and the page's dictionary. Cross-plugin navigation goes through `ctx.pluginNavigation`, which asks `ctx.settingsShell.open('plugins')` to reveal the section and then aims the shared navigation store at a list or one bundle.
 
 ### The store
 
@@ -139,7 +139,7 @@ These limits define the reach of the management view; they are current package c
 - **Rows show a phase, not a reason** — a failed row reads as failed without the Host's error text; the Host log has it.
 - **One install at a time** — the dialog runs one pnpm command; a second spec waits for the first to finish.
 - **Updates follow the registry's `latest` tags** — the check offers the layers the profile manages and upgrades them to their latest version; pinning a specific version still means typing the spec.
-- **The management view is a navigation panel** — the Plugins entry and its main-panel composition stay with this package; the upstream sidebar panel details, the `plugins.detail.*` contribution slots, and the metadata-localized package text are deliberately deferred ([alignment boundaries](../../../.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)).
+- **The management view is a settings section** — the section registration and its child slots stay with this package; the workspace panel and sidebar entry are gone. Upstream's sidebar-panel affordances stay deferred ([alignment boundaries](../../../.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)).
 - **A lost installation reply is not recoverable** — the Host exposes no `waitForInstall`, so the dialog reports a transport failure instead of asking the Host for the run's result.
 
 <a id="dev-note"></a>

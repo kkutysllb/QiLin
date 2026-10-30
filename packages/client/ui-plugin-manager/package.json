@@ -41,9 +41,9 @@
       "inject": [
         "@qilin-agent/api-remotes",
         "@qilin-agent/client-locale",
-        "@qilin-agent/client-ui-layout",
-        "@qilin-agent/client-ui-sidebar",
-        "@qilin-agent/client-ui-workspace"
+        "@qilin-agent/client-ui-workspace",
+        "@qilin-agent/client-ui-settings",
+        "@qilin-agent/client-ui-settings-general"
       ],
       "platform": "web"
     }

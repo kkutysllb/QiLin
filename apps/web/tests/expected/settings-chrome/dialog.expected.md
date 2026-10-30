@@ -4,16 +4,18 @@
     - text: 设置
     - button "通用设置"
     - button "模型"
-    - button "内置插件"
+    - button "插件"
     - button "MCP 服务器"
+    - button "Agent 预设"
+    - button "用量"
     - button "已归档会话"
     - button "技能"
     - button "关于 QiLin"
     - separator "调整设置导航宽度"
   - button "打开配置文件"
   - button "关闭"
-  - text: 权限 选择新会话的默认权限模式
-  - button "工作区内修改"
+  - text: 权限 尚未选择；新会话使用主机默认。选择下面任一预设即可固定下来，选择此项则恢复为主机默认
+  - button "未选择"
   - text: 外观
   - button "浅色"
   - button "深色"
@@ -21,23 +23,16 @@
   - text: 字号大小 仅影响会话内容的字号 14
   - button "增大字号"
   - button "减小字号"
-  - text: px 工作步骤展示 选择希望看到多少工具调用细节
+  - text: px
+  - button "更多字体设置"
+  - text: 工作步骤展示 选择希望看到多少工具调用细节
   - button "详细"
-  - text: 行间距 在默认行高上增减会话正文的行间距，0 为默认 0
-  - button "增大行间距"
-  - button "减小行间距"
-  - text: px 消息区域宽度 会话消息区域的宽度；也可以直接拖动消息区两侧的手柄 自适应
-  - button "自定义消息区域宽度"
-  - button "收窄消息区域" [disabled]
+  - text: 过程收起时机 任务完成后立即收起过程，或保留到下次发送消息时再收起
+  - button "完成时收起"
   - text: 显示代码工作视图 开启后，显示轨迹、本轮代码差异，可选择完整的 Agent 预设切换
   - switch "显示代码工作视图" [checked]
   - text: 网页链接默认打开方式 对话中网页链接的打开位置
   - button "应用内侧边栏"
-  - text: 终端字体 终端测量字符网格所用的字体与字号。留空字体系列即使用内置等宽字体栈；提示图标会自动追加 Nerd Font 回退。 字体系列
-  - textbox "字体系列":
-    - /placeholder: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
-  - text: 字号（像素）
-  - textbox "字号（像素）": "13"
   - text: 快捷键
   - paragraph: 查看和编辑当前可用的快捷键和输入操作
   - button "编辑快捷键"
@@ -45,4 +40,6 @@
   - button "排队发送"
   - text: 性能与用量 选择性能与用量信息展示的详细程度
   - button "详细"
+  - text: 在使用官方模型 API 时上传 Session Log 帮助改进 DeepSeek 模型与产品
+  - switch "在使用官方模型 API 时上传 Session Log"
   - text: 当前版本：{{version}}

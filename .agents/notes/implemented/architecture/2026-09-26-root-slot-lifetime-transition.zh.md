@@ -39,7 +39,7 @@ Web 客户端只在启动内核确认每个 client entry 均为 active 之后才
 | 证据 | 行为 |
 |---|---|
 | [ui-renderer.client.spec.tsx](../../../../packages/client/ui-renderer/tests/ui-renderer.client.spec.tsx) | 在已挂载应用下 dispose 占位者并注册替身，替身渲染且没有未捕获错误；本变更之前该用例以 `SlotAssemblyError` 失败。 |
-| [client-plugin-live.e2e.ts](../../../../apps/web/tests/client-plugin-live.e2e.ts) | 一次替换 root 占位者所在链的 bundle 重建会发布新修订号，页面没有页面错误，frame 保持渲染。 |
+| `client-plugin-live.e2e.ts`（随插件列表视图一并退役） | 一次替换 root 占位者所在链的 bundle 重建会发布新修订号，页面没有页面错误，frame 保持渲染。 |
 | [scoped-slots.client.spec.tsx](../../../../packages/client/ui-renderer/tests/scoped-slots.client.spec.tsx) | 没有任何 `'root'` 注册的全新渲染仍抛启动顺序错误。 |
 | [registry.client.spec.ts](../../../../packages/client/ui-renderer/tests/registry.client.spec.ts) | ctx 级 `renderSlot('root')` 仍拒绝没有任何注册的渲染。 |
 

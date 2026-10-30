@@ -39,7 +39,7 @@ Host HMR stat poll, `clientModules.rebuilt(id)`, the SSE `rebuilt` frame, the pa
 | Evidence | Behaviour |
 |---|---|
 | [ui-renderer.client.spec.tsx](../../../../packages/client/ui-renderer/tests/ui-renderer.client.spec.tsx) | Disposing the occupant and registering a replacement under the mounted application renders the replacement with no uncaught error; the case failed with `SlotAssemblyError` before the change. |
-| [client-plugin-live.e2e.ts](../../../../apps/web/tests/client-plugin-live.e2e.ts) | A bundle rebuild that replaces the root occupant's chain publishes a new revision, leaves the page free of page errors, and keeps the frame rendered. |
+| `client-plugin-live.e2e.ts` (scenario retired with the Plugin list view) | A bundle rebuild that replaces the root occupant's chain published a new revision, left the page free of page errors, and kept the frame rendered. |
 | [scoped-slots.client.spec.tsx](../../../../packages/client/ui-renderer/tests/scoped-slots.client.spec.tsx) | A fresh render with no `'root'` registration still throws the boot-order error. |
 | [registry.client.spec.ts](../../../../packages/client/ui-renderer/tests/registry.client.spec.ts) | The ctx-level `renderSlot('root')` still rejects a render with no registration. |
 

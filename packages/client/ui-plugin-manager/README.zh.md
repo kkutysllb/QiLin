@@ -93,7 +93,7 @@ ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
 
 ### 注册
 
-浏览器插件通过 `ctx.slots.inject()` 把「插件」页面注册进外壳的 `main` 面板，并把侧边栏入口注册进 `sidebar.panellist`，二者都跟随 slot 延迟声明、本地化变化与销毁。页面为全局页面，不属于任何 Session。显示文本来自包元信息与页面字典。
+浏览器插件通过 `ctx.slots.inject()` 把「插件」页面注册为设置外壳的 `settings.section` 条目（id 为 `plugins`、order 15、导航文案取自本包字典），页面跟随 slot 延迟声明、本地化变化与销毁。页面为全局页面，不属于任何 Session；工作区不再有自己的「插件」面板与侧栏入口。跨插件导航走 `ctx.pluginNavigation`：先通过 `ctx.settingsShell.open('plugins')` 打开该设置分区，再把共享导航 store 指向列表或某个组合包。
 
 ### store
 
@@ -139,7 +139,7 @@ ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
 - **行只显示阶段，不显示原因**——失败的行只显示为失败，没有 Host 的错误文本；Host 日志里有。
 - **一次只能安装一个**——对话框一次运行一个 pnpm 命令；第二个 spec 要等前一个完成。
 - **更新只跟随注册表的 `latest` 标签**——检查只针对 profile 管理的层，并把它们升到最新版本；要锁定某个具体版本仍须手动输入 spec。
-- **管理视图是导航面板**——「插件」入口与主面板组合归本包所有；上游随包提供的侧边栏面板细节、`plugins.detail.*` 贡献 slot 与按元数据本地化的包文本都属于有意延期（[对齐边界](../../../.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.zh.md)）。
+- **管理视图是设置分区**——分区注册与其子 slot 归本包所有；工作区面板与侧栏入口已移除。上游的侧栏面板交互仍属延期（[对齐边界](../../../.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.zh.md)）。
 - **丢失的安装应答无法恢复**——Host 不提供 `waitForInstall`，因此对话框只报告传输失败，不会向 Host 追问该次运行的结果。
 
 <a id="dev-note"></a>

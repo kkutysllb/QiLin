@@ -54,7 +54,7 @@ describe('web e2e: plugin configuration pages', () => {
   })
 
   /**
-   * Show the Plugins section's management tab cards. The scenarios share one
+   * Show the Plugins settings section and its cards. The scenarios share one
    * page so the settings document accumulates across them, so this reopens the
    * settings dialog (closing it resets the tab's page-local state) and leaves
    * whatever page it opened.
@@ -65,8 +65,7 @@ describe('web e2e: plugin configuration pages', () => {
       await expect.poll(() => page.getByRole('dialog', { name: '设置' }).count(), { timeout: 5_000 }).toBe(0)
     }
     const dialog = await openSettingsDialog(page, '账户', '设置')
-    await dialog.getByRole('button', { name: '内置插件', exact: true }).click()
-    await dialog.getByRole('tab', { name: '插件管理', exact: true }).click()
+    await dialog.getByRole('button', { name: '插件', exact: true }).click()
     const panel = page.locator('[data-plugin-panel]')
     await panel.waitFor({ timeout: 10_000 })
     while (await panel.getByRole('button', { name: /^返回/ }).count() > 0) {
