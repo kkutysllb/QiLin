@@ -217,10 +217,14 @@ export function createElectronBuilderConfig(
         await writeMacOSAppUpdateConfig(resourcesDir, resolveMacOSAppUpdateFeed(context.packager.config.publish),
           context.packager.appInfo.updaterCacheDirName)
       }
-      // The bundled runtime declares whichever version prepared it: the product version for an ordinary
-      // release, and a rewritten one for installed-update qualification.
+      // The bundled runtime declares whichever version prepared it. A product build (KToon) bundles
+      // the engine runtime at its own declared version — the product version rides extraMetadata —
+      // so integrity verification pins platform/architecture and bytes, and pins the declared
+      // version only where a qualification flow supplied a rewritten tree.
+      const { readDesktopRuntime } = await import('../lib/types/runtime-tree.js')
+      const declaredRuntimeVersion = readDesktopRuntime(buildPaths.qilin).release.version
       await verifyDesktopRuntime(buildPaths.qilin,
-        preparedRuntimeVersion ?? productVersion, { platform: resolvedPlatform, arch: resolvedArch })
+        preparedRuntimeVersion ?? declaredRuntimeVersion, { platform: resolvedPlatform, arch: resolvedArch })
       // Unsigned Windows builds skip electron-builder's afterSign hook.
       if (packagesWindows && unsigned) await verifyWindowsAsarUnpack(buildPaths.qilin, resourcesDir, windowsCode)
     },
