@@ -1,0 +1,79 @@
+/* Launch splash: the seal mark breathing inside a rotating gold hairline ring. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  user-select: none;
+}
+
+.splash {
+  position: relative;
+  width: 208px;
+  height: 208px;
+  display: grid;
+  place-items: center;
+}
+
+/* Hairline track the gold arc travels along. */
+.splash::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--dsw-alias-border-l2, rgba(60, 48, 26, 0.11));
+}
+
+.splash-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0turn, var(--dsw-alias-brand-primary, #c9a24a) 0turn, transparent 0.25turn);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  animation: splash-rotate 1.4s linear infinite;
+}
+
+.splash-mark {
+  display: block;
+  width: 128px;
+  height: 128px;
+  /* Keep the seal square only: the mark's top glow band reads as a smudge on dark materials. */
+  clip-path: inset(9.4% round 18.2%);
+  user-select: none;
+  -webkit-user-drag: none;
+  animation: splash-breathe 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes splash-rotate {
+  to { transform: rotate(1turn); }
+}
+
+@keyframes splash-breathe {
+  from { transform: scale(1); }
+  to { transform: scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-ring {
+    animation: none;
+    /* A static quarter arc keeps the progress reading without motion. */
+    background: conic-gradient(from 0turn, var(--dsw-alias-brand-primary, #c9a24a) 0 0.25turn, transparent 0.25turn);
+  }
+
+  .splash-mark {
+    animation: none;
+  }
+}

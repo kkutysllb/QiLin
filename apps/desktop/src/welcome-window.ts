@@ -15,8 +15,8 @@ import { WELCOME_IPC, type WelcomeOperations } from './welcome-api.ts'
  */
 export function welcomeWindowOptions(platform: NodeJS.Platform, locale: DesktopLocale): BrowserWindowConstructorOptions {
   return {
-    width: 600,
-    height: 700,
+    width: 880,
+    height: 560,
     useContentSize: true,
     center: true,
     resizable: false,
@@ -27,7 +27,8 @@ export function welcomeWindowOptions(platform: NodeJS.Platform, locale: DesktopL
     backgroundColor: platform === 'darwin' || platform === 'win32' ? '#00000000' : '#FFFFFF',
     ...(platform === 'darwin' ? {
       titleBarStyle: 'hidden',
-      trafficLightPosition: { x: 21, y: 21 },
+      // Traffic lights sit right of the 320px brand rail so their glyphs keep contrast on it.
+      trafficLightPosition: { x: 341, y: 21 },
       vibrancy: 'menu',
       visualEffectState: 'active',
     } as const : {}),

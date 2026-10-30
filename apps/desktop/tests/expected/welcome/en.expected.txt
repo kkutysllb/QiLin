@@ -3,3 +3,4 @@ QiLin Desktop
 Anything, with QiLin
 An open-source agent orchestration platform driven by sandboxes, memory, tools, skills, and subagents, autonomous on tasks that run from minutes to hours.
 Sign in
+Register

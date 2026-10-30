@@ -61,6 +61,14 @@ describe('desktop welcome presentation', () => {
     await expect(view.copy()).toMatchFileSnapshot(`./expected/welcome/${language}.expected.txt`)
   })
 
+  it.each(['zh-CN', 'en'])('opens the register form straight from the entry: %s', (language) => {
+    const view = mount(language)
+    expect(view.button('#entry-register').textContent).not.toBe('')
+    fireEvent.click(view.button('#entry-register'))
+    expect(view.document.querySelector<HTMLElement>('#register-form')!.hidden).toBe(false)
+    expect(view.document.querySelector('#register-name')).not.toBeNull()
+  })
+
   it.each(['zh-CN', 'en'])('opens the local sign-in form from the entry: %s', async (language) => {
     const view = mount(language)
     fireEvent.click(view.button('#sign-in'))

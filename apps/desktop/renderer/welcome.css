@@ -1,40 +1,39 @@
 @import url('./assets/window-material.css');
 
-/* Figma 2121:39336 / 2138:44626, Platform modes. Native material supplies the blur. */
+/* QiLin Desktop welcome: one engraved split card. The native material owns the blur;
+   the brand rail carries solid warm ink in both schemes while the form column keeps the
+   platform tint. Palette aliases come from welcome-palette.generated.css. */
 body {
   color-scheme: light dark;
-  --dsw-alias-label-primary: #0f1115;
-  --dsw-alias-label-secondary: #61666b;
-  --dsw-alias-label-tertiary: #81858c;
-  --dsw-alias-label-primary-inverted: #fff;
-  --dsw-alias-brand-primary: var(--dsw-alias-label-primary);
-  --dsw-alias-button-primary-hover: #43454a;
-  --dsw-alias-button-elevated-fill: #fff;
-  --dsw-alias-button-floating-hover: #f1f3f5;
-  --dsw-alias-border-l2: #0000001a;
-  --dsw-alias-border-l4: #00000029;
-  --dsw-alias-label-caption: #adb2b8;
   --welcome-tint: var(--dsw-desktop-window-tint);
-  --ds-transition-duration: 0.2s;
-  --ds-transition-duration-slow: 0.3s;
-  --ds-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --dsw-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --dsw-font-family-brand: 'Montserrat', var(--dsw-font-family);
+  --ds-transition-duration: 0.2s;
+  --ds-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Rail ink stays deep in both schemes; its text is always warm cream. */
+  --dsw-rail-ink: #1f1b14;
+  --dsw-rail-ink-deep: #171310;
+  --dsw-rail-text: #f6f1e4;
+  --dsw-rail-gold: #c9a24a;
+  --dsw-seal: #b0352c;
 }
 
 @media (prefers-color-scheme: dark) {
   body {
-    --dsw-alias-label-primary: #f9fafb;
-    --dsw-alias-label-secondary: #cfd3d6;
-    --dsw-alias-label-tertiary: #adb2b8;
-    --dsw-alias-label-primary-inverted: #353638;
-    --dsw-alias-button-primary-hover: #ebeef2;
-    --dsw-alias-button-elevated-fill: #43454a;
-    --dsw-alias-button-floating-hover: #353638;
-    --dsw-alias-border-l2: #ffffff1f;
-    --dsw-alias-border-l4: #ffffff33;
-    --dsw-alias-label-caption: #81858c;
+    --dsw-rail-ink: #16130e;
+    --dsw-rail-ink-deep: #100d09;
+    --dsw-rail-text: #efe9df;
+    --dsw-rail-gold: #c9a24a;
+    --dsw-seal: #e0705f;
   }
+}
+
+body[data-ds-dark-theme] {
+  --dsw-rail-ink: #16130e;
+  --dsw-rail-ink-deep: #100d09;
+  --dsw-rail-text: #efe9df;
+  --dsw-rail-gold: #c9a24a;
+  --dsw-seal: #e0705f;
 }
 
 * {
@@ -59,52 +58,80 @@ body {
 #root {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 6px 16px;
-  background: var(--welcome-tint);
+  overflow: hidden;
   color: var(--dsw-alias-label-primary);
-  font-family: var(--dsw-font-family-brand);
-  font-weight: 300;
   user-select: none;
   -webkit-font-smoothing: antialiased;
 }
 
+/* Split card: a fixed brand rail beside the working column; the drag strip floats above both. */
+.welcome-shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--welcome-tint);
+}
+
 .titlebar {
-  flex: 0 0 36px;
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 42px;
+  z-index: 20;
   app-region: drag;
 }
 
-.welcome {
-  display: grid;
-  flex: 1;
-  min-height: 0;
-  grid-template-rows: 40px minmax(0, 1fr) 104px;
-  justify-items: center;
-  align-items: center;
-  padding: 24px 48px 76px;
+/* --- Brand rail: lacquer ground, seal watermark, gold hairline --- */
+
+.brand-rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  padding: 44px 30px 36px;
+  border-right: 1px solid color-mix(in srgb, var(--dsw-rail-gold) 30%, transparent);
+  background:
+    radial-gradient(130% 90% at 12% 0%, rgb(255 243 214 / 0.05), transparent 58%),
+    linear-gradient(168deg, var(--dsw-rail-ink) 14%, var(--dsw-rail-ink-deep) 100%);
+  color: var(--dsw-rail-text);
 }
 
-.welcome > .tagline,
-.welcome > .key-form,
-.welcome > #auth-page {
-  grid-row: 2;
-  grid-column: 1;
+/* Restrained paper grain keeps the rail from reading as flat black. */
+.brand-rail::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgb(255 248 234 / 0.055) 0.5px, transparent 1.1px);
+  background-size: 7px 7px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* The seal sits fully visible above the rail's foot, aligned with the wordmark column. */
+.brand-rail::after {
+  content: '';
+  position: absolute;
+  left: 30px;
+  bottom: 30px;
+  width: 148px;
+  height: 148px;
+  background: url('assets/qilin-mark.svg') center / contain no-repeat;
+  /* Keep the seal square only: the mark's top glow band reads as a smudge on the ink ground. */
+  clip-path: inset(9.4% round 18.2%);
+  opacity: 0.07;
+  pointer-events: none;
 }
 
 .brand {
+  position: relative;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.brand-name {
-  font-size: 28px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--dsw-alias-label-primary, #0f1115);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  animation: welcome-rise var(--ds-transition-duration) var(--ds-ease-in-out) both;
 }
 
 .brand img {
@@ -112,199 +139,164 @@ body {
   flex: none;
   width: 40px;
   height: 40px;
+  /* Keep the seal square only: the mark's top glow band reads as a notch at small sizes. */
+  clip-path: inset(9.4% round 18.2%);
   user-select: none;
   -webkit-user-drag: none;
+  filter: drop-shadow(0 8px 18px rgb(0 0 0 / 0.35));
+}
+
+.brand-name {
+  font-family: var(--dsw-font-family-brand);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dsw-rail-text);
+}
+
+/* One gold hairline closes the wordmark. */
+.brand::after {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--dsw-rail-gold), transparent);
+}
+
+/* --- Form column --- */
+
+.welcome {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  min-width: 0;
+  min-height: 0;
+  padding: 52px 64px 56px;
+}
+
+.welcome > .tagline,
+.welcome > .key-form,
+.welcome > #auth-page {
+  grid-row: 1;
+  grid-column: 1;
+  align-self: center;
+}
+
+.welcome > .actions {
+  grid-row: 2;
+  grid-column: 1;
+  align-self: end;
 }
 
 .tagline {
   margin: 0;
-  max-width: 460px;
-  color: var(--dsw-alias-label-secondary);
-  font-size: 24px;
-  font-weight: 300;
-  line-height: 40px;
+  max-width: 420px;
   text-align: center;
+  animation: welcome-rise var(--ds-transition-duration) var(--ds-ease-in-out) 0.06s both;
+}
+
+.tagline h1 {
+  margin: 0;
+  font-family: var(--dsw-font-family-brand);
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--dsw-alias-label-primary);
   text-wrap: balance;
 }
 
-.tagline h1,
-.tagline p {
-  margin: 0;
-  font: inherit;
-}
-
-.tagline em {
-  color: var(--dsw-alias-label-primary);
-  font-family: var(--dsw-font-family-brand);
-  font-size: 26px;
+/* The brand word inside the tagline carries the imperial gold. */
+.tagline h1 em {
   font-style: normal;
-  font-weight: 500;
-}
-
-:lang(en) .tagline em {
-  font-size: inherit;
-}
-
-.actions {
-  position: relative;
-  grid-row: 3;
-  grid-column: 1;
-  align-self: stretch;
-  display: flex;
-  flex: none;
-  flex-direction: column;
-  gap: 16px;
-  width: 240px;
-}
-
-.actions button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 44px;
-  padding: 8px 16px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  font-family: var(--dsw-font-family);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 22px;
-  opacity: 1;
-  app-region: no-drag;
-  cursor: pointer;
-  transition:
-    background-color var(--ds-transition-duration) var(--ds-ease-in-out),
-    border-color var(--ds-transition-duration) var(--ds-ease-in-out),
-    opacity var(--ds-transition-duration) var(--ds-ease-in-out),
-    color var(--ds-transition-duration-slow) var(--ds-ease-in-out);
-}
-
-.actions button:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-}
-
-.actions button:focus-visible {
-  outline: 2px solid var(--dsw-alias-label-primary);
-  outline-offset: 3px;
-}
-
-.primary {
-  background: var(--dsw-alias-brand-primary);
-  color: var(--dsw-alias-label-primary-inverted);
-}
-
-.primary:hover:not(:disabled) {
-  background: var(--dsw-alias-button-primary-hover);
-}
-
-.actions .secondary {
-  border-color: var(--dsw-alias-border-l2);
-  background: var(--dsw-alias-button-elevated-fill);
-  color: var(--dsw-alias-label-primary);
-}
-
-.actions .back {
-  position: absolute;
-  top: calc(100% + 16px);
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  min-width: 58px;
-  height: 28px;
-  padding: 4px 10px;
-  border: 0;
-  border-radius: 24px;
-  corner-shape: round;
-  background: transparent;
-  color: var(--dsw-alias-label-secondary);
-  font-family: var(--dsw-font-family-brand);
-  font-weight: 300;
-  font-size: 14px;
-  line-height: 20px;
-}
-
-/* Platform text actions use color-only hover, preserving the native backdrop. */
-.actions .back:hover:not(:disabled) {
   color: var(--dsw-alias-brand-primary);
 }
 
-.actions .back:disabled {
-  color: var(--dsw-alias-label-caption);
-  opacity: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .actions button {
-    transition: none;
-  }
-}
-
-.actions .secondary:hover:not(:disabled) {
-  background: var(--dsw-alias-button-floating-hover);
+.tagline p {
+  margin: 14px 0 0;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 23px;
+  letter-spacing: 0.01em;
+  text-wrap: pretty;
 }
 
 .key-form {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 40px;
-  width: 440px;
+  gap: 28px;
+  width: 340px;
+  max-width: 100%;
+  animation: welcome-rise var(--ds-transition-duration) var(--ds-ease-in-out) 0.06s both;
 }
 
 .key-heading {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 8px;
   text-align: center;
 }
 
 .key-heading h1 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 400;
-  line-height: 32px;
-  letter-spacing: 0.01em;
+  font-family: var(--dsw-font-family-brand);
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 30px;
+  color: var(--dsw-alias-label-primary);
 }
 
 .key-heading p {
   margin: 0;
   color: var(--dsw-alias-label-secondary);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 300;
-  line-height: 22px;
-  letter-spacing: 0.02em;
+  line-height: 21px;
 }
 
 .key-field {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  position: relative;
-  width: 100%;
+  gap: 14px;
 }
 
-/* Text inputs match :focus-visible after pointer focus too; their border carries focus. */
 .key-field input {
   display: block;
   width: 100%;
-  height: 48px;
-  padding: 7px 14px;
+  height: 44px;
+  padding: 8px 14px;
   border: 1px solid var(--dsw-alias-border-l4);
-  border-radius: 12px;
+  border-radius: 10px;
   outline: none;
-  background: transparent;
+  background: color-mix(in srgb, var(--dsw-alias-button-elevated-fill) 72%, transparent);
   color: var(--dsw-alias-label-primary);
   font-family: inherit;
-  font-weight: inherit;
+  font-weight: 400;
   font-size: 14px;
-  line-height: 24px;
+  line-height: 20px;
   user-select: text;
+  transition:
+    border-color var(--ds-transition-duration) var(--ds-ease-in-out),
+    box-shadow var(--ds-transition-duration) var(--ds-ease-in-out);
 }
 
+/* Gold focus: the border turns brand gold inside a soft glow ring. */
 .key-field input:focus {
   border-color: var(--dsw-alias-brand-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--dsw-alias-brand-primary) 22%, transparent);
+}
+
+.key-field input::placeholder {
+  color: var(--dsw-alias-label-caption);
+  opacity: 1;
+}
+
+.key-error {
+  margin: 2px 0 0;
+  color: var(--dsw-seal);
+  font-size: 13px;
+  line-height: 20px;
 }
 
 /* A password field hosts its plain-text toggle inside the input's right edge. */
@@ -342,16 +334,155 @@ body {
   outline-offset: 1px;
 }
 
-.key-field input::placeholder {
+/* --- Buttons --- */
+
+.actions {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 280px;
+  max-width: 100%;
+  animation: welcome-rise var(--ds-transition-duration) var(--ds-ease-in-out) 0.12s both;
+}
+
+.actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-family: var(--dsw-font-family);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  app-region: no-drag;
+  transition:
+    background-color var(--ds-transition-duration) var(--ds-ease-in-out),
+    border-color var(--ds-transition-duration) var(--ds-ease-in-out),
+    box-shadow var(--ds-transition-duration) var(--ds-ease-in-out),
+    opacity var(--ds-transition-duration) var(--ds-ease-in-out);
+}
+
+.actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.actions button:focus-visible {
+  outline: 2px solid var(--dsw-alias-brand-primary);
+  outline-offset: 3px;
+}
+
+.primary {
+  background: var(--dsw-alias-brand-primary);
+  color: var(--dsw-alias-label-primary-inverted);
+  box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--dsw-alias-brand-primary) 65%, transparent);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--dsw-alias-button-primary-hover);
+}
+
+.actions .secondary {
+  border-color: var(--dsw-alias-border-l2);
+  background: var(--dsw-alias-button-elevated-fill);
+  color: var(--dsw-alias-label-primary);
+}
+
+.actions .secondary:hover:not(:disabled) {
+  background: var(--dsw-alias-button-floating-hover);
+}
+
+.actions .back {
+  position: absolute;
+  top: calc(100% + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 58px;
+  height: 28px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 24px;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  font-family: var(--dsw-font-family-brand);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* Platform text actions use color-only hover, preserving the native backdrop. */
+.actions .back:hover:not(:disabled) {
+  color: var(--dsw-alias-brand-primary);
+}
+
+.actions .back:disabled {
   color: var(--dsw-alias-label-caption);
   opacity: 1;
 }
 
-.key-error {
-  margin: 8px 0 0;
-  color: var(--dsw-alias-label-primary);
+/* --- Account states --- */
+
+#auth-page {
+  animation: welcome-rise var(--ds-transition-duration) var(--ds-ease-in-out) 0.06s both;
+}
+
+.auth-expired,
+.auth-waiting {
+  gap: 12px;
+}
+
+#auth-status {
+  font-family: var(--dsw-font-family-brand);
+  font-size: 21px;
+  font-weight: 500;
+  line-height: 28px;
+}
+
+.auth-expired p,
+.auth-waiting p {
+  color: var(--dsw-alias-label-secondary);
+}
+
+.auth-waiting .copy-link {
+  width: 240px;
+  min-height: 17px;
+  margin-top: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  font-family: inherit;
+  font-weight: inherit;
   font-size: 14px;
-  line-height: 22px;
+  line-height: 20px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  app-region: no-drag;
+}
+
+.auth-waiting .copy-link:not(:disabled):hover {
+  color: var(--dsw-alias-brand-primary);
+}
+
+.auth-waiting .copy-link:disabled {
+  cursor: default;
+}
+
+#auth-loading:disabled {
+  opacity: 1;
+}
+
+.actions .welcome-loading {
+  color: inherit;
 }
 
 .visually-hidden {
@@ -363,31 +494,30 @@ body {
   white-space: nowrap;
 }
 
-.auth-expired { gap: 12px; padding-top: 28px; }
-#auth-status { font-size: 20px; line-height: 24px; font-weight: 400; letter-spacing: normal; }
-.auth-expired p { line-height: 16px; letter-spacing: normal; }
+/* Page swaps replay the cascade because hidden pages leave the render tree (display: none). */
+@keyframes welcome-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
 
-
-.auth-waiting { gap: 12px; padding-top: 28px; }
-.auth-waiting p { line-height: 16px; letter-spacing: normal; }
-.auth-waiting .copy-link {
-  margin-top: 20px;
-  padding: 0;
-  width: 240px;
-  min-height: 17px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--dsw-alias-label-secondary);
-  font-family: inherit;
-  font-weight: inherit;
-  font-size: 14px;
-  line-height: 20px;
-  cursor: pointer;
-  app-region: no-drag;
-  text-decoration: underline;
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-#auth-loading:disabled { opacity: 1; }
-.actions .welcome-loading { color: inherit; }
 
-.auth-waiting .copy-link:disabled { cursor: default; }
+@media (prefers-reduced-motion: reduce) {
+  .brand,
+  .tagline,
+  .key-form,
+  #auth-page,
+  .actions {
+    animation: none;
+  }
+
+  .actions button,
+  .key-field input {
+    transition: none;
+  }
+}

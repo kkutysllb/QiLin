@@ -53,7 +53,7 @@ describe('desktop welcome window', () => {
   it.each(['darwin', 'win32', 'linux'] as const)('keeps the %s preview fixed-size and sandboxed', (platform) => {
     const options = welcomeWindowOptions(platform, resolveDesktopLocale('zh-CN'))
     expect(options).toMatchObject({
-      width: 600, height: 700, useContentSize: true, center: true, show: false,
+      width: 880, height: 560, useContentSize: true, center: true, show: false,
       resizable: false, maximizable: false, fullscreenable: false,
       webPreferences: {
         nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true,
@@ -64,7 +64,7 @@ describe('desktop welcome window', () => {
     if (platform === 'darwin') {
       expect(options.vibrancy).toBe('menu')
       expect(options.visualEffectState).toBe('active')
-      expect(options.trafficLightPosition).toEqual({ x: 21, y: 21 })
+      expect(options.trafficLightPosition).toEqual({ x: 341, y: 21 })
     } else if (platform === 'win32') {
       expect(options.backgroundMaterial).toBe('acrylic')
       expect(options.titleBarOverlay).toMatchObject({ height: 42 })
