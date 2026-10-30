@@ -1,5 +1,5 @@
 ---
-description: "Manage the profile's plugin bundles, their rows, and the plugins' configuration from the Settings Plugins section."
+description: "Manage the profile's plugin bundles, their rows, and the plugins' configuration from the Plugins page."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use the **Manage plugins** view in the Settings **Plugins** section to manage the profile's installed bundles and the official bundles shipped switched off. Switch bundles and their rows on and off, install a bundle once the Host has read the spec, watch pnpm's output, stop a run, and enable what it added. **Check for updates** compares the manageable layers with their registry's latest versions; the **Plugin catalog** searches GitHub's plugin topic. A plugin with a configuration page edits it here; the section's Plugin list view keeps the read-only inventory.
+Use the **Manage plugins** view, opened from the **Plugins** navigation entry, to manage the profile's installed bundles and the official bundles shipped switched off. Switch bundles and their rows on and off, install a bundle once the Host has read the spec, watch pnpm's output, stop a run, and enable what it added. **Check for updates** compares the manageable layers with their registry's latest versions; the **Plugin catalog** searches GitHub's plugin topic. A plugin with a configuration page edits it here.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ Use the **Manage plugins** view in the Settings **Plugins** section to manage th
 <a id="use-this-package"></a>
 ## Use this package
 
-Open Settings, select **Plugins**, and open the **Manage plugins** tab. The page reads the inventory and the bundles through `api-remotes` when first opened; a Host without a managed profile shows the page as unavailable. **Official** comes first and lists the bundles the installation ships for switching on — off until switched on, without an uninstall, and tagged **Beta** where the feature is one — followed by the official plugins that registered a configuration page; **Installed** lists the bundles the profile holds. Cards are listed by name, so switching a bundle on or off does not move its card. A dependency without a bundle patch is not a plugin and is not listed unless the profile selects it, in which case it carries a problem tag. Global configuration remains on the configuration pages this view hosts.
+Open the **Plugins** page from the navigation. The page reads the inventory and the bundles through `api-remotes` when first opened; a Host without a managed profile shows the page as unavailable. **Official** comes first and lists the bundles the installation ships for switching on — off until switched on, without an uninstall, and tagged **Beta** where the feature is one — followed by the official plugins that registered a configuration page; **Installed** lists the bundles the profile holds. Cards are listed by name, so switching a bundle on or off does not move its card. A dependency without a bundle patch is not a plugin and is not listed unless the profile selects it, in which case it carries a problem tag. Global configuration remains on the configuration pages this view hosts.
 
 The page bar and the More list's back-and-title row stay pinned: the main header and the list share one scroll container, so header controls move with the scroll position until they reach their compact positions and follow the same coordinates back. The header keeps its resting layout height, so moving its controls never changes the list's scroll range, and a barely scrolling list can stop before the header is fully compact. With tabs present the subtitle and title scroll out and the tabs settle beside Refresh and Add plugin where space permits; on narrow pages the tabs and icon actions share a row beneath the heading where they fit, otherwise the tabs stay above the actions. The compact bar keeps 16px below its controls, macOS adds the frame's titlebar clearance, and only with the sidebar collapsed does it keep 8px above them in addition. Detail pages scroll their head row with their content.
 
@@ -59,7 +59,7 @@ After the checks, the list toolbar says how many plugins can be updated, that al
 
 ### Switching a bundle
 
-A bundle's page shows its full package name under the title, the spec that installs it elsewhere. A bundle's switch changes its layer selection. A profile with HMR recomposes before the operation completes; one without HMR, and a bundle a higher layer overrides, say so in a toast. A bundle the Host cannot read carries a problem tag and its reason on its page and cannot be switched on; one that provides the management components stays locked. The Host answers with error codes, which the page's dictionary words; pnpm's and the Loader's own diagnostics are shown as they are. The page excludes the bundles every profile ships as its own composition (`@qilin-agent/base`, `@qilin-agent/web-app`, and the surface apps) from cards and counts even when the profile holds them as dependencies or the Host reports an error; the Host inventory remains complete, and the Settings Plugins section's Plugin list tab inspects them. A shipped bundle the profile owns — one whose installed copy resolves ahead of the installation's, so it can be upgraded in place — is instead listed: its card carries the version the profile resolves, and its layer switch is locked with the reason, because dropping the entry would not survive the next load; the update itself is the updates list's action, and the layer's rows stay switchable.
+A bundle's page shows its full package name under the title, the spec that installs it elsewhere. A bundle's switch changes its layer selection. A profile with HMR recomposes before the operation completes; one without HMR, and a bundle a higher layer overrides, say so in a toast. A bundle the Host cannot read carries a problem tag and its reason on its page and cannot be switched on; one that provides the management components stays locked. The Host answers with error codes, which the page's dictionary words; pnpm's and the Loader's own diagnostics are shown as they are. The page excludes the bundles every profile ships as its own composition (`@qilin-agent/base`, `@qilin-agent/web-app`, and the surface apps) from cards and counts even when the profile holds them as dependencies or the Host reports an error; the Host inventory remains complete. A shipped bundle the profile owns — one whose installed copy resolves ahead of the installation's, so it can be upgraded in place — is instead listed: its card carries the version the profile resolves, and its layer switch is locked with the reason, because dropping the entry would not survive the next load; the update itself is the updates list's action, and the layer's rows stay switchable.
 
 ### Switching one row of a bundle
 
@@ -101,7 +101,7 @@ The browser plugin registers the Plugins page into the shell's `main` panel and 
 
 ### Configuration slots
 
-The page's `main` registration declares `plugins.item`, `plugins.bundle.config`, `plugins.add.actions`, `plugins.tab`, and the `plugins.detail.*` list as its children, so the slots exist while the page does and a registrant's `ctx.slots.inject` waits for them. `configLedgerSource` projects the two ledgers into one observable — the official items in ledger order with their labels resolved in the active locale, and the bundle keys — cached until a ledger or the locale moves; the page binds it as `useConfigLedger` beside the store and never names a configurable plugin itself. Which page is open is page-local state: the cards, a bundle, or an official plugin. Other Client plugins inject `pluginNavigation` and call `ctx.pluginNavigation.openBundle(packageName)` to open bundle details without changing the current Session; the channel opens the Settings Plugins section and hands the name to the mounted page's reveal, and an absent bundle displays the list. A registration lives with the browser half that made it. `qilin-client-modules` attaches a package's browser half to the Loader row whose specifier is the bare package name, so every page a bundle registers for itself goes away when that row is switched off; a sub-plugin whose page must outlive the other rows ships as its own package.
+The page's `main` registration declares `plugins.item`, `plugins.bundle.config`, `plugins.add.actions`, `plugins.tab`, and the `plugins.detail.*` list as its children, so the slots exist while the page does and a registrant's `ctx.slots.inject` waits for them. `configLedgerSource` projects the two ledgers into one observable — the official items in ledger order with their labels resolved in the active locale, and the bundle keys — cached until a ledger or the locale moves; the page binds it as `useConfigLedger` beside the store and never names a configurable plugin itself. Which page is open is page-local state: the cards, a bundle, or an official plugin. Other Client plugins inject `pluginNavigation` and call `ctx.pluginNavigation.openBundle(packageName)` to open bundle details without changing the current Session; the channel opens the Plugins page and hands the name to the mounted page's reveal, and an absent bundle displays the list. A registration lives with the browser half that made it. `qilin-client-modules` attaches a package's browser half to the Loader row whose specifier is the bare package name, so every page a bundle registers for itself goes away when that row is switched off; a sub-plugin whose page must outlive the other rows ships as its own package.
 
 </details>
 
@@ -112,7 +112,7 @@ The page's `main` registration declares `plugins.item`, `plugins.bundle.config`,
 
 These pages cover the Settings tab, the Remote calls, and the Host-side manager.
 
-- [ui-settings](../ui-settings/README.md) — the tab list the page registers into; [ui-settings-plugins](../ui-settings-plugins/README.md) — the Plugins section that renders the tab.
+- [ui-settings](../ui-settings/README.md) — the Settings shell; [ui-settings-plugins](../ui-settings-plugins/README.md) — the official configuration pages that register into this page's slots.
 - [api-remotes](../../api/remotes/README.md) — the Remote BFF surface behind `pluginManager.*` and `pluginInventory.*`.
 - [plugin-manager](../../boot/plugin-manager/README.md) — the Host-side manager this page drives.
 - [ui-settings-plugins](../ui-settings-plugins/README.md) — the official configuration pages that register into this page's slots.
@@ -139,7 +139,7 @@ These limits define the reach of the management view; they are current package c
 - **Rows show a phase, not a reason** — a failed row reads as failed without the Host's error text; the Host log has it.
 - **One install at a time** — the dialog runs one pnpm command; a second spec waits for the first to finish.
 - **Updates follow the registry's `latest` tags** — the check offers the layers the profile manages and upgrades them to their latest version; pinning a specific version still means typing the spec.
-- **The management view is a Settings tab, not a sidebar panel** — the Plugins entry and its main-panel composition stay with the Settings Plugins section; the sidebar panel upstream ships, the `plugins.detail.*` contribution slots, and the metadata-localized package text are deliberately deferred ([alignment boundaries](../../../.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)).
+- **The management view is a navigation panel** — the Plugins entry and its main-panel composition stay with this package; the upstream sidebar panel details, the `plugins.detail.*` contribution slots, and the metadata-localized package text are deliberately deferred ([alignment boundaries](../../../.agents/notes/implemented/architecture/2026-09-25-desktop-and-account-alignment-boundaries.md)).
 - **A lost installation reply is not recoverable** — the Host exposes no `waitForInstall`, so the dialog reports a transport failure instead of asking the Host for the run's result.
 
 <a id="dev-note"></a>

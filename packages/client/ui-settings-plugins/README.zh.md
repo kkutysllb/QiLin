@@ -1,5 +1,5 @@
 ---
-description: "qilin Web 客户端的「内置插件」设置分区，以及注册进该分区管理标签页的官方插件配置页。"
+description: "qilin Web 客户端的官方插件配置页，注册进「插件」页的官方分组。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用**内置插件**设置分区查看本部署随附的插件；使用该分区**插件管理**标签页的**官方**分组配置开放了设置的宿主平面插件。每个配置页标明用户覆盖过哪些值，允许把它们重置为部署默认值，在本地保留修改直到保存，离开页面即丢弃。如果配置在页面加载后发生变化，保存会被拒绝，而不会覆盖较新的值。
+**插件**页的**官方**分组为本部署组装、且开放了设置的每个宿主平面插件列出一张卡片；点开卡片就是该插件的配置页。每个配置页标明用户覆盖过哪些值，允许把它们重置为部署默认值，在本地保留修改直到保存，离开页面即丢弃。如果配置在页面加载后发生变化，保存会被拒绝，而不会覆盖较新的值。
 
 ## 目录
 
@@ -25,11 +25,11 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-打开设置中的**内置插件**查看只读的插件列表；[ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.zh.md) 贡献了分区两个标签页中的一个，[ui-plugin-manager](../ui-plugin-manager/README.zh.md) 贡献了承载配置的另一个——**插件管理**。要配置宿主平面插件，打开**插件管理**标签页：官方分组为本部署组装的每个插件列出一张卡片，顺序依次为 shell 执行器（`shell`）、工作区 Git 服务的二进制与限额（`workspace-git`）、agent loop 的工具调用并行度（`agent-loop`）、Subagent 委派限制和模型选择（`subagent` 与 `subagent-model-selection`）以及 DeepSeek 搜索提供方（`web-search-deepseek`），点开卡片就是该插件带表单的页面。
+从导航打开**插件**页。其官方分组为本部署组装的每个插件列出一张卡片，顺序依次为 shell 执行器（`shell`）、工作区 Git 服务的二进制与限额（`workspace-git`）、agent loop 的工具调用并行度（`agent-loop`）、Subagent 委派限制和模型选择（`subagent` 与 `subagent-model-selection`）以及 DeepSeek 搜索提供方（`web-search-deepseek`），点开卡片就是该插件带表单的页面。页面由 [ui-plugin-manager](../ui-plugin-manager/README.zh.md) 绘制。
 
 ### 这里会出现什么
 
-每个页面在 Host 服务其 settings 命名空间期间注册进管理标签页的 `plugins.item` slot，因此没有组装该插件的部署不会留下它的任何痕迹；Host 开始或停止服务某个命名空间时，其页面会在下一次 settings 文档提交或重连时加入或撤下。卡片上的一句话简介与页面上的表单是同一个条目按该标签页索取的两种视图渲染出来的。
+每个页面在 Host 服务其 settings 命名空间期间注册进该页的 `plugins.item` slot，因此没有组装该插件的部署不会留下它的任何痕迹；Host 开始或停止服务某个命名空间时，其页面会在下一次 settings 文档提交或重连时加入或撤下。卡片上的一句话简介与页面上的表单是同一个条目按该页面索取的两种视图渲染出来的。
 
 ### 编辑与保存
 

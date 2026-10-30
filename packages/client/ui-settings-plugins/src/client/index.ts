@@ -1,12 +1,9 @@
 /**
- * Built-in plugins settings surface and the official plugin configuration
- * pages, browser half. The Settings section is the shell around the
- * feature-owned tabs registered into `settings.plugins.tab` (the read-only
- * inventory ships one); the configuration pages this package ships register
- * into the Plugins page's `plugins.item` slot, for the host-plane namespaces
- * the deployment exposes, and appear in the page's Official group. Each form
- * binds its namespace through the client settings scope, which keeps the
- * pages unaware of one another and of the section.
+ * Official plugin configuration pages, browser half. The configuration pages
+ * register into the Plugins page's `plugins.item` slot for the host-plane
+ * namespaces the deployment exposes, and appear in the page's Official group.
+ * Each form binds its namespace through the client settings scope, which
+ * keeps the pages unaware of one another.
  */
 
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
@@ -19,13 +16,10 @@ import type {} from '@qilin-agent/client-ui-settings/client'
 import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
 import type { Context as ClientContext } from '@qilin-agent/kylin'
-import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
 import type {} from '@qilin-agent/api-remotes/client'
 import { AgentLoopCard } from './AgentLoopCard.tsx'
 import { BashCard } from './BashCard.tsx'
-import { PluginsSettingsSection } from './PluginsSettingsSection.tsx'
-import type { PluginsSettingsSectionInjected, PluginsSettingsTabEntry } from './PluginsSettingsSection.tsx'
 import { SubagentCard } from './SubagentCard.tsx'
 import { subagentCardFace } from './subagent-card-controller.ts'
 import { SubagentLimitsCardController } from './subagent-limits-card-controller.ts'
@@ -38,9 +32,15 @@ import {
   SUBAGENT_MODEL_SELECTION_NS, SubagentModelSelectionCardController,
 } from './subagent-model-selection-card-controller.ts'
 import { WEB_API_NS, WEB_NS, WEB_SEARCH_NS, WebSearchCardController } from './web-search-card-controller.ts'
-import { en, zh } from './locales.ts'
+import { en, zh, type PluginsSettingsLocaleKey } from './locales.ts'
 
-export type { PluginsSettingsSectionInjected, PluginsSettingsSectionProps } from './PluginsSettingsSection.tsx'
+declare module '@qilin-agent/client-ui-slots' {
+  interface LocaleNamespaceMap {
+    /** Built-in plugin configuration page copy. */
+    'settings.plugins': PluginsSettingsLocaleKey
+  }
+}
+
 export type { PluginConfigFormProps } from './PluginConfigForm.tsx'
 export type { SettingsFieldProps } from '@qilin-agent/client-ui-primitives'
 export type {
@@ -59,7 +59,7 @@ export const inject = [
 ]
 
 /**
- * Mount the built-in plugins section and the configuration pages this package ships.
+ * Mount the configuration pages this package ships.
  * @param ctx - the browser plugin context.
  */
 export function apply(ctx: ClientContext): void {
@@ -136,50 +136,4 @@ export function apply(ctx: ClientContext): void {
     return () => { for (const off of offs) off() }
   }, 'ui-settings-plugins: configuration pages')
 
-  let tabsVersion = -1
-  let tabsRevision = -1
-  let tabs: readonly PluginsSettingsTabEntry[] = []
-  const sectionInjected = (): PluginsSettingsSectionInjected => ({
-    hooks: {
-      tabs: {
-        getSnapshot: () => {
-          const version = ctx.slots.getVersion('settings.plugins.tab')
-          const revision = ctx.locale.getSnapshot().revision
-          if (version !== tabsVersion || revision !== tabsRevision) {
-            tabsVersion = version
-            tabsRevision = revision
-            tabs = ctx.slots.entries('settings.plugins.tab')
-              .map(entry => ({
-                /* v8 ignore next -- list-slot registration requires id */
-                id: entry.options.id ?? '',
-                order: entry.options.order ?? 0,
-                label: resolveSlotLabel(entry.options.label) ?? '',
-              }))
-              .sort((a, b) => a.order - b.order)
-          }
-          return tabs
-        },
-        subscribe: (listener) => {
-          const offLedger = ctx.slots.subscribe('settings.plugins.tab', listener)
-          const offLocale = ctx.locale.subscribe(listener)
-          return () => {
-            offLedger()
-            offLocale()
-          }
-        },
-      },
-    },
-  })
-
-  // This package owns the one Built-in plugins navigation entry and the tab
-  // chrome; feature plugins contribute pages without competing for Settings nav rows.
-  ctx.slots.inject('settings.section', () => ctx.slots.register({
-    name: 'settings.section',
-    id: 'plugins',
-    order: 15,
-    label: () => t('nav'),
-    locale: NS,
-    inject: sectionInjected,
-    children: { 'settings.plugins.tab': { kind: 'list', scope: 'root' } },
-  }, PluginsSettingsSection))
 }

@@ -8,7 +8,6 @@ import { RemoteError, TestRemote } from '@qilin-agent/client-test-runtime'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/client-ui-settings/client'
 import { apply, inject } from '@qilin-agent/client-ui-settings-plugins/client'
-import type { PluginsSettingsSectionInjected } from '@qilin-agent/client-ui-settings-plugins/client'
 import { SubagentModelSelectionCardController } from '../src/client/subagent-model-selection-card-controller.ts'
 import { GitCard } from '../src/client/GitCard.tsx'
 import type { GitCardFace } from '../src/client/git-card-controller.ts'
@@ -79,41 +78,20 @@ describe('ui-settings-plugins apply', () => {
     ])
   })
 
-  it('registers one Built-in plugins section and declares its tab slot, contributing no tab of its own', async () => {
+  it('contributes no Settings navigation row and no tab of its own', async () => {
     const { ctx, slots } = await bench()
     declareRoot(slots)
 
     await ctx.plugin({ inject: [...inject], apply }).await()
 
-    const section = slots.entries('settings.section')[0]!
-    expect(section.options).toMatchObject({ id: 'plugins', order: 15 })
-    // The nav label is a locale-following thunk; owners resolve it at read time.
-    expect(resolveSlotLabel(section.options.label)).toBe('内置插件')
-    expect(slots.spec('settings.plugins.tab')).toMatchObject({ kind: 'list', scope: 'root' })
-    expect(slots.entries('settings.plugins.tab')).toHaveLength(0)
+    expect(slots.entries('settings.section')).toHaveLength(0)
+    expect(slots.spec('settings.plugins.tab')).toBeUndefined()
   })
 
-  it('injects a live tab projection and one business face per configuration page', async () => {
+  it('injects one business face per configuration page', async () => {
     const { ctx, slots } = await bench(['bash-sandbox', 'agent-loop', 'subagent', 'subagent-model-selection-settings', 'web-search-deepseek'])
     declareRoot(slots)
     await ctx.plugin({ inject: [...inject], apply }).await()
-
-    const section = slots.entries('settings.section')[0]!
-    const sectionFace = (section.inject as unknown as () => PluginsSettingsSectionInjected)()
-    const initialTabs = sectionFace.hooks.tabs.getSnapshot()
-    expect(initialTabs).toEqual([])
-    expect(sectionFace.hooks.tabs.getSnapshot()).toBe(initialTabs)
-
-    const listener = vi.fn()
-    const unsubscribe = sectionFace.hooks.tabs.subscribe(listener)
-    slots.register({ name: 'settings.plugins.tab', id: 'plain' } as never, () => null)
-    slots.register({ name: 'settings.plugins.tab', id: 'first', order: -1 } as never, () => null)
-    // Tabs follow their contribution's order, whatever order they registered in.
-    expect(sectionFace.hooks.tabs.getSnapshot()).toEqual([
-      { id: 'first', order: -1, label: '' },
-      { id: 'plain', order: 0, label: '' },
-    ])
-    unsubscribe()
 
     await vi.waitFor(() => { expect(slots.entries('plugins.item')).toHaveLength(4) })
     for (const entry of slots.entries('plugins.item')) {
@@ -281,15 +259,6 @@ describe('ui-settings-plugins apply', () => {
     expect(describeCredentials).not.toHaveBeenCalled()
   })
 
-  it('registers into a declaration that arrives after apply', async () => {
-    const { ctx, slots } = await bench()
-    await ctx.plugin({ inject: [...inject], apply }).await()
-
-    declareRoot(slots)
-
-    await vi.waitFor(() => { expect(slots.entries('settings.section')).toHaveLength(1) })
-  })
-
   it('collapses every contribution on teardown', async () => {
     const { ctx, slots } = await bench(['bash-sandbox', 'agent-loop'])
     declareRoot(slots)
@@ -299,8 +268,6 @@ describe('ui-settings-plugins apply', () => {
 
     await fiber.dispose()
 
-    expect(slots.entries('settings.section')).toHaveLength(0)
-    expect(slots.spec('settings.plugins.tab')).toBeUndefined()
     expect(slots.entries('plugins.item')).toHaveLength(0)
   })
 })

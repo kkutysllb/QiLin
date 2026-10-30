@@ -1,5 +1,5 @@
 ---
-description: "Built-in plugins settings section for the qilin web client, and the official plugin configuration pages that register into the section's management tab."
+description: "Official plugin configuration pages for the qilin web client, registered into the Plugins page's Official group."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use the **Built-in plugins** settings section to inspect the plugins this deployment ships, and the **Official** group of the section's **Manage plugins** tab to configure the host-plane plugins that expose settings. Each configuration page shows which values the user overrode, lets them reset those to deployment defaults, keeps edits local until save, and drops them when the page is left. If the configuration changed after the page loaded, the save is rejected instead of overwriting the newer values.
+The **Official** group of the **Plugins** page lists one card per host-plane plugin this deployment composes that exposes settings; a card opens that plugin's configuration page. Each configuration page shows which values the user overrode, lets them reset those to deployment defaults, keeps edits local until save, and drops them when the page is left. If the configuration changed after the page loaded, the save is rejected instead of overwriting the newer values.
 
 ## Table of Contents
 
@@ -25,11 +25,11 @@ Use the **Built-in plugins** settings section to inspect the plugins this deploy
 <a id="use-this-package"></a>
 ## Use this package
 
-Open **Built-in plugins** in Settings for the read-only inventory; [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.md) contributes it as one of the section's two tabs, and [ui-plugin-manager](../ui-plugin-manager/README.md) contributes the other, **Manage plugins**, which hosts configuration. To configure a host-plane plugin, open the **Manage plugins** tab: the Official group lists one card per plugin this deployment composes, in this order — the shell executor (`shell`), the workspace Git service's binaries and limits (`workspace-git`), the agent loop's tool-call parallelism (`agent-loop`), Subagent delegation limits and model selection (`subagent` and `subagent-model-selection`), and the DeepSeek search provider (`web-search-deepseek`) — and a card opens the plugin's page with its form.
+Open the **Plugins** page from the navigation. Its Official group lists one card per plugin this deployment composes, in this order — the shell executor (`shell`), the workspace Git service's binaries and limits (`workspace-git`), the agent loop's tool-call parallelism (`agent-loop`), Subagent delegation limits and model selection (`subagent` and `subagent-model-selection`), and the DeepSeek search provider (`web-search-deepseek`) — and a card opens the plugin's page with its form. [ui-plugin-manager](../ui-plugin-manager/README.md) draws the page.
 
 ### What appears here
 
-Each page registers into the management tab's `plugins.item` slot while the Host serves its settings namespace, so a deployment that does not compose the owning plugin shows no trace of it, and a namespace the Host starts or stops serving adds or withdraws its page on the next settings-document commit or reconnect. The card's one-liner and the page's form are one entry rendered in the two views the tab asks for.
+Each page registers into the page's `plugins.item` slot while the Host serves its settings namespace, so a deployment that does not compose the owning plugin shows no trace of it, and a namespace the Host starts or stops serving adds or withdraws its page on the next settings-document commit or reconnect. The card's one-liner and the page's form are one entry rendered in the two views the page asks for.
 
 ### Editing and saving
 

@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-settings-plugins/README.md
 /:
-  en: 1670ed782a12908d
-  zh: 120007354cbbdb36
+  en: deabd9e4e1afe197
+  zh: 27b0e7ae8f68fb7e
 /qilin-agent-client-ui-settings-plugins:
   en: 422cd671737b096e
   zh: 9e9ef6a35b138742
 /qilin-agent-client-ui-settings-plugins/summary:
-  en: 7a676f7430c92e22
-  zh: 2ff6a911f94d4de4
+  en: ef21cb8e5096b518
+  zh: f5215b11bf37fa23
 /qilin-agent-client-ui-settings-plugins/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-client-ui-settings-plugins/use-this-package:
-  en: 2c3441975a279ff8
-  zh: b0587417f7bc0141
+  en: a4088ae8543183d4
+  zh: 4a39f986791c3de3
 /qilin-agent-client-ui-settings-plugins/use-this-package/what-appears-here:
-  en: 3bd795b9a5b033dd
-  zh: 95f3a6bac59864ba
+  en: 7523501d399ea0e4
+  zh: 880eb29ccf5cf04c
 /qilin-agent-client-ui-settings-plugins/use-this-package/editing-and-saving:
   en: 3e8d3dbd9deb704a
   zh: 62f8ec8379ea4212

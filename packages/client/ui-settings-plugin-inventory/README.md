@@ -93,6 +93,8 @@ None; this package neither assembles nor sends a provider request.
 
 These limits define the freshness and reach of the inventory view; they are current package constraints.
 
+- **No shipped host for the tab** — the tab registers into `settings.plugins.tab`, which the shipped Web composition no longer declares: Settings has no Built-in plugins section, so the view is not reachable. The registration and this package remain for a composition that declares the slot again.
+
 - **One snapshot per Settings mount or retry** — the tab does not subscribe to Loader changes or automatically refetch after reconnect; switching tabs preserves the current snapshot, while reopening Settings obtains a new one.
 - **Read-only in both planes** — the tab shows global and preset enablement but mutates neither; enable/disable controls that write a custom preset's own composition file are deliberate follow-up work.
 
