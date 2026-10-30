@@ -1,0 +1,40 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/util/file-drag/README.md
+/:
+  en: 698a0c2307c84f75
+  zh: 7c97281f0e2f3edd
+/qilin-agent-util-file-drag:
+  en: c2ef6a8e50e805b6
+  zh: 84fa5cbe7a4770e8
+/qilin-agent-util-file-drag/summary:
+  en: 5753bd56a486ab0f
+  zh: c9e10cf5ce140921
+/qilin-agent-util-file-drag/table-of-contents:
+  en: 2e89ddb1e73218cb
+  zh: 8a6bc778724bb498
+/qilin-agent-util-file-drag/use-this-package:
+  en: 3b99d71b8194d170
+  zh: ec0b79bdabaaa2ad
+/qilin-agent-util-file-drag/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-util-file-drag/model-experience/no-model-visible-output:
+  en: 54bd40b5e1147e86
+  zh: 61a397812fc220f7
+/qilin-agent-util-file-drag/model-experience/no-model-visible-output/what-the-model-sees:
+  en: c2a2eed83d37dd10
+  zh: ff829e1cdda5fa88
+/qilin-agent-util-file-drag/model-experience/no-model-visible-output/token-effect:
+  en: bd16938457e46ac1
+  zh: 31c00670e5c199bf
+/qilin-agent-util-file-drag/model-experience/no-model-visible-output/kv-cache-effect:
+  en: 153f9e543b14724a
+  zh: 75edd1e642ce73aa
+/qilin-agent-util-file-drag/known-limitations-and-deferred-work:
+  en: f41a82f415a6f5aa
+  zh: 7304089c56838bfe
+/qilin-agent-util-file-drag/known-limitations-and-deferred-work/dev-note:
+  en: b836f01bd0bceb4a
+  zh: 8122fa08b2aa95fa

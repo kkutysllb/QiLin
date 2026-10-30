@@ -375,6 +375,8 @@
       "@qilin-agent/experimental-client-ui-voice-input/client": ["./packages/experimental/client-ui-voice-input/src/client/index.ts"],
       "@qilin-agent/util-crypto": ["./packages/util/crypto/src"],
       "@qilin-agent/util-code-language": ["./packages/util/code-language/src"],
+      "@qilin-agent/util-file-drag": ["./packages/util/file-drag/src"],
+      "@qilin-agent/deliverable-file-references": ["./packages/deliverables/deliverable-file-references/src"],
       "@qilin-agent/util-values": ["./packages/util/values/src"],
       // util/ folders are role-named without the util- prefix their npm names carry,
       // so these aliases stay hand-written like qilin-util-crypto above.

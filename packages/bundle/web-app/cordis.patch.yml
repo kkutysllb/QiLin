@@ -370,6 +370,9 @@
     - id: ui-cordis
       name: '@qilin-agent/client-ui-kylin'
 
+    - id: deliverable-file-references
+      name: '@qilin-agent/deliverable-file-references'
+
     # Turn tail: the changed-files card and delivery cards under each closing
     # assistant message. Remove this entry to turn the surface off; the tail
     # hole renders empty.

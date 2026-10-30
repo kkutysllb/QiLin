@@ -2390,6 +2390,9 @@ importers:
       '@qilin-agent/cmdline':
         specifier: workspace:*
         version: link:../../boot/cmdline
+      '@qilin-agent/deliverable-file-references':
+        specifier: workspace:*
+        version: link:../../deliverables/deliverable-file-references
       '@qilin-agent/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
@@ -2734,6 +2737,9 @@ importers:
       '@qilin-agent/cmdline':
         specifier: workspace:*
         version: link:../../boot/cmdline
+      '@qilin-agent/deliverable-file-references':
+        specifier: workspace:*
+        version: link:../../deliverables/deliverable-file-references
       '@qilin-agent/file-reference':
         specifier: workspace:*
         version: link:../../context/file-reference
@@ -7690,6 +7696,15 @@ importers:
       '@qilin-agent/launch-environment':
         specifier: workspace:*
         version: link:../../util/launch-environment
+
+  packages/deliverables/deliverable-file-references:
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
 
   packages/deliverables/tool-present:
     dependencies:
@@ -15837,6 +15852,19 @@ importers:
         specifier: workspace:~
         version: link:../../../vendor/cordis
 
+  packages/util/file-drag:
+    dependencies:
+      mime:
+        specifier: ^4.1.1
+        version: 4.1.2
+    devDependencies:
+      '@qilin-agent/brand':
+        specifier: workspace:*
+        version: link:../brand
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
   packages/util/home-paths:
     devDependencies:
       '@qilin-agent/kylin':
@@ -22558,6 +22586,11 @@ packages:
   mime@2.6.0:
     resolution: {integrity: sha512-USPkMeET31rOMiarsBNIHZKLGgvKc/LrjofAnBlOttf5ajRvqiRA8QsenbcooctK6d6Ts6aqZXBA+XbkKthiQg==}
     engines: {node: '>=4.0.0'}
+    hasBin: true
+
+  mime@4.1.2:
+    resolution: {integrity: sha512-ikRzZ2RwbUVDyL9SsU0f2Phcmav4yq5r8faH5ZZKHtOZrMBLnrQOrj0uvqZ5R1uQnj+RO7Wcklw/lAf81mP9LQ==}
+    engines: {node: '>=16'}
     hasBin: true
 
   mimic-response@1.0.1:
@@ -30473,6 +30506,8 @@ snapshots:
   mime@1.6.0: {}
 
   mime@2.6.0: {}
+
+  mime@4.1.2: {}
 
   mimic-response@1.0.1: {}
 

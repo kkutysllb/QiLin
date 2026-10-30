@@ -96,6 +96,7 @@ const PACKAGE_LIBRARIES: Readonly<Record<string, string>> = {
   'packages/util/deque': 'Zero-dependency circular deque utility.',
   'packages/util/chunked-list': 'Persistent collection operations and checkpoint validation without a plugin surface.',
   'packages/util/code-language': 'Stateless file-extension to language table shared with the Host read hint; plain function/type exports.',
+  'packages/util/file-drag': 'Export naming and browser/native drag token contracts shared by Web and Desktop; plain function/type exports.',
   'packages/util/home-paths': 'Zero-dependency harness-home path resolver.',
   'packages/util/launch-environment': 'Zero-dependency environment resolver.',
   'packages/util/lazy-require': 'Caller-relative CommonJS-compatible dependency loader.',

@@ -34,6 +34,7 @@ Each package provides one primitive; open a package page for how to use it.
 | [`chunked-list/`](chunked-list/README.md) | Retains immutable list versions with bounded append copying and checkpoint validation |
 | [`values/`](values/README.md) | Validates, snapshots, compares, and freezes lossless JSON-compatible values |
 | [`code-language/`](code-language/README.md) | Selects the grammar for a source path and lists the highlight-suffix table shared with source views |
+| [`file-drag/`](file-drag/README.md) | Names an exported file and describes the browser and native drag tokens without touching the bytes |
 | [`home-paths/`](home-paths/README.md) | Resolves the single Harness home and joins shared user-data paths |
 | [`http-proxy/`](http-proxy/README.md) | Resolves one outbound proxy policy and installs it for `fetch`, SDK agents, and spawned children |
 | [`launch-environment/`](launch-environment/README.md) | Frozen launch environment that remembers which layer supplied each value |

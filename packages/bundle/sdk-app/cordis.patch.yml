@@ -9,6 +9,9 @@
       config:
         profile: sdk
 
+    - id: deliverable-file-references
+      name: '@qilin-agent/deliverable-file-references'
+
     - id: sdk-jsonrpc-server
       name: '@qilin-agent/sdk-jsonrpc-server'
       inject: [sdkAppStartup, loader]

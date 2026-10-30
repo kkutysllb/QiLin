@@ -38,11 +38,12 @@
   },
   "dependencies": {
     "@qilin-agent/cmdline": "workspace:*",
-    "@qilin-agent/sdk-jsonrpc-server": "workspace:*",
+    "@qilin-agent/deliverable-file-references": "workspace:*",
     "@qilin-agent/schemastery": "workspace:~",
-    "commander": "^15.0.0",
+    "@qilin-agent/sdk-jsonrpc-server": "workspace:*",
     "@qilin-agent/skill-office": "workspace:*",
-    "@qilin-agent/tool-workspace-dependencies": "workspace:*"
+    "@qilin-agent/tool-workspace-dependencies": "workspace:*",
+    "commander": "^15.0.0"
   },
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~"

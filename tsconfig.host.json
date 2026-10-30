@@ -292,6 +292,8 @@
     { "path": "./packages/util/time" },
     { "path": "./packages/util/timeout" },
     { "path": "./packages/util/code-language" },
+    { "path": "./packages/util/file-drag" },
+    { "path": "./packages/deliverables/deliverable-file-references" },
     { "path": "./packages/util/crypto" },
     { "path": "./packages/util/deque" },
     { "path": "./packages/util/chunked-list" },
