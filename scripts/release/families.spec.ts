@@ -62,12 +62,18 @@ describe('release families', () => {
       '@qilin-agent/experimental-client-ui-agent-team',
       '@qilin-agent/experimental-client-ui-claude-code-mods',
       '@qilin-agent/experimental-client-ui-cot-translation',
+      '@qilin-agent/experimental-client-ui-forge',
+      '@qilin-agent/experimental-client-ui-stats',
       '@qilin-agent/experimental-client-ui-voice-input',
       '@qilin-agent/experimental-computer-use-cua-driver-mcp',
       '@qilin-agent/experimental-computer-use-cua-driver-native',
       '@qilin-agent/experimental-cot-translation-bundle',
       '@qilin-agent/experimental-cua-macos',
       '@qilin-agent/experimental-cua',
+      '@qilin-agent/experimental-forge-bundle',
+      '@qilin-agent/experimental-forge-github',
+      '@qilin-agent/experimental-forge-session',
+      '@qilin-agent/experimental-forge',
       '@qilin-agent/experimental-hook-protocol',
       '@qilin-agent/experimental-hooks-claude-code',
       '@qilin-agent/experimental-hooks-codex',
@@ -291,8 +297,6 @@ describe('release families', () => {
 
   it('publishes each advertised on-demand provider before the installation', () => {
     expect(ON_DEMAND_BUNDLES).toEqual([
-      '@qilin-agent/subagent-claude-code',
-      '@qilin-agent/subagent-codex',
     ])
     const cli = member('apps/cli', '@qilin-agent/cli')
     const providers = ON_DEMAND_BUNDLES.map(name => member(name.replace('@qilin-agent/', 'packages/subagent/'), name))

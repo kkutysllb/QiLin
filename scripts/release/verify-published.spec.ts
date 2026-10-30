@@ -51,11 +51,11 @@ describe('requiredRanges', () => {
 describe('verifyPublishedResolution', () => {
   it('rejects the 3.1.7 incident shape: a peer range the registry cannot satisfy', async () => {
     const report = await verifyPublishedResolution(
-      [{ name: '@qilin-agent/subagent-codex', version: '3.1.7' }],
+      [{ name: '@qilin-agent/subagent', version: '3.1.7' }],
       fakeRegistry(
         { '@qilin-agent/kylin': ['4.0.3'] },
         {
-          '@qilin-agent/subagent-codex@3.1.7': {
+          '@qilin-agent/subagent@3.1.7': {
             peerDependencies: { '@qilin-agent/kylin': '~4.0.5' },
           },
         },
@@ -65,7 +65,7 @@ describe('verifyPublishedResolution', () => {
     expect(report.missingMembers).toEqual([])
     expect(report.unresolved).toEqual([
       {
-        consumer: '@qilin-agent/subagent-codex@3.1.7',
+        consumer: '@qilin-agent/subagent@3.1.7',
         section: 'peerDependencies',
         dependency: '@qilin-agent/kylin',
         range: '~4.0.5',

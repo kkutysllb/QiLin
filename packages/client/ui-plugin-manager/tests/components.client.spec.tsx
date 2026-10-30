@@ -1029,8 +1029,6 @@ describe('PluginManagerPage', () => {
         { packages: [
           pkg({ name: '@qilin-agent/experimental-badge-skill-bundle', official: true, enabled: false }),
           pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, removable: false, enabled: false }),
-          pkg({ name: '@qilin-agent/subagent-claude-code', official: true, availability: 'missing', installed: false, enabled: false }),
-          pkg({ name: '@qilin-agent/subagent-codex', official: true, enabled: false }),
           pkg({ name: '@qilin-agent/experimental-tool-worktree', official: true, enabled: false }),
           pkg({ name: '@acme/new-official', official: true }),
           pkg(),
@@ -1048,6 +1046,16 @@ describe('PluginManagerPage', () => {
       expect(within(extensions).getByRole('button', { name: en.moreAction }).textContent).toBe(en.moreAction)
       expect(within(extensions).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')))
         .toEqual(['@qilin-agent/experimental-agent-team-profile', '@acme/new-official'])
+      // Every experimental card carries the group's badge, and the More entry trails the grid as a light item.
+      expect(within(extensions).getAllByText(en.statusBeta)).toHaveLength(2)
+      const extensionList = within(extensions).getByRole('list')
+      expect(extensionList.lastElementChild?.getAttribute('role')).toBe('presentation')
+      expect(within(extensions).getByRole('button', { name: en.moreAction }).closest('li')).toBe(extensionList.lastElementChild)
+      // A card's switch belongs to the card end: it toggles without opening the page.
+      const firstExtension = within(extensions).getAllByRole('listitem')[0] as HTMLElement
+      fireEvent.click(within(firstExtension).getByRole('switch'))
+      expect(document.querySelector('[data-plugin-detail]')).toBeNull()
+      expect(document.querySelector('[data-plugin-group="extensions"]')).not.toBeNull()
       expect(document.querySelector('[data-plugin-count]')).toBeNull()
       expect(within(basic).getByText('Limits every command.')).toBeTruthy()
       expect(within(basic).queryByRole('switch', { name: en.enableToggle.replace('{name}', 'Shell') })).toBeNull()
@@ -1061,7 +1069,7 @@ describe('PluginManagerPage', () => {
         .toEqual(['more'])
       const more = document.querySelector('[data-plugin-group="more"]') as HTMLElement
       expect(within(more).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')))
-        .toEqual([team, '@acme/new-official', '@qilin-agent/experimental-tool-worktree', '@qilin-agent/experimental-badge-skill-bundle', '@qilin-agent/subagent-codex', '@qilin-agent/subagent-claude-code'])
+        .toEqual([team, '@acme/new-official', '@qilin-agent/experimental-tool-worktree', '@qilin-agent/experimental-badge-skill-bundle'])
       expect(document.querySelector('[data-plugin-package="dsh-better-sidebar"]')).toBeNull()
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', team) }))
       fireEvent.click(screen.getByRole('button', { name: en.backToPackage.replace('{name}', en.moreTitle) }))
@@ -2084,7 +2092,7 @@ describe('PluginManagerPage', () => {
     try {
       const { actions, set } = renderTab({ packages: [
         pkg({ name, official: true, enabled: false }),
-        pkg({ name: '@qilin-agent/subagent-codex', official: true, enabled: false }),
+        pkg({ name: '@qilin-agent/experimental-ralph-bundle', official: true, enabled: false }),
       ] })
       expect(document.querySelector(`[data-plugin-package="${name}"]`)).toBeNull()
       set({ highlight: name })
@@ -2301,8 +2309,8 @@ it('supplies the accepted entry values and atomic mutation action to a custom pl
 
 
 describe('on-demand Official bundles', () => {
-  const name = '@qilin-agent/subagent-codex'
-  const title = 'Codex subagent'
+  const name = '@qilin-agent/experimental-terminal-bundle'
+  const title = 'Terminal bundle'
   const catalog = (): PackageView => ({ name, meta: { title }, official: true, availability: 'missing', installed: false,
     optional: false, removable: false, enabled: false, updatable: false, rows: [],
     installTarget: { spec: `${name}@2.0.0`, version: '2.0.0' },
@@ -2364,10 +2372,10 @@ describe('on-demand Official bundles', () => {
   })
 
   it.each([
-    ['link:/current-checkout/codex', `${name}@2.0.0`, true],
-    ['link:/current-checkout/codex', 'link:/other-checkout/codex', true],
-    ['link:/current-checkout/codex', 'link:/current-checkout/codex', false],
-    [`${name}@2.0.0`, 'link:/current-checkout/codex', true],
+    ['link:/current-checkout/terminal', `${name}@2.0.0`, true],
+    ['link:/current-checkout/terminal', 'link:/other-checkout/codex', true],
+    ['link:/current-checkout/terminal', 'link:/current-checkout/terminal', false],
+    [`${name}@2.0.0`, 'link:/current-checkout/terminal', true],
     [`${name}@2.0.0`, `${name}@^2.0.0`, false],
     [`${name}@2.0.0`, undefined, false],
   ] as const)('offers source replacement from %s with recorded source %s: %s', (spec, source, expected) => {

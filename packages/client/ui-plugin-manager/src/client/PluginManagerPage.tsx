@@ -127,8 +127,6 @@ const MORE_BUNDLES = [
   '@qilin-agent/experimental-badge-skill-bundle',
   '@qilin-agent/experimental-ralph-bundle',
   '@qilin-agent/experimental-plugin-market-bundle',
-  '@qilin-agent/subagent-codex',
-  '@qilin-agent/subagent-claude-code',
 ]
 /**
  * Whether the main list shows an official optional bundle: the always-held ones, and any held-back one the profile enabled.
@@ -141,7 +139,7 @@ function pinnedToMainList(pkg: PackageView): boolean {
 
 /**
  * Where an optional bundle sits on both lists: the always-held ones in their order, then the bundles neither list
- * ranks, then the held-back ones in theirs, so Codex and Claude Code stay last on the More list.
+ * ranks, then the held-back ones in theirs, so the More list keeps its configured tail order.
  * @param name - the bundle's package name.
  * @returns the rank; bundles of equal rank keep the order the Host reported.
  */
@@ -536,10 +534,12 @@ function updateAvailable(pkg: PackageView): boolean {
 }
 
 /** One package as a card that opens its page: its name, its one-liner, its tags, and its bundle switch. */
-function PackageCard({ pkg, t, resolveText, busy, highlighted, newer, onOpen, onSetEnabled }: {
+function PackageCard({ pkg, t, resolveText, busy, highlighted, newer, badge, onOpen, onSetEnabled }: {
   readonly pkg: PackageView
   /** The newer registry version a version check offers. */
   readonly newer: string | undefined
+  /** A group-owned status badge, such as the experimental mark for optional bundles. */
+  readonly badge?: string | undefined
   readonly t: Translate
   readonly resolveText: ResolveText
   readonly busy: boolean
@@ -563,7 +563,8 @@ function PackageCard({ pkg, t, resolveText, busy, highlighted, newer, onOpen, on
         icon={<PackageArtwork key={pkg.meta?.icon} src={pkg.meta?.icon} />}
         tags={(
           <>
-            {beta ? <Tag className={css.statusTag} tone="info">{t('statusBeta')}</Tag> : null}
+            {badge === undefined ? null : <Tag className={css.statusTag} tone="info">{badge}</Tag>}
+            {badge === undefined && beta ? <Tag className={css.statusTag} tone="info">{t('statusBeta')}</Tag> : null}
             {status === 'problem' ? <Tag className={css.statusTag} tone="danger">{t('statusProblem')}</Tag> : null}
             {pkg.availability === 'missing' ? <Tag className={css.statusTag}>{t(pkg.installed ? 'statusMissingFiles' : 'statusNotInstalled')}</Tag> : null}
             {updateAvailable(pkg) || newer !== undefined ? <Tag className={css.statusTag} tone="info">{t('statusUpdateAvailable')}</Tag> : null}
@@ -1557,10 +1558,11 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const updatePkg = state.update === null ? undefined : state.packages.find(pkg => pkg.name === state.update?.packageName)
   const packageBusy = (pkg: PackageView): boolean => state.busy.includes(pkg.name) || state.update?.packageName === pkg.name
     || (state.install.subject?.name === pkg.name && (isInstallPending(state.install.phase) || state.install.phase === 'checking'))
-  const packageCard = (pkg: PackageView): ReactNode => (
+  const packageCard = (pkg: PackageView, badge?: string): ReactNode => (
     <PackageCard
       key={pkg.name}
       pkg={pkg}
+      badge={badge}
       t={t}
       resolveText={resolveText}
       busy={packageBusy(pkg)}
@@ -1574,19 +1576,23 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
     <ItemCard key={`item:${item.id}`} item={item} t={t} renderSlot={renderSlot} onOpen={() => { setView({ kind: 'item', id: item.id }) }} />
   ))
   const renderGroup = (id: 'basic' | 'extensions' | 'bundles', heading: string, cards: readonly ReactNode[]): ReactNode => {
-    const offersMore = id === 'extensions' && more.length > 0
-    if (cards.length === 0 && !offersMore) return null
+    // The More entry trails the experimental grid as a light link rather than a card of its own.
+    const tail = id === 'extensions' && more.length > 0
+      ? (
+        <li role="presentation" className={css.cardsMore}>
+          <Button size="sm" className={css.groupMore} onClick={() => { setView({ kind: 'more' }) }}>
+            {t('moreAction')}<IconChevronRightOutlineRegular size={14} aria-hidden="true" />
+          </Button>
+        </li>
+      )
+      : undefined
+    if (cards.length === 0 && tail === undefined) return null
     return (
       <section className={css.group} data-plugin-scope="global" data-plugin-group={id}>
         <div className={css.groupHead}>
           <h3 className={css.groupTitle}>{heading}</h3>
-          {offersMore ? (
-            <Button size="sm" className={css.groupMore} onClick={() => { setView({ kind: 'more' }) }}>
-              {t('moreAction')}<IconChevronRightOutlineRegular size={14} aria-hidden="true" />
-            </Button>
-          ) : null}
         </div>
-        {cards.length > 0 ? <ul className={css.cards}>{cards}</ul> : null}
+        {cards.length > 0 || tail !== undefined ? <ul className={css.cards}>{cards}{tail}</ul> : null}
       </section>
     )
   }
@@ -1732,13 +1738,13 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
               <div className={css.installedPanel} {...installedPanel}>
                 {showsMoreList ? (
                   <section className={css.group} data-plugin-scope="global" data-plugin-group="more">
-                    <ul className={css.cards}>{more.map(packageCard)}</ul>
+                    <ul className={css.cards}>{more.map(pkg => packageCard(pkg))}</ul>
                   </section>
                 ) : (
                   <>
                     {renderGroup('basic', t('basicTitle'), basicCards)}
-                    {renderGroup('extensions', t('extensionsTitle'), extensions.map(packageCard))}
-                    {renderGroup('bundles', t('bundlesTitle'), mine.map(packageCard))}
+                    {renderGroup('extensions', t('extensionsTitle'), extensions.map(pkg => packageCard(pkg, t('statusBeta'))))}
+                    {renderGroup('bundles', t('bundlesTitle'), mine.map(pkg => packageCard(pkg)))}
                   </>
                 )}
                 {/* A failed package read trails the groups it left incomplete: right under the groups on a

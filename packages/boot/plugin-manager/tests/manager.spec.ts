@@ -32,7 +32,7 @@ import { isolateGitCommandLineConfig } from './git-environment.ts'
  */
 const { CATALOG_ENTRY } = vi.hoisted(() => ({
   CATALOG_ENTRY: {
-    packageName: '@qilin-agent/subagent-codex',
+    packageName: '@qilin-agent/subagent',
     meta: {
       title: { en: 'Codex subagent', zh: 'Codex 子智能体' },
       description: { en: 'Delegate one task to Codex.', zh: '把单个任务委派给 Codex。' },

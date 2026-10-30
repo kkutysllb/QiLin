@@ -85,9 +85,9 @@ it('preserves selected bundle load errors in the agent list result', async () =>
 it('exposes an absent Official bundle installation target without display metadata', async () => {
   const { manager, call } = await fixture()
   const offered: BundleInfo = {
-    name: '@qilin-agent/subagent-codex', official: true, availability: 'missing',
+    name: '@qilin-agent/subagent', official: true, availability: 'missing',
     installed: false, enabled: false, optional: false, removable: false, updatable: false, rows: [], overrides: [],
-    installTarget: { spec: '@qilin-agent/subagent-codex@1.2.3', version: '1.2.3' },
+    installTarget: { spec: '@qilin-agent/subagent@1.2.3', version: '1.2.3' },
     meta: { title: 'Codex subagent' },
   }
   manager.listBundles.mockResolvedValue([offered])
@@ -98,11 +98,11 @@ it('exposes an absent Official bundle installation target without display metada
           "availability": "missing",
           "enabled": false,
           "installTarget": {
-            "spec": "@qilin-agent/subagent-codex@1.2.3",
+            "spec": "@qilin-agent/subagent@1.2.3",
             "version": "1.2.3",
           },
           "installed": false,
-          "name": "@qilin-agent/subagent-codex",
+          "name": "@qilin-agent/subagent",
           "official": true,
           "optional": false,
           "overrides": [],
