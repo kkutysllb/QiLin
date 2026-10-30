@@ -4,22 +4,22 @@
 #   pnpm run verify-translation-pairing --write packages/client/ui-entry-customization/README.md
 /:
   en: 57416280d387ea2b
-  zh: 7a474beaf622db33
+  zh: 3eff06cc37014baa
 /qilin-agent-client-ui-entry-customization:
   en: 09caa332c12bfcfb
   zh: 2d29f14ffa194e18
 /qilin-agent-client-ui-entry-customization/summary:
-  en: 589199344fe3dd70
-  zh: 76e997dece9c82f4
+  en: 38e4751e9cbca912
+  zh: 632e251b3848f023
 /qilin-agent-client-ui-entry-customization/table-of-contents:
   en: 76368b6b1da79c80
   zh: 434cf3c1f5db33cd
 /qilin-agent-client-ui-entry-customization/use-this-package:
-  en: 84f6303bf80b661f
-  zh: ee803913bca0b9fc
+  en: 21917fe1c240df17
+  zh: 942df87a8d7582b9
 /qilin-agent-client-ui-entry-customization/understand-the-implementation:
-  en: ba0daedf825916f9
-  zh: 2d1a3023099164ef
+  en: 8bb24c9ac9c3bdde
+  zh: 7bc07e4fa6bbf836
 /qilin-agent-client-ui-entry-customization/model-experience:
   en: b891f311c09d536f
   zh: cc37b303a9384415
@@ -27,8 +27,8 @@
   en: dc50ebf94183efa2
   zh: f7c27b4589090b19
 /qilin-agent-client-ui-entry-customization/known-limitations-and-deferred-work:
-  en: 5b4914a3ef05fa9c
-  zh: 773962973b854959
+  en: 3431ca8a61988db7
+  zh: ce8463e59797ecb4
 /qilin-agent-client-ui-entry-customization/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

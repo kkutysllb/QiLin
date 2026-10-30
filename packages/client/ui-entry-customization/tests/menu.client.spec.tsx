@@ -13,8 +13,8 @@ import { EntryMenuContent } from '../src/client/EntryMenuContent.tsx'
 import { en } from '../src/client/locales.ts'
 import { apply, inject } from '../src/client/index.ts'
 
-type Seats = 'sidebar.panellist.actions' | 'conversation.session.header.views.actions' | 'sidebar.right.tab.guide.actions'
-const SEATS = ['sidebar.panellist.actions', 'conversation.session.header.views.actions', 'sidebar.right.tab.guide.actions'] as const
+type Seats = 'sidebar.right.tab.guide.actions'
+const SEATS = ['sidebar.right.tab.guide.actions'] as const
 const runtimes = new Set<SlotTestRuntime>()
 afterEach(async () => {
   try { for (const runtime of runtimes) await runtime.dispose() }
@@ -92,7 +92,7 @@ function Frame({ renderSlot }: PropsRenderSlots<Seats>) {
   return <>
     {SEATS.map(seat => <div key={seat} role="menu" aria-label={seat}>
       {renderSlot(seat, {
-        entries: seat === 'conversation.session.header.views.actions' ? [] : entries,
+        entries,
         onOpen: (id) => { setOpened(`${seat}:${id}`) },
         onPinnedChange: (_id, next) => { setPinned(next) },
         onDismiss: () => {},
@@ -119,8 +119,6 @@ async function bench(language: 'en' | 'zh' = 'en', { analytics = true }: { analy
     },
   })
   await runtime.root.declare({
-    'sidebar.panellist.actions': { kind: 'list', scope: 'root' },
-    'conversation.session.header.views.actions': { kind: 'list', scope: 'root' },
     'sidebar.right.tab.guide.actions': { kind: 'list', scope: 'root' },
   }, Frame)
   const plugin = await runtime.mount({ inject: [...inject], apply })
@@ -136,8 +134,8 @@ describe('More menu registrations', () => {
       expect(within(b.view.getByRole('menu', { name: seat })).getAllByRole('menuitem').map(row => row.textContent))
         .toEqual(['Browse other plugins', 'Create your plugin'])
     }
-    const sidebar = within(b.view.getByRole('menu', { name: 'sidebar.panellist.actions' }))
-    fireEvent.click(sidebar.getByRole('menuitem', { name: 'Browse other plugins' }))
+    const guide = within(b.view.getByRole('menu', { name: 'sidebar.right.tab.guide.actions' }))
+    fireEvent.click(guide.getByRole('menuitem', { name: 'Browse other plugins' }))
     expect(b.openList).toHaveBeenCalledExactlyOnceWith()
     await b.plugin.dispose()
     for (const seat of SEATS) {
@@ -147,11 +145,7 @@ describe('More menu registrations', () => {
   })
 
   it.each([
-    ['en', 'sidebar.panellist.actions', 'Create a QiLin plugin with a left sidebar entry.'],
-    ['en', 'conversation.session.header.views.actions', 'Create a QiLin conversation view plugin.'],
     ['en', 'sidebar.right.tab.guide.actions', 'Create a QiLin plugin with a right sidebar entry.'],
-    ['zh', 'sidebar.panellist.actions', '创建一个带左侧栏入口的 QiLin 插件。'],
-    ['zh', 'conversation.session.header.views.actions', '创建一个 QiLin 会话视图插件。'],
     ['zh', 'sidebar.right.tab.guide.actions', '创建一个带右侧栏入口的 QiLin 插件。'],
   ] as const)('starts an unsent %s Creator draft from %s', async (language, seat, prompt) => {
     const b = await bench(language)
@@ -163,8 +157,6 @@ describe('More menu registrations', () => {
   })
 
   it.each([
-    ['sidebar.panellist.actions', 'sidebar'],
-    ['conversation.session.header.views.actions', 'conversation'],
     ['sidebar.right.tab.guide.actions', 'rightbar'],
   ] as const)('reports both footer actions of %s as the %s region before acting', async (seat, region) => {
     const b = await bench()
