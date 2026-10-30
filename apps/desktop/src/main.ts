@@ -72,6 +72,10 @@ import { loadDesktopProduct, type ResolvedDesktopProduct } from './product.ts'
 import { ensurePythonDependencies, prepareProductRuntime } from './product-runtime.ts'
 import { mintProductAccountSession } from './product-auth.ts'
 
+// KToon 面向中文用户：应用与内嵌 Web 的界面语言固定简体中文（显式语言偏好仍可覆盖）。
+// 必须在 ready 之前挂到 Chromium 命令行，navigator.language 与 app.getLocale 才会解析为 zh-CN。
+app.commandLine.appendSwitch('lang', 'zh-CN')
+
 let focusPrimaryWindow = (): void => {}
 let stopForRecovery = async (): Promise<void> => {}
 let shuttingDown = false
@@ -897,6 +901,17 @@ async function main(): Promise<void> {
       if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname.startsWith('/assets/')
         || ['/favicon.svg', '/manifest.webmanifest'].includes(url.pathname)) {
         return serveWebDocument(request, join(resources.qilin, 'node_modules', '@qilin-agent', 'web-frontend', 'dist'))
+      }
+      // 产品登出：壳清会话并回到欢迎/登录页，不依赖 Host 是否挂账号门。
+      if (request.method === 'POST' && url.pathname === '/api/auth/logout') {
+        clearAccountSession()
+        enteredWorkspace = false
+        void showWelcome().catch((error: unknown) => {
+          console.warn('desktop sign-out: welcome re-entry failed', error)
+        })
+        return Promise.resolve(new Response(JSON.stringify({ ok: true }), {
+          status: 200, headers: { 'content-type': 'application/json' },
+        }))
       }
       if (backend.host === undefined || hostUrl === undefined || hostCookie === undefined) {
         return Promise.resolve(new Response(null, { status: 503 }))
