@@ -500,6 +500,11 @@ export async function packageTarget(
   await execute(['run', 'prepare:packages'], targetEnv)
   await execute(['run', 'prepare:qilin', ...(signPrimaryRuntime ? ['--defer-runtime-smoke'] : [])], downloadEnv)
   if (signPrimaryRuntime) await execute(['run', 'sign:primary-runtime', '--dsh'], electronBuilderEnv)
+  // 产品构建：把物化好的运行时树打成捆绑归档（product.json 的 runtime.tar 由壳解压）。
+  const productRuntimeTarPath = targetEnv.QILIN_DESKTOP_PRODUCT_RUNTIME_TAR?.trim()
+  if (productRuntimeTarPath !== undefined && productRuntimeTarPath !== '') {
+    await execute(['exec', 'tsx', 'scripts/pack-product-runtime-tar.ts', productRuntimeTarPath], targetEnv)
+  }
   if (invocation.prepareOnly) return
   if (target.platform === 'darwin' && !invocation.unsigned && !invocation.skipNotarization && !invocation.directory) {
     await execute([

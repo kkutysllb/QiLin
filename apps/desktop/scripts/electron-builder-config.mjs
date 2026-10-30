@@ -153,7 +153,7 @@ export function createElectronBuilderConfig(
       'package.json',
       ...(productPayload === undefined || productPayload === ''
         ? []
-        : [{ from: join(productPayload, 'product.json'), to: 'product.json' }]),
+        : [{ from: productPayload, to: '.', filter: ['product.json'] }]),
       '!node_modules/**/*.{js,cjs,mjs,ts,cts,mts,css}.map',
       '!node_modules/**/*.tsbuildinfo',
       { from: buildPaths.qilin, to: 'qilin', filter: ['**/*'] },
@@ -165,6 +165,9 @@ export function createElectronBuilderConfig(
       ...(productPayload === undefined || productPayload === ''
         ? []
         : [{ from: join(productPayload, 'engine'), to: 'engine' }]),
+      ...(env.QILIN_DESKTOP_PRODUCT_RUNTIME_TAR?.trim()
+        ? [{ from: env.QILIN_DESKTOP_PRODUCT_RUNTIME_TAR.trim(), to: 'runtime-runtime.tar.gz' }]
+        : []),
       { from: buildPaths.runtime, to: 'runtime' },
       { from: fileURLToPath(new URL('../resources/icon-windows.png', import.meta.url)), to: 'icon.png' },
       // Platform tray bitmaps: Windows multi-size ICO, macOS monochrome template PNG (+@2x).
