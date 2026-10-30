@@ -51,6 +51,8 @@ flowchart LR
   pkg_experimental_forge_github["experimental-forge-github"]
   pkg_experimental_forge_session["experimental-forge-session"]
   svc_forgeSession["ctx.forgeSession<br/>Session change request bindings"]
+  pkg_experimental_client_ui_forge["experimental-client-ui-forge"]
+  svc_forgePanel["ctx.forgePanel<br/>Session change request panel"]
   pkg_experimental_translator["experimental-translator"]
   svc_translator["ctx.translator<br/>Anonymous text translation"]
   pkg_experimental_client_ui_cot_translation["experimental-client-ui-cot-translation"]
@@ -342,6 +344,7 @@ flowchart LR
   pkg_experimental_browser_use_stagehand_native --> svc_browserUse
   pkg_experimental_claude_code_mods --> svc_claudeCodeMods
   pkg_experimental_client_ui_cot_translation --> svc_cotTranslation
+  pkg_experimental_client_ui_forge --> svc_forgePanel
   pkg_experimental_computer_use_cua_driver_mcp --> svc_computerUse
   pkg_experimental_computer_use_cua_driver_native --> svc_computerUse
   pkg_experimental_cua_macos --> svc_computerUse
@@ -623,6 +626,7 @@ flowchart LR
 | `ctx.worktrees` | `seam` | [`experimental-worktree`](../packages/experimental/worktree) | [`experimental-worktree`](../packages/experimental/worktree) | [`experimental-tool-worktree`](../packages/experimental/tool-worktree) | - | Explicit experimental creation from a pinned local commit. Existing write permissions govern checkout and shared Git metadata; the working-directory service owns the resulting Session directory. |
 | `ctx.forge` | `seam` | [`experimental-forge`](../packages/experimental/forge) | [`experimental-forge-github`](../packages/experimental/forge-github) | [`experimental-forge-session`](../packages/experimental/forge-session) | - | Provider-neutral repository and change request references with one shared polling loop per change request; the GitHub provider reads a host-tracked code host and credentials never enter a Session execution world. |
 | `ctx.forgeSession` | `core` | [`experimental-forge-session`](../packages/experimental/forge-session) | - | - | - | Derives the change requests a Session works on from committed shell evidence, records caller actions and discovery as plugin records, and keeps polled status process-local. |
+| `ctx.forgePanel` | `core` | [`experimental-client-ui-forge`](../packages/experimental/client-ui-forge) | - | - | - | Host-side panel service that reads the change requests and worktree facts of one Session for the Client panel; the wire contract stays Remote-owned. |
 | `ctx.translator` | `core` | [`experimental-translator`](../packages/experimental/translator) | - | - | - | Resolves Google or Bing requests and retains shared experimental records through the active Session writer. |
 | `ctx.cotTranslation` | `seam` | [`experimental-client-ui-cot-translation`](../packages/experimental/client-ui-cot-translation) | - | [`experimental-cot-translation-bundle`](../packages/experimental/cot-translation-bundle) | - | The Host controller owns provider selection and per-Session translation records; the Client half renders them in the reasoning body slot and the wire contract stays Remote-owned. |
 | `ctx.mcpResources` | `seam` | [`mcp-resources`](../packages/mcp/mcp-resources) | [`mcp-client`](../packages/mcp/mcp-client) | [`mcp-resources`](../packages/mcp/mcp-resources) | - | Connection-owned providers serve shared resource tools in the calling agent scope. |

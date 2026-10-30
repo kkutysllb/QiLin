@@ -116,6 +116,8 @@
     { "path": "./packages/client/ui-subagent" },
     { "path": "./packages/experimental/client-ui-agent-team" },
     { "path": "./packages/experimental/client-ui-cot-translation/tsconfig.client.json" },
+    { "path": "./packages/experimental/client-ui-forge/tsconfig.client.json" },
+    { "path": "./packages/util/code-language" },
     { "path": "./packages/experimental/client-ui-claude-code-mods" },
     { "path": "./packages/experimental/client-ui-voice-input" },
     { "path": "./packages/experimental/client-ui-stats" },

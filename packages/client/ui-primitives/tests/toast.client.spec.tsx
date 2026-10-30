@@ -1,10 +1,14 @@
 // @vitest-environment jsdom
 
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
 import { Toast } from '../src/Toast.tsx'
 
 afterEach(cleanup)
+
+const toastCss = readFileSync(join(import.meta.dirname, '../src/Toast.module.css'), 'utf8')
 
 describe('Toast', () => {
   it('announces its text and reports done after the hold-and-fade lifetime', () => {
@@ -83,5 +87,52 @@ describe('Toast', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+})
+
+describe('Toast inline actions', () => {
+  it('renders each action after the sentence and runs its press', () => {
+    vi.useFakeTimers()
+    try {
+      const undo = vi.fn()
+      const view = render(<Toast text="已删除会话" actions={[{ label: '撤销', prefix: '或', onClick: undo }]} onDone={vi.fn()} />)
+      const banner = view.getByRole('alert')
+      expect(banner.textContent).toContain('已删除会话')
+      expect(banner.textContent).toContain('或撤销')
+      fireEvent.click(view.getByRole('button', { name: '撤销' }))
+      expect(undo).toHaveBeenCalledTimes(1)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('calls the latest completion handler without restarting the lifetime on a rerender', () => {
+    vi.useFakeTimers()
+    try {
+      const first = vi.fn()
+      const latest = vi.fn()
+      const view = render(<Toast text="已保存" holdMs={5000} onDone={first} />)
+      vi.advanceTimersByTime(3000)
+      view.rerender(<Toast text="已保存" holdMs={5000} onDone={latest} />)
+      vi.advanceTimersByTime(2999)
+      expect(first).not.toHaveBeenCalled()
+      expect(latest).not.toHaveBeenCalled()
+      vi.advanceTimersByTime(1)
+      expect(latest).toHaveBeenCalledTimes(1)
+      expect(first).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
+
+describe('Toast.module.css action affordances', () => {
+  it('keeps the surface click-through while the action text takes the pointer', () => {
+    expect(/\.toast\s*\{[^}]*pointer-events:\s*none/.test(toastCss)).toBe(true)
+    expect(/\.action\s*\{[^}]*pointer-events:\s*auto/.test(toastCss)).toBe(true)
+  })
+
+  it('hides the banner at the end of the fade so a faded action takes no input', () => {
+    expect(/@keyframes qilin-toast-fade\s*\{[^}]*to\s*\{[^}]*visibility:\s*hidden/.test(toastCss)).toBe(true)
   })
 })

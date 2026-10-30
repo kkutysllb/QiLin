@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/forge-bundle/README.md
+/:
+  en: 75db4d505f21f46f
+  zh: a0e463c38ed59efa
+/qilin-agent-experimental-forge-bundle:
+  en: 49f84dc88974b534
+  zh: ff760b519c3e7cdb
+/qilin-agent-experimental-forge-bundle/summary:
+  en: f6ce7db50e10af0b
+  zh: 415f509876e88d8a
+/qilin-agent-experimental-forge-bundle/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 2f8a621b991260a1
+/qilin-agent-experimental-forge-bundle/use-this-package:
+  en: 2647a5ad727bea92
+  zh: 35b607a295a52f0d
+/qilin-agent-experimental-forge-bundle/understand-the-implementation:
+  en: 6effcbf40264388b
+  zh: b4f093955671c650
+/qilin-agent-experimental-forge-bundle/further-exploration:
+  en: f50564b1430c4bd3
+  zh: 2c67e6abdb2273f1
+/qilin-agent-experimental-forge-bundle/model-experience:
+  en: c08694f53b1139af
+  zh: e014579b2780d010
+/qilin-agent-experimental-forge-bundle/model-experience/kv-cache-effect:
+  en: d3e6b6311a770ef8
+  zh: 01c5d42a6d91cbdc
+/qilin-agent-experimental-forge-bundle/known-limitations-and-deferred-work:
+  en: 975b1e6b587c76fc
+  zh: b90c62a435e91246
+/qilin-agent-experimental-forge-bundle/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

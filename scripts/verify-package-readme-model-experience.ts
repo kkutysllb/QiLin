@@ -36,6 +36,7 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
   'packages/util/launch-environment': 'The package only resolves host environment values; model-facing consumers own any rendered use.',
   'packages/util/workspace-path': 'The package only formats Workspace paths for browser UI; it never constructs model input.',
   'packages/util/plugin-detail': 'The package only reads installed package documentation and images for the plugin manager; it never constructs model input.',
+  'packages/util/code-language': 'The package only maps file extensions to grammar ids; tokenization and every model-facing use belong to consumers.',
   'packages/util/values': 'The package only validates, snapshots, compares, freezes, or rejects caller-owned values; consumers own every model-facing use.',
   'packages/client/ui-agent-opens': 'The package only opens Sidebar tabs a model request already carries; the tool that made the request owns every model-facing effect.',
 }
@@ -53,6 +54,8 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/experimental/session-inspector': { kind: 'none', reason: 'Reads committed Session records for the inspector tab without touching requests.' },
   'packages/settings/config-editor': { kind: 'indirect', reason: 'Persisted configuration values reach models through the plugins that read them; the editor itself owns no model-visible output.' },
   'packages/experimental/plugin-market-bundle': { kind: 'indirect', reason: 'With the bundle on, the Creator preset gains the read-only plugin_market tool; the bundle itself adds no prompts.' },
+  'packages/experimental/client-ui-forge': { kind: 'indirect', reason: 'A Session that starts in a worktree receives the directory notice through the working-directory service, and Create change request sends a user message; the panel itself adds no prompt or tool.' },
+  'packages/experimental/forge-bundle': { kind: 'indirect', reason: 'The bundle mounts the panel and worktree rows; the worktree notice reaches the model through the working-directory service, and the bundle adds no prompt or tool of its own.' },
   'packages/session/usage-report': { kind: 'none', reason: 'It reads settled Turns and reports them to the deployment, adding no prompt, tool, or model-visible output.' },
   'packages/session/usage-local': { kind: 'none', reason: 'It derives the usage read from local session logs, adding no prompt, tool, or model-visible output.' },
   'packages/client/ui-usage': { kind: 'none', reason: 'The page reads a ledger and draws it, adding no prompt, tool, or model-visible output.' },

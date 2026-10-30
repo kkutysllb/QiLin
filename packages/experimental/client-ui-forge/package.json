@@ -1,0 +1,131 @@
+{
+  "name": "@qilin-agent/experimental-client-ui-forge",
+  "description": "Sidebar panel for a Session's change requests, with a worktree option for new Sessions and its Host Remote",
+  "version": "3.1.8-rc.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/experimental/client-ui-forge"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    },
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./types": {
+      "types": "./lib/types/types.d.ts"
+    }
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-conversation",
+        "@qilin-agent/client-ui-layout",
+        "@qilin-agent/client-ui-sidebar-right",
+        "@qilin-agent/client-ui-workspace"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/experimental-worktree": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/experimental-forge": "workspace:*",
+    "@qilin-agent/fs": "workspace:*"
+  },
+  "dependencies": {
+    "@qilin-agent/schemastery": "workspace:~",
+    "@qilin-agent/util-values": "workspace:*",
+    "diff": "^9.0.0",
+    "zod": "^4.4.3",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/storage-domain": "workspace:*"
+  },
+  "devDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-layout": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-sidebar-right": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/client-ui-workspace": "workspace:*",
+    "@qilin-agent/experimental-forge": "workspace:*",
+    "@qilin-agent/experimental-forge-session": "workspace:*",
+    "@qilin-agent/experimental-worktree": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/sandbox": "workspace:*",
+    "@qilin-agent/sandbox-local": "workspace:*",
+    "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/subprocess": "workspace:*",
+    "@qilin-agent/subprocess-local": "workspace:*",
+    "@qilin-agent/system-prompt": "workspace:*",
+    "@qilin-agent/util-workspace-path": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "~18.3.0",
+    "clsx": "^2.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@qilin-agent/timeout": "workspace:*",
+    "@qilin-agent/session-projection-cache": "workspace:*",
+    "@qilin-agent/session-query": "workspace:*",
+    "@qilin-agent/api-remote-access": "workspace:*"
+  },
+  "files": [
+    "locale/*.json",
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts"
+  ]
+}

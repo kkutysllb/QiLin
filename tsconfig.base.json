@@ -359,6 +359,9 @@
       "@qilin-agent/experimental-client-ui-voice-input": ["./packages/experimental/client-ui-voice-input/src/index.ts"],
       "@qilin-agent/experimental-client-ui-stats": ["./packages/experimental/client-ui-stats/src/index.ts"],
       "@qilin-agent/experimental-client-ui-stats/client": ["./packages/experimental/client-ui-stats/src/client/index.ts"],
+      "@qilin-agent/experimental-client-ui-forge": ["./packages/experimental/client-ui-forge/src/index.ts"],
+      "@qilin-agent/experimental-client-ui-forge/client": ["./packages/experimental/client-ui-forge/src/client/index.ts"],
+      "@qilin-agent/experimental-client-ui-forge/types": ["./packages/experimental/client-ui-forge/src/types.ts"],
       "@qilin-agent/experimental-forge": ["./packages/experimental/forge/src"],
       "@qilin-agent/experimental-forge/types": ["./packages/experimental/forge/src/types.ts"],
       "@qilin-agent/experimental-forge-github": ["./packages/experimental/forge-github/src"],
@@ -371,6 +374,7 @@
       "@qilin-agent/experimental-api-speech-to-text/types": ["./packages/experimental/api-speech-to-text/src/types.ts"],
       "@qilin-agent/experimental-client-ui-voice-input/client": ["./packages/experimental/client-ui-voice-input/src/client/index.ts"],
       "@qilin-agent/util-crypto": ["./packages/util/crypto/src"],
+      "@qilin-agent/util-code-language": ["./packages/util/code-language/src"],
       "@qilin-agent/util-values": ["./packages/util/values/src"],
       // util/ folders are role-named without the util- prefix their npm names carry,
       // so these aliases stay hand-written like qilin-util-crypto above.

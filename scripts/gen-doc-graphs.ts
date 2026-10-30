@@ -222,6 +222,13 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Derives the change requests a Session works on from committed shell evidence, records caller actions and discovery as plugin records, and keeps polled status process-local.',
   },
   {
+    key: 'forgePanel',
+    pkg: 'experimental-client-ui-forge',
+    title: 'Session change request panel',
+    mode: 'core',
+    note: 'Host-side panel service that reads the change requests and worktree facts of one Session for the Client panel; the wire contract stays Remote-owned.',
+  },
+  {
     key: 'translator',
     pkg: 'experimental-translator',
     title: 'Anonymous text translation',

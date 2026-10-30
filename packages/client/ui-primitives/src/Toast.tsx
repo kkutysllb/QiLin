@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { IconCheckOutlineRegular } from './icons/index.tsx'
@@ -17,6 +17,16 @@ const FADE_MS = 1000
  * transformed or filtered ancestor cannot trap the fixed banner in that
  * ancestor's box.
  *
+ * Actions extend the sentence with inline choices: each renders its plain-text
+ * `prefix` (a connective such as "or") followed by its localized `label` as
+ * clickable text inside the banner. Each press is the owner's to handle (undo
+ * the reported change, then unmount the toast). The banner surface stays
+ * click-through — only the action text takes the pointer — and a fully faded
+ * banner takes no input at all.
+ *
+ * With an unchanged holdMs, a parent rerender does not extend the lifetime:
+ * the completion call reaches the latest onDone handler.
+ *
  * The hold is the owner's to set, because how long a banner has to stay
  * depends on how much there is to read: a one-line limit lands in the default
  * window, while a failure that names what broke does not. One value drives
@@ -28,6 +38,9 @@ const FADE_MS = 1000
  * under `tone="success"`, which brings its own glyph.
  * @param props.tone - 'success' renders the success check as the leading
  * glyph; omitted, the icon seat keeps its warning tint.
+ * @param props.actions - optional inline actions continuing the sentence;
+ * each renders its plain-text `prefix` followed by its localized `label`
+ * as clickable text flowing after `text` as one sentence.
  * @param props.holdMs - full-opacity hold before the fade; defaults to 3000.
  * @param props.anchor - optional element whose horizontal center the banner
  * follows (e.g. the composer card, so the banner centers over the chat column
@@ -35,18 +48,21 @@ const FADE_MS = 1000
  * @param props.onDone - called once the fade completes; unmount the toast here.
  * @returns the floating banner.
  */
-export function Toast({ text, icon, tone, anchor, holdMs = HOLD_MS, onDone }: {
+export function Toast({ text, icon, tone, anchor, holdMs = HOLD_MS, actions, onDone }: {
   text: string
   icon?: ReactNode
   tone?: 'success'
   anchor?: HTMLElement | null
   holdMs?: number
+  actions?: readonly { label: string; prefix?: string; onClick: () => void }[]
   onDone: () => void
 }) {
+  const latestOnDone = useRef(onDone)
+  useLayoutEffect(() => { latestOnDone.current = onDone }, [onDone])
   useEffect(() => {
-    const timer = setTimeout(onDone, holdMs + FADE_MS)
+    const timer = setTimeout(() => { latestOnDone.current() }, holdMs + FADE_MS)
     return () => { clearTimeout(timer) }
-  }, [holdMs, onDone])
+  }, [holdMs])
   // Anchor-centered placement re-measures on window resizes; the banner lives
   // four seconds, so sub-window layout drift within that span stays out of
   // scope.
@@ -73,7 +89,17 @@ export function Toast({ text, icon, tone, anchor, holdMs = HOLD_MS, onDone }: {
       {tone === 'success'
         ? <span className={`${css.icon} ${css.success}`} aria-hidden><IconCheckOutlineRegular /></span>
         : icon !== undefined && <span className={css.icon} aria-hidden>{icon}</span>}
-      <span className={css.text}>{text}</span>
+      <span className={css.text}>
+        {text}
+        {actions?.map(action => (
+          <Fragment key={action.label}>
+            {action.prefix}
+            <button type="button" className={css.action} onClick={action.onClick}>
+              {action.label}
+            </button>
+          </Fragment>
+        ))}
+      </span>
     </div>,
     document.body,
   )

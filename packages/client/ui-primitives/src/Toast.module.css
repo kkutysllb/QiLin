@@ -49,6 +49,31 @@
   min-width: 0;
 }
 
+/* The action text is the one interactive part: the banner surface stays
+   click-through, so only this text takes the pointer. deepseek-400 mixed
+   toward the toast's own label color keeps the blue legible on the contrast
+   surface, which flips with the theme. */
+.action {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: color-mix(in srgb, var(--qilin-static-deepseek-400) 78%, var(--qilin-alias-label-primary-inverted));
+  font: inherit;
+  cursor: pointer;
+  /* Breathing room where the action text meets the surrounding copy. */
+  margin-inline: 3px;
+  /* The banner surface stays click-through (pointer-events: none above); only
+     its action text takes the pointer. */
+  pointer-events: auto;
+}
+
+@media (hover: hover) {
+  .action:hover {
+    opacity: 0.8;
+  }
+}
+
 @keyframes qilin-toast-in {
   from {
     opacity: 0;
@@ -61,9 +86,12 @@
   }
 }
 
+/* The fade also hides the banner itself, so a fully faded action takes no
+   input. */
 @keyframes qilin-toast-fade {
   to {
     opacity: 0;
+    visibility: hidden;
   }
 }
 
