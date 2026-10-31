@@ -103,7 +103,7 @@ describe('recorded-session corpus policy', () => {
   it('accepts the pending v4 payload generation and a parent one generation ahead of its children', () => {
     expect(assertSnapshotCorpusPolicy([
       baseline,
-      { key: 'session/compaction-output-reserve', selectedVersions: [4] },
+      { key: 'session/windows-acl-skill', selectedVersions: [4] },
       completeV0,
       ...adjacent,
     ])).toEqual({
@@ -115,7 +115,7 @@ describe('recorded-session corpus policy', () => {
     // session/ralph-loop carries a v4 parent with v3 children until the v5 re-record lands.
     expect(assertSnapshotCorpusPolicy([
       baseline,
-      { key: 'session/ralph-loop', selectedVersions: [4, 3, 3] },
+      { key: 'session/subagent-depth-two-rejection', selectedVersions: [4, 3, 3] },
       completeV0,
       ...adjacent,
     ]).baselineRoles).toBe(retainedRoleCount + 4)

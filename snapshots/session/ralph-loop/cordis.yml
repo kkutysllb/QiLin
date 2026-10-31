@@ -1,6 +1,16 @@
-# This scenario owns the `ralph` composition. The harness layers the shared
-# headless patch (`text-turn/cordis.yml`) underneath, so this file carries only
-# what makes the composition different: the shipped base layer carries
-# `tool-ralph` disabled, and this is the one scenario that exercises the tool.
-- id: tool-ralph
-  disabled: false
+- insert:
+    - id: optional-ralph
+      name: cordis:group
+      group: true
+      isolate:
+        workflowEngine: true
+      config:
+        - id: optional-ralph-workflow
+          name: '@qilin-agent/workflow-ptc'
+          config:
+            provider: spawn
+        - id: tool-ralph
+          name: '@qilin-agent/experimental-tool-ralph'
+          config:
+            subagentProvider: spawn
+            maxRounds: 64

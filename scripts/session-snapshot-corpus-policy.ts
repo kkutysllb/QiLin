@@ -29,20 +29,15 @@ const RETAINED_BASELINE_VERSION = 3
  * generations again.
  */
 const PENDING_V4_SCENARIOS: ReadonlyMap<string, string> = new Map([
-  ['session/compaction-output-reserve', 'pin header count drifted 2 to 1; prompt-change emission needs its own fix'],
-  ['session/compaction-summary-headroom', 'pin header count drifted 2 to 1; prompt-change emission needs its own fix'],
-  ['session/deepseek-messages-invalid-tool-history', 'stderr activation warning drift; adapter registration needs its own fix'],
-  ['session/persistent-pwsh-padded-completion', 'duplicate deepseek adapter warning; platform config needs its own fix'],
-  ['session/ralph-loop', 'refresh write-back lacks the child 1 prompt; refresh support needs its own fix'],
-  ['session/subagent-depth-two-rejection', 'the refused child Session never persists, so its v4 child role stays historical'],
+  ['session/compaction-output-reserve', 'keyless replay cannot emit a compaction event; needs a live re-record with an API key'],
+  ['session/compaction-summary-headroom', 'keyless replay cannot emit a compaction event; needs a live re-record with an API key'],
+  ['session/subagent-depth-two-rejection', 'the committed child fixture is truncated at its first request, so llm-replay returns no response for the depth-2 role'],
   ['session/windows-acl-skill', 'windows-only workspace setup; no legal v5 on macOS'],
-  ['sdk/serial-created', 'SDK snapshot session has no request model; harness fix needed'],
-  ['sdk/subagent-activation-limit', '120s timeout in the SDK lane; harness fix needed'],
-  ['sdk/subagent-fork-in-process', 'in-process subagent prompt drift; subagent alignment needs its own fix'],
-  ['sdk/subagent-mixed', 'mixed subagent prompt drift; subagent alignment needs its own fix'],
-  ['sdk/subagent-qilin-sdk-dynamic-route', 'header change count drifted 2 to 1; prompt-change emission needs its own fix'],
-  ['sdk/subagent-spawn-in-process', 'in-process spawn assertion drift; harness fix needed'],
-  ['sdk/tool-error-details', 'tool result ordering drift; tool error details need their own fix'],
+  ['sdk/serial-created', 'keyless refresh writes a header-only v5 while the committed v3 holds the full turn; needs a live re-record'],
+  ['sdk/subagent-activation-limit', 'refresh hangs to the 120s timeout after the in-process child ends without subagent.finished'],
+  ['sdk/subagent-qilin-sdk-dynamic-route', 'the separate qilin SDK child never persists its second session; provider/harness fix needed'],
+  ['sdk/subagent-spawn-in-process', 'the in-process child fixture carries no script entries, so llm-replay exhausts and subagent.finished never fires'],
+  ['sdk/tool-error-details', 'mixed tool presentation was removed upstream (8231e0614c); the fixture needs rework to one mode'],
 ])
 const MAX_RETAINED_ROLES = 11
 const REQUIRED_V0_COVERAGE = new Set([

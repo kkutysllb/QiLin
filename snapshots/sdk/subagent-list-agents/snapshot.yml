@@ -4,7 +4,6 @@ profile: sdk
 composition: default
 recording: authored
 header:
-  systemPromptSource: multi-turn
   class: default
   childSystemPrompts: [1]
   childToolSchemas: [1]

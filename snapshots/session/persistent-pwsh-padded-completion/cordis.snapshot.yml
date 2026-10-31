@@ -1,6 +1,5 @@
 # Keyless replay for padded persistent PowerShell completion frames.
 - id: llm-deepseek
-  name: '@qilin-agent/llm-deepseek'
   disabled: true
 
 - insert:
