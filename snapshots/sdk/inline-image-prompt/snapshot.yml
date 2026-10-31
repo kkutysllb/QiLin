@@ -4,6 +4,7 @@ profile: sdk
 composition: image
 recording: authored
 header:
+  systemPromptSource: inline-image-prompt
   class: image
 input:
   attachments:

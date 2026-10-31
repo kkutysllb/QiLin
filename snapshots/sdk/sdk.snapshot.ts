@@ -65,6 +65,11 @@ import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 const corpusRoot = fileURLToPath(new URL('../', import.meta.url))
 
 const MINIMAL_SYSTEM_PROMPT = 'You are the environment-selected minimal software engineer.'
+/** The minimal prompt plus the composed file-reference guidance, as the replay assembles it. */
+const MINIMAL_SYSTEM_PROMPT_COMPOSED = (await readFile(
+  new URL('./persistent-tools/system-prompt.expected.md', import.meta.url),
+  'utf8',
+)).trimEnd()
 const MINIMAL_BASH_DESCRIPTION = `Run commands in a bash shell
 * When invoking this tool, the contents of the "command" parameter does NOT need to be XML-escaped.
 * You don't have access to the internet via this tool.
@@ -152,7 +157,7 @@ const SDK_ASSERTIONS: Readonly<Record<string, SdkAssertions>> = {
       str_replace_editor: ['command', 'path'],
       working_directory: [],
     },
-    expectedSystem: MINIMAL_SYSTEM_PROMPT,
+    expectedSystem: MINIMAL_SYSTEM_PROMPT_COMPOSED,
     expectedToolDescriptions: { bash: MINIMAL_BASH_DESCRIPTION },
     runtimeContext: {
       includes: ['Current QILIN file policy: danger-full-access', 'Approval prompts are disabled in this session'],
@@ -755,7 +760,9 @@ async function verifyHeaders(
   })
   const promptOwner = sourceScenario(pin, pin.manifest.header.systemPromptSource)
   const schemaOwner = sourceScenario(pin, pin.manifest.header.toolSchemasSource)
-  const prompt = await readFile(join(promptOwner.dir, 'system-prompt.expected.md'), 'utf8')
+  // A profile whose composed guidance differs from its pin's may keep its own copy.
+  const ownPrompt = join(scenario.dir, 'system-prompt.expected.md')
+  const prompt = await readFile(existsSync(ownPrompt) ? ownPrompt : join(promptOwner.dir, 'system-prompt.expected.md'), 'utf8')
   const schemas = parseToolSchemasSnapshot(await readFile(join(schemaOwner.dir, 'tool-schemas.expected.json'), 'utf8'))
   const schemaSets = [schemas.initial, ...schemas.changes]
   const reconstructed = pinned.map((header, index) => restorePinnedToolSchemas(

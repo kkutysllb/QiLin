@@ -4,6 +4,7 @@ profile: sdk
 composition: subagent-durability-failure
 recording: authored
 header:
+  systemPromptSource: multi-turn
   class: subagent-durability-failure
   childSystemPrompts: [1]
   childToolSchemas: [1]

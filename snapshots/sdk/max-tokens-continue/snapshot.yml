@@ -4,4 +4,5 @@ profile: sdk
 composition: default
 recording: authored
 header:
+  systemPromptSource: multi-turn
   class: default

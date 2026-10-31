@@ -4,6 +4,7 @@ profile: sdk
 composition: system-prompt-in-history
 recording: authored
 header:
+  systemPromptSource: system-prompt-in-history
   class: system-prompt-in-history
 replay:
   override: true

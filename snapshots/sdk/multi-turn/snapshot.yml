@@ -7,4 +7,5 @@ sessionFormat:
   version: 2
   coverage: [adjacent-migration]
 header:
+  systemPromptSource: multi-turn
   class: default
