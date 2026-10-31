@@ -4095,3 +4095,35 @@ describe('SubagentRuntime.interrupt', () => {
     await drained
   })
 })
+
+
+describe('child teardown settlement by durable id', () => {
+  it('waits for a resident child, then returns at once once it is gone', async () => {
+    const b = await setup([textResponse('child done'), textResponse('parent done')])
+    const started = await b.ctx.subagents.startActivation({ ...startSpec(b.parent), delivery: 'parent' })
+    const resident = requireLocalActivation(managerState(b.ctx).resident.get(started.childId)!)
+    expect(resident.childId).toBe(started.childId)
+
+    let settled = false
+    const waiting = b.ctx.subagents.awaitStopped(started.childId).then(() => { settled = true })
+    await new Promise<void>((resolve) => { setTimeout(resolve, 0) })
+    // Resident and not yet torn down: the caller still waits.
+    expect(settled).toBe(false)
+
+    await resident.handle.dispose()
+    await waiting
+    expect(settled).toBe(true)
+    // The stopped child leaves no Agent behind, so a later await reads only the resident table.
+    expect(b.ctx.agents.get(started.childId)).toBeUndefined()
+    await expect(b.ctx.subagents.awaitStopped(started.childId)).resolves.toBeUndefined()
+  })
+
+  it('returns at once for a child id no activation owns', async () => {
+    const b = await setup([textResponse('child done'), textResponse('parent done')])
+    const started = await b.ctx.subagents.startActivation({ ...startSpec(b.parent), delivery: 'parent' })
+    await expect(b.ctx.subagents.awaitStopped(SessionId('unknown-child'))).resolves.toBeUndefined()
+    await vi.waitFor(() => { expect(managerState(b.ctx).resident.get(started.childId)).toBeDefined() })
+    await b.ctx.subagents.drainChildren(b.parent, [started.childId])
+    await expect(b.ctx.subagents.awaitStopped(started.childId)).resolves.toBeUndefined()
+  })
+})
