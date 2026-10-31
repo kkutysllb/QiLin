@@ -2,11 +2,13 @@
  * Built-in plugins settings surface and the official plugin configuration
  * pages, browser half. The Settings section is the shell around the
  * feature-owned tabs registered into `settings.plugins.tab` (the read-only
- * inventory ships one); the configuration pages this package ships register
- * into the Plugins page's `plugins.item` slot, for the host-plane namespaces
- * the deployment exposes, and appear in the page's Official group. Each form
- * binds its namespace through the client settings scope, which keeps the
- * pages unaware of one another and of the section.
+ * inventory ships one) and exists only where the Plugin manager page does; the
+ * configuration pages this package ships bind their host-plane namespaces
+ * through the client settings scope, which keeps them unaware of one another
+ * and of the section. Runtime plugins that configure the whole process —
+ * Subagent, the Agent loop, and Web search — own a Settings navigation entry
+ * each instead of a card inside the plugin list, while the tooling pages
+ * (Bash, Git) stay on the Plugins page's `plugins.item` slot.
  */
 
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
@@ -22,15 +24,15 @@ import type { Context as ClientContext } from '@qilin-agent/kylin'
 import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
 // Type-only: the ctx.remote Context merge and the forwarded-event key face.
 import type {} from '@qilin-agent/api-remotes/client'
-import { AgentLoopCard } from './AgentLoopCard.tsx'
 import { BashCard } from './BashCard.tsx'
 import { PluginsSettingsSection } from './PluginsSettingsSection.tsx'
 import type { PluginsSettingsSectionInjected, PluginsSettingsTabEntry } from './PluginsSettingsSection.tsx'
-import { SubagentCard } from './SubagentCard.tsx'
+import {
+  AgentLoopSettingsSection, SubagentSettingsSection, WebSearchSettingsSection,
+} from './PluginConfigSections.tsx'
 import { subagentCardFace } from './subagent-card-controller.ts'
 import { SubagentLimitsCardController } from './subagent-limits-card-controller.ts'
 import { GitCard } from './GitCard.tsx'
-import { WebSearchCard } from './WebSearchCard.tsx'
 import { AGENT_LOOP_NS, AgentLoopCardController } from './agent-loop-card-controller.ts'
 import { SHELL_NS, BashCardController } from './bash-card-controller.ts'
 import { GIT_NS, GitCardController } from './git-card-controller.ts'
@@ -104,10 +106,11 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => () => { subagentModelSelection.dispose() }, 'ui-settings-plugins: subagent preference')
   ctx.effect(() => () => { webSearch.dispose() }, 'ui-settings-plugins: web-search form subscription')
 
-  // Configuration pages register while the Host serves their namespaces.
-  // A deployment without those plugins shows no trace of them. Card registration order is the page order, not the
-  // Host's description order, which follows plugin activation and can change
-  // between boots.
+  // Tooling pages stay on the Plugins page. They register while the Host serves
+  // their namespaces: a deployment without those plugins shows no trace of
+  // them. Card registration order is the page order, not the Host's
+  // description order, which follows plugin activation and can change between
+  // boots.
   const pages: ReadonlyArray<readonly [namespaces: readonly [string, ...string[]], register: () => () => void]> = [
     [[SHELL_NS], () => ctx.slots.inject('plugins.item', () => ctx.slots.register({
       name: 'plugins.item', id: 'bash', order: 10, label: () => t('bashTitle'), locale: NS, inject: () => bash.inject(),
@@ -115,26 +118,48 @@ export function apply(ctx: ClientContext): void {
     [[GIT_NS], () => ctx.slots.inject('plugins.item', () => ctx.slots.register({
       name: 'plugins.item', id: 'git', order: 15, label: () => t('gitTitle'), locale: NS, inject: () => git.inject(),
     }, GitCard))],
-    [[AGENT_LOOP_NS], () => ctx.slots.inject('plugins.item', () => ctx.slots.register({
-      name: 'plugins.item', id: 'agent-loop', order: 20, label: () => t('agentLoopTitle'), locale: NS, inject: () => agentLoop.inject(),
-    }, AgentLoopCard))],
-    [['subagent', SUBAGENT_MODEL_SELECTION_NS], () => ctx.slots.inject('plugins.item', () => ctx.slots.register({
-      name: 'plugins.item',
-      id: 'subagent',
-      order: 30,
-      label: () => t('subagentTitle'),
-      locale: NS,
-      inject: () => subagentCardFace(subagentLimitsFace, subagentModelsFace),
-    }, SubagentCard))],
-    [[WEB_SEARCH_NS], () => ctx.slots.inject('plugins.item', () => ctx.slots.register({
-      name: 'plugins.item', id: 'web-search', order: 40, label: () => t('webSearchTitle'), locale: NS, inject: () => webSearch.inject(),
-    }, WebSearchCard))],
   ]
   ctx.effect(() => {
     const offs = pages.map(([namespaces, register]) =>
       ctx.configForms.whileServed([...namespaces], () => register()))
     return () => { for (const off of offs) off() }
   }, 'ui-settings-plugins: configuration pages')
+
+  // Runtime plugins own a Settings navigation entry each: they configure the
+  // whole process (delegation limits, tool dispatch, the search provider), and
+  // a user looks for them by name rather than inside the plugin list. The entry
+  // appears only while the Host serves the namespace its page edits.
+  const sections: ReadonlyArray<readonly [namespaces: readonly [string, ...string[]], register: () => () => void]> = [
+    [[AGENT_LOOP_NS], () => ctx.slots.inject('settings.section', () => ctx.slots.register({
+      name: 'settings.section',
+      id: 'agent-loop',
+      order: 20,
+      label: () => t('agentLoopTitle'),
+      locale: NS,
+      inject: () => agentLoop.inject(),
+    }, AgentLoopSettingsSection))],
+    [['subagent', SUBAGENT_MODEL_SELECTION_NS], () => ctx.slots.inject('settings.section', () => ctx.slots.register({
+      name: 'settings.section',
+      id: 'subagent',
+      order: 30,
+      label: () => t('subagentTitle'),
+      locale: NS,
+      inject: () => subagentCardFace(subagentLimitsFace, subagentModelsFace),
+    }, SubagentSettingsSection))],
+    [[WEB_SEARCH_NS], () => ctx.slots.inject('settings.section', () => ctx.slots.register({
+      name: 'settings.section',
+      id: 'web-search',
+      order: 40,
+      label: () => t('webSearchTitle'),
+      locale: NS,
+      inject: () => webSearch.inject(),
+    }, WebSearchSettingsSection))],
+  ]
+  ctx.effect(() => {
+    const offs = sections.map(([namespaces, register]) =>
+      ctx.configForms.whileServed([...namespaces], () => register()))
+    return () => { for (const off of offs) off() }
+  }, 'ui-settings-plugins: runtime configuration sections')
 
   let tabsVersion = -1
   let tabsRevision = -1
@@ -172,8 +197,10 @@ export function apply(ctx: ClientContext): void {
   })
 
   // This package owns the one Built-in plugins navigation entry and the tab
-  // chrome; feature plugins contribute pages without competing for Settings nav rows.
-  ctx.slots.inject('settings.section', () => ctx.slots.register({
+  // chrome; feature plugins contribute pages without competing for Settings nav
+  // rows. The entry exists only where the Plugin manager page does: a product
+  // profile that hides plugin management must not keep an empty page for it.
+  ctx.slots.inject('settings.section', () => ctx.slots.inject('plugins.item', () => ctx.slots.register({
     name: 'settings.section',
     id: 'plugins',
     order: 15,
@@ -181,5 +208,5 @@ export function apply(ctx: ClientContext): void {
     locale: NS,
     inject: sectionInjected,
     children: { 'settings.plugins.tab': { kind: 'list', scope: 'root' } },
-  }, PluginsSettingsSection))
+  }, PluginsSettingsSection)))
 }

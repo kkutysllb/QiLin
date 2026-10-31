@@ -12,6 +12,12 @@ import { BashCard } from '../src/client/BashCard.tsx'
 import type { BashCardProps } from '../src/client/BashCard.tsx'
 import { GitCard } from '../src/client/GitCard.tsx'
 import type { GitCardProps } from '../src/client/GitCard.tsx'
+import {
+  AgentLoopSettingsSection, SubagentSettingsSection, WebSearchSettingsSection,
+} from '../src/client/PluginConfigSections.tsx'
+import type {
+  AgentLoopSettingsSectionProps, SubagentSettingsSectionProps, WebSearchSettingsSectionProps,
+} from '../src/client/PluginConfigSections.tsx'
 import { PluginsSettingsSection } from '../src/client/PluginsSettingsSection.tsx'
 import type { PluginsSettingsSectionProps, PluginsSettingsTabEntry } from '../src/client/PluginsSettingsSection.tsx'
 import { WebSearchCard } from '../src/client/WebSearchCard.tsx'
@@ -794,5 +800,68 @@ describe('SubagentCard', () => {
     renderSubagent({ available: false })
     expect(screen.getByRole('switch')).toBeTruthy()
     expect(screen.queryByLabelText(en.subagentMaxDepth)).toBeNull()
+  })
+})
+
+describe('runtime configuration pages', () => {
+  it('renders the Agent loop page with its title, intro, and form', () => {
+    const store = createSnapshotStore<AgentLoopCardState>({ ...settled, maxParallelToolCalls: field('10') })
+    const props = {
+      ...cardActions(), close: vi.fn(), t, useAgentLoopCard: bindSnapshotSelector(store),
+    } as unknown as AgentLoopSettingsSectionProps
+    render(<AgentLoopSettingsSection {...props} />)
+
+    expect(screen.getByRole('heading', { name: en.agentLoopTitle })).toBeTruthy()
+    expect(screen.getByText(en.agentLoopDescription)).toBeTruthy()
+    expect(screen.getByLabelText(en.agentLoopMaxParallel)).toBeTruthy()
+  })
+
+  it('renders the Subagent page with its title, intro, and both sections', () => {
+    const limits = createSnapshotStore<SubagentLimitsCardState>({
+      ...settled, maxDepth: field('3'), maxActiveSubagents: field('8'),
+    })
+    const models = createSnapshotStore<SubagentModelSelectionCardState>({
+      ...settled, enabled: false, candidates: [], catalogStatus: 'idle', catalogPartial: false, conflicted: false,
+    })
+    const props = {
+      ...cardActions(),
+      close: vi.fn(),
+      t,
+      editLimit: vi.fn(),
+      resetLimit: vi.fn(),
+      toggleEnabled: vi.fn(),
+      toggleModel: vi.fn(),
+      retryCatalog: vi.fn(),
+      useSubagentLimitsCard: bindSnapshotSelector(limits),
+      useSubagentModelSelectionCard: bindSnapshotSelector(models),
+    } as unknown as SubagentSettingsSectionProps
+    render(<SubagentSettingsSection {...props} />)
+
+    expect(screen.getByRole('heading', { name: en.subagentTitle })).toBeTruthy()
+    expect(screen.getByText(en.subagentDescription)).toBeTruthy()
+    expect(screen.getByLabelText(en.subagentMaxDepth)).toBeTruthy()
+  })
+
+  it('renders the Web search page with its title, intro, and form', () => {
+    const store = createSnapshotStore<WebSearchCardState>({
+      ...settled,
+      apiSwitchAvailable: true,
+      apiSwitchBlocked: false,
+      useSearchApi: false,
+      baseURL: field(''),
+      maxUses: field('5'),
+      count: field(''),
+      apiKey: field(''),
+      apiKeyConfigured: false,
+      apiKeyWritable: true,
+    })
+    const props = {
+      ...cardActions(), close: vi.fn(), t, useWebSearchCard: bindSnapshotSelector(store),
+    } as unknown as WebSearchSettingsSectionProps
+    render(<WebSearchSettingsSection {...props} />)
+
+    expect(screen.getByRole('heading', { name: en.webSearchTitle })).toBeTruthy()
+    expect(screen.getByText(en.webSearchDescription)).toBeTruthy()
+    expect(screen.getByLabelText(en.webSearchApiKey)).toBeTruthy()
   })
 })

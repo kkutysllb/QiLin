@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用**内置插件**设置分区查看本部署随附的插件；使用该分区**插件管理**标签页的**官方**分组配置开放了设置的宿主平面插件。每个配置页标明用户覆盖过哪些值，允许把它们重置为部署默认值，在本地保留修改直到保存，离开页面即丢弃。如果配置在页面加载后发生变化，保存会被拒绝，而不会覆盖较新的值。
+在**设置**里配置运行时插件：Subagent、Agent 循环、网页搜索各占一个独立的设置菜单；**内置插件**分区**插件管理**标签页的**官方**分组配置开放了设置的工具类宿主插件。每个配置页标明用户覆盖过哪些值，允许把它们重置为部署默认值，在本地保留修改直到保存，离开页面即丢弃。如果配置在页面加载后发生变化，保存会被拒绝，而不会覆盖较新的值。
 
 ## 目录
 
@@ -25,11 +25,13 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-打开设置中的**内置插件**查看只读的插件列表；[ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.zh.md) 贡献了分区两个标签页中的一个，[ui-plugin-manager](../ui-plugin-manager/README.zh.md) 贡献了承载配置的另一个——**插件管理**。要配置宿主平面插件，打开**插件管理**标签页：官方分组为本部署组装的每个插件列出一张卡片，顺序依次为 shell 执行器（`shell`）、工作区 Git 服务的二进制与限额（`workspace-git`）、agent loop 的工具调用并行度（`agent-loop`）、Subagent 委派限制和模型选择（`subagent` 与 `subagent-model-selection`）以及 DeepSeek 搜索提供方（`web-search-deepseek`），点开卡片就是该插件带表单的页面。
+打开**设置**并选择要配置的运行时插件：**Agent 循环**（工具调用并行度，`agent-loop`）、**Subagent**（委派限制与模型选择，`subagent` 与 `subagent-model-selection`）或**网页搜索**（DeepSeek 搜索提供方，`web-search-deepseek`）。它们配置的是整个进程的行为，用户按名字找它，因此各自注册一个设置导航入口，而不是插件列表里的一张卡片。
+
+**内置插件**分区保留给组装了插件管理页的部署；[ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.zh.md) 贡献了分区两个标签页中的一个，[ui-plugin-manager](../ui-plugin-manager/README.zh.md) 贡献了承载配置的另一个——**插件管理**。其官方分组列出本包仍然提供的工具类页面——shell 执行器（`shell`）与工作区 Git 服务的二进制与限额（`workspace-git`），点开卡片就是该插件带表单的页面。没有插件管理页的部署不会出现该分区。
 
 ### 这里会出现什么
 
-每个页面在 Host 服务其 settings 命名空间期间注册进管理标签页的 `plugins.item` slot，因此没有组装该插件的部署不会留下它的任何痕迹；Host 开始或停止服务某个命名空间时，其页面会在下一次 settings 文档提交或重连时加入或撤下。卡片上的一句话简介与页面上的表单是同一个条目按该标签页索取的两种视图渲染出来的。
+每个页面在 Host 服务其 settings 命名空间期间注册，因此没有组装该插件的部署不会留下它的任何痕迹；Host 开始或停止服务某个命名空间时，其页面会在下一次 settings 文档提交或重连时加入或撤下。工具类页面注册进管理标签页的 `plugins.item` slot；运行时页面各注册一个 `settings.section` 入口。卡片上的一句话简介与页面上的表单是同一个条目按插件页索取的两种视图渲染出来的；设置分区则单独渲染同一张卡片。
 
 ### 编辑与保存
 
@@ -57,7 +59,7 @@ kind: "package-reference"
 
 ### 注册规则
 
-本分区声明根级列表 slot `settings.plugins.tab`，其标签会成为有序标签页；只有一个贡献时它直接显示为页面本身，某个标签页首次被选择后会保持挂载，因此搜索与清单快照在切换时不会丢失。配置页是 `plugins.item` 注册项，每个命名空间一个：共享的 settings 镜像表明 Host 服务该命名空间时通过 `ctx.slots.inject` 注册，停止服务时销毁；注册顺序就是页面顺序，而不是 Host 的描述顺序——后者跟随插件激活，可能在两次启动之间变化。页面拥有自己的控件与文案；插件页负责画标题、图标与面包屑。
+本分区声明根级列表 slot `settings.plugins.tab`，其标签会成为有序标签页；只有一个贡献时它直接显示为页面本身，某个标签页首次被选择后会保持挂载，因此搜索与清单快照在切换时不会丢失。本分区只在插件管理页声明 `plugins.item` 之后注册，因此隐藏插件管理的部署不会留下一个空导航项。工具类页面是 `plugins.item` 注册项；运行时页面是带自己标题与简介的 `settings.section` 注册项。两类都经由 `ctx.configForms.whileServed` 与 `ctx.slots.inject`，在共享 settings 镜像表明 Host 服务该命名空间时注册、停止服务时销毁；注册顺序就是页面顺序，而不是 Host 的描述顺序——后者跟随插件激活，可能在两次启动之间变化。页面拥有自己的控件与文案；插件页负责画标题、图标与面包屑，设置分区则自己画标题。
 
 ### 写入路径
 
@@ -98,6 +100,7 @@ kind: "package-reference"
 这些限制定义哪些插件会有页面、分组有多新鲜；它们是当前包约束。
 
 - **只有宿主平面的插件有页面**：由 agent preset 挂载的插件把配置内联在该 preset 的 `agent.cordis.yml` 中，且根本无法注册 settings 命名空间，因此本包不会为它注册任何东西。编辑那些值仍是 preset 编辑器的职责。
+- **运行时页面不依赖插件管理页，工具页面依赖**：三个运行时设置页在没有插件列表时照常出现，而 shell 与 Git 页面只在插件管理页内出现，因此隐藏插件管理的部署会少配置两个插件。
 - **页面仍然需要一份浏览器 bundle**：浏览器半侧必须是按客户端模块系统的 lazy-CJS factory 格式构建的 `qilin.client` 包，而产出它的 `clientBundle` 预设位于 `../../../packages/client/tsdown.client.ts`，并非已发布的包，因此本仓库之外的插件得自行复刻该构建。
 - **被服务的命名空间只在两种信号上重读**：协议通告的是 settings 文档提交与连接重置，而非注册行为，因此在镜像读取之后才被其拥有方注册的命名空间，要等下一次文档提交或重连才会加入官方分组。
 - **shell 页面跟随被组装的执行器**：POSIX 与 PowerShell 两个执行器家族共用 `shell` 命名空间，因为一个宿主只组装其中之一，所以被服务的 schema 随平台不同（PowerShell 多出 `pwshPath`），尽管页面在两者下编辑的都是同样两个字段。

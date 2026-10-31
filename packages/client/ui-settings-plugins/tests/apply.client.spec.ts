@@ -93,6 +93,24 @@ describe('ui-settings-plugins apply', () => {
     expect(slots.entries('settings.plugins.tab')).toHaveLength(0)
   })
 
+  it('keeps no Built-in plugins section where no Plugin manager page declares its cards', async () => {
+    // A product profile that hides plugin management still mounts this package
+    // for the runtime configuration pages; an empty plugin list page would be
+    // the only trace of the manager it does not have.
+    const { ctx, slots } = await bench(['agent-loop'])
+    slots.register({
+      name: 'root',
+      children: { 'settings.section': { kind: 'list', scope: 'root' } },
+    } as never, () => null)
+
+    await ctx.plugin({ inject: [...inject], apply }).await()
+
+    await vi.waitFor(() => {
+      expect(slots.entries('settings.section').map(entry => entry.options.id)).toEqual(['agent-loop'])
+    })
+    expect(slots.spec('settings.plugins.tab')).toBeUndefined()
+  })
+
   it('injects a live tab projection and one business face per configuration page', async () => {
     const { ctx, slots } = await bench(['bash-sandbox', 'agent-loop', 'subagent', 'subagent-model-selection-settings', 'web-search-deepseek'])
     declareRoot(slots)
@@ -115,39 +133,50 @@ describe('ui-settings-plugins apply', () => {
     ])
     unsubscribe()
 
-    await vi.waitFor(() => { expect(slots.entries('plugins.item')).toHaveLength(4) })
-    for (const entry of slots.entries('plugins.item')) {
+    await vi.waitFor(() => { expect(slots.entries('plugins.item')).toHaveLength(1) })
+    await vi.waitFor(() => { expect(slots.entries('settings.section')).toHaveLength(4) })
+    const toolFace = (slots.entries('plugins.item')[0] as { inject?: () => unknown }).inject?.() as {
+      hooks: Record<string, unknown>
+    }
+    expect(Object.keys(toolFace.hooks)).toEqual(['bashCard'])
+    for (const entry of slots.entries('settings.section')) {
+      if (entry.options.id === 'plugins') continue
       const face = (entry as { inject?: () => unknown }).inject?.() as { hooks: Record<string, unknown> }
       expect(Object.keys(face.hooks)).toHaveLength(entry.options.id === 'subagent' ? 2 : 1)
     }
   })
 
-  it('registers one configuration page per served namespace, in its own order, titled in the active locale', async () => {
+  it('gives each runtime plugin its own Settings entry, in its own order and titled in the active locale', async () => {
     const { ctx, slots } = await bench(['web-search-deepseek', 'bash-sandbox', 'agent-loop', 'subagent-model-selection-settings'])
     declareRoot(slots)
 
     await ctx.plugin({ inject: [...inject], apply }).await()
 
-    await vi.waitFor(() => { expect(slots.entries('plugins.item')).toHaveLength(4) })
-    const entries = slots.entries('plugins.item')
-    expect(entries.map(entry => entry.options.id)).toEqual(['bash', 'agent-loop', 'subagent', 'web-search'])
-    expect(entries.map(entry => resolveSlotLabel(entry.options.label))).toEqual(['终端', 'Agent 循环', 'Subagent', '网页搜索'])
-    expect(entries.every(entry => entry.locale === 'settings.plugins')).toBe(true)
+    await vi.waitFor(() => { expect(slots.entries('settings.section')).toHaveLength(4) })
+    const sections = slots.entries('settings.section').filter(entry => entry.options.id !== 'plugins')
+    expect(sections.map(entry => entry.options.id)).toEqual(['agent-loop', 'subagent', 'web-search'])
+    expect(sections.map(entry => resolveSlotLabel(entry.options.label))).toEqual(['Agent 循环', 'Subagent', '网页搜索'])
+    expect(sections.every(entry => entry.locale === 'settings.plugins')).toBe(true)
+    // The tooling pages stay on the Plugins page's card list.
+    const tooling = slots.entries('plugins.item')
+    expect(tooling.map(entry => entry.options.id)).toEqual(['bash'])
+    expect(resolveSlotLabel(tooling[0]!.options.label)).toBe('终端')
   })
 
   it.each([
     ['subagent'],
     ['subagent-model-selection-settings'],
     ['subagent', 'subagent-model-selection-settings'],
-  ])('keeps one Subagent page while either namespace is served: %j', async (...served) => {
+  ])('keeps one Subagent Settings entry while either namespace is served: %j', async (...served) => {
     const { ctx, slots, describeSettings, remote } = await bench(served)
     onTestFinished(() => ctx.fiber.dispose())
     declareRoot(slots)
     await ctx.plugin({ inject: [...inject], apply }).await()
+    const subagentEntries = () => slots.entries('settings.section').filter(entry => entry.options.id === 'subagent')
     await vi.waitFor(() => {
-      expect(slots.entries('plugins.item').map(entry => entry.options.id)).toEqual(['subagent'])
+      expect(subagentEntries().map(entry => entry.options.id)).toEqual(['subagent'])
     })
-    const entry = slots.entries('plugins.item')[0]
+    const entry = subagentEntries()[0]
     for (const namespaces of [['subagent-model-selection-settings'], ['subagent'], []]) {
       describeSettings.mockResolvedValue({
         ok: true,
@@ -159,7 +188,7 @@ describe('ui-settings-plugins apply', () => {
       remote.emit('settings/document-updated', ['subagent', 1])
       await vi.waitFor(() => {
         expect(ctx.configForms.describe().getSnapshot().view?.namespaces.map(view => view.ns)).toEqual(namespaces)
-        expect(slots.entries('plugins.item')).toEqual(namespaces.length > 0 ? [entry] : [])
+        expect(subagentEntries()).toEqual(namespaces.length > 0 ? [entry] : [])
       })
     }
   })
@@ -184,15 +213,19 @@ describe('ui-settings-plugins apply', () => {
     }
   })
 
-  it('registers the pages of the served namespaces only, and withdraws one the Host stops serving', async () => {
+  it('registers the Settings entries of the served namespaces only, and withdraws one the Host stops serving', async () => {
     // ui-theme is served but belongs to another surface, and a deployment
     // composing no PowerShell/POSIX executor serves no `bash` at all.
     const { ctx, slots, describeSettings, remote } = await bench(['agent-loop', 'ui-theme', 'web-search-deepseek'])
     declareRoot(slots)
     await ctx.plugin({ inject: [...inject], apply }).await()
 
+    const runtimeIds = () => slots.entries('settings.section')
+      .map(entry => entry.options.id)
+      .filter(id => id !== 'plugins')
+
     await vi.waitFor(() => {
-      expect(slots.entries('plugins.item').map(entry => entry.options.id)).toEqual(['agent-loop', 'web-search'])
+      expect(runtimeIds()).toEqual(['agent-loop', 'web-search'])
     })
 
     describeSettings.mockResolvedValue({
@@ -206,7 +239,7 @@ describe('ui-settings-plugins apply', () => {
     remote.emit('settings/document-updated', ['web-search-deepseek', 1])
 
     await vi.waitFor(() => {
-      expect(slots.entries('plugins.item').map(entry => entry.options.id)).toEqual(['agent-loop'])
+      expect(runtimeIds()).toEqual(['agent-loop'])
     })
   })
 
@@ -295,7 +328,8 @@ describe('ui-settings-plugins apply', () => {
     declareRoot(slots)
     const fiber = ctx.plugin({ inject: [...inject], apply })
     await fiber.await()
-    await vi.waitFor(() => { expect(slots.entries('plugins.item')).toHaveLength(2) })
+    await vi.waitFor(() => { expect(slots.entries('plugins.item')).toHaveLength(1) })
+    await vi.waitFor(() => { expect(slots.entries('settings.section')).toHaveLength(2) })
 
     await fiber.dispose()
 

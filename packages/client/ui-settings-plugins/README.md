@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use the **Built-in plugins** settings section to inspect the plugins this deployment ships, and the **Official** group of the section's **Manage plugins** tab to configure the host-plane plugins that expose settings. Each configuration page shows which values the user overrode, lets them reset those to deployment defaults, keeps edits local until save, and drops them when the page is left. If the configuration changed after the page loaded, the save is rejected instead of overwriting the newer values.
+Configure the runtime plugins in **Settings**: Subagent, the Agent loop, and Web search each own an independent settings entry, and the group of the **Built-in plugins** section's **Manage plugins** tab configures the tooling plugins that expose settings. Each configuration page shows which values the user overrode, lets them reset those to deployment defaults, keeps edits local until save, and drops them when the page is left. If the configuration changed after the page loaded, the save is rejected instead of overwriting the newer values.
 
 ## Table of Contents
 
@@ -25,11 +25,13 @@ Use the **Built-in plugins** settings section to inspect the plugins this deploy
 <a id="use-this-package"></a>
 ## Use this package
 
-Open **Built-in plugins** in Settings for the read-only inventory; [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.md) contributes it as one of the section's two tabs, and [ui-plugin-manager](../ui-plugin-manager/README.md) contributes the other, **Manage plugins**, which hosts configuration. To configure a host-plane plugin, open the **Manage plugins** tab: the Official group lists one card per plugin this deployment composes, in this order — the shell executor (`shell`), the workspace Git service's binaries and limits (`workspace-git`), the agent loop's tool-call parallelism (`agent-loop`), Subagent delegation limits and model selection (`subagent` and `subagent-model-selection`), and the DeepSeek search provider (`web-search-deepseek`) — and a card opens the plugin's page with its form.
+Open **Settings** and pick the runtime plugin to configure: **Agent loop** (tool-call parallelism, `agent-loop`), **Subagent** (delegation limits and model selection, `subagent` and `subagent-model-selection`), or **Web search** (the DeepSeek search provider, `web-search-deepseek`). These configure process-wide behaviour a user looks for by name, so each registers its own Settings navigation entry rather than a card inside the plugin list.
+
+The **Built-in plugins** section remains for deployments that compose the Plugin manager page; [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.md) contributes it as one of the section's two tabs, and [ui-plugin-manager](../ui-plugin-manager/README.md) contributes the other, **Manage plugins**. Its Official group lists the tooling pages this package still ships — the shell executor (`shell`) and the workspace Git service's binaries and limits (`workspace-git`) — and a card opens the plugin's page with its form. A deployment without the Plugin manager page shows no such section.
 
 ### What appears here
 
-Each page registers into the management tab's `plugins.item` slot while the Host serves its settings namespace, so a deployment that does not compose the owning plugin shows no trace of it, and a namespace the Host starts or stops serving adds or withdraws its page on the next settings-document commit or reconnect. The card's one-liner and the page's form are one entry rendered in the two views the tab asks for.
+Each page registers while the Host serves its settings namespace, so a deployment that does not compose the owning plugin shows no trace of it, and a namespace the Host starts or stops serving adds or withdraws its page on the next settings-document commit or reconnect. The tooling pages register into the management tab's `plugins.item` slot; the runtime pages register one `settings.section` entry each. The card's one-liner and the page's form are one entry rendered in the two views the Plugins page asks for; the settings section renders the same card alone.
 
 ### Editing and saving
 
@@ -57,7 +59,7 @@ The package is one registration rule and one write path: each page is registered
 
 ### The registration rule
 
-The section declares `settings.plugins.tab`, a root list slot whose labels become ordered tabs; a lone contribution renders as the page itself, and a tab stays mounted after its first selection so search and the inventory snapshot survive switching. The configuration pages are `plugins.item` registrations, one per namespace, made through `ctx.slots.inject` when the shared settings mirror shows the Host serves the namespace and disposed when it stops; registration order is the page order, not the Host's description order, which follows plugin activation and can change between boots. A page owns its controls and copy; the Plugins page draws its title, icon, and crumb.
+The section declares `settings.plugins.tab`, a root list slot whose labels become ordered tabs; a lone contribution renders as the page itself, and a tab stays mounted after its first selection so search and the inventory snapshot survive switching. The section registers itself only after the Plugin manager page declares `plugins.item`, so a deployment that hides plugin management keeps no empty navigation entry. The tooling pages are `plugins.item` registrations; the runtime pages are `settings.section` registrations with their own title and one-liner. Both are made through `ctx.configForms.whileServed` and `ctx.slots.inject` when the shared settings mirror shows the Host serves the namespace, and disposed when it stops; registration order is the page order, not the Host's description order, which follows plugin activation and can change between boots. A page owns its controls and copy; the Plugins page draws its title, icon, and crumb, and the settings section draws its own heading.
 
 ### The write path
 
@@ -98,6 +100,7 @@ None; this package neither assembles nor sends a provider request.
 These limits define which plugins get a page and how fresh the group is; they are current package constraints.
 
 - **Only host-plane plugins have a page** — a plugin an agent preset mounts carries its configuration inline in that preset's `agent.cordis.yml` and cannot register a settings namespace at all, so this package registers nothing for it. Editing those values remains the preset editor's job.
+- **A runtime page needs the Plugin manager page's absence tolerance** — the three runtime pages register without the plugin list, but the shell and Git pages only appear inside it, so a deployment that hides plugin management configures two plugins fewer.
 - **A page still needs a browser bundle** — the browser half must be a `qilin.client` package built in the client module system's lazy-CJS factory format, and the `clientBundle` preset that emits it lives in `../../../packages/client/tsdown.client.ts` rather than a published package, so a plugin outside this repository has to reproduce that build itself.
 - **The served namespaces re-read on two signals only** — the wire announces settings-document commits and connection resets, not registrations, so a namespace whose owner registers after the mirror's read joins the Official group on the next document commit or reconnect.
 - **The shell page follows the composed executor** — the POSIX and PowerShell executor families share the `shell` namespace because a host composes exactly one of them, so the served schema differs by platform (PowerShell adds `pwshPath`) even though the page edits the same two fields on both.
