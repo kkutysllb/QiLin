@@ -13,7 +13,7 @@ import {
   resolveTargetPolicy,
 } from '@qilin-agent/compaction-basic/src/config.ts'
 import type { CompactionResult } from '@qilin-agent/compaction'
-import LlmRuntime, { createUserMessage, ToolCallId, CONTEXT_WINDOW_EXCEEDED_CODE, createSystemMessage, createToolResultMessage, LlmAdapter , createMessage } from '@qilin-agent/llm'
+import LlmRuntime, { createUserMessage, ToolCallId, CONTEXT_WINDOW_EXCEEDED_CODE, createSystemMessage, createToolResultMessage, LlmAdapter , createMessage, LlmError } from '@qilin-agent/llm'
 import type { ContextFormed } from '@qilin-agent/llm'
 import type {
   ContentBlock,
@@ -2317,5 +2317,124 @@ describe('route-priced image pressure', () => {
       .filter(node => result?.shadowedSeqs.includes(node.seq))
       .reduce((total, node) => total + node.heuristicTokens, 0)
     expect(summaryEvent?.data.shadowedTokenCount).toBe(shadowedHeuristic)
+  })
+})
+
+describe('bounded overflow summarization', () => {
+  /** Summarizer that overflows the first N calls, then behaves like the shared fake. */
+  class HalvingCompactionEngine extends TestCompactionEngine {
+    overflows: number
+    constructor(ctx: Context, config: BasicCompactionConfig, overflows: number) {
+      super(ctx, config)
+      this.overflows = overflows
+    }
+
+    override async summarize(
+      input: SummarizationInput,
+      owner: Agent,
+      signal?: AbortSignal,
+    ): ReturnType<TestCompactionEngine['summarize']> {
+      if (this.overflows > 0) {
+        this.overflows -= 1
+        this.calls.push({ input, signal })
+        throw new LlmError('summarization prompt exceeds max length', CONTEXT_WINDOW_EXCEEDED_CODE)
+      }
+      return super.summarize(input, owner, signal)
+    }
+  }
+
+  it('summarizes only the head that fits the window remainder and keeps the tail verbatim', async () => {
+    const ctx = createContext(400)
+    const compact = service({ auto: false }, ctx)
+    const session = conversation(4)
+    const full = ctx.tokenMeter.measure(session).totalTokens
+    // The reserved output is clamped to half the window, so the summary call
+    // may replay at most the other half.
+    expect(full).toBeGreaterThan(200)
+    const before = session.surface.nodes.length
+
+    const result = await compactIfNeeded(compact, session, 'context-overflow')
+
+    expect(result).not.toBeNull()
+    expect(compact.calls.length).toBeGreaterThanOrEqual(1)
+    expect(summarizedText(compact.calls[0]!.input)).not.toContain('user 4')
+    expect(session.surface.nodes.length).toBeLessThan(before)
+    expect(ctx.tokenMeter.measure(session).totalTokens).toBeGreaterThan(0)
+  })
+
+  it('halves the replayed span after a provider-confirmed summary overflow', async () => {
+    const ctx = createContext(1_000)
+    const compact = new HalvingCompactionEngine(ctx, { headroomTokens: 0, maxTokens: 8192, auto: false }, 1)
+    const session = conversation(6)
+
+    const result = await compactIfNeeded(compact, session, 'context-overflow')
+
+    expect(result).not.toBeNull()
+    expect(compact.calls).toHaveLength(2)
+    expect(summarizedText(compact.calls[1]!.input).length)
+      .toBeLessThan(summarizedText(compact.calls[0]!.input).length)
+  })
+
+  it('stops after the configured retries when every summary overflows', async () => {
+    const ctx = createContext(1_000)
+    const compact = new HalvingCompactionEngine(ctx, {
+      headroomTokens: 0,
+      maxTokens: 8192,
+      auto: false,
+      compactionRetries: 1,
+    }, 2)
+    const session = conversation(6)
+
+    await expect(compactIfNeeded(compact, session, 'context-overflow'))
+      .rejects.toThrow('summarization prompt exceeds max length')
+    expect(compact.calls).toHaveLength(2)
+  })
+
+  it('keeps compacting rounds until the remaining surface fits the window', async () => {
+    const ctx = createContext(400)
+    const compact = service({ auto: false, compactionRetries: 2 }, ctx)
+    const session = conversation(4)
+    const initial = ctx.tokenMeter.measure(session).totalTokens
+
+    const result = await compactIfNeeded(compact, session, 'context-overflow')
+
+    expect(result).not.toBeNull()
+    // One round only removes the head its budget admits; above the limit the
+    // backend keeps going instead of returning the first partial reduction.
+    expect(compact.calls.length).toBeGreaterThanOrEqual(2)
+    expect(ctx.tokenMeter.measure(session).totalTokens).toBeLessThan(initial)
+  })
+
+  it('warns and falls back to the whole head when the routed model cannot be described', async () => {
+    const ctx = createContext()
+    const warnings: string[] = []
+    ctx.logger.warn = ((message: string) => void warnings.push(message)) as typeof ctx.logger.warn
+    vi.spyOn(ctx.llm, 'resolveModelInfo').mockRejectedValue(new Error('unlisted model'))
+    const compact = service({ auto: false }, ctx)
+
+    await expect(compactIfNeeded(compact, conversation(3), 'context-overflow')).resolves.not.toBeNull()
+    expect(warnings).toContainEqual(expect.stringContaining('no model metadata for overflow budgeting'))
+  })
+
+  it('stringifies a non-Error capacity failure in the fallback warning', async () => {
+    const ctx = createContext()
+    const warnings: string[] = []
+    ctx.logger.warn = ((message: string) => void warnings.push(message)) as typeof ctx.logger.warn
+    vi.spyOn(ctx.llm, 'resolveModelInfo').mockRejectedValue('adapter unavailable')
+    const compact = service({ auto: false }, ctx)
+
+    await expect(compactIfNeeded(compact, conversation(3), 'context-overflow')).resolves.not.toBeNull()
+    expect(warnings).toContainEqual(expect.stringContaining('adapter unavailable'))
+  })
+
+  it('lets cancellation win when capacity resolution throws on an aborted turn', async () => {
+    const ctx = createContext()
+    vi.spyOn(ctx.llm, 'resolveModelInfo').mockRejectedValue(new Error('unlisted model'))
+    const compact = service({ auto: false }, ctx)
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(compact.compactIfNeeded(agent(conversation(3), MODEL), 'context-overflow', controller.signal))
+      .rejects.toThrow(/aborted/)
   })
 })

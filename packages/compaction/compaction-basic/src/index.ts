@@ -9,8 +9,9 @@ import z from '@qilin-agent/schemastery'
 import { CompactionEngine, ManualCompactionError } from '@qilin-agent/compaction'
 import type { CompactionResult, CompactionTrigger } from '@qilin-agent/compaction'
 import type { Session, SessionSeq } from '@qilin-agent/session'
-import { CONTEXT_WINDOW_EXCEEDED_CODE } from '@qilin-agent/llm'
-import type { LlmCallConfig } from '@qilin-agent/llm'
+import { CONTEXT_WINDOW_EXCEEDED_CODE, LlmError } from '@qilin-agent/llm'
+import type { LlmCallConfig, LlmResolvedModelInfo } from '@qilin-agent/llm'
+import type { TokenMeasurement } from '@qilin-agent/token-meter'
 import { assertNever } from '@qilin-agent/util-values'
 import type { Agent, PreStepDecision } from '@qilin-agent/agent'
 import type { CommandId } from '@qilin-agent/commands/brand'
@@ -33,6 +34,7 @@ import type {
   BasicCompactionConfig,
   ModelCompactPolicyConfig,
   ResolvedConfig,
+  ResolvedTargetPolicy,
 } from './types.ts'
 
 export type {
@@ -44,6 +46,11 @@ export type {
   ResolvedRetention,
   ResolvedTargetPolicy,
 } from './types.ts'
+
+/** Whether a summarization failure is the routed model's own prompt cap. */
+function isContextOverflowFailure(error: unknown): boolean {
+  return error instanceof LlmError && error.code === CONTEXT_WINDOW_EXCEEDED_CODE
+}
 
 /** Resolve the exact provider/model durably routed for the latest request. */
 function routedTarget(
@@ -296,9 +303,7 @@ export class BasicCompactionEngine extends CompactionEngine {
         prune.pruneSession(agent.session)
         measurement = meter.measure(agent.session)
       }
-      const range = selectCompactableRange(agent.session, measurement, 0)
-      if (range === null) return null
-      return this.compactRegion(range.start, range.end, agent, signal)
+      return this.compactOverflow(agent, policy, await this.overflowModelInfo(target, signal), measurement, signal)
     }
 
     const info = await this.ctx.llm.resolveModelInfo(target.provider, target.model, signal)
@@ -344,6 +349,95 @@ export class BasicCompactionEngine extends CompactionEngine {
       `compaction still above threshold after ${spec.compactionRetries + 1} compaction attempts `
       + `(${measurement.totalTokens} estimated tokens >= threshold ${spec.thresholdTokens})`,
     )
+  }
+
+  /**
+   * Force a provider-confirmed overflow below the routed prompt cap.
+   *
+   * A surface that already exceeded the window cannot be summarized whole: the
+   * summarization call replays the selected span, so that call overflows too.
+   * Each round therefore summarizes at most the share of the window left after
+   * its output reservation and keeps the rest verbatim; a summarization overflow
+   * halves that share, so a provider whose real prompt cap is smaller than the
+   * capacity its adapter declares still converges. Rounds repeat until the
+   * remaining surface fits, no compactable range is left, or the retry budget is
+   * spent.
+   *
+   * @param agent - agent whose surface is being reduced.
+   * @param policy - resolved compaction policy for the routed target.
+   * @param info - routed model capacity and the adapter's default output reservation.
+   * @param measurement - current surface measurement.
+   * @param signal - live turn cancellation signal forwarded to summarization.
+   * @returns the last committed compaction result, or `null` when no summary ran.
+   */
+  /**
+   * Resolve the routed model's capacity for overflow budgeting.
+   *
+   * Provider-confirmed overflow must stay recoverable even when the adapter
+   * cannot describe the target (an unlisted or route-less model): unknown
+   * capacity falls back to the whole-surface reduction this backend shipped
+   * before budgeting existed.
+   *
+   * @param target - routed provider/model of the failed request.
+   * @param signal - live turn cancellation signal; cancellation still wins.
+   * @returns resolved model info, or `undefined` when the adapter cannot answer.
+   */
+  private async overflowModelInfo(
+    target: Pick<LlmCallConfig, 'provider' | 'model'>,
+    signal: AbortSignal,
+  ): Promise<LlmResolvedModelInfo | undefined> {
+    try {
+      return await this.ctx.llm.resolveModelInfo(target.provider, target.model, signal)
+    } catch (error: unknown) {
+      signal.throwIfAborted()
+      this.ctx.logger.warn(
+        'compaction: no model metadata for overflow budgeting; '
+        + `summarizing the whole compactable head (${error instanceof Error ? error.message : String(error)})`,
+      )
+      return undefined
+    }
+  }
+
+  private async compactOverflow(
+    agent: Agent,
+    policy: ResolvedTargetPolicy,
+    info: LlmResolvedModelInfo | undefined,
+    measurement: TokenMeasurement,
+    signal: AbortSignal,
+  ): Promise<CompactionResult | null> {
+    const capacity = info?.context?.contextWindow
+    // The summarization request charges its output against the same window as
+    // its prompt, so the span it replays must stay below the remainder. A
+    // reservation at or above the whole window leaves no usable prompt budget;
+    // half the window is the floor that still keeps one call feasible.
+    const reserve = capacity === undefined
+      ? 0
+      : Math.min(
+        Math.max(reservedCompletionTokens(agent, info?.defaultMaxTokens), policy.maxTokens),
+        Math.floor(capacity / 2),
+      )
+    const limit = capacity === undefined ? undefined : Math.max(1, capacity - reserve)
+    let budget = limit ?? measurement.totalTokens
+    let current = measurement
+    let result: CompactionResult | null = null
+    for (let attempt = 0; attempt <= policy.compactionRetries; attempt += 1) {
+      const retain = limit === undefined ? 0 : Math.max(0, current.totalTokens - budget)
+      // A budget smaller than the indivisible tail selects nothing; the
+      // historical whole-head reduction is the only remaining progress.
+      const range = selectCompactableRange(agent.session, current, retain)
+        ?? (retain === 0 ? null : selectCompactableRange(agent.session, current, 0))
+      if (range === null) return result
+      try {
+        result = await this.compactRegion(range.start, range.end, agent, signal)
+      } catch (error: unknown) {
+        if (!isContextOverflowFailure(error) || attempt === policy.compactionRetries) throw error
+        budget = Math.max(1, Math.floor(budget / 2))
+        continue
+      }
+      current = this.ctx.tokenMeter.measure(agent.session)
+      if (limit === undefined || current.totalTokens <= limit) return result
+    }
+    return result
   }
 
   /**
