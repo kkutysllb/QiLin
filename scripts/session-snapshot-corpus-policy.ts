@@ -22,6 +22,11 @@ export interface SnapshotCorpusGenerationSummary {
 }
 
 const RETAINED_BASELINE_VERSION = 3
+/** The payload generation this fork's corpus still carries: the v5 re-record is pending, so an
+ * unretained scenario may also select v4 (TODO: remove once every v4-selected scenario is
+ * re-recorded, then accept only the baseline and current generations again).
+ */
+const ACCEPTED_HISTORICAL_VERSION = 4
 const MAX_RETAINED_ROLES = 11
 const REQUIRED_V0_COVERAGE = new Set([
   'multi-hop',
@@ -51,24 +56,30 @@ export function assertSnapshotCorpusPolicy(
     if (selectedVersion === undefined) {
       throw new Error(`${scenario.key}: scenario owns no selected Session role`)
     }
-    const expectedVersion = scenario.retained?.version ?? selectedVersion
+    if (scenario.retained === undefined) {
+      // Unretained scenarios accept the baseline, the pending v4 payload generation, and the
+      // current writer; a parent may be one generation ahead of its children while the v5
+      // re-record is pending (session/ralph-loop: v4 parent, v3 children).
+      const outside = scenario.selectedVersions.find(version => version !== RETAINED_BASELINE_VERSION
+        && version !== ACCEPTED_HISTORICAL_VERSION && version !== SESSION_FORMAT_VERSION)
+      if (outside !== undefined) {
+        throw new Error(
+          `${scenario.key}: selected Session generation v${outside} must be retained baseline v${RETAINED_BASELINE_VERSION}, accepted historical v${ACCEPTED_HISTORICAL_VERSION}, or current v${SESSION_FORMAT_VERSION}`,
+        )
+      }
+      if (selectedVersion === SESSION_FORMAT_VERSION) {
+        currentRoles += scenario.selectedVersions.length
+      } else {
+        baselineRoles += scenario.selectedVersions.length
+      }
+      continue
+    }
+    const expectedVersion = scenario.retained.version
     const mismatched = scenario.selectedVersions.find(version => version !== expectedVersion)
     if (mismatched !== undefined) {
       throw new Error(
         `${scenario.key}: selected Session generation v${mismatched} does not match expected v${expectedVersion}`,
       )
-    }
-    if (scenario.retained === undefined) {
-      if (selectedVersion === RETAINED_BASELINE_VERSION) {
-        baselineRoles += scenario.selectedVersions.length
-      } else if (selectedVersion === SESSION_FORMAT_VERSION) {
-        currentRoles += scenario.selectedVersions.length
-      } else {
-        throw new Error(
-          `${scenario.key}: selected Session generation v${selectedVersion} must be retained baseline v${RETAINED_BASELINE_VERSION} or current v${SESSION_FORMAT_VERSION}`,
-        )
-      }
-      continue
     }
     const retiredTools = scenario.retained.coverage.length === 1 && scenario.retained.coverage[0] === 'retired-tools'
     if (!Number.isSafeInteger(scenario.retained.version)
