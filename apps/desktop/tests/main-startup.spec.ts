@@ -105,8 +105,12 @@ const harness = await vi.hoisted(async () => {
     readonly setTitleBarOverlay = vi.fn()
     readonly setVibrancy = vi.fn()
     readonly setBackgroundColor = vi.fn()
-    constructor(readonly options: { show: boolean; modal?: boolean }) {
-      super(); if (windowFailure !== undefined) throw windowFailure; windows.push(this)
+    constructor(readonly options: { show: boolean; modal?: boolean; skipTaskbar?: boolean }) {
+      super()
+      if (windowFailure !== undefined) throw windowFailure
+      // The launch splash is a frameless, taskbar-less presentational window created before the
+      // application window; tests index `windows` as the application window, so it stays out.
+      if (options.skipTaskbar !== true) windows.push(this)
     }
     isDestroyed() { return this.destroyed }
     fullscreen = false

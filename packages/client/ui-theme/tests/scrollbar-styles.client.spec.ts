@@ -62,8 +62,13 @@ const BASE_SURFACE_SCROLLERS: readonly {
   },
   {
     file: 'ui-plugin-manager/src/client/PluginManagerPage.module.css',
-    selector: '.page',
+    selector: '.page > .pageBody',
     reason: 'The Plugins page scroller draws on the page background; the elevated cards it holds are descendants, not its background.',
+  },
+  {
+    file: 'ui-plugin-manager/src/client/PluginManagerPage.module.css',
+    selector: '.updateOutput',
+    reason: 'The installation output scroller sits on the page background; the elevated card belongs to the dialog frame.',
   },
   {
     file: 'ui-plugin-manager/src/client/PluginManagerPage.module.css',

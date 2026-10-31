@@ -44,6 +44,10 @@ export const coverageExemptHeavySuites: readonly CoverageExemptSuite[] = [
     filter: 'packages/experimental/webworker-runtime/tests/',
     exclude: 'packages/experimental/webworker-runtime/tests/**',
   },
+  // Compiler-corpus scan of the shipped tree: the TypeScript program over every package face
+  // runs minutes even quiet, and instrumented partitions push it past its 300s budget. The
+  // suite executes only scripts/ code, which coverage never measures.
+  { filter: 'scripts/verify-typert-face-dependencies.spec.ts', exclude: 'scripts/verify-typert-face-dependencies.spec.ts' },
   // Real child-process fixtures over scripts/ sources, which coverage never measures.
   { filter: 'scripts/install-lefthook.spec.ts', exclude: 'scripts/install-lefthook.spec.ts' },
   { filter: 'scripts/oxlint-contract.spec.ts', exclude: 'scripts/oxlint-contract.spec.ts' },

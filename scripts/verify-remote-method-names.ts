@@ -165,7 +165,11 @@ const MINIMUM_SCANNED = 50
  */
 export function scanRepository(): { violations: RemoteMethodViolation[]; scanned: number } {
   const reserved = reservedFromMechanism()
-  const files = SCAN_GLOBS.flatMap(pattern => globSync(pattern, { cwd: root })).sort()
+  // oxlint writes transient type-aware contract files beside sources under this prefix; a
+  // concurrent lint deletes them after discovery, so the scan must not name them.
+  const files = SCAN_GLOBS.flatMap(pattern => globSync(pattern, { cwd: root }))
+    .filter(file => !/(^|\/)oxlint-contract-[^/]+\.ts$/.test(file))
+    .sort()
   if (files.length === 0) {
     throw new Error('verify-remote-method-names: scanned an empty corpus; the globs no longer match.')
   }

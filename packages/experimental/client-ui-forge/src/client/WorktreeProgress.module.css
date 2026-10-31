@@ -36,8 +36,8 @@
      scrolls once it reaches its height cap, so the thumb takes the l2 pair.
      Declared on the card, whose custom properties inherit down to the box that
      scrolls (see ui-theme styles/scrollbar.css for the rebinding contract). */
-  --qilin-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --qilin-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
 .card::before {

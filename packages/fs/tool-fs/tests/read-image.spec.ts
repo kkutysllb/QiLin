@@ -132,6 +132,8 @@ async function setup(options: SetupOptions = {}) {
 /** A fake calling agent pinned to one routed provider/model. */
 function agentOn(model: string | undefined, provider = 'visual', messages: readonly Message[] = []): object {
   return {
+    // PTC retained-environment cleanup registers on the calling Agent's context.
+    ctx: new Context(),
     options: {},
     session: {
       header: { cwd: dir },

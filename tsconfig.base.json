@@ -367,6 +367,7 @@
       "@qilin-agent/experimental-forge-github": ["./packages/experimental/forge-github/src"],
       "@qilin-agent/experimental-forge-session": ["./packages/experimental/forge-session/src"],
       "@qilin-agent/experimental-forge-session/types": ["./packages/experimental/forge-session/src/types.ts"],
+      "@qilin-agent/experimental-forge-bundle": ["./packages/experimental/forge-bundle/src"],
       "@qilin-agent/plugin-detail/types": ["./packages/util/plugin-detail/src/types.ts"],
       "@qilin-agent/experimental-voice-input-bundle": ["./packages/experimental/voice-input-bundle/src/index.ts"],
       "@qilin-agent/experimental-speech-to-text/wave": ["./packages/experimental/speech-to-text/src/wave.ts"],

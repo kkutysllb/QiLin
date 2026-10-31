@@ -15,6 +15,7 @@ describe('Inspector profile bundle', () => {
     expect(manifest.publishConfig.access).toBe('public')
     expect(manifest.qilin.bundle.patch).toBe('./cordis.patch.yml')
     expect(manifest.dependencies).toEqual({
+      '@qilin-agent/experimental-client-ui-stats': 'workspace:*',
       '@qilin-agent/experimental-inspector': 'workspace:*',
       '@qilin-agent/experimental-session-inspector': 'workspace:*',
     })
@@ -26,6 +27,7 @@ describe('Inspector profile bundle', () => {
         disabled: false, config: { captureFetch: true },
       },
       { id: 'session-inspector', name: '@qilin-agent/experimental-session-inspector' },
+      { id: 'client-ui-stats', name: '@qilin-agent/experimental-client-ui-stats' },
     ] }])
   })
 })

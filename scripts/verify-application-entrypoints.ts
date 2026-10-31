@@ -34,6 +34,7 @@ const EXECUTABLE_SOURCE_ALLOWLIST = new Map<string, string>([
   ['apps/desktop/scripts/logged-notarytool.mjs', 'packaging-only notarization helper'],
   ['apps/cli/src/bin.ts', 'supported qilin application launcher'],
   ['packages/context/time-context/tests/fixtures/driver.ts', 'test-only subprocess driver'],
+  ['packages/experimental/cua-macos/tests/fixtures/cua-native/workspace/native-helper.mjs', 'test-only native helper fixture'],
   ['packages/experimental/webworker-packer/bin.js', 'build-only wrapper'],
   ['packages/experimental/webworker-packer/src/bin.ts', 'build-only implementation'],
   ['packages/sdk/client/tests/fake-runtime.ts', 'test-only SDK runtime peer'],

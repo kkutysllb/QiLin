@@ -50,6 +50,8 @@ describe.skipIf(process.platform === 'win32')('gh runner', () => {
     await expect(run(['fail'], new AbortController().signal)).resolves.toEqual({ exitCode: 3, stdout: '', stderr: 'oops' })
   })
 
+  // execa reports the timeout at 100ms but settles only after its SIGTERM grace period, so a
+  // loaded host can outlast vitest's 5s default budget while the runner itself behaves correctly.
   it('rejects when gh outlives the timeout', async () => {
     const run = ghRunner({ ghCommand: await fakeGh(), timeoutMs: 100, maxOutputBytes: 10_000 })
 
@@ -57,7 +59,7 @@ describe.skipIf(process.platform === 'win32')('gh runner', () => {
 
     await expect(result).rejects.toBeInstanceOf(GhTimeoutError)
     await expect(result).rejects.toThrow('gh sleep timed out after 100ms')
-  })
+  }, 20_000)
 
   it('rejects with the abort reason when cancelled', async () => {
     const run = ghRunner({ ghCommand: await fakeGh(), timeoutMs: 5_000, maxOutputBytes: 10_000 })
