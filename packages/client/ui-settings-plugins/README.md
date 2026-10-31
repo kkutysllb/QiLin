@@ -39,7 +39,7 @@ The **Subagent** card groups delegation limits and model selection on one page w
 
 The model selection section stages its permission switch and exact model checkboxes together. Enabling requires at least one selected adapter route. Saving submits `enabled` and `allowedModels` in one mutation fenced by the revision where that draft began; a newer Host revision marks the draft failed instead of restoring a revoked route. Disabling retains the selected routes for later reuse. Available models are grouped by provider, while saved routes absent from the current catalog appear last and remain removable. Adapter names and model descriptions remain live directory metadata and are not stored, and the card refreshes them after adapter changes, settings commits, and reconnects.
 
-Saving the Subagent card validates both sections and writes their drafts through their existing namespaces. These writes are independent: if one fails, the card stays open with that draft retained, and retry writes only the remaining draft. The page appears when either namespace is served and shows only the available sections.
+Saving the Subagent card validates both sections and writes their drafts through their existing namespaces. The model-selection write settles before the limits write, because each write fences on its own revision and the profile recomposes in between; if either fails, the card stays open with that draft retained, and retry writes only the remaining draft. The page appears when either namespace is served and shows only the available sections.
 
 ### Secret-role fields
 

@@ -1,6 +1,5 @@
-/** Node-half coverage for the model guidance paired with Web file references. */
+/** Node-half coverage: the shared file-reference guidance is another plugin's section. */
 
-import { readFile } from 'node:fs/promises'
 import { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it } from 'vitest'
 import SystemPrompt from '@qilin-agent/system-prompt'
@@ -14,7 +13,8 @@ afterEach(async () => {
 })
 
 describe('ui-deliverables node plugin', () => {
-  it('registers final-response file-reference guidance only while mounted', async () => {
+  it('leaves the shared file-reference guidance to its own plugin', async () => {
+    expect(inject).not.toContain('systemPrompt')
     ctx = new Context()
     await ctx.plugin(SystemPrompt, { personaPrefix: '' })
     ctx.provide('connection', { fetch: { register: () => () => {} } } as never)
@@ -27,17 +27,10 @@ describe('ui-deliverables node plugin', () => {
     const mounted = ctx.plugin({ apply, inject })
     await mounted.await()
 
-    const section = (await ctx.systemPrompt.assemble()).sections
-      .find(entry => entry.name === 'ui:deliverable-file-references')
-    expect(section?.text).toMatchInlineSnapshot('"When you successfully create or modify files, mention the primary outputs in your final response. Use ![Description](<path/to/image.png>) when an image supports an explanation or comparison. Use [Description](<path/to/image.png>) when referring to an image or listing files. Enclose Markdown file destinations in angle brackets, especially paths containing spaces. Outside commands, configuration expressions, and code blocks, link every mention of an existing file, including repeats and tables, to its full path relative to the working directory or absolute; append #L24 or #L24-L30 to the target for known lines. Use the filename or a clear alias as the label, adding only enough parent directories to distinguish files; keep full paths out of labels. Default to the name alone; when precise locations matter, append :24 or :24–30, with no # or L in the line suffix."')
-
-    for (const scenario of ['cordis-tool-round', 'fresh-round-trip', 'ptc-round', 'schedule-catalog']) {
-      const sidecar = await readFile(new URL(`../../../../snapshots/web/${scenario}/system-prompt.expected.md`, import.meta.url), 'utf8')
-      expect(sidecar, scenario).toContain(section!.text)
-    }
-
-    await mounted.dispose()
+    // The separately mounted deliverable-file-references plugin owns this section.
     expect((await ctx.systemPrompt.assemble()).sections
       .some(entry => entry.name === 'ui:deliverable-file-references')).toBe(false)
+
+    await mounted.dispose()
   })
 })

@@ -1,10 +1,40 @@
 /** Shared presentation and actions for the two Host-owned Subagent settings sections. */
 
 import type { SettingsFormShell } from '@qilin-agent/client-ui-primitives'
+import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { SubagentLimitsCardFace, SubagentLimitsCardState } from './subagent-limits-card-controller.ts'
 import type {
   SubagentModelSelectionCardFace, SubagentModelSelectionCardState,
 } from './subagent-model-selection-card-controller.ts'
+
+/** Resolve once a form source leaves its saving phase, so the next namespace writes after it. */
+async function settled(store: SnapshotStore<{ saving: boolean }>): Promise<void> {
+  if (!store.getSnapshot().saving) return
+  await new Promise<void>((resolve) => {
+    const off = store.subscribe(() => {
+      if (store.getSnapshot().saving) return
+      off()
+      resolve()
+    })
+  })
+}
+
+/** Resolve once a form source is writable again; a first write recomposes the profile, and its
+ * section is briefly read-only until the Host answers the next read. */
+async function writable(store: SnapshotStore<{ available: boolean; writable: boolean }>): Promise<void> {
+  const ready = (): boolean => {
+    const state = store.getSnapshot()
+    return state.available && state.writable
+  }
+  if (ready()) return
+  await new Promise<void>((resolve) => {
+    const off = store.subscribe(() => {
+      if (!ready()) return
+      off()
+      resolve()
+    })
+  })
+}
 
 /** Both existing form sources and the actions exposed by one Subagent card. */
 export interface SubagentCardFace {
@@ -64,8 +94,20 @@ export function subagentCardFace(
       const modelState = models.hooks.subagentModelSelectionCard.getSnapshot()
       const state = subagentCardShell(limitState, modelState)
       if (!state.available || !state.writable || !state.dirty || state.invalid || state.saving) return
-      if (modelState.available && modelState.dirty) models.save()
-      if (limitState.available && limitState.dirty) limits.save()
+      // One Save writes two namespaces, and the profile patch fences each write by its
+      // revision: the limit write must wait for the model write to settle instead of
+      // racing it, or the later write loses the fence and is dropped.
+      void (async () => {
+        if (modelState.available && modelState.dirty) {
+          models.save()
+          await settled(models.hooks.subagentModelSelectionCard)
+        }
+        if (limitState.available && limitState.dirty) {
+          await writable(limits.hooks.subagentLimitsCard)
+          limits.save()
+          await settled(limits.hooks.subagentLimitsCard)
+        }
+      })()
     },
     discard: () => {
       if (subagentCardShell(

@@ -30,26 +30,26 @@
   en: ef13aac8ac36a5c3
   zh: d785795c6d9a31ec
 /qilin-agent-client-ui-deliverables/understand-the-implementation:
-  en: aa53866b7fa34726
-  zh: 2c1ad12c8c9f9d0d
+  en: 22e90b6564191895
+  zh: 44eaaef9e0051a5d
 /qilin-agent-client-ui-deliverables/further-exploration:
   en: 7fbb38158f458cd4
   zh: e6bec53bc5f4fb58
 /qilin-agent-client-ui-deliverables/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
-/qilin-agent-client-ui-deliverables/model-experience/clickable-file-reference-guidance:
-  en: eb244aa21a4e5210
-  zh: e3450addfa19cea5
-/qilin-agent-client-ui-deliverables/model-experience/clickable-file-reference-guidance/what-the-model-sees:
-  en: b191a86a061cbb07
-  zh: 1e080b8fedb3a4f8
-/qilin-agent-client-ui-deliverables/model-experience/clickable-file-reference-guidance/token-effect:
-  en: b6c79433affb56a6
-  zh: a084318c814aa03c
-/qilin-agent-client-ui-deliverables/model-experience/clickable-file-reference-guidance/kv-cache-effect:
-  en: 52626a05acc8b320
-  zh: 6a8e62b0d47d5297
+/qilin-agent-client-ui-deliverables/model-experience/desktop-file-references:
+  en: 18f9c56e10a44603
+  zh: b774e6e5f2a5db6d
+/qilin-agent-client-ui-deliverables/model-experience/desktop-file-references/what-the-model-sees:
+  en: 090c1406a6c559e7
+  zh: f9846df4c7ee2a7f
+/qilin-agent-client-ui-deliverables/model-experience/desktop-file-references/token-effect:
+  en: 2f1bfc1df1d8d8f3
+  zh: 4af1b4599f3d6a6a
+/qilin-agent-client-ui-deliverables/model-experience/desktop-file-references/kv-cache-effect:
+  en: 4dc7674aa58029a5
+  zh: 8b605cd009e60775
 /qilin-agent-client-ui-deliverables/known-limitations-and-deferred-work:
   en: 7cf1624dbf46ec53
   zh: 4cf51dd265f1965f
