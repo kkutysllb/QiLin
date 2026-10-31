@@ -227,6 +227,36 @@ describe('Web session model selection', () => {
     await ctx.fiber.dispose()
   })
 
+  it('records a non-owner caller principal on a queued prompt', async () => {
+    const { ctx, agent, sessionId } = await harness()
+    const followup = vi.fn()
+    Object.assign(agent, { followup })
+    const principal = { kind: 'peer', id: 'peer-1' }
+    const invocation = {
+      request: { namespace: 'session', method: 'prompt', args: {} },
+      service: 'sessionController',
+      peer: { principal },
+      signal: new AbortController().signal,
+    }
+    createSessionTestRemote(ctx, {
+      defaultModelSelection: () => ({ provider: 'deepseek-official', model: 'deepseek-chat' }),
+      cwd: '/tmp',
+    })
+    // The Remote gateway runs methods on a Service view whose context carries the call, so
+    // this.ctx.invocation is the caller and the recorded source names its principal.
+    const view = ctx.extend({ invocation }).get('sessionController') as {
+      prompt(request: unknown, signal: AbortSignal): Promise<unknown>
+    }
+
+    await view.prompt(promptRequest({
+      sessionId,
+      mode: 'queue' as const,
+      content: [{ type: 'text' as const, text: 'hello' }],
+    }), new AbortController().signal)
+    expect(followup.mock.calls[0]?.[0]).toMatchObject({ source: { kind: 'user', principal } })
+    await ctx.fiber.dispose()
+  })
+
   it('delivers an admitted image batch through steer with the same ordered content as queue', async () => {
     const { ctx, agent, sessionId } = await harness()
     const attachments = {
@@ -389,7 +419,7 @@ describe('Web session model selection', () => {
   it('preserves optional catalog metadata and string provider failures', async () => {
     const { ctx } = await harness()
     ctx.llm.registerAdapter(['plain'], new CatalogAdapter('Plain', [
-      { provider: 'plain', id: 'plain-model', name: 'Plain Model' },
+      { provider: 'plain', id: 'plain-model', name: 'Plain Model', badge: { tone: 'info', text: { en: 'New' } } },
     ]))
     ctx.llm.registerAdapter(['described-reasoning'], new CatalogAdapter('Described Reasoning', [
       { provider: 'described-reasoning', id: 'reasoning-model', name: 'Reasoning Model' },
@@ -409,7 +439,7 @@ describe('Web session model selection', () => {
 
     const catalog = await buildModelCatalog(ctx)
     expect(catalog.groups).toEqual(expect.arrayContaining([
-      { id: 'plain', name: 'Plain', models: [{ id: 'plain-model', name: 'Plain Model' }] },
+      { id: 'plain', name: 'Plain', models: [{ id: 'plain-model', name: 'Plain Model', badge: { tone: 'info', text: { en: 'New' } } }] },
       {
         id: 'described-reasoning',
         name: 'Described Reasoning',

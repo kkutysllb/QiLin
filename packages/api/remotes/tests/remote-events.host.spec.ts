@@ -8,6 +8,7 @@ import type {
 import { scopeTarget } from '@qilin-agent/scope'
 import { describe, expect, it } from 'vitest'
 import { apply, inject } from '../src/index.ts'
+import { API_REMOTE_FORWARDED_EVENTS } from '../src/remote-events.ts'
 
 interface GatewayProbe {
   source: TypertRemoteEventSource | undefined
@@ -79,6 +80,20 @@ function invocationOf(value: unknown): TypertRemoteEventInvocation {
 }
 
 describe('Remote event Host source', () => {
+  it('projects the Session identity each forwarded Session event names', () => {
+    const readers = API_REMOTE_FORWARDED_EVENTS.filter(entry => 'resources' in entry && entry.resources !== undefined)
+    expect(readers.map(entry => entry.event)).toEqual([
+      'api-session/activity', 'api-session/added', 'api-session/error', 'api-session/removed', 'api-session/status',
+    ])
+    for (const entry of readers) {
+      const resources = (entry as { readonly resources?: { session: (value: never) => unknown } }).resources
+      if (resources === undefined) throw new Error('forwarded event without a session reader')
+      const read = resources.session
+      const value = entry.event === 'api-session/added' ? { sessionId: 'session-1' } : 'session-1'
+      expect(read(value as never)).toBe('session-1')
+    }
+  })
+
   it('registers the Host home used by Client connection generations', async () => {
     const { gateway, fiber } = await setup()
     expect(gateway.host?.home).toBeTypeOf('string')

@@ -767,6 +767,30 @@ describe('ui-agent-preset apply', () => {
     conversation()
   })
 
+  it('leaves a blank main Session already listing the creator preset unstaged', async () => {
+    const { ctx, slots, calls } = await bench()
+    declareRoot(slots)
+    const conversation = declareConversation(slots)
+    ctx.provide('conversation', {} as never)
+    const sessions = sessionsDouble(ctx, {
+      current: 's1',
+      byId: { s1: { id: 's1', blank: true, projectionValues: { agentPreset: 'ptc' } } },
+    })
+    ctx.provide('sessions', sessions as never)
+    const uiWorkspace = uiWorkspaceDouble()
+    ctx.provide('uiWorkspace', uiWorkspace as never)
+    await ctx.plugin({ inject: [...inject, 'conversation', 'sessions', 'uiWorkspace'], apply }).await()
+    const section = (slots.entries('settings.section')[0]!.inject as unknown as () => AgentPresetSectionInjected)()
+
+    await section.load()
+    section.startCreatorDraft?.()
+
+    // The blank already lists the shipped preset, so only the new-session flow runs.
+    expect(uiWorkspace.starts).toHaveLength(1)
+    expect(calls).not.toContain('select:ptc')
+    conversation()
+  })
+
   it('keeps the applied composition when the roster load lands late', async () => {
     const { ctx, slots, calls } = await bench()
     declareRoot(slots)

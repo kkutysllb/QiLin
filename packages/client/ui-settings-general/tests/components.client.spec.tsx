@@ -291,6 +291,12 @@ describe('Host release prompt', () => {
     expect(reloadPage).toHaveBeenCalledOnce()
   })
 
+  it('names an unknown connected release when the Host publishes none', () => {
+    const change: ClientReleaseChange = { page: { version: '1.0.0', commit: 'aaaaaaa' }, previous: undefined, host: undefined }
+    const { view } = mount(change)
+    expect(view.getAllByText('Unknown').length).toBeGreaterThan(0)
+  })
+
   it('falls back to the unknown label for a release the Host did not publish', () => {
     const change: ClientReleaseChange = { page: undefined, previous: undefined, host: { version: '2.0.0' } }
     const { view } = mount(change)

@@ -186,7 +186,7 @@ function value(source: HostObservable<unknown> | undefined): unknown {
   return source.getSnapshot()
 }
 
-async function mounted(initial?: Baseline): Promise<{
+async function mounted(initial?: Baseline, options: { preProvideNamespace?: boolean } = {}): Promise<{
   readonly ctx: Context
   readonly stream: () => FakeAccessStream
   readonly global: (action: string) => HostObservable<unknown> | undefined
@@ -218,12 +218,13 @@ async function mounted(initial?: Baseline): Promise<{
   } as never)
   const contribution: TypertRemoteContribution = { package: '@qilin-agent/api-remote-access', descriptors: [] }
   let dispose: (() => Promise<void>) | undefined
+  if (options.preProvideNamespace === true) ctx.provide('remote.remoteAccess', remote.remoteAccess as never)
   await ctx.plugin({
     inject: ['remote', 'slots'],
     apply: async (pluginCtx: Context) => { dispose = await mountAccess(pluginCtx, contribution, initial) },
   })
-  // The generated namespace arrives after the mount, as `$mount` provides it.
-  ctx.provide('remote.remoteAccess', remote.remoteAccess as never)
+  // The generated namespace normally arrives after the mount, as `$mount` provides it.
+  if (options.preProvideNamespace !== true) ctx.provide('remote.remoteAccess', remote.remoteAccess as never)
   await vi.waitFor(() => { expect(stream).toBeDefined() })
   return {
     ctx,
@@ -238,6 +239,13 @@ async function mounted(initial?: Baseline): Promise<{
 }
 
 describe('remote-access Client mount', () => {
+  it('reuses a namespace another owner already provides instead of mounting it again', async () => {
+    const access = await mounted(undefined, { preProvideNamespace: true })
+    expect(access.mount).not.toHaveBeenCalled()
+    expect(access.global('session/fork')).toBeDefined()
+    await access.dispose()
+  })
+
   it('provides the global-resource Hook and the remoteAccess service over the followed snapshot', async () => {
     const access = await mounted()
     expect(access.mount).toHaveBeenCalledWith(access.contribution)

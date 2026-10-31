@@ -19,6 +19,11 @@ const CATALOG: PermissionCatalog = {
   defaultPreset: 'read-only',
 }
 
+type CatalogFace = {
+  snapshot: () => PermissionCatalog | null
+  subscribe: (listener: () => void) => () => void
+}
+
 const catalogFace = { snapshot: () => CATALOG, subscribe: () => () => {} }
 
 function resolveDefault(view: SettingsNamespaceView) {
@@ -44,7 +49,7 @@ function ok<T>(value: T) {
 }
 
 /** The permission controller over a real mirror and one scripted context. */
-function permissionController(api: object, catalog = catalogFace) {
+function permissionController(api: object, catalog: CatalogFace = catalogFace) {
   const ctx = { remote: { settings: api } } as never
   const mirror = new SettingsDescribeMirror(ctx)
   return { mirror, controller: new PermissionPresetSettingsController(mirror, catalog, ctx) }
@@ -172,6 +177,33 @@ describe('permission settings store', () => {
     }).controller
     await thrown.load()
     expect(thrown.store.getSnapshot()).toMatchObject({ status: 'error', error: 'disconnected' })
+  })
+
+  it('waits for the first catalog read instead of deriving from a missing one', async () => {
+    const describe = vi.fn(() => Promise.resolve(ok({ writable: true, hasDocument: false, namespaces: [view('read-only', 4)] })))
+    const catalog = { snapshot: () => null, subscribe: () => () => {} }
+    const { controller } = permissionController({ describe, mutate: vi.fn() }, catalog)
+    await controller.load()
+    expect(controller.store.getSnapshot().status).toBe('loading')
+  })
+
+  it('re-derives when the catalog publishes after the load', async () => {
+    let publish = (): void => {}
+    const catalog = { snapshot: () => CATALOG, subscribe: (listener: () => void) => { publish = listener; return () => {} } }
+    const describe = vi.fn(() => Promise.resolve(ok({ writable: true, hasDocument: false, namespaces: [view('read-only', 4)] })))
+    const { controller } = permissionController({ describe, mutate: vi.fn() }, catalog)
+    await controller.load()
+    publish()
+    expect(controller.store.getSnapshot()).toMatchObject({ status: 'ready', currentValue: 'read-only' })
+    controller.dispose()
+  })
+
+  it('stringifies a non-Error catalog failure', async () => {
+    const describe = vi.fn(() => Promise.resolve(ok({ writable: true, hasDocument: false, namespaces: [view('read-only', 4)] })))
+    const catalog = { snapshot: () => { throw 'catalog offline' }, subscribe: () => () => {} }
+    const { controller } = permissionController({ describe, mutate: vi.fn() }, catalog)
+    await controller.load()
+    expect(controller.store.getSnapshot()).toMatchObject({ status: 'error', error: 'catalog offline' })
   })
 
   it('reports a failing catalog face as a row error', async () => {

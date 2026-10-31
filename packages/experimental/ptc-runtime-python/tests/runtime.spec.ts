@@ -6002,6 +6002,47 @@ describe('PythonPtcRuntime — file confinement', () => {
     expect(result.sandbox).toEqual({ mode: 'read-only', denied: false })
   })
 
+  it('treats an emptied confinement argv as an unavailable sandbox', async () => {
+    const ctx = await createRuntimeContext({ mode: 'read-only' })
+    const runtime = await ctx.plugin(PythonPtcRuntime).then(() => ctx.ptcRuntime as PythonPtcRuntime)
+    vi.spyOn(ctx.sandbox, 'confine').mockImplementation(async () => confinement([]))
+    const result = await runtime.run(runtime.resolve({ program: 'return 1', bindings: [] }))
+    expect(result.error?.kind).toBe('sandbox-unavailable')
+    expect(result.error?.message).toContain('sandbox runner argv is empty')
+  })
+
+  it('classifies a confined runner refusal from its stderr signature', async () => {
+    const ctx = await createRuntimeContext({ mode: 'read-only' })
+    const runtime = await ctx.plugin(PythonPtcRuntime).then(() => ctx.ptcRuntime as PythonPtcRuntime)
+    vi.spyOn(ctx.sandbox, 'confine').mockImplementation(async argv => confinement([...argv]))
+    const result = await runtime.run(runtime.resolve({
+      program: ['import os', "os.write(2, b'sandbox-fatal: blocked by the profile\\n')", 'os._exit(1)'].join('\n'),
+      bindings: [],
+    }))
+    expect(result.error?.kind).toBe('sandbox-unavailable')
+    expect(result.error?.message).toContain('sandbox-fatal')
+  }, 120_000)
+
+  it('keeps confined runner stderr for failure classification', async () => {
+    const ctx = await createRuntimeContext({ mode: 'read-only' })
+    const runtime = await ctx.plugin(PythonPtcRuntime).then(() => ctx.ptcRuntime as PythonPtcRuntime)
+    vi.spyOn(ctx.sandbox, 'confine').mockImplementation(async argv => confinement([...argv]))
+    const result = await runtime.run(runtime.resolve({
+      program: ['import sys', "sys.stderr.write('confined-runner-noise')", 'return 7'].join('\n'),
+      bindings: [],
+    }))
+    expect(result.error).toBeUndefined()
+    expect(result.value).toBe(7)
+  }, 120_000)
+
+  it('runs without a confinement wrapper under danger-full-access', async () => {
+    const ctx = await createRuntimeContext({ mode: 'danger-full-access' })
+    const runtime = await ctx.plugin(PythonPtcRuntime).then(() => ctx.ptcRuntime as PythonPtcRuntime)
+    const result = await runtime.run(runtime.resolve({ program: 'return 4', bindings: [] }))
+    expect(result.error).toBeUndefined()
+    expect(result.value).toBe(4)
+  }, 120_000)
+
   it('reports the backend enforcement beside a successful program', async () => {
     const ctx = await createRuntimeContext({ mode: 'read-only' })
     const runtime = await ctx.plugin(PythonPtcRuntime).then(() => ctx.ptcRuntime as PythonPtcRuntime)

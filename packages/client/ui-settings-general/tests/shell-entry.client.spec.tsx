@@ -67,7 +67,7 @@ async function bench(isLoopback = true) {
   // own children, the way ui-sidebar owns the hole in the assembled app.
   slots.register({
     name: 'root',
-    children: { 'sidebar.settings': { kind: 'single', scope: 'root' } },
+    children: { 'sidebar.settings': { kind: 'single', scope: 'root' }, 'shell.overlay': { kind: 'single', scope: 'root' } },
   } as never, () => null)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
@@ -129,6 +129,39 @@ describe('settings shell entry wiring', () => {
     const close = command.resolve({ modal: 'settings' })
     expect(close.status).toBe('handled')
     expect(() => { close.run?.() }).not.toThrow()
+    await b.fiber.dispose()
+  })
+
+  it('reports a completed developer-tools toggle to product analytics', async () => {
+    const b = await bench()
+    const entry = b.slots.entries('settings.general.item').find(row => row.options.id === 'developer-tools')
+    if (entry?.inject === undefined) throw new Error('the developer-tools row was not registered')
+    const face = (entry.inject as unknown as () => DeveloperToolsRowInjected)()
+    const enabled = b.ctx.configForms.developerTools.enabled
+    let value = enabled.getSnapshot()
+    vi.spyOn(b.ctx.configForms.developerTools, 'setEnabled').mockImplementation(async (next: boolean) => { value = next })
+    vi.spyOn(enabled, 'getSnapshot').mockImplementation(() => value)
+    const track = vi.fn()
+    b.ctx.provide('productAnalytics', { track } as never)
+
+    await face.setEnabled(true)
+    expect(track).toHaveBeenCalledWith('code_work_view_toggle', { is_enabled: true }, expect.any(Number))
+    await b.fiber.dispose()
+  })
+
+  it('reloads the page from the Host-release prompt action', async () => {
+    const b = await bench()
+    const overlay = b.slots.entries('shell.overlay').find(row => row.options.id === 'host-release-change')
+    if (overlay?.inject === undefined) throw new Error('the Host-release prompt was not registered')
+    const face = (overlay.inject as unknown as () => { reloadPage(): void })()
+    const reload = vi.fn()
+    vi.stubGlobal('location', { reload })
+    try {
+      face.reloadPage()
+      expect(reload).toHaveBeenCalledOnce()
+    } finally {
+      vi.unstubAllGlobals()
+    }
     await b.fiber.dispose()
   })
 

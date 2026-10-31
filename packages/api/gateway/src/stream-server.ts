@@ -78,11 +78,14 @@ export class RemoteStreamMuxServer {
       const bound: BoundStreamOpener = (endpoint, payload, uplink, control) =>
         this.open(endpoint, payload, uplink, peer, control)
       const connection = new RemoteStreamMuxConnection(websocket, bound, this.failure, this.streamInboxBytes, alive)
+      /* v8 ignore start -- the mux connection loop contains its own per-stream failures and the
+       * peer-scope disposer only closes the socket; both logs cover an unexpected throw (defensive). */
       const done = connection.run().catch((error: unknown) => {
         console.error('[api-gateway] Remote stream connection failed:', error)
       }).then(async () => { await release() }).catch((error: unknown) => {
         console.error('[api-gateway] Remote stream scope cleanup failed:', error)
       })
+      /* v8 ignore stop */
       this.connections.add(done)
       void done.then(() => { this.connections.delete(done) })
     })

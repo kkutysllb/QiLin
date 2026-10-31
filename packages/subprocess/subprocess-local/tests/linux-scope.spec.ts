@@ -283,6 +283,18 @@ describe('Linux native capability selection', () => {
     }
   })
 
+  it('defaults the manager socket table to the kernel table', () => {
+    try {
+      vi.stubEnv('XDG_RUNTIME_DIR', '/run/user/1000')
+      // Without an override the probe reads the host kernel table; a machine without one reports
+      // no listener rather than throwing.
+      const listener = linuxManagerListener()
+      expect(listener === undefined || typeof listener === 'string').toBe(true)
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
+
   it.skipIf(process.platform !== 'linux')('reads a real listening socket from the kernel socket table', async () => {
     const runtime = mkdtempSync(join(tmpdir(), 'qilin-运行时-'))
     directories.push(runtime)

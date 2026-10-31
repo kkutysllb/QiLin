@@ -38,6 +38,11 @@ describe('Messages request conversion', () => {
     }
   })
 
+  it('omits an empty assistant text block from the wire request', () => {
+    const messages = body([user(), assistant([{ type: 'text', text: '' }])]).messages
+    expect(messages.map(message => message.role)).toEqual(['user'])
+  })
+
   it('declares deferred tools with defer_loading and leaves others unmarked', () => {
     const tools = [{ name: 'search', description: 'Search', parameters: {}, deferLoading: true as const }, { name: 'fetch', description: 'Fetch', parameters: {} }]
     expect(body([user()], { tools }).tools).toEqual([

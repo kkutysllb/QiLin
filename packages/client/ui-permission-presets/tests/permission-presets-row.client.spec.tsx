@@ -124,6 +124,24 @@ describe('PermissionRow', () => {
     expect(mutate).toHaveBeenCalledOnce()
   })
 
+  it('keeps the unset default when the fresh deployment selects unset again', async () => {
+    const controller = derivedController({
+      settings: {
+        describe: () => Promise.resolve(ok({
+          writable: true, hasDocument: false,
+          namespaces: [{ ...view('read-only'), value: {} }],
+        })),
+        mutate: vi.fn(),
+      },
+    })
+    const clear = vi.spyOn(controller, 'clear').mockResolvedValue(undefined)
+    mount(controller)
+    fireEvent.click(await screen.findByRole('button', { name: zh['unset'] }))
+    fireEvent.click(screen.getByRole('menuitem', { name: zh['unset'] }))
+    // Already unset: selecting it again writes nothing.
+    expect(clear).not.toHaveBeenCalled()
+  })
+
   it('renders the fresh-deployment unset state with a localized hint', async () => {
     const controller = derivedController({
       settings: {

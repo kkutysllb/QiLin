@@ -122,6 +122,7 @@ export function Tooltip({ label, shortcutKeys, side = 'right', align = 'center',
     }
     const onResize = () => {
       const current = anchor.current ?? eventAnchor.current
+      /* v8 ignore next -- the resize listener is installed only while the bubble is open, and opening records eventAnchor. */
       if (current !== null) anchorRect = current.getBoundingClientRect()
       fit()
     }

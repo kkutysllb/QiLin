@@ -45,7 +45,7 @@ const CATALOG: PermissionCatalog = {
   ],
 }
 
-async function bench() {
+async function bench(options: { writableNamespace?: boolean } = {}) {
   const ctx = new Context()
   await ctx.plugin(SlotRegistry)
   const locale = new LocaleRuntime(ctx)
@@ -68,7 +68,23 @@ async function bench() {
       return Promise.resolve({ ok: true as const, value: catalog })
     },
   }
-  const remote = new TestRemote(ctx, { settings: mock.remote.settings, permissionPresets })
+  const settings = options.writableNamespace === true
+    ? {
+      ...mock.remote.settings,
+      describe: () => Promise.resolve({
+        ok: true as const,
+        value: {
+          writable: true,
+          hasDocument: false,
+          namespaces: [{
+            ns: 'permission', autoGenerate: true, schema: { uid: 1, refs: {} },
+            value: { defaultPreset: 'read-only' }, base: {}, applies: 'live', secrets: [], revision: 1,
+          }],
+        },
+      }),
+    }
+    : mock.remote.settings
+  const remote = new TestRemote(ctx, { settings, permissionPresets })
   ctx.provide('connection', {
     generation: {
       getSnapshot: () => ({ id: 1, host: { home: '/host', isLoopback: true } }),
@@ -178,6 +194,7 @@ describe('ui-permission browser plugin', () => {
     expect(typeof injected?.select).toBe('function')
     await injected!.load()
     await injected!.select('read-only')
+    await injected!.clear()
     const select = b.permissionSelect()!
     const injectSelect = select.inject as unknown as (sessionId: SessionId) => PermissionSelectInjected
     b.values.set(sid('s1'), { currentValue: 'workspace-write' })
@@ -186,6 +203,15 @@ describe('ui-permission browser plugin', () => {
     await expect(selectInjected.select('auto')).resolves.toBe(true)
     expect(b.commands).toEqual(['/permission auto'])
     expect(b.catalogCalls()).toBe(1)
+  })
+
+  it('derives the settings row from a writable describe namespace', async () => {
+    const b = await bench({ writableNamespace: true })
+    const row = b.permissionRow()!
+    const injected = row.inject?.() as PermissionRowInjected | undefined
+    await injected!.load()
+    expect(injected!.hooks.permission.getSnapshot()).toMatchObject({ status: 'ready', currentValue: 'read-only' })
+    await b.fiber.dispose()
   })
 
   it('availability follows the session projection; options mark the current value active', async () => {
