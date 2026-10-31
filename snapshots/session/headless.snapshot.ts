@@ -382,7 +382,9 @@ function turnReasonFromSession(log: string): JsonObject | undefined {
 
 /** The live model catalog's info diagnostic rides the process stderr, not the Session log. */
 function withoutModelListingDiagnostics(stderr: string): string {
-  return stderr.replace(/^\[llm-deepseek-api-key\] model listing from \S+ loaded \d+ model\(s\), skipped \d+ row\(s\)\n$/gm, '')
+  return stderr.split('\n')
+    .filter(line => !line.startsWith('[llm-deepseek-api-key] model listing from '))
+    .join('\n')
 }
 
 function stderrFromSession(log: string): string {

@@ -367,6 +367,14 @@ async function run(ctx: Context, config: Config, io: HeadlessIo): Promise<void> 
         source: { kind: 'user' },
       }))
       await agent.whenIdle()
+      // A one-shot runner owns the child work it started: join progressing in-process subagent
+      // turns before the process exits, so a persisted child Session cannot stop mid-turn.
+      const subagents = ctx.get('subagents')
+      if (subagents !== undefined) {
+        const settleDeadline = Date.now() + 10_000
+        while (Date.now() < settleDeadline && await subagents.waitForChildren(agent)) { /* join */ }
+        if (Date.now() >= settleDeadline) ctx.logger.warn('headless runner: child subagents did not settle within 10s')
+      }
     } finally {
       stopReasoning?.()
     }
