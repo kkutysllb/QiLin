@@ -72,6 +72,11 @@ describe('web e2e: plugin manager', () => {
     const dialog = await openSettingsDialog(page, '账户', '设置')
     await dialog.getByRole('button', { name: '插件', exact: true }).click()
     const panel = page.locator('[data-plugin-panel]')
+    await panel.waitFor({ timeout: 10_000 })
+    // The section keeps its view across settings visits, so leave any open page first.
+    while (await panel.getByRole('button', { name: /^返回/ }).count() > 0) {
+      await panel.getByRole('button', { name: /^返回/ }).first().click()
+    }
     await panel.getByRole('heading', { name: '插件', exact: true }).waitFor({ timeout: 10_000 })
     return panel
   }
@@ -85,27 +90,27 @@ describe('web e2e: plugin manager', () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-plugin-manager-list'))
     const panel = await openPluginsPanel()
 
-    await panel.getByText('bundle', { exact: true }).waitFor({ timeout: 20_000 })
-    const toggle = panel.getByRole('switch', { name: '启用 bundle' })
+    await panel.getByText('@fixture/bundle', { exact: true }).waitFor({ timeout: 20_000 })
+    const toggle = panel.getByRole('switch', { name: '启用 @fixture/bundle' })
     expect(await toggle.getAttribute('aria-checked')).toBe('false')
     // The profile's own group holds the layers the shipped template composes
     // (base, web-app, and the built-in animations pack); the installation's
     // optional bundles open the Official group (OPTIONAL_BUNDLES: Agent Teams,
     // voice input, and Auto review), followed by the official plugins that
     // registered their configuration, and its other bundles stay off the page.
-    // The enabled ui-schedule page is the fourth item.
-    expect(await panel.locator('[data-plugin-group="bundles"] [data-plugin-package]').count()).toBe(3)
-    expect(await panel.locator('[data-plugin-group="official"] [data-plugin-package]').count()).toBe(3)
-    expect(await panel.locator('[data-plugin-group="official"] [data-plugin-item]').count()).toBe(4)
-    // Every optional bundle is an experimental one, so all three carry the tag.
-    expect(await panel.getByText('Beta', { exact: true }).count()).toBe(3)
+    // The composed profile also brings the developer tools and automation tasks bundles.
+    expect(await panel.locator('[data-plugin-group="bundles"] [data-plugin-package]').count()).toBe(2)
+    expect(await panel.locator('[data-plugin-group="extensions"] [data-plugin-package]').count()).toBe(5)
+    expect(await panel.locator('[data-plugin-group="basic"] [data-plugin-item]').count()).toBe(4)
+    // Every optional bundle is an experimental one, so all of them carry the tag.
+    expect(await panel.getByText('实验性', { exact: true }).count()).toBe(5)
     // A bundle that is off still shows the rows its patch declares, without switches.
-    await panel.getByRole('button', { name: '查看 bundle' }).click()
+    await panel.getByRole('button', { name: '查看 @fixture/bundle' }).click()
     await panel.locator('[data-plugin-row]', { hasText: 'fixture-row' }).waitFor({ timeout: 10_000 })
     expect(await panel.getByRole('switch', { name: '启用组件 fixture-row' }).count()).toBe(0)
-    await panel.getByRole('button', { name: '卸载 bundle' }).waitFor({ timeout: 5_000 })
-    await panel.getByRole('button', { name: '返回插件列表' }).click()
-    await expect.poll(() => panel.getByRole('button', { name: '卸载 bundle' }).count(), { timeout: 5_000 }).toBe(0)
+    await panel.getByRole('button', { name: '卸载 @fixture/bundle' }).waitFor({ timeout: 5_000 })
+    await panel.getByRole('button', { name: '返回插件' }).click()
+    await expect.poll(() => panel.getByRole('button', { name: '卸载 @fixture/bundle' }).count(), { timeout: 5_000 }).toBe(0)
 
     const snapshot = await captureStableAria(page, '[data-plugin-panel]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(MANAGER_EXPECTED, snapshot, MODE)
@@ -118,7 +123,7 @@ describe('web e2e: plugin manager', () => {
     await panel.getByRole('button', { name: '查看 智能体团队', exact: true }).click()
     const packageName = panel.locator('[data-plugin-name]')
     expect(await packageName.textContent()).toBe('@qilin-agent/experimental-agent-team-profile')
-    expect(await panel.getByText('启用智能体团队协作与团队工具。').count()).toBe(1)
+    expect(await panel.getByText('启用团队协作、团队工具、成员列表和共享任务看板。').count()).toBe(1)
     try {
       // The dialog is modal, so the scenario leaves it, switches the language
       // from the account menu, and comes back; the tab remounts, so the bundle
@@ -130,12 +135,17 @@ describe('web e2e: plugin manager', () => {
       await page.getByRole('menuitem', { name: 'English', exact: true }).click()
       const english = await openSettingsDialog(page, 'Account', 'Settings')
       await english.getByRole('button', { name: 'Plugins', exact: true }).click()
-      // The Plugins settings section renders the management page directly.
+      // The Plugins settings section renders the management page directly. It keeps
+      // the last view, so leave the open bundle page before expecting the list.
       const englishPanel = page.locator('[data-plugin-panel]')
+      await englishPanel.waitFor({ timeout: 10_000 })
+      while (await englishPanel.getByRole('button', { name: /^Back/ }).count() > 0) {
+        await englishPanel.getByRole('button', { name: /^Back/ }).first().click()
+      }
       await englishPanel.getByRole('heading', { name: 'Plugins', exact: true }).waitFor({ timeout: 10_000 })
       await englishPanel.getByRole('button', { name: 'View Agent Teams', exact: true }).click()
       expect(await packageName.textContent()).toBe('@qilin-agent/experimental-agent-team-profile')
-      expect(await englishPanel.getByText('Enable agent team collaboration and team tools.').count()).toBe(1)
+      expect(await englishPanel.getByText('Enable team collaboration, team tools, the member roster, and the shared task board.').count()).toBe(1)
       await englishPanel.getByRole('button', { name: 'Back to plugins', exact: true }).click()
       for (const title of ['Agent Teams']) {
         await englishPanel.getByRole('button', { name: `View ${title}`, exact: true }).waitFor()
@@ -164,24 +174,34 @@ describe('web e2e: plugin manager', () => {
     await panel.getByRole('button', { name: '添加插件', exact: true }).click()
     const dialog = page.getByRole('dialog', { name: '添加插件' })
     await dialog.waitFor({ timeout: 10_000 })
-    const field = dialog.getByRole('textbox', { name: '包名或地址' })
-    const install = dialog.getByRole('button', { name: '安装', exact: true })
-    expect(await install.isDisabled()).toBe(true)
-    // A name the list already shows is refused without asking the Host.
-    await field.fill('@fixture/bundle')
-    await install.click()
-    await dialog.getByRole('alert').waitFor({ timeout: 5_000 })
-    expect(await dialog.getByRole('alert').textContent()).toBe('该插件已安装')
-    // A path the Host cannot read as a package is refused with its reason, and the spec stays editable.
-    await field.fill(join(scaffold.harnessHome, 'no-such-plugin'))
-    await install.click()
-    await expect.poll(() => dialog.getByRole('alert').textContent(), { timeout: 10_000 }).toBe('该路径不存在或不是有效的插件包')
-    expect(await field.isDisabled()).toBe(false)
-    // A name the registry would refuse never reaches it.
-    await field.fill('Not A Package')
-    await install.click()
-    await expect.poll(() => dialog.getByRole('alert').textContent(), { timeout: 10_000 }).toContain('无法识别这个包名或地址')
-    await dialog.getByRole('button', { name: '关闭' }).click()
+    try {
+      const field = dialog.getByRole('textbox', { name: '包名或地址' })
+      const install = dialog.getByRole('button', { name: '安装', exact: true })
+      expect(await install.isDisabled()).toBe(true)
+      await panel.getByText('@fixture/bundle', { exact: true }).waitFor({ timeout: 20_000 })
+      // A name the QiLin installation provides is refused without asking the Host.
+      await field.fill('@qilin-agent/experimental-agent-team-profile')
+      await install.click()
+      await dialog.getByRole('alert').waitFor({ timeout: 5_000 })
+      expect(await dialog.getByRole('alert').textContent()).toBe('该插件随 QiLin 提供，升级 QiLin 即可获得新版本')
+      // A profile dependency is installed again to update it, so the Host reads the registry;
+      // this local fixture has no registry entry, and the refusal says so.
+      await field.fill('@fixture/bundle')
+      await install.click()
+      await expect.poll(() => dialog.getByRole('alert').textContent(), { timeout: 20_000 }).toBe('未找到相关插件')
+      // A path the Host cannot read as a package is refused with its reason, and the spec stays editable.
+      await field.fill(join(scaffold.harnessHome, 'no-such-plugin'))
+      await install.click()
+      await expect.poll(() => dialog.getByRole('alert').textContent(), { timeout: 10_000 }).toBe('该路径不存在或不是有效的插件包')
+      expect(await field.isDisabled()).toBe(false)
+      // A name the registry would refuse never reaches it.
+      await field.fill('Not A Package')
+      await install.click()
+      await expect.poll(() => dialog.getByRole('alert').textContent(), { timeout: 10_000 }).toContain('无法识别这个包名或地址')
+    } finally {
+      const open = page.getByRole('dialog', { name: '添加插件' })
+      if (await open.count() > 0) await open.getByRole('button', { name: '关闭' }).click()
+    }
     await expect.poll(() => page.getByRole('dialog', { name: '添加插件' }).count(), { timeout: 5_000 }).toBe(0)
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
@@ -189,7 +209,7 @@ describe('web e2e: plugin manager', () => {
   it('enables a bundle into the profile manifest, mounts its rows live, and switches one of them', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-plugin-manager-enable'))
     const panel = await openPluginsPanel()
-    const toggle = panel.getByRole('switch', { name: '启用 bundle' })
+    const toggle = panel.getByRole('switch', { name: '启用 @fixture/bundle' })
     await toggle.waitFor({ timeout: 20_000 })
     const mounted = () => [...scaffold.ctx.loader.entries()].find(entry => entry.options.id === 'fixture-row')
     expect(mounted()?.fiber?.state).toBeUndefined()
@@ -199,7 +219,7 @@ describe('web e2e: plugin manager', () => {
     const bundles = async () => (JSON.parse(await homeFile('profiles', 'scaffold', 'package.json')) as {
       qilin: { profile: { bundles: string[] } }
     }).qilin.profile.bundles
-    await expect.poll(bundles, { timeout: 10_000 }).toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@fixture/bundle'])
+    await expect.poll(bundles, { timeout: 10_000 }).toEqual(['@qilin-agent/base', '@qilin-agent/web-app', 'qilin-web-scaffold-defaults', '@fixture/bundle'])
     // A live profile: the row mounts once the whole tree recomposed, the switch is on, and nothing waits for a restart.
     await expect.poll(() => mounted()?.fiber?.state, { timeout: 20_000 }).toBe(2)
     await expect.poll(() => toggle.getAttribute('aria-checked'), { timeout: 10_000 }).toBe('true')
@@ -207,8 +227,9 @@ describe('web e2e: plugin manager', () => {
     const snapshot = await captureStableAria(page, '[data-plugin-panel]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(LIVE_EXPECTED, snapshot, MODE)
     // The pack's page lists its rows as the Host runs them, each with a switch that writes the profile patch.
-    await panel.getByRole('button', { name: '查看 bundle' }).click()
-    const rowSwitch = panel.getByRole('switch', { name: '启用组件 fixture-row' })
+    await panel.getByRole('button', { name: '查看 @fixture/bundle' }).click()
+    // A row is titled by the package its entry names, so the switch speaks '@fixture/bundle'.
+    const rowSwitch = panel.getByRole('switch', { name: '启用组件 @fixture/bundle' })
     await rowSwitch.waitFor({ timeout: 10_000 })
     expect(await rowSwitch.getAttribute('aria-checked')).toBe('true')
     await rowSwitch.click()
@@ -218,7 +239,7 @@ describe('web e2e: plugin manager', () => {
     await expect.poll(() => mounted()?.fiber?.state, { timeout: 20_000 }).not.toBe(2)
     await rowSwitch.click()
     await expect.poll(() => mounted()?.fiber?.state, { timeout: 20_000 }).toBe(2)
-    await panel.getByRole('button', { name: '返回插件列表' }).click()
+    await panel.getByRole('button', { name: '返回插件' }).click()
 
     await toggle.click()
     await expect.poll(() => mounted()?.fiber?.state, { timeout: 20_000 }).not.toBe(2)
@@ -249,7 +270,7 @@ describe('web e2e: startup-applied plugin management', () => {
       await dialog.getByRole('button', { name: '插件', exact: true }).click()
       const panel = page.locator('[data-plugin-panel]')
       await panel.getByRole('heading', { name: '插件', exact: true }).waitFor({ timeout: 10_000 })
-      const toggle = panel.getByRole('switch', { name: '启用 bundle' })
+      const toggle = panel.getByRole('switch', { name: '启用 @fixture/bundle' })
       await toggle.waitFor({ timeout: 20_000 })
       const mounted = () => [...scaffold.ctx.loader.entries()].find(entry => entry.options.id === 'fixture-row')
       const bundles = async () => {
@@ -259,18 +280,23 @@ describe('web e2e: startup-applied plugin management', () => {
       expect(mounted()?.fiber?.state).toBeUndefined()
       await toggle.click()
       // The selection is saved and the switch turns on, but nothing mounts before the next start; a toast says so.
-      await expect.poll(bundles).toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@fixture/bundle'])
+      await expect.poll(bundles).toEqual(['@qilin-agent/base', '@qilin-agent/web-app', 'qilin-web-scaffold-defaults', '@fixture/bundle'])
       await expect.poll(() => toggle.getAttribute('aria-checked')).toBe('true')
-      await page.getByText('更改将在下次启动生效', { exact: true }).waitFor({ timeout: 10_000 })
+      await page.getByText('请重启 QiLin 使更改生效。这个 profile 只在启动时应用更改。', { exact: true })
+        .waitFor({ timeout: 10_000 })
       expect(mounted()?.fiber?.state).toBeUndefined()
       // The pack's page lists its rows from their declarations, with no live entry to switch.
-      await panel.getByRole('button', { name: '查看 bundle' }).click()
+      await panel.getByRole('button', { name: '查看 @fixture/bundle' }).click()
       await panel.locator('[data-plugin-row]', { hasText: 'fixture-row' }).waitFor({ timeout: 10_000 })
-      expect(await panel.getByRole('switch', { name: '启用组件 fixture-row' }).isDisabled()).toBe(true)
-      await panel.getByRole('button', { name: '返回插件列表' }).click()
+      // The selection waits for the next start: no live entry exists yet, so the row's
+      // switch is locked rather than switchable.
+      const rowSwitch = panel.getByRole('switch', { name: '启用组件 @fixture/bundle' })
+      await rowSwitch.waitFor({ timeout: 10_000 })
+      expect(await rowSwitch.isDisabled()).toBe(true)
+      await panel.getByRole('button', { name: '返回插件' }).click()
 
       await toggle.click()
-      await expect.poll(bundles).toEqual(['@qilin-agent/base', '@qilin-agent/web-app'])
+      await expect.poll(bundles).toEqual(['@qilin-agent/base', '@qilin-agent/web-app', 'qilin-web-scaffold-defaults'])
       await expect.poll(() => toggle.getAttribute('aria-checked')).toBe('false')
       expect(tripwire.pageErrors).toEqual([])
     } finally {

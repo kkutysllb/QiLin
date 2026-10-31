@@ -1,23 +1,12 @@
 - heading "插件" [level=1]
-- paragraph: 添加和管理插件
-- button "检查更新"
-- button "刷新"
-- button "添加插件"
-- heading "官方" [level=3]
-- text: "7"
+- text: 安装、启用和配置插件
+- button "插件说明"
+- button "刷新并检查更新"
+- group "添加插件":
+  - button "添加插件"
+  - button "选择添加插件方式"
+- heading "内置插件配置" [level=3]
 - list:
-  - listitem:
-    - button "查看 智能体团队": 智能体团队
-    - text: Beta 启用智能体团队协作与团队工具。
-    - switch "启用 智能体团队"
-  - listitem:
-    - button "查看 自动授权审查": 自动授权审查
-    - text: Beta 提供自动审查权限模式，由模型在每次工具调用前判断是否授权。
-    - switch "启用 自动授权审查"
-  - listitem:
-    - button "查看 语音输入": 语音输入
-    - text: Beta 在本机使用 SenseVoice 转写录音；首次使用需安装依赖
-    - switch "启用 语音输入"
   - listitem:
     - button "查看 终端": 终端
     - text: 限制 agent 运行的每一条命令。
@@ -29,19 +18,36 @@
     - text: 设置 Subagent 的递归层级、数量和模型。
   - listitem:
     - button "查看 网页搜索": 网页搜索
-    - text: DeepSeek 搜索提供方。
-- heading "已安装" [level=3]
-- text: "2"
+    - text: 设置 DeepSeek 的搜索提供方。
+- heading "实验性插件" [level=3]
 - list:
   - listitem:
-    - button "查看 bundle": bundle
-    - text: "Web e2e fixture: a bundle whose one row is an inert plugin."
-    - switch "启用 bundle"
+    - button "查看 智能体团队": 智能体团队
+    - text: 实验性 启用团队协作、团队工具、成员列表和共享任务看板。
+    - switch "启用 智能体团队"
   - listitem:
-    - button "查看 web-brand": web-brand
-    - text: "The QiLin browser-surface bundle: QiLin product identity layered over the qilin web surface"
-    - switch "启用 web-brand"
-- heading "插件目录" [level=3]
-- searchbox "搜索插件目录"
-- button "搜索"
-- paragraph: 搜索 GitHub 上标记为 dsh-plugin 的插件仓库。
+    - button "查看 语音输入": 语音输入
+    - text: 实验性 在本机使用 SenseVoice 转写录音；首次使用需安装依赖
+    - switch "启用 语音输入"
+  - listitem:
+    - button "查看 自动授权审查": 自动授权审查
+    - text: 实验性 提供自动审查权限模式，由模型在每次工具调用前判断是否授权。
+    - switch "启用 自动授权审查"
+  - listitem:
+    - button "查看 开发者工具": 开发者工具
+    - text: 实验性 查看调试会话原始数据、聊天消息分组数据，以及调试 NodeJS 后端
+    - switch "启用 开发者工具"
+  - listitem:
+    - button "查看 自动化任务": 自动化任务
+    - text: 实验性 按设定的时间或周期，在会话中自动执行任务。
+    - switch "启用 自动化任务"
+  - button "更多"
+- heading "已安装插件" [level=3]
+- list:
+  - listitem:
+    - button "查看 @fixture/bundle": "@fixture/bundle"
+    - text: "Web e2e fixture: a bundle whose one row is an inert plugin."
+    - switch "启用 @fixture/bundle"
+  - listitem:
+    - button "查看 qilin-web-scaffold-defaults": qilin-web-scaffold-defaults
+    - switch "启用 qilin-web-scaffold-defaults" [checked]

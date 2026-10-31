@@ -1,4 +1,4 @@
-- button "返回插件列表": 插件列表
+- button "返回插件": 插件
 - heading "Subagent" [level=3]
 - paragraph: 设置 Subagent 的递归层级、数量和模型。
 - region "运行限制":

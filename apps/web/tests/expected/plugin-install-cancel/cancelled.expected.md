@@ -2,10 +2,10 @@
   - heading "添加插件" [level=2]
   - button "关闭"
   - paragraph: 输入插件的包名、GitHub 仓库地址或本地目录路径。
-  - text: 包名或地址
   - textbox "包名或地址":
-    - /placeholder: 例如 @qilin-agent/experimental-auto-review
+    - /placeholder: 例如 dsh-plugin-whale-pet
     - text: slow-package
+  - button "插件安装引导和示例"
   - button "安装源 默认安装源"
-  - button "不知道该填什么？"
+  - note: 请确认插件来源可信。插件在本机以你的权限运行，来源不明的插件可能损坏 DeepSeek Harness，或读取和泄露你的数据。 已安装的插件重新安装即可升级，同版本会提示已是最新；按需安装的官方插件会在版本与 QiLin 不同时提供“更新”。
   - button "安装"

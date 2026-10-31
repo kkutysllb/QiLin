@@ -1,4 +1,4 @@
-- button "返回插件列表": 插件列表
+- button "返回插件": 插件
 - heading "网页搜索" [level=3]
 - paragraph: 设置 DeepSeek 的搜索提供方。
 - text: 启用新版 Web 搜索 API
@@ -7,8 +7,8 @@
   - text: 默认关闭，搜索通过 DeepSeek Messages 完成。新版 Web 搜索 API 功能与计费详见
   - link "网页搜索与抓取指南":
     - /url: https://api-docs.deepseek.com/zh-cn/guides/search
-- text: API Key 未配置密钥；配置之前搜索不可用。
-- textbox "API Key"
+- text: API Key 已配置密钥。
+- textbox "API Key" [disabled]
 - paragraph: 不写入设置文件。留空表示保持当前密钥。
 - text: Search / Fetch API 基础地址 已覆盖
 - button "恢复默认"
