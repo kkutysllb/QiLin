@@ -35,7 +35,7 @@ const PENDING_V4_SCENARIOS: ReadonlyMap<string, string> = new Map([
   ['sdk/subagent-activation-limit', 'refresh hangs to the 120s timeout after the in-process child ends without subagent.finished'],
   ['sdk/subagent-qilin-sdk-dynamic-route', 'the separate qilin SDK child never persists its second session; provider/harness fix needed'],
   ['sdk/subagent-spawn-in-process', 'the in-process child fixture carries no script entries, so llm-replay exhausts and subagent.finished never fires'],
-  ['sdk/tool-error-details', 'mixed tool presentation was removed upstream (8231e0614c); the fixture needs rework to one mode'],
+  ['sdk/tool-error-details', 'mixed tool presentation was removed upstream in dsh-v0.2.2-alpha.2; the fixture needs rework to one mode'],
 ])
 const MAX_RETAINED_ROLES = 11
 const REQUIRED_V0_COVERAGE = new Set([
