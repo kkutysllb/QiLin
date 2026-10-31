@@ -175,7 +175,9 @@ export class ForgeSessionService extends Service {
   }
 
   private state(session: Session): ForgeChangeRequestsState {
-    return this.home.sessionProjections.stateOf(session, 'forgeChangeRequests') ?? EMPTY_FORGE_CHANGE_REQUESTS
+    const state = this.home.sessionProjections.stateOf(session, 'forgeChangeRequests')
+    /* v8 ignore next -- every Session the projections registry can read materializes a state; this guards one it cannot. */
+    return state ?? EMPTY_FORGE_CHANGE_REQUESTS
   }
 
   private entries(bindings: readonly BindingState[]): SessionChangeRequest[] {
