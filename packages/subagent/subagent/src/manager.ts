@@ -256,6 +256,16 @@ export class SubagentManager {
    * @param parent - exact live parent whose descendants are observed.
    * @returns whether work was joined and the host must recheck parent completion.
    */
+  /**
+   * Await one child's teardown and final Session flush; a child no longer resident has already
+   * settled, so the call resolves immediately without touching a disposed Agent's inbox.
+   */
+  async awaitStopped(childId: SessionId): Promise<void> {
+    const activation = this.resident.get(childId)
+    if (activation === undefined) return
+    await activation.stopped
+  }
+
   async waitForChildren(parent: Agent): Promise<boolean> {
     let observed = false
     while (true) {
@@ -928,10 +938,13 @@ export class SubagentManager {
     }
     const observer = this.host.observeActivation(provider, childId, parent)
 
+    const stopSettlement = Promise.withResolvers<void>()
     const activation: Activation = {
       pool,
       releaseSlot,
       childId,
+      stopped: stopSettlement.promise,
+      settleStopped: stopSettlement.resolve,
       ...resource,
       parent,
       delivery: inputs.delivery ?? 'parent',
@@ -990,6 +1003,7 @@ export class SubagentManager {
         this.resident.delete(activation.childId)
         activation.releaseSlot()
         this.releaseOwnership(activation.childId)
+        activation.settleStopped()
         activation.result.reject(error)
       }
     })
@@ -1181,6 +1195,8 @@ export class SubagentManager {
     this.notifySettlement(activation, result)
     this.releaseOwnership(childId)
     activation.observer.settle(terminal)
+    // The teardown and its final Session flush are complete; waiters may now read the durable log.
+    activation.settleStopped()
     if (resultFailure === undefined) activation.result.resolve(result)
     else activation.result.reject(resultFailure.error)
     if (failure !== undefined) throw failure
@@ -1225,6 +1241,7 @@ export class SubagentManager {
     return {
       childId: activation.childId,
       result: activation.result.promise,
+      stopped: activation.stopped,
       dispose: () => this.dispose(activation),
     }
   }

@@ -49,6 +49,13 @@ interface ActivationBase {
   readonly parent: Agent
   readonly delivery: 'parent' | 'caller'
   readonly result: PromiseWithResolvers<SubagentResult>
+  /**
+   * Resolves after this epoch's teardown, including its final Session flush. Repeated awaits share
+   * one settlement, and a caller may await it after disposal; the caller owns any timeout.
+   */
+  readonly stopped: Promise<void>
+  /** Settle {@link stopped}; called once by the manager at the end of teardown. */
+  readonly settleStopped: () => void
   /** Published synchronously before teardown; subsequent callers share this transaction. */
   closing: Promise<void> | undefined
   /**

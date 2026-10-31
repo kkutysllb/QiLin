@@ -9,8 +9,8 @@
   en: d64c585d315ee220
   zh: 72cf6607cdf6d31a
 /qilin-agent-tool-subagent/summary:
-  en: 04da983479776bfa
-  zh: 17b955b0390dc448
+  en: 958d2b1c56ac6ec7
+  zh: 40fd1dfabc23486e
 /qilin-agent-tool-subagent/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -18,11 +18,11 @@
   en: 93f1701f5209ecb5
   zh: 6310fd012400aead
 /qilin-agent-tool-subagent/use-this-package/minimal-configuration:
-  en: 00a36ae48c406e0c
-  zh: 4b6082f6a4592492
-/qilin-agent-tool-subagent/use-this-package/foreground-and-background-modes:
-  en: 8e7319bc2887ae5c
-  zh: 87d5abdfbe7562df
+  en: d41287abdbbffcf5
+  zh: 61edc04c5c0002a8
+/qilin-agent-tool-subagent/use-this-package/managed-delegation:
+  en: 4163000aedc560c8
+  zh: fa4784abee9f9060
 /qilin-agent-tool-subagent/use-this-package/selecting-a-child-llm:
   en: 484bf4ed5996539f
   zh: dcb461e031d435c4
@@ -32,12 +32,12 @@
 /qilin-agent-tool-subagent/understand-the-implementation/design-concept:
   en: 5ceacfed4ea0c648
   zh: 005284534923d854
-/qilin-agent-tool-subagent/understand-the-implementation/foreground-settlement:
-  en: ccb36af6884ec89f
-  zh: 41e9aa6d3cd75a41
-/qilin-agent-tool-subagent/understand-the-implementation/background-routes:
-  en: dfd6306019a63bea
-  zh: 5055b66e19885e8d
+/qilin-agent-tool-subagent/understand-the-implementation/activation-ownership:
+  en: ef692c4d17290920
+  zh: 8bfb6ed9fc0d32dc
+/qilin-agent-tool-subagent/understand-the-implementation/result-acknowledgement:
+  en: 3cdb913209febc42
+  zh: ec04477fc89a3f29
 /qilin-agent-tool-subagent/understand-the-implementation/context-sensitive-wording:
   en: 1733728ac5aa6bb0
   zh: 341ffc6e21a289af
@@ -45,7 +45,7 @@
   en: 1f52c5f5c7caf04a
   zh: dba288fd0cf51e5d
 /qilin-agent-tool-subagent/further-exploration:
-  en: 089b32fdb70fbf87
+  en: 6573b2ea6d847f0f
   zh: 18c873bfec2611f5
 /qilin-agent-tool-subagent/model-experience:
   en: 215e7ba838619b7b
@@ -54,8 +54,8 @@
   en: e4c7376d4f29dbd5
   zh: 6b7a9eaf69c9ea53
 /qilin-agent-tool-subagent/model-experience/tool-schema/what-the-model-sees:
-  en: 8fc9f31c6b1d3d40
-  zh: 55e3fb12fba0be26
+  en: 2dc663ff455ba48e
+  zh: d2b514637e33c7e7
 /qilin-agent-tool-subagent/model-experience/tool-schema/token-effect:
   en: 1aa53b7a4c24cc25
   zh: bebd5c5ce6443259
@@ -78,44 +78,44 @@
   en: cf78b9dd5596495f
   zh: bd44560f8c2435e8
 /qilin-agent-tool-subagent/model-experience/system-prompt/what-the-model-sees:
-  en: 875f8a89292dde21
-  zh: 670f911b0a149690
+  en: 2b69871db8584655
+  zh: 583fe191dc7ef9eb
 /qilin-agent-tool-subagent/model-experience/system-prompt/what-the-model-sees/tool-guidance-section:
   en: 82b3cd08b3961c98
   zh: bdc2a34bcea16cac
 /qilin-agent-tool-subagent/model-experience/system-prompt/token-effect:
-  en: ed03868e8f551001
-  zh: 53c10b979a48cf9b
+  en: a8dfd497739788b2
+  zh: e78a9fb7baee7080
 /qilin-agent-tool-subagent/model-experience/system-prompt/kv-cache-effect:
   en: 5f2491d0ee8f440c
   zh: 14c06b9fe7096e09
-/qilin-agent-tool-subagent/model-experience/foreground-result:
-  en: d83f1f25a3719c54
-  zh: 445ca808e28dc936
-/qilin-agent-tool-subagent/model-experience/foreground-result/what-the-model-sees:
-  en: 7e5d19839fa69495
-  zh: 0e7ff0d92571ec60
-/qilin-agent-tool-subagent/model-experience/foreground-result/token-effect:
+/qilin-agent-tool-subagent/model-experience/start-result:
+  en: 45854c8f4da73af7
+  zh: 7a9803ca8c03c40f
+/qilin-agent-tool-subagent/model-experience/start-result/what-the-model-sees:
+  en: 15772cb4c28bf562
+  zh: 5cf1c8d722ab78e0
+/qilin-agent-tool-subagent/model-experience/start-result/token-effect:
   en: 995810727b29f85f
   zh: 4ede7b437091d6ee
-/qilin-agent-tool-subagent/model-experience/foreground-result/kv-cache-effect:
+/qilin-agent-tool-subagent/model-experience/start-result/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 3d6bc05b9eadfbc2
-/qilin-agent-tool-subagent/model-experience/background-result:
-  en: 3f23f9211197b0b9
-  zh: 8cff3c78249b66ff
-/qilin-agent-tool-subagent/model-experience/background-result/what-the-model-sees:
-  en: d2ba2d8a3e88478d
-  zh: dee910d1d271f75c
-/qilin-agent-tool-subagent/model-experience/background-result/token-effect:
-  en: 3c67cdb1cbf53647
-  zh: bfed5f2945a79c9d
-/qilin-agent-tool-subagent/model-experience/background-result/kv-cache-effect:
+/qilin-agent-tool-subagent/model-experience/completion-delivery:
+  en: b6ed0eef154aa546
+  zh: c99219ca12f8a4c4
+/qilin-agent-tool-subagent/model-experience/completion-delivery/what-the-model-sees:
+  en: 8f5e3a083eb7f807
+  zh: 63148f555cc83967
+/qilin-agent-tool-subagent/model-experience/completion-delivery/token-effect:
+  en: 615348e27c0c9bc0
+  zh: 5c56b78968f4ea11
+/qilin-agent-tool-subagent/model-experience/completion-delivery/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: 3d6bc05b9eadfbc2
 /qilin-agent-tool-subagent/known-limitations-and-deferred-work:
-  en: 8482d967fe854d08
-  zh: 4e1457ae659f4f28
+  en: 609ea9766d00bd84
+  zh: b9095aabdea53179
 /qilin-agent-tool-subagent/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

@@ -88,6 +88,22 @@ function foldedApprovalPolicy(ctx: Context, id: SessionId, events: readonly Sess
 }
 
 describe('continuable policy inheritance', () => {
+  it('settles stopped after teardown flushed the child log and stays awaitable', { timeout: 20_000 }, async () => {
+    const { ctx, parent } = await setup([textResponse('child done')])
+    const started = await ctx.subagents.startActivation({ ...startSpec(parent), delivery: 'parent' })
+    expect(started.stopped).toBe(started.stopped)
+    let settled = false
+    void started.stopped.then(() => { settled = true })
+    await started.stopped
+    expect(settled).toBe(true)
+    // The teardown flush ran before the settlement: the durable log already carries the answer.
+    const loaded = await loadStoredSession(ctx.sessionPersistence, started.childId)
+    expect(loaded.events.some(event => event.type === 'assistant/message')).toBe(true)
+    // Awaiting again after disposal is a no-op on the same settlement.
+    await started.dispose()
+    await started.stopped
+  })
+
   it.each(['auto', 'danger-full-access'] as const)(
     'persists the delegated %s identity across cold resume without reading the parent again',
     { timeout: 20_000 },

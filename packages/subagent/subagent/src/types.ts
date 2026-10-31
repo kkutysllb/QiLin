@@ -181,6 +181,12 @@ export interface SubagentActivation {
    * output schema.
    */
   readonly result: Promise<SubagentResult>
+  /**
+   * Resolves after this activation's teardown and its final Session flush, so awaiting it means the
+   * child's durable log is complete. Repeated awaits share one settlement, and awaiting after
+   * disposal is safe; the caller owns any timeout.
+   */
+  readonly stopped: Promise<void>
   /** Stop and release this exact activation and its owned descendants. */
   dispose(): Promise<void>
 }

@@ -360,6 +360,12 @@ async function run(ctx: Context, config: Config, io: HeadlessIo): Promise<void> 
   const firstSeq = agent.session.seq
   const projection = config.json === true ? projectJsonRun(ctx, agent, io.stdout, { cwd }) : undefined
   const stopReasoning = projection === undefined ? streamReasoning(ctx, agent, io.stderr) : undefined
+  /** Durable ids of the in-process subagent runs this one-shot task published. */
+  const childRuns: string[] = []
+  // The subagent event map belongs to a peer package this bundle does not import at runtime.
+  const offSubagentStart = ctx.on('subagent/start' as never, ((info: { id: unknown }) => {
+    childRuns.push(String(info.id))
+  }) as never)
   try {
     try {
       agent.followup(createUserMessage({
@@ -372,10 +378,17 @@ async function run(ctx: Context, config: Config, io: HeadlessIo): Promise<void> 
       const subagents = ctx.get('subagents')
       if (subagents !== undefined) {
         const settleDeadline = Date.now() + 10_000
-        while (Date.now() < settleDeadline && await subagents.waitForChildren(agent)) { /* join */ }
+        if (childRuns.length > 0) {
+          // Each child's teardown flushes its Session before `awaitStopped` settles.
+          const stopped = Promise.all(childRuns.map(async (childId) => { await subagents.awaitStopped(childId as never) }))
+          const deadline = new Promise<void>((resolve) => { setTimeout(resolve, 10_000).unref() })
+          await Promise.race([stopped, deadline])
+        }
+        while (Date.now() < settleDeadline && await subagents.waitForChildren(agent)) { /* join fallback */ }
         if (Date.now() >= settleDeadline) ctx.logger.warn('headless runner: child subagents did not settle within 10s')
       }
     } finally {
+      offSubagentStart()
       stopReasoning?.()
     }
     await sessions.flush(agent.session)

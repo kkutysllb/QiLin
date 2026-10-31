@@ -296,6 +296,17 @@ export class SubagentRuntime extends TypertRemoteService {
   }
 
   /**
+   * Await one child's teardown and final Session flush by durable id. Resolves immediately when the
+   * child is no longer resident (already stopped), shares one settlement across repeated awaits, and
+   * is safe after disposal; the caller owns any timeout.
+   * @param childId - durable child Session id.
+   * @returns settlement after the child's teardown and final flush.
+   */
+  async awaitStopped(childId: SessionId): Promise<void> {
+    await this.manager?.awaitStopped(childId)
+  }
+
+  /**
    * Steer one model-authored message to the sender's direct parent or direct
    * continuable child. A running target admits it at the nearest step boundary;
    * an idle target starts a turn, and an absent direct child cold-resumes from
