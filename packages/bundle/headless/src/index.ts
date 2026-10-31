@@ -378,7 +378,7 @@ async function run(ctx: Context, config: Config, io: HeadlessIo): Promise<void> 
       const subagents = ctx.get('subagents')
       if (subagents !== undefined) {
         const settleDeadline = Date.now() + 10_000
-        if (childRuns.length > 0) {
+        if (childRuns.length > 0 && typeof subagents.awaitStopped === 'function') {
           // Each child's teardown flushes its Session before `awaitStopped` settles.
           const stopped = Promise.all(childRuns.map(async (childId) => { await subagents.awaitStopped(childId as never) }))
           const deadline = new Promise<void>((resolve) => { setTimeout(resolve, 10_000).unref() })
