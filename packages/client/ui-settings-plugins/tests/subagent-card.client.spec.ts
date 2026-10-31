@@ -84,6 +84,53 @@ describe('subagent card save', () => {
     await vi.waitFor(() => { expect(calls).toEqual(['models', 'limits']) })
   })
 
+  it('waits for a model write already in flight before writing the limit namespace', async () => {
+    const calls: string[] = []
+    const modelState = store(ready(false))
+    const limitState = store(ready(false))
+    const modelsSave = vi.fn(() => {
+      calls.push('models')
+      // The face sets its saving phase before the Host answers; the card must wait it out.
+      modelState.set(ready(true))
+    })
+    const face = subagentCardFace(
+      limitsFace(limitState, () => { calls.push('limits') }),
+      modelsFace(modelState, modelsSave),
+    )
+
+    face.save()
+    expect(calls).toEqual(['models'])
+    await Promise.resolve()
+    expect(calls).toEqual(['models'])
+
+    modelState.set(ready(false, false))
+    await vi.waitFor(() => { expect(calls).toEqual(['models', 'limits']) })
+  })
+
+  it('waits for the limit section to become writable again after the model write', async () => {
+    const calls: string[] = []
+    const modelState = store(ready(false))
+    const limitState = store(ready(false))
+    const face = subagentCardFace(
+      limitsFace(limitState, () => { calls.push('limits') }),
+      modelsFace(modelState, () => { calls.push('models'); modelState.set(ready(true)) }),
+    )
+
+    face.save()
+    // The model write recomposes the profile, leaving the limit section briefly read-only.
+    limitState.set({ ...ready(false), writable: false })
+    modelState.set(ready(false, false))
+    // A macrotask lets the settled model write reach the writable wait while the section is still read-only.
+    await new Promise((resolve) => { setTimeout(resolve, 0) })
+    expect(calls).toEqual(['models'])
+
+    // A move that leaves the section read-only keeps the wait subscribed.
+    limitState.set({ ...ready(false), writable: false, dirty: false })
+    expect(calls).toEqual(['models'])
+    limitState.set(ready(false))
+    await vi.waitFor(() => { expect(calls).toEqual(['models', 'limits']) })
+  })
+
   it('writes the limit namespace alone when only it has a draft', async () => {
     const calls: string[] = []
     const modelState = store(ready(false, false))

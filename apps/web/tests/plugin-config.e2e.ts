@@ -370,11 +370,7 @@ describe('web e2e: plugin configuration pages', () => {
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
 
-  // The manager ships no per-row configuration page: it declares plugins.item and
-  // plugins.bundle.config (a bundle's own config on the bundle page), while this
-  // fixture registers into plugins.row.config, which no parent declares. The
-  // upstream row-detail surface is not ported, so the scenario is deferred.
-  it.skip('renders a community bundle\'s row configuration, registered by its browser half, on the row\'s page', async () => {
+  it('renders a community bundle\'s row configuration, registered by its browser half, on the row\'s page', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-plugin-config-row'))
     const panel = await openPlugins()
 
@@ -393,7 +389,7 @@ describe('web e2e: plugin configuration pages', () => {
 
     const rowPage = panel.locator('[data-plugin-row-detail="@fixture/live-client#fixture-live-client"]')
     await rowPage.waitFor({ timeout: 10_000 })
-    expect(await rowPage.getByRole('heading', { level: 3 }).textContent()).toBe('fixture-live-client')
+    expect(await rowPage.getByRole('heading', { level: 3 }).textContent()).toBe('@fixture/live-client')
     expect(await rowPage.getByText('示例配置项', { exact: true }).count()).toBe(1)
     const form = rowPage.getByRole('form', { name: '动态插件配置' })
     await form.getByLabel('问候语').fill('你好')
@@ -402,7 +398,7 @@ describe('web e2e: plugin configuration pages', () => {
 
     const snapshot = await captureStableAria(page, '[data-plugin-panel]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(ROW_EXPECTED, snapshot, MODE)
-    await rowPage.getByRole('button', { name: '返回 live-client' }).click()
+    await rowPage.getByRole('button', { name: '返回 @fixture/live-client' }).click()
     await panel.locator('[data-plugin-detail="@fixture/live-client"]').waitFor({ timeout: 10_000 })
     expect(tripwire.pageErrors).toEqual([])
   }, 90_000)

@@ -103,7 +103,7 @@ function subjectOf(owner: unknown): PluginsSubject | undefined {
   return typeof owner === 'object' && owner !== null && 'subject' in owner ? (owner as PluginDetailProps).subject : undefined
 }
 
-const NO_CONFIG: ConfigLedger = { items: [], bundles: new Set() }
+const NO_CONFIG: ConfigLedger = { items: [], bundles: new Set(), rows: new Set() }
 
 function renderTab(
   state: Partial<PluginManagerState> = {}, config: Partial<ConfigLedger> = {},
@@ -1169,6 +1169,52 @@ describe('PluginManagerPage', () => {
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-better-sidebar') }))
       const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
       expect(within(detail).getByRole('form', { name: 'sidebar form' })).toBeTruthy()
+    })
+
+    it('opens a row\'s own configuration page from its configure control', () => {
+      renderTab({ packages: [pkg({ rows: [row()] })] }, { rows: new Set(['dsh-better-sidebar#sidebar']) }, {
+        'plugins.row.config:dsh-better-sidebar#sidebar': view => view === 'summary'
+          ? <span>Row summary</span>
+          : <div>Row form</div>,
+      })
+      fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-better-sidebar') }))
+      // Only a row the ledger names gets the configure control.
+      fireEvent.click(screen.getByRole('button', { name: en.configureRow.replace('{name}', 'dsh-better-sidebar') }))
+
+      const detail = document.querySelector('[data-plugin-row-detail]') as HTMLElement
+      expect(detail.getAttribute('data-plugin-row-detail')).toBe('dsh-better-sidebar#sidebar')
+      expect(within(detail).getByRole('heading', { level: 3 }).textContent).toBe('dsh-better-sidebar')
+      expect(within(detail).getByText('Row summary')).toBeTruthy()
+      expect(within(detail).getByText('Row form')).toBeTruthy()
+
+      fireEvent.click(screen.getByRole('button', { name: en.backToPackage.replace('{name}', 'dsh-better-sidebar') }))
+      expect(document.querySelector('[data-plugin-row-detail]')).toBeNull()
+      expect(document.querySelector('[data-plugin-detail]')).toBeTruthy()
+    })
+
+    it('opens a row from a bundle the More list holds and returns to that bundle', () => {
+      const name = '@qilin-agent/experimental-terminal-bundle'
+      renderTab({ packages: [pkg({ name, official: true, enabled: false, rows: [row({ rowId: 'sidebar', meta: { title: 'sidebar' } })] })] }, {
+        rows: new Set([`${name}#sidebar`]),
+      }, {
+        [`plugins.row.config:${name}#sidebar`]: view => view === 'summary' ? <span>Row summary</span> : <div>Row form</div>,
+      })
+      fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
+      fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', name) }))
+      fireEvent.click(screen.getByRole('button', { name: en.configureRow.replace('{name}', 'sidebar') }))
+
+      const detail = document.querySelector('[data-plugin-row-detail]') as HTMLElement
+      expect(detail.getAttribute('data-plugin-row-detail')).toBe(`${name}#sidebar`)
+      // The title is the row id, so the page omits the duplicate row-id line.
+      expect(within(detail).getByRole('heading', { level: 3 }).textContent).toBe('sidebar')
+      expect(within(detail).queryAllByText('sidebar', { selector: 'code' })).toHaveLength(0)
+      expect(within(detail).getByText('Row form')).toBeTruthy()
+
+      fireEvent.click(within(detail).getByRole('button', { name: en.backToPackage.replace('{name}', name) }))
+      expect(document.querySelector('[data-plugin-row-detail]')).toBeNull()
+      // The bundle page still belongs to the More list, so its crumb returns there.
+      const bundlePage = document.querySelector('[data-plugin-detail]') as HTMLElement
+      expect(within(bundlePage).getByRole('button', { name: en.backToPackage.replace('{name}', en.moreTitle) })).toBeTruthy()
     })
   })
 

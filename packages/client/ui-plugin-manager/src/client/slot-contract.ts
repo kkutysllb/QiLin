@@ -140,6 +140,14 @@ declare module '@qilin-agent/client-ui-slots' {
      */
     'plugins.bundle.config': { kind: 'keyed'; scope: 'root'; owner: PluginConfigViewProps }
     /**
+     * The configuration of one row a bundle declares, keyed by
+     * `<package name>#<row id>` with the row id as the bundle's patch declares
+     * it: the row on the bundle's page gains a configure control that opens
+     * the entry's page, headed by the row's display title and module. An absent
+     * description falls back to the entry's `view: 'summary'`.
+     */
+    'plugins.row.config': { kind: 'keyed'; scope: 'root'; owner: PluginConfigViewProps }
+    /**
      * Controls at the head of a detail page, before the page's own switch and
      * uninstall, rendered with the page's subject. An entry renders null for a
      * subject it has no control for.

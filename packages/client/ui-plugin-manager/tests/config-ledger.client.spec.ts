@@ -1,7 +1,7 @@
 /** The projection of the plugins carrying configuration: what it reads from the ledgers and when it moves. */
 
 import { describe, expect, it, vi } from 'vitest'
-import { configLedgerSource } from '../src/client/config-ledger.ts'
+import { configLedgerSource, rowConfigKey } from '../src/client/config-ledger.ts'
 import { tabLedgerSource } from '../src/client/tab-ledger.ts'
 
 interface Registration {
@@ -10,8 +10,10 @@ interface Registration {
 
 /** A slot registry and locale stand-in: ledgers by slot, versions that move on registration, and a locale revision. */
 function bench() {
-  const entries: Record<string, Registration[]> = { 'plugins.item': [], 'plugins.bundle.config': [], 'plugins.tab': [] }
-  const versions: Record<string, number> = { 'plugins.item': 0, 'plugins.bundle.config': 0, 'plugins.tab': 0 }
+  const entries: Record<string, Registration[]> = {
+    'plugins.item': [], 'plugins.bundle.config': [], 'plugins.row.config': [], 'plugins.tab': [],
+  }
+  const versions: Record<string, number> = { 'plugins.item': 0, 'plugins.bundle.config': 0, 'plugins.row.config': 0, 'plugins.tab': 0 }
   const listeners = new Map<string, Set<() => void>>()
   const localeListeners = new Set<() => void>()
   let revision = 0
@@ -49,20 +51,28 @@ function bench() {
   }
 }
 
+describe('rowConfigKey', () => {
+  it('names a row\'s configuration by its bundle and row id', () => {
+    expect(rowConfigKey('dsh-x', 'row-a')).toBe('dsh-x#row-a')
+  })
+})
+
 describe('configLedgerSource', () => {
   it('projects the official items in ledger order with locale-following labels, and the bundle keys', () => {
     const b = bench()
     const source = configLedgerSource(b.ctx)
-    expect(source.getSnapshot()).toEqual({ items: [], bundles: new Set() })
+    expect(source.getSnapshot()).toEqual({ items: [], bundles: new Set(), rows: new Set() })
 
     let title = 'Shell'
     b.register('plugins.item', { id: 'bash', label: () => title })
     b.register('plugins.item', { id: 'loop', label: 'Agent loop' })
     b.register('plugins.bundle.config', { key: 'dsh-x' })
+    b.register('plugins.row.config', { key: 'dsh-x#row-a' })
 
     expect(source.getSnapshot()).toEqual({
       items: [{ id: 'bash', label: 'Shell' }, { id: 'loop', label: 'Agent loop' }],
       bundles: new Set(['dsh-x']),
+      rows: new Set(['dsh-x#row-a']),
     })
     // A label thunk is re-read when the locale moves, not before.
     title = '终端'
@@ -77,7 +87,7 @@ describe('configLedgerSource', () => {
     b.register('plugins.item', { id: 'bare' })
     b.register('plugins.bundle.config', {})
 
-    expect(source.getSnapshot()).toEqual({ items: [{ id: 'bare', label: '' }], bundles: new Set() })
+    expect(source.getSnapshot()).toEqual({ items: [{ id: 'bare', label: '' }], bundles: new Set(), rows: new Set() })
   })
 
   it('keeps its snapshot until a ledger or the locale moves, and follows every source while subscribed', () => {
