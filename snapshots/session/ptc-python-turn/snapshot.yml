@@ -7,3 +7,5 @@ platform: posix
 header:
   class: ptc-python
   pin: true
+environment:
+  QILIN_TOOLS_MODE: ptc

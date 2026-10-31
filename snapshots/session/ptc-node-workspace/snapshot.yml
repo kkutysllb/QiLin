@@ -11,6 +11,7 @@ replay:
 platform: posix
 permission: workspace-write
 environment:
+  QILIN_TOOLS_MODE: ptc
   ELECTRON_RUN_AS_NODE: '1'
 workspace:
   final: true

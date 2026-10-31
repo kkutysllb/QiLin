@@ -6,3 +6,5 @@ recording: live
 header:
   class: both
   pin: true
+environment:
+  QILIN_TOOLS_MODE: ptc

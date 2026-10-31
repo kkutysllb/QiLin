@@ -677,6 +677,7 @@ async function verifyProviderCwdResume(
     QILIN_SNAPSHOT_PROVIDER: model.provider,
     QILIN_SNAPSHOT_MODEL: model.model,
     QILIN_PERMISSION_MODE: 'read-only',
+    QILIN_TOOLS_MODE: scenario.manifest.environment?.QILIN_TOOLS_MODE ?? 'native',
     QILIN_TELEMETRY_DISABLED: '1',
     NODE_OPTIONS: [process.env.NODE_OPTIONS, '--disable-warning=ExperimentalWarning'].filter(Boolean).join(' '),
   }
@@ -1085,6 +1086,8 @@ describe('headless recorded-session snapshots', () => {
             ...(scenario.manifest.permission === undefined
               ? {}
               : { QILIN_PERMISSION_MODE: scenario.manifest.permission }),
+            // The corpus recorded the native tool surface; headless now defaults to PTC.
+            QILIN_TOOLS_MODE: scenario.manifest.environment?.QILIN_TOOLS_MODE ?? 'native',
             ...scenario.manifest.environment,
             ...(scenario.name === 'mcp-resources' || scenario.name === 'mcp-resources-ptc' ? {
               QILIN_MCP_RESOURCES_FIXTURE: join(repoRoot, 'packages/mcp/mcp-client/tests/fixtures/resources-server.ts'),

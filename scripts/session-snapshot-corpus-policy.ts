@@ -22,11 +22,28 @@ export interface SnapshotCorpusGenerationSummary {
 }
 
 const RETAINED_BASELINE_VERSION = 3
-/** The payload generation this fork's corpus still carries: the v5 re-record is pending, so an
- * unretained scenario may also select v4 (TODO: remove once every v4-selected scenario is
- * re-recorded, then accept only the baseline and current generations again).
+/**
+ * Scenarios whose selected role still sits on the v4 payload generation, with the condition that
+ * blocks its v5 fixture. Every entry is a TODO: once its named fix lands, refresh writes the v5
+ * fixture and the entry disappears; the policy then accepts only the baseline and current
+ * generations again.
  */
-const ACCEPTED_HISTORICAL_VERSION = 4
+const PENDING_V4_SCENARIOS: ReadonlyMap<string, string> = new Map([
+  ['session/compaction-output-reserve', 'pin header count drifted 2 to 1; prompt-change emission needs its own fix'],
+  ['session/compaction-summary-headroom', 'pin header count drifted 2 to 1; prompt-change emission needs its own fix'],
+  ['session/deepseek-messages-invalid-tool-history', 'stderr activation warning drift; adapter registration needs its own fix'],
+  ['session/persistent-pwsh-padded-completion', 'duplicate deepseek adapter warning; platform config needs its own fix'],
+  ['session/ralph-loop', 'refresh write-back lacks the child 1 prompt; refresh support needs its own fix'],
+  ['session/subagent-depth-two-rejection', 'the refused child Session never persists, so its v4 child role stays historical'],
+  ['session/windows-acl-skill', 'windows-only workspace setup; no legal v5 on macOS'],
+  ['sdk/serial-created', 'SDK snapshot session has no request model; harness fix needed'],
+  ['sdk/subagent-activation-limit', '120s timeout in the SDK lane; harness fix needed'],
+  ['sdk/subagent-fork-in-process', 'in-process subagent prompt drift; subagent alignment needs its own fix'],
+  ['sdk/subagent-mixed', 'mixed subagent prompt drift; subagent alignment needs its own fix'],
+  ['sdk/subagent-qilin-sdk-dynamic-route', 'header change count drifted 2 to 1; prompt-change emission needs its own fix'],
+  ['sdk/subagent-spawn-in-process', 'in-process spawn assertion drift; harness fix needed'],
+  ['sdk/tool-error-details', 'tool result ordering drift; tool error details need their own fix'],
+])
 const MAX_RETAINED_ROLES = 11
 const REQUIRED_V0_COVERAGE = new Set([
   'multi-hop',
@@ -57,15 +74,31 @@ export function assertSnapshotCorpusPolicy(
       throw new Error(`${scenario.key}: scenario owns no selected Session role`)
     }
     if (scenario.retained === undefined) {
-      // Unretained scenarios accept the baseline, the pending v4 payload generation, and the
-      // current writer; a parent may be one generation ahead of its children while the v5
-      // re-record is pending (session/ralph-loop: v4 parent, v3 children).
-      const outside = scenario.selectedVersions.find(version => version !== RETAINED_BASELINE_VERSION
-        && version !== ACCEPTED_HISTORICAL_VERSION && version !== SESSION_FORMAT_VERSION)
-      if (outside !== undefined) {
-        throw new Error(
-          `${scenario.key}: selected Session generation v${outside} must be retained baseline v${RETAINED_BASELINE_VERSION}, accepted historical v${ACCEPTED_HISTORICAL_VERSION}, or current v${SESSION_FORMAT_VERSION}`,
-        )
+      const pending = PENDING_V4_SCENARIOS.get(scenario.key)
+      if (pending === undefined) {
+        const outside = scenario.selectedVersions.find(version => version !== RETAINED_BASELINE_VERSION
+          && version !== SESSION_FORMAT_VERSION)
+        if (outside !== undefined) {
+          throw new Error(
+            `${scenario.key}: selected Session generation v${outside} must be retained baseline v${RETAINED_BASELINE_VERSION} or current v${SESSION_FORMAT_VERSION}; v4 is only accepted for a listed pending scenario`,
+          )
+        }
+        const mixed = scenario.selectedVersions.find(version => version !== selectedVersion)
+        if (mixed !== undefined) {
+          throw new Error(
+            `${scenario.key}: selected Session generations v${selectedVersion} and v${mixed} differ; only a listed pending scenario may mix generations`,
+          )
+        }
+      } else {
+        // Mixed generations are legal only while the named fix is pending (session/ralph-loop keeps
+        // its v4 parent beside v3 children; session/subagent-depth-two-rejection keeps a v4 child).
+        const outside = scenario.selectedVersions.find(version => version !== RETAINED_BASELINE_VERSION
+          && version !== 4 && version !== SESSION_FORMAT_VERSION)
+        if (outside !== undefined) {
+          throw new Error(
+            `${scenario.key}: pending v4 scenario selected Session generation v${outside}; expected v3, v4, or v${SESSION_FORMAT_VERSION}`,
+          )
+        }
       }
       if (selectedVersion === SESSION_FORMAT_VERSION) {
         currentRoles += scenario.selectedVersions.length

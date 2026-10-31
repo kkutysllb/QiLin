@@ -5,3 +5,5 @@ composition: both
 recording: authored
 header:
   class: both
+environment:
+  QILIN_TOOLS_MODE: both

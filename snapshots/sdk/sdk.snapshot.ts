@@ -603,6 +603,8 @@ async function runScenario(scenario: CorpusScenario): Promise<{
       ? { QILIN_SNAPSHOT_OVERRIDE: join(scenario.dir, 'replay.override.json') }
       : {},
     ...scenario.manifest.environment,
+    // The corpus recorded the native tool surface; the profile default could differ.
+    QILIN_TOOLS_MODE: scenario.manifest.environment?.QILIN_TOOLS_MODE ?? 'native',
     ...assertions.environment,
     ...childEnvironment,
   }

@@ -13,3 +13,5 @@ permission: read-only
 workspace:
   final: true
   parent: outside-temp
+environment:
+  QILIN_TOOLS_MODE: ptc

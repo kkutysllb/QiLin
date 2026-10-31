@@ -8,3 +8,5 @@ header:
 replay:
   override: true
 platform: posix
+environment:
+  QILIN_TOOLS_MODE: ptc

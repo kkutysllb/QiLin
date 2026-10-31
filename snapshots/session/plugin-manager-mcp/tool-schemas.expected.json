@@ -262,7 +262,7 @@
     },
     {
       "name": "plugin_manager",
-      "description": "List plugins or bundles in the current profile, enable or disable them, install a bundle, or remove an installed bundle. Every action requires danger-full-access permission or approval for this call. Approval does not change the session permission mode. Changes affect every session in this profile. List first to obtain exact identifiers. Package installation can execute allowed build scripts. Live profiles apply changes immediately; startup profiles require restart. Incompatible qilin peer dependencies block installation and activation. Version exemptions risk crashes and data loss: warn the user and obtain explicit permission for the exact plugin and runtime versions before granting one.",
+      "description": "List plugins or bundles in the current profile, enable or disable them, install a bundle, or remove an installed bundle. Every action requires danger-full-access permission or approval for this call. Approval does not change the session permission mode. Changes affect every session in this profile. List first to obtain exact identifiers. Package installation can execute allowed build scripts. Live profiles apply changes immediately: install_bundle replaces an installed dependency whose spec it names, so one call upgrades it without remove_bundle, and resolves to upToDate when the same version is already saved. A change result that is not applied carries nextStep, which says what to do or tell the user. Incompatible qilin peer dependencies block installation and activation. Version exemptions risk crashes and data loss: warn the user and obtain explicit permission for the exact plugin and runtime versions before granting one.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -282,7 +282,7 @@
           },
           "target": {
             "type": "string",
-            "description": "Plugin entry id, bundle package name, or installation spec, according to action."
+            "description": "Plugin entry id, bundle package name, or installation spec, according to action. For an Official catalog entry, pass list_bundles installTarget.spec to install_bundle."
           },
           "enabled": {
             "type": "boolean",
@@ -302,6 +302,10 @@
             "items": {
               "type": "string"
             }
+          },
+          "registry": {
+            "type": "string",
+            "description": "For install_bundle: the npm registry URL asked first, when the user names one; otherwise the configured registry is asked, and its configured fallbacks while a registry is unreachable."
           },
           "offset": {
             "type": "number",
@@ -1018,7 +1022,7 @@
       },
       {
         "name": "plugin_manager",
-        "description": "List plugins or bundles in the current profile, enable or disable them, install a bundle, or remove an installed bundle. Every action requires danger-full-access permission or approval for this call. Approval does not change the session permission mode. Changes affect every session in this profile. List first to obtain exact identifiers. Package installation can execute allowed build scripts. Live profiles apply changes immediately; startup profiles require restart. Incompatible qilin peer dependencies block installation and activation. Version exemptions risk crashes and data loss: warn the user and obtain explicit permission for the exact plugin and runtime versions before granting one.",
+        "description": "List plugins or bundles in the current profile, enable or disable them, install a bundle, or remove an installed bundle. Every action requires danger-full-access permission or approval for this call. Approval does not change the session permission mode. Changes affect every session in this profile. List first to obtain exact identifiers. Package installation can execute allowed build scripts. Live profiles apply changes immediately: install_bundle replaces an installed dependency whose spec it names, so one call upgrades it without remove_bundle, and resolves to upToDate when the same version is already saved. A change result that is not applied carries nextStep, which says what to do or tell the user. Incompatible qilin peer dependencies block installation and activation. Version exemptions risk crashes and data loss: warn the user and obtain explicit permission for the exact plugin and runtime versions before granting one.",
         "parameters": {
           "type": "object",
           "properties": {
@@ -1038,7 +1042,7 @@
             },
             "target": {
               "type": "string",
-              "description": "Plugin entry id, bundle package name, or installation spec, according to action."
+              "description": "Plugin entry id, bundle package name, or installation spec, according to action. For an Official catalog entry, pass list_bundles installTarget.spec to install_bundle."
             },
             "enabled": {
               "type": "boolean",
@@ -1058,6 +1062,10 @@
               "items": {
                 "type": "string"
               }
+            },
+            "registry": {
+              "type": "string",
+              "description": "For install_bundle: the npm registry URL asked first, when the user names one; otherwise the configured registry is asked, and its configured fallbacks while a registry is unreachable."
             },
             "offset": {
               "type": "number",

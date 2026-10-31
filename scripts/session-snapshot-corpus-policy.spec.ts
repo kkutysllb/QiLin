@@ -103,7 +103,7 @@ describe('recorded-session corpus policy', () => {
   it('accepts the pending v4 payload generation and a parent one generation ahead of its children', () => {
     expect(assertSnapshotCorpusPolicy([
       baseline,
-      { key: 'session/v4', selectedVersions: [4] },
+      { key: 'session/compaction-output-reserve', selectedVersions: [4] },
       completeV0,
       ...adjacent,
     ])).toEqual({
@@ -125,14 +125,18 @@ describe('recorded-session corpus policy', () => {
     expect(() => assertSnapshotCorpusPolicy([{ key: 'session/empty', selectedVersions: [] }]))
       .toThrow('session/empty: scenario owns no selected Session role')
     expect(() => assertSnapshotCorpusPolicy([{ key: 'session/old', selectedVersions: [2] }]))
-      .toThrow('session/old: selected Session generation v2 must be retained baseline v3, accepted historical v4, or current v5')
+      .toThrow('session/old: selected Session generation v2 must be retained baseline v3 or current v5; v4 is only accepted for a listed pending scenario')
+    expect(() => assertSnapshotCorpusPolicy([{ key: 'session/unlisted-v4', selectedVersions: [4] }]))
+      .toThrow('session/unlisted-v4: selected Session generation v4 must be retained baseline v3 or current v5; v4 is only accepted for a listed pending scenario')
     expect(() => assertSnapshotCorpusPolicy([{ ...completeV0, selectedVersions: [0, SESSION_FORMAT_VERSION] }]))
       .toThrow(`session/v0: selected Session generation v${SESSION_FORMAT_VERSION} does not match expected v0`)
+    expect(() => assertSnapshotCorpusPolicy([{ ...baseline, selectedVersions: [3, SESSION_FORMAT_VERSION] }]))
+      .toThrow(`session/v3: selected Session generations v3 and v${SESSION_FORMAT_VERSION} differ; only a listed pending scenario may mix generations`)
   })
 
   it('rejects future unpinned generations', () => {
     expect(() => assertSnapshotCorpusPolicy([{ key: 'session/future', selectedVersions: [SESSION_FORMAT_VERSION + 1] }]))
-      .toThrow(`session/future: selected Session generation v${SESSION_FORMAT_VERSION + 1} must be retained baseline v3, accepted historical v4, or current v${SESSION_FORMAT_VERSION}`)
+      .toThrow(`session/future: selected Session generation v${SESSION_FORMAT_VERSION + 1} must be retained baseline v3 or current v${SESSION_FORMAT_VERSION}; v4 is only accepted for a listed pending scenario`)
   })
 
   it.each([SESSION_FORMAT_VERSION, SESSION_FORMAT_VERSION + 1, -1, 0.5])(

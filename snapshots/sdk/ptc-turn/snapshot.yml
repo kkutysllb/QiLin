@@ -5,3 +5,5 @@ composition: ptc
 recording: live
 header:
   class: ptc
+environment:
+  QILIN_TOOLS_MODE: ptc

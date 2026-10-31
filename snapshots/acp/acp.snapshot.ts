@@ -68,14 +68,12 @@ const scenarios: Scenario[] = controllerCases.map((controller) => {
     ...(manifest.platform === 'posix' ? { posixOnly: true } : {}),
     ...(manifest.platform === 'pwsh' ? { pwshOnly: true } : {}),
     ...(controller.configPath === undefined ? {} : { configPath: controller.configPath }),
-    ...manifest.permission === undefined && manifest.environment === undefined
-      ? {}
-      : {
-          env: {
-            ...manifest.environment,
-            ...(manifest.permission === undefined ? {} : { QILIN_PERMISSION_MODE: manifest.permission }),
-          },
-        },
+    env: {
+      ...manifest.environment,
+      // The corpus recorded the native tool surface; a profile default could differ.
+      QILIN_TOOLS_MODE: manifest.environment?.QILIN_TOOLS_MODE ?? 'native',
+      ...(manifest.permission === undefined ? {} : { QILIN_PERMISSION_MODE: manifest.permission }),
+    },
   }
 })
 
