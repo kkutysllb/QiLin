@@ -31,7 +31,6 @@ const RETAINED_BASELINE_VERSION = 3
 const PENDING_V4_SCENARIOS: ReadonlyMap<string, string> = new Map([
   ['session/subagent-depth-two-rejection', 'the committed child fixture is truncated at its first request, so llm-replay returns no response for the depth-2 role'],
   ['session/windows-acl-skill', 'windows-only workspace setup; no legal v5 on macOS'],
-  ['sdk/serial-created', 'a refresh/record turn ends without a step (turn/start then turn/end) because the creation-context injection exists only in the live patch; the committed v3 turn cannot be reproduced'],
   ['sdk/subagent-activation-limit', 'refresh hangs to the 120s timeout after the in-process child ends without subagent.finished'],
   ['sdk/subagent-qilin-sdk-dynamic-route', 'the separate qilin SDK child never persists its second session; provider/harness fix needed'],
   ['sdk/subagent-spawn-in-process', 'the in-process child fixture carries no script entries, so llm-replay exhausts and subagent.finished never fires'],
