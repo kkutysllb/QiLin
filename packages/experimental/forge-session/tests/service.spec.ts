@@ -63,6 +63,15 @@ describe('forgeSession bindings', () => {
 
     expect(ctx.forgeSession.changeRequests(other)).toEqual([])
   })
+
+  it('reads no change requests from a Session another projection registry owns', async () => {
+    const first = await open()
+    const second = await open()
+    // A Session with no recorded forge projection makes the state read fall back to the empty value.
+    const foreign = second.ctx.sessions.create()
+
+    expect(first.ctx.forgeSession.changeRequests(foreign)).toEqual([])
+  })
 })
 
 describe('forgeSession discovery', () => {

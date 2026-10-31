@@ -120,6 +120,24 @@ describe('PR reference lookup', () => {
     expect(f.result.isError).toBe(false)
   })
 
+  it('resolves a relative lookup workdir against the Session workspace', async () => {
+    const f = await fixture()
+    const resolve = vi.spyOn(f.ctx.shell, 'resolve')
+    f.emit({ ...f.exec, arguments: { command: 'gh pr view 9 -R octo/demo --json number', workdir: 'packages/demo' } })
+    await vi.waitFor(() => { expect(f.records()).toEqual([{ action: 'reference', url: pullUrl(9) }]) })
+    expect(resolve).toHaveBeenCalledWith(expect.objectContaining({
+      workdir: `${process.cwd()}/packages/demo`,
+    }))
+  })
+
+  it('keeps an absolute lookup workdir as the model supplied it', async () => {
+    const f = await fixture()
+    const resolve = vi.spyOn(f.ctx.shell, 'resolve')
+    f.emit({ ...f.exec, arguments: { command: 'gh pr view 9 -R octo/demo --json number', workdir: '/tmp/elsewhere' } })
+    await vi.waitFor(() => { expect(f.records()).toEqual([{ action: 'reference', url: pullUrl(9) }]) })
+    expect(resolve).toHaveBeenCalledWith(expect.objectContaining({ workdir: '/tmp/elsewhere' }))
+  })
+
   it('reports a shell preparation rejection that is not an Error', async () => {
     const f = await fixture()
     f.run.mockRejectedValue('unavailable')
