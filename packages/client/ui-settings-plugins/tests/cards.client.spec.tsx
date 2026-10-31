@@ -76,17 +76,17 @@ describe('PluginConfigForm', () => {
       <span>fields</span>
     </PluginConfigForm>)
     expect(screen.getByRole('status').textContent).toBe(en.readOnly)
-    expect((screen.getByRole('button', { name: en.save })).disabled).toBe(true)
+    expect(screen.getByRole('button', { name: en.save }).hasAttribute('disabled')).toBe(true)
   })
 
   it('blocks save without a draft or with an invalid one, and reports a failed save', () => {
     const { rerender } = render(
       <PluginConfigForm t={t} state={shell()} onSave={onSave} onDiscard={onDiscard}><span>fields</span></PluginConfigForm>,
     )
-    expect((screen.getByRole('button', { name: en.save })).disabled).toBe(true)
+    expect(screen.getByRole('button', { name: en.save }).hasAttribute('disabled')).toBe(true)
     rerender(<PluginConfigForm t={t} state={shell({ dirty: true, invalid: true })} onSave={onSave}
       onDiscard={onDiscard}><span>fields</span></PluginConfigForm>)
-    expect((screen.getByRole('button', { name: en.save })).disabled).toBe(true)
+    expect(screen.getByRole('button', { name: en.save }).hasAttribute('disabled')).toBe(true)
     rerender(<PluginConfigForm t={t} state={shell({ dirty: true, failed: true })} onSave={onSave}
       onDiscard={onDiscard}><span>fields</span></PluginConfigForm>)
     expect(screen.getByRole('status').textContent).toBe(en.saveFailed)
@@ -105,7 +105,7 @@ describe('PluginConfigForm', () => {
       <PluginConfigForm t={t} state={shell({ dirty: true, saving: true })} onSave={save}
         onDiscard={discard}><span>fields</span></PluginConfigForm>,
     )
-    expect((screen.getByRole('button', { name: en.saving })).disabled).toBe(true)
+    expect(screen.getByRole('button', { name: en.saving }).hasAttribute('disabled')).toBe(true)
     unmount()
     expect(discard).toHaveBeenCalledOnce()
   })
