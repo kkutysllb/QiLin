@@ -131,6 +131,31 @@ export const subagentCatalogProjectionDefinition = {
 } satisfies ProjectionDefinition<'subagentCatalog', SubagentCatalogState>
 
 /**
+ * Append the discovery fact of a child whose identity was reserved at acceptance. Callers invoke
+ * it synchronously before any await, so concurrent delegations publish catalog rows in acceptance
+ * order. The accepted time is the discovery origin the catalog orders children by; the child
+ * Session records its own creation time when materialization publishes it.
+ * @param parent - durable direct parent receiving the discovery fact.
+ * @param childId - identity reserved for this child at acceptance.
+ * @param childCreatedAt - acceptance time recorded as the catalog creation time.
+ * @param descriptor - mode-discriminated creation label frozen with the child.
+ */
+export function acceptCatalogChild(
+  parent: Session,
+  childId: SessionId,
+  childCreatedAt: number,
+  descriptor: { readonly mode: 'continuable'; readonly label: string },
+): void {
+  parent.append('subagent/catalog', {
+    version: SUBAGENT_CATALOG_VERSION,
+    childId,
+    childCreatedAt,
+    mode: descriptor.mode,
+    label: descriptor.label,
+  })
+}
+
+/**
  * Append a complete direct-child discovery fact to its parent Session.
  * @param parent - durable direct parent receiving the discovery fact.
  * @param child - established child's immutable Session metadata.

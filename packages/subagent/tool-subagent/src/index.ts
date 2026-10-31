@@ -14,7 +14,8 @@ import type { ToolDefinition } from '@qilin-agent/tools'
 import type { Agent, AgentOptions } from '@qilin-agent/agent'
 import { ReasoningEffortId } from '@qilin-agent/llm'
 import type { ContentBlock } from '@qilin-agent/llm'
-import { SessionSeq } from '@qilin-agent/session'
+import { randomUUID } from 'node:crypto'
+import { SessionId, SessionSeq } from '@qilin-agent/session'
 import type { Session } from '@qilin-agent/session'
 import {
   assertSubagentMaxDepth,
@@ -278,6 +279,11 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
         },
         isConcurrencySafe: () => true,
         async execute(args, exec) {
+          // Accept-time identity for local backends only: an external provider owns the child id
+          // it returns, so reserving one here would be rejected as an unsupported capability.
+          // Allocating before any await lets concurrent calls publish ids in call order.
+          const provider = runtimeCtx.subagents.getProvider(config.provider)
+          const childId = provider?.prepareContinuable === undefined ? undefined : SessionId(randomUUID())
           const parent = exec.agent
           if (!parent) {
             // Non-agent callers provide no parent for delegation ownership.
@@ -333,6 +339,7 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
 
           const started = await runtimeCtx.subagents.startActivation({
             provider: config.provider,
+            ...(childId === undefined ? {} : { childId }),
             label: args.description,
             request,
             signal: exec.signal,

@@ -679,27 +679,17 @@ describe('SubagentRuntime.startActivation', () => {
     })
   })
 
-  it.each(['parent', 'caller'] as const)('releases the %s-delivery activation when its catalog append fails', async (delivery) => {
+  it.each(['parent', 'caller'] as const)('rejects the %s-delivery start before creation when catalog acceptance fails', async (delivery) => {
     const { ctx, parent } = await setup([textResponse('unused')])
     const childId = SessionId('00000000-0000-4000-8000-000000000321')
     const catalogFailure = new Error('catalog append failed')
-    const cleanupFailure = new Error('activation disposal also failed')
     const appendCatalog = parent.session.append.bind(parent.session) as (
       type: 'subagent/catalog',
       data: SessionEventMap['subagent/catalog'],
     ) => SessionEvent<'subagent/catalog'>
     vi.spyOn(parent.session, 'append').mockImplementation(((type: string, data: unknown) => {
-      if (type === 'subagent/catalog') {
-        const activation = managerState(ctx).resident.get(childId)
-        if (activation === undefined) throw new Error('expected live Activation')
-        const handle = requireLocalActivation(activation).handle
-        const dispose = handle.dispose.bind(handle)
-        vi.spyOn(handle, 'dispose').mockImplementation(async () => {
-          await dispose()
-          throw cleanupFailure
-        })
-        throw catalogFailure
-      }
+      // A reserved identity publishes its acceptance fact synchronously, before any child exists.
+      if (type === 'subagent/catalog') throw catalogFailure
       return appendCatalog('subagent/catalog', data as SessionEventMap['subagent/catalog'])
     }) as typeof parent.session.append)
 

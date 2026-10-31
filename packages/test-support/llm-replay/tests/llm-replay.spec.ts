@@ -1418,7 +1418,10 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
               systemPromptUpdate: 'in-history',
               toolUpdate: 'addition-only',
             },
-            { id: 'pro', name: 'Pro', description: 'Larger model', reasoningEfforts: ['high'] },
+            {
+              id: 'pro', name: 'Pro', description: 'Larger model', reasoningEfforts: ['high'],
+              badge: { tone: 'info', text: { en: 'New', zh: '新' } },
+            },
           ],
         },
         { id: 'empty' },
@@ -1431,7 +1434,7 @@ describe('installLlmReplay (through the real LlmRuntime)', () => {
     ])
     await expect(ctx.llm.listModels('deepseek')).resolves.toEqual([
       { provider: 'deepseek', id: 'flash', name: 'flash', inputModalities: ['text', 'image'] },
-      { provider: 'deepseek', id: 'pro', name: 'Pro', description: 'Larger model' },
+      { provider: 'deepseek', id: 'pro', name: 'Pro', description: 'Larger model', badge: { tone: 'info', text: { en: 'New', zh: '新' } } },
     ])
     await expect(ctx.llm.listModels('empty')).resolves.toEqual([])
     await expect(ctx.llm.resolveModelInfo('deepseek', 'flash')).resolves.toMatchObject({
@@ -2224,6 +2227,22 @@ describe('apply (the plugin entry)', () => {
     const providers: NonNullable<Config['providers']> = [{ id: 'm', models: [{ id: 'm', toolUpdate: 'always' as never }] }]
     expect(() => { apply(ctx, { file, providers }) }).toThrow(
       'llm-replay: provider "m" model "m" toolUpdate must be "in-history" or "addition-only" when present',
+    )
+  })
+
+  it.each([
+    ['an unknown tone', { tone: 'bogus', text: 'Badge' }],
+    ['a non-string text', { tone: 'neutral', text: 5 }],
+    ['text without an en entry', { tone: 'neutral', text: { zh: '徽章' } }],
+    ['a blank translation', { tone: 'neutral', text: { en: 'Badge', zh: '  ' } }],
+    ['a non-string translation', { tone: 'neutral', text: { en: 'Badge', zh: 3 } }],
+    ['no object at all', 'neutral'],
+    ['null', null],
+  ])('rejects a badge with %s during load', (_case, badge) => {
+    const ctx = new Context()
+    const providers = [{ id: 'm', models: [{ id: 'm', badge }] }] as unknown as NonNullable<Config['providers']>
+    expect(() => { apply(ctx, { file, providers }) }).toThrow(
+      'llm-replay: provider "m" model "m" badge needs non-blank text or translations',
     )
   })
 

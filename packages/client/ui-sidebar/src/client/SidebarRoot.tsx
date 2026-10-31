@@ -459,6 +459,7 @@ export function SidebarRoot({
                 const entry = officialEntry(id)
                 if (entry !== undefined) trackEntryClick({ menu_name: entry, position: 'sidebar_more' })
                 const panel = panels.find(candidate => candidate.id === id)
+                /* v8 ignore next -- the menu ids come from this same panels list, so a selection always resolves a panel. */
                 if (panel !== undefined) selectPanel(panel.id)
               }}
               onPinnedChange={setPinned}

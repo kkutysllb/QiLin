@@ -157,7 +157,7 @@ class FakeSessions implements ISessions {
   declare readonly scope: ISessions['scope']
   declare readonly scopeOf: ISessions['scopeOf']
   declare readonly sessionOf: ISessions['sessionOf']
-  declare readonly binding: ISessions['binding']
+  readonly binding = vi.fn<ISessions['binding']>(() => undefined)
 
   constructor(initial: SessionListState) {
     this.list = new MutableSource(initial)
@@ -268,6 +268,7 @@ interface BenchOptions {
   readonly workspaces?: WorkspaceSnapshot
   readonly sessions?: SessionListState
   readonly configureSessions?: (sessions: FakeSessions) => void
+  readonly notify?: ConstructorParameters<typeof UiWorkspaceService>[5]
 }
 
 function bench(options: BenchOptions = {}) {
@@ -286,15 +287,16 @@ function bench(options: BenchOptions = {}) {
   const sessions = new FakeSessions(options.sessions ?? sessionState([], 'pending'))
   options.configureSessions?.(sessions)
   const views = createWorkspaceViewStore().create()
+  const notify = options.notify ?? ((): void => {})
   const uiWorkspace = new UiWorkspaceService(
     ctx,
     directoryPicker.remote,
     workspaces,
     sessions,
     views.actions,
-    () => {},
+    notify,
   )
-  return { ctx, directoryPicker, sessions, uiWorkspace, workspaces, layout, selectPanel, store: views }
+  return { ctx, directoryPicker, sessions, uiWorkspace, workspaces, layout, selectPanel, store: views, notify }
 }
 
 describe('UiWorkspaceService', () => {
@@ -738,5 +740,106 @@ describe('UiWorkspaceService', () => {
     expect(b.store.getSnapshot().sessionOrderByAccount.first).toEqual([pinned, other])
     b.workspaces.onUnpin = () => Promise.reject(new Error('unpin rejected'))
     await expect(b.uiWorkspace.unpinSession(pinned)).rejects.toThrow('unpin rejected')
+  })
+})
+
+describe('UiWorkspaceService draft initialization', () => {
+  /** The service reports notices through its constructor channel, not a ctx service. */
+  function draftBench(options: BenchOptions = {}) {
+    const b = bench(options)
+    // The service localizes its draft failures through the Workspace dictionary.
+    b.ctx.provide('locale', { bind: () => (key: string) => key } as never)
+    return b
+  }
+
+  it('refuses a draft start that names no Workspace target', () => {
+    const notices: unknown[] = []
+    const b = draftBench({
+      notify: (toast) => { notices.push(toast) },
+      workspaces: workspaceState([], [], [], 'ready'),
+      sessions: sessionState([], 'ready'),
+    })
+    b.uiWorkspace.startSession(undefined, { prompt: 'hello' })
+    expect(notices).toEqual([{ kind: 'createFailed', message: 'draft.workspaceRequired' }])
+    expect(b.selectPanel).not.toHaveBeenCalled()
+  })
+
+  it('clears the main view for a keep-only draft with no Workspace target', () => {
+    const b = draftBench({
+      workspaces: workspaceState([], [], [], 'ready'),
+      sessions: sessionState([], 'ready'),
+    })
+    b.uiWorkspace.startSession(undefined, { whenDraftExists: 'keep' })
+    expect(b.selectPanel).toHaveBeenCalledWith(null)
+  })
+
+  it('treats clearPreviousDraft as a replace request without a Workspace target', () => {
+    const notices: unknown[] = []
+    const b = draftBench({
+      notify: (toast) => { notices.push(toast) },
+      workspaces: workspaceState([], [], [], 'ready'),
+      sessions: sessionState([], 'ready'),
+    })
+    b.uiWorkspace.startSession(undefined, { clearPreviousDraft: true })
+    expect(notices).toEqual([{ kind: 'createFailed', message: 'draft.workspaceRequired' }])
+  })
+
+  it('prepares the requested draft on the Session the Workspace created', async () => {
+    const b = draftBench({ workspaces: workspaceState([workspace('a')]) })
+    const binding = { sessionId: sid('created-a') }
+    b.sessions.binding.mockReturnValue(binding as never)
+    const requestDraftInitialization = vi.fn(() => 'started' as const)
+    b.ctx.provide('conversation', { input: { requestDraftInitialization } } as never)
+
+    b.uiWorkspace.startSession(wid('a'), { prompt: 'hello', whenDraftExists: 'replace' })
+    await vi.waitFor(() => {
+      expect(requestDraftInitialization).toHaveBeenCalledWith(binding, { prompt: 'hello', whenDraftExists: 'replace' })
+    })
+  })
+
+  it('passes the requested preset to the Workspace open', async () => {
+    const b = draftBench({ workspaces: workspaceState([workspace('a')]) })
+    const openWorkspace = vi.spyOn(b.uiWorkspace, 'openWorkspace')
+
+    b.uiWorkspace.startSession(wid('a'), { agentPreset: 'ptc' })
+    expect(openWorkspace).toHaveBeenCalledWith(wid('a'), undefined, { agentPreset: 'ptc' })
+  })
+
+  it('fails the draft when the created Session has no binding', async () => {
+    const notices: unknown[] = []
+    const b = draftBench({ notify: (toast) => { notices.push(toast) }, workspaces: workspaceState([workspace('a')]) })
+    b.sessions.binding.mockReturnValue(undefined)
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    b.uiWorkspace.startSession(wid('a'), { prompt: 'hello' })
+    await vi.waitFor(() => {
+      expect(notices).toEqual([{ kind: 'createFailed', message: 'draft.initializationFailed' }])
+    })
+    expect(warn).toHaveBeenCalledWith('new session failed:', expect.any(Error))
+  })
+
+  it('fails the draft when no Conversation service is available', async () => {
+    const notices: unknown[] = []
+    const b = draftBench({ notify: (toast) => { notices.push(toast) }, workspaces: workspaceState([workspace('a')]) })
+    b.sessions.binding.mockReturnValue({ sessionId: sid('created-a') } as never)
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    b.uiWorkspace.startSession(wid('a'), { prompt: 'hello' })
+    await vi.waitFor(() => {
+      expect(notices).toEqual([{ kind: 'createFailed', message: 'draft.initializationFailed' }])
+    })
+  })
+
+  it('fails the draft when the Conversation input refuses it', async () => {
+    const notices: unknown[] = []
+    const b = draftBench({ notify: (toast) => { notices.push(toast) }, workspaces: workspaceState([workspace('a')]) })
+    b.sessions.binding.mockReturnValue({ sessionId: sid('created-a') } as never)
+    b.ctx.provide('conversation', { input: { requestDraftInitialization: vi.fn(() => 'blocked' as const) } } as never)
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+    b.uiWorkspace.startSession(wid('a'), { prompt: 'hello' })
+    await vi.waitFor(() => {
+      expect(notices).toEqual([{ kind: 'createFailed', message: 'draft.initializationFailed' }])
+    })
   })
 })

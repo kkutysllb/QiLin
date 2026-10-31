@@ -1,7 +1,7 @@
 /** Direct one-shot Agent driving, exact Session adoption, machine-readable projection, and exit mapping. */
 
 import { Readable } from 'node:stream'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import { brandString } from '@qilin-agent/brand'
 import AgentRegistry from '@qilin-agent/agent'
@@ -57,6 +57,13 @@ interface BenchOptions {
   preliveMeta?: { cwd?: string; origin?: 'subagent'; agentPreset?: string }
   /** Run when the runner awaits idle, e.g. to append to the attached log. */
   onWhenIdle?: (agent: Agent) => void
+  /** In-process subagent service the runner joins before exiting. */
+  subagents?: {
+    readonly awaitStopped?: (childId: unknown) => Promise<void>
+    readonly waitForChildren?: (agent: Agent) => Promise<boolean>
+  }
+  /** Child run ids announced through `subagent/start` after the prompt settles. */
+  subagentIds?: readonly string[]
 }
 
 const frameStates = new WeakMap<Agent, { attemptId: ReturnType<typeof LlmAttemptId>; revision: number; index: number }>()
@@ -143,6 +150,7 @@ async function bench(script: Script, options: BenchOptions = {}): Promise<{
   ): Promise<Agent> => {
     const inbox = createInboxStub()
     let idle = Promise.resolve()
+    let idleCalls = 0
     const agent: Agent = {
       id: session.id,
       options: createOptions.agentOptions ?? {},
@@ -160,6 +168,13 @@ async function bench(script: Script, options: BenchOptions = {}): Promise<{
       steer: () => {},
       inject: () => {},
       whenIdle: () => {
+        idleCalls += 1
+        // The runner only subscribes after its first idle wait, so the prompt's
+        // child runs are announced on the next settled wait.
+        if (idleCalls > 1) {
+          const emit = (ctx as unknown as { emit(type: string, payload: { id: string }): void }).emit.bind(ctx)
+          for (const childId of options.subagentIds ?? []) emit('subagent/start', { id: childId })
+        }
         options.onWhenIdle?.(agent)
         return idle
       },
@@ -196,6 +211,7 @@ async function bench(script: Script, options: BenchOptions = {}): Promise<{
   if (options.omitPersistence !== true) {
     ctx.provide('sessionPersistence', {} as never)
   }
+  if (options.subagents !== undefined) ctx.provide('subagents', options.subagents as never)
   return {
     ctx,
     output: () => ({ out, err, order: [...order] }),
@@ -1048,5 +1064,62 @@ describe('headless runner', () => {
     expect(new Config({})).toEqual({})
     expect(new Config({ task: 'x', sessionId: 'session-x', json: true }))
       .toEqual({ task: 'x', sessionId: 'session-x', json: true })
+  })
+})
+
+
+describe('headless runner subagent join', () => {
+  /** One completed turn so the run reaches the join before exiting. */
+  function answered(): Script {
+    return {
+      afterPrompt(session, message) { appendTurn(session, 1, message, 'answer', true) },
+    }
+  }
+
+  it('joins every announced child run before exiting', async () => {
+    const awaitStopped = vi.fn(async () => {})
+    const waitForChildren = vi.fn(async () => false)
+    const test = await bench(answered(), {
+      subagents: { awaitStopped, waitForChildren },
+      subagentIds: ['child-1', 'child-2'],
+    })
+    try {
+      expect(await test.run()).toMatchObject({ code: 0, out: 'answer\n' })
+    } finally {
+      await test.ctx.fiber.dispose()
+    }
+    expect(awaitStopped.mock.calls).toEqual([['child-1'], ['child-2']])
+    expect(waitForChildren).toHaveBeenCalled()
+  })
+
+  it('stops the child fallback at its settle deadline and warns', async () => {
+    let now = 1_000
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => now)
+    const waitForChildren = vi.fn(async () => {
+      now += 11_000
+      return true
+    })
+    const warn = vi.fn()
+    const test = await bench(answered(), { subagents: { waitForChildren }, subagentIds: [] })
+    const logged = vi.spyOn(test.ctx.logger, 'warn').mockImplementation(warn)
+    try {
+      expect(await test.run()).toMatchObject({ code: 0 })
+    } finally {
+      logged.mockRestore()
+      clock.mockRestore()
+      await test.ctx.fiber.dispose()
+    }
+    expect(warn).toHaveBeenCalledWith('headless runner: child subagents did not settle within 10s')
+  })
+
+  it('falls back to the child wait when the service cannot await stopped runs', async () => {
+    const waitForChildren = vi.fn(async () => false)
+    const test = await bench(answered(), { subagents: { waitForChildren }, subagentIds: ['child-1'] })
+    try {
+      expect(await test.run()).toMatchObject({ code: 0 })
+    } finally {
+      await test.ctx.fiber.dispose()
+    }
+    expect(waitForChildren).toHaveBeenCalled()
   })
 })

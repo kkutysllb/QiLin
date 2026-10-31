@@ -15,7 +15,7 @@ import { brandString } from '@qilin-agent/brand'
 import { ReasoningEffortId, contentHasImage, createUserMessage, errorChain } from '@qilin-agent/llm'
 import type { ContentBlock, MessageId, MessageSource } from '@qilin-agent/llm'
 import { SessionLogOffset } from '@qilin-agent/session'
-import type { SessionId, SessionEvent, UserMessage } from '@qilin-agent/session'
+import type { Session, SessionId, SessionEvent, UserMessage } from '@qilin-agent/session'
 import type { SessionPersistence } from '@qilin-agent/session-persistence'
 import type { SessionObservation, SessionQueryEngine } from '@qilin-agent/session-query'
 import type { ToolRestriction, ObjectJsonSchema } from '@qilin-agent/tools'
@@ -28,7 +28,7 @@ import { createAgentMessage, withContinuableReturnGuidance, createSettlementMess
 import { assertSubagentMaxDepth } from './depth.ts'
 import { foldSubagentDescriptor, snapshotSubagentDescriptor } from './descriptor.ts'
 import type { SubagentDescriptorData } from './descriptor.ts'
-import { establishCatalogChild, establishExternalCatalogChild } from './catalog.ts'
+import { acceptCatalogChild, establishCatalogChild, establishExternalCatalogChild } from './catalog.ts'
 import { SubagentError } from './error.ts'
 import { isAdjacentAgentSendMessageTool } from './internal.ts'
 import type { ActivationObserver } from './lifecycle.ts'
@@ -42,6 +42,16 @@ import type { StructuredAttachment } from './structured.ts'
 import type { SubagentDelivery } from './control-types.ts'
 import { ActivationPool, ChildLock, activationAgent, captureLocalResult, observeLocalFailure, requireLocalActivation } from './activation.ts'
 import type { Activation, ActivationResource, LocalActivation } from './activation.ts'
+
+/** One parent's settlement-notice FIFO: ordinals issue at acceptance and release in order. */
+interface NoticeQueue {
+  /** Next ordinal acceptance claims. */
+  issued: number
+  /** Next ordinal whose notice may leave the queue. */
+  next: number
+  /** Notices waiting for an earlier accepted child. */
+  readonly pending: Map<number, () => void>
+}
 
 /** Inputs shared by model steering and human prompt delivery. */
 type ChildDeliveryOptions =
@@ -143,6 +153,14 @@ export class SubagentManager {
   private readonly materializations = new Set<Materialization>()
   /** Per-child serializer shared by delivery, release, and disposal. */
   private readonly locks = new ChildLock()
+  /**
+   * Per-parent settlement-notice queues: notices reach the parent in acceptance order even when
+   * concurrent children settle out of order. A reserved child claims its ordinal at acceptance;
+   * disposal releases an ordinal that never produces a notice.
+   */
+  private readonly noticeQueues = new WeakMap<Session, NoticeQueue>()
+  /** Acceptance ordinals of reserved local children that may still publish a settlement notice. */
+  private readonly noticeOrdinals = new Map<SessionId, { readonly parent: Session; readonly ordinal: number }>()
   /** Structural Cordis owner of every Activation handle. */
   private readonly ownerCtx: Context
   /**
@@ -421,6 +439,12 @@ export class SubagentManager {
     // Capture before the first await: a later parent switch belongs to the
     // parent's future, not to this child.
     const delegatedPolicies = captureDelegatedPolicyOverrides(parent)
+    // A reserved identity records its catalog fact before any await: concurrent
+    // delegations publish catalog rows in acceptance order instead of materialization order.
+    if (spec.childId !== undefined) {
+      acceptCatalogChild(parent.session, childId, Date.now(), { mode: descriptor.mode, label: descriptor.label })
+      this.reserveNotice(parent.session, childId)
+    }
 
     // An idle continuation-managed parent must not settle while a caller is
     // still creating its child. A turn-scoped delegation does not need this,
@@ -482,9 +506,9 @@ export class SubagentManager {
             : request.prompt,
           { source: { kind: 'user' }, signal: spec.signal, delivery: 'queue' },
           parent,
-          () => {
-            establishCatalogChild(parent.session, childHeader, descriptor)
-          },
+          spec.childId === undefined
+            ? () => { establishCatalogChild(parent.session, childHeader, descriptor) }
+            : undefined,
         )
       })
       return { ...this.receipt(established), childId, messageId }
@@ -787,6 +811,8 @@ export class SubagentManager {
    * @returns the shared close transaction.
    */
   private dispose(activation: Activation): Promise<void> {
+    // A disposed child that never settles must not hold later accepted children's notices.
+    this.releaseNotice(activation.childId)
     return this.close(activation, () => this.finishDisposal(activation, true))
   }
 
@@ -1202,9 +1228,71 @@ export class SubagentManager {
     if (failure !== undefined) throw failure
   }
 
+  /** Claim this parent's next settlement-notice ordinal for one accepted child. */
+  private reserveNotice(parent: Session, childId: SessionId): void {
+    const queue = this.noticeQueue(parent)
+    this.noticeOrdinals.set(childId, { parent, ordinal: queue.issued })
+    queue.issued += 1
+  }
+
+  /** Return this parent's notice queue, creating it on first reservation. */
+  private noticeQueue(parent: Session): NoticeQueue {
+    const existing = this.noticeQueues.get(parent)
+    if (existing !== undefined) return existing
+    const created: NoticeQueue = { issued: 0, next: 0, pending: new Map() }
+    this.noticeQueues.set(parent, created)
+    return created
+  }
+
+  /**
+   * Queue one settlement notice behind every earlier accepted child of its parent.
+   * @returns whether the notice joined a queue; false means it has no acceptance ordinal.
+   */
+  private enqueueNotice(childId: SessionId, deliver: () => void): boolean {
+    const entry = this.noticeOrdinals.get(childId)
+    if (entry === undefined) return false
+    this.noticeOrdinals.delete(childId)
+    const queue = this.noticeQueue(entry.parent)
+    queue.pending.set(entry.ordinal, deliver)
+    this.flushNotices(entry.parent, queue)
+    return true
+  }
+
+  /** Release an ordinal whose child can never publish a settlement notice. */
+  private releaseNotice(childId: SessionId): void {
+    const entry = this.noticeOrdinals.get(childId)
+    if (entry === undefined) return
+    this.noticeOrdinals.delete(childId)
+    const queue = this.noticeQueue(entry.parent)
+    queue.pending.set(entry.ordinal, () => {})
+    this.flushNotices(entry.parent, queue)
+  }
+
+  /** Deliver every notice whose predecessors resolved, then retire an idle queue. */
+  private flushNotices(parent: Session, queue: NoticeQueue): void {
+    for (;;) {
+      const deliver = queue.pending.get(queue.next)
+      if (deliver === undefined) break
+      queue.pending.delete(queue.next)
+      queue.next += 1
+      deliver()
+    }
+    // Equality means no acceptance ordinal is outstanding; the next acceptance starts a new epoch.
+    if (queue.issued === queue.next) this.noticeQueues.delete(parent)
+  }
+
   /** Deliver the captured execution result to the durable direct parent after cleanup. */
   private notifySettlement(activation: Activation, terminal: SubagentResult): void {
-    if (!activation.announced || activation.delivery === 'caller') return
+    if (!activation.announced || activation.delivery === 'caller') {
+      this.releaseNotice(activation.childId)
+      return
+    }
+    if (this.enqueueNotice(activation.childId, () => { this.deliverSettlement(activation, terminal) })) return
+    this.deliverSettlement(activation, terminal)
+  }
+
+  /** Deliver one settlement notice whose acceptance order has arrived. */
+  private deliverSettlement(activation: Activation, terminal: SubagentResult): void {
     try {
       const parent = this.ctx.agents.get(activation.parent.id)
       if (parent !== activation.parent) return
@@ -1399,7 +1487,7 @@ export class SubagentManager {
     return await this.submitMaterialized(activation, content, options, parent)
   }
 
-  /** Admit a materialized child, commit its creation fact, and release it on failure. */
+  /** Admit a materialized child, commit its catalog fact, and release it on failure. */
   private async submitMaterialized(
     activation: Activation,
     content: ContentBlock[],

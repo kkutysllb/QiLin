@@ -63,15 +63,18 @@ const panelRows = (...sections: Array<string | undefined>): readonly SidebarPane
 
 function mountShell({
   collapsed = false, width = 300,
-  panels = [], shortcuts = [],
+  panels = [], shortcuts = [], entryActions = false,
 }: {
   collapsed?: boolean
   width?: number
   panels?: readonly SidebarPanelMetadata[]
   shortcuts?: readonly ShortcutCatalogEntry[]
+  entryActions?: boolean
 } = {}) {
   const startSession = vi.fn()
   const toggleSidebar = vi.fn()
+  const trackEntryClick = vi.fn()
+  const selectPanel = vi.fn()
   let regionOwner: SidebarSectionOwnerProps | undefined
   let settingsOwner: SidebarSettingsOwnerProps | undefined
   let accountOwner: SidebarFooterActionOwnerProps | undefined
@@ -83,9 +86,9 @@ function mountShell({
     <SidebarRoot
       collapsed={current.collapsed} width={current.width}
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
-      usePanelInfo={usePanelInfo} selectPanel={() => {}} setPinned={() => {}} trackEntryClick={() => {}}
+      usePanelInfo={usePanelInfo} selectPanel={selectPanel} setPinned={() => {}} trackEntryClick={trackEntryClick}
       usePanels={selector => selector(panels)} useShortcuts={selector => selector(shortcuts)}
-      useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
+      useEntryPins={selector => selector([])} useEntryActions={selector => selector(entryActions)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useWorkspaces={neverHook}
       startSession={startSession} toggleSidebar={toggleSidebar} t={t}
       renderSlot={((
@@ -107,6 +110,15 @@ function mountShell({
           footerActionOwner = owner
           return <div data-testid="footer-action-seat" data-wide={owner.wide} />
         }
+        if (key === 'sidebar.panellist.actions') {
+          const actions = owner as unknown as {
+            entries?: readonly { id: string }[]
+            onOpen?: (id: string) => void
+          }
+          return <>{actions.entries?.map(entry => (
+            <button key={entry.id} type="button" onClick={() => { actions.onOpen?.(entry.id) }}>{entry.id}</button>
+          ))}</>
+        }
         regionOwner = owner as SidebarSectionOwnerProps
         return <div data-testid="region" data-wide={owner.wide} />
       }) as SidebarRootComponentProps['renderSlot']}
@@ -116,6 +128,8 @@ function mountShell({
   return {
     startSession,
     toggleSidebar,
+    trackEntryClick,
+    selectPanel,
     regionOwner: () => {
       if (regionOwner === undefined) throw new Error('region owner not rendered')
       return regionOwner
@@ -140,6 +154,54 @@ function mountShell({
 }
 
 describe('SidebarRoot shell', () => {
+  it('routes the More menu to official panel analytics and selection', () => {
+    const b = mountShell({
+      entryActions: true,
+      panels: [
+        { id: 'schedules' as SidebarPanelMetadata['id'], order: 1, label: 'Schedules', section: 'extension' },
+        { id: 'plain' as SidebarPanelMetadata['id'], order: 2, label: 'Plain', section: 'extension' },
+      ],
+    })
+    fireEvent.click(screen.getByRole('button', { name: t('panels.more') }))
+    fireEvent.click(screen.getByRole('button', { name: 'schedules' }))
+    expect(b.trackEntryClick).toHaveBeenCalledWith({ menu_name: 'cron', position: 'sidebar_more' })
+    expect(b.selectPanel).toHaveBeenCalledWith('schedules')
+    // A panel with no official category still opens without analytics.
+    fireEvent.click(screen.getByRole('button', { name: 'plain' }))
+    expect(b.trackEntryClick).not.toHaveBeenCalledWith({ menu_name: 'plain', position: 'sidebar_more' })
+    expect(b.selectPanel).toHaveBeenCalledWith('plain')
+  })
+
+  it('keeps the More launcher on the collapsed rail', () => {
+    const b = mountShell({
+      collapsed: true,
+      entryActions: true,
+      panels: [{ id: 'schedules' as SidebarPanelMetadata['id'], order: 1, label: 'Schedules', section: 'extension' }],
+    })
+    const more = screen.getByRole('button', { name: t('panels.more') })
+    fireEvent.click(more)
+    expect(more.getAttribute('aria-expanded')).toBe('true')
+    fireEvent.click(screen.getByRole('button', { name: 'schedules' }))
+    expect(b.selectPanel).toHaveBeenCalledWith('schedules')
+  })
+
+  it('reports a collapsed new session from the Windows titlebar', () => {
+    document.documentElement.setAttribute('data-windows-titlebar', '')
+    try {
+      const b = mountShell({ collapsed: true })
+      for (const button of screen.getAllByRole('button', { name: 'New session' })) fireEvent.click(button)
+      expect(b.trackEntryClick).toHaveBeenCalledWith({ menu_name: 'new_session', position: 'titlebar' })
+      b.trackEntryClick.mockClear()
+      fireEvent.click(screen.getAllByRole('button', { name: 'New session' })[0]!)
+    } finally {
+      document.documentElement.removeAttribute('data-windows-titlebar')
+    }
+    const expanded = mountShell({ collapsed: false })
+    for (const button of screen.getAllByRole('button', { name: 'New session' })) fireEvent.click(button)
+    // The expanded sidebar hosts the controls, so the report names the sidebar surface.
+    expect(expanded.trackEntryClick).toHaveBeenCalledWith({ menu_name: 'new_session', position: 'sidebar' })
+  })
+
   it('routes New Session (capsule + wordmark) and the column toggle', () => {
     const b = mountShell()
     expect(screen.getByTestId('custom-brand-mark')).toBeTruthy()

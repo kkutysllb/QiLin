@@ -90,6 +90,8 @@ describe('subagent working directories', () => {
     const { ctx, parent, second, adapter } = await fixture()
     const beforeSessions = ctx.sessions.list().length
     const childId = SessionId('missing-directory-service')
+    // A reserved identity publishes its acceptance fact before creation, so the failed
+    // start keeps exactly that fact and no child Session.
     const create = ctx.agents.create.bind(ctx.agents)
     const creation = vi.spyOn(ctx.agents, 'create').mockImplementation(options => create({
       ...options,
@@ -104,7 +106,8 @@ describe('subagent working directories', () => {
       })).rejects.toThrow(/subagents require the working-directory service/)
 
       expect(ctx.agents.list().map(agent => agent.id)).toEqual([parent.id])
-      expect(parent.session.snapshotEvents().filter(event => event.type === 'subagent/catalog')).toEqual([])
+      expect(parent.session.snapshotEvents().filter(event => event.type === 'subagent/catalog'))
+        .toMatchObject([{ type: 'subagent/catalog', data: { childId, mode: 'continuable' } }])
       expect(ctx.sessions.list()).toHaveLength(beforeSessions)
       expect(adapter.requests).toEqual([])
     } finally {
