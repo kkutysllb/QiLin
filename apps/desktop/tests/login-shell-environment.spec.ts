@@ -175,11 +175,14 @@ describe.skipIf(process.platform === 'win32')('readDesktopLoginShellEnvironment 
     const read = readDesktopLoginShellEnvironment(base, config, {
       platform: 'linux', shells: [hanging, shell('unused', 'export FROM=unused')], signal: controller.signal,
     })
+    // A loaded host (the coverage gate runs 16 workers beside real shell spawns)
+    // can need more than vi.waitFor's 1s default to see the stand-in shell's pid
+    // file; the abort window is what this case asserts, not the spawn latency.
     const child = await vi.waitFor(() => {
       const pid = Number(readFileSync(pidFile, 'utf8'))
       expect(pid).toBeGreaterThan(0)
       return pid
-    })
+    }, { timeout: 10_000 })
     controller.abort()
     await expect(read).resolves.toEqual({ environment: base, failures: [{ shell: hanging, reason: 'aborted' }] })
     await vi.waitFor(() => { expect(exited(child)).toBe(true) })

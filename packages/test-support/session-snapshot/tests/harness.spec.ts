@@ -93,7 +93,10 @@ function isolateDiagnosticTimeout(onTestFinished: TestContext['onTestFinished'])
 
 const boot: InputStep[] = [{ op: 'initialize' }, { op: 'newSession' }]
 // A Windows coverage shard can spend more than 20ms harvesting logs before vi.waitFor records the diagnostic error.
-const titleDiagnosticTimeoutMs = process.platform === 'win32' ? 5_000 : 20
+// The diagnosis is "a title that precedes the boundary is never waited for", so the
+// window only needs to outlast one harvest poll under load; 20ms raced the poll timer
+// on a loaded host and surfaced vi.waitFor's own timeout instead of this message.
+const titleDiagnosticTimeoutMs = process.platform === 'win32' ? 5_000 : 1_000
 
 it('keeps scenario-owned snapshot spill root length stable across platforms', () => {
   const fixtureFile = '/fixtures/scenario/session.jsonl'
