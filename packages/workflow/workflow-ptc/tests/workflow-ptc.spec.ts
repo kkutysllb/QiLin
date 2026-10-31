@@ -506,6 +506,7 @@ describe('dsh-workflow-ptc', { timeout: 120_000 }, () => {
       } as unknown as SubagentResult
       const start = vi.spyOn(ctx.subagents, 'startActivation').mockResolvedValue({
         childId: SessionId('raw-invalid-child'),
+        stopped: Promise.resolve(),
         result: Promise.resolve(invalid),
         dispose: () => Promise.resolve(),
       })
