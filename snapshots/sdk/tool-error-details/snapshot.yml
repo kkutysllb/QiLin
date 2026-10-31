@@ -4,6 +4,7 @@ profile: sdk
 composition: both
 recording: authored
 header:
-  class: both
+  class: both-sdk
+  pin: true
 environment:
   QILIN_TOOLS_MODE: both

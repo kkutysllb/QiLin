@@ -868,9 +868,10 @@ describe('TypeScript SDK snapshots over the jsonrpc runtime', () => {
         const events = results.flatMap(result => result.events)
         const errors = events.filter(event => event.type === 'tool/result' || event.type === 'tool/ptc-dispatch')
           .map(event => event.data['error']).filter(error => error !== undefined)
-        expect(errors).toEqual(Array.from({ length: 2 }, () => ({
+        // PTC-only surface: the outer run_code call delivers the one structured denial.
+        expect(errors).toEqual([{
           name: 'AutoReviewDeniedError', code: 'AUTO_REVIEW_DENIED', reason: '  transport raw\r\nreason  ',
-        })))
+        }])
         const ptc = events.filter(event => event.type.startsWith('tool/ptc-dispatch'))
         expect(ptc.map(event => event.type)).toEqual(['tool/ptc-dispatch-start', 'tool/ptc-dispatch'])
         for (const event of ptc) {
