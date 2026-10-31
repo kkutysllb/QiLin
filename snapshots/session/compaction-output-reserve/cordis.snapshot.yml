@@ -16,7 +16,7 @@
     thresholdRatio: 0.8
     headroomTokens: 1800
     retainTokens: 20
-    maxTokens: 32
+    maxTokens: 1024
 
 - insert:
     - id: llm-replay
@@ -27,5 +27,5 @@
             name: DeepSeek
             models:
               - id: deepseek-v4-flash
-                contextWindow: 10300
+                contextWindow: 16000
                 defaultMaxTokens: 1000

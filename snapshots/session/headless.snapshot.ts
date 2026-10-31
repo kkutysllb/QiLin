@@ -56,6 +56,8 @@ import { parseSessionLog, prepareSessionSnapshotFixtureForComparison } from '@qi
 
 const repoRoot = fileURLToPath(new URL('../../', import.meta.url))
 const snapshotsRoot = fileURLToPath(new URL('./', import.meta.url))
+/** A live provider answers slower than a replay child; recording gets its own process budget. */
+const RECORD_PROCESS_TIMEOUT_MS = Number(process.env.QILIN_SNAPSHOT_RECORD_TIMEOUT_MS ?? 90_000)
 const qilinBin = join(repoRoot, 'apps/cli/src/bin.ts')
 const tsconfigPath = join(repoRoot, 'tsconfig.json')
 const editingCordisSkill = join(
@@ -213,6 +215,37 @@ async function primaryFixtureFile(dir: string): Promise<string> {
   return primary
 }
 
+/**
+ * Conform a live record's request-header routes to the pin's configured route: the adapter resolves
+ * provider defaults (maxTokens, reasoningEffort) per request, while the corpus contract records only
+ * the route its pin holds, and replay compares every borrower against that pin.
+ */
+function conformRecordedRoute(content: string, route: RecordedRoute): string {
+  const lines = content.split('\n').map((line) => {
+    if (line.trim() === '') return line
+    const record = JSON.parse(line) as { type?: string; data?: { header?: Record<string, unknown> } }
+    if (record.type !== 'request/header' || record.data?.header === undefined) return line
+    const header = { ...record.data.header, config: route.config }
+    if (route.adapterDefaults === undefined) delete header.adapterDefaults
+    return JSON.stringify({ ...record, data: { ...record.data, header: { ...header, adapterDefaults: route.adapterDefaults } } })
+  })
+  return lines.join('\n')
+}
+
+/** Read the configured model route a pin's committed primary fixture records. */
+interface RecordedRoute { config?: unknown; adapterDefaults?: unknown }
+
+/** Read the configured model route a pin's committed primary fixture records. */
+async function pinRouteConfig(pin: HeadlessScenario): Promise<RecordedRoute> {
+  const primary = await primaryFixtureFile(pin.dir)
+  const records = (await readFile(join(pin.dir, primary), 'utf8')).split('\n')
+    .filter(line => line.trim() !== '')
+    .map(line => JSON.parse(line) as { type?: string; data?: { header?: RecordedRoute } })
+  const header = records.find(record => record.type === 'request/header')?.data?.header
+  if (header?.config === undefined) throw new Error(`${pin.name}: header pin has no request config`)
+  return header
+}
+
 async function writeSessionFixtures(
   scenario: HeadlessScenario,
   actualLogs: readonly SessionLog[],
@@ -226,11 +259,14 @@ async function writeSessionFixtures(
   const replacements = mode === 'refresh'
     ? refreshFixtureReplacements(actualLogs.map(harvested), prior)
     : []
+  const pin = pinOf(scenario)
+  const recordedRoute = mode === 'record' ? await pinRouteConfig(pin) : undefined
   const fresh = actualLogs.map((log, index) => {
     const stable = tokenizeSessionFixtureCwd(mode === 'refresh'
       ? stabilizeRefreshLog(log.content, prior[index] as string, replacements, ctx)
       : log.content)
-    return scrubSessionSnapshot(prepareSessionSnapshotFixtureForComparison(stable))
+    const scrubbed = scrubSessionSnapshot(prepareSessionSnapshotFixtureForComparison(stable))
+    return recordedRoute === undefined ? scrubbed : conformRecordedRoute(scrubbed, recordedRoute)
   })
   const output = redactSessionSnapshotIds(stabilizeFixtureMessageIds(fresh, prior))
   await Promise.all(output.map((content, index) => writeFile(join(scenario.dir, names[index] as string), content)))
@@ -342,6 +378,11 @@ function turnReasonFromSession(log: string): JsonObject | undefined {
       : []
   })
   return endings.at(-1)
+}
+
+/** The live model catalog's info diagnostic rides the process stderr, not the Session log. */
+function withoutModelListingDiagnostics(stderr: string): string {
+  return stderr.replace(/^\[llm-deepseek-api-key\] model listing from \S+ loaded \d+ model\(s\), skipped \d+ row\(s\)\n$/gm, '')
 }
 
 function stderrFromSession(log: string): string {
@@ -1066,6 +1107,7 @@ describe('headless recorded-session snapshots', () => {
             task,
           ],
           tsconfigPath,
+          ...(mode === 'record' ? { processTimeoutMs: RECORD_PROCESS_TIMEOUT_MS } : {}),
           expectedExitCode: turnReasonFromSession(primaryFixture)?.kind === 'completed'
             || turnReasonFromSession(primaryFixture) === undefined && scenario.manifest.input?.task !== undefined
             ? 0
@@ -1116,6 +1158,10 @@ describe('headless recorded-session snapshots', () => {
           },
           inspect: async (cwd) => {
             actualLogs = await persistedSessions(cwd)
+            if (mode === 'record') {
+              const route = await pinRouteConfig(pinOf(scenario))
+              actualLogs = actualLogs.map(log => ({ ...log, content: conformRecordedRoute(log.content, route) }))
+            }
             if (mcpDemo !== undefined) {
               const log = actualLogs[0]!.content
               expect(log).toContain('mcp__demo__ping')
@@ -1172,7 +1218,7 @@ describe('headless recorded-session snapshots', () => {
       if (mode !== 'replay') await writeHeaderSidecars(scenario, actualLogs, actualContext)
 
       expect(result.stdout).toBe(`${finalTextFromSession(fixtures[0] as string)}\n`)
-      expect(result.stderr).toBe(expectedStderr)
+      expect(withoutModelListingDiagnostics(result.stderr)).toBe(expectedStderr)
       expect(actualLogs, `${scenario.name}: persisted session count`).toHaveLength(fixtures.length)
       const writerFiles = (await readdir(scenario.dir)).filter(name => /^writer(?:\.[1-9]\d*)?\.expected\.jsonl$/u.test(name)).sort()
       if (mode === 'replay') {
@@ -1204,6 +1250,8 @@ describe('headless recorded-session snapshots', () => {
       } else {
         expect(finalWorkspace, `${scenario.name}: a changed workspace requires workspace.final`).toEqual(initialWorkspace)
       }
-    }, scenario.name === 'provider-cwd' ? 3 * LOADER_SMOKE_TEST_TIMEOUT_MS : LOADER_SMOKE_TEST_TIMEOUT_MS)
+    }, mode === 'record'
+      ? RECORD_PROCESS_TIMEOUT_MS + 15_000
+      : scenario.name === 'provider-cwd' ? 3 * LOADER_SMOKE_TEST_TIMEOUT_MS : LOADER_SMOKE_TEST_TIMEOUT_MS)
   }
 })

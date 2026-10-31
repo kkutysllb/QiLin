@@ -2,7 +2,7 @@ version: 1
 scenario: compaction-summary-headroom
 profile: headless
 composition: compaction-summary-headroom
-recording: authored
+recording: live
 header:
   class: compaction-summary-headroom
   pin: true

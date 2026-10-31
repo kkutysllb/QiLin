@@ -26,5 +26,5 @@
             name: DeepSeek
             models:
               - id: deepseek-v4-flash
-                contextWindow: 10300
+                contextWindow: 16000
                 defaultMaxTokens: 1000
