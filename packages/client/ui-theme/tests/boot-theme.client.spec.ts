@@ -89,12 +89,12 @@ describe('theme bootstrap row', () => {
     expect(document.body.hasAttribute(DARK_ATTRIBUTE)).toBe(false)
   })
 
-  it('writes the durable content font size and defaults it to 14px', () => {
+  it('writes the durable content font size and defaults it to 15px', () => {
     mockSystemDark(false)
     executeBootstrap('light', { text: 22, code: 11, terminal: 13 })
     expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('22px')
     executeBootstrap('light')
-    expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('14px')
+    expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('15px')
   })
 
   it('writes user font lists on the body, skipping empty roles (the document boots once; live clearing belongs to the presenter)', () => {

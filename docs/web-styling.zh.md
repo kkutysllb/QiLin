@@ -4,6 +4,10 @@
 
 本文规定浏览器客户端包的样式职责归属与组件规则。当前 token 值位于 [`packages/client/ui-theme/src/styles/`](../packages/client/ui-theme/src/styles/)；本文不重复这份由源码生成的清单。
 
+## 纸感基底
+
+平台色板承载一套暖色纸感中性阶（奶油色画布、墨色文字、暖色发丝边），内容标题使用系统衬线字体族，因此每套配色皮肤都落在同一张阅读纸面上，而不是另起画布。皮肤只覆盖品牌强调色、表面与状态色；纸感色阶、收窄的圆角标尺与衬线标题字族归主题所有者。
+
 ## 职责归属
 
 [`ui-theme`](../packages/client/ui-theme/README.zh.md) 负责 `--qilin-*` 静态色阶、语义别名、排版、动效、渐变、阴影、滚动条样式、明暗主题偏好，以及叠加其上的可选配色包。[`ui-layout`](../packages/client/ui-layout/README.zh.md) 将解析后的主题快照应用到文档。功能包使用语义别名，不得另行定义全局主题。

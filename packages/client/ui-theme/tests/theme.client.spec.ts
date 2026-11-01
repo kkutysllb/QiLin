@@ -37,7 +37,7 @@ describe('ThemeRuntime', () => {
     const { theme } = make()
     const snapshot = theme.getTheme()
     expect(snapshot.preference).toBe('system')
-    expect(snapshot.fontSizes).toEqual({ text: 14, code: 11, terminal: 13 })
+    expect(snapshot.fontSizes).toEqual({ text: 15, code: 11, terminal: 13 })
     // jsdom matchMedia is absent; system resolves to light.
     expect(snapshot.active.id).toBe('light')
     expect(snapshot.active.colorScheme).toBe('light')
@@ -51,7 +51,7 @@ describe('ThemeRuntime', () => {
     try {
       expect(make().theme.getTheme().fontSizes).toEqual({ text: 16, code: 11, terminal: 13 })
       document.body.style.setProperty('--qilin-content-font-size', '99px')
-      expect(make().theme.getTheme().fontSizes.text).toBe(14)
+      expect(make().theme.getTheme().fontSizes.text).toBe(15)
     } finally {
       document.body.style.removeProperty('--qilin-content-font-size')
     }

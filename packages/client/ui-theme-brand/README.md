@@ -30,6 +30,7 @@ The `qilin` profile mounts this package through its bundle patch, so no configur
 | Id | Label | Light canvas | Dark canvas | Accent (light / dark) |
 |---|---|---|---|---|
 | `qilin` | 玄金 / Xuanjin | `#f8f5ee` | `#0d0b09` | `#8f6f2e` / `#c9a24a` |
+| `blush` | 浅樱 / Blush | `#fbf6f4` | `#141010` | `#b25b74` / `#f2bccb` |
 | `mono` | 黑白 / Mono | `#f4f4f4` | `#000000` | `#1a1a1a` / `#f2f2f2` |
 | `verdant` | 墨绿 / Verdant | `#f1f6f2` | `#0a120e` | `#2f6b4b` / `#8fd0a8` |
 

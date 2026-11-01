@@ -82,7 +82,7 @@ describe('qilin brand theme plugin', () => {
         expect(pack.tokens[token], `${pack.id} ${token}`).toBeDefined()
       }
     }
-    expect(SKIN_PACKS.map(pack => pack.id)).toEqual(['qilin', 'mono', 'verdant'])
+    expect(SKIN_PACKS.map(pack => pack.id)).toEqual(['qilin', 'blush', 'mono', 'verdant'])
     expect(QILIN_TOKENS[SIDEBAR]).toEqual({ light: '#f1ece0', dark: '#0d0b09' })
     // Landing VI pins: the dark accent is the landing gold-500 and the dark
     // canvas its background; the light link gold is the AA-derived step.

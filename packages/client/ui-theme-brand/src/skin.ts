@@ -9,6 +9,7 @@
  */
 
 import type { ThemeTokenOverrides } from '@qilin-agent/client-ui-theme/client'
+import { BLUSH_PACK } from './packs/blush.ts'
 import { QILIN_PACK, QILIN_TOKENS } from './packs/qilin.ts'
 import { MONO_PACK } from './packs/mono.ts'
 import { VERDANT_PACK } from './packs/verdant.ts'
@@ -26,7 +27,7 @@ export interface SkinPack {
 }
 
 /** Every shipped pack, in appearance-row order. */
-export const SKIN_PACKS: readonly SkinPack[] = Object.freeze([QILIN_PACK, MONO_PACK, VERDANT_PACK])
+export const SKIN_PACKS: readonly SkinPack[] = Object.freeze([QILIN_PACK, BLUSH_PACK, MONO_PACK, VERDANT_PACK])
 
 /** The dark-gold pack's id, persisted as the product default. */
 export const QILIN_SKIN_ID = QILIN_PACK.id

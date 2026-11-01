@@ -72,8 +72,12 @@
   color: var(--qilin-alias-label-primary);
   /* Sized to the composer column: the longest shipped tagline holds two
      balanced lines rather than orphaning its last word. */
+  /* Paper typography: the product's one display line rides the serif heading
+     face, whose lighter weight keeps CJK strokes from thickening. */
+  font-family: var(--qilin-font-family-heading);
   font-size: clamp(24px, 3.4vw, 40px);
-  font-weight: 600;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   line-height: 1.2;
   letter-spacing: -0.02em;
   text-align: center;

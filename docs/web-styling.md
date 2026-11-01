@@ -4,6 +4,10 @@ English | [中文](web-styling.zh.md)
 
 This reference defines styling ownership and component rules for browser client packages. The current token values live in [`packages/client/ui-theme/src/styles/`](../packages/client/ui-theme/src/styles/); this document does not duplicate that generated-by-source inventory.
 
+## Paper base
+
+The platform palettes carry a warm paper neutral ramp (cream canvas, ink text, warm hairline borders) and content headings ride a system serif, so every color skin sits on the same reading surface instead of restyling the canvas. Skins override brand accent, surfaces, and state tints only; the paper ramp, the collapsed radius scale, and the serif heading face belong to the theme owner.
+
 ## Ownership
 
 [`ui-theme`](../packages/client/ui-theme/README.md) owns the `--qilin-*` static scale, semantic aliases, typography, motion, gradients, shadows, scrollbar styles, the light/dark preference, and the selectable color skins layered over it. [`ui-layout`](../packages/client/ui-layout/README.md) applies the resolved theme snapshot to the document. Feature packages consume semantic aliases and do not define another global theme.
