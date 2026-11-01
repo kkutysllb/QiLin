@@ -391,6 +391,7 @@
     "971ec45a1146ab52f2fb13f75b782d5d35c0fb2ddba1fb9ccab14cc54f7291d5": 1
   },
   "packages/bundle/headless/tests/headless.spec.ts": {
+    "38a7cf3dfd5da2f739390f5b233b97731f3bfa1ac3a51fdb8e1594735764bb80": 1,
     "e1afcf3bd21c4348c25c31b75c3d96e12710fc3bb3165da6a77a48731cb7e737": 1
   },
   "packages/bundle/headless/tests/json-stream.spec.ts": {
@@ -515,7 +516,7 @@
   "packages/client/ui-agent-preset/tests/apply.client.spec.ts": {
     "b2fb53c6878d75d54e2d39be30f77cd5e08810261e513fe15f3d687e2313fbd7": 2,
     "c2369bc12a9476816900a58b06dd52c2f53bc92658559a076cdd70ae3d15f30b": 8,
-    "c595e4648d474f3a9538ab1e2140c25255bb4675c6e7bae8043adf9158915b69": 13,
+    "c595e4648d474f3a9538ab1e2140c25255bb4675c6e7bae8043adf9158915b69": 14,
     "ddca8a18cd7755688ea48674c48c3c8a6107186815ea91f516424bbed0e1c518": 1
   },
   "packages/client/ui-agent-preset/tests/components.client.spec.tsx": {
@@ -546,6 +547,9 @@
   },
   "packages/client/ui-attachment/tests/composer-attachments.client.spec.tsx": {
     "ab22ebe23f59b5aa76d42502a0421f3953d1d170e8a4f900a0c442daf6f1397d": 1
+  },
+  "packages/client/ui-attachment/tests/drop-events.client.spec.tsx": {
+    "b341004029b7c5369cf5845230799361e373b7216e149546d4c018209ac0c0c6": 1
   },
   "packages/client/ui-chat/src/client/conversation-nodes/turn-process.ts": {
     "a7d8cc8d42e37ad5cc4882241492ac572ed8163c7fb8663180e893c7178e906f": 1
@@ -757,7 +761,8 @@
     "d0d7b677da65df97240f713995e20d0642ef32cf056864b11f2f4879a0d9e878": 1
   },
   "packages/client/ui-settings-general/tests/shell-entry.client.spec.tsx": {
-    "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 2
+    "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 3,
+    "2e536f4bb9adc27095accdbf573d990240306c0bf7331363f8ad59471ad7914f": 1
   },
   "packages/client/ui-settings-mcp/tests/section.client.spec.tsx": {
     "9cd156eee40c68500adf25181fab70a243b2b12311ff19393cb29ba4dd40a49b": 1,
@@ -783,17 +788,16 @@
   "packages/client/ui-settings-models/tests/store.client.spec.ts": {
     "6b8b0a920c558092d20bc17623b7050e0f7403f896fde7da17bb45677899b910": 1
   },
-  "packages/client/ui-settings-plugins/tests/apply.client.spec.ts": {
-    "3d455f54ba188122f29085e9d462bebbca24c517057052f346229efd175e6e3c": 1
+  "packages/client/ui-settings-plugins/tests/cards.client.spec.tsx": {
+    "2e83c3dce5b24fec2c2f11b164c772271b904225a9655b8aec8e39dae7f46a87": 1,
+    "7e060b59c343559e045dfd5666a2451b4b6f1167547fb49bc9e012acf3d0f6fd": 1,
+    "8afdd00ffff0be886031f2e1ed4e1b69780d8dade79ea7f8de8e18ce8fc5add2": 1,
+    "da8a7e2565c5c3c445fe744f058f524a5fa2a61668dc56cd712e1e4853b75698": 1,
+    "f3e7320c1f529397b893e29d9fa65fdab40e42cdf4ba3b42aa7774f61fafebc9": 1
   },
-  "packages/client/ui-settings-plugins/tests/section.client.spec.tsx": {
-    "0d8472724f1363e2891409f0a3a4add1cff1ca68b49e3c553457ad69deb9743c": 2,
-    "203a19d9e599f039376a58265a2e59a5350752ca21ed2502095b3bc73cd45c6a": 1,
-    "878e5d009eb310a1e5574351c795dfa691449b162d027f7639220075957a5b18": 1,
-    "9f2da941345134a519a3be6744a11f5e6a1fcaa70ab3ac6ca40f8ddec52e172f": 1,
-    "ab5c523f935fc83dfa5acb5919ea34b578739a4703cf30de5382aaba06250af7": 1,
-    "fc819a8f00497253d2231099c726434b4ed85f9677af7d287111e52c09f005a7": 1,
-    "fd37ca50cf574f86f8640694f4e2bc7466e97e9d54869402a08cceab69dee52c": 1
+  "packages/client/ui-settings-plugins/tests/web-search-card.client.spec.ts": {
+    "3e8540696c515d23fee14fadbaff0bd6378230ade4e69cdef0d1687f301bb51a": 1,
+    "6b8b0a920c558092d20bc17623b7050e0f7403f896fde7da17bb45677899b910": 1
   },
   "packages/client/ui-settings-skills/tests/apply.client.spec.ts": {
     "a838174ce19ca84a80f7ec559db75f3b506211ddce7391eefa54f5281a2719cf": 1
@@ -902,6 +906,9 @@
   },
   "packages/client/ui-sidebar/src/client/index.ts": {
     "4c73f40f3ce989f285848573d7154fb295886bba707ad829e2c8c089e326aeea": 1
+  },
+  "packages/client/ui-sidebar/tests/sidebar-root.client.spec.tsx": {
+    "fb9804cc2774409af6935d5a1369497b433c34cd9305cac88e3400eae0f70936": 1
   },
   "packages/client/ui-skill/src/client/SkillRow.tsx": {
     "5ab6f97ffb174897844794792cab042f7d1e7596742e8b5a77c61f3b861eb515": 1
@@ -1293,6 +1300,9 @@
   "packages/experimental/browser-use-stagehand-native/tests/worker.spec.ts": {
     "019c354b579e6d5cfa63e106e3b3047817fe5a37eee532abd7ab4aa80d28676a": 1,
     "4777453719b1a12ac03d7405a7cc1662ac1873b8eb0016a08ccd11f27076e803": 1
+  },
+  "packages/experimental/client-ui-stats/tests/stats-fold.client.spec.ts": {
+    "c15a8a3034e981f028467e2cd456960f5526be31ebc6c470de379c4db9b387b4": 1
   },
   "packages/experimental/computer-use-cua-driver-mcp/tests/composition.spec.ts": {
     "154da39139a0074bad3d13a624e5fa62d1f7ce19dc8b9c28a73af3263cd7f10e": 1
@@ -1819,7 +1829,6 @@
     "06af1b2f0b19426e1bc87d38e344c0e5675a4ab1d72b4487741f3b0b8c3eb619": 2
   },
   "packages/sdk/server/src/server.ts": {
-    "04bc8a44533574365dfedf563e2356458bcf95f990a00906938c977c1d683356": 1,
     "5c1e60550b8cda845c02f71cd04a53b55bd092185de3480c8ff86a16547fbedb": 2
   },
   "packages/sdk/server/tests/built-scope-carrier.e2e.ts": {
@@ -2145,6 +2154,9 @@
     "3e704e331ed2fc5d4c0855e2455b31b82924c525f2e267416e393cdbd36c251b": 1,
     "fdc5fcade0ba1abbc426ccccb07a1ad4998253799b8561815047d95178441cdf": 1
   },
+  "packages/subagent/subagent/src/index.ts": {
+    "7fe58280287ff63d40e979e72329f975e11015a95e9a8eec207a5a78748d3c89": 1
+  },
   "packages/subagent/subagent/src/internal.ts": {
     "89b33a57a7c77261a02116dd015c08d9e6a5b1efb5ba0ebf49bc68a21e7f120a": 2
   },
@@ -2173,6 +2185,9 @@
   },
   "packages/subagent/tool-subagent/src/index.ts": {
     "7fe58280287ff63d40e979e72329f975e11015a95e9a8eec207a5a78748d3c89": 4
+  },
+  "packages/subagent/tool-subagent/src/model-selection-settings.ts": {
+    "7fe58280287ff63d40e979e72329f975e11015a95e9a8eec207a5a78748d3c89": 1
   },
   "packages/subagent/tool-subagent/tests/tool-subagent.spec.ts": {
     "719322ba287998bcfb906150f393012229c1ec3e4b59bd106469319ba402a09a": 1
@@ -2316,6 +2331,7 @@
   },
   "packages/test-support/llm-replay/tests/llm-replay.spec.ts": {
     "319c99c30d9759513c335590587942a42fd0fae77d4f54fd640212df139215cc": 1,
+    "569ab0c02d433435f78cc6580f8324a3920bf412fc182702f3a6ae1027fbafaf": 1,
     "8178817a1e752ac5e742dc7e7552161566cf3fe28de9310253d914985060f1e2": 1,
     "957690a91ec3fbe9b64aecc6baed7c902b93956cd87dcbf2b77ea11dd8d75bfc": 1,
     "9b81e0ea560604a3d52094cf7a261c4a03095ef6a314314b8ff0b2354046d9da": 1,
