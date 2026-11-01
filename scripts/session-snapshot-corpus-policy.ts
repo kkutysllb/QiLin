@@ -22,15 +22,6 @@ export interface SnapshotCorpusGenerationSummary {
 }
 
 const RETAINED_BASELINE_VERSION = 3
-/**
- * Scenarios whose selected role still sits on the v4 payload generation, with the condition that
- * blocks its v5 fixture. Every entry is a TODO: once its named fix lands, refresh writes the v5
- * fixture and the entry disappears; the policy then accepts only the baseline and current
- * generations again.
- */
-const PENDING_V4_SCENARIOS: ReadonlyMap<string, string> = new Map([
-  ['session/windows-acl-skill', 'windows-only workspace setup; no legal v5 on macOS'],
-])
 const MAX_RETAINED_ROLES = 11
 const REQUIRED_V0_COVERAGE = new Set([
   'multi-hop',
@@ -61,31 +52,18 @@ export function assertSnapshotCorpusPolicy(
       throw new Error(`${scenario.key}: scenario owns no selected Session role`)
     }
     if (scenario.retained === undefined) {
-      const pending = PENDING_V4_SCENARIOS.get(scenario.key)
-      if (pending === undefined) {
-        const outside = scenario.selectedVersions.find(version => version !== RETAINED_BASELINE_VERSION
-          && version !== SESSION_FORMAT_VERSION)
-        if (outside !== undefined) {
-          throw new Error(
-            `${scenario.key}: selected Session generation v${outside} must be retained baseline v${RETAINED_BASELINE_VERSION} or current v${SESSION_FORMAT_VERSION}; v4 is only accepted for a listed pending scenario`,
-          )
-        }
-        const mixed = scenario.selectedVersions.find(version => version !== selectedVersion)
-        if (mixed !== undefined) {
-          throw new Error(
-            `${scenario.key}: selected Session generations v${selectedVersion} and v${mixed} differ; only a listed pending scenario may mix generations`,
-          )
-        }
-      } else {
-        // Mixed generations are legal only while the named fix is pending (session/ralph-loop keeps
-        // its v4 parent beside v3 children; session/subagent-depth-two-rejection keeps a v4 child).
-        const outside = scenario.selectedVersions.find(version => version !== RETAINED_BASELINE_VERSION
-          && version !== 4 && version !== SESSION_FORMAT_VERSION)
-        if (outside !== undefined) {
-          throw new Error(
-            `${scenario.key}: pending v4 scenario selected Session generation v${outside}; expected v3, v4, or v${SESSION_FORMAT_VERSION}`,
-          )
-        }
+      const outside = scenario.selectedVersions.find(version => version !== RETAINED_BASELINE_VERSION
+        && version !== SESSION_FORMAT_VERSION)
+      if (outside !== undefined) {
+        throw new Error(
+          `${scenario.key}: selected Session generation v${outside} must be retained baseline v${RETAINED_BASELINE_VERSION} or current v${SESSION_FORMAT_VERSION}`,
+        )
+      }
+      const mixed = scenario.selectedVersions.find(version => version !== selectedVersion)
+      if (mixed !== undefined) {
+        throw new Error(
+          `${scenario.key}: selected Session generations v${selectedVersion} and v${mixed} differ; only a retained generation may pin a different version`,
+        )
       }
       if (selectedVersion === SESSION_FORMAT_VERSION) {
         currentRoles += scenario.selectedVersions.length
