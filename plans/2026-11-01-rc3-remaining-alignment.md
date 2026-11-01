@@ -73,6 +73,12 @@
 - **因此夹具无法在本机忠实重录**：需要先让 record 模式也用固定目录（或让用例按位置/能力选择模型，而不是钉死名称），再在有固定目录的环境重录。
 - **夹具与断言耦合**：`file-upload-round` 的 Trajectory 附件失败（列表 hidden、`liveTrajectory` undefined）由回放未消费完导致，属同一根因的下游表现。
 
+**第二轮进展与更正**
+
+- 已落地 B：record 模式注册 `deepseek-fixture` 路由，公布回放目录（V4-Flash / V4-Flash-Vision-Exp）并把 `stream` 转发到部署真实 provider/model，会话默认模型也指向该路由（`337cb4af89`）。此前 30s 点击超时的 `file-upload-round` 主用例现在 2.7s 通过。
+- **更正**：夹具并不"陈旧"。`recordFixture` 写入的是按格式版本命名的 `session.v5.jsonl`，该文件被 `.gitignore` 忽略、每次录制重新生成；因此 `git status` 看不到变化并不代表没重录。上一版记录里"夹具无法在本机重录"的判断作废。
+- 重录后 replay 仍失败的用例（`file-upload-round` 的 Trajectory 附件、`turn-tail-actions` 的 `processBottom + 8` 实得 16、`rail-search-expand` 的首击超时）属 **UI 状态断言**，需要逐个在真实页面上调试，不能再靠重录解决。
+
 ### H. 发布与打包配套
 
 - macOS 签名：`codesign --timestamp` 需要把 `HTTP_PROXY/HTTPS_PROXY` 指向本地代理（`http://127.0.0.1:7890`），签名缓存先预热两轮；未签名包仅作对照。
