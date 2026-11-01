@@ -1,8 +1,10 @@
 /**
  * The floating layer: one overlay panel per floating pane, bottom-to-top in the
  * model's z order. A floating pane hosts exactly one tab; its header is the
- * strip's row holding that tab's chip, never selectable or closable from the
- * chip, and the send-back and close controls. Pressing a panel's body raises it. Its grip
+ * strip's row holding that tab's chip, the send-back and close controls, and,
+ * on the grip, the press that moves the panel. The chip never selects the tab,
+ * since a panel hosts one, but a middle click on it closes the panel, as a
+ * docked chip does. Pressing a panel's body raises it. Its grip
  * and corner report through their gesture instead: a press released in place is
  * a click and raises the panel; a drag records the move or resize, and that
  * operation raises the panel itself, so one gesture is one intent. Raising a
@@ -276,6 +278,9 @@ export function useFloatGestures(state: LayoutState, intents: DockIntents): {
     // The press stops here: the panel's own press-to-focus would record a focus
     // entry before the drag's, and the release below decides which one it is.
     event.stopPropagation()
+    // Only the primary button moves or resizes a panel: a middle press on the
+    // grip belongs to the header's close, and a secondary press to nothing here.
+    if (event.button !== 0) return
     // A press during its own return takes the panel from where it is drawn;
     // another panel's return ends at its target.
     const drawn = settling.current?.paneId === paneId ? preview?.rect : undefined
@@ -324,6 +329,7 @@ export function useFloatGestures(state: LayoutState, intents: DockIntents): {
 
 /**
  * A floating panel's header: its chip, the send-back control, and its close.
+ * A middle click on the chip closes the panel through `canCloseTab`.
  * Content-free so the body can be retained or visibility-mounted by its owner.
  * @param props.paneId - the floating pane this header moves.
  * @param props.tab - the pane's single tab.
@@ -351,7 +357,22 @@ export function FloatHeader({ paneId, tab, labels, intents, renderTabTitle, rend
       data-dockkit-float-grip={paneId}
       onPointerDown={(event) => { drag('move', paneId, event) }}
     >
-      <div className={clsx(css.tab, css.floatTitle)} data-dockkit-float-title>
+      <div
+        className={clsx(css.tab, css.floatTitle)}
+        data-dockkit-float-title
+        onMouseDown={(event) => {
+          // Prevent middle-button autoscroll or selection paste before release.
+          if (event.button === 1) event.preventDefault()
+        }}
+        onAuxClick={(event) => {
+          // The floating stand-in for a docked chip: a middle press closes the
+          // panel on its release instead of selecting it first.
+          if (event.button !== 1) return
+          event.preventDefault()
+          event.stopPropagation()
+          if ((canCloseTab?.(tab.id) ?? true) && event.buttons === 0) intents.closeTab(tab.id)
+        }}
+      >
         {renderTabIcon !== undefined && (
           <span className={css.chipIcon} data-dockkit-tab-icon={tab.id}>{renderTabIcon(tab)}</span>
         )}

@@ -33,7 +33,8 @@
     <div class="_content_9aea57" data-code-block-content="true">
       <pre class="_plain_9aea57">
         <code>
-          #text "no language"
+          <span class="line">
+            #text "no language"
   <div class="_block_9aea57 md-code-block">
     <div class="_bannerWrap_9aea57">
       <div class="_banner_9aea57" data-code-block-banner="true">
@@ -45,7 +46,8 @@
     <div class="_content_9aea57" data-code-block-content="true">
       <pre class="_plain_9aea57">
         <code>
-          #text "plain fallback"
+          <span class="line">
+            #text "plain fallback"
   <div class="_block_9aea57 md-code-block">
     <div class="_bannerWrap_9aea57">
       <div class="_banner_9aea57" data-code-block-banner="true">
@@ -78,4 +80,8 @@
     <div class="_content_9aea57" data-code-block-content="true">
       <pre class="_plain_9aea57">
         <code>
-          #text "indented code block\nsecond line"
+          <span class="line">
+            #text "indented code block"
+          #text "\n"
+          <span class="line">
+            #text "second line"

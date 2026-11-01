@@ -108,6 +108,7 @@ describe('workspace browser rows', () => {
     const cell = screen.getByText('Flat Session').previousElementSibling
     expect(cell?.className).toMatch(/slot/)
     expect(seats).toEqual(['sidebar.session.row.leading'])
+    expect(screen.getByRole('treeitem').getAttribute('data-row-key')).toBe('session:flat')
 
     // A row that gains a state dot keeps that dot in the same cell and renders
     // no leading occupant beside it.
@@ -166,6 +167,8 @@ describe('workspace browser rows', () => {
     render(<ProjectRowItem group={group} onToggle={onToggle} onCreate={onCreate} t={t} />)
 
     expect(screen.getByRole('treeitem').getAttribute('aria-expanded')).toBe('true')
+    // The shared animated list identifies every row through this attribute.
+    expect(screen.getByRole('treeitem').getAttribute('data-row-key')).toBe('workspace:project')
     fireEvent.click(screen.getByRole('button', { name: '在“Project”中新建会话' }))
     expect(onCreate).toHaveBeenCalledOnce()
     expect(onToggle).not.toHaveBeenCalled()

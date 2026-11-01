@@ -14,7 +14,7 @@ import {
   HoverCard, IconArchiveOutlineRegular, IconBranchOutlineRegular, IconCopyOutlineRegular,
   IconEditOutlineRegular, IconEllipsisOutlineRegular, IconFolderCloseRegular, IconFolderOpenRegular,
   IconPinFillRegular, IconPinOutlineRegular, IconPlusOutlineRegular, IconTrashOutlineRegular,
-  IconTriangleRightFillRegular, Menu, relativeTime,
+  IconTriangleRightFillRegular, Menu, prefersReducedMotion, relativeTime,
   StateDot, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type { StateDotState } from '@qilin-agent/client-ui-primitives'
@@ -38,11 +38,6 @@ const MIN_TITLE_REVEAL_PX = 8
 
 /* Marquee travel speed: slow enough to read the text as it passes. */
 const TITLE_MARQUEE_PX_PER_MS = 0.03
-
-/** Whether the platform asked for reduced motion; jsdom implements no matchMedia. */
-function prefersReducedMotion(): boolean {
-  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
-}
 
 /**
  * Place the title's scroll position and publish the stylesheet's fade-mask
@@ -230,6 +225,7 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
     <div
       className={clsx(css.projectRow, menuOpen && css.menuOpen)}
       role="treeitem"
+      data-row-key={`workspace:${row.key}`}
       aria-expanded={row.expanded}
       onClick={onToggle}
       draggable={drag !== undefined}
@@ -286,7 +282,7 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
           aria-label={t('actions.newSession.aria', { name: label })}
           onClick={(e) => { e.stopPropagation(); onCreate() }}
         >
-          <IconPlusOutlineRegular />
+          <IconPlusOutlineRegular size={14} />
         </button>
       </span>
     </div>
@@ -543,7 +539,6 @@ export function SessionNodeItem({
     // The id stays last: it acts on the row's identity, not on its content.
     { id: 'copyId', label: t('menu.sessionId'), icon: <IconCopyOutlineRegular /> },
   ]
-  // Figma session cell: pad 8, status slot 16, then a 4px title gap.
   const ownRow = (
     <div
       ref={rowRef}
@@ -552,6 +547,7 @@ export function SessionNodeItem({
         drag?.marker === 'before' && css.dropBefore, drag?.marker === 'after' && css.dropAfter,
       )}
       role="treeitem"
+      data-row-key={`session:${node.id}`}
       aria-selected={selected}
       onClick={() => { onOpen(node.id) }}
       onPointerEnter={marquee.enter}

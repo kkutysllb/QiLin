@@ -1,17 +1,16 @@
 - banner:
   - navigation "Session hierarchy":
     - button "workspace" [disabled]
+  - text: Standard mode
   - button "Open right sidebar"
 - group "Command input": /goal Keep the composer context panels aligned
 - 'button "goal Goal created Status: active Objective: Keep the composer context panels aligned Rounds: 0/256 Activation: armed Commands: /goal edit <objective>, /goal pause, /goal clear"'
-- button "System prompt"
 - button "Continuing goal {{clock}}":
   - text: Continuing goal
   - time: {{clock}}
-- button "Context injection runtime-context"
 - paragraph: partial
 - status: QiLin...
-- text: QiLin...
+- text: Working for {{duration}}...
 - region "To-dos":
   - button "To-dos 1 completed · 1 in progress"
 - text: Ongoing Goal Keep the composer context panels aligned

@@ -6,23 +6,18 @@
   - button "Jump to turn 1"
   - button "Jump to turn 2"
   - button "Jump to turn 3"
-- button "System prompt"
 - text: "Use the read tool twice in one assistant message: read a.txt and b.txt. Then reply with the single word DONE and stop. {{clock}}"
 - button "Copy"
 - tooltip "Copy"
 - button "Edit this message and resend"
 - status: Stopped
 - button "Stopped" [disabled] [expanded]
-- button "Analysis completed"
-- paragraph: I will read both files before answering.
+- button "Read files"
 - button "Copy"
 - button "Good response"
 - button "Bad response"
 - button "Branch into a new conversation" [disabled]
-- text: Available only on the last message of a completed turn {{clock}}
-- button "Read files"
-- button "System prompt"
-- text: Now give the final answer. {{clock}}
+- text: Available only on the last message of a completed turn {{clock}} Now give the final answer. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
 - status: Completed

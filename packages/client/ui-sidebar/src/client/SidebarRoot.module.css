@@ -1,4 +1,4 @@
-/* Sidebar column (figma 133:7629): vertical stack, padding 12/6, sidebar
+/* Sidebar column: vertical stack, padding 8/6, sidebar
    fill + 1px right border painted by the layout column. Collapse is a
    slide + crossfade, not a morph: the content holds its frozen expanded
    layout (inline width set by the component) and fades in place (.fading)
@@ -7,7 +7,10 @@
    mid-slide. */
 
 .root {
-  --qilin-sidebar-inline-padding: 12px;
+  --qilin-sidebar-inline-padding: 8px;
+  --qilin-sidebar-row-padding: 12px;
+  --qilin-sidebar-label-gap: 6px;
+  --qilin-sidebar-paint-inset: 3px;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -55,7 +58,7 @@
 }
 
 :global([data-windows-titlebar]) .root:not(.collapsed) .brand {
-  padding-left: 4px;
+  padding-left: 8px;
 }
 
 :global([data-windows-titlebar]) .brandIdentity {
@@ -75,8 +78,8 @@
 }
 
 :global([data-windows-titlebar]) .root:not(.collapsed) .newSession {
-  margin-top: 8px;
-  margin-left: 0;
+  margin-top: 6px;
+  margin-left: calc(var(--qilin-sidebar-paint-inset) + 1px);
 }
 
 :global([data-windows-titlebar]) .collapsed .panelList,
@@ -193,7 +196,23 @@
   height: 52px;
   box-sizing: border-box;
   margin: -6px calc(-1 * var(--qilin-sidebar-inline-padding)) 0;
-  padding: 0 12px;
+  /* The 2px foot centres the 28px toggle at y 25, level with the collapsed
+     seat (ui-layout .leadingSeat, top 11) and the conversation title row, so
+     collapse/expand never shifts it vertically. */
+  padding: 0 12px 2px;
+}
+
+/* The strip's trailing foot is a 12px inline padding on both sides; on macOS
+   the traffic lights sit in the leading 12px, so an expanded strip pushes its
+   toggle 4px right of that column's own 8px inline line. */
+:global(html[data-platform='darwin']:not([data-fullscreen])) .root:not(.collapsed) > .topStrip > .toggle {
+  transform: translateX(4px);
+}
+
+/* Window fullscreen hides the traffic lights (html[data-fullscreen], desktop
+   preload): the toggle takes their spot at the strip's left edge. */
+:global([data-fullscreen]) .topStrip {
+  justify-content: flex-start;
 }
 
 /* The strip's full 52px foot leaves the wordmark too low; the content column
@@ -213,8 +232,8 @@
   justify-content: flex-end;
   gap: 8px;
   height: 60px;
-  padding: 8px 0 8px 4px;
-  margin-bottom: 8px;
+  padding: 8px 0 8px 8px;
+  margin-bottom: 0;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -248,7 +267,7 @@
 .brandIdentity {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   height: 24px;
   min-width: 0;
 }
@@ -296,8 +315,10 @@
   color: var(--qilin-alias-label-secondary);
 }
 
-.iconButton:hover {
-  background: var(--qilin-alias-interactive-bg-hover);
+@media (hover: hover) {
+  .iconButton:hover {
+    background-color: var(--qilin-alias-interactive-bg-hover);
+  }
 }
 
 .collapsed .iconButton {
@@ -314,12 +335,14 @@
   display: none;
 }
 
-.collapsed .toggle:hover .panelIcon {
-  display: inline;
-}
+@media (hover: hover) {
+  .collapsed .toggle:hover .panelIcon {
+    display: inline;
+  }
 
-.collapsed .toggle:hover .railMark {
-  display: none;
+  .collapsed .toggle:hover .railMark {
+    display: none;
+  }
 }
 
 .railMark {
@@ -367,9 +390,9 @@
   justify-content: center;
   gap: 6px;
   height: 38px;
-  padding: 8px 16px;
+  padding: 8px 12px;
   position: relative;
-  margin: 0 2px 12px;
+  margin: 0 calc(var(--qilin-sidebar-paint-inset) + 1px) 10px;
   box-sizing: border-box;
   border: 0.5px solid var(--qilin-alias-border-l3);
   border-radius: 12px;
@@ -382,8 +405,10 @@
   overflow: hidden;
 }
 
-.newSession:hover {
-  background: var(--qilin-alias-button-floating-hover);
+@media (hover: hover) {
+  .newSession:hover {
+    background-color: var(--qilin-alias-button-floating-hover);
+  }
 }
 
 /* macOS: the solid elevated fill reads as a foreign slab on the vibrancy
@@ -397,8 +422,10 @@
    elevated-fill 暗一档），而宽栏里可见的反馈只有右侧 ⌘N；再压暗一档会让主
    按钮发灰。这里钉回与默认同一个 75% 混色（显式写死，不依赖规则顺序）。
    纯 web 无 data-platform 不受影响。 */
-:global([data-platform='darwin']) .newSession:hover {
-  background: color-mix(in srgb, var(--qilin-alias-button-elevated-fill) 75%, transparent);
+@media (hover: hover) {
+  :global([data-platform='darwin']) .newSession:hover {
+    background-color: color-mix(in srgb, var(--qilin-alias-button-elevated-fill) 75%, transparent);
+  }
 }
 
 .collapsed .newSession {
@@ -413,8 +440,10 @@
   background: transparent;
 }
 
-.collapsed .newSession:hover {
-  background: var(--qilin-alias-interactive-bg-hover);
+@media (hover: hover) {
+  .collapsed .newSession:hover {
+    background-color: var(--qilin-alias-interactive-bg-hover);
+  }
 }
 
 .newSessionLabel {
@@ -443,7 +472,11 @@
   font-weight: 400;
 }
 
-.newSession:is(:hover, :focus-visible) .newSessionShortcut { opacity: 1; }
+.newSession:focus-visible .newSessionShortcut { opacity: 1; }
+
+@media (hover: hover) {
+  .newSession:hover .newSessionShortcut { opacity: 1; }
+}
 
 .panelList {
   flex: none;
@@ -524,19 +557,21 @@
   margin: -3px 0;
 }
 
-/* Panel entries share the New Session bar's 12px radius and 2px inset, the
-   session rows' hover/selected surface, and the primary ink. */
+/* Panel entries use a 3px paint inset, the New Session bar's 12px radius,
+   the session rows' hover/selected fill, and the primary ink. */
 .panelRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0 2px;
+  gap: var(--qilin-sidebar-label-gap);
+  margin: 0;
   min-height: 36px;
-  padding: 7px 8px;
+  padding: 7px calc(var(--qilin-sidebar-row-padding) - var(--qilin-sidebar-paint-inset));
   box-sizing: border-box;
   border: none;
+  border-inline: var(--qilin-sidebar-paint-inset) solid transparent;
   border-radius: 12px;
   background: transparent;
+  background-clip: padding-box;
   color: var(--qilin-alias-label-primary);
   font: inherit;
   line-height: 22px;
@@ -544,12 +579,14 @@
   cursor: pointer;
 }
 
-.panelRow:hover {
-  background: var(--qilin-alias-interactive-bg-hover);
+@media (hover: hover) {
+  .panelRow:hover {
+    background-color: var(--qilin-alias-interactive-bg-hover);
+  }
 }
 
 .panelRow.panelActive {
-  background: var(--qilin-alias-interactive-bg-hover);
+  background-color: var(--qilin-alias-interactive-bg-hover);
   color: var(--qilin-alias-label-primary);
 }
 
@@ -582,6 +619,8 @@
   height: 36px;
   justify-content: center;
   margin: 0;
+  border-inline: 0;
+  background-clip: border-box;
   padding: 0;
   color: var(--qilin-alias-label-primary);
 }

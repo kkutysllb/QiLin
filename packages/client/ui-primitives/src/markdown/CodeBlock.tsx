@@ -67,7 +67,11 @@ export function CodeBlock({
   code, lang, streaming, className, contentRef, lineNumbers = false, showHeader = true, copyLabel, copiedLabel,
 }: CodeBlockProps) {
   const trimmed = code.endsWith('\n') ? code.slice(0, -1) : code
-  const sourceLines = lineNumbers ? trimmed.split('\n') : undefined
+  // Every arm emits one `.line` per source line so the hover wash (and any
+  // owner styling keyed on the line) reaches unhighlighted fences too; the
+  // gutter and its counters stay opt-in through `lineNumbers`.
+  const plainLines = trimmed.split('\n')
+  const sourceLines = lineNumbers ? plainLines : undefined
   const rootRef = useRef<HTMLDivElement>(null)
   const highlighting = useViewportHighlighting(rootRef, lang)
   // Re-render when a lazy grammar finishes loading, so a fence that showed plain
@@ -169,7 +173,7 @@ export function CodeBlock({
     ? streamedBody
     : html === undefined
       ? (
-        <pre className={css.plain}><code>{sourceLines === undefined ? trimmed : sourceLines.map((line, index) => (
+        <pre className={css.plain}><code>{plainLines.map((line, index) => (
           <Fragment key={index}>{index > 0 && '\n'}<span className="line">{line}</span></Fragment>
         ))}</code></pre>
       )

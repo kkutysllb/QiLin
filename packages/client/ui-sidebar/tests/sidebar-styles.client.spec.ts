@@ -25,10 +25,35 @@ function declarations(selector: string): Map<string, string> | undefined {
   return undefined
 }
 
+/**
+ * The stylesheet with every complete `@media (hover: hover)` block removed.
+ * @param source - the sheet's text.
+ * @returns the remaining rules, with those blocks' bodies dropped by brace depth.
+ */
+function withoutHoverMedia(source: string): string {
+  let result = ''
+  let index = 0
+  for (;;) {
+    const start = source.indexOf('@media (hover: hover)', index)
+    if (start === -1) return result + source.slice(index)
+    result += source.slice(index, start)
+    let depth = 0
+    let cursor = source.indexOf('{', start)
+    for (; cursor < source.length; cursor++) {
+      if (source[cursor] === '{') depth++
+      else if (source[cursor] === '}' && --depth === 0) break
+    }
+    index = cursor + 1
+  }
+}
+
 describe('SidebarRoot.module.css', () => {
   it('shares and cancels the wide shell trailing padding structurally', () => {
     const root = declarations('.root')
-    expect(root?.get('--qilin-sidebar-inline-padding')).toBe('12px')
+    expect(root?.get('--qilin-sidebar-inline-padding')).toBe('8px')
+    expect(root?.get('--qilin-sidebar-row-padding')).toBe('12px')
+    expect(root?.get('--qilin-sidebar-label-gap')).toBe('6px')
+    expect(root?.get('--qilin-sidebar-paint-inset')).toBe('3px')
     expect(root?.get('padding')).toBe('6px var(--qilin-sidebar-inline-padding)')
     expect(declarations('.regionArea')?.get('margin-left')).toBe('-4px')
     expect(declarations('.regionArea')?.get('padding-left')).toBe('4px')
@@ -38,6 +63,40 @@ describe('SidebarRoot.module.css', () => {
     expect(declarations('.collapsed .regionArea')?.get('margin-left')).toBe('0')
     expect(declarations('.collapsed .regionArea')?.get('padding-left')).toBe('0')
     expect(declarations('.collapsed .regionArea')?.get('margin-right')).toBe('0')
+  })
+
+  it('keeps the reviewed expanded spacing separate from rail and caption controls', () => {
+    expect(declarations('.logoRow')?.get('padding')).toBe('8px 0 8px 8px')
+    expect(declarations('.logoRow')?.get('margin-bottom')).toBe('0')
+    expect(declarations('.newSession')?.get('margin')).toBe('0 calc(var(--qilin-sidebar-paint-inset) + 1px) 10px')
+    expect(declarations(":global(html[data-platform='darwin']:not([data-fullscreen])) .root:not(.collapsed) > .topStrip > .toggle")?.get('transform')).toBe('translateX(4px)')
+    expect(css).not.toContain(':not(.fading)')
+    expect(declarations(':global([data-windows-titlebar]) .root:not(.collapsed) .brand')?.get('padding-left')).toBe('8px')
+    expect(declarations(':global([data-windows-titlebar]) .root:not(.collapsed) .newSession')?.get('margin-top')).toBe('6px')
+    expect(declarations(':global([data-windows-titlebar]) .root:not(.collapsed) .newSession')?.get('margin-left')).toBe('calc(var(--qilin-sidebar-paint-inset) + 1px)')
+    expect(declarations(':global([data-fullscreen]) .topStrip')?.get('justify-content')).toBe('flex-start')
+    expect(declarations('.topStrip')?.get('padding')).toBe('0 12px 2px')
+    expect(declarations('.topStrip')?.get('height')).toBe('52px')
+    expect(declarations('.root.collapsed')?.get('padding')).toBe('18px 10px 6px')
+  })
+
+  it('paints the panel rows on a 3px inset that the rail drops', () => {
+    const row = declarations('.panelRow')
+    expect(row?.get('gap')).toBe('var(--qilin-sidebar-label-gap)')
+    expect(row?.get('margin')).toBe('0')
+    expect(row?.get('padding')).toBe('7px calc(var(--qilin-sidebar-row-padding) - var(--qilin-sidebar-paint-inset))')
+    expect(row?.get('border-inline')).toBe('var(--qilin-sidebar-paint-inset) solid transparent')
+    expect(row?.get('background-clip')).toBe('padding-box')
+    // The 36px rail control keeps its width: no paint inset narrows it there.
+    expect(declarations('.collapsed .panelRow')?.get('border-inline')).toBe('0')
+    expect(declarations('.collapsed .panelRow')?.get('background-clip')).toBe('border-box')
+  })
+
+  it('gates every hover affordance behind a hover-capable input', () => {
+    // Touch and pen inputs would otherwise keep the wash after a tap: every
+    // hover selector opens inside a hover media block, never in the bare sheet.
+    expect(css).toContain(':hover')
+    expect(withoutHoverMedia(css)).not.toContain(':hover')
   })
 
   it('moves the four upper controls while the settings seat only fades', () => {
@@ -73,7 +132,7 @@ describe('SidebarRoot.module.css', () => {
     expect(card?.get('border')).toBe('0.5px solid var(--qilin-alias-border-l3)')
     expect(card?.get('justify-content')).toBe('center')
     expect(card?.get('height')).toBe('38px')
-    expect(declarations('.newSession:hover')?.get('background')).toBe('var(--qilin-alias-button-floating-hover)')
+    expect(declarations('.newSession:hover')?.get('background-color')).toBe('var(--qilin-alias-button-floating-hover)')
     expect(declarations('.collapsed .newSession')?.get('border-color')).toBe('transparent')
   })
 

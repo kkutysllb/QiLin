@@ -19,6 +19,7 @@ export { DisclosureRow } from './DisclosureRow.tsx'
 export type { DisclosureRowProps } from './DisclosureRow.tsx'
 export { AnimatedRows } from './AnimatedRows.tsx'
 export type { AnimatedRowsProps } from './AnimatedRows.tsx'
+export { prefersReducedMotion } from './motion.ts'
 export { useRowDragPreview } from './useRowDragPreview.ts'
 export { Button } from './Button.tsx'
 export type { ButtonVariant } from './Button.tsx'
@@ -67,7 +68,15 @@ export type {
   CodeFileType, FileType, FileTypeIconProps, FileTypeKind, FileTypeProjectContext,
 } from './FileTypeIcon.tsx'
 export { PathLabel } from './PathLabel.tsx'
-export { projectUserText, type UserTextReferences, type UserTextSecretLabels } from './user-text.tsx'
+export {
+  projectUserText, type UserTextQuotes, type UserTextReferences, type UserTextSecretLabels,
+} from './user-text.tsx'
+export { QuotePreview } from './QuotePreview.tsx'
+export type { QuotePreviewLabels, QuotePreviewProps } from './QuotePreview.tsx'
+export {
+  QUOTE_WIRE_SCHEME, messageQuoteRanges, quoteBlockTextOf, quoteInsertionOf, quoteTextOf, quotedExcerptOf,
+} from './quote-text.ts'
+export type { MessageQuoteRange, QuoteFragment, QuotedExcerpt } from './quote-text.ts'
 export { Tooltip } from './Tooltip.tsx'
 export type { TooltipSide } from './Tooltip.tsx'
 export { pointerModality } from './input-modality.ts'

@@ -59,10 +59,11 @@ kind: "package-library"
 | `ImageLightbox` | 共享图片浮层，支持焦点恢复与 Esc 关闭。 |
 | `Toast` | 顶部居中的瞬时横幅，保持时长由所有者的 `holdMs` 决定。 |
 | `JsonTree`、`JsonBlock` | 只读 JSON 查看。 |
-| `MarkdownText`、`MarkdownDelegateProvider`、`CodeBlock` | 不可信 GFM 与 TeX 数学、owner 委托的 HTTP(S) 导航，以及高亮代码。`CodeBlock` 可通过 `lineNumbers` 开启行号；复制的源码不含行号栏，`contentRef` 则向需要把稳定源码包装节点用作滚动区的 owner 提供该节点。调用方提供自己的语言与复制工具栏时，设置 `showHeader={false}`。 |
+| `MarkdownText`、`MarkdownDelegateProvider`、`CodeBlock` | 不可信 GFM 与 TeX 数学、owner 委托的 HTTP(S) 导航，以及高亮代码。`CodeBlock` 可通过 `lineNumbers` 开启行号；复制的源码不含行号栏，`contentRef` 则向需要把稳定源码包装节点用作滚动区的 owner 提供该节点。每条源码行在三个渲染分支里都是一个 `span.line`，支持悬停的指针落在哪一行，该行就整行加上交互底色——只改背景，因此选择、复制与行号计数器都不受影响；`prefers-reduced-motion` 下取消淡入。键盘停靠点仍只有 `pre` 一个，而不是逐行一个：一行不是控件，几百行的代码块否则会把读者的整段 Tab 走位耗在这一块里。调用方提供自己的语言与复制工具栏时，设置 `showHeader={false}`。 |
 | `TerminalBlock`、`ReadBlock`、`DiffBlock`、`SearchBlock`、`WebBlock` | 与各类工具结果意图对应的 agent 输出卡片。 |
 | `useClipboardCopy` | 复制当前文本并显示一秒成功反馈，阻止写入期间及成功反馈期间的重复操作，卸载时清除重置计时器；迟到的写入结果不会更新已卸载控件。 |
 | `UserMessageBubble` | 用户消息的背景、圆角、内容内边距、字体与纯文本换行规则。接收原生 div props；行对齐、宽度、内容和操作由调用方拥有。 |
+| `QuotePreview` | 单条引文：引号标记、限宽文本、复制控件，以及持有方指明来源时的跳转控件。被裁切的引文在悬停时展开全文。所有文案都通过必填 label 传入。 |
 | `SettingsForm`、`SettingsValueField`、`SettingsSecretField` | 基于 `SettingsFormModel` 的分阶段配置表单：字段如实报告读者输入，保存是草稿变成文档变更的唯一入口。 |
 | `icons/*`、`QilinSeal`、`ReferenceIcon`、`LinkIcon` | 字形与品牌标识。`LinkIcon` 用于 14px 的可点击链接分类及已知站点标记。 |
 | `FileTypeIcon`、`classifyFileType`、`fileExtension` | 按类别着色的 28px 文件或文件夹图形，以及它背后共享的不区分大小写文件名映射。代码与配置文件使用细分的全彩技术图形；链接前置图形使用 `LinkIcon`，图片内容使用图片预览。 |
@@ -85,7 +86,7 @@ kind: "package-library"
 
 最近的 `MarkdownDelegateProvider` 提供可选的 `openExternalLink` 和 `openFile` 导航回调。嵌套 Provider 替换外层能力，回调变化无需重新构建 Markdown 即可到达已渲染链接。其 `openFile` 使本地 Markdown 链接在落定后可点击。绝对路径和工作区相对路径支持百分号转义以及 `#L24` / `#L24-L30` 片段；范围定位到起始行。带反斜杠且无 URL 协议（盘符不算协议）的目标，在自身不含 `/`、或反斜杠后紧跟字母或数字时视为 Windows 路径；此类路径保留每个反斜杠（包括紧挨标点的那个），同时仍解码字符引用，因此 `D:\repo\.github` 不会被读成转义的 `.`。文件名中的字面 `?` 和 `#` 必须百分号编码。悬停提示使用解码后的路径，并在标签为空时提供可访问名称。回调接收解码后的路径和可选行号，渲染器保留标签并显示文件图标。不传回调时，本地链接仍为文本。URL 协议、查询串、不支持的片段及格式错误的目标不会传给文件打开器。
 
-`MarkdownText` 渲染不可信的 GFM 与 TeX 公式、阻止不安全的链接与图片，并可把已解析的文件提及转换为显式控件。删除线需要 `~~`；单个 `~`（如 `10~20`）保持字面文本。外层 `MarkdownDelegateProvider` 会接收普通点击产生的已净化 HTTP(S) URL；带修饰键的点击和 Provider 外的链接保留原生外部 anchor 行为。当 owner 传入 `pathImages` 词表时，本地媒体路径的图片目标只在落定渲染阶段重写为可展示 URL（与 file mentions 相同的流式门）；不传词表时本地目标保持惰性 alt 文本。加载或解码失败后，图片替换为作者的 alt 文本；alt 为空时显示原始目标路径；`fileImages` 还提供本地化的失败提示前缀。图片源变化后可重新加载。每张已挂载的图片还会在重写后的非 data、非 blob URL 上追加 `load` 查询参数，因为浏览器在同一文档内会复用同 URL 的图片（即使响应带 `no-store`）；因此被覆盖文件的新渲染图片加载的是当前字节。回复流式输出时，它冻结已完成的块、按已完成行推进顶层未闭合 fence，并从保存的 Shiki grammar state 为该 fence 增量高亮。已完成的 token 行进入固定大小的 React 分组，后续分片只 reconcile 正在增长的分组；最终全量解析解决跨文档语法时，未变化的 fence 会保留该 DOM。`TerminalBlock`、`ReadBlock`、`DiffBlock`、`SearchBlock` 与 `WebBlock` 把对应的工具结果意图渲染为带复制控件、溢出处理及适用时 ANSI 处理的卡片。`JsonTree` 与 `JsonBlock` 以只读方式检查 JSON 值；`projectUserText` 把已发送的用户文本投影为行内普通文本段与引用 chip，供消息气泡和排队行使用，并把识别到的凭据画成掩码，优先于与它共享文本的每一类引用装饰。凭据指提供方密钥或令牌前缀、JSON Web Token、私钥块、带凭据地址的口令，其格式见 `src/credential-formats.ts`。只有显示改变——日志文本、复制内容与模型输入保持原拼写，名字本身是密钥的 `@name` token 也不会把密钥原样渲染。`UserTextSecretLabels` 提供逐值显示控件；不传时（如队列预览与 goal 命令回显）保持遮住。 传入 `UserTextReferences` 时，文件和 skill 引用成为支持键盘操作的预览按钮，复用正文文件链接的悬停和聚焦样式；第一次指针点击可以打开预览，后续点击和已有选区保留原生选择行为。键盘激活在存在选区时仍可打开预览。```` ```mermaid ```` 围栏经懒加载的库以严格安全模式渲染；净化后的 SVG 保留几何、文本、渐变与类名，脚本、事件处理器、`foreignObject` 和 `javascript:` URL 一律剥离，点击或 Enter/Space 在模态中放大显示图示，点击遮罩关闭。渲染被拒时，围栏源码及其复制控件上方显示前几行错误。
+`MarkdownText` 渲染不可信的 GFM 与 TeX 公式、阻止不安全的链接与图片，并可把已解析的文件提及转换为显式控件。删除线需要 `~~`；单个 `~`（如 `10~20`）保持字面文本。外层 `MarkdownDelegateProvider` 会接收普通点击产生的已净化 HTTP(S) URL；带修饰键的点击和 Provider 外的链接保留原生外部 anchor 行为。当 owner 传入 `pathImages` 词表时，本地媒体路径的图片目标只在落定渲染阶段重写为可展示 URL（与 file mentions 相同的流式门）；不传词表时本地目标保持惰性 alt 文本。加载或解码失败后，图片替换为作者的 alt 文本；alt 为空时显示原始目标路径；`fileImages` 还提供本地化的失败提示前缀。图片源变化后可重新加载。每张已挂载的图片还会在重写后的非 data、非 blob URL 上追加 `load` 查询参数，因为浏览器在同一文档内会复用同 URL 的图片（即使响应带 `no-store`）；因此被覆盖文件的新渲染图片加载的是当前字节。回复流式输出时，它冻结已完成的块、按已完成行推进顶层未闭合 fence，并从保存的 Shiki grammar state 为该 fence 增量高亮。已完成的 token 行进入固定大小的 React 分组，后续分片只 reconcile 正在增长的分组；最终全量解析解决跨文档语法时，未变化的 fence 会保留该 DOM。`TerminalBlock`、`ReadBlock`、`DiffBlock`、`SearchBlock` 与 `WebBlock` 把对应的工具结果意图渲染为带复制控件、溢出处理及适用时 ANSI 处理的卡片。`JsonTree` 与 `JsonBlock` 以只读方式检查 JSON 值；`projectUserText` 把已发送的用户文本投影为行内普通文本段与引用 chip，供消息气泡和排队行使用，并把识别到的凭据画成掩码，优先于与它共享文本的每一类引用装饰。凭据指提供方密钥或令牌前缀、JSON Web Token、私钥块、带凭据地址的口令，其格式见 `src/credential-formats.ts`。只有显示改变——日志文本、复制内容与模型输入保持原拼写，名字本身是密钥的 `@name` token 也不会把密钥原样渲染。`UserTextSecretLabels` 提供逐值显示控件；不传时（如队列预览与 goal 命令回显）保持遮住。同一投影在调用方提供引文文案时把 blockquote 段落渲染为一个引文界面：引文按字面打印，其中的引用 token 不会装饰，凭据仍保持遮蔽。`quoteInsertionOf` 把选区序列化回该形式并带上 `qilin-quote:` 来源标记，输入框与转写因此共用一套扫描器而不是两套。 传入 `UserTextReferences` 时，文件和 skill 引用成为支持键盘操作的预览按钮，复用正文文件链接的悬停和聚焦样式；第一次指针点击可以打开预览，后续点击和已有选区保留原生选择行为。键盘激活在存在选区时仍可打开预览。```` ```mermaid ```` 围栏经懒加载的库以严格安全模式渲染；净化后的 SVG 保留几何、文本、渐变与类名，脚本、事件处理器、`foreignObject` 和 `javascript:` URL 一律剥离，点击或 Enter/Space 在模态中放大显示图示，点击遮罩关闭。渲染被拒时，围栏源码及其复制控件上方显示前几行错误。
 
 `MarkdownText` 默认为 `variant="body"`。次级内容使用 `variant="compact"`：其 13px 字号与 20px 行高跟随内容字号设置，各级标题保持同一字号并使用 600 字重，段落与列表采用更紧凑的间距。正文、链接和代码均保持 tertiary 颜色，以点状下划线区分链接。代码标题栏随代码块滚动。表格和公式仍然启用，使用周围文字的字号，并在可用宽度内横向滚动。两个变体共享解析器与流式缓存。
 
@@ -121,9 +122,11 @@ kind: "package-library"
 | [`src/ReadBlock.tsx`](src/ReadBlock.tsx) / [`src/DiffBlock.tsx`](src/DiffBlock.tsx) | 读取与差异卡片 |
 | [`src/SearchBlock.tsx`](src/SearchBlock.tsx) / [`src/WebBlock.tsx`](src/WebBlock.tsx) | 搜索与网页检索卡片 |
 | [`src/icons/`](src/icons/) | `ic_ds_*` 字形组件与品牌标记 |
+| [`src/quote-text.ts`](src/quote-text.ts) / [`src/QuotePreview.tsx`](src/QuotePreview.tsx) | 已发送用户文本引文的双向实现：blockquote 扫描与解码、`qilin-quote:` 来源标记、输入框手势调用的插入序列化，以及带复制与跳转控件的引文界面 |
 | [`src/credential-formats.ts`](src/credential-formats.ts) / [`src/format-tables.ts`](src/format-tables.ts) / [`src/credential-scanner.ts`](src/credential-scanner.ts) / [`src/credential-masks.ts`](src/credential-masks.ts) / [`src/SecretText.tsx`](src/SecretText.tsx) | `projectUserText` 背后的凭据格式、由其派生的查表、扫描、掩码形态，以及带显示控件的掩码文本段 |
 | [`src/useAnchoredPosition.ts`](src/useAnchoredPosition.ts) / [`src/useAnchoredMaxHeight.ts`](src/useAnchoredMaxHeight.ts) | 浮动面板与浮层几何钩子 |
 | [`src/input-modality.ts`](src/input-modality.ts) | 发布在 `<html>` 上的全文档输入模态 |
+| [`src/motion.ts`](src/motion.ts) | 共享的 `prefersReducedMotion()` 查询：本包动画与工作区行在开始运动前都会询问它 |
 
 <a id="input-modality"></a>
 ### 输入模态

@@ -678,6 +678,45 @@ describe('Chat node rendering', () => {
     expect(h.openFile).toHaveBeenCalledWith('for-seq-4/site/report.html')
   })
 
+  it('renders a quoted excerpt in sent text and offers copy and jump', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    const scrolled: string[] = []
+    Object.defineProperty(Element.prototype, 'scrollIntoView', {
+      configurable: true,
+      value(this: Element) { scrolled.push(this.getAttribute('data-chat-node-key') ?? '') },
+    })
+    try {
+      const h = makeHarness({
+        nodes: [
+          user(1, '原始问题'),
+          user(2, '> [quoted](qilin-quote:fixture:user:1)\n> 原始问题'),
+        ],
+      })
+      const view = render(<h.ChatView {...h.props} />)
+      const quote = view.container.querySelector('[data-quote-preview]')!
+      // The source marker line is contract, not excerpt: the reader sees the
+      // quoted words and the surrounding message keeps its own text.
+      expect(quote.querySelector('[data-quote-preview-text]')!.textContent).toBe('原始问题')
+      expect(view.container.querySelectorAll('[data-quote-preview]')).toHaveLength(1)
+      expect(view.container.textContent).not.toContain('qilin-quote:')
+      await act(async () => {
+        fireEvent.click(quote.querySelector('[data-quote-copy]')!)
+      })
+      expect(writeText).toHaveBeenCalledWith('原始问题')
+      expect(quote.querySelector('[data-quote-copy]')!.getAttribute('aria-label')).toBe(zh['quote.copied'])
+      fireEvent.click(quote.querySelector('[data-quote-jump]')!)
+      expect(scrolled).toEqual(['fixture:user:1'])
+      // A quote whose source is outside the loaded window has no row to reveal.
+      const orphan = makeHarness({ nodes: [user(3, '> [quoted](qilin-quote:fixture:user:99)\n> 已卸载的原文')] })
+      const orphanView = render(<orphan.ChatView {...orphan.props} />)
+      fireEvent.click(orphanView.container.querySelector('[data-quote-jump]')!)
+      expect(scrolled).toEqual(['fixture:user:1'])
+    } finally {
+      Reflect.deleteProperty(Element.prototype, 'scrollIntoView')
+    }
+  })
+
   it('formatRunDuration localizes units and floors partial seconds', () => {
     const t = makeTranslate(zh, commonZh)
     expect(formatRunDuration(0, t)).toBe('0秒')

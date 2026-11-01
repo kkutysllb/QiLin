@@ -15,6 +15,7 @@ kind: "package-reference"
 ## 目录
 
 - [引用预览](#reference-previews)
+- [引文](#quoted-excerpts)
 - [隐藏的 Chat 行](#system-prompt-row)
 - [轮次 token 用量](#turn-token-usage)
 - [已完成轮次的页脚](#completed-turn-footer)
@@ -39,6 +40,11 @@ Chat 在节点列表外通过一个 `MarkdownDelegateProvider` 提供文件及 H
 独立的 Markdown 图片以内嵌预览显示，点击打开共享图片浮层；本地路径在消息落定后基于当前查看的工作区解析。图片文件链接保持点击打开侧栏，鼠标停留或键盘聚焦时显示缩略图，Esc 关闭缩略图。图片加载失败时保留本地化状态与图片说明；不执行重复图片过滤。
 
 Assistant Markdown 中的 HTTP(S) 链接在普通点击时会在该类型已注册时打开新的右侧 Sidebar Browser tab，否则改用系统浏览器；带修饰键的点击保留原生外部链接行为。已发送的文件引用及消息日志确认调用的 skill 也可在右侧栏打开预览。文件路径使用当前查看的 Session；skill 名称由该 Session 当前的输入触发源解析。两者悬停或聚焦时均使用正文文件链接的虚线下划线。会话、目录和命令标签仍只作为引用展示。
+
+<a id="quoted-excerpts"></a>
+## 引文
+
+已发送的用户消息可以携带 Markdown blockquote。每一段连续的 `> ` 行渲染为一个引文界面而不是字面标记：引文文本、一个按其字符原样写入的复制控件，以及——当该段首行以 `[quoted](qilin-quote:<node-key>)` 指明来源时——一个把对应 Chat 行滚动进视窗的跳转控件。被引用的消息不在已加载窗口内时，跳转不做任何事。扫描、解码与插入序列化位于 [`ui-primitives` 的 quote-text](../ui-primitives/src/quote-text.ts)；本地化控件文案与跳转由 Chat 拥有，因为只有它知道已渲染的行。引文内被识别的凭据保持遮蔽：该段仍是纯文本而不是变成引文界面，因此引文永远不会打印出气泡本应遮蔽的值。
 
 <a id="system-prompt-row"></a>
 ## 隐藏的 Chat 行
@@ -125,6 +131,7 @@ Chat Builder 按节点发布 `bottomSource`：节点可见且属于已加载的�
 
 - **transcript 只反映已加载的 Session 窗口**——只有会话控制器加载前一页事件后，更早的 transcript node 才会出现。轮次导航比窗口更宽：轨道把已加载的轮次与宿主 `turnOutline` 投影合并，每个已开始的轮次都有固定间距刻度（相隔 10px；轨道做虚拟化，只挂载其自身视窗附近的刻度，阶梯高于外框时在框内滚动并以渐变淡出标示可滚方向，且不吞掉 transcript 的滚轮输入），激活未加载刻度会先把历史分页拉到该轮次的 `turn/start` seq 再落到它的行上。没有该投影时（未挂载 `qilin-session-turn-outline` 的装配），轨道回退到仅显示已加载轮次。
 - **导航预览按卡片尺寸截断**——提示词一行（50 字符）、回复至多三行（120 字符），已加载与未加载 Turn 一致；未加载 Turn 的回复要等该轮落定后才随大纲到达，进行中的轮次在此之前只预览提示词（或仅轮次号）。
+- **向输入框插入引用尚未接线**——选中消息文本并插入为 blockquote 需要会话侧声明文本交互席位；上游装配注册的是 `conversation.chat.text-interaction` slot 与 `InputActions.insertQuote` 动词。目前 `InputActions.insertText(text, span)` 是可用的入口，`quoteInsertionOf(fragment)` 产出确切的草稿文本，但没有席位提供该手势，因此引文通过键入或粘贴进入消息。
 
 
 <a id="dev-note"></a>

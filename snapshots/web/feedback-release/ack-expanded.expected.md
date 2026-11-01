@@ -1,14 +1,13 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Reply with the single word" [disabled]
+  - text: Standard mode
   - button "Open right sidebar"
-- button "System prompt"
 - text: Reply with the single word LIGHTHOUSE and stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
 - status: Completed
 - button "Completed in {{duration}}" [expanded]
-- button "Context injection runtime-context"
 - button "Analysis completed" [expanded]
 - button "Think The user wants me to reply with a single word. Let me comply."
 - paragraph: LIGHTHOUSE

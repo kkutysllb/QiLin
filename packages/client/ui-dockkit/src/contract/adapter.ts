@@ -27,7 +27,7 @@ export interface DockLabels {
   readonly splitPaneDisabled: string
   /** The split control, while the pane is too narrow for two working halves. */
   readonly splitPaneNarrow: string
-  /** Destroy a tab: the chip's close control and the menu's close item. */
+  /** Destroy a tab: the chip's close control, the menu's close item, or a middle click. */
   readonly closeTab: string
   /** Effective close combination, when bound. */
   readonly closeTabShortcut?: string | undefined

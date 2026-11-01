@@ -6,7 +6,9 @@
  * A chip is a capsule carrying one control, its close, shown over its right
  * end while the chip is active, hovered, or focused; the context menu
  * (secondary press) carries the same close plus whatever the embedder appends.
- * Both close routes draw only while the embedder's `canCloseTab` allows, and
+ * A middle click anywhere on the chip, including its close control, closes
+ * without selecting the tab, unless another mouse button is still held.
+ * The close routes draw only while the embedder's `canCloseTab` allows, and
  * a pane's lone chip whose close is withheld draws quiet — no capsule, no
  * hover fill — since there is nothing to select against and nothing to do to
  * it.
@@ -304,9 +306,22 @@ export function TabStrip({ state, pane, callbacks }: TabPanelProps): ReactNode {
                 // replaced — which would abandon every drag. A drag that ends
                 // elsewhere fires no click, and its own operation carries focus.
                 onPointerDown={(event) => {
-                  // A secondary press is the menu, never a drag.
-                  if (event.button === 2) return
+                  // Only the primary button drags: a secondary press opens the
+                  // menu and a middle press closes the tab on its release.
+                  if (event.button !== 0) return
                   callbacks.onTabPressed(tabId, event)
+                }}
+                onMouseDown={(event) => {
+                  // Prevent middle-button autoscroll or selection paste before release.
+                  if (event.button === 1) event.preventDefault()
+                }}
+                onAuxClick={(event) => {
+                  if (event.button !== 1) return
+                  event.preventDefault()
+                  event.stopPropagation()
+                  // A middle button released while another is still held is
+                  // part of a drag, not a close.
+                  if (closable && event.buttons === 0) callbacks.onCloseTab(tabId)
                 }}
                 onClick={(event) => {
                   event.stopPropagation()

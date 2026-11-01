@@ -1,12 +1,11 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Reply with a one-sentence description" [disabled]
+  - text: Standard mode
   - button "Open right sidebar"
-- button "System prompt"
 - text: Reply with a one-sentence description of event sourcing, then stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- button "Context injection runtime-context"
 - status:
   - text: This turn failedAPI key is invalid
   - code: AUTH

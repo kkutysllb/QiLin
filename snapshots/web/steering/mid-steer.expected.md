@@ -1,17 +1,17 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Use the ask_user_question tool to" [disabled]
+  - text: Standard mode
   - button "Open right sidebar"
-- button "System prompt"
 - text: Use the ask_user_question tool to ask me exactly one question with id "checkpoint", question "Ready to continue?", header "Checkpoint", and options labeled "Yes" and "No". After I answer, reply with one short sentence acknowledging my answer and stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- button "Context injection runtime-context"
 - text: Running
 - button "Ask question waiting"
-- status: QiLin...
-- text: "QiLin... Interjection: include the word BANANA in your final reply."
+- text: "Interjection: include the word BANANA in your final reply."
 - button "Copy"
+- status: QiLin...
+- text: Working for {{duration}}...
 - region "Ready to continue?":
   - text: Checkpoint
   - heading "Ready to continue?" [level=2]

@@ -27,7 +27,7 @@ export interface PaneCallbacks {
   readonly hideSplitWhenBlocked?: boolean
   /** Whether a pane's strip draws the add control. */
   readonly canAddTab: (paneId: PaneId) => boolean
-  /** Whether a tab draws its close control and its menu's close item. */
+  /** Whether a tab closes via its close control, its menu's close item, or a middle click. */
   readonly canCloseTab: (tabId: TabId) => boolean
   /** Live drop preview, or `undefined` while nothing is being dragged. */
   readonly dropTarget: DropTarget | undefined

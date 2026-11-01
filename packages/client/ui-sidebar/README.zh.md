@@ -74,6 +74,8 @@ qilin Web 客户端的侧边栏让用户识别当前构建、启动新会话、�
 
 外壳是纯组合：`SidebarRootComponentProps` 组合布局 owner share、全局 `useSessions` 与 `useWorkspaces` 钩子、已声明的品牌、`sidebar.workspaces` 与 `sidebar.settings` 子 slot，以及注入的导航回调。面板元数据由列表注册和语言变化派生；选中态属于布局存储。注入的 `trackEntryClick(attributes)` 转发到 `ctx.get('productAnalytics')?.track('sidebar_menu_click', attributes)`，而 `selectPanel` 只负责选中，因此每个控件各自提供入口与位置。
 
+展开态导航的左右外距为 8px，每一行在两侧各内缩 3px 绘制底色，行内图形与标签间隔 6px；新会话底部外边距 10px，内容左右各留 4px。logo 行无底部外边距，内容从侧栏左边缘向内 16px 开始（栏内边距 8px 加行内边距 8px），标记与名称间隔 5px；仅 macOS 非全屏、侧栏展开时顶部开关向右偏移 4px。所有悬停反馈都包在 `@media (hover: hover)` 内，因此触摸或手写笔在任何一次点击后都不会留下粘滞底色；折叠态尺寸独立于以上全部取值。
+
 ### Slot 纪律
 
 声明感知的 `slots.inject()` 让替换包无论先于还是后于侧边栏激活都能生效。页脚把 `sidebar.footer.action` 列表堆叠在 `sidebar.settings` 占位者之上，侧边栏向两者共享其栏状态（`wide`）。`/client` 导出接口只包含插件主体（`apply`/`inject`）及约定类型；SidebarRoot、行组件与树派生仍由 slot 注册封装在包内。

@@ -4,7 +4,7 @@
     - text: 设置
     - button "通用设置"
     - button "模型"
-    - button "内置插件"
+    - button "插件"
     - button "MCP 服务器"
     - button "Agent 预设"
     - button "用量"

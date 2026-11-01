@@ -18,14 +18,14 @@
   en: ca3db95551971b07
   zh: 083ba0e187ce544a
 /qilin-agent-client-ui-primitives/use-this-package/component-catalog:
-  en: 44dcbb258f3d6eaa
-  zh: 4ead0f0ea4e647d4
+  en: f651058e890cd942
+  zh: 26870959612a099a
 /qilin-agent-client-ui-primitives/use-this-package/controls-and-icons:
   en: d563c3a7f4eba0bc
   zh: 49b6834de626eb6c
 /qilin-agent-client-ui-primitives/use-this-package/rendering-agent-output:
-  en: bfe9c80aa7cb15e9
-  zh: 85f3af9b13c42b86
+  en: 79ff40b56d36c311
+  zh: fe12161b2c3dcbd8
 /qilin-agent-client-ui-primitives/use-this-package/localizing-copy:
   en: 4aef65dea11de083
   zh: abc22cd7c65cdf38
@@ -33,8 +33,8 @@
   en: ff71d06c5d21ac81
   zh: f5739d0e28e73552
 /qilin-agent-client-ui-primitives/understand-the-implementation/source-map:
-  en: d88fc6047e110c21
-  zh: 2dee18b40a594ff3
+  en: ba35fea05d59baba
+  zh: f331003181aa9b59
 /qilin-agent-client-ui-primitives/understand-the-implementation/input-modality:
   en: 44dfc06332ca3b5b
   zh: 94df10cde37c18e6

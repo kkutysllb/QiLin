@@ -1,16 +1,11 @@
 - button "New session"
 - button "Collapse sidebar"
 - button "New session": New Session
-- navigation "Global panels":
-  - button "Plugins"
 - text: Workspaces
 - button "Search sessions"
 - textbox "Search sessions..."
 - button "View options"
 - button "Add workspace"
-- tablist "Switch workbench":
-  - tab "General" [selected]
-  - tab "Coding"
 - tree "Sessions":
   - treeitem "workspace" [expanded]
   - treeitem "New Session" [selected]
@@ -20,6 +15,7 @@
 - paragraph: {{greeting}}
 - heading "Benevolence sets the bounds, spirit the wisdom, the center the pivot, auspiciousness the fruit" [level=1]
 - button "Choose workspace": workspace
+- button "Standard mode"
 - textbox "Describe what you want to build, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write

@@ -37,6 +37,11 @@ interface ListMetrics {
   band: number
   scrollbarEdgeOffset: number
   rowEdgeInset: number
+  /** Trailing inset of the row's painted background: the box inset plus its transparent border. */
+  rowPaintInset: number
+  rowCount: number
+  listScrollHeight: number
+  listClientHeight: number
   clientRight: number
   borderRight: number
   timeRight: number
@@ -61,6 +66,9 @@ function measureList(page: Page): Promise<ListMetrics> {
     if (time === null) throw new Error('no row relative-time element in the sidebar list')
     const row = list.querySelector<HTMLElement>('[role="treeitem"]')
     if (row === null) throw new Error('no row in the sidebar list')
+    // The row paints its fill at background-clip: padding-box, so the visible
+    // background starts one transparent border inside the measured box.
+    const rowBorderRight = Number.parseFloat(getComputedStyle(row).borderRightWidth)
     // Use one probe per variable because computed style declarations are live;
     // the color property also normalizes palette syntax.
     const resolve = (name: string): string => {
@@ -103,6 +111,10 @@ function measureList(page: Page): Promise<ListMetrics> {
       band: listRect.width - list.clientWidth,
       scrollbarEdgeOffset: sidebarEdge - listRect.right,
       rowEdgeInset: sidebarEdge - row.getBoundingClientRect().right,
+      rowPaintInset: sidebarEdge - (row.getBoundingClientRect().right - rowBorderRight),
+      rowCount: list.querySelectorAll('[role="treeitem"]').length,
+      listScrollHeight: list.scrollHeight,
+      listClientHeight: list.clientHeight,
       clientRight: listRect.left + list.clientWidth,
       borderRight: listRect.right,
       timeRight: time.getBoundingClientRect().right,
@@ -124,7 +136,9 @@ function measureList(page: Page): Promise<ListMetrics> {
  * @param page - the page under test.
  * @returns the list overflow state and first row's trailing inset.
  */
-function measureRowInset(page: Page): Promise<Pick<ListMetrics, 'overflows' | 'rowEdgeInset'>> {
+function measureRowInset(
+  page: Page,
+): Promise<Pick<ListMetrics, 'overflows' | 'rowEdgeInset' | 'rowPaintInset' | 'rowCount' | 'listScrollHeight' | 'listClientHeight'>> {
   return page.evaluate(() => {
     const list = document.querySelector<HTMLElement>('[role="tree"][aria-label="Sessions"]')
     if (list === null) throw new Error('sidebar session list not in the DOM')
@@ -132,9 +146,14 @@ function measureRowInset(page: Page): Promise<Pick<ListMetrics, 'overflows' | 'r
     if (row === null) throw new Error('no row in the sidebar list')
     const sidebarEdge = list.parentElement?.getBoundingClientRect().right
     if (sidebarEdge === undefined) throw new Error('sidebar session list has no layout parent')
+    const rowRight = row.getBoundingClientRect().right
     return {
       overflows: list.scrollHeight > list.clientHeight,
-      rowEdgeInset: sidebarEdge - row.getBoundingClientRect().right,
+      rowEdgeInset: sidebarEdge - rowRight,
+      rowPaintInset: sidebarEdge - (rowRight - Number.parseFloat(getComputedStyle(row).borderRightWidth)),
+      rowCount: list.querySelectorAll('[role="treeitem"]').length,
+      listScrollHeight: list.scrollHeight,
+      listClientHeight: list.clientHeight,
     }
   })
 }
@@ -188,7 +207,8 @@ function renderGeometry(light: PaletteMetrics, dark: PaletteMetrics): string {
     `- list overflows: ${String(metrics.overflows)}`,
     `- reserved band: ${String(metrics.band)}px`,
     `- scrollbar inset from the sidebar edge: ${String(metrics.scrollbarEdgeOffset)}px`,
-    `- row background inset from the sidebar edge: ${String(metrics.rowEdgeInset)}px`,
+    `- row box inset from the sidebar edge: ${String(metrics.rowEdgeInset)}px`,
+    `- row background inset from the sidebar edge: ${String(metrics.rowPaintInset)}px`,
     `- relative time covered by the bar: ${String(metrics.timeCoveredBy)}px`,
     `- relative time ends inside the content area: ${String(metrics.timeRight <= metrics.clientRight)}`,
     `- content area ends before the border box: ${String(metrics.clientRight < metrics.borderRight)}`,
@@ -257,21 +277,27 @@ async function expandSeededSessions(page: Page): Promise<void> {
   await bucket.waitFor({ timeout: 15_000 })
   const rows = page.locator('[role="tree"][aria-label="Sessions"] [role="treeitem"]')
   const deadline = Date.now() + 30_000
+  // Expand every page rather than stopping at a row threshold: this scenario
+  // asserts that the seeded rows overflow the list, and how many rows that takes
+  // depends on the row height the sidebar styles currently produce.
+  let settled = -1
   for (;;) {
     if (await bucket.getAttribute('aria-expanded') !== 'true') {
       await page.getByText('Ungrouped', { exact: true }).click()
     }
     const showMore = page.getByRole('button', { name: /Show \d+ more sessions/ })
-    if (await bucket.getAttribute('aria-expanded') === 'true'
-      && await rows.count() <= SEED_COUNT / 2
-      && await showMore.count() > 0) {
+    if (await showMore.count() > 0) {
       await showMore.click()
+      await page.waitForTimeout(250)
+      continue
     }
-    if (await bucket.getAttribute('aria-expanded') === 'true' && await rows.count() > SEED_COUNT / 2) return
+    const count = await rows.count()
+    if (count === settled) return
+    settled = count
     if (Date.now() > deadline) {
-      throw new Error(`Ungrouped bucket never revealed more than ${SEED_COUNT / 2} rows`)
+      throw new Error(`Ungrouped bucket never finished expanding: ${String(count)} rows after ${String(SEED_COUNT)} seeds`)
     }
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(250)
   }
 }
 
@@ -316,7 +342,10 @@ describe('web e2e: sidebar session list scrollbar (reserved gutter / themed thum
     // Pin presence, not width, because the width is platform-dependent.
     expect(metrics.band).toBeGreaterThan(0)
     expect(metrics.scrollbarEdgeOffset).toBe(2)
-    expect(metrics.rowEdgeInset).toBe(12)
+    // Box inset = the 2px list offset plus the 8px reserved scrollbar band;
+    // the painted fill starts one 3px transparent border further in.
+    expect(metrics.rowEdgeInset).toBe(10)
+    expect(metrics.rowPaintInset).toBe(13)
     // Measure against the bar because overlay scrollbars do not move the client edge.
     expect(metrics.timeCoveredBy).toBe(0)
     expect(metrics.timeRight).toBeLessThanOrEqual(metrics.clientRight)
@@ -354,12 +383,12 @@ describe('web e2e: sidebar session list scrollbar (reserved gutter / themed thum
 
   it('keeps the row background inset when overflow disappears', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-sidebar-scrollbar-stable-inset'))
-    expect(await measureRowInset(page)).toEqual({ overflows: true, rowEdgeInset: 12 })
+    expect(await measureRowInset(page)).toMatchObject({ overflows: true, rowEdgeInset: 10, rowPaintInset: 13 })
     const bucket = page.getByText('Ungrouped', { exact: true }).locator('..').locator('..')
     await bucket.click()
     try {
       await expect.poll(async () => (await measureRowInset(page)).overflows, { timeout: 10_000 }).toBe(false)
-      expect(await measureRowInset(page)).toEqual({ overflows: false, rowEdgeInset: 12 })
+      expect(await measureRowInset(page)).toMatchObject({ overflows: false, rowEdgeInset: 10, rowPaintInset: 13 })
     } finally {
       await expandSeededSessions(page)
     }

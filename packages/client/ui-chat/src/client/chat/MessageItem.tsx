@@ -40,6 +40,18 @@ function contentParts(content: readonly unknown[]): {
   return { text: texts.join(''), attachments, rest }
 }
 
+/**
+ * Reveal the message a quote names. Every Chat row already carries its node
+ * key, so the jump stays inside the rendered flow and does nothing while the
+ * quoted message is not loaded.
+ * @param source - Chat node key decoded from the quote's marker line.
+ */
+function revealQuoteSource(source: string): void {
+  const row = document.querySelector(`[data-chat-node-key="${source.replace(/["\\]/gu, '\\$&')}"]`)
+  if (row === null) return
+  row.scrollIntoView({ block: 'center', behavior: 'smooth' })
+}
+
 function retrySeconds(milliseconds: number): number {
   return Math.max(1, Math.ceil(milliseconds / 1_000))
 }
@@ -185,6 +197,10 @@ function UserStyleBubble({
   const attachments = previewAttachments ?? contentAttachments
   const compactImages = attachments.length > 1
   const truncated = (total: number): string => t('json.truncated', { total })
+  const quotes = useMemo(() => ({
+    labels: { copy: t('quote.copy'), copied: t('quote.copied'), jump: t('quote.jump') },
+    onJump: revealQuoteSource,
+  }), [t])
   const showBubble = text !== '' || rest.length > 0
   return (
     <div
@@ -223,7 +239,7 @@ function UserStyleBubble({
           {projectUserText(text, referenceLabels, skillNames, 'skill', references, {
             reveal: t('secret.reveal'),
             hide: t('secret.hide'),
-          })}
+          }, quotes)}
           {rest.map((block, i) => <JsonBlock key={i} label={t('message.extraBlock')} payload={block} truncatedLabel={truncated} />)}
         </UserMessageBubble>}
         {referenceLabels.length > 0 && (

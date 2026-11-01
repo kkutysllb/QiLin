@@ -1,0 +1,89 @@
+/* One quoted excerpt inside sent text. Inline so it flows in the consumer's
+   own line box; the excerpt keeps one line and the full text rides the hover
+   card. Colour is the business accent, matching reference chips. */
+
+.quote {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 4px 0 0;
+  border-left: 2px solid var(--qilin-alias-state-business-primary);
+  border-radius: 2px;
+  vertical-align: baseline;
+  color: var(--qilin-alias-state-business-primary);
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.popoverText {
+  display: block;
+  padding: 8px 10px;
+  color: var(--qilin-alias-label-primary);
+  font-size: 14px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.source {
+  min-width: 0;
+  padding-left: 4px;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marker {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+  pointer-events: none;
+  user-select: none;
+}
+
+.quoteMark {
+  width: 16px;
+  height: 16px;
+}
+
+.action {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity 120ms ease;
+}
+
+.action:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .quote:hover .action {
+    opacity: 1;
+  }
+}
+
+@media (hover: none) {
+  .action {
+    opacity: 1;
+  }
+}

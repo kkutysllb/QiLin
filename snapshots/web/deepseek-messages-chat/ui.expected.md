@@ -1,8 +1,8 @@
 - banner:
   - navigation "会话层级":
     - button "只回复 MESSAGES_WEB_READY，不调用" [disabled]
+  - text: 普通模式
   - button "打开右侧边栏"
-- button "系统提示词"
 - text: 只回复 MESSAGES_WEB_READY，不调用工具。 {{clock}}
 - button "复制"
 - button "编辑此消息并重新发送"

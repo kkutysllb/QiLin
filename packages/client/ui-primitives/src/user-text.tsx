@@ -16,9 +16,17 @@
  * always draws masked, ahead of every reference decoration, and only the display
  * changes: the logged text, the copied text, and the model input keep the original
  * characters.
+ *
+ * Blockquote spans carry one more decoration: with quote presentation enabled, a
+ * consecutive `> ` run renders as one quote surface, and its own inline
+ * references and credentials stay literal excerpt text. Disabled, the same
+ * characters stay plain, so a caller that offers no quotes loses nothing.
  */
 import type { ReactNode } from 'react'
 import clsx from 'clsx'
+import { QuotePreview } from './QuotePreview.tsx'
+import type { QuotePreviewLabels } from './QuotePreview.tsx'
+import { messageQuoteRanges, quoteTextOf, quotedExcerptOf } from './quote-text.ts'
 import { SecretText } from './SecretText.tsx'
 import { scanSecrets } from './credential-scanner.ts'
 import { ReferenceIconRegular } from './ReferenceIcon.tsx'
@@ -51,8 +59,29 @@ interface SecretDecoration {
   readonly masked: string
 }
 
+/** One quote span rendered as an excerpt surface instead of literal text. */
+interface QuoteDecoration {
+  readonly start: number
+  readonly end: number
+  readonly kind: 'quote'
+  /** Excerpt text and named source decoded from the span. */
+  readonly excerpt: ReturnType<typeof quotedExcerptOf>
+  /** Localized control names for the excerpt surface. */
+  readonly labels: QuotePreviewLabels
+  /** Reveal a quoted source by Chat node key; undefined hides the jump control. */
+  readonly onJump: ((source: string) => void) | undefined
+}
+
 /** One inline decoration over the text. */
-type Range = DecorationRange | SecretDecoration
+type Range = DecorationRange | SecretDecoration | QuoteDecoration
+
+/** Quote presentation a caller offers for blockquoted text. */
+export interface UserTextQuotes {
+  /** Localized copy and jump names for each excerpt surface. */
+  readonly labels: QuotePreviewLabels
+  /** Reveal one quoted source by its Chat node key; omission hides jump controls. */
+  readonly onJump?: ((source: string) => void) | undefined
+}
 
 /** Optional navigation supplied by consumers that can preview references. */
 export interface UserTextReferences {
@@ -80,6 +109,7 @@ export interface UserTextSecretLabels {
  * @param slashKind - the chip kind those tokens render as.
  * @param references - optional file and skill preview actions; session and command tokens stay labels.
  * @param secretLabels - reveal-control copy for credentials; absent in text that stays masked.
+ * @param quotes - quote presentation for blockquoted spans; absent renders those characters as plain text.
  * @returns inline nodes covering the whole text.
  */
 export function projectUserText(
@@ -89,6 +119,7 @@ export function projectUserText(
   slashKind: 'skill' | 'command' = 'skill',
   references?: UserTextReferences,
   secretLabels?: UserTextSecretLabels,
+  quotes?: UserTextQuotes,
 ): ReactNode {
   const secrets = scanSecrets(text)
   const ranges: Range[] = secrets.map(secret => (
@@ -99,6 +130,22 @@ export function projectUserText(
   // chip label, and a wire session form carries its label in the same place.
   const maskedOver = (start: number, end: number): boolean =>
     secrets.some(secret => start < secret.end && secret.start < end)
+  // A quote decorates the whole block: its excerpt prints verbatim, so the
+  // reference token scan below must not also reach inside it. A credential
+  // still wins, because the excerpt would otherwise print the value it masks.
+  if (quotes !== undefined) {
+    for (const range of messageQuoteRanges(text)) {
+      if (maskedOver(range.start, range.end)) continue
+      ranges.push({
+        start: range.start,
+        end: range.end,
+        kind: 'quote',
+        excerpt: quotedExcerptOf(quoteTextOf(text.slice(range.start, range.end))),
+        labels: quotes.labels,
+        onJump: quotes.onJump,
+      })
+    }
+  }
   SESSION_WIRE_RE.lastIndex = 0
   let wire: RegExpExecArray | null
   while ((wire = SESSION_WIRE_RE.exec(text)) !== null) {
@@ -151,6 +198,22 @@ export function projectUserText(
     if (tokenStart > cursor) pushPlain(cursor, tokenStart)
     if (range.kind === 'secret') {
       parts.push(<SecretText key={`sec${tokenStart}`} masked={range.masked} raw={text.slice(tokenStart, end)} labels={secretLabels} />)
+      cursor = end
+      continue
+    }
+    if (range.kind === 'quote') {
+      const { excerpt, labels, onJump } = range
+      const { source } = excerpt
+      parts.push(
+        <QuotePreview
+          key={`q${tokenStart}`}
+          text={excerpt.text}
+          labels={labels}
+          {...source === undefined || onJump === undefined
+            ? {}
+            : { onJump: () => { onJump(source) } }}
+        />,
+      )
       cursor = end
       continue
     }

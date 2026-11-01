@@ -74,6 +74,8 @@ On Desktop, the official navigation controls report `sidebar_menu_click` with `m
 
 The shell is pure composition: `SidebarRootComponentProps` composes the layout owner share, the global `useSessions` and `useWorkspaces` hooks, the declared brand, the `sidebar.workspaces` and `sidebar.settings` child slots, and injected navigation callbacks. Panel metadata is derived from list registrations and locale changes; selection belongs to the layout store. The injected `trackEntryClick(attributes)` forwards to `ctx.get('productAnalytics')?.track('sidebar_menu_click', attributes)`, and `selectPanel` only selects, so each control supplies its own entry and position.
 
+Expanded navigation uses 8px outer gutters with a 3px paint inset on each row, a 6px gap between a row's glyph and its label, and a 10px bottom margin under New Session, whose content keeps 4px side margins. The logo row has no bottom margin and its content starts 16px from the column's left edge (8px column padding plus 8px row padding), with 5px between mark and name; only the macOS non-fullscreen top toggle shifts 4px right while expanded. Every hover affordance sits behind `@media (hover: hover)`, so a touch or pen input keeps no wash after a tap, and collapsed geometry stays independent of all of it.
+
 ### Slot discipline
 
 Declaration-aware `slots.inject()` lets a replacing package activate before or after the sidebar. The foot stacks the `sidebar.footer.action` list above the `sidebar.settings` occupant, and the sidebar shares its column state (`wide`) with both. The `/client` exports are the plugin body (`apply`/`inject`) plus the contract types only; SidebarRoot, the row components, and the tree derivation remain package-internal behind the slot registration.

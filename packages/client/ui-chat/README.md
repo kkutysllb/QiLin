@@ -15,6 +15,7 @@ File-mention providers receive the viewed Session ID with the closing-turn owner
 ## Table of Contents
 
 - [Reference previews](#reference-previews)
+- [Quoted excerpts](#quoted-excerpts)
 - [Hidden Chat rows](#system-prompt-row)
 - [Turn token usage](#turn-token-usage)
 - [Completed-turn footer](#completed-turn-footer)
@@ -39,6 +40,11 @@ Chat supplies file and HTTP(S) navigation through one `MarkdownDelegateProvider`
 Standalone Markdown images show contained previews and open the shared image lightbox; local paths resolve against the viewed workspace after settlement. Image file links keep their sidebar activation and show a thumbnail after hover dwell or keyboard focus. Escape dismisses the thumbnail. Failed images retain a localized status and their description; no duplicate-image filtering is applied.
 
 HTTP(S) links in Assistant Markdown open a new right-Sidebar Browser tab on ordinary clicks when that type is registered, or the system browser otherwise; modified clicks retain the native external-link behavior. Sent file references and skills confirmed by the message’s logged invocation also open in the right Sidebar. File paths use the viewed Session; skill names resolve through its current input-trigger source. Both use the prose file-link dotted underline on hover or focus. Sessions, directories, and command labels remain non-navigating references.
+
+<a id="quoted-excerpts"></a>
+## Quoted excerpts
+
+A sent user message may carry Markdown blockquotes. Each consecutive `> ` run renders as one quote surface instead of literal markers: the excerpt, a copy control that writes exactly the quoted characters, and — when the block's first line names a source as `[quoted](qilin-quote:<node-key>)` — a jump control that scrolls that Chat row into view. The jump does nothing while the quoted message sits outside the loaded window. The scanner, decoder, and the insertion serializer live in [`ui-primitives`' quote-text](../ui-primitives/src/quote-text.ts); Chat owns the localized control names and the jump, because it is the layer that knows the rendered rows. A recognized credential inside a quote keeps its masking: that span stays plain text instead of becoming a quote surface, so the excerpt never prints a value the bubble would otherwise mask.
 
 <a id="system-prompt-row"></a>
 ## Hidden Chat rows
@@ -124,6 +130,7 @@ None; Chat presentation does not assemble or mutate provider requests.
 
 - **The transcript reflects the loaded Session window** — older transcript nodes become available only after Session Controller loads the preceding event page. Turn navigation is wider than the window: the rail merges the loaded Turns with the host `turnOutline` projection, so every started Turn gets a fixed-pitch mark (10px apart; the rail virtualizes, mounting only the marks near its own viewport, and a ladder taller than the frame scrolls inside it with gradient fades without consuming transcript wheel input), and activating an unloaded mark pages history through the Turn's `turn/start` seq before landing on its row. Without the projection (assemblies not mounting `qilin-session-turn-outline`) the rail falls back to loaded Turns only.
 - **Rail previews are card-sized** — one prompt line (50 characters) and up to three response lines (120), on loaded and unloaded Turns alike; an unloaded Turn's response arrives from the outline only once the Turn settled, so an open Turn previews its prompt (or just the Turn number) until then.
+- **Inserting a quote into the composer is not wired** — selecting message text and inserting it as a blockquote needs a text-interaction seat declared on the conversation side; the upstream composition registers a `conversation.chat.text-interaction` slot and an `InputActions.insertQuote` verb. Today `InputActions.insertText(text, span)` is the available entry point and `quoteInsertionOf(fragment)` produces the exact draft text, but no seat offers the gesture, so a quote reaches a message by being typed or pasted.
 
 
 <a id="dev-note"></a>

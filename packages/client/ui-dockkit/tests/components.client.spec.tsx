@@ -979,6 +979,15 @@ describe('DockSurface', () => {
 })
 
 describe('tab drags', () => {
+  it('keeps a dragged tab when the middle button is released while the primary button stays down', () => {
+    const { intents, first, fileTabId, chip } = twoPanes()
+    drag(chip(fileTabId), FILE_CHIP, [30, 18], false)
+    fireEvent(chip(fileTabId), new MouseEvent('auxclick', { button: 1, buttons: 1, bubbles: true, cancelable: true }))
+    expect(intents.closeTab).not.toHaveBeenCalled()
+    fireEvent.pointerUp(window, { pointerId: 7, button: 0, buttons: 0, clientX: 30, clientY: 18 })
+    expect(intents.placeTab).toHaveBeenCalledExactlyOnceWith(fileTabId, first, 0)
+  })
+
   it('previews a caret at the slot under the pointer and reports that slot on release', () => {
     const { intents, first, fileTabId, chip } = twoPanes()
     // Left of the first chip's midpoint: slot 0.
@@ -1440,6 +1449,46 @@ describe('FloatLayer', () => {
     const { intents, tabId } = floating()
     fireEvent.click(screen.getByRole('button', { name: TEST_LABELS.closeFloat }))
     expect(intents.closeTab).toHaveBeenCalledWith(tabId)
+  })
+
+  it('closes a floating panel by middle click on its chip, without raising it first', () => {
+    const { intents, panel, tabId } = floating()
+    const title = panel.querySelector('[data-dockkit-float-title]')
+    if (title === null) throw new Error('expected the panel header chip')
+    // The browser's autoscroll cursor is what the press must not start.
+    expect(fireEvent.mouseDown(title, { button: 1 })).toBe(false)
+    fireEvent.pointerDown(title, { clientX: 150, clientY: 90, pointerId: 7, button: 1 })
+    fireEvent.pointerUp(window, { pointerId: 7, button: 1, clientX: 190, clientY: 130 })
+    expect(fireEvent(title, new MouseEvent('auxclick', { button: 1, bubbles: true, cancelable: true }))).toBe(false)
+    expect(intents.closeTab).toHaveBeenCalledExactlyOnceWith(tabId)
+    expect(intents.focusPane).not.toHaveBeenCalled()
+    expect(intents.moveFloat).not.toHaveBeenCalled()
+  })
+
+  it('keeps an unclosable floating panel on middle click, and ignores the other buttons', () => {
+    const canCloseTab = vi.fn(() => false)
+    const { intents, panel } = floating(canCloseTab)
+    const title = panel.querySelector('[data-dockkit-float-title]')
+    if (title === null) throw new Error('expected the panel header chip')
+    fireEvent(title, new MouseEvent('auxclick', { button: 1, bubbles: true, cancelable: true }))
+    expect(intents.closeTab).not.toHaveBeenCalled()
+    for (const button of [0, 2]) {
+      fireEvent(title, new MouseEvent('auxclick', { button, bubbles: true, cancelable: true }))
+    }
+    expect(intents.closeTab).not.toHaveBeenCalled()
+  })
+
+  it('starts no move or resize from a middle press on the panel grip or corner', () => {
+    const { intents, panel } = floating()
+    for (const part of ['data-dockkit-float-grip', 'data-dockkit-float-resize']) {
+      const handle = panel.querySelector(`[${part}]`)
+      if (handle === null) throw new Error(`expected the panel's ${part}`)
+      fireEvent.pointerDown(handle, { clientX: 150, clientY: 90, pointerId: 7, button: 1 })
+      fireEvent.pointerUp(window, { pointerId: 7, button: 1, clientX: 190, clientY: 130 })
+    }
+    expect(intents.moveFloat).not.toHaveBeenCalled()
+    expect(intents.resizeFloat).not.toHaveBeenCalled()
+    expect(intents.focusPane).not.toHaveBeenCalled()
   })
 
   it('hides a floating tab close control when the embedder disallows it', () => {

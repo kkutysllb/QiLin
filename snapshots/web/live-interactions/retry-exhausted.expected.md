@@ -1,14 +1,13 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Reply with a one-sentence description" [disabled]
+  - text: Standard mode
   - button "Open right sidebar"
-- button "System prompt"
 - text: Reply with a one-sentence description of event sourcing, then stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
 - status: Failed
 - button "Failed" [disabled] [expanded]
-- button "Context injection runtime-context"
 - group:
   - status: Retried model request (2/2) · {{duration}}
 - status:

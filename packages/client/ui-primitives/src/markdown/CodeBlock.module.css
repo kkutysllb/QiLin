@@ -104,6 +104,29 @@
   color: var(--qilin-alias-label-primary);
 }
 
+/* Line-level hover: the source line under the pointer takes the interactive
+   wash so a reader can follow one line across a wide block. The rule paints a
+   background only — selection, the copy button's textContent read, and the
+   gutter's counters are untouched. Shiki, the plain arm, and the streaming arm
+   all emit one `span.line` per source line, so the selector covers every arm. */
+.block :where(pre) code > :global(.line) {
+  border-radius: 4px;
+  transition: background-color 120ms ease;
+}
+
+@media (hover: hover) {
+  .block :where(pre) code > :global(.line):hover {
+    background-color: var(--qilin-alias-interactive-bg-hover);
+  }
+}
+
+/* A reader who asked for less motion gets the wash without the fade. */
+@media (prefers-reduced-motion: reduce) {
+  .block :where(pre) code > :global(.line) {
+    transition: none;
+  }
+}
+
 .numbered :where(pre) code {
   display: block;
   counter-reset: source-line;

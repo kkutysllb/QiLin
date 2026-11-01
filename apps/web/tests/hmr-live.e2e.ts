@@ -21,6 +21,26 @@ const CLIENT_ARTIFACT_PATTERNS = [
   'packages/*/*/lib/client.*.js.map',
 ]
 
+/**
+ * Readiness budget for `pnpm run dev:web`, which prints its watching line only
+ * after the initial tsdown build of every client package. That build competes
+ * with whatever else the machine runs, so the budget is deployment-varying and
+ * overridable; a too-small value fails as "dev:web not ready" without any
+ * product signal.
+ */
+const DEV_WEB_READY_TIMEOUT_MS = ((): number => {
+  const raw = process.env.QILIN_HMR_READY_MS
+  if (raw === undefined || raw === '') return 150_000
+  const parsed = Number.parseInt(raw, 10)
+  if (!Number.isSafeInteger(parsed) || parsed <= 0 || String(parsed) !== raw) {
+    throw new Error(`QILIN_HMR_READY_MS must be a positive integer, got ${JSON.stringify(raw)}`)
+  }
+  return parsed
+})()
+
+/** The scenario's own vitest budget: the watcher budget plus host boot, page work, and cleanup. */
+const SCENARIO_TIMEOUT_MS = DEV_WEB_READY_TIMEOUT_MS + 90_000
+
 /** Return every artifact that `pnpm run dev:web` can rewrite. */
 function clientArtifactPaths(): string[] {
   return globSync(CLIENT_ARTIFACT_PATTERNS, { cwd: REPO_ROOT })
@@ -39,7 +59,7 @@ function spawnSpec(argv: readonly string[], cwd: string, env?: Record<string, st
   }
 }
 
-function waitForOutput(child: SubprocessHandle, pattern: RegExp, label: string): Promise<string> {
+function waitForOutput(child: SubprocessHandle, pattern: RegExp, label: string, timeoutMs = 60_000): Promise<string> {
   return new Promise((resolveReady, reject) => {
     let output = ''
     let settled = false
@@ -66,7 +86,7 @@ function waitForOutput(child: SubprocessHandle, pattern: RegExp, label: string):
       if (match === null) return
       resolveOnce(match[1] ?? match[0])
     }
-    const timer = setTimeout(() => { rejectOnce(new Error(`${label} not ready:\n${output}`)) }, 60_000)
+    const timer = setTimeout(() => { rejectOnce(new Error(`${label} not ready after ${String(timeoutMs)}ms:\n${output}`)) }, timeoutMs)
     child.stdout?.on('data', onData)
     child.stderr?.on('data', onData)
     void child.done.then((outcome) => {
@@ -115,7 +135,7 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
       REPO_ROOT,
       { ...clientBuildEnvironment },
     ))
-    await waitForOutput(watcher, /dev-web: watching/, 'pnpm run dev:web')
+    await waitForOutput(watcher, /dev-web: watching/, 'pnpm run dev:web', DEV_WEB_READY_TIMEOUT_MS)
     // The shipped surface gates the application behind a local account, and this
     // scenario is about client-plugin reloading: the harness home's own patch
     // layer turns the gate off, exactly as the scaffold lane does for its
@@ -181,4 +201,4 @@ it('hot-reloads a real client-plugin source edit without refreshing the page', a
     await rm(world, { recursive: true, force: true }).catch((error: unknown) => failures.push(error))
   }
   if (failures.length > 0) throw new AggregateError(failures, 'HMR browser test or cleanup failed')
-}, 120_000)
+}, SCENARIO_TIMEOUT_MS)

@@ -2,10 +2,13 @@
 .sessionRow {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--qilin-sidebar-label-gap);
   border-radius: 8px;
+  border-inline: var(--qilin-sidebar-paint-inset) solid transparent;
+  background-clip: padding-box;
+  box-sizing: border-box;
   padding: 0 8px;
-  padding-inline-start: calc(8px + var(--dsh-workspace-indent, 0px));
+  padding-inline-start: calc(var(--qilin-sidebar-row-padding) - var(--qilin-sidebar-paint-inset) + var(--dsh-workspace-indent, 0px));
   cursor: pointer;
   user-select: none;
   color: var(--qilin-alias-label-primary);
@@ -13,11 +16,11 @@
 
 .projectRow:hover,
 .sessionRow:hover {
-  background: var(--qilin-alias-interactive-bg-hover);
+  background-color: var(--qilin-alias-interactive-bg-hover);
 }
 
 .sessionRow.selected {
-  background: var(--qilin-alias-interactive-bg-hover);
+  background-color: var(--qilin-alias-interactive-bg-hover);
 }
 
 .searchResultRow {
@@ -29,19 +32,21 @@
   box-sizing: border-box;
   border: none;
   border-radius: 8px;
-  padding: 4px 8px;
+  padding: 4px calc(var(--qilin-sidebar-row-padding) - var(--qilin-sidebar-paint-inset));
+  border-inline: var(--qilin-sidebar-paint-inset) solid transparent;
   background: transparent;
+  background-clip: padding-box;
   cursor: pointer;
   text-align: left;
   color: var(--qilin-alias-label-primary);
 }
 
 .searchResultRow:hover {
-  background: var(--qilin-alias-interactive-bg-hover);
+  background-color: var(--qilin-alias-interactive-bg-hover);
 }
 
 .searchResultRow.selected {
-  background: var(--qilin-alias-interactive-bg-hover);
+  background-color: var(--qilin-alias-interactive-bg-hover);
 }
 
 .searchResultHeading {
@@ -53,7 +58,7 @@
 .searchResultTitle {
   flex: 0 1 auto;
   min-width: 0;
-  margin-left: 4px;
+  margin: 0 var(--qilin-sidebar-label-gap);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -66,7 +71,7 @@
   align-items: center;
   gap: 6px;
   min-width: 0;
-  margin-left: 20px;
+  margin-left: calc(16px + var(--qilin-sidebar-label-gap));
 }
 
 .searchResultWorkspace,
@@ -101,21 +106,14 @@
   height: 20px;
 }
 
-/* Session cell (figma): pad 8, a 16px status slot, then a 4px title gap. */
+/* Session titles share the workspace icon slot and compact label gap. */
 .sessionRow {
   height: 32px;
   gap: 0;
-  /* Mount fade: session rows appear by unfolding a group (or the tree
-     mounting). Stable row keys keep already-visible rows from replaying it. */
-  animation: row-in 150ms var(--ds-ease-in-out);
 }
 
 .sessionRow .title {
-  margin: 0 6px 0 4px;
-}
-
-@keyframes row-in {
-  from { opacity: 0; }
+  margin: 0 6px 0 var(--qilin-sidebar-label-gap);
 }
 
 .slot {
@@ -236,6 +234,7 @@
   font-size: 12px;
   line-height: 20px;
   color: var(--qilin-alias-label-tertiary);
+  margin-inline-end: -1px;
 }
 
 .dot {
@@ -260,13 +259,12 @@
   display: none;
 }
 
-/* Trailing action buttons surface on hover only (figma 27:4668 / 27:4656):
-   bare 16px glyphs, gap 15, tertiary grey. */
+/* The trailing strip keeps a shared gap between its fixed-size control boxes. */
 .rowActions {
   flex: none;
   display: none;
   align-items: center;
-  gap: 15px;
+  gap: 13px;
 }
 
 .projectRow:hover .rowActions,
@@ -285,7 +283,7 @@
    hover fill while its dropdown is up). */
 .projectRow.menuOpen,
 .sessionRow.menuOpen {
-  background: var(--qilin-alias-interactive-bg-hover);
+  background-color: var(--qilin-alias-interactive-bg-hover);
 }
 
 /* Session drag insert marker: a leading chevron and 2px rule between rows,
@@ -300,8 +298,8 @@
   content: '';
   position: absolute;
   z-index: 1;
-  left: 0;
-  right: 4px;
+  left: calc(-1 * var(--qilin-sidebar-paint-inset));
+  right: calc(4px - var(--qilin-sidebar-paint-inset));
   height: 12px;
   background:
     linear-gradient(
@@ -366,19 +364,26 @@
   color: #ADB2B8;
 }
 
+/* Compensated margins keep the 24px target on the compact icon's center. */
 .iconButton {
   flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
+  margin: -4px;
   border: none;
   border-radius: 4px;
   padding: 0;
   background: transparent;
   cursor: pointer;
   color: var(--qilin-alias-label-tertiary);
+}
+
+/* Keep the focus ring on its original compact outline. */
+.iconButton:focus-visible {
+  outline-offset: -2px;
 }
 
 .iconButton:hover {
@@ -392,7 +397,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sessionRow,
   .arrow {
     animation: none;
     transition: none;

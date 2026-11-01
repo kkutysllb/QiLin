@@ -83,7 +83,10 @@ describe('WorkspaceBrowser.module.css list', () => {
     expect(listTopMarker?.get('top')).toBe('-8px')
     expect(listTopMarker?.get('left')).toBe('0')
     expect(workspaceMarker?.get('left')).toBe('0')
-    expect(sessionMarker?.get('left')).toBe('0')
+    // The session marker spans the row's painted fill, which is inset by the
+    // transparent border the row carries; the shell's inset cancels out again.
+    expect(sessionMarker?.get('left')).toBe('calc(-1 * var(--qilin-sidebar-paint-inset))')
+    expect(sessionMarker?.get('right')).toBe('calc(4px - var(--qilin-sidebar-paint-inset))')
     for (const marker of [listTopMarker, workspaceMarker, sessionMarker]) {
       expect(marker?.get('height')).toBe('12px')
       expect(marker?.get('background')).not.toContain('radial-gradient')
@@ -99,7 +102,7 @@ describe('WorkspaceBrowser.module.css list', () => {
   it('keeps the compact fade, overflow control, search field, and row heights', () => {
     expect(declarations('.fade')?.get('height')).toBe('24px')
     expect(declarations('.sessionOverflowButton')?.get('height')).toBe('28px')
-    expect(declarations('.searchExpanded')?.get('height')).toBe('30px')
+    expect(declarations('.searchExpanded')?.get('height')).toBe('32px')
     expect(rowDeclarations('.projectRow')?.get('height')).toBe('34px')
     expect(rowDeclarations('.sessionRow')?.get('height')).toBe('32px')
     // One leading status cell for every session row, grouped or flat: the cell
@@ -107,9 +110,9 @@ describe('WorkspaceBrowser.module.css list', () => {
     // own box, so the title's one shared margin below needs no per-view override.
     expect(rowDeclarations('.slot')?.get('width')).toBe('16px')
     expect(rowDeclarations('.slot')?.get('height')).toBe('20px')
-    expect(rowDeclarations('.sessionRow .title')?.get('margin')).toBe('0 6px 0 4px')
+    expect(rowDeclarations('.sessionRow .title')?.get('margin')).toBe('0 6px 0 var(--qilin-sidebar-label-gap)')
     expect(rowDeclarations('.searchResultRow')?.get('min-height')).toBe('48px')
-    expect(rowDeclarations('.sessionRow.selected')?.get('background'))
+    expect(rowDeclarations('.sessionRow.selected')?.get('background-color'))
       .toBe('var(--qilin-alias-interactive-bg-hover)')
   })
 
@@ -132,17 +135,79 @@ describe('WorkspaceBrowser.module.css list', () => {
       .toBe('linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent)')
   })
 
-  it('swaps the trailing time cell for the 16px hover action strip', () => {
+  it('swaps the trailing time cell for the compact hover action strip', () => {
     expect(rowDeclarations('.rowActions')?.get('display')).toBe('none')
-    expect(rowDeclarations('.rowActions')?.get('gap')).toBe('15px')
+    expect(rowDeclarations('.rowActions')?.get('gap')).toBe('13px')
     for (const selector of ['.sessionRow:hover .rowActions', '.sessionRow.menuOpen .rowActions']) {
       expect(rowDeclarations(selector)?.get('display')).toBe('inline-flex')
     }
     expect(rowDeclarations('.sessionRow:hover .time')?.get('display')).toBe('none')
     // The static pin marker yields to the hover button that replaces it.
     expect(rowDeclarations('.sessionRow:hover .pinIndicator')?.get('display')).toBe('none')
-    expect(rowDeclarations('.iconButton')?.get('width')).toBe('16px')
-    expect(rowDeclarations('.iconButton')?.get('height')).toBe('16px')
+    // The trailing strip keeps its 16px control cells; the buttons carry a 24px
+    // click target centred on them through compensated margins.
+    expect(rowDeclarations('.iconButton')?.get('width')).toBe('24px')
+    expect(rowDeclarations('.iconButton')?.get('height')).toBe('24px')
+    expect(rowDeclarations('.iconButton')?.get('margin')).toBe('-4px')
+    expect(rowDeclarations('.iconButton:focus-visible')?.get('outline-offset')).toBe('-2px')
+  })
+
+  it('aligns rows on the sidebar metrics the shell supplies', () => {
+    // The row fill is inset by a transparent border, so it never moves content.
+    const sessionRow = rowDeclarations('.sessionRow')
+    const paintInset = 'var(--qilin-sidebar-paint-inset)'
+    // A Workspace row spaces its cells on the shell gap; a Session row zeroes it
+    // and carries the same gap on the title margin instead.
+    expect(rowDeclarations('.projectRow')?.get('gap')).toBe('var(--qilin-sidebar-label-gap)')
+    expect(sessionRow?.get('gap')).toBe('0')
+    expect(sessionRow?.get('border-inline')).toBe(`${paintInset} solid transparent`)
+    expect(sessionRow?.get('background-clip')).toBe('padding-box')
+    expect(sessionRow?.get('box-sizing')).toBe('border-box')
+    expect(sessionRow?.get('padding-inline-start'))
+      .toBe('calc(var(--qilin-sidebar-row-padding) - var(--qilin-sidebar-paint-inset) + var(--dsh-workspace-indent, 0px))')
+    // A search row washes the same inset fill and keeps its title on the shared gap.
+    const searchRow = rowDeclarations('.searchResultRow')
+    expect(searchRow?.get('padding')).toBe('4px calc(var(--qilin-sidebar-row-padding) - var(--qilin-sidebar-paint-inset))')
+    expect(searchRow?.get('border-inline')).toBe(`${paintInset} solid transparent`)
+    expect(searchRow?.get('background-clip')).toBe('padding-box')
+    expect(rowDeclarations('.searchResultTitle')?.get('margin')).toBe('0 var(--qilin-sidebar-label-gap)')
+    expect(rowDeclarations('.searchResultMeta')?.get('margin-left')).toBe('calc(16px + var(--qilin-sidebar-label-gap))')
+    // The time label pulls 1px so its optical edge matches the action strip's.
+    expect(rowDeclarations('.time')?.get('margin-inline-end')).toBe('-1px')
+  })
+
+  it('aligns the section header on the shell padding and settles search expansion', () => {
+    expect(declarations('.sectionHeader')?.get('padding-left')).toBe('var(--qilin-sidebar-row-padding)')
+    // The label pulls 1px left so its glyph edge lines up with row titles.
+    expect(declarations('.sectionLabel')?.get('position')).toBe('relative')
+    expect(declarations('.sectionLabel')?.get('left')).toBe('-1px')
+    // An expanded search drops the trailing inset, so the field fills the column.
+    const expandedHeader = declarations('.root:not(.rail) .sectionHeader:has(.searchExpanded)')
+    expect(expandedHeader?.get('margin-right')).toBe('0')
+    expect(expandedHeader?.get('padding-inline')).toBe('calc(var(--qilin-sidebar-paint-inset) + 1px)')
+    expect(expandedHeader?.get('gap')).toBe('0')
+    // The header slides those three properties between states, and the reduce
+    // block settles them: the declarations helper merges the later override, so
+    // the pair is read from the stylesheet text.
+    expect(css).toContain('margin-right 180ms var(--ds-ease-in-out)')
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{[\s\S]*\.root:not\(\.rail\) \.sectionHeader,/)
+  })
+
+  it('expands the search field into the header box and re-aligns its controls', () => {
+    // The expanded field fills the header box instead of overhanging it, so its
+    // edge stays on the shell padding the collapsed pill uses.
+    const expanded = declarations('.searchExpanded')
+    expect(expanded?.get('width')).toBe('100%')
+    expect(expanded?.get('height')).toBe('32px')
+    expect(expanded?.get('margin-inline')).toBe('0')
+    expect(declarations('.searchExpanded .searchButton')?.get('height')).toBe('32px')
+    // A hidden label drops its negative margin while search owns the header.
+    expect(declarations('.sectionHeader:has(.searchExpanded) .sectionLabelHidden')?.get('margin-right')).toBe('0')
+    // The Show-more control indents on the shell metrics instead of a literal,
+    // and reads the same per-level indentation the group publishes.
+    expect(declarations('.sessionOverflowButton')?.get('padding')).toBe(
+      '0 var(--qilin-sidebar-row-padding) 0 calc(var(--qilin-sidebar-row-padding) + 16px + var(--qilin-sidebar-label-gap) + var(--dsh-workspace-indent, 0px))',
+    )
   })
 
   it('keeps the collapsed column free of region controls', () => {

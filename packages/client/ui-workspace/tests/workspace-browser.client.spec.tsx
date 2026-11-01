@@ -558,6 +558,27 @@ describe('WorkspaceBrowser', () => {
     expect(screen.queryByText('alpha-s')).toBeNull()
   })
 
+  it('keys every row for the shared animated list', () => {
+    const items = [summary('session-1', 1)]
+    const b = mount({
+      useSessions: hook(sessionState(items)),
+      useWorkspaces: hook(workspaceState([workspace('alpha', items.map(item => item.id))])),
+    })
+    fireEvent.click(screen.getByText('alpha'))
+    // AnimatedRows glides and fades by these attributes, which must cover every
+    // rendered row in DOM order.
+    expect(Array.from(
+      screen.getByRole('tree', { name: '会话' }).querySelectorAll('[data-row-key]'),
+      row => row.getAttribute('data-row-key'),
+    )).toEqual(['workspace:alpha', 'session:session-1'])
+    b.store.actions.setGroupBy('flat')
+    rerender(b, {})
+    expect(Array.from(
+      screen.getByRole('tree', { name: '会话' }).querySelectorAll('[data-row-key]'),
+      row => row.getAttribute('data-row-key'),
+    )).toEqual(['session:session-1'])
+  })
+
   it('shows five sessions by default and clears transient show-all when the Workspace collapses', () => {
     const items = Array.from({ length: 7 }, (_, index) => summary(`session-${index + 1}`, 7 - index))
     const b = mount({
@@ -569,6 +590,8 @@ describe('WorkspaceBrowser', () => {
     expect(screen.queryByText('session-6')).toBeNull()
     expect(screen.queryByText('session-7')).toBeNull()
 
+    expect(screen.getByRole('button', { name: '展开其余 2 个会话' }).getAttribute('data-row-key'))
+      .toBe('overflow:alpha')
     fireEvent.click(screen.getByRole('button', { name: '展开其余 2 个会话' }))
     expect(screen.getByText('session-6')).toBeTruthy()
     expect(screen.getByText('session-7')).toBeTruthy()
@@ -1422,10 +1445,11 @@ describe('WorkspaceBrowser', () => {
     vi.useFakeTimers()
     try {
       const b = mount()
-      expect(screen.getByText('暂无会话')).toBeTruthy()
+      // The placeholder is a row of the animated list, so it carries a key too.
+      expect(screen.getByText('暂无会话').getAttribute('data-row-key')).toBe('empty')
       b.store.actions.setGroupBy('flat')
       rerender(b, {})
-      expect(screen.getByText('暂无会话')).toBeTruthy()
+      expect(screen.getByText('暂无会话').getAttribute('data-row-key')).toBe('empty')
       fireEvent.change(screen.getByPlaceholderText('搜索会话…'), { target: { value: 'x' } })
       expect(screen.getByText('正在搜索会话历史…')).toBeTruthy()
       await act(async () => { await vi.advanceTimersByTimeAsync(250) })

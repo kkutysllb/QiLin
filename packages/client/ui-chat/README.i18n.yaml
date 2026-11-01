@@ -12,11 +12,14 @@
   en: 98d792dbc1b1975e
   zh: 96acf5c3a5165047
 /qilin-agent-client-ui-chat/table-of-contents:
-  en: 080fd52cf1fab80e
-  zh: 58858ae0eb558f89
+  en: acc94b91b42a8213
+  zh: 955b4f03c39267b0
 /qilin-agent-client-ui-chat/reference-previews:
-  en: d930954fb905ac4c
-  zh: f7f635ccf869c31c
+  en: dfc8104bebb1e876
+  zh: 2fd3444de471f8e0
+/qilin-agent-client-ui-chat/quoted-excerpts:
+  en: 18a615f632e814b6
+  zh: 434b5eb5959bd583
 /qilin-agent-client-ui-chat/hidden-chat-rows:
   en: 62f8dd2da22d06d8
   zh: fbc0ffdc0167a61f
@@ -48,8 +51,8 @@
   en: 15a7151ff9268f15
   zh: 6eae68c718be579b
 /qilin-agent-client-ui-chat/known-limitations-and-deferred-work:
-  en: f7e9784960922fb7
-  zh: 00df59b24fa66bf8
+  en: eba7860cff838acd
+  zh: ce5a8c859c5101bf
 /qilin-agent-client-ui-chat/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: e88aeb617ffb74ea

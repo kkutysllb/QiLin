@@ -12,7 +12,7 @@
 import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import {
-  Button, IconCloseFillRegular, IconPersonalizationOutlineRegular,
+  AnimatedRows, Button, IconCloseFillRegular, IconPersonalizationOutlineRegular,
   IconProjectAddOutlineRegular, IconSearchOutlineRegular, Menu, Modal, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type {
@@ -243,6 +243,11 @@ type SessionTreeProps = Pick<
   revealSessionId?: SessionId | undefined
   /** Acknowledge that the chosen Session row has been revealed. */
   onSessionRevealed: (sessionId: SessionId) => void
+  /**
+   * Identity of the current view (grouping, order, filter). A change replaces
+   * every row, so the list settles it instead of animating row by row.
+   */
+  animationResetKey: string
 }
 
 /** The scrolling session tree; unmounting drops the sessions subscription and expand-all state. */
@@ -254,7 +259,7 @@ function SessionTree({
   insertWorkspaceBefore,
   nestWorkspaces, groupExpansion, setGroupExpanded,
   setSessionOrder, home, t, renderSlot,
-  revealSessionId, onSessionRevealed,
+  revealSessionId, onSessionRevealed, animationResetKey,
 }: SessionTreeProps) {
   const panelActive = usePanelInfo(info => info.activePanelId !== null)
   const statuses = useSessionStatus(s => s)
@@ -266,6 +271,8 @@ function SessionTree({
     : owningGroupKey(workspaces, revealSessionId)
   // Per-group raised watermarks; an absent key means the base watermark.
   const [storedWatermarks, setStoredWatermarks] = useState<Readonly<Record<string, number>>>({})
+  // Advances on user-driven watermark changes so AnimatedRows settles them; automatic raises animate.
+  const [watermarkMotionKey, setWatermarkMotionKey] = useState(0)
   // Transient drag marker state; the selected mode owns the resulting order.
   const [drag, setDrag] = useState<DragState | null>(null)
   const sessionDropCommitted = useRef(false)
@@ -431,6 +438,10 @@ function SessionTree({
     && workspaceDrag?.over?.id === rootGroups[0].workspaceId
     && workspaceDrag.over.half === 'before'
 
+  // Row identity for AnimatedRows, accumulated as the tree renders in DOM order:
+  // a Workspace row, its nested Workspaces, its Session rows, then its overflow
+  // control.
+  const rowKeys: string[] = groups.length === 0 ? ['empty'] : []
   const renderGroup = (group: GroupNode, depth: number): ReactNode => {
     const workspaceId = group.workspaceId
     const children = childrenByParent.get(group.key) ?? []
@@ -439,6 +450,10 @@ function SessionTree({
     const collapsed = watermarkRows(group.sessions, baselines.get(group.key) ?? SESSION_WATERMARK_BASE)
     const visible = watermarkRows(group.sessions, watermark)
     const sessionsExpanded = visible.hiddenCount === 0
+    rowKeys.push(`workspace:${group.key}`)
+    const childRows = group.expanded ? children.map(child => renderGroup(child, depth + 1)) : []
+    for (const node of visible.rows) rowKeys.push(`session:${node.id}`)
+    if (collapsed.hiddenCount > 0) rowKeys.push(`overflow:${group.key}`)
     const workspaceMarker = workspaceId !== undefined && workspaceDrag?.over?.id === workspaceId
       ? workspaceDrag.over.half
       : null
@@ -538,9 +553,7 @@ function SessionTree({
             }}
         />
         {group.expanded && children.length > 0 && (
-          <div role="group">
-            {children.map(child => renderGroup(child, depth + 1))}
-          </div>
+          <div role="group">{childRows}</div>
         )}
         {visible.rows.map((node) => {
         // Session drag never leaves its browser-local account.
@@ -597,6 +610,7 @@ function SessionTree({
           <button
             type="button"
             className={css.sessionOverflowButton}
+            data-row-key={`overflow:${group.key}`}
             aria-expanded={sessionsExpanded}
             onClick={() => {
               if (sessionsExpanded) {
@@ -607,6 +621,7 @@ function SessionTree({
                 ...marks,
                 [group.key]: visible.hiddenCount <= SESSION_WATERMARK_BASE ? Infinity : watermark + SESSION_WATERMARK_BASE,
               }))
+              setWatermarkMotionKey(key => key + 1)
             }}
           >
             {sessionsExpanded
@@ -618,19 +633,23 @@ function SessionTree({
     )
   }
 
+  const groupRows = rootGroups.map(group => renderGroup(group, 0))
   return (
     <div className={clsx(css.treeBody, css.wide)}>
       {workspaceDropAtListStart && <span className={css.listTopDropIndicator} aria-hidden="true" />}
-      <div
+      <AnimatedRows
         className={clsx(css.list, workspaceDropAtListStart && css.listTopDropActive)}
         role="tree"
-        aria-label={t('section.sessions')}
+        label={t('section.sessions')}
+        rowKeys={rowKeys}
+        ready={list.phase === 'ready' && workspaceReady && !nativeDragActive}
+        resetKey={JSON.stringify([animationResetKey, watermarkMotionKey])}
       >
         {groups.length === 0 && (
-          <div className={css.empty}>{t('empty.none')}</div>
+          <div className={css.empty} data-row-key="empty">{t('empty.none')}</div>
         )}
-        {rootGroups.map(group => renderGroup(group, 0))}
-      </div>
+        {groupRows}
+      </AnimatedRows>
       <span className={css.fade} />
     </div>
   )
@@ -640,10 +659,12 @@ function SessionTree({
 function FlatList({
   list, sessionIds, pinnedSessionIds, useSessionStatus, open, forkSession, copySessionId, onSessionRename, onSessionArchive,
   onSessionPin, onSessionUnpin,
-  usePanelInfo, setSessionOrder,
+  usePanelInfo, setSessionOrder, workspaceReady, animationResetKey,
   revealSessionId, onSessionRevealed, t, renderSlot,
 }: Pick<
   SessionTreeProps,
+  | 'workspaceReady'
+  | 'animationResetKey'
   | 'useSessionStatus'
   | 'open'
   | 'forkSession'
@@ -695,9 +716,16 @@ function FlatList({
   const now = Date.now()
   return (
     <div className={clsx(css.treeBody, css.wide)}>
-      <div className={clsx(css.list, css.flatList)} role="tree" aria-label={t('section.sessions')}>
+      <AnimatedRows
+        className={clsx(css.list, css.flatList)}
+        role="tree"
+        label={t('section.sessions')}
+        rowKeys={rows.length === 0 ? ['empty'] : rows.map(row => `session:${row.id}`)}
+        ready={list.phase === 'ready' && workspaceReady && drag === null}
+        resetKey={animationResetKey}
+      >
         {rows.length === 0 && (
-          <div className={css.empty}>{t('empty.none')}</div>
+          <div className={css.empty} data-row-key="empty">{t('empty.none')}</div>
         )}
         {rows.map((node) => {
           const active = drag !== null
@@ -745,7 +773,7 @@ function FlatList({
             />
           )
         })}
-      </div>
+      </AnimatedRows>
       <span className={css.fade} />
     </div>
   )
@@ -1404,6 +1432,8 @@ export function WorkspaceBrowser({
                 usePanelInfo={usePanelInfo}
                 list={list}
                 sessionIds={orderedFlatSessionIds}
+                workspaceReady={workspaceReady}
+                animationResetKey={`${groupBy}/${orderBy}`}
                 useSessionStatus={useSessionStatus}
                 open={open} forkSession={forkSession} copySessionId={copySessionId}
                 onSessionRename={onSessionRename} onSessionArchive={onSessionArchive}
@@ -1420,6 +1450,7 @@ export function WorkspaceBrowser({
               <SessionTree
                 usePanelInfo={usePanelInfo}
                 list={list}
+                animationResetKey={`${groupBy}/${orderBy}`}
                 useSessionStatus={useSessionStatus}
                 copySessionId={copySessionId}
                 renderSlot={renderSlot}
