@@ -324,8 +324,8 @@
 .collapsed .iconButton {
   width: 36px;
   height: 36px;
-  /* Rail hovers share the panel rows' and New Session's 12px rounding. */
-  border-radius: 12px;
+  /* Rail hovers share the panel rows' and New Session's rounding. */
+  border-radius: var(--qilin-radius-md);
 }
 
 /* Rail logo swap: collapsed, the toggle rests as the seal mark (brand ink,
@@ -370,7 +370,7 @@
   height: 16px;
   padding: 0 5px;
   border: 0.5px solid var(--qilin-alias-border-l2);
-  border-radius: 5px;
+  border-radius: var(--qilin-radius-sm);
   color: var(--qilin-alias-label-tertiary);
   background: var(--qilin-alias-bg-layer-2);
   font-family: var(--ds-font-family-code);
@@ -395,7 +395,7 @@
   margin: 0 calc(var(--qilin-sidebar-paint-inset) + 1px) 10px;
   box-sizing: border-box;
   border: 0.5px solid var(--qilin-alias-border-l3);
-  border-radius: 12px;
+  border-radius: var(--qilin-radius-md);
   background: var(--qilin-alias-button-elevated-fill);
   color: var(--qilin-alias-label-primary);
   font-size: 14px;
@@ -569,7 +569,7 @@
   box-sizing: border-box;
   border: none;
   border-inline: var(--qilin-sidebar-paint-inset) solid transparent;
-  border-radius: 12px;
+  border-radius: var(--qilin-radius-md);
   background: transparent;
   background-clip: padding-box;
   color: var(--qilin-alias-label-primary);

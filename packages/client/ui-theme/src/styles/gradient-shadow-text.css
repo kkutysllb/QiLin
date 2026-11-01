@@ -26,12 +26,14 @@ body {
 body,
 body * {
   --qilin-elevation-stroke: 0 0 0 0.5px var(--qilin-elevation-stroke-color);
+  /* Paper elevation: one tight shadow under the hairline instead of the wide
+     two-layer glow, so a raised sheet reads as a sheet rather than a float. */
   --qilin-elevation-panel:
-    var(--qilin-elevation-stroke), 0 3px 8px 0 rgba(0, 0, 0, 0.03), 0 0 16px 0 rgba(0, 0, 0, 0.02);
+    var(--qilin-elevation-stroke), 0 1px 2px 0 rgba(31, 28, 22, 0.05);
   --qilin-elevation-prominent:
-    var(--qilin-elevation-stroke), 0 3px 8px 0 rgba(0, 0, 0, 0.04), 0 0 20px 0 rgba(0, 0, 0, 0.05);
+    var(--qilin-elevation-stroke), 0 4px 12px 0 rgba(31, 28, 22, 0.08);
   --qilin-elevation-soft:
-    var(--qilin-elevation-stroke), 0 4px 16px 0 rgba(0, 0, 0, 0.03), 0 0 24px 0 rgba(0, 0, 0, 0.03);
+    var(--qilin-elevation-stroke), 0 6px 18px 0 rgba(31, 28, 22, 0.06);
 }
 
 body[data-ds-dark-theme] {

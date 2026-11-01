@@ -7,7 +7,9 @@
   justify-content: center;
   gap: 4px;
   border: none;
-  border-radius: 18px;
+  /* Paper geometry: the capsule's own radius gives way to the shared scale, so a
+     button reads as a labelled control on paper rather than a pill. */
+  border-radius: var(--qilin-radius-md);
   cursor: pointer;
   font-size: 14px;
   line-height: 22px;
@@ -32,7 +34,7 @@
   font-size: 12px;
   line-height: 18px;
   padding: 0 10px;
-  border-radius: 14px;
+  border-radius: var(--qilin-radius-sm);
 }
 
 .primary {
