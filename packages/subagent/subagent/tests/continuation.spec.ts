@@ -3266,6 +3266,52 @@ describe('continuable settlement delivery', () => {
       .toEqual(new Set([first.childId, second.childId]))
   })
 
+
+  it('drops a buffered notice when the parent left the registry before its turn ended', async () => {
+    const releaseParent = Promise.withResolvers<undefined>()
+    const adapter = new GatedAdapter([
+      { chunks: textResponse('parent works'), gate: releaseParent.promise },
+      { chunks: textResponse('child done') },
+    ])
+    const { ctx, parent } = await setupWith(adapter)
+    parent.followup(createUserMessage({ content: message('start working'), source: { kind: 'user' } }))
+    await vi.waitFor(() => { expect(parent.status).toBe('running') })
+
+    const started = await ctx.subagents.startActivation({ ...startSpec(parent), delivery: 'parent' })
+    await waitNoActivation(ctx, started.childId)
+    expect(parent.inbox.nextTurn).toHaveLength(0)
+
+    // The parent leaves the registry before its turn closes: the boundary flush must not inject.
+    const agents = ctx.agents
+    const get = agents.get.bind(agents)
+    vi.spyOn(agents, 'get').mockImplementation(((id: SessionId) => id === parent.id ? undefined : get(id)) as typeof agents.get)
+    releaseParent.resolve(undefined)
+    await vi.waitFor(() => { expect(parent.status).toBe('idle') })
+    await vi.waitFor(() => { expect(parent.inbox.nextTurn).toHaveLength(0) })
+  })
+
+  it('reports a boundary injection the parent refused', async () => {
+    const releaseParent = Promise.withResolvers<undefined>()
+    const adapter = new GatedAdapter([
+      { chunks: textResponse('parent works'), gate: releaseParent.promise },
+      { chunks: textResponse('child done') },
+    ])
+    const { ctx, parent } = await setupWith(adapter)
+    parent.followup(createUserMessage({ content: message('start working'), source: { kind: 'user' } }))
+    await vi.waitFor(() => { expect(parent.status).toBe('running') })
+
+    const started = await ctx.subagents.startActivation({ ...startSpec(parent), delivery: 'parent' })
+    await waitNoActivation(ctx, started.childId)
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => undefined)
+    vi.spyOn(parent, 'inject').mockImplementation(() => { throw new Error('inbox closed') })
+
+    releaseParent.resolve(undefined)
+    await vi.waitFor(() => {
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('was not delivered at its parent\'s step boundary: inbox closed'))
+    })
+  })
+
+
   it('holds a maintaining parent live until it can read the notice', async () => {
     const releaseFirst = Promise.withResolvers<undefined>()
     const releaseSecond = Promise.withResolvers<undefined>()

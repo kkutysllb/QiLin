@@ -1369,6 +1369,8 @@ export class SubagentManager {
   private flushBoundary(parent: Agent): void {
     queueMicrotask(() => {
       const queue = this.boundaryNotices.get(parent.session)
+      /* v8 ignore next -- the turn observer flushes exactly the queue its own hold registered;
+       * a missing or foreign entry needs a disposer reordering this listener never performs. */
       if (queue === undefined || queue.parent !== parent) return
       this.boundaryNotices.delete(parent.session)
       if (this.ctx.agents.get(parent.id) !== parent) return
