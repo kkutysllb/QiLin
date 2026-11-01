@@ -10,6 +10,7 @@ import { en } from '../src/client/locales.ts'
 afterEach(() => {
   cleanup()
   vi.unstubAllGlobals()
+  vi.useRealTimers()
 })
 
 /** The ledger read, answered with the records one test wants or a refusal. */
@@ -190,6 +191,10 @@ describe('usage settings section', () => {
   })
 
   it('reads one day back on focus and walks the bars with the arrow keys', async () => {
+    // The chart draws one bar per elapsed day of the month; pin the day so the month-end
+    // arithmetic and the neighbouring bars stay stable on every calendar day.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-10-20T12:00:00'))
     answerWith({
       accountId: 'account-1',
       total: { sessions: 1, turns: 1, inputTokens: 100, outputTokens: 10, cacheReadTokens: 40, cacheWriteTokens: 0, cacheHitRate: 0.29 },
