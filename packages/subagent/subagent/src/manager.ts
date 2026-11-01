@@ -53,6 +53,12 @@ interface NoticeQueue {
   readonly pending: Map<number, () => void>
 }
 
+/** Settlement notices waiting for a running parent's turn to end. */
+interface BoundaryNotices {
+  readonly parent: Agent
+  readonly messages: UserMessage[]
+}
+
 /** Inputs shared by model steering and human prompt delivery. */
 type ChildDeliveryOptions =
   | {
@@ -163,6 +169,11 @@ export class SubagentManager {
   private readonly noticeQueues = new WeakMap<Session, NoticeQueue>()
   /** Acceptance ordinals of reserved local children that may still publish a settlement notice. */
   private readonly noticeOrdinals = new Map<SessionId, { readonly parent: Session; readonly ordinal: number }>()
+  /**
+   * Notices held for a parent that is mid-turn: a running parent records the notice after its
+   * turn ends, so the durable position follows the turn lifecycle, never teardown timing.
+   */
+  private readonly boundaryNotices = new WeakMap<Session, BoundaryNotices>()
   /** Structural Cordis owner of every Activation handle. */
   private readonly ownerCtx: Context
   /**
@@ -1138,7 +1149,11 @@ export class SubagentManager {
     if (activation.poke !== observation) return 'retry'
     const inbox = activation.handle.agent.inbox
     if (activation.ownedChildren.size > 0) return 'wait'
-    if (activation.failureAt === undefined && (inbox.nextTurn.length > 0 || inbox.nextStep.length > 0)) return 'wait'
+    // Settlement notices are informational: they stay durable for the next turn without
+    // demanding one, so they must not hold this child's own natural settlement open.
+    const demandsWork = (messages: readonly UserMessage[]): boolean =>
+      messages.some(message => message.source.kind !== 'subagent-settled')
+    if (activation.failureAt === undefined && (demandsWork(inbox.nextTurn) || demandsWork(inbox.nextStep))) return 'wait'
     return 'ready'
   }
 
@@ -1312,13 +1327,64 @@ export class SubagentManager {
         parent.inject(message)
         return
       }
-      this.sendWaking(parent, message, parent.status === 'idle' ? 'queue' : 'steer')
+      if (parent.status === 'idle') {
+        this.sendWaking(parent, message, 'queue')
+        return
+      }
+      this.holdForBoundary(parent, message)
     } catch (error: unknown) {
       this.ctx.logger.warn(
         `subagent "${activation.childId}" settlement notice was not delivered to its parent: `
         + errorChain(error),
       )
     }
+  }
+
+  /**
+   * Hold a notice for a running parent until its turn ends. The first hold installs one session
+   * observer; the turn flush removes the buffer so an idle parent carries no messages.
+   * @param parent - live direct parent that is still inside a turn.
+   * @param message - settlement notice to insert after that turn.
+   */
+  private holdForBoundary(parent: Agent, message: UserMessage): void {
+    const existing = this.boundaryNotices.get(parent.session)
+    if (existing !== undefined) {
+      existing.messages.push(message)
+      return
+    }
+    const stop = parent.ctx.on('session/event', (session, event) => {
+      if (session !== parent.session || event.type !== 'turn/end') return
+      stop()
+      this.flushBoundary(parent)
+    })
+    this.boundaryNotices.set(parent.session, { parent, messages: [message] })
+  }
+
+  /**
+   * Insert held notices after the turn boundary that just published. The append that reported
+   * the boundary still owns the session log, so the splice runs in the next microtask, which the
+   * loop reaches before it starts the following turn.
+   * @param parent - live direct parent whose turn ended.
+   */
+  private flushBoundary(parent: Agent): void {
+    queueMicrotask(() => {
+      const queue = this.boundaryNotices.get(parent.session)
+      if (queue === undefined || queue.parent !== parent) return
+      this.boundaryNotices.delete(parent.session)
+      if (this.ctx.agents.get(parent.id) !== parent) return
+      // The notice arrived while the parent was mid-turn, so it waits for that turn to end.
+      // Injecting into the next-turn queue keeps it durable without waking a turn the driver
+      // never asked for, and a running turn never sees a splice in the middle of its steps.
+      for (const notice of queue.messages) {
+        try {
+          parent.inject(notice)
+        } catch (error: unknown) {
+          this.ctx.logger.warn(
+            `subagent settlement notice was not delivered at its parent's step boundary: ${errorChain(error)}`,
+          )
+        }
+      }
+    })
   }
 
   /** Request a best-effort final session flush before closing natural-settlement admission. */

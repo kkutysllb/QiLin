@@ -417,12 +417,17 @@ describe('in-process structured output', () => {
         .map(event => event.data.message)
         .filter(block => block.toolCallId === 'too-early' || block.toolCallId === 'final-capture')
       expect(captures).toHaveLength(2)
+      // The early capture is refused while the descendant still runs; the final one succeeds once
+      // it is gone. The settlement notice itself is a turn-boundary record: it is spliced after
+      // the turn and stays queued for the next one instead of interrupting this turn.
       expect(captures[0]?.isError).toBe(true)
       expect(JSON.stringify(captures[0]?.content)).toContain('Wait for all delegated child tasks to finish')
       expect(captures[1]?.isError).not.toBe(true)
       const messages = events.filter(event => event.type === 'user/message')
       expect(JSON.stringify(messages)).toContain('Descendant result reached parent')
-      expect(messages.some(event => event.data.source.kind === 'subagent-settled')).toBe(true)
+      const spliced = events.filter(event => event.type === 'agent/inbox/spliced')
+        .flatMap(event => event.data.inserted)
+      expect(spliced.some(message => message.source.kind === 'subagent-settled')).toBe(true)
     } finally {
       await descendant?.dispose()
       await activation.dispose()

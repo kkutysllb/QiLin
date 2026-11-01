@@ -3251,8 +3251,8 @@ describe('continuable settlement delivery', () => {
     await waitNoActivation(ctx, first.childId)
     await waitNoActivation(ctx, second.childId)
 
-    // Both notices are waiting for the same step boundary, not two turns.
-    expect(parent.inbox.nextStep).toHaveLength(2)
+    // A running parent buffers both notices; neither lands in the inbox mid-step.
+    expect(parent.inbox.nextStep).toHaveLength(0)
     expect(parent.inbox.nextTurn).toHaveLength(0)
     const turnStarts: number[] = []
     ctx.on('session/event', (session, event) => {
