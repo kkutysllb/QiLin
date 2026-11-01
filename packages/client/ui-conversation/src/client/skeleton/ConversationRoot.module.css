@@ -136,7 +136,7 @@
   overflow: hidden;
   padding: 4px 8px;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--qilin-radius-lg);
   background: transparent;
   font-size: 14px;
   line-height: 20px;

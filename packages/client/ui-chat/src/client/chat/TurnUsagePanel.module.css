@@ -24,7 +24,7 @@
   height: calc(28px + var(--qilin-content-font-delta, 0px));
   padding: 6px 8px;
   border: none;
-  border-radius: 28px;
+  border-radius: var(--qilin-radius-panel);
   background: transparent;
   color: var(--qilin-alias-label-tertiary);
   font-size: var(--qilin-content-font-size-secondary, 13px);

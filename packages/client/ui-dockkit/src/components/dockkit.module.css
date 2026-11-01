@@ -344,7 +344,7 @@
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: 1;
   white-space: nowrap;
-  border-radius: 12px;
+  border-radius: var(--qilin-radius-lg);
   cursor: pointer;
   touch-action: none;
   user-select: none;
@@ -419,7 +419,7 @@
   line-height: 1;
   background: transparent;
   border: none;
-  border-radius: 20px;
+  border-radius: var(--qilin-radius-xl);
   cursor: pointer;
   opacity: 0;
   /* Hidden means untouchable too: without this a touch press on the chip's
@@ -449,7 +449,7 @@
   line-height: 1;
   background: transparent;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--qilin-radius-lg);
   cursor: pointer;
 }
 
@@ -511,7 +511,7 @@
   line-height: 1;
   background: transparent;
   border: none;
-  border-radius: 28px;
+  border-radius: var(--qilin-radius-panel);
   cursor: pointer;
 }
 
@@ -663,7 +663,7 @@
   overflow: hidden;
   color: var(--qilin-alias-label-tertiary);
   border: 1.5px dashed var(--qilin-alias-border-l2);
-  border-radius: 12px;
+  border-radius: var(--qilin-radius-lg);
   transition: color 120ms ease-out, background-color 120ms ease-out, border-color 120ms ease-out;
   animation: dockHintIn 140ms ease-out;
 }
@@ -762,7 +762,7 @@
      to its own corners. */
   overflow: hidden;
   background: var(--qilin-alias-bg-layer-2);
-  border-radius: 20px;
+  border-radius: var(--qilin-radius-xl);
   /* The menu's shadow with the stroke rebound one step lighter than the
      default (l2): the panel reads as the same kind of raised surface, and the
      shadow's hairline outlines it, so the frame draws no border of its own. */

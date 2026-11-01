@@ -13,7 +13,7 @@
   flex: none;
   padding: 1px 8px;
   border: none;
-  border-radius: 24px;
+  border-radius: var(--qilin-radius-panel);
   background: transparent;
   color: var(--qilin-alias-label-tertiary);
   font-family: inherit;
@@ -50,7 +50,7 @@
   width: min(264px, calc(100vw - 24px));
   padding: 12px;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--qilin-radius-lg);
   background: var(--qilin-specific-menu);
   --qilin-elevation-stroke-color: var(--qilin-alias-border-l1);
   box-shadow: var(--qilin-elevation-prominent);

@@ -30,7 +30,7 @@
   overflow: hidden;
   width: 100%;
   padding: 2px 0;
-  border-radius: 12px 12px 0 0;
+  border-radius: var(--qilin-radius-lg) var(--qilin-radius-lg) 0 0;
   background: var(--qilin-specific-tip);
   --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
   --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
