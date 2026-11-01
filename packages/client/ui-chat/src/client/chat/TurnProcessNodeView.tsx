@@ -15,7 +15,30 @@ export const TurnProcessNodeView = memo(function TurnProcessNodeView({
   const turn = node.location.kind === 'turn' || node.location.kind === 'step'
     ? node.location.turn
     : undefined
-  if (turn?.status !== 'closed') return null
+  // A running Turn seats its live process row so the running rows stay visible;
+  // the reader only owns the fold after turn/end, when the answer takes the tail.
+  if (turn === undefined) return null
+  // A Turn with no start in the loaded window is unknown, not live: it owns no
+  // row until the window carries its turn/start.
+  if (turn.status !== 'closed' && turn.start === undefined) return null
+  if (turn.status !== 'closed') {
+    return (
+      <button
+        type="button"
+        className={css.root}
+        data-open
+        data-turn-running
+        data-turn-process={node.data.turn}
+        data-turn-process-messages={node.data.messageCount}
+        data-turn-process-tool-calls={node.data.toolCallCount}
+        data-turn-process-subagents={node.data.subagentCount}
+        disabled
+        aria-expanded={turnProcess.hasContent ? true : undefined}
+      >
+        <span className={css.label}>{t('chat.running')}</span>
+      </button>
+    )
+  }
   const canCollapse = turnProcess.foldable && turnProcess.hasContent && !turnProcessAlwaysOpen(node)
   const reason = turn.end?.data.reason.kind
   const stopped = reason === 'aborted' || reason === 'interrupted'

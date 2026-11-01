@@ -2274,6 +2274,8 @@ describe('ChatView', () => {
       running: true,
     })
     const view = render(<h.ChatView {...h.props} />)
+    // A Turn whose start lies outside the loaded window is unknown, not live:
+    // it owns no row until the window carries its turn/start.
     expect(turnProcessControl(view.container)).toBeNull()
     const processRow = view.getByText('inspect').closest('[data-chat-flow-kind="assistant-step"]') as HTMLElement
 

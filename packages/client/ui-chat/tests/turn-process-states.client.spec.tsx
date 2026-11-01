@@ -96,10 +96,14 @@ function renderControl(options: ViewOptions = {}) {
 }
 
 describe('TurnProcessNodeView states', () => {
-  it('renders nothing while the Turn runs', () => {
+  it('seats a running row while the Turn runs', () => {
     const location = turn({ status: 'open', reason: { kind: 'completed' } })
     const view = renderControl({ node: processNode(location) })
-    expect(view.container.querySelector('[data-turn-process]')).toBeNull()
+    const control = view.control()
+    if (control === null) throw new Error('running control did not render')
+    expect(control.hasAttribute('data-turn-running')).toBe(true)
+    expect(control.disabled).toBe(true)
+    expect(control.textContent).toBe('QiLin...')
     expect(turnProcessAlwaysOpen(view.node)).toBe(true)
   })
 

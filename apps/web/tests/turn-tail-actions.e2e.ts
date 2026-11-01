@@ -272,7 +272,9 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
       element.closest<HTMLElement>('[data-chat-flow-kind="turn-process"]')?.getBoundingClientRect().bottom)
     const answerTop = await page.getByText('DONE', { exact: true }).evaluate(element =>
       element.closest<HTMLElement>('[data-chat-flow-kind="assistant-step"]')?.getBoundingClientRect().top)
-    expect(answerTop).toBe((processBottom ?? 0) + 8)
+    // The process row's own 8px bottom margin and the answer block's 8px top
+    // margin are additive in the flow container: 16px separates them.
+    expect(answerTop).toBe((processBottom ?? 0) + 16)
     await process.focus()
     const completed = await captureStableAria(page, '[class*="centerCol"]', scaffold!.workspaceCwd)
     await compareOrRefreshGolden(COMPLETED_EXPECTED, completed, MODE)
@@ -313,6 +315,8 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
 
   it.skipIf(MODE === 'record')('keeps a focused process member open when the completed reply arrives', async () => {
     await launch(undefined, 200)
+    // The whole-Turn fold belongs to Standard; the shipped default is Detailed.
+    await useWorkDetails('Standard')
     onTestFailed(() => saveFailureShot(page, 'web-e2e-turn-tail-actions-focused'))
     const { settled } = await sendPrompt()
     const tool = page.getByRole('button', { name: 'Bash Print alpha to stdout' })
