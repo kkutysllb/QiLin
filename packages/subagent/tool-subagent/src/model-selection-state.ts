@@ -6,21 +6,6 @@ import type SessionProjectionRegistry from '@qilin-agent/session-projection'
 import type { ProjectionDefinition } from '@qilin-agent/session-projection'
 import { assertAllowedModelRoutes, type AllowedModelRoute } from './model-selection.ts'
 
-declare module '@qilin-agent/session/types' {
-  interface SessionEventMap {
-    /**
-     * Records that this session's delegation tool exposes child provider,
-     * model, and reasoning-effort selection. Appended before the first model
-     * request; absence means the fixed-route definition. Log-only: it carries
-     * no `surfaceOp` and never enters model history.
-     */
-    'subagent/model-selection-policy': {
-      /** Exact routes this Session may select explicitly for a child. */
-      allowedModels: AllowedModelRoute[]
-    }
-  }
-}
-
 declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Exact routes authorized for child LLM selection, or null when disabled. */

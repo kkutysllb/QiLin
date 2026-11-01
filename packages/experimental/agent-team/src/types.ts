@@ -1,5 +1,6 @@
 /** Public Agent Teams identities, durable records, and service request values. */
 
+import type { AgentOptions } from '@qilin-agent/agent'
 import type { Branded } from '@qilin-agent/brand'
 import type { ContentBlock } from '@qilin-agent/llm/types'
 import type { SessionId } from '@qilin-agent/session/types'
@@ -168,6 +169,11 @@ export interface SpawnTeammateRequest {
   readonly context: 'fresh' | 'fork'
   readonly provider: string
   readonly signal: AbortSignal
+  /**
+   * Optional child LLM route. The subagent seam resolves it against the child
+   * provider's defaults and rejects a route the Lead's Session never authorized.
+   */
+  readonly agentOptions?: AgentOptions
 }
 
 /** Result after one teammate reaches a durable active or failed edge. */

@@ -176,6 +176,31 @@ describe('qilin-tool-team', () => {
     },
   )
 
+  it('forwards the route one spawn call selects and rejects a half-named one', async () => {
+    const { ctx, lead } = await setup([])
+    const member = {
+      id: SessionId('private-member-session'), name: 'reviewer', role: 'teammate' as const,
+      status: 'running' as const, description: 'review changes', diagnostics: [],
+    }
+    const spawn = vi.spyOn(ctx.agentTeams, 'spawnTeammate').mockResolvedValue({ member })
+    await execute(ctx, lead, 'spawn_teammate', {
+      name: 'reviewer',
+      description: 'review changes',
+      prompt: 'review',
+      provider: 'zai-coding-cn',
+      model: 'glm-5.3',
+      reasoning_effort: 'high',
+    })
+    expect(spawn.mock.calls[0]?.[1].agentOptions).toMatchObject({
+      provider: 'zai-coding-cn', model: 'glm-5.3', reasoningEffort: 'high',
+    })
+    const halfNamed = await execute(ctx, lead, 'spawn_teammate', {
+      name: 'other', description: 'review changes', prompt: 'review', provider: 'zai-coding-cn',
+    })
+    expect(halfNamed.isError).toBe(true)
+    expect(spawn).toHaveBeenCalledTimes(1)
+  })
+
   it.each(['running', 'inactive'] as const)('returns interrupted %s status', async (previousStatus) => {
     const { ctx, lead } = await setup([])
     const interrupt = vi.spyOn(ctx.agentTeams, 'interrupt').mockReturnValue({ previousStatus })

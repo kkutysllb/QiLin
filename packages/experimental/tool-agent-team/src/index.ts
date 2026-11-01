@@ -2,7 +2,8 @@
 
 import type { Context } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
-import type { Agent } from '@qilin-agent/agent'
+import type { Agent, AgentOptions } from '@qilin-agent/agent'
+import { ReasoningEffortId } from '@qilin-agent/llm'
 import { TeamTaskId } from '@qilin-agent/experimental-agent-team'
 import type { TeamMemberView } from '@qilin-agent/experimental-agent-team'
 import { defineTool } from '@qilin-agent/tools'
@@ -164,6 +165,38 @@ function callingAgent(agent: Agent | undefined, toolName: string): Agent {
   return agent
 }
 
+/** Model-facing child route fields the Lead may name for one teammate. */
+interface DelegationRouteRequest {
+  readonly provider?: string
+  readonly model?: string
+  readonly reasoning_effort?: string
+}
+
+/**
+ * Build the child LLM route one spawn call selected.
+ *
+ * The subagent seam owns route defaults and the Session allowlist; this helper
+ * only rejects a half-named route at the tool boundary so the caller learns the
+ * pairing rule here instead of from a provider-level failure.
+ * @param request - model-facing route fields.
+ * @returns the options to forward, or undefined when the call names no route.
+ */
+function delegationRoute(request: DelegationRouteRequest): AgentOptions | undefined {
+  if (request.provider === undefined && request.model === undefined && request.reasoning_effort === undefined) {
+    return undefined
+  }
+  if ((request.provider === undefined) !== (request.model === undefined)) {
+    throw new Error('child LLM `provider` and `model` must be supplied together')
+  }
+  if (request.provider === '' || request.model === '' || request.reasoning_effort === '') {
+    throw new Error('child LLM route fields must be non-empty')
+  }
+  return {
+    ...request.provider === undefined || request.model === undefined ? {} : { provider: request.provider, model: request.model },
+    ...request.reasoning_effort === undefined ? {} : { reasoningEffort: ReasoningEffortId(request.reasoning_effort) },
+  }
+}
+
 /** Register the complete Team tool set in one exact Agent scope. */
 function install(agent: Agent, ctx: Context, config: Required<Config>): () => void {
   const scoped = agent.ctx
@@ -201,11 +234,24 @@ To message another teammate, use send_message({ target: "<teammate name>", messa
           enum: ['fresh', 'fork'],
           description: 'fresh starts without Lead history; fork inherits completed Lead turns. Defaults to fresh.',
         },
+        provider: {
+          type: 'string',
+          description: 'LLM provider route for the teammate. Supply together with model; omit both to use the resolved child default.',
+        },
+        model: {
+          type: 'string',
+          description: 'Model id interpreted by provider. Supply together with provider; omit both to use the resolved child default.',
+        },
+        reasoning_effort: {
+          type: 'string',
+          description: 'Adapter-owned reasoning effort for the effective route. Omit to use the route default.',
+        },
       },
       output: jsonOutput(SPAWN_VALUE_SCHEMA),
       async execute(args, exec) {
         const agent = callingAgent(exec.agent, 'spawn_teammate')
         const context = args.context ?? 'fresh'
+        const agentOptions = delegationRoute(args)
         const result = await ctx.agentTeams.spawnTeammate(agent, {
           name: args.name,
           description: args.description,
@@ -213,6 +259,7 @@ To message another teammate, use send_message({ target: "<teammate name>", messa
           context,
           provider: context === 'fork' ? config.forkProvider : config.freshProvider,
           signal: exec.signal,
+          ...agentOptions === undefined ? {} : { agentOptions },
         })
         return { member: modelMember(result.member) }
       },

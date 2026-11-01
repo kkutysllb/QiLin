@@ -815,7 +815,7 @@ export interface Config {
 ## `@qilin-agent/experimental-agent-team`
 
 - `inject`: `agents` · `sessions` · `sessionPersistence` · `sessionProjections` · `subagents`
-- `source`: [`packages/experimental/agent-team/src/types.ts:152`](../packages/experimental/agent-team/src/types.ts)
+- `source`: [`packages/experimental/agent-team/src/types.ts:153`](../packages/experimental/agent-team/src/types.ts)
 
 ```ts config-catalog
 /** Team-service deployment limits. */
@@ -1428,7 +1428,7 @@ export interface Config {
 ## `@qilin-agent/experimental-tool-agent-team`
 
 - `inject`: `agents` · `agentTeams` · `tools` · `systemPrompt`
-- `source`: [`packages/experimental/tool-agent-team/src/index.ts:17`](../packages/experimental/tool-agent-team/src/index.ts)
+- `source`: [`packages/experimental/tool-agent-team/src/index.ts:18`](../packages/experimental/tool-agent-team/src/index.ts)
 
 ```ts config-catalog
 /** Tool registration and routing configuration. */
@@ -3529,15 +3529,36 @@ export type JournalMode = 'wal' | 'delete' | 'truncate' | 'persist'
 
 - `inject`: `workingDirectory`
 - `refs`: `Volatile` (`@qilin-agent/kylin`)
-- `source`: [`packages/subagent/subagent/src/index.ts:193`](../packages/subagent/subagent/src/index.ts)
+- `source`: [`packages/subagent/subagent/src/index.ts:200`](../packages/subagent/subagent/src/index.ts)
 
 ```ts config-catalog
-/** Host configuration for continuable subagent capacity. */
+/** Host configuration for continuable subagent capacity and delegation routes. */
 export interface Config {
   /** Maximum live children sharing uninterrupted continuable parent links; defaults to 8. */
   maxActiveSubagents: Volatile<number>
   /** Default delegation depth for tools without an explicit limit; defaults to 1. */
   maxDepth: Volatile<number>
+  /**
+   * Child LLM route every delegation starts on unless it names one. A provider
+   * that advertises its own default route wins over this value, and a provider
+   * that inherits the parent context ignores both so its child keeps the
+   * inherited conversation prefix.
+   */
+  childRouteDefaults?: ChildRouteDefaults
+}
+
+/** Deployment-level child LLM route applied when a start names none. */
+export interface ChildRouteDefaults extends AllowedModelRoute {
+  /** Adapter-owned reasoning effort the pinned route starts on; omitted keeps the model default. */
+  readonly reasoningEffort?: string
+}
+
+/** One exact child LLM route a Session authorized or a deployment pinned as its default. */
+export interface AllowedModelRoute {
+  /** Registered LLM provider id. */
+  readonly provider: string
+  /** Provider-owned exact model id. */
+  readonly model: string
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/subagent -->

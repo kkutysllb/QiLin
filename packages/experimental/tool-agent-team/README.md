@@ -60,7 +60,7 @@ Try it by asking the Lead model: "create a teammate named reviewer to check the 
 
 With interruption enabled, the nine tools group into four capabilities:
 
-- **Create a teammate** — `spawn_teammate` takes a name, a description, and the initial task; only the Lead can call it.
+- **Create a teammate** — `spawn_teammate` takes a name, a description, and the initial task; only the Lead can call it. It also accepts `provider`, `model`, and `reasoning_effort` to name the teammate's LLM route; omitting them uses the resolved child default, and the subagent seam rejects a route the Lead's Session never authorized.
 - **Send messages** — `send_message` steers a running member at its nearest step boundary, starts or resumes an inactive member.
 - **See and wait** — `list_agents` returns each member’s `target` and availability; `wait_agent` waits for the next team change; `interrupt_agent` stops a teammate's current turn (Lead only).
 - **Manage the task board** — `team_task_create`, `team_task_list`, `team_task_get`, and `team_task_update` add, browse, read, and update shared tasks.

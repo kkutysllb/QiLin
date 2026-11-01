@@ -52,6 +52,7 @@ import type {
   SubagentPromptRequestId,
 } from './control-types.ts'
 import type {
+  ChildRouteDefaults,
   ContinuableCreateRequest,
   ContinuableCreateSpec,
   SubagentCapabilities,
@@ -67,6 +68,7 @@ import type {
   SettlementFlushReport,
 } from './types.ts'
 import { SubagentError } from './error.ts'
+import { assertChildRouteAuthorized, resolveChildRoute } from './child-route.ts'
 import { assertSubagentMaxDepth } from './depth.ts'
 import { createActivationObserver, createLifecycleEmitter } from './lifecycle.ts'
 import type { ActivationObserver, LifecycleEmitter } from './lifecycle.ts'
@@ -83,6 +85,11 @@ export type {} from './catalog.ts'
 export * from './out-of-process.ts'
 export { AssistantOutputFold, finalAssistantOutput } from './assistant-output.ts'
 export { SubagentRunId } from './types.ts'
+export {
+  assertAllowedModelRoutes, assertChildRouteAuthorized, childRoutePolicy, modelRouteKey,
+  resolveChildRoute, routeAllowedByPolicy,
+} from './child-route.ts'
+export type { AllowedModelRoute, ChildRouteDefaults } from './types.ts'
 export type {
   ContinuableCreateRequest,
   ContinuableCreateSpec,
@@ -189,12 +196,19 @@ interface BrowserPromptSource {
   readonly principal?: Principal
 }
 
-/** Host configuration for continuable subagent capacity. */
+/** Host configuration for continuable subagent capacity and delegation routes. */
 export interface Config {
   /** Maximum live children sharing uninterrupted continuable parent links; defaults to 8. */
   maxActiveSubagents: Volatile<number>
   /** Default delegation depth for tools without an explicit limit; defaults to 1. */
   maxDepth: Volatile<number>
+  /**
+   * Child LLM route every delegation starts on unless it names one. A provider
+   * that advertises its own default route wins over this value, and a provider
+   * that inherits the parent context ignores both so its child keeps the
+   * inherited conversation prefix.
+   */
+  childRouteDefaults?: ChildRouteDefaults
 }
 
 /** Named provider registry with managed activations, durable discovery, and local child messaging. */
@@ -202,6 +216,13 @@ export class SubagentRuntime extends TypertRemoteService {
   static Config = z.object({
     maxDepth: z.number().step(1).min(0).max(Number.MAX_SAFE_INTEGER).default(1).volatile(),
     maxActiveSubagents: z.number().step(1).min(1).max(Number.MAX_SAFE_INTEGER).default(8).volatile(),
+    // Both halves of a route are required together: a half-named default would
+    // pair one deployment's provider with another's model at every start.
+    childRouteDefaults: z.object({
+      provider: z.string().required(),
+      model: z.string().required(),
+      reasoningEffort: z.string().min(1),
+    }).default(undefined as unknown as ChildRouteDefaults),
   })
   static inject = ['workingDirectory']
   private providers = new Map<string, SubagentProvider>()
@@ -279,15 +300,20 @@ export class SubagentRuntime extends TypertRemoteService {
       throw new SubagentError('reserved child ids require a local backend', 'UNSUPPORTED_CAPABILITY')
     }
     assertSubagentMaxDepth(spec.request.maxDepth)
-    this.assertCapabilities(provider, { ...spec.request, signal: spec.signal })
+    // Resolve the deployment default before capability checks: the resolved
+    // route is what the provider must actually support.
+    const request = resolveChildRoute(this.config.childRouteDefaults, provider, spec.request)
+    assertChildRouteAuthorized(request.parent, this.ctx.get('sessions'), request.agentOptions)
+    this.assertCapabilities(provider, { ...request, signal: spec.signal })
     const manager = this.requireManager()
-    if (this.ctx.get('agents')?.get(spec.request.parent.id) !== spec.request.parent) {
+    if (this.ctx.get('agents')?.get(request.parent.id) !== request.parent) {
       throw new SubagentError('subagent creation requires the exact live parent agent', 'UNAUTHORIZED')
     }
-    if (spec.request.outputSchema !== undefined) assertObjectJsonSchema(spec.request.outputSchema)
+    if (request.outputSchema !== undefined) assertObjectJsonSchema(request.outputSchema)
+    const resolved: typeof spec = { ...spec, request }
     return provider.prepareContinuable === undefined
-      ? manager.startExternal(spec)
-      : manager.startLocal(spec)
+      ? manager.startExternal(resolved)
+      : manager.startLocal(resolved)
   }
 
   /**

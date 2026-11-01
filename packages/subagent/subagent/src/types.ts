@@ -18,6 +18,35 @@ import type { ObjectJsonSchema, ToolRestriction } from '@qilin-agent/tools'
 /** Identifies one accepted subagent run across its lifecycle event pair. */
 export type SubagentRunId = Branded<'SubagentRunId'>
 
+/** One exact child LLM route a Session authorized or a deployment pinned as its default. */
+export interface AllowedModelRoute {
+  /** Registered LLM provider id. */
+  readonly provider: string
+  /** Provider-owned exact model id. */
+  readonly model: string
+}
+
+/** Deployment-level child LLM route applied when a start names none. */
+export interface ChildRouteDefaults extends AllowedModelRoute {
+  /** Adapter-owned reasoning effort the pinned route starts on; omitted keeps the model default. */
+  readonly reasoningEffort?: string
+}
+
+declare module '@qilin-agent/session/types' {
+  interface SessionEventMap {
+    /**
+     * Records the child LLM routes this Session may select explicitly for a
+     * delegation. Appended before the definition can reach a model request;
+     * absence means no allowlist bounds selection. Log-only: it carries no
+     * `surfaceOp` and never enters model history.
+     */
+    'subagent/model-selection-policy': {
+      /** Exact routes this Session may select explicitly for a child. */
+      allowedModels: AllowedModelRoute[]
+    }
+  }
+}
+
 /**
  * Brand a string as a {@link SubagentRunId}.
  * @param id - the raw run id.
