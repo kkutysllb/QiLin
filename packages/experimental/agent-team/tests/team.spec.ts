@@ -490,6 +490,24 @@ describe('Team identity and provisioning', () => {
     expect(durable(lead).members).toEqual([])
   })
 
+  it('forwards a requested child route and starts without one', async () => {
+    const { ctx, lead } = await setup([textResponse('routed'), textResponse('plain')])
+
+    await ctx.agentTeams.spawnTeammate(lead, {
+      name: 'routed-worker',
+      description: 'carries its own route',
+      prompt: content('routed'),
+      context: 'fresh',
+      provider: 'spawn',
+      agentOptions: { provider: 'mock', model: 'mock' },
+      signal: SIGNAL,
+    })
+    await spawn(ctx, lead, 'plain-worker')
+
+    expect(durable(lead).members.map(member => member.name).sort())
+      .toEqual(['plain-worker', 'routed-worker'])
+  })
+
   it('treats an ordinary fork as a new Root Team and filters inherited Team state', async () => {
     const { ctx, lead } = await setup([])
     await ctx.agentTeams.createTask(lead, { subject: 'parent task', description: 'belongs to parent' })

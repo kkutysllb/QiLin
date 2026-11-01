@@ -1455,7 +1455,9 @@ describe('FloatLayer', () => {
     const { intents, panel, tabId } = floating()
     const title = panel.querySelector('[data-dockkit-float-title]')
     if (title === null) throw new Error('expected the panel header chip')
-    // The browser's autoscroll cursor is what the press must not start.
+    // The browser's autoscroll cursor is what the press must not start; any
+    // other button keeps its default behavior.
+    expect(fireEvent.mouseDown(title, { button: 0 })).toBe(true)
     expect(fireEvent.mouseDown(title, { button: 1 })).toBe(false)
     fireEvent.pointerDown(title, { clientX: 150, clientY: 90, pointerId: 7, button: 1 })
     fireEvent.pointerUp(window, { pointerId: 7, button: 1, clientX: 190, clientY: 130 })

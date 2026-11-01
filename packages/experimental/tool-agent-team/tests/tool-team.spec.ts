@@ -176,6 +176,39 @@ describe('qilin-tool-team', () => {
     },
   )
 
+  it('rejects a half-named route and empty route fields, and forwards effort alone', async () => {
+    const { ctx, lead } = await setup([])
+    const member = {
+      id: SessionId('route-member-session'), name: 'worker', role: 'teammate' as const,
+      status: 'running' as const, description: 'work', diagnostics: [],
+    }
+    const spawn = vi.spyOn(ctx.agentTeams, 'spawnTeammate').mockResolvedValue({ member })
+
+    const half = await execute(ctx, lead, 'spawn_teammate', {
+      name: 'half', description: 'work', prompt: 'p', provider: 'zai-coding-cn',
+    })
+    expect(half.isError).toBe(true)
+    expect(text(half)).toContain('must be supplied together')
+
+    const empty = await execute(ctx, lead, 'spawn_teammate', {
+      name: 'empty', description: 'work', prompt: 'p', provider: '', model: '',
+    })
+    expect(empty.isError).toBe(true)
+    expect(text(empty)).toContain('must be non-empty')
+
+    const effortOnly = await execute(ctx, lead, 'spawn_teammate', {
+      name: 'effort', description: 'work', prompt: 'p', reasoning_effort: 'high',
+    })
+    expect(effortOnly.isError).toBe(false)
+    expect(spawn.mock.calls.at(-1)?.[1].agentOptions).toEqual({ reasoningEffort: 'high' })
+
+    const routed = await execute(ctx, lead, 'spawn_teammate', {
+      name: 'routed', description: 'work', prompt: 'p', provider: 'zai-coding-cn', model: 'glm-5.3',
+    })
+    expect(routed.isError).toBe(false)
+    expect(spawn.mock.calls.at(-1)?.[1].agentOptions).toEqual({ provider: 'zai-coding-cn', model: 'glm-5.3' })
+  })
+
   it('forwards the route one spawn call selects and rejects a half-named one', async () => {
     const { ctx, lead } = await setup([])
     const member = {

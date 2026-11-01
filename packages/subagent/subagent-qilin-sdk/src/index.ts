@@ -102,16 +102,26 @@ const SDK_START_CAPABILITIES: SubagentCapabilities = Object.freeze({
   agentOptions: true,
 })
 
-/** Merge the request's supported route fields over this provider instance's defaults. */
-function resolveSdkRoute(config: ResolvedConfig, requested: AgentOptions | undefined): Pick<
-  SdkRunSpec,
-  'provider' | 'model' | 'reasoningEffort' | 'maxTokens'
-> {
+/**
+ * Merge the request's supported route fields over this provider instance's defaults.
+ *
+ * The instance defaults are the same pair this provider advertises as
+ * `agentRouteDefaults`, so spreading them first keeps the provider's own
+ * guarantee without a second per-field fallback.
+ * @param defaults - this provider's advertised child route.
+ * @param config - resolved provider configuration supplying the token cap.
+ * @param requested - route fields the caller named, when any.
+ * @returns the run spec fields the SDK child starts with.
+ */
+function resolveSdkRoute(
+  defaults: Readonly<{ provider: string; model: string }>,
+  config: ResolvedConfig,
+  requested: AgentOptions | undefined,
+): Pick<SdkRunSpec, 'provider' | 'model' | 'reasoningEffort' | 'maxTokens'> {
   const maxTokens = requested?.maxTokens ?? config.maxTokens
   return {
-    provider: requested?.provider ?? config.provider,
-    model: requested?.model ?? config.model,
-    ...requested?.reasoningEffort === undefined ? {} : { reasoningEffort: requested.reasoningEffort },
+    ...defaults,
+    ...requested,
     ...maxTokens === undefined ? {} : { maxTokens },
   }
 }
@@ -143,7 +153,7 @@ class SdkSubagentProvider implements SubagentProvider {
       this.ctx.logger.warn(`subagent-qilin-sdk "${this.name}": child start failed: %o`, error)
       throw failure
     }
-    const route = resolveSdkRoute(this.config, request.agentOptions)
+    const route = resolveSdkRoute(this.agentRouteDefaults, this.config, request.agentOptions)
     const spec: SdkRunSpec = {
       ...this.config.qilinBin === undefined ? {} : { qilinBin: this.config.qilinBin },
       profile: this.config.profile,

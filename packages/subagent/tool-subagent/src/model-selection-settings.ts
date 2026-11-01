@@ -54,8 +54,8 @@ export class SubagentModelSelectionConfig extends Service {
     // The seam owns route resolution for every backend, so this row publishes
     // its preference there instead of letting each tool read the setting.
     ctx.inject(['subagents'], (seamCtx: Context) => {
-      const subagents = seamCtx.get('subagents')
-      if (subagents === undefined) return
+      // The injection guarantees the service, so the seam reads directly.
+      const subagents = seamCtx.subagents
       seamCtx.effect(() => subagents.setChildRoutePreference(() => this.current().defaultRoute))
     })
   }

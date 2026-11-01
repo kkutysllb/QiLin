@@ -99,6 +99,27 @@ describe('SubagentModelSelectionConfig', () => {
     await ctx.fiber.dispose()
   })
 
+  it('returns the default route only while it stays authorized', async () => {
+    const ctx = new Context()
+
+    selectionConfigs.set(ctx, await liveConfig(ctx, SubagentModelSelectionConfig))
+
+    await selectionConfigs.get(ctx)!.update({ allowedModels: ALLOWED_MODELS, defaultRoute: { provider: 'alpha', model: 'fast-model' } })
+    expect(ctx.subagentModelSelection.current()).toEqual({
+      enabled: false,
+      allowedModels: ALLOWED_MODELS,
+      defaultRoute: { provider: 'alpha', model: 'fast-model' },
+    })
+
+    await selectionConfigs.get(ctx)!.update({ defaultRoute: { provider: 'beta', model: 'slow-model' } })
+    expect(() => ctx.subagentModelSelection.current())
+      .toThrow('the default child route must be one of the authorized routes')
+
+    await selectionConfigs.get(ctx)!.update({ defaultRoute: undefined })
+    expect(ctx.subagentModelSelection.current()).toEqual({ enabled: false, allowedModels: ALLOWED_MODELS })
+    await ctx.fiber.dispose()
+  })
+
   it('rejects duplicate routes, enabled empty settings, and an empty durable policy', async () => {
     const ctx = new Context()
 

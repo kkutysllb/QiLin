@@ -205,6 +205,7 @@ describe('package dependency scope', () => {
     expect(PACKAGE_DEPENDENCY_POLICY.duplicateSafePackages).toEqual([
       '@qilin-agent/brand',
       '@qilin-agent/lazy-require',
+      '@qilin-agent/official-bundles',
       '@qilin-agent/typert-protocol',
       '@qilin-agent/util-crypto',
       '@qilin-agent/util-values',
