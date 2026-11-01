@@ -72,6 +72,36 @@ export interface SubagentSendMessageOptions {
 }
 
 /**
+ * Bound on one host's closing flush of queued settlement notices. The host owns
+ * the bound because it owns the process or server lifetime the flush must fit.
+ */
+export interface SettlementFlushOptions {
+  /** Wall-clock milliseconds the flush may spend joining settlement and one closure turn. */
+  readonly deadlineMs: number
+  /** Caller cancellation; the flush stops joining and still reports what it left queued. */
+  readonly signal?: AbortSignal
+}
+
+/** Why a closing flush returned before its parent reached closure. */
+export type SettlementFlushStop = 'deadline' | 'cancelled'
+
+/** What one host's closing flush of settlement notices achieved. */
+export interface SettlementFlushReport {
+  /** Whether the call opened one closure turn; false means it had no notice to read. */
+  readonly woke: boolean
+  /** Queued settlement notices handed to that closure turn. */
+  readonly queued: number
+  /**
+   * Settlement notices still unread when the call returned. The parent's inbox
+   * keeps them durably, so a later process still reads them, but this run's model
+   * never did: hosts report a nonzero value instead of dropping the loss.
+   */
+  readonly unread: number
+  /** Set when the deadline or caller cancellation ended the flush before quiescence. */
+  readonly stopped?: SettlementFlushStop
+}
+
+/**
  * Observe-only identifying detail for a published subagent run, carried by
  * `subagent/start`. One-shot runs and continuable Activation epochs share this
  * payload, so an observer sees the same vocabulary for both.

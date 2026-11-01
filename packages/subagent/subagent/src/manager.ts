@@ -36,6 +36,7 @@ import type {
   ContinuableCreateRequest, ContinuableCreateSpec, SubagentInterruptAuthority,
   SubagentActivationSpec, SubagentActivation, SubagentStartRequest, SubagentRun,
   SubagentSendMessageOptions, SubagentResult, ResolvedSubagentStartRequest,
+  SettlementFlushOptions, SettlementFlushReport, SettlementFlushStop,
 } from './types.ts'
 import { attachStructuredRuntime } from './structured.ts'
 import type { StructuredAttachment } from './structured.ts'
@@ -151,6 +152,56 @@ function failureMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'unknown teardown failure'
 }
 
+/** One closing flush's upper bound: a wall-clock deadline plus caller cancellation. */
+interface SettlementFlushBound {
+  /** Resolves when the deadline or the caller's signal ends the flush's waiting. */
+  readonly expiry: Promise<void>
+  /** Which bound fired, or undefined while waiting is still permitted. */
+  stopped(): SettlementFlushStop | undefined
+  /** Release the timer and signal listener. */
+  release(): void
+}
+
+/**
+ * Bind one closing flush to its deadline and cancellation.
+ * @param deadlineMs - validated positive wall-clock budget.
+ * @param signal - caller cancellation, or undefined for a flush the host owns alone.
+ * @returns the bound a flush step races against, released by its owner.
+ */
+function bindSettlementFlush(deadlineMs: number, signal: AbortSignal | undefined): SettlementFlushBound {
+  let stopped: SettlementFlushStop | undefined
+  const expiry = Promise.withResolvers<void>()
+  const trip = (reason: SettlementFlushStop): void => {
+    stopped ??= reason
+    expiry.resolve()
+  }
+  const timer = setTimeout(() => { trip('deadline') }, deadlineMs)
+  timer.unref()
+  const onAbort = (): void => { trip('cancelled') }
+  if (signal?.aborted === true) trip('cancelled')
+  else signal?.addEventListener('abort', onAbort, { once: true })
+  return {
+    expiry: expiry.promise,
+    stopped: () => stopped,
+    release: () => {
+      clearTimeout(timer)
+      signal?.removeEventListener('abort', onAbort)
+    },
+  }
+}
+
+/**
+ * Reject a closing-flush deadline a timer cannot honour.
+ * @param deadlineMs - caller-supplied wall-clock budget.
+ * @returns the same value once validated.
+ */
+export function requireSettlementFlushDeadline(deadlineMs: number): number {
+  if (!Number.isSafeInteger(deadlineMs) || deadlineMs <= 0) {
+    throw new TypeError('settlement flush deadlineMs must be a positive safe integer of milliseconds')
+  }
+  return deadlineMs
+}
+
 /** Own subagent requests and the resources of every live activation. */
 export class SubagentManager {
   /** Child session id → its live Activation. Process-local, never durable. */
@@ -183,6 +234,15 @@ export class SubagentManager {
    * poisoning a later same-id replacement.
    */
   private readonly closingScopes = new Map<Agent, Set<Agent>>()
+  /**
+   * Notice batches a closure declared for one parent, awaiting its closing flush.
+   * A leaving host's notices wait here instead of joining the parent's inbox, so
+   * the log shape depends on delivery order alone, not on whether the parent
+   * happened to be mid-turn when a child settled.
+   */
+  private readonly closureNotices = new WeakMap<Session, UserMessage[]>()
+  /** In-flight closing flush per parent, so concurrent hosts share one wake. */
+  private readonly settlementFlushes = new WeakMap<Agent, Promise<SettlementFlushReport>>()
   private draining = false
 
   /**
@@ -283,13 +343,9 @@ export class SubagentManager {
   }
 
   /**
-   * Join progressing child work, leaving idle parked inboxes resident.
-   * @param parent - exact live parent whose descendants are observed.
-   * @returns whether work was joined and the host must recheck parent completion.
-   */
-  /**
    * Await one child's teardown and final Session flush; a child no longer resident has already
    * settled, so the call resolves immediately without touching a disposed Agent's inbox.
+   * @param childId - durable child Session id.
    */
   async awaitStopped(childId: SessionId): Promise<void> {
     const activation = this.resident.get(childId)
@@ -297,6 +353,11 @@ export class SubagentManager {
     await activation.stopped
   }
 
+  /**
+   * Join progressing child work, leaving idle parked inboxes resident.
+   * @param parent - exact live parent whose descendants are observed.
+   * @returns whether work was joined and the host must recheck parent completion.
+   */
   async waitForChildren(parent: Agent): Promise<boolean> {
     let observed = false
     while (true) {
@@ -335,6 +396,141 @@ export class SubagentManager {
           && item.ancestry.has(parent) && !children.includes(item))) continue
       return observed
     }
+  }
+
+  /**
+   * Flush the settlement notices a closing host still owes one parent, then stop
+   * waking that parent: one bounded pass that joins resident descendant settlement
+   * and, when notices are queued, opens exactly one closure turn to read them.
+   *
+   * The call is idempotent per parent (concurrent hosts share one pass), returns
+   * immediately when nothing is resident and nothing is held, and never queues an
+   * unbounded number of turns. Declaring closure is monotone: notices arriving from
+   * then on wait for a flush batch, and a pass that cannot read its batch publishes
+   * every held notice into the parent's inbox, so no notice leaves its durable log.
+   * @param parent - exact live parent whose host is closing.
+   * @param options - wall-clock budget and optional caller cancellation.
+   * @returns what the pass read, and any notice it left unread.
+   * @throws {TypeError} when the deadline is not a positive safe integer.
+   */
+  async flushSettlementNotices(parent: Agent, options: SettlementFlushOptions): Promise<SettlementFlushReport> {
+    requireSettlementFlushDeadline(options.deadlineMs)
+    const inFlight = this.settlementFlushes.get(parent)
+    if (inFlight !== undefined) return inFlight
+    const flush = this.runSettlementFlush(parent, options)
+    this.settlementFlushes.set(parent, flush)
+    try {
+      return await flush
+    } finally {
+      // Only the entry this call installed can be here: a concurrent caller returns it untouched.
+      this.settlementFlushes.delete(parent)
+    }
+  }
+
+  /** One closing flush pass behind {@link flushSettlementNotices}. */
+  private async runSettlementFlush(parent: Agent, options: SettlementFlushOptions): Promise<SettlementFlushReport> {
+    const bound = bindSettlementFlush(options.deadlineMs, options.signal)
+    const held: UserMessage[] = []
+    this.closureNotices.set(parent.session, held)
+    const live = (): boolean => this.ctx.agents.get(parent.id) === parent
+    try {
+      if (bound.stopped() !== undefined) return this.settlementReport(false, 0, this.leaveHeldNotices(parent, held), bound)
+      // Start from a settled parent so the batch is what the parent has not read yet.
+      if (!await this.awaitSettlement(parent.whenIdle(), bound)) {
+        return this.settlementReport(false, 0, this.leaveHeldNotices(parent, held), bound)
+      }
+      if (!await this.awaitSettlement(this.waitForChildren(parent), bound)) {
+        return this.settlementReport(false, 0, this.leaveHeldNotices(parent, held), bound)
+      }
+      // A parent that left the registry during the join cannot be woken and has no
+      // inbox left to read; its held notices are reported, never counted as read.
+      /* v8 ignore next -- needs the host to dispose this exact parent between the
+       * flush's idle wait and this read; the shipped hosts dispose only after
+       * flushSettlementNotices returns, so no host operation reaches the gone branch. */
+      if (!live()) return this.settlementReport(false, 0, held.length, bound)
+      const queued = this.queuedSettlementNotices(parent)
+      if (queued.length === 0 && held.length === 0) return this.settlementReport(false, 0, 0, bound)
+      this.wakeClosureTurn(parent, [...queued, ...held], held)
+      // An interrupted closure turn cannot confirm the batch was read, so the whole
+      // batch counts as unread rather than reporting a claim as a delivery.
+      if (!await this.awaitSettlement(parent.whenIdle(), bound)) {
+        return this.settlementReport(true, held.length + queued.length, held.length + queued.length, bound)
+      }
+      return this.settlementReport(
+        true, held.length + queued.length, this.queuedSettlementNotices(parent).length, bound,
+      )
+    } finally {
+      this.closureNotices.delete(parent.session)
+      bound.release()
+    }
+  }
+
+  /**
+   * Publish a batch the flush could not read, so no notice leaves its log.
+   * @param parent - live parent whose batch is published.
+   * @param held - notices the closure held for this flush.
+   * @returns the notices still unread.
+   */
+  private leaveHeldNotices(parent: Agent, held: readonly UserMessage[]): number {
+    // A parent that already left the registry has no inbox to write; its notices
+    // survive only as this report, which callers must log.
+    /* v8 ignore next -- same external-teardown race: the host disposes the parent
+     * only after this flush returns, so this bound path always sees a live parent. */
+    if (this.ctx.agents.get(parent.id) !== parent) return held.length
+    // Durable before the process leaves: a later run still reads them, unread.
+    for (const notice of held) parent.inject(notice)
+    return this.queuedSettlementNotices(parent).length
+  }
+
+  /**
+   * Open one closure turn that reads the whole batch. The held notices join the
+   * inbox in delivery order, then the last delivery is re-sent as a waking
+   * follow-up: the turn claims everything as one step, so batch size adds no turns.
+   * @param parent - idle parent whose batch is read.
+   * @param batch - queued notices followed by the held ones, non-empty.
+   * @param held - notices this closure held back from the parent's turn.
+   */
+  private wakeClosureTurn(parent: Agent, batch: readonly UserMessage[], held: readonly UserMessage[]): void {
+    const last = batch[batch.length - 1] as UserMessage
+    for (const notice of held) parent.inject(notice)
+    parent.inbox.remove(last.id)
+    parent.followup(last)
+  }
+
+  /**
+   * Settlement notices that no turn has claimed yet: step-boundary deliveries
+   * first, then any waking delivery still unclaimed.
+   * @param parent - live parent whose queue is read.
+   */
+  private queuedSettlementNotices(parent: Agent): UserMessage[] {
+    return [...parent.inbox.nextStep, ...parent.inbox.nextTurn]
+      .filter(message => message.source.kind === 'subagent-settled')
+  }
+
+  /** Race one flush step against its bound; false means the bound fired first. */
+  private async awaitSettlement(work: Promise<unknown>, bound: SettlementFlushBound): Promise<boolean> {
+    const outcome = await Promise.race([
+      work.then(() => 'settled' as const),
+      bound.expiry.then(() => 'bound' as const),
+    ])
+    return outcome === 'settled'
+  }
+
+  /**
+   * Report what one pass achieved.
+   * @param woke - whether the pass opened a closure turn.
+   * @param queued - notices handed to that turn.
+   * @param bound - the flush bound, supplying the stop reason.
+   * @param unread - notices the pass could not confirm as read; omitted to count the live queue.
+   */
+  private settlementReport(
+    woke: boolean,
+    queued: number,
+    unread: number,
+    bound: SettlementFlushBound,
+  ): SettlementFlushReport {
+    const stopped = bound.stopped()
+    return { woke, queued, unread, ...(stopped === undefined ? {} : { stopped }) }
   }
 
   /**
@@ -1325,6 +1521,15 @@ export class SubagentManager {
       )
       if (this.closingTeardownFor(parent) !== undefined) {
         parent.inject(message)
+        return
+      }
+      const closure = this.closureNotices.get(parent.session)
+      if (closure !== undefined) {
+        // The host is closing: the notice joins the closing flush's batch, which
+        // reads it in one closure turn instead of racing the host's exit. It stays
+        // in memory only until that flush starts, which is the same window a
+        // boundary-held notice already has.
+        closure.push(message)
         return
       }
       if (parent.status === 'idle') {

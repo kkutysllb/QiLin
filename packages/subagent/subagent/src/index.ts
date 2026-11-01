@@ -63,12 +63,14 @@ import type {
   SubagentRunInfo,
   SubagentSendMessageOptions,
   SubagentStartRequest,
+  SettlementFlushOptions,
+  SettlementFlushReport,
 } from './types.ts'
 import { SubagentError } from './error.ts'
 import { assertSubagentMaxDepth } from './depth.ts'
 import { createActivationObserver, createLifecycleEmitter } from './lifecycle.ts'
 import type { ActivationObserver, LifecycleEmitter } from './lifecycle.ts'
-import SubagentManager from './manager.ts'
+import SubagentManager, { requireSettlementFlushDeadline } from './manager.ts'
 import { listChildren as listSubagentChildren, listDescendants as listSubagentDescendants } from './list-children.ts'
 import type { SubagentDescendantListEntry } from './list-children.ts'
 import { installSubagentArchiveAdmission } from './archive-admission.ts'
@@ -94,6 +96,9 @@ export type {
   SubagentSendMessageOptions,
   SubagentStartRequest,
   ResolvedSubagentStartRequest,
+  SettlementFlushOptions,
+  SettlementFlushReport,
+  SettlementFlushStop,
   SubagentStopReason,
   SubagentStopReasonMap,
 } from './types.ts'
@@ -293,6 +298,37 @@ export class SubagentRuntime extends TypertRemoteService {
    */
   async waitForChildren(parent: Agent): Promise<boolean> {
     return this.manager?.waitForChildren(parent) ?? false
+  }
+
+  /**
+   * Flush the settlement notices a closing host still owes one exact live parent.
+   *
+   * One bounded pass joins resident descendant settlement and, when notices are
+   * queued for the parent, opens exactly one closure turn that claims the whole
+   * batch as one step, so batch size adds no turns. The call declares closure for
+   * that parent: a notice arriving from then on waits for a flush batch instead of
+   * joining the parent's own turn, so the recorded order follows delivery order
+   * rather than which turn happened to be running. A pass that cannot read its
+   * batch publishes the notices into the parent's inbox before it returns, so a
+   * later process still reads them. The deadline and optional cancellation bound
+   * the wait, not the notice count: an expired pass reports the notices it left
+   * unread, and callers report that number rather than dropping it.
+   *
+   * Idempotent per parent — concurrent hosts share one pass — and immediate when
+   * the parent has no resident descendant and no queued notice.
+   * @param parent - exact live parent whose host is closing.
+   * @param options - wall-clock budget and optional caller cancellation.
+   * @returns what the pass read, and any notice it left unread.
+   * @throws {TypeError} when the deadline is not a positive safe integer.
+   */
+  async flushSettlementNotices(parent: Agent, options: SettlementFlushOptions): Promise<SettlementFlushReport> {
+    const manager = this.manager
+    // A manager-less composition owns no settlement notice, so there is nothing to flush.
+    if (manager === undefined) {
+      requireSettlementFlushDeadline(options.deadlineMs)
+      return { woke: false, queued: 0, unread: 0 }
+    }
+    return manager.flushSettlementNotices(parent, options)
   }
 
   /**

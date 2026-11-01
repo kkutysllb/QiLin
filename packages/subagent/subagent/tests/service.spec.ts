@@ -104,6 +104,13 @@ describe('SubagentRuntime', () => {
     await expect(subagents.waitForChildren(fakeParent())).resolves.toBe(false)
   })
 
+  it('has no settlement notice to flush before the Agent service is mounted', async () => {
+    const { subagents } = await service(false)
+    await expect(subagents.flushSettlementNotices(fakeParent(), { deadlineMs: 1_000 }))
+      .resolves.toEqual({ woke: false, queued: 0, unread: 0 })
+    await expect(subagents.flushSettlementNotices(fakeParent(), { deadlineMs: 0 })).rejects.toThrow(TypeError)
+  })
+
   it('releases its catalog projection binding with the service fiber', async () => {
     const ctx = new Context()
     await ctx.plugin(SessionProjectionRegistry)

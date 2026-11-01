@@ -93,7 +93,7 @@ runner 是核心 API 载体之上的直接驱动器：它确定 Agent 标识—�
 
 ### 运行流程
 
-runner 等待整个应用结算（`ctx.get('loader')?.await()`），确保已组合的工具与适配器不会半挂载，读取共享的 [`agentDefaultModel`](../../core/agent-default-model/README.zh.md) 选择，从配置或 stdin 解析任务，然后确定 Agent 标识：默认是全新的 `session-<uuid>`，或是 `--session-id` 指名的持久化 Session——通过 [`sessionQuery`](../../session-query/session-query/README.zh.md) 沿用，日志不存在时拒绝。它把任务作为普通用户消息提交。不带 `--json` 时，它把该 Agent 的非空推理增量流式写入 stderr；带 `--json` 时改为投影本次运行。它等待完全停稳，然后对会话执行 flush，并把所属区间（从 `firstSeq` 起）折叠为最后一条非空 `assistant/message` 文本与最终 `turn/end` 原因。最后，它把最终文本写入 stdout（或 `final` 事件）并请求退出。
+runner 等待整个应用结算（`ctx.get('loader')?.await()`），确保已组合的工具与适配器不会半挂载，读取共享的 [`agentDefaultModel`](../../core/agent-default-model/README.zh.md) 选择，从配置或 stdin 解析任务，然后确定 Agent 标识：默认是全新的 `session-<uuid>`，或是 `--session-id` 指名的持久化 Session——通过 [`sessionQuery`](../../session-query/session-query/README.zh.md) 沿用，日志不存在时拒绝。它把任务作为普通用户消息提交。不带 `--json` 时，它把该 Agent 的非空推理增量流式写入 stderr；带 `--json` 时改为投影本次运行。退出前它把任务发布的背景工作收干净。结算通知会把父 Agent 唤起到后续 turn，而该 turn 自己再委派还会产生新工作，因此 runner 每轮只做一遍关闭流程——join 常驻后代的结算，再最多打开一个父 turn 读取为它排队的通知——直到某一轮没有任何通知入队、父 Agent 在同一日志长度上保持空闲。两个 `Config` 上限会终止这个重复：`settlementDeadlineMs`（墙钟毫秒，默认 10000）与 `settlementMaxTurns`（为读取排队通知而驱动的父 turn 数，默认 8）。触到任一上限时，未读通知仍持久保留在父 Agent 的收件箱里，并向 stderr 写一条 `headless runner: <n> background subagent settlement notice(s) stayed unread after the <bound> bound` 警告，脚本调用方因此不会把被丢弃的通知当成已完成的 join。随后 runner 对会话执行 flush，并把所属区间（从 `firstSeq` 起）折叠为最后一条非空 `assistant/message` 文本与最终 `turn/end` 原因。最后，它把最终文本写入 stdout（或 `final` 事件）并请求退出。
 
 ### 基于 base 的 patch 内容
 

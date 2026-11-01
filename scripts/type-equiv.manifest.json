@@ -1553,6 +1553,21 @@
     },
     {
       "doc": "docs/subsystems/subagent.md",
+      "symbol": "SettlementFlushOptions",
+      "source": "packages/subagent/subagent/src/types.ts"
+    },
+    {
+      "doc": "docs/subsystems/subagent.md",
+      "symbol": "SettlementFlushStop",
+      "source": "packages/subagent/subagent/src/types.ts"
+    },
+    {
+      "doc": "docs/subsystems/subagent.md",
+      "symbol": "SettlementFlushReport",
+      "source": "packages/subagent/subagent/src/types.ts"
+    },
+    {
+      "doc": "docs/subsystems/subagent.md",
       "symbol": "SubagentInterruptAuthority",
       "source": "packages/subagent/subagent/src/types.ts"
     },

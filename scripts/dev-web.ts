@@ -133,16 +133,15 @@ export async function watchClientPlugins(
     workspace: [...pluginDirs],
     configLoader: 'native',
     watch: true,
-    hooks: {
-      'build:done': ({ options }) => {
-        if (initialized.has(options)) return
-        initialized.add(options)
-        readiness.initializedBuilds += 1
-        if (
-          readiness.expectedBuilds !== undefined
-          && readiness.initializedBuilds >= readiness.expectedBuilds
-        ) resolveInitialBuilds?.()
-      },
+    // Workspace hooks override inline hooks; onSuccess runs after each package's build:done work.
+    onSuccess: (config) => {
+      if (initialized.has(config)) return
+      initialized.add(config)
+      readiness.initializedBuilds += 1
+      if (
+        readiness.expectedBuilds !== undefined
+        && readiness.initializedBuilds >= readiness.expectedBuilds
+      ) resolveInitialBuilds?.()
     },
     ...pollInterval !== undefined
       ? { inputOptions: { watch: { watcher: { usePolling: true, pollInterval } } } }

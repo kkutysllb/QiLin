@@ -139,3 +139,68 @@ describe('SDK descendant shutdown', () => {
     }
   })
 })
+
+describe('SDK shutdown settlement flush', () => {
+  it('reads each owned session\'s queued notices before descendants drain', async () => {
+    const { ctx, server } = await setup()
+    const flush = vi.spyOn(ctx.subagents, 'flushSettlementNotices')
+    const drain = vi.spyOn(ctx.subagents, 'drainDescendants')
+    await server.prompt({ sessionId: 'main', contentBlocks: [{ type: 'text', text: 'root task' }] })
+    const root = ctx.agents.get(SessionId('main'))!
+    await root.whenIdle()
+    await expect(server.shutdown()).resolves.toEqual({})
+    expect(flush).toHaveBeenCalledWith(root, { deadlineMs: 10_000 })
+    expect(flush.mock.invocationCallOrder[0]).toBeLessThan(drain.mock.invocationCallOrder[0]!)
+  })
+
+  it.each([
+    [undefined, ''],
+    ['deadline' as const, ' after its deadline bound'],
+  ])('reports notices a flush left unread (stop reason=%s)', async (stopped, suffix) => {
+    const { ctx, server } = await setup()
+    const warn = vi.spyOn(ctx.logger, 'warn')
+    vi.spyOn(ctx.subagents, 'flushSettlementNotices').mockResolvedValue({
+      woke: true,
+      queued: 2,
+      unread: 2,
+      ...(stopped === undefined ? {} : { stopped }),
+    })
+    await server.prompt({ sessionId: 'main', contentBlocks: [{ type: 'text', text: 'root task' }] })
+    await ctx.agents.get(SessionId('main'))!.whenIdle()
+    await expect(server.shutdown()).resolves.toEqual({})
+    const message = warn.mock.calls.map(call => String(call[0])).find(text => text.includes('settlement notice'))
+    expect(message).toBeDefined()
+    expect(message).toContain('2 background subagent settlement notice(s) unread for session "main"')
+    expect(message!.endsWith(suffix)).toBe(true)
+  })
+
+  it('fails shutdown when a flush rejects', async () => {
+    const { ctx, server } = await setup()
+    const failure = new Error('settlement flush failed')
+    vi.spyOn(ctx.subagents, 'flushSettlementNotices').mockRejectedValue(failure)
+    await server.prompt({ sessionId: 'main', contentBlocks: [{ type: 'text', text: 'root task' }] })
+    await ctx.agents.get(SessionId('main'))!.whenIdle()
+    await expect(server.shutdown()).rejects.toBe(failure)
+    expect(ctx.agents.get(SessionId('main'))).toBeUndefined()
+  })
+
+  it('shuts down without a subagent service', async () => {
+    const ctx = new Context()
+    try {
+      await mountAgentLoopTestDependencies(ctx)
+      await ctx.plugin(AgentLoop, { agents: [] })
+      await mountWorkingDirectoryFixture(ctx)
+      ctx.llm.registerAdapter(['mock'], new MockAdapter([textResponse('answer')]))
+      const server = new HarnessSdkJsonRpcServer(ctx, {
+        request: () => Promise.reject(new Error('the server must not request the client')),
+        notify: () => {},
+      })
+      await server.initialize({ cwd: process.cwd(), provider: 'mock', model: 'mock' })
+      await server.prompt({ sessionId: 'main', contentBlocks: [{ type: 'text', text: 'root task' }] })
+      await ctx.agents.get(SessionId('main'))!.whenIdle()
+      await expect(server.shutdown()).resolves.toEqual({})
+    } finally {
+      await ctx.fiber.dispose()
+    }
+  })
+})

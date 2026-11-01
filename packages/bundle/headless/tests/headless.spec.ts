@@ -19,11 +19,25 @@ import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import type { Session, SessionId, UserMessage } from '@qilin-agent/session'
 import { SessionQueryError } from '@qilin-agent/session-query'
 import { createInboxStub } from '@qilin-agent/agent-loop-testkit'
-import { apply, Config } from '../src/index.ts'
+import {
+  apply,
+  Config,
+  DEFAULT_SETTLEMENT_DEADLINE_MS,
+  DEFAULT_SETTLEMENT_MAX_TURNS,
+} from '../src/index.ts'
 import { internals } from '../src/runner-internals.ts'
 
 const originalInternals = { ...internals }
 afterEach(() => { Object.assign(internals, originalInternals) })
+
+/** One run's config, with the settlement bounds a test does not vary at their defaults. */
+function runConfig(task: string): Config {
+  return {
+    task,
+    settlementDeadlineMs: DEFAULT_SETTLEMENT_DEADLINE_MS,
+    settlementMaxTurns: DEFAULT_SETTLEMENT_MAX_TURNS,
+  }
+}
 
 interface Script {
   before?(session: Session): void
@@ -60,8 +74,15 @@ interface BenchOptions {
   /** In-process subagent service the runner joins before exiting. */
   subagents?: {
     readonly awaitStopped?: (childId: unknown) => Promise<void>
-    readonly waitForChildren?: (agent: Agent) => Promise<boolean>
+    readonly flushSettlementNotices?: (
+      agent: Agent,
+      options: { deadlineMs: number },
+    ) => Promise<{ woke: boolean; queued: number; unread: number; stopped?: 'deadline' | 'cancelled' }>
   }
+  /** Settlement join bounds; omission keeps the shipped defaults. */
+  settlement?: { readonly deadlineMs: number; readonly maxTurns: number }
+  /** Omit both bounds from the plugin config, as a direct caller that never set them does. */
+  omitSettlementBounds?: boolean
   /** Child run ids announced through `subagent/start` after the prompt settles. */
   subagentIds?: readonly string[]
 }
@@ -151,6 +172,7 @@ async function bench(script: Script, options: BenchOptions = {}): Promise<{
     const inbox = createInboxStub()
     let idle = Promise.resolve()
     let idleCalls = 0
+    let announced = false
     const agent: Agent = {
       id: session.id,
       options: createOptions.agentOptions ?? {},
@@ -169,9 +191,11 @@ async function bench(script: Script, options: BenchOptions = {}): Promise<{
       inject: () => {},
       whenIdle: () => {
         idleCalls += 1
-        // The runner only subscribes after its first idle wait, so the prompt's
-        // child runs are announced on the next settled wait.
-        if (idleCalls > 1) {
+        // The runner subscribes after its first idle wait, so the task turn's child
+        // runs are announced on the next settled wait — once, as a run publishes
+        // each durable id once.
+        if (idleCalls > 1 && !announced) {
+          announced = true
           const emit = (ctx as unknown as { emit(type: string, payload: { id: string }): void }).emit.bind(ctx)
           for (const childId of options.subagentIds ?? []) emit('subagent/start', { id: childId })
         }
@@ -233,6 +257,10 @@ async function bench(script: Script, options: BenchOptions = {}): Promise<{
         ...options.useStdin === true ? {} : { task: options.task ?? 'do the thing' },
         ...options.sessionId === undefined ? {} : { sessionId: options.sessionId },
         ...options.json === undefined ? {} : { json: options.json },
+        ...options.omitSettlementBounds === true ? {} : {
+          settlementDeadlineMs: options.settlement?.deadlineMs ?? DEFAULT_SETTLEMENT_DEADLINE_MS,
+          settlementMaxTurns: options.settlement?.maxTurns ?? DEFAULT_SETTLEMENT_MAX_TURNS,
+        },
       })
       return { code: await exited, out, err, order }
     },
@@ -1004,7 +1032,7 @@ describe('headless runner', () => {
     ctx.provide('agentDefaultModel', { currentSelection: () => ({ provider: 'p', model: 'm' }) } as never)
     ctx.provide('sessions', { flush: () => Promise.resolve(true) } as never)
     ctx.provide('agents', { create: () => Promise.reject(new Error('factory exploded')) } as never)
-    apply(ctx, { task: 't' })
+    apply(ctx, runConfig('t'))
     expect(await exited).toBe(1)
     expect(err).toBe('qilin: factory exploded\n')
     await ctx.fiber.dispose()
@@ -1026,7 +1054,7 @@ describe('headless runner', () => {
       },
     }
     ctx.provide('agents', { create: () => rejected } as never)
-    apply(ctx, { task: 't' })
+    apply(ctx, runConfig('t'))
     expect(await exited).toBe(1)
     expect(err).toBe('qilin: factory exploded\n')
     await ctx.fiber.dispose()
@@ -1047,7 +1075,7 @@ describe('headless runner', () => {
     let release: () => void
     const settlement = new Promise<void>((resolve) => { release = resolve })
     ctx.provide('loader', { await: () => settlement } as never)
-    apply(ctx, { task: 't' })
+    apply(ctx, runConfig('t'))
     await services.dispose()
     release!()
     await new Promise(resolve => setTimeout(resolve, 10))
@@ -1057,18 +1085,22 @@ describe('headless runner', () => {
 
   it('fails loud without the launcher-provided exit request', () => {
     const ctx = new Context()
-    expect(() => { apply(ctx, { task: 't' }) }).toThrow('must provide ctx.appExit')
+    expect(() => { apply(ctx, runConfig('t')) }).toThrow('must provide ctx.appExit')
   })
 
-  it('validates config: the task and run options are optional', () => {
-    expect(new Config({})).toEqual({})
+  it('validates config: run options are optional and settlement bounds default', () => {
+    const bounds = {
+      settlementDeadlineMs: DEFAULT_SETTLEMENT_DEADLINE_MS,
+      settlementMaxTurns: DEFAULT_SETTLEMENT_MAX_TURNS,
+    }
+    expect(new Config({})).toEqual(bounds)
     expect(new Config({ task: 'x', sessionId: 'session-x', json: true }))
-      .toEqual({ task: 'x', sessionId: 'session-x', json: true })
+      .toEqual({ task: 'x', sessionId: 'session-x', json: true, ...bounds })
   })
 })
 
 
-describe('headless runner subagent join', () => {
+describe('headless runner settlement convergence', () => {
   /** One completed turn so the run reaches the join before exiting. */
   function answered(): Script {
     return {
@@ -1076,11 +1108,36 @@ describe('headless runner subagent join', () => {
     }
   }
 
+  /** One flush report; omission from a stub means the pass found nothing queued. */
+  interface FlushReport { woke: boolean; queued: number; unread: number; stopped?: 'deadline' | 'cancelled' }
+
+  /** Warn calls one run logged. */
+  async function logOf(options: BenchOptions): Promise<string[]> {
+    const warnings: string[] = []
+    const test = await bench(answered(), options)
+    const logged = vi.spyOn(test.ctx.logger, 'warn').mockImplementation((message: string) => { warnings.push(message) })
+    try {
+      expect(await test.run()).toMatchObject({ code: 0 })
+    } finally {
+      logged.mockRestore()
+      await test.ctx.fiber.dispose()
+    }
+    return warnings
+  }
+
+  /** A flush stub that settles the parent first, as the real service does. */
+  function flushing(...reports: FlushReport[]) {
+    const queue = [...reports]
+    return vi.fn(async (agent: Agent) => {
+      await agent.whenIdle()
+      return queue.shift() ?? { woke: false, queued: 0, unread: 0 }
+    })
+  }
+
   it('joins every announced child run before exiting', async () => {
     const awaitStopped = vi.fn(async () => {})
-    const waitForChildren = vi.fn(async () => false)
     const test = await bench(answered(), {
-      subagents: { awaitStopped, waitForChildren },
+      subagents: { awaitStopped, flushSettlementNotices: flushing() },
       subagentIds: ['child-1', 'child-2'],
     })
     try {
@@ -1089,37 +1146,99 @@ describe('headless runner subagent join', () => {
       await test.ctx.fiber.dispose()
     }
     expect(awaitStopped.mock.calls).toEqual([['child-1'], ['child-2']])
-    expect(waitForChildren).toHaveBeenCalled()
   })
 
-  it('stops the child fallback at its settle deadline and warns', async () => {
+  it('resolves omitted settlement bounds to the documented defaults', async () => {
+    const flushSettlementNotices = flushing()
+    const test = await bench(answered(), { subagents: { flushSettlementNotices }, omitSettlementBounds: true })
+    try {
+      expect(await test.run()).toMatchObject({ code: 0, out: 'answer\n' })
+    } finally {
+      await test.ctx.fiber.dispose()
+    }
+    expect(flushSettlementNotices).toHaveBeenCalled()
+  })
+
+  it('converges through every closure turn a settlement notice opens', async () => {
+    const flushSettlementNotices = flushing(
+      { woke: true, queued: 1, unread: 0 },
+      { woke: true, queued: 1, unread: 0 },
+      { woke: false, queued: 0, unread: 0 },
+    )
+    const warnings = await logOf({ subagents: { flushSettlementNotices } })
+    expect(flushSettlementNotices).toHaveBeenCalledTimes(3)
+    expect(warnings).toEqual([])
+  })
+
+  it('rechecks the parent after a pass that read nothing', async () => {
+    const flushSettlementNotices = flushing()
+    const test = await bench(answered(), { subagents: { flushSettlementNotices } })
+    try {
+      expect(await test.run()).toMatchObject({ code: 0 })
+    } finally {
+      await test.ctx.fiber.dispose()
+    }
+    // The task turn lands during the first pass, so the second pass confirms quiescence.
+    expect(flushSettlementNotices).toHaveBeenCalledTimes(2)
+  })
+
+  it('stops at the closure-turn cap and reports the unread notices', async () => {
+    const flushSettlementNotices = vi.fn(async () => ({ woke: true, queued: 1, unread: 1 }))
+    const warnings = await logOf({
+      subagents: { flushSettlementNotices },
+      settlement: { deadlineMs: 60_000, maxTurns: 2 },
+    })
+    expect(flushSettlementNotices).toHaveBeenCalledTimes(2)
+    expect(warnings).toEqual([
+      'headless runner: 1 background subagent settlement notice(s) stayed unread after the closure-turn bound',
+    ])
+  })
+
+  it('stops at the wall-clock deadline and reports the unread notices', async () => {
     let now = 1_000
     const clock = vi.spyOn(Date, 'now').mockImplementation(() => now)
-    const waitForChildren = vi.fn(async () => {
-      now += 11_000
-      return true
+    const flushSettlementNotices = vi.fn(async () => {
+      now += 61_000
+      return { woke: true, queued: 1, unread: 0 }
     })
-    const warn = vi.fn()
-    const test = await bench(answered(), { subagents: { waitForChildren }, subagentIds: [] })
-    const logged = vi.spyOn(test.ctx.logger, 'warn').mockImplementation(warn)
+    let warnings: string[] = []
     try {
-      expect(await test.run()).toMatchObject({ code: 0 })
+      warnings = await logOf({
+        subagents: { flushSettlementNotices },
+        settlement: { deadlineMs: 60_000, maxTurns: 8 },
+      })
     } finally {
-      logged.mockRestore()
       clock.mockRestore()
-      await test.ctx.fiber.dispose()
     }
-    expect(warn).toHaveBeenCalledWith('headless runner: child subagents did not settle within 10s')
+    expect(warnings).toEqual([
+      'headless runner: 0 background subagent settlement notice(s) stayed unread after the deadline bound',
+    ])
   })
 
-  it('falls back to the child wait when the service cannot await stopped runs', async () => {
-    const waitForChildren = vi.fn(async () => false)
-    const test = await bench(answered(), { subagents: { waitForChildren }, subagentIds: ['child-1'] })
-    try {
-      expect(await test.run()).toMatchObject({ code: 0 })
-    } finally {
-      await test.ctx.fiber.dispose()
-    }
-    expect(waitForChildren).toHaveBeenCalled()
+  it('reports a flush that hit its own bound', async () => {
+    const flushSettlementNotices = vi.fn(async () => ({ woke: true, queued: 2, unread: 2, stopped: 'deadline' as const }))
+    const warnings = await logOf({ subagents: { flushSettlementNotices } })
+    expect(flushSettlementNotices).toHaveBeenCalledTimes(1)
+    expect(warnings).toEqual([
+      'headless runner: 2 background subagent settlement notice(s) stayed unread after the deadline bound',
+    ])
+  })
+
+  it('reports a notice queue it cannot wake', async () => {
+    const flushSettlementNotices = vi.fn(async () => ({ woke: false, queued: 0, unread: 1 }))
+    const warnings = await logOf({ subagents: { flushSettlementNotices } })
+    expect(warnings).toEqual([
+      'headless runner: 1 background subagent settlement notice(s) stayed unread after the unclaimed-queue bound',
+    ])
+  })
+
+  it('stops the child join at its deadline and warns', async () => {
+    const awaitStopped = () => new Promise<void>(() => {})
+    const warnings = await logOf({
+      subagents: { awaitStopped, flushSettlementNotices: flushing() },
+      subagentIds: ['child-1'],
+      settlement: { deadlineMs: 200, maxTurns: 8 },
+    })
+    expect(warnings).toEqual(['headless runner: child subagents did not settle within 200ms'])
   })
 })

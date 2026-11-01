@@ -32,6 +32,12 @@ import type {} from '@qilin-agent/session-query'
 import { internals } from './runner-internals.ts'
 import { projectJsonRun, boundJsonLine } from './json-stream.ts'
 
+/** Wall-clock default for joining background subagent settlement before the one-shot process exits. */
+export const DEFAULT_SETTLEMENT_DEADLINE_MS = 10_000
+
+/** Default cap on parent turns the runner drives to read queued settlement notices. */
+export const DEFAULT_SETTLEMENT_MAX_TURNS = 8
+
 /** Stable Cordis plugin name. */
 export const name = 'headless-runner'
 
@@ -46,12 +52,20 @@ export interface Config {
   sessionId?: string
   /** Whether stdout carries the machine-readable event stream instead of final text. */
   json?: boolean
+  /** Wall-clock milliseconds this run joins background subagent settlement; defaults to 10000. */
+  settlementDeadlineMs?: number
+  /** Parent turns this run may drive to read queued settlement notices; defaults to 8. */
+  settlementMaxTurns?: number
 }
 
 export const Config: z<Config> = z.object({
   task: z.string(),
   sessionId: z.string(),
   json: z.boolean(),
+  // Deployment-varying bounds stay configuration: a slow provider or a deep child
+  // tree needs more of one, and the runner must not invent either.
+  settlementDeadlineMs: z.number().step(1).min(1).max(600_000).default(DEFAULT_SETTLEMENT_DEADLINE_MS),
+  settlementMaxTurns: z.number().step(1).min(0).max(64).default(DEFAULT_SETTLEMENT_MAX_TURNS),
 })
 
 /** Outcome of one owned run interval. */
@@ -301,6 +315,149 @@ function fail(io: HeadlessIo, error: unknown, json: boolean): void {
 }
 
 /**
+ * The part of one closing settlement pass this runner reads. The subagent service
+ * is an optional peer this bundle does not import, so its shape is declared here
+ * rather than widened into the Service Definition this bundle never depends on.
+ */
+interface SettlementReport {
+  /** Whether the pass opened one parent turn to read queued notices. */
+  readonly woke: boolean
+  /** Notices handed to that turn. */
+  readonly queued: number
+  /** Notices still unread when the pass returned. */
+  readonly unread: number
+  /** Which bound ended the pass early, when one did. */
+  readonly stopped?: 'deadline' | 'cancelled'
+}
+
+/** The settlement-join operations this runner uses from the optional subagent service. */
+interface SettlementService {
+  /** Await one published child's teardown and final Session flush. */
+  awaitStopped(childId: SessionId): Promise<void>
+  /** Flush the settlement notices a closing host still owes one parent. */
+  flushSettlementNotices(parent: Agent, options: { deadlineMs: number }): Promise<SettlementReport>
+}
+
+/** Bounds the one-shot runner puts on joining background subagent settlement. */
+interface SettlementBounds {
+  /** Wall-clock milliseconds available to settlement joining. */
+  readonly deadlineMs: number
+  /** Maximum parent turns the join may drive to read queued settlement notices. */
+  readonly maxTurns: number
+}
+
+/**
+ * Resolve this run's settlement bounds.
+ *
+ * A composed profile reaches the runner through the {@link Config} schema, which
+ * supplies both defaults, so the options are usually present. A direct caller
+ * resolves to the same documented defaults here instead of letting the join
+ * invent a bound.
+ * @param config - validated run options, with the bounds absent when unset.
+ * @returns the bounds this run joins background subagent settlement under.
+ */
+function settlementBounds(config: Config): SettlementBounds {
+  return {
+    deadlineMs: config.settlementDeadlineMs ?? DEFAULT_SETTLEMENT_DEADLINE_MS,
+    maxTurns: config.settlementMaxTurns ?? DEFAULT_SETTLEMENT_MAX_TURNS,
+  }
+}
+
+/**
+ * Settle one task's background work before the one-shot process exits.
+ *
+ * A settlement notice wakes its parent into a later turn, and that turn's own
+ * delegation publishes more work, so the join repeats while the parent keeps
+ * opening turns. Two bounds stop it: wall-clock time and the closure-turn count.
+ * A remainder is reported with its unread notice count instead of exiting
+ * silently, and the notices themselves stay durable in the parent's inbox.
+ * @param ctx - plugin context carrying the optional subagent service and logger.
+ * @param agent - the one-shot task's exact parent Agent.
+ * @param childRuns - durable ids of the child runs this task published, in publication order.
+ * @param bounds - wall-clock and turn-count bounds for the join.
+ */
+async function settleBackgroundWork(
+  ctx: Context,
+  agent: Agent,
+  childRuns: readonly string[],
+  bounds: SettlementBounds,
+): Promise<void> {
+  // The subagent service is an optional peer: this bundle composes no subagent row,
+  // so the profile decides whether settlement work exists at all.
+  const subagents = ctx.get('subagents') as SettlementService | undefined
+  if (subagents === undefined) {
+    // Without the service nothing publishes a settlement notice; only the task turn remains.
+    await agent.whenIdle()
+    return
+  }
+  const deadline = Date.now() + bounds.deadlineMs
+  const remaining = (): number => Math.max(0, deadline - Date.now())
+  let turns = 0
+  // The first pass always runs: a validated deadline is positive, and only a pass
+  // can spend it, so every bound reported below observed at least one report.
+  let last: SettlementReport = { woke: false, queued: 0, unread: 0 }
+  let bound: string | undefined
+  for (;;) {
+    const budget = remaining()
+    if (budget === 0) {
+      bound = 'deadline'
+      break
+    }
+    const before = agent.session.seq
+    const report = await subagents.flushSettlementNotices(agent, { deadlineMs: budget })
+    last = report
+    if (report.stopped !== undefined) {
+      bound = report.stopped
+      break
+    }
+    if (report.woke) {
+      turns += 1
+      if (turns >= bounds.maxTurns) {
+        bound = 'closure-turn'
+        break
+      }
+      continue
+    }
+    if (report.unread > 0) {
+      bound = 'unclaimed-queue'
+      break
+    }
+    // Nothing was queued and nothing appeared: the parent reached quiescence.
+    if (agent.status === 'idle' && agent.session.seq === before) break
+  }
+  if (bound !== undefined) {
+    ctx.logger.warn(
+      'headless runner: ' + String(last.unread) + ' background subagent settlement notice(s) stayed unread '
+      + 'after the ' + bound + ' bound',
+    )
+    return
+  }
+  if (childRuns.length === 0) return
+  // Each child's teardown flushes its Session before the await settles, so a
+  // persisted child log cannot stop mid-turn behind the exiting process. A spent
+  // budget still joins already-settled children, which resolve ahead of the timer.
+  const stopped = Promise.all(childRuns.map(async (childId) => { await subagents.awaitStopped(brandString<SessionId>(childId)) }))
+  if (!await settlesWithin(stopped, remaining())) {
+    // The child join ran out of budget; the task's own turn still finishes so the
+    // run reports its real outcome instead of an interrupted transcript.
+    await agent.whenIdle()
+    ctx.logger.warn('headless runner: child subagents did not settle within ' + String(bounds.deadlineMs) + 'ms')
+  }
+}
+
+/**
+ * Await one join against a wall-clock budget.
+ * @param work - the join to await.
+ * @param deadlineMs - remaining milliseconds.
+ * @returns whether the join settled inside the budget.
+ */
+async function settlesWithin(work: Promise<unknown>, deadlineMs: number): Promise<boolean> {
+  const budget = new Promise<'bound'>((resolve) => { setTimeout(() => { resolve('bound') }, deadlineMs).unref() })
+  const outcome = await Promise.race([work.then(() => 'settled' as const), budget])
+  return outcome === 'settled'
+}
+
+/**
  * Run one task through one Agent and request process exit.
  * @param ctx - plugin context carrying the Agent, default model, Session, and launcher IO services.
  * @param config - task, optional exact Session identity, and output mode.
@@ -372,21 +529,10 @@ async function run(ctx: Context, config: Config, io: HeadlessIo): Promise<void> 
         content: [{ type: 'text', text: task }],
         source: { kind: 'user' },
       }))
-      await agent.whenIdle()
-      // A one-shot runner owns the child work it started: join progressing in-process subagent
-      // turns before the process exits, so a persisted child Session cannot stop mid-turn.
-      const subagents = ctx.get('subagents')
-      if (subagents !== undefined) {
-        const settleDeadline = Date.now() + 10_000
-        if (childRuns.length > 0 && typeof subagents.awaitStopped === 'function') {
-          // Each child's teardown flushes its Session before `awaitStopped` settles.
-          const stopped = Promise.all(childRuns.map(async (childId) => { await subagents.awaitStopped(childId as never) }))
-          const deadline = new Promise<void>((resolve) => { setTimeout(resolve, 10_000).unref() })
-          await Promise.race([stopped, deadline])
-        }
-        while (Date.now() < settleDeadline && await subagents.waitForChildren(agent)) { /* join fallback */ }
-        if (Date.now() >= settleDeadline) ctx.logger.warn('headless runner: child subagents did not settle within 10s')
-      }
+      // A one-shot runner owns the work it started: join background subagent settlement,
+      // including the parent turns pending settlement notices wake, before the process
+      // exits — an open turn here would persist a transcript nobody finished.
+      await settleBackgroundWork(ctx, agent, childRuns, settlementBounds(config))
     } finally {
       offSubagentStart()
       stopReasoning?.()

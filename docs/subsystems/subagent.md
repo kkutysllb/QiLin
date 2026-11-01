@@ -215,6 +215,44 @@ interface SubagentSettledMessageSource {
 }
 ```
 
+A host that closes while settlement notices still sit queued flushes them rather than leaving a turn half open: `flushSettlementNotices(parent, options)` joins resident children inside its deadline, hands every queued notice to one closure turn in a single step claim, and reports what stayed unread so the host can warn instead of losing the fact.
+
+```ts type-equiv
+/**
+ * Bound on one host's closing flush of queued settlement notices. The host owns
+ * the bound because it owns the process or server lifetime the flush must fit.
+ */
+interface SettlementFlushOptions {
+  /** Wall-clock milliseconds the flush may spend joining settlement and one closure turn. */
+  readonly deadlineMs: number
+  /** Caller cancellation; the flush stops joining and still reports what it left queued. */
+  readonly signal?: AbortSignal
+}
+```
+
+```ts type-equiv
+/** Why a closing flush returned before its parent reached closure. */
+type SettlementFlushStop = 'deadline' | 'cancelled'
+```
+
+```ts type-equiv
+/** What one host's closing flush of settlement notices achieved. */
+interface SettlementFlushReport {
+  /** Whether the call opened one closure turn; false means it had no notice to read. */
+  readonly woke: boolean
+  /** Queued settlement notices handed to that closure turn. */
+  readonly queued: number
+  /**
+   * Settlement notices still unread when the call returned. The parent's inbox
+   * keeps them durably, so a later process still reads them, but this run's model
+   * never did: hosts report a nonzero value instead of dropping the loss.
+   */
+  readonly unread: number
+  /** Set when the deadline or caller cancellation ended the flush before quiescence. */
+  readonly stopped?: SettlementFlushStop
+}
+```
+
 The provider participates only in preparing the initial creation spec, where `spawn` and `fork` differ. Its returned spec carries only detached provider-specific creation inputs — the optional parent-history seed — and no Agent, `AgentHandle`, prompt delivery, result, disposal, or resume operation. Cold resume does not dispatch through a provider at all: the manager folds the generic descriptor, calls `ctx.agents.resume()` through the same activation-owner scope, and submits the waiting turn.
 
 ```ts type-equiv
@@ -515,6 +553,29 @@ startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>
  * @returns whether work was joined; hosts recheck parent idle after true.
  */
 async waitForChildren(parent: Agent): Promise<boolean>
+
+/**
+ * Flush the settlement notices a closing host still owes one exact live parent.
+ *
+ * One bounded pass joins resident descendant settlement and, when notices are
+ * queued for the parent, opens exactly one closure turn that claims the whole
+ * batch as one step, so batch size adds no turns. The call declares closure for
+ * that parent: a notice arriving from then on waits for a flush batch instead of
+ * joining the parent's own turn, so the recorded order follows delivery order
+ * rather than which turn happened to be running. A pass that cannot read its
+ * batch publishes the notices into the parent's inbox before it returns, so a
+ * later process still reads them. The deadline and optional cancellation bound
+ * the wait, not the notice count: an expired pass reports the notices it left
+ * unread, and callers report that number rather than dropping it.
+ *
+ * Idempotent per parent — concurrent hosts share one pass — and immediate when
+ * the parent has no resident descendant and no queued notice.
+ * @param parent - exact live parent whose host is closing.
+ * @param options - wall-clock budget and optional caller cancellation.
+ * @returns what the pass read, and any notice it left unread.
+ * @throws {TypeError} when the deadline is not a positive safe integer.
+ */
+async flushSettlementNotices(parent: Agent, options: SettlementFlushOptions): Promise<SettlementFlushReport>
 
 /**
  * Await one child's teardown and final Session flush by durable id. Resolves immediately when the

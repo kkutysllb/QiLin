@@ -57,6 +57,9 @@ async function durablePromptContent(ctx: Context, blocks: SessionPromptParams['c
     : block)
 }
 
+/** Wall-clock budget for reading the settlement notices an owned parent still owes at shutdown. */
+const SETTLEMENT_FLUSH_DEADLINE_MS = 10_000
+
 /** Recover the delegating parent from the service-owned scoped carrier. */
 function subagentParentOf(carrier: Scoped<SubagentRuntime>): Agent {
   return carrierKeyOf(carrier) as Agent
@@ -270,6 +273,26 @@ export class HarnessSdkJsonRpcServer {
     const records = [...this.sessions.values()]
     this.sessions.clear()
     const failures: unknown[] = []
+    // Read the settlement notices these parents still owe before their children
+    // stop: a notice delivered after the last turn would otherwise queue for a
+    // turn nothing drives, leaving this run's model without the child's answer.
+    // Subscriptions are still installed, so the flush turn reaches the client.
+    const subagents = this.ctx.get('subagents')
+    if (subagents !== undefined) {
+      const flushes = await Promise.allSettled(records.map(async (rec) => {
+        const report = await subagents.flushSettlementNotices(rec.handle.agent, {
+          deadlineMs: SETTLEMENT_FLUSH_DEADLINE_MS,
+        })
+        if (report.unread === 0) return
+        this.ctx.logger.warn(
+          `SDK shutdown left ${String(report.unread)} background subagent settlement notice(s) unread for session `
+          + `"${String(rec.handle.agent.session.id)}"${report.stopped === undefined ? '' : ` after its ${report.stopped} bound`}`,
+        )
+      }))
+      failures.push(...flushes
+        .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+        .map(result => result.reason as unknown))
+    }
     while (this.disposers.length > 0) {
       try {
         this.disposers.pop()?.()
