@@ -8,6 +8,7 @@
 - button "Continuing goal {{clock}}":
   - text: Continuing goal
   - time: {{clock}}
+- button "QiLin..." [disabled] [expanded]
 - paragraph: partial
 - status: QiLin...
 - text: Working for {{duration}}...

@@ -6,6 +6,7 @@
 - text: Reply with a one-sentence description of event sourcing, then stop. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
+- button "QiLin..." [disabled] [expanded]
 - paragraph: partial
 - status: QiLin...
 - text: Working for {{duration}}...
