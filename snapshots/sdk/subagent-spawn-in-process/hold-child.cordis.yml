@@ -1,0 +1,6 @@
+# Keyless replay determinism: the background child settles after the parent's turn, so its
+# response reaches the parent's next turn instead of racing the turn's model call.
+- insert:
+    - id: hold-child-until-parent-turn
+      name: '../../../packages/test-support/session-snapshot/tests/fixtures/hold-child-until-parent-turn.ts'
+      disabled: !!js process.env.QILIN_SNAPSHOT === 'record'

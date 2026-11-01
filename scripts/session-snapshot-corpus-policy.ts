@@ -29,9 +29,7 @@ const RETAINED_BASELINE_VERSION = 3
  * generations again.
  */
 const PENDING_V4_SCENARIOS: ReadonlyMap<string, string> = new Map([
-  ['session/subagent-depth-two-rejection', 'the committed child fixture is truncated at its first request, so llm-replay returns no response for the depth-2 role'],
   ['session/windows-acl-skill', 'windows-only workspace setup; no legal v5 on macOS'],
-  ['sdk/subagent-activation-limit', 'refresh hangs to the 120s timeout after the in-process child ends without subagent.finished'],
 ])
 const MAX_RETAINED_ROLES = 11
 const REQUIRED_V0_COVERAGE = new Set([

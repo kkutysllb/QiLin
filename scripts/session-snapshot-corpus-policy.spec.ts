@@ -112,10 +112,10 @@ describe('recorded-session corpus policy', () => {
       retainedRoles: 1 + adjacent.length,
       retainedScenarios: 1 + adjacent.length,
     })
-    // session/ralph-loop carries a v4 parent with v3 children until the v5 re-record lands.
+    // A listed pending scenario may keep mixed generations until its v5 re-record lands.
     expect(assertSnapshotCorpusPolicy([
       baseline,
-      { key: 'session/subagent-depth-two-rejection', selectedVersions: [4, 3, 3] },
+      { key: 'session/windows-acl-skill', selectedVersions: [4, 3, 3] },
       completeV0,
       ...adjacent,
     ]).baselineRoles).toBe(retainedRoleCount + 4)
