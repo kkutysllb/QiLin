@@ -3684,7 +3684,7 @@ describe('Task detail name and instruction edits', () => {
     expect(instruction).toMatch(/max-height:\s*160px;/)
     expect(instruction).toMatch(/field-sizing:\s*content;/)
     expect(instruction).toMatch(/padding:\s*12px;/)
-    expect(instruction).toMatch(/border:\s*0\.5px solid var\(--qilin-alias-border-l3\);/)
+    expect(instruction).toMatch(/border:\s*1px solid var\(--qilin-alias-border-l3\);/)
     expect(instruction).toMatch(/border-radius:\s*16px;/)
     // The mock inherits the instruction's 14px text and pins its own 24px leading.
     expect(instruction).toMatch(/font-size:\s*14px;/)
@@ -3794,11 +3794,11 @@ describe('Mock detail metrics shared with the task list', () => {
     expect(tab).toMatch(/font-size:\s*14px;/)
     // The selected chip keeps the chip's own weight; only the fill marks it.
     expect(rule('filterTabActive')).not.toMatch(/font-weight/)
-    // The mock's `.searchbox` keeps its hairline at the repository's 0.5px.
+    // The mock's `.searchbox` keeps its hairline at the repository's 1px.
     const field = rule('searchField')
     expect(field).toMatch(/height:\s*36px;/)
     expect(field).toMatch(/padding:\s*0 10px;/)
-    expect(field).toMatch(/border:\s*0\.5px solid var\(--qilin-alias-border-l3\);/)
+    expect(field).toMatch(/border:\s*1px solid var\(--qilin-alias-border-l3\);/)
     expect(field).toMatch(/border-radius:\s*12px;/)
     expect(stylesheet).toMatch(/\.searchField:hover\s*\{[^}]*border-color:\s*var\(--qilin-alias-border-l2\);/)
     expect(stylesheet)
@@ -3884,7 +3884,7 @@ describe('Mock detail metrics shared with the task list', () => {
     expect(rule('ruleCard h3')).toMatch(/color:\s*var\(--qilin-alias-label-tertiary\);/)
     expect(rule('ruleCard h3')).toMatch(/line-height:\s*20px;/)
     expect(rule('ruleCard h3')).toMatch(/font-weight:\s*400;/)
-    expect(rule('detail')).toMatch(/border-left:\s*0\.5px solid var\(--qilin-alias-border-l4\);/)
+    expect(rule('detail')).toMatch(/border-left:\s*1px solid var\(--qilin-alias-border-l4\);/)
   })
 
   it('steps the detail gutter at the mock breakpoints and drops the retired 18px step', () => {

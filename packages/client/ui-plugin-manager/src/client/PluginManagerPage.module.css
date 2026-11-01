@@ -142,7 +142,7 @@
   top: 0;
   height: var(--plugin-header-compact-height);
   box-sizing: border-box;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .pageHead {
@@ -369,7 +369,7 @@
 
 .card {
   min-width: 0;
-  border: 0.5px solid var(--qilin-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: var(--qilin-radius-lg);
   background: var(--qilin-alias-bg-module-platform);
   transition:
@@ -397,7 +397,7 @@
   width: 48px;
   height: 48px;
   /* The same hairline frame as the component rows below. */
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: var(--qilin-radius-lg);
   color: var(--qilin-alias-label-secondary);
 }
@@ -648,7 +648,7 @@
 .addMore {
   width: 32px;
   padding: 0;
-  border-left: 0.5px solid color-mix(in srgb, var(--qilin-alias-label-primary-foreground) 30%, transparent);
+  border-left: 1px solid color-mix(in srgb, var(--qilin-alias-label-primary-foreground) 30%, transparent);
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
@@ -792,7 +792,7 @@
 .installField input[type='text'] {
   height: 40px;
   padding: 0 14px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: var(--qilin-radius-md);
   outline: none;
   background: var(--qilin-alias-bg-layer-3);
@@ -804,7 +804,7 @@
 .installField input[type='text']:focus,
 .registryCustomField:focus {
   border-color: var(--qilin-alias-state-business-primary);
-  box-shadow: inset 0 0 0 0.5px var(--qilin-alias-state-business-primary);
+  box-shadow: inset 0 0 0 1px var(--qilin-alias-state-business-primary);
 }
 
 .installField input[type='text'][aria-invalid='true'],
@@ -815,7 +815,7 @@
 
 .installField input[type='text'][aria-invalid='true']:focus,
 .registryCustomField[aria-invalid='true']:focus {
-  box-shadow: inset 0 0 0 0.5px var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  box-shadow: inset 0 0 0 1px var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
 }
 
 /* The guide under the field: opened by a text button, it names the npm package name and shows its example. */
@@ -853,7 +853,7 @@
   flex-direction: column;
   gap: 10px;
   padding: 8px 14px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: var(--qilin-radius-lg);
   background: var(--qilin-alias-bg-layer-1);
 }
@@ -958,7 +958,7 @@
   gap: 6px;
   height: 28px;
   padding: 0 8px 0 10px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: var(--qilin-radius-md);
   background: var(--qilin-alias-bg-layer-2);
   font: inherit;
@@ -1073,7 +1073,7 @@ label.registryOption {
   height: 32px;
   margin-left: 26px;
   padding: 0 10px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: var(--qilin-radius-md);
   background: var(--qilin-alias-bg-layer-3);
   font: inherit;
@@ -1214,7 +1214,7 @@ label.registryOption {
   align-items: center;
   gap: 6px;
   padding: 16px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: var(--qilin-radius-lg);
   text-align: center;
 }
@@ -1338,7 +1338,7 @@ label.registryOption {
   flex-direction: column;
   gap: 8px;
   padding: 12px 14px;
-  border: 0.5px solid color-mix(in srgb, var(--qilin-alias-state-warn-primary) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--qilin-alias-state-warn-primary) 40%, transparent);
   border-radius: var(--qilin-radius-lg);
   background: var(--qilin-alias-state-warn-tertiary);
 }
@@ -1391,7 +1391,7 @@ label.registryOption {
   --dsl-terminal-line-height: 18px;
   --dsl-terminal-output-max-height: 240px;
   margin: 4px 0 0;
-  border: 0.5px solid var(--qilin-alias-border-l1);
+  border: 1px solid var(--qilin-alias-border-l1);
 }
 
 .dependents {
@@ -1563,7 +1563,7 @@ label.registryOption {
   gap: 16px;
   min-height: 44px;
   padding: 8px 2px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l2);
 }
 
 .facts dt {
@@ -1608,7 +1608,7 @@ label.registryOption {
 
 .row {
   padding: 12px 2px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l2);
 }
 
 .row:last-child {
@@ -1629,7 +1629,7 @@ label.registryOption {
   justify-content: center;
   width: 40px;
   height: 40px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: var(--qilin-radius-md);
   color: var(--qilin-alias-label-secondary);
 }
@@ -1756,7 +1756,7 @@ label.registryOption {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
   pointer-events: none;
 }
 
@@ -1870,7 +1870,7 @@ label.registryOption {
 .versionPanel {
   container-type: inline-size;
   overflow: hidden;
-  border: 0.5px solid var(--qilin-alias-settings-card-stroke);
+  border: 1px solid var(--qilin-alias-settings-card-stroke);
   border-radius: var(--qilin-radius-xl);
   background: var(--qilin-alias-settings-card-fill);
 }
@@ -1980,7 +1980,7 @@ button.versionSummary:focus-visible {
 
 .versionBody {
   padding: 0 16px;
-  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 .versionRows {
@@ -1998,7 +1998,7 @@ button.versionSummary:focus-visible {
   gap: 16px;
   min-height: 28px;
   padding: 12px 0;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l2);
 }
 
 .versionRow:last-child {
@@ -2077,7 +2077,7 @@ button.versionSummary:focus-visible {
   align-items: center;
   gap: 8px 24px;
   padding: 12px 0;
-  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 .versionFact {
@@ -2225,7 +2225,7 @@ button.versionSummary:focus-visible {
 }
 
 .updateStep[data-state='unknown'] .updateStepDot {
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
 }
 
 @container (max-width: 460px) {
@@ -2277,7 +2277,7 @@ button.versionSummary:focus-visible {
   max-width: 100%;
   max-height: 320px;
   margin-top: 24px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: var(--qilin-radius-lg);
   object-fit: contain;
 }

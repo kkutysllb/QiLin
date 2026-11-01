@@ -1,7 +1,7 @@
 /**
  * Elevation stylesheet contract, asserted against the CSS text on disk:
  * gradient-shadow-text.css composes the elevation tokens from a rebindable
- * 0.5px hairline stroke plus soft layers, and no package rule pairs an
+ * 1px rule plus soft layers, and no package rule pairs an
  * lv/elevation box-shadow with a neutral-border-token border — elevated
  * surfaces draw their neutral stroke inside the elevation shadow (border: 0),
  * never as a layout-consuming border beside it. State-colored borders (for
@@ -47,7 +47,7 @@ describe('elevation tokens', () => {
     // --qilin-elevation-stroke-color rebind a no-op. Per-element declarations
     // re-substitute against the color each element sees (the same contract
     // scrollbar.css states for --qilin-scrollbar-thumb).
-    expect(perElement.get('--qilin-elevation-stroke')).toBe(`0 0 0 0.5px var(${STROKE_COLOR})`)
+    expect(perElement.get('--qilin-elevation-stroke')).toBe(`0 0 0 1px var(${STROKE_COLOR})`)
     for (const name of ['--qilin-elevation-panel', '--qilin-elevation-prominent', '--qilin-elevation-soft']) {
       expect(perElement.get(name), name).toMatch(/^var\(--qilin-elevation-stroke\), 0 /)
       expect(bodyOnly.has(name), name).toBe(false)
@@ -72,7 +72,7 @@ function neutralBordersBesideElevation(css: string): string[] {
 describe('elevated surfaces carry no neutral border', () => {
   it('rejects a rule that pairs the shadow with a neutral border', () => {
     expect(neutralBordersBesideElevation(
-      '.a { box-shadow: var(--qilin-elevation-panel); border: 0.5px solid var(--qilin-alias-border-l2); }',
+      '.a { box-shadow: var(--qilin-elevation-panel); border: 1px solid var(--qilin-alias-border-l2); }',
     )).toEqual(['.a'])
     expect(neutralBordersBesideElevation(
       '.a { box-shadow: var(--qilin-elevation-panel); border: 0; }',
@@ -93,8 +93,8 @@ describe('elevated surfaces carry no neutral border', () => {
 const BORDER_EDGE = /^border(?:-top|-bottom|-left|-right)?$/
 
 /**
- * Solid neutral-token borders wider than the 0.5px hairline. The width test is
- * lexical and order-sensitive: `border: solid 0.5px …` would be reported (a
+ * Solid neutral-token borders wider than the 1px rule. The width test is
+ * lexical and order-sensitive: `border: solid 1px …` would be reported (a
  * loud false positive to normalize), while split `border-width`/`border-color`
  * declarations fall outside BORDER_EDGE and are not seen; no sheet under test
  * writes either form.
@@ -108,7 +108,7 @@ function wideNeutralBorders(css: string, exempt: Set<string> = new Set()): strin
     for (const [property, value] of rule.declarations) {
       if (!BORDER_EDGE.test(property)) continue
       if (!value.includes('solid') || !NEUTRAL_BORDER.test(value)) continue
-      if (value.startsWith('0.5px ')) continue
+      if (value.startsWith('1px ')) continue
       if (rule.selectors.some(selector => exempt.has(selector))) continue
       wide.push(`${rule.selectors.join(', ')} ${property}: ${value}`)
     }
@@ -118,7 +118,7 @@ function wideNeutralBorders(css: string, exempt: Set<string> = new Set()): strin
 
 /**
  * Filled divider lines (a border-token background on a 1px-tall or 1px-wide
- * box) that keep the pre-hairline weight.
+ * box) that keep the retired hairline weight.
  * @param css - stylesheet text.
  * @returns the offending `<selectors> <property>: <value>` lines, in source order.
  */
@@ -129,7 +129,7 @@ function wideFilledDividers(css: string): string[] {
       (property === 'background' || property === 'background-color') && NEUTRAL_BORDER.test(value))
     if (!paintsLine) continue
     for (const [property, value] of rule.declarations) {
-      if ((property === 'height' || property === 'width') && value === '1px') {
+      if ((property === 'height' || property === 'width') && value === '0.5px') {
         wide.push(`${rule.selectors.join(', ')} ${property}: ${value}`)
       }
     }
@@ -147,17 +147,17 @@ describe('neutral solid borders are hairlines', () => {
     'TrajectoryTable.module.css .historyLoadingSpinner',
   ])
 
-  it('rejects a wide neutral border and a wide filled divider', () => {
-    expect(wideNeutralBorders('.a { border: 1px solid var(--qilin-alias-border-l2); }'))
-      .toEqual(['.a border: 1px solid var(--qilin-alias-border-l2)'])
-    expect(wideNeutralBorders('.a { border: 0.5px solid var(--qilin-alias-border-l2); }')).toEqual([])
-    expect(wideFilledDividers('.a { background: var(--qilin-alias-border-l2); height: 1px; }'))
-      .toEqual(['.a height: 1px'])
-    expect(wideFilledDividers('.a { background: var(--qilin-alias-border-l2); height: 0.5px; }')).toEqual([])
+  it('accepts the 1px rule and rejects a retired hairline', () => {
+    expect(wideNeutralBorders('.a { border: 1px solid var(--qilin-alias-border-l2); }')).toEqual([])
+    expect(wideNeutralBorders('.a { border: 0.5px solid var(--qilin-alias-border-l2); }'))
+      .toEqual(['.a border: 0.5px solid var(--qilin-alias-border-l2)'])
+    expect(wideFilledDividers('.a { background: var(--qilin-alias-border-l2); height: 1px; }')).toEqual([])
+    expect(wideFilledDividers('.a { background: var(--qilin-alias-border-l2); height: 0.5px; }'))
+      .toEqual(['.a height: 0.5px'])
   })
 
-  it('draws every solid neutral-token border at 0.5px under packages/', () => {
-    // Buttons, inputs, cards, and separators share the hairline weight;
+  it('draws every solid neutral-token border at 1px under packages/', () => {
+    // Buttons, inputs, cards, and separators share the 1px rule;
     // dashed affordances and state-colored borders are out of scope.
     const wide = packageStylesheets().flatMap((file) => {
       const base = basename(file)
@@ -170,10 +170,10 @@ describe('neutral solid borders are hairlines', () => {
     expect(wide).toEqual([])
   })
 
-  it('draws every filled divider line at 0.5px under packages/', () => {
+  it('draws every filled divider line at 1px under packages/', () => {
     // A separator drawn as a filled box — 1px tall or wide with a border-token
     // background (menu separators, the conversation header seam, markdown hr,
-    // vertical rails) — is the same hairline as a border. Visually-hidden 1px
+    // vertical rails) — is the same rule as a border. Visually-hidden 1px
     // clip boxes carry no border-token background and stay exempt.
     const wide = packageStylesheets().flatMap(file =>
       wideFilledDividers(readFileSync(file, 'utf8')).map(line => `${file} ${line}`))

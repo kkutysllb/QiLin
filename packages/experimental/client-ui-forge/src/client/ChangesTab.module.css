@@ -26,7 +26,7 @@
   box-sizing: border-box;
   min-height: 44px;
   padding: 0 8px 0 14px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 1px solid var(--dsw-alias-border-l3);
 }
 
 .headerIcon {
@@ -72,7 +72,7 @@
   box-sizing: border-box;
   min-height: 38px;
   padding: 0 8px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 1px solid var(--dsw-alias-border-l3);
 }
 
 .select {
@@ -213,7 +213,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 1px solid var(--dsw-alias-border-l3);
   background: var(--forge-fill);
   color: var(--dsw-alias-label-secondary);
 }
@@ -255,7 +255,7 @@
 }
 
 .file {
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 1px solid var(--dsw-alias-border-l3);
 }
 
 .fileHeader {
@@ -268,7 +268,7 @@
   box-sizing: border-box;
   min-height: 36px;
   padding: 0 4px 0 8px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 1px solid var(--dsw-alias-border-l3);
   background: var(--forge-changes-bg);
 }
 
@@ -383,7 +383,7 @@
 }
 
 .cell + .cell {
-  border-left: 0.5px solid var(--dsw-alias-border-l3);
+  border-left: 1px solid var(--dsw-alias-border-l3);
 }
 
 /* Unwrapped side-by-side cells cut long lines at the column edge. */
@@ -487,7 +487,7 @@
 /* The local changes card of the panel: its toggle and refs, the view link and create action, then its files. */
 .local {
   min-width: 0;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--dsw-alias-border-l2);
   border-radius: var(--dsw-radius-md);
   background: var(--dsw-alias-bg-layer-1);
 }
@@ -580,7 +580,7 @@
 .localFiles {
   margin: 0;
   padding: 4px 6px 8px;
-  border-top: 0.5px solid var(--dsw-alias-border-l2);
+  border-top: 1px solid var(--dsw-alias-border-l2);
   list-style: none;
 }
 

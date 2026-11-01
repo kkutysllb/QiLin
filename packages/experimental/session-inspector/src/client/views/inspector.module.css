@@ -18,7 +18,7 @@
   align-items: center;
   gap: 8px;
   padding: 6px 8px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
 }
 
 .toolbar span:first-child { flex: 1; }
@@ -34,20 +34,20 @@
 .scroller { flex: 1; min-height: 0; overflow: auto; overflow-anchor: none; }
 .table { width: 100%; min-width: 660px; table-layout: fixed; border-collapse: collapse; font-family: monospace; }
 .table th { position: sticky; top: 0; z-index: 10; background: var(--dsw-alias-bg-module-platform); text-align: left; }
-.table th, .table td { box-sizing: border-box; height: 30px; padding: 4px 8px; border-bottom: 0.5px solid var(--dsw-alias-border-l1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.table th, .table td { box-sizing: border-box; height: 30px; padding: 4px 8px; border-bottom: 1px solid var(--dsw-alias-border-l1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .idColumn { width: 64px; }
 .typeColumn { width: 190px; }
 .typeHeader { display: flex; align-items: center; gap: 6px; }
 .typeFilterButton { display: inline-flex; border: none; border-radius: 3px; padding: 2px; background: transparent; color: inherit; cursor: pointer; }
 .typeFilterButton:hover, .typeFilterButton[aria-pressed='true'] { color: var(--dsw-alias-state-business-primary); background: var(--dsw-alias-interactive-bg-hover); }
 .typeFilterPanel { position: fixed; z-index: 1250; width: 290px; max-width: calc(100vw - 24px); max-height: calc(100vh - 24px); overflow: auto; box-sizing: border-box; padding: 10px; color: var(--dsw-alias-label-primary); font-size: 11px; }
-.typeFilterInput { width: 100%; box-sizing: border-box; padding: 5px 6px; border: 0.5px solid var(--dsw-alias-border-l2); border-radius: 4px; background: transparent; color: inherit; font: inherit; }
+.typeFilterInput { width: 100%; box-sizing: border-box; padding: 5px 6px; border: 1px solid var(--dsw-alias-border-l2); border-radius: 4px; background: transparent; color: inherit; font: inherit; }
 .typeFilterHelp { margin: 6px 0; color: var(--dsw-alias-label-secondary); }
 .typeFilterOptions { max-height: 180px; overflow: auto; }
 .typeFilterOptions button { display: block; width: 100%; padding: 4px 6px; border: none; background: transparent; color: inherit; font: inherit; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 .typeFilterOptions button:hover, .typeFilterOptions button[aria-selected='true'] { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-state-business-primary); }
 .typeFilterActions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
-.typeFilterActions button { border: 0.5px solid var(--dsw-alias-border-l2); border-radius: 4px; padding: 3px 6px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.typeFilterActions button { border: 1px solid var(--dsw-alias-border-l2); border-radius: 4px; padding: 3px 6px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
 .contextRow .record { color: var(--dsw-alias-label-tertiary); }
 .locationColumn { width: 65px; }
 .timeColumn { width: 100px; }
@@ -68,7 +68,7 @@
 .modeControls { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; }
 .pickButton { display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; padding: 3px; }
 .pickButton:hover, .pickButton[aria-pressed='true'] { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-state-business-primary); }
-.pickNotice { flex: none; padding: 4px 8px; color: var(--dsw-alias-label-secondary); border-bottom: 0.5px solid var(--dsw-alias-border-l1); }
+.pickNotice { flex: none; padding: 4px 8px; color: var(--dsw-alias-label-secondary); border-bottom: 1px solid var(--dsw-alias-border-l1); }
 .chatPick { position: fixed; z-index: 1201; pointer-events: none; background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 15%, transparent); outline: 1px solid var(--dsw-alias-state-business-primary); border-radius: 4px; }
 .chatPickMask { position: fixed; z-index: 1200; pointer-events: auto; background: transparent; cursor: crosshair; touch-action: none; }
 .chatReveal { position: fixed; z-index: 1200; pointer-events: none; border-radius: 6px; background: var(--dsw-specific-bubble-highlight); outline: 1px solid var(--dsw-alias-state-business-primary); }
@@ -81,7 +81,7 @@
 .objectMuted { color: var(--dsw-alias-label-tertiary); }
 .objectReference, .objectBreadcrumbs button { border: none; background: transparent; padding: 0; color: var(--dsw-alias-state-business-primary); cursor: pointer; font: inherit; text-align: left; }
 .objectReference:hover { text-decoration: underline; }
-.objectBreadcrumbs { position: sticky; top: -8px; z-index: 1; margin: -8px -8px 8px; padding: 6px 8px; overflow: auto; background: var(--dsw-alias-bg-module-platform); border-bottom: 0.5px solid var(--dsw-alias-border-l1); }
+.objectBreadcrumbs { position: sticky; top: -8px; z-index: 1; margin: -8px -8px 8px; padding: 6px 8px; overflow: auto; background: var(--dsw-alias-bg-module-platform); border-bottom: 1px solid var(--dsw-alias-border-l1); }
 .objectBreadcrumbs ol { display: flex; align-items: center; gap: 6px; list-style: none; margin: 0; padding: 0; }
 .objectBreadcrumbs li { display: flex; align-items: center; gap: 6px; flex: none; }
 .objectBreadcrumbs button { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

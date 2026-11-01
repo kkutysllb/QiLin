@@ -16,7 +16,7 @@
 .chip {
   height: 28px;
   padding: 0 12px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 14px;
   corner-shape: round;
   background: transparent;
@@ -60,7 +60,7 @@
   box-sizing: border-box;
   margin-top: 18px;
   padding: 12px 14px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 16px;
   background: var(--qilin-alias-bg-layer-1);
   color: var(--qilin-alias-label-primary);

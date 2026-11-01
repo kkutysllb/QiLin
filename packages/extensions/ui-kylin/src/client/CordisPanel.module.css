@@ -161,7 +161,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 14px 12px 10px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 12px;
 }
 
@@ -250,7 +250,7 @@
   flex: 1;
   height: 26px;
   padding: 0 8px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: 7px;
   background: transparent;
   color: var(--qilin-alias-label-secondary);
@@ -299,7 +299,7 @@
 
 .transitionActions button {
   padding: 2px 8px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: 999px;
   corner-shape: round;
   background: transparent;

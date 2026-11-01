@@ -110,7 +110,7 @@
 .business {
   min-width: 0;
   overflow: hidden;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 12px;
   background: var(--qilin-alias-bg-base);
 }
@@ -119,7 +119,7 @@
   margin: 0;
   padding: 10px 12px;
   overflow: auto;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 8px;
   background: var(--qilin-alias-markdown-code-block);
   color: var(--qilin-alias-label-secondary);

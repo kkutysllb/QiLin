@@ -65,7 +65,7 @@
   top: 0;
   box-sizing: border-box;
   padding: 4px 8px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l2);
+  border-bottom: 1px solid var(--dsw-alias-border-l2);
   background: var(--dsw-alias-bg-layer-1);
   background-clip: padding-box;
   color: var(--dsw-alias-label-tertiary);
@@ -96,8 +96,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 6px 8px;
-  border-top: 0.5px solid var(--dsw-alias-border-l2);
-  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  border-top: 1px solid var(--dsw-alias-border-l2);
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
   white-space: nowrap;
 }
 
@@ -122,7 +122,7 @@
 }
 
 .toggle {
-  border-bottom: 0.5px dotted var(--dsw-alias-border-l2);
+  border-bottom: 1px dotted var(--dsw-alias-border-l2);
   color: var(--dsw-alias-label-secondary);
   font: var(--dsw-font-xxxs-11);
   font-weight: 400;
@@ -174,7 +174,7 @@
   box-sizing: border-box;
   height: 30px;
   padding: 0 8px 0 22px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
   box-shadow: inset 2px 0 0 var(--dsw-alias-border-l1);
   color: var(--dsw-alias-label-secondary);
   white-space: nowrap;
@@ -188,7 +188,7 @@
   box-sizing: border-box;
   height: 30px;
   padding: 0 8px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
   white-space: nowrap;
 }
 
@@ -198,7 +198,7 @@
 
 .compactionRow td,
 .eventRow td {
-  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
   background: var(--dsw-alias-bg-layer-2);
 }
 
@@ -206,7 +206,7 @@
   display: inline-block;
   margin-right: 6px;
   padding: 0 4px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--dsw-alias-border-l2);
   border-radius: 4px;
   color: var(--dsw-alias-label-secondary);
   font: var(--dsw-font-xxxs-11);
@@ -334,7 +334,7 @@
   text-overflow: ellipsis;
   margin-right: 4px;
   padding: 0 4px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--dsw-alias-border-l2);
   border-radius: 4px;
   color: var(--dsw-alias-label-secondary);
   font: var(--dsw-font-xxxs-11);
@@ -380,7 +380,7 @@
   width: 76px;
   height: 76px;
   padding: 0;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--dsw-alias-border-l2);
   border-radius: 4px;
   background: var(--dsw-alias-bg-layer-2);
   cursor: pointer;
@@ -424,7 +424,7 @@
   width: 76px;
   min-height: 76px;
   padding: 4px;
-  border: 0.5px dashed var(--dsw-alias-border-l2);
+  border: 1px dashed var(--dsw-alias-border-l2);
   border-radius: 4px;
   color: var(--dsw-alias-label-secondary);
   font: var(--dsw-font-xxxs-11);
@@ -489,7 +489,7 @@
   height: 19px;
   margin: 0 3px;
   padding: 0 5px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--dsw-alias-border-l2);
   border-radius: 2px;
   background: var(--dsw-alias-bg-layer-2);
   color: var(--dsw-alias-label-primary);
@@ -529,7 +529,7 @@
   gap: 5px;
   height: 19px;
   padding: 0 6px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--dsw-alias-border-l2);
   border-radius: 2px;
   background: var(--dsw-alias-bg-layer-2);
   color: var(--dsw-alias-label-primary);
@@ -636,7 +636,7 @@
   flex: 1;
   min-width: 40px;
   height: 14px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--dsw-alias-border-l2);
   border-radius: 2px;
   background: var(--dsw-alias-bg-layer-2);
   overflow: hidden;
@@ -715,7 +715,7 @@
   height: 19px;
   margin-right: 8px;
   padding: 0 6px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--dsw-alias-border-l2);
   border-radius: 2px;
   background: var(--dsw-alias-bg-layer-2);
   color: var(--dsw-alias-label-primary);
@@ -737,7 +737,7 @@
 /* Tool detail accordion: one block per call. */
 .detailCell {
   padding: 6px 8px 12px 22px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l1);
+  border-bottom: 1px solid var(--dsw-alias-border-l1);
   box-shadow: inset 2px 0 0 var(--dsw-alias-border-l1);
   font: var(--dsw-font-xs-13);
 }
@@ -776,7 +776,7 @@
 
 .block {
   margin-bottom: 10px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--dsw-alias-border-l2);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -822,7 +822,7 @@
   height: 18px;
   margin-left: auto;
   padding: 0 8px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
+  border: 1px solid var(--dsw-alias-border-l2);
   border-radius: 4px;
   background: transparent;
   color: var(--dsw-alias-label-secondary);
@@ -891,7 +891,7 @@
   gap: 8px;
   margin: 8px 20px 0;
   padding: 8px 0;
-  border-top: 0.5px solid var(--dsw-alias-border-l1);
+  border-top: 1px solid var(--dsw-alias-border-l1);
   font: var(--dsw-font-xxs-12);
 }
 
@@ -918,7 +918,7 @@
 }
 
 .totalsRow td {
-  border-top: 0.5px solid var(--dsw-alias-border-l2);
+  border-top: 1px solid var(--dsw-alias-border-l2);
   background: var(--dsw-alias-bg-layer-1);
   font-weight: 600;
 }
@@ -935,7 +935,7 @@
 
 .button {
   padding: 4px 10px;
-  border: 0.5px solid var(--dsw-alias-border-l1);
+  border: 1px solid var(--dsw-alias-border-l1);
   border-radius: 6px;
   background: var(--dsw-alias-bg-layer-2);
   color: var(--dsw-alias-label-primary);
@@ -956,7 +956,7 @@
 
 .buttonOff {
   padding: 4px 10px;
-  border: 0.5px solid var(--dsw-alias-border-l1);
+  border: 1px solid var(--dsw-alias-border-l1);
   border-radius: 6px;
   background: transparent;
   color: var(--dsw-alias-label-secondary);

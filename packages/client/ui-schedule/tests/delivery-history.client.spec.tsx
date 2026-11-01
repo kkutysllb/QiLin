@@ -133,7 +133,7 @@ describe.each([en, zh])('saved delivery records', (dictionary) => {
     // first and last glyphs, and stay 6px clear of each glyph.
     const segmentRule = ruleBlock(stylesheet, 'delivery::before,\n.delivery::after')
     expect(segmentRule).toMatch(/left:\s*15\.75px;/)
-    expect(segmentRule).toMatch(/width:\s*0\.5px;/)
+    expect(segmentRule).toMatch(/width:\s*1px;/)
     expect(segmentRule).toMatch(/background:\s*var\(--qilin-alias-border-l3\);/)
     expect(ruleBlock(stylesheet, 'delivery:not\\(:first-of-type\\)::before')).toMatch(/height:\s*14px;/)
     expect(ruleBlock(stylesheet, 'delivery:not\\(:last-of-type\\)::after')).toMatch(/top:\s*42px;/)

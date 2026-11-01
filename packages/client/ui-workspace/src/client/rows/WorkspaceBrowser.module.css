@@ -182,7 +182,7 @@
   height: 32px;
   margin-inline: 0;
   padding: 0 4px 0 0;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 10px;
   background: transparent;
   color: var(--qilin-alias-label-caption);
@@ -461,7 +461,7 @@
   width: 100%;
   height: 44px;
   padding: 7px 14px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 22px;
   outline: none;
   background: transparent;

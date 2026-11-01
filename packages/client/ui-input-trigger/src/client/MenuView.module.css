@@ -232,7 +232,7 @@
   margin-bottom: 2px;
   /* l1, not border-inverted (the menu frame's dark-only stroke): the divider
      needs to survive light mode too; in dark both resolve to white/0.06. */
-  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
+  border-bottom: 1px solid var(--qilin-alias-border-l1);
 }
 /* Crumbs sit outside the listbox and take no keyboard highlight, so unlike
    .item they carry their own :hover tint with nothing to compete with. */

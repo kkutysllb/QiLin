@@ -1,6 +1,6 @@
 .root {
   margin: 4px 0 4px 4px;
-  border: 0.5px solid var(--qilin-alias-border-l1);
+  border: 1px solid var(--qilin-alias-border-l1);
   border-radius: var(--qilin-radius-lg);
   background: var(--qilin-alias-markdown-code-block);
   color: var(--qilin-alias-label-secondary);
@@ -23,7 +23,7 @@
 }
 
 .item + .item {
-  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 .root[data-inspect]:not([data-caption]) > .list > .item,
@@ -102,7 +102,7 @@
 }
 
 .unchanged {
-  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 .unchanged summary {
@@ -198,7 +198,7 @@
 
 .group {
   margin-top: 8px;
-  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 .group > summary {

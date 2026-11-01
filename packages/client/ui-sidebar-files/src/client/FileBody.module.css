@@ -23,7 +23,7 @@
   box-sizing: border-box;
   height: 38px;
   padding: 0 6px 0 8px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 /* The open file's path, greyed and ellipsized from its start: the chip
@@ -73,7 +73,7 @@
   gap: 8px;
   align-items: center;
   padding: 8px 10px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .bannerText {
@@ -90,7 +90,7 @@
   font: inherit;
   font-size: 12px;
   background: transparent;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: 8px;
   cursor: pointer;
 }
@@ -120,7 +120,7 @@
   flex-direction: column;
   flex: 0 0 200px;
   min-width: 0;
-  border-right: 0.5px solid var(--qilin-alias-border-l3);
+  border-right: 1px solid var(--qilin-alias-border-l3);
 }
 
 .treeScroll {

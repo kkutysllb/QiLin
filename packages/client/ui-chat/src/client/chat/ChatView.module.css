@@ -203,7 +203,7 @@
 .runningDivider {
   display: none;
   width: 100%;
-  height: 0.5px;
+  height: 1px;
   margin: 8px 0 10px;
   background: color-mix(in srgb, var(--qilin-alias-border-l1) 75%, var(--qilin-alias-border-l2));
   pointer-events: none;

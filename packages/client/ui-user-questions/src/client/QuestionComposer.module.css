@@ -238,7 +238,7 @@
   grid-area: 1 / 1;
   width: 14px;
   height: 14px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 4px;
   transition: background-color 120ms ease, border-color 120ms ease;
 }
@@ -390,7 +390,7 @@
   min-height: 64px;
   flex-shrink: 0;
   margin: 0 12px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 10px;
   background: var(--qilin-alias-bg-module-platform);
   --qilin-answer-field-padding: 8px 12px;

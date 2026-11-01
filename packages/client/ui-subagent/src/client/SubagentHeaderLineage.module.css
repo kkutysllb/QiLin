@@ -277,7 +277,7 @@
   content: '';
   position: absolute;
   left: 0;
-  border-left: 0.5px solid var(--qilin-alias-border-l2);
+  border-left: 1px solid var(--qilin-alias-border-l2);
 }
 
 .children::before {
@@ -306,7 +306,7 @@
   top: 14px;
   left: -3px;
   width: 12px;
-  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 .notice,

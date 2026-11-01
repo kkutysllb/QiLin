@@ -102,7 +102,7 @@
   max-height: 260px;
   margin: 4px 0 4px 4px;
   overflow: hidden;
-  border: 0.5px solid var(--qilin-alias-border-l1);
+  border: 1px solid var(--qilin-alias-border-l1);
   border-radius: 12px;
   background: var(--qilin-alias-markdown-code-block);
 }
@@ -110,7 +110,7 @@
 .instructionsHeader {
   flex: none;
   padding: 8px 12px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l2);
   background: var(--qilin-alias-markdown-code-block-banner);
   font-size: 11px;
   font-weight: 500;
@@ -152,7 +152,7 @@
   gap: 4px;
   margin: 4px 0 2px 4px;
   padding: 2px 8px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 999px;
   corner-shape: round;
   background: var(--qilin-alias-bg-base);

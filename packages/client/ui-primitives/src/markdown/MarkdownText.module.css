@@ -143,7 +143,7 @@
 .markdown hr {
   display: block;
   border: none;
-  height: 0.5px;
+  height: 1px;
   margin: 32px 0;
   background: var(--qilin-alias-border-l2);
 }
@@ -168,7 +168,7 @@
   font-family: var(--ds-font-family-code);
   font-size: 0.875em !important;
   background-color: var(--qilin-alias-markdown-inline-code);
-  border: 0.5px solid var(--qilin-alias-border-l1);
+  border: 1px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   padding: 0 5px;
 }
@@ -244,7 +244,7 @@
 .tableScroll th {
   text-align: start;
   padding: 10px 16px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
   border-top: none;
   font: var(--qilin-font-markdown-table-head);
   max-width: 320px;
@@ -254,7 +254,7 @@
 
 .tableScroll td {
   padding: 10px 16px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l2);
   font: var(--qilin-font-markdown-table);
   max-width: 320px;
   max-width: min(30vw, 320px);

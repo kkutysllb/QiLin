@@ -39,7 +39,7 @@
 .panel::after {
   position: absolute;
   inset: 0;
-  border: 0.5px solid var(--qilin-alias-border-l1);
+  border: 1px solid var(--qilin-alias-border-l1);
   /* The input card's own top border closes the shape below. */
   border-bottom: none;
   border-radius: inherit;
@@ -144,7 +144,7 @@
   height: 24px;
   padding: 0 6px;
   overflow: hidden;
-  border: 0.5px solid var(--qilin-alias-border-l1);
+  border: 1px solid var(--qilin-alias-border-l1);
   border-radius: 6px;
   background: var(--qilin-alias-bg-base);
   box-sizing: border-box;
@@ -176,7 +176,7 @@
 .thumb {
   width: 24px;
   height: 24px;
-  border: 0.5px solid var(--qilin-alias-border-l1);
+  border: 1px solid var(--qilin-alias-border-l1);
   border-radius: 4px;
   background: var(--qilin-alias-bg-base);
   object-fit: cover;

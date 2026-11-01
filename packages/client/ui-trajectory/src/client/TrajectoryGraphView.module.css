@@ -22,7 +22,7 @@
   gap: 4px;
   height: 32px;
   padding: 0 8px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l2);
 }
 
 .tool {
@@ -370,7 +370,7 @@
   max-height: 40%;
   overflow: auto;
   padding: 8px 10px;
-  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
   background: var(--qilin-alias-bg-layer-2);
 }
 
@@ -531,7 +531,7 @@
   min-width: 76px;
   height: 22px;
   padding: 0 6px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 4px;
   color: var(--qilin-alias-label-primary);
   background: var(--qilin-alias-bg-layer-2);

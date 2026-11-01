@@ -5,7 +5,7 @@
   box-sizing: border-box;
   width: 100%;
   height: var(--qilin-trajectory-toolbar-height);
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l2);
   background: var(--qilin-alias-bg-layer-1);
 }
 
@@ -174,7 +174,7 @@
   margin-left: auto;
   padding: 0 6px;
   gap: 4px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 4px;
   color: var(--qilin-alias-label-caption);
   background: var(--qilin-alias-bg-layer-2);

@@ -369,7 +369,7 @@
   align-items: center;
   height: 16px;
   padding: 0 5px;
-  border: 0.5px solid var(--qilin-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: var(--qilin-radius-sm);
   color: var(--qilin-alias-label-tertiary);
   background: var(--qilin-alias-bg-layer-2);
@@ -394,7 +394,7 @@
   position: relative;
   margin: 0 calc(var(--qilin-sidebar-paint-inset) + 1px) 10px;
   box-sizing: border-box;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: var(--qilin-radius-panel);
   background: var(--qilin-alias-button-elevated-fill);
   color: var(--qilin-alias-label-primary);
@@ -537,7 +537,7 @@
 .panelSectionRail {
   display: block;
   width: 100%;
-  height: 0.5px;
+  height: 1px;
   background: var(--qilin-alias-border-l1, rgb(232 239 247 / 7%));
 }
 

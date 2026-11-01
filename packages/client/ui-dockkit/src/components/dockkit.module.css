@@ -38,7 +38,7 @@
 
 /* The divider owns no layout room (`SPLIT_MINIMUMS.divider` mirrors the 0):
    the halves abut, so a rule a pane draws across its own edge — a header's
-   hairline — runs unbroken past the seam. The visible rule is a 0.5px hairline
+   hairline — runs unbroken past the seam. The visible rule is a 1px hairline
    centred on the seam, matching the embedder's other borders, and `::after`
    widens the pointer target to 8px by reaching 4px over each neighbour.
    `z-index` keeps that overhang above the later sibling, which would otherwise
@@ -69,7 +69,7 @@
   top: 0;
   bottom: 0;
   left: -0.25px;
-  width: 0.5px;
+  width: 1px;
 }
 
 .splitRow > .divider::after {
@@ -88,7 +88,7 @@
   left: 0;
   right: 0;
   top: -0.25px;
-  height: 0.5px;
+  height: 1px;
 }
 
 .splitColumn > .divider::after {
@@ -190,7 +190,7 @@
   top: 0;
   bottom: 0;
   left: -0.25px;
-  width: 0.5px;
+  width: 1px;
 }
 
 .tabLayoutDivider::after {
@@ -307,7 +307,7 @@
 
 .slot::before {
   content: '';
-  width: 0.5px;
+  width: 1px;
   height: 14px;
   background: var(--qilin-alias-border-l4);
 }
@@ -543,7 +543,7 @@
   min-width: 96px;
   padding: 4px;
   background: var(--qilin-alias-bg-layer-3);
-  border: 0.5px solid var(--qilin-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
 }
 

@@ -149,7 +149,7 @@
   height: 36px;
   margin: 0 0 16px;
   padding: 0 10px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: 12px;
   color: var(--qilin-alias-label-tertiary);
   transition: border-color 0.15s;
@@ -392,7 +392,7 @@
 }
 
 /* The mock's `.detail` override: the panel's left edge is the `l4` hairline,
-   while the width stays the repository's 0.5px invariant. */
+   while the width stays the repository's 1px invariant. */
 .detail {
   --detail-gutter: 24px;
   position: relative;
@@ -401,7 +401,7 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  border-left: 0.5px solid var(--qilin-alias-border-l4);
+  border-left: 1px solid var(--qilin-alias-border-l4);
   background: var(--qilin-alias-bg-base);
 }
 
@@ -540,7 +540,7 @@
    left, their actions at its right end, on the bar's 44px height, 20px gap, and
    `--detail-gutter` inset; the right-panel placement below states 37px so its rule
    meets the conversation header's. The actions' -8px inset matches
-   `.detail-actions`, and the rule's token and 0.5px width are the header's own. */
+   `.detail-actions`, and the rule's token and 1px width are the header's own. */
 .detailTabsBar {
   display: flex;
   flex-shrink: 0;
@@ -550,7 +550,7 @@
   height: 44px;
   min-height: 44px;
   padding: 0 var(--detail-gutter);
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .detailTabs {
@@ -591,7 +591,7 @@
 }
 
 /* 13/16 text with 13px below it, the Tasks page's own 44px bar, so the label
-   reads vertically centered above the strip's 0.5px rule; the embedded task
+   reads vertically centered above the strip's 1px rule; the embedded task
    tab's copy of this strip states its own step. */
 .detailTab {
   flex: none;
@@ -734,7 +734,7 @@
   display: flex;
   flex-direction: column;
   padding: 0 12px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: 16px;
 }
 
@@ -753,7 +753,7 @@
 
 /* A stronger rule makes the unlabeled recent block read as a distinct section. */
 .zoneMenu [role='separator'] {
-  height: 0.5px;
+  height: 1px;
   margin: 6px 4px;
   background: var(--qilin-alias-border-l3);
 }
@@ -762,7 +762,7 @@
 .ruleRowMenu {
   display: flex;
   width: 100%;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .ruleRow {
@@ -872,7 +872,7 @@
   box-sizing: border-box;
   width: 100%;
   padding: 6px 8px;
-  border: 0.5px solid var(--qilin-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 7px;
   outline: none;
   background: var(--qilin-alias-bg-base);
@@ -1087,7 +1087,7 @@
   field-sizing: content;
   margin: 0;
   padding: 12px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: 16px;
   outline: 0;
   background: var(--qilin-alias-bg-base);
@@ -1155,9 +1155,9 @@
 .delivery::after {
   position: absolute;
   /* The glyph centre (8px row padding + half the 16px glyph) minus half the
-     hairline's own 0.5px, so the line sits exactly on the centre. */
+     hairline's own 1px, so the line sits exactly on the centre. */
   left: 15.75px;
-  width: 0.5px;
+  width: 1px;
   background: var(--qilin-alias-border-l3);
 }
 
@@ -1299,7 +1299,7 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 20px var(--detail-gutter);
-  border-top: 0.5px solid var(--qilin-alias-border-l4);
+  border-top: 1px solid var(--qilin-alias-border-l4);
   background: var(--qilin-alias-bg-base);
 }
 

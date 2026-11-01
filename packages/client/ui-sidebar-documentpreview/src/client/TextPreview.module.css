@@ -25,7 +25,7 @@
   box-sizing: border-box;
   height: 38px;
   padding: 0 6px 0 16px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 /* The path is never ellipsized. Its text sits at the left while it fits: the
@@ -73,7 +73,7 @@
   color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   background: var(--qilin-alias-bg-layer-2);
-  border-bottom: 0.5px solid var(--qilin-alias-border-l1);
+  border-bottom: 1px solid var(--qilin-alias-border-l1);
 }
 
 .body {
@@ -194,7 +194,7 @@
   font-size: var(--qilin-content-font-size-secondary, 13px);
   font-family: inherit;
   background: transparent;
-  border: 0.5px solid var(--qilin-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 16px;
   cursor: pointer;
 }
@@ -249,7 +249,7 @@
   font-family: var(--qilin-font, inherit);
   white-space: normal;
   background: var(--qilin-alias-bg-layer-2);
-  border: 0.5px solid var(--qilin-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   cursor: pointer;
 }
@@ -268,7 +268,7 @@
   font-family: var(--qilin-font, inherit);
   white-space: normal;
   background: var(--qilin-alias-bg-layer-2);
-  border: 0.5px solid var(--qilin-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
   cursor: pointer;
 }

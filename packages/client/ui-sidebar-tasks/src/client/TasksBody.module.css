@@ -22,7 +22,7 @@
   box-sizing: border-box;
   height: 38px;
   padding: 0 6px 0 10px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .sectionToggle {
@@ -71,7 +71,7 @@
   display: inline-flex;
   flex: none;
   overflow: hidden;
-  border: 0.5px solid var(--qilin-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
 }
 

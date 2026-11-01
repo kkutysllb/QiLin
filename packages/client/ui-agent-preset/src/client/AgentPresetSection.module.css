@@ -23,7 +23,7 @@
   justify-content: space-between;
   gap: 20px;
   padding: 14px 16px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 14px;
   background: var(--qilin-alias-bg-module-platform);
 }
@@ -90,7 +90,7 @@
 }
 
 .card {
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -281,7 +281,7 @@
   justify-content: flex-end;
   gap: 2px;
   padding: 6px 10px;
-  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 /* Icon-only actions: the label rides `title` so the row stays quiet until
@@ -401,7 +401,7 @@
 .input {
   box-sizing: border-box;
   padding: 9px 12px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 10px;
   font: inherit;
   font-size: 13px;
@@ -434,7 +434,7 @@
   padding: 12px;
   max-height: min(52vh, 480px);
   overflow: auto;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 10px;
   background: var(--qilin-alias-bg-layer-2);
   color: var(--qilin-alias-label-secondary);

@@ -27,7 +27,7 @@
   padding: 0 8px 0 12px;
   color: var(--qilin-alias-label-primary);
   background: var(--qilin-alias-state-warn-tertiary);
-  border: 0.5px solid var(--qilin-alias-state-warn-secondary);
+  border: 1px solid var(--qilin-alias-state-warn-secondary);
   border-radius: 10px;
   box-shadow: var(--qilin-elevation-panel);
   font-size: 12px;
@@ -131,7 +131,7 @@
 
 .fonts li {
   padding: 8px 0;
-  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -129,7 +129,7 @@ describe('SidebarRoot.module.css', () => {
     // adds a wash is the style this pins against.
     const card = declarations('.newSession')
     expect(card?.get('background')).toBe('var(--qilin-alias-button-elevated-fill)')
-    expect(card?.get('border')).toBe('0.5px solid var(--qilin-alias-border-l3)')
+    expect(card?.get('border')).toBe('1px solid var(--qilin-alias-border-l3)')
     expect(card?.get('justify-content')).toBe('center')
     expect(card?.get('height')).toBe('38px')
     expect(declarations('.newSession:hover')?.get('background-color')).toBe('var(--qilin-alias-button-floating-hover)')

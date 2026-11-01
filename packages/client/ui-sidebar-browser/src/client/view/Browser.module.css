@@ -16,7 +16,7 @@
   box-sizing: border-box;
   height: 38px;
   padding: 5px 6px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .tool {
@@ -63,7 +63,7 @@
   color: var(--qilin-alias-label-primary);
   font: var(--qilin-font-xxs-12);
   background: var(--qilin-alias-bg-layer-1);
-  border: 0.5px solid var(--qilin-alias-border-l2);
+  border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 6px;
 }
 
@@ -158,7 +158,7 @@
   font: var(--qilin-font-xxxs-11);
   text-overflow: ellipsis;
   white-space: nowrap;
-  border-top: 0.5px solid var(--qilin-alias-border-l3);
+  border-top: 1px solid var(--qilin-alias-border-l3);
 }
 
 .titleIcon {

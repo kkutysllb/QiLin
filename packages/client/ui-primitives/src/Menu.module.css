@@ -86,7 +86,7 @@
   flex-direction: column;
   margin-top: 4px;
   padding-top: 4px;
-  border-top: 0.5px solid var(--qilin-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 .itemWrap {
@@ -244,7 +244,7 @@
 
 /* Separator cell (figma 122:9481): py 4 / px 2 around the hairline. */
 .separator {
-  height: 0.5px;
+  height: 1px;
   margin: 4px 2px;
   background: var(--qilin-alias-border-l1);
 }

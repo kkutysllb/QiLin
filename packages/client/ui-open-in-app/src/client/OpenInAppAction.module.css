@@ -6,7 +6,7 @@
   align-items: stretch;
   box-sizing: border-box;
   height: 28px;
-  border: 0.5px solid var(--qilin-alias-border-l4);
+  border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 14px;
   overflow: hidden;
   font-family: var(--qilin-font-family);
@@ -50,7 +50,7 @@
 
 .chevron {
   padding: 5px 6px 5px 4px;
-  border-left: 0.5px solid var(--qilin-alias-border-l4);
+  border-left: 1px solid var(--qilin-alias-border-l4);
   color: var(--qilin-alias-label-secondary);
 }
 

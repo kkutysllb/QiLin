@@ -23,7 +23,7 @@
   box-sizing: border-box;
   min-height: 38px;
   padding: 5px 6px 5px 12px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .toolIcon {
@@ -159,7 +159,7 @@
 .section {
   flex: none;
   padding: 6px 6px 6px 10px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .sectionHeader {
@@ -443,7 +443,7 @@
 .commit {
   flex: none;
   padding: 8px 6px 8px 10px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .commitInput {
@@ -456,7 +456,7 @@
   font: inherit;
   font-size: 12px;
   background: var(--qilin-alias-interactive-bg-default, transparent);
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: 8px;
   resize: vertical;
 }
@@ -555,7 +555,7 @@
   font: inherit;
   font-size: 12px;
   background: var(--qilin-alias-interactive-bg-default, transparent);
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: 6px;
   cursor: pointer;
 }

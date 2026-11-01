@@ -16,7 +16,7 @@
   box-sizing: border-box;
   height: 48px;
   padding: 0 28px 0 20px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 /* A second registered View brings back the tab strip and the two-row header:

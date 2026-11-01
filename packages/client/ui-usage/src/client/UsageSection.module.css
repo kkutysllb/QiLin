@@ -26,7 +26,7 @@
 }
 
 .card {
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: var(--qilin-radius-md);
   padding: 10px 12px;
   background: var(--qilin-alias-bg-layer-2);
@@ -49,7 +49,7 @@
 
 .chart {
   position: relative;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: var(--qilin-radius-md);
   padding: 12px 12px 6px;
   background: var(--qilin-alias-bg-layer-2);
@@ -137,7 +137,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: 999px;
   /* Full-round pill: the smoothing token must not reshape it. */
   corner-shape: round;
@@ -163,7 +163,7 @@
   position: absolute;
   top: 0;
   transform: translate(-50%, 0);
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: var(--qilin-radius-sm);
   padding: 6px 8px;
   background: var(--qilin-alias-bg-layer-3);
@@ -174,7 +174,7 @@
 }
 
 .tableWrap {
-  border: 0.5px solid var(--qilin-alias-border-l3);
+  border: 1px solid var(--qilin-alias-border-l3);
   border-radius: var(--qilin-radius-md);
   background: var(--qilin-alias-bg-layer-2);
   /* Elevated surface that scrolls: its thumb takes the l2 pair (ui-theme
@@ -194,7 +194,7 @@
 .table td {
   padding: 6px 10px;
   text-align: right;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l2);
   font-variant-numeric: tabular-nums;
 }
 

@@ -72,7 +72,7 @@
 .header {
   flex: none;
   padding: 5px;
-  border-bottom: 0.5px solid var(--qilin-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l2);
 }
 
 .itemWrap {
@@ -178,7 +178,7 @@
 /* Separator cell (figma 122:9481): py 4 / px 2 around the hairline. l2, not
  * l1, for the same reason as .header: l1 is near-invisible on this surface. */
 .separator {
-  height: 0.5px;
+  height: 1px;
   margin: 3px 2px;
   background: var(--qilin-alias-border-l2);
 }
