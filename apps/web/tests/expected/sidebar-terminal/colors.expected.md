@@ -5,7 +5,7 @@
   },
   "customLight": {
     "ansi": {
-      "foreground": "rgb(0, 137, 0)",
+      "foreground": "rgb(0, 123, 0)",
       "background": "rgba(0, 0, 0, 0)"
     },
     "extended": {

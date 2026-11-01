@@ -1,14 +1,14 @@
 {
   "light": {
-    "surface": "rgb(255, 255, 255)",
-    "viewport": "rgb(255, 255, 255)",
-    "underlay": "rgb(255, 255, 255)",
-    "foreground": "rgb(15, 17, 21)"
+    "surface": "rgb(250, 248, 243)",
+    "viewport": "rgb(250, 248, 243)",
+    "underlay": "rgb(250, 248, 243)",
+    "foreground": "rgb(31, 28, 22)"
   },
   "dark": {
-    "surface": "rgb(21, 21, 23)",
-    "viewport": "rgb(21, 21, 23)",
-    "underlay": "rgb(21, 21, 23)",
-    "foreground": "rgb(249, 250, 251)"
+    "surface": "rgb(18, 18, 15)",
+    "viewport": "rgb(18, 18, 15)",
+    "underlay": "rgb(18, 18, 15)",
+    "foreground": "rgb(236, 231, 219)"
   }
 }

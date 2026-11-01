@@ -127,13 +127,13 @@ describe.skipIf(process.platform === 'win32')('Web sidebar terminal', () => {
     }
     const lightText = await colorOf('BRIGHT_WHITE')
     // Compare the rendered glyph with its real surface; the raw ANSI palette remains untouched.
-    expect(contrastRatio(lightText.foreground, 'rgb(255, 255, 255)')).toBeGreaterThanOrEqual(4.5)
+    expect(contrastRatio(lightText.foreground, 'rgb(255, 253, 248)')).toBeGreaterThanOrEqual(4.5)
     await command(page, "printf '\\033]4;1;#009900;255;#990099\\007\\033[31mANSI_CUSTOM\\033[38;5;255mEXTENDED_CUSTOM\\033[0m\\n'")
     const customLight = { ansi: await colorOf('ANSI_CUSTOM'), extended: await colorOf('EXTENDED_CUSTOM') }
     await selectTerminalTheme(page, 'Dark')
-    await expect.poll(() => screen.evaluate(element => getComputedStyle(element).color)).toBe('rgb(249, 250, 251)')
+    await expect.poll(() => screen.evaluate(element => getComputedStyle(element).color)).toBe('rgb(236, 231, 219)')
     await selectTerminalTheme(page, 'Light')
-    await expect.poll(() => screen.evaluate(element => getComputedStyle(element).color)).toBe('rgb(15, 17, 21)')
+    await expect.poll(() => screen.evaluate(element => getComputedStyle(element).color)).toBe('rgb(31, 28, 22)')
     expect({ ansi: await colorOf('ANSI_CUSTOM'), extended: await colorOf('EXTENDED_CUSTOM') }).toEqual(customLight)
     await command(page, "printf '\\033]104;1;255\\007'")
     await expect.poll(async () => (await colorOf('ANSI_CUSTOM')).foreground).not.toBe(customLight.ansi.foreground)
@@ -148,12 +148,12 @@ describe.skipIf(process.platform === 'win32')('Web sidebar terminal', () => {
     await expect.poll(defaults).toEqual(applicationDefaults)
     await selectTerminalTheme(page, 'Dark')
     await expect.poll(() => terminal.evaluate(root => getComputedStyle(root.querySelector('.xterm')!.parentElement!).backgroundColor))
-      .toBe('rgb(21, 21, 23)')
+      .toBe('rgb(18, 18, 15)')
     expect(await defaults()).toEqual(applicationDefaults)
     await command(page, "printf '\\033]110\\007\\033]111\\007\\033]112\\007'")
-    await expect.poll(defaults).toEqual({ foreground: 'rgb(249, 250, 251)', background: 'rgb(21, 21, 23)' })
+    await expect.poll(defaults).toEqual({ foreground: 'rgb(236, 231, 219)', background: 'rgb(18, 18, 15)' })
     await selectTerminalTheme(page, 'Light')
-    await expect.poll(defaults).toEqual({ foreground: 'rgb(15, 17, 21)', background: 'rgb(255, 255, 255)' })
+    await expect.poll(defaults).toEqual({ foreground: 'rgb(31, 28, 22)', background: 'rgb(250, 248, 243)' })
 
     const cursorColors = () => screen.locator('.xterm-cursor').evaluate((cursor) => {
       const style = getComputedStyle(cursor)
@@ -174,7 +174,7 @@ describe.skipIf(process.platform === 'win32')('Web sidebar terminal', () => {
     await terminal.screenshot({ path: `${shots}/ron-light.png`, animations: 'disabled' })
     await selectTerminalTheme(page, 'Dark')
     await page.locator('.xterm-helper-textarea:visible').click()
-    await expect.poll(async () => (await cursorColors()).background).toBe('rgb(249, 250, 251)')
+    await expect.poll(async () => (await cursorColors()).background).toBe('rgb(236, 231, 219)')
     await paintCursor('38;2;0;0;0;48;2;255;255;255')
     await expect.poll(async () => (await cursorColors()).background).toBe('rgb(0, 0, 0)')
     const whiteInDark = await cursorColors()
@@ -182,7 +182,7 @@ describe.skipIf(process.platform === 'win32')('Web sidebar terminal', () => {
     await expect.poll(async () => (await cursorColors()).background).toBe('rgb(0, 0, 0)')
     for (const shape of [4, 6]) {
       await paintCursor('38;5;51;48;5;16', shape)
-      await expect.poll(async () => shape === 4 ? (await cursorColors()).border : (await cursorColors()).shadow).toContain('rgb(249, 250, 251)')
+      await expect.poll(async () => shape === 4 ? (await cursorColors()).border : (await cursorColors()).shadow).toContain('rgb(236, 231, 219)')
     }
     await paintCursor('38;2;0;0;0;48;2;255;255;255', 1)
     await page.addStyleTag({ content: '.xterm-cursor { animation-delay: -0.1s !important; animation-play-state: paused !important; }' })
