@@ -626,6 +626,9 @@ describe('TaskDetail rule menus', () => {
     // Three zones hold one label at any instant, so they render as one row, and
     // the rule already states one of them, whose id that row preserves.
     const restoreSystemZone = pinSystemZone('Asia/Shanghai')
+    // The shared label depends on the instant (a DST transition splits the row), so pin
+    // it like the sibling zone cases do instead of riding the calendar.
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-09-20T12:00:00.000Z'))
     const inventory = vi.spyOn(Intl, 'supportedValuesOf')
       .mockReturnValue(['America/Detroit', 'America/New_York', 'America/Toronto'])
     try {
@@ -646,6 +649,7 @@ describe('TaskDetail rule menus', () => {
       expect(zoneButton().textContent).toContain(en['timing.zone'])
     } finally {
       inventory.mockRestore()
+      clock.mockRestore()
       restoreSystemZone()
     }
   })
