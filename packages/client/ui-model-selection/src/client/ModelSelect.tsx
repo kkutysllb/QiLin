@@ -476,6 +476,7 @@ export function ModelSelect(
         type="button"
         className={css.trigger}
         aria-label={triggerAria}
+        data-model-select
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? `${id}-menu` : undefined}

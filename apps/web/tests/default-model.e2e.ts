@@ -100,7 +100,7 @@ describe('web e2e: the composer model switch is the default for later sessions',
       reason: 'initial',
     })
 
-    const trigger = page.getByRole('button', { name: /^选择模型/ })
+    const trigger = page.locator('[data-model-select]')
     await trigger.waitFor({ timeout: 15_000 })
     await trigger.click()
     await page.getByRole('menuitem', { name: /模型/ }).click()
@@ -142,10 +142,13 @@ describe('web e2e: the composer model switch is the default for later sessions',
 
     // The way out stays open. Locking the model seat with everything else
     // would leave the composer asking for the one thing it prevents.
-    const seat = page.getByRole('button', { name: /^选择模型/ })
+    const seat = page.locator('[data-model-select]')
     expect(await seat.isEnabled()).toBe(true)
     await seat.click()
-    await page.getByRole('menuitem', { name: /模型/ }).click()
+    // With no current model the menu opens on the model pane already, so the
+    // "Model" drill row exists only when the seat showed a selection.
+    const modelPane = page.getByRole('menuitem', { name: /模型/ })
+    if (await modelPane.count() > 0) await modelPane.click()
     await page.getByRole('menuitemradio').first().click()
     await expect.poll(async () => box.isEnabled(), { timeout: 15_000 }).toBe(true)
     expect(tripwire.pageErrors).toEqual([])
