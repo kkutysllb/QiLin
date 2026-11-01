@@ -3,20 +3,17 @@
     - button "Begin your reply with the" [disabled]
   - text: Standard mode
   - button "Open right sidebar"
-- button "System prompt"
 - text: Begin your reply with the plain sentence "Reading the workspace now." as text, and in that same message call the bash tool with the command "echo alpha". After the tool result, reply with the single word DONE and stop. {{clock}}
 - button "Copy"
 - tooltip "Copy"
 - button "Edit this message and resend"
-- status: QiLin...
-- button "QiLin... for {{duration}}" [disabled] [expanded]
-- button "Context injection runtime-context"
-- button "Context injection time-context"
+- button "QiLin..." [disabled] [expanded]
 - button "Analysis completed"
 - paragraph: Reading the workspace now.
 - button "Ran commands"
-- button "Context injection time-context"
 - paragraph: partial
+- status: QiLin...
+- text: Working for {{duration}}...
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
