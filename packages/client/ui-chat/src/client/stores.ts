@@ -9,6 +9,7 @@ type ChatActions = {
     turn: number,
     answerStep: number,
     open: boolean,
+    reader?: boolean,
   ) => void
 }
 
@@ -39,7 +40,12 @@ export function turnProcessOpen(
   defaultOpen: boolean,
 ): boolean {
   const stored = storedTurnProcessEntry(state, spec.turn)
-  if (stored === undefined || stored.answerStep !== (spec.answerStep ?? 0)) return defaultOpen
+  if (stored === undefined) return defaultOpen
+  // A reader's own expansion outlives the answer step it was made in: rows the
+  // reader opened stay open when the running Turn settles. Automatic reveals do
+  // not, so a historical Turn still folds with its generation.
+  if (stored.reader === true && stored.collapsed !== true) return true
+  if (stored.answerStep !== (spec.answerStep ?? 0)) return defaultOpen
   return stored.collapsed !== true
 }
 
@@ -51,9 +57,11 @@ export function createChatStore(): EngineStoreHandle<ChatStoreState, ChatActions
   return defineStore({
     init: (): ChatStoreState => ({ turnProcesses: [] }),
     actions: {
-      setTurnProcessOpen: (draft, turn, answerStep, open) => {
+      setTurnProcessOpen: (draft, turn, answerStep, open, reader = false) => {
         const index = draft.turnProcesses.findIndex(entry => entry.turn === turn)
-        const next = (open ? { turn, answerStep } : { turn, answerStep, collapsed: true }) satisfies TurnProcessViewEntry
+        const next = (open
+          ? { turn, answerStep, ...reader ? { reader: true as const } : {} }
+          : { turn, answerStep, collapsed: true as const }) satisfies TurnProcessViewEntry
         if (index < 0) draft.turnProcesses.push(next)
         else draft.turnProcesses[index] = next
       },

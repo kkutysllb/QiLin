@@ -67,11 +67,13 @@ export const ChatNodeSeat = memo(function ChatNodeSeat({
   const interleavedInput = processPresentation?.hasInterleavedInput === true
   const alwaysOpen = liveProcess || interleavedInput || turnProcessAlwaysOpen(routedNode)
   const processOpen = alwaysOpen || storedOpen
-  const setOpen = useCallback((open: boolean) => {
+  const writeOpen = useCallback((open: boolean, reader: boolean) => {
     if (processSpec !== undefined && !alwaysOpen) {
-      actions.setTurnProcessOpen(processSpec.turn, processSpec.answerStep ?? 0, open)
+      actions.setTurnProcessOpen(processSpec.turn, processSpec.answerStep ?? 0, open, reader)
     }
   }, [actions, processSpec, alwaysOpen])
+  /** The reader's own toggle: its expansion outlives the answer generation. */
+  const setOpen = useCallback((open: boolean) => { writeOpen(open, true) }, [writeOpen])
   const foldCompleted = usePresentation(policy => policy.foldCompletedTurns)
   // A loaded end makes a partial historical Turn eligible without its start.
   const processWindowReady = processSpec !== undefined
@@ -114,7 +116,9 @@ export const ChatNodeSeat = memo(function ChatNodeSeat({
     && !processOpen
   const processHidden = controllerInactive || (foldable && processMember && !processOpen)
   const revealProcess = useCallback(() => {
-    if (processMember) setOpen(true)
+    // Revealing because a member scrolled into view is automatic, not the
+    // reader's choice, so it folds again with its own generation.
+    if (processMember) writeOpen(true, false)
   }, [processMember, setOpen])
   const wrapperRef = useGroupAction(processHidden, revealProcess)
   const [disclosureReset] = useState(() => createSnapshotStore(0))

@@ -7,8 +7,10 @@ export type ToolCallId = string
 export interface TurnProcessViewEntry {
   readonly turn: number
   readonly answerStep: number
-  /** Explicitly collapsed; absent means explicitly opened. */
+  /** Explicitly collapsed; absent means opened. */
   readonly collapsed?: true
+  /** Written by the reader's own toggle rather than an automatic reveal. */
+  readonly reader?: true
 }
 
 /** Per-Session state shared only by the Chat view and details surface. */
