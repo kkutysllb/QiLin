@@ -26,6 +26,9 @@
       "path": "../../test-support/client-runtime"
     },
     {
+      "path": "../../util/official-bundles"
+    },
+    {
       "path": "../locale"
     },
     {

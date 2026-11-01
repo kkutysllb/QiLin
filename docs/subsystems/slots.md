@@ -125,8 +125,7 @@ root
 │     └─ settings.section
 │        ├─ settings.general.item
 │        ├─ settings.models.provider-card
-│        ├─ settings.models.footer
-│        └─ settings.plugins.tab
+│        └─ settings.models.footer
 ├─ main
 │  ├─ plugins.item
 │  ├─ plugins.bundle.config

@@ -86,6 +86,8 @@ ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
 <a id="understand-the-implementation"></a>
 ## 理解实现
 
+页面两个列表与其「实验性」徽标都读取安装方的 bundle 准入，来源是 [`@qilin-agent/official-bundles`](../../util/official-bundles/README.zh.md)：主列表始终持有的可选 bundle、留待 profile 启用后由「更多」列表排在最后的那些、页面隐藏的内建 profile 层，以及带徽标的 bundle。因此安装方提供的 bundle 从同一个共享包到达页面，而不是靠客户端的包名副本。
+
 插件管理依据 profile 的依赖记录：已安装组合包可启停、可移除，随安装提供的组合包保持锁定。profile 与安装都不持有的选中组合包同样提供卸载，且仅把它从 profile 的组合包列表移除。这一区分不决定启动失败策略。
 
 <details>
@@ -115,6 +117,7 @@ ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
 - [ui-settings](../ui-settings/README.zh.md)——页面注册进的标签页列表；[ui-settings-plugins](../ui-settings-plugins/README.zh.md)——渲染该标签页的「插件」分区。
 - [api-remotes](../../api/remotes/README.zh.md)——`pluginManager.*` 与 `pluginInventory.*` 背后的 Remote BFF 面。
 - [plugin-manager](../../boot/plugin-manager/README.zh.md)——本页驱动的 Host 侧管理器。
+- [official bundles](../../util/official-bundles/README.zh.md)——本页读取的 bundle 准入与位置名单。
 - [ui-settings-plugins](../ui-settings-plugins/README.zh.md)——注册进本页 slot 的官方配置页。
 
 -----

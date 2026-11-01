@@ -103,7 +103,6 @@
     "@qilin-agent/client-ui-settings-general": "workspace:*",
     "@qilin-agent/client-ui-settings-mcp": "workspace:*",
     "@qilin-agent/client-ui-settings-models": "workspace:*",
-    "@qilin-agent/client-ui-settings-plugin-inventory": "workspace:*",
     "@qilin-agent/client-ui-settings-plugins": "workspace:*",
     "@qilin-agent/client-ui-settings-skills": "workspace:*",
     "@qilin-agent/client-ui-settings-unarchive-sessions": "workspace:*",

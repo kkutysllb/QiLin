@@ -57,7 +57,7 @@ kind: "package-reference"
 
 ### 注册规则
 
-本分区声明根级列表 slot `settings.plugins.tab`，其标签会成为有序标签页；只有一个贡献时它直接显示为页面本身，某个标签页首次被选择后会保持挂载，因此搜索与清单快照在切换时不会丢失。配置页是 `plugins.item` 注册项，每个命名空间一个：共享的 settings 镜像表明 Host 服务该命名空间时通过 `ctx.slots.inject` 注册，停止服务时销毁；注册顺序就是页面顺序，而不是 Host 的描述顺序——后者跟随插件激活，可能在两次启动之间变化。页面拥有自己的控件与文案；插件页负责画标题、图标与面包屑。
+配置页是 `plugins.item` 注册项，每个命名空间一个：共享的 settings 镜像表明 Host 服务该命名空间时通过 `ctx.slots.inject` 注册，停止服务时销毁；注册顺序就是页面顺序，而不是 Host 的描述顺序——后者跟随插件激活，可能在两次启动之间变化。页面拥有自己的控件与文案；插件页负责画标题、图标与面包屑。
 
 ### 写入路径
 
@@ -70,11 +70,10 @@ kind: "package-reference"
 <a id="further-exploration"></a>
 ## 进一步探索
 
-以下页面覆盖插件页、设置底座、清单标签页与表单背后的持久化 seam。
+以下页面覆盖插件页、设置底座与表单背后的持久化 seam。
 
 - [ui-plugin-manager](../ui-plugin-manager/README.zh.md)——配置官方插件的插件页。
 - [ui-settings](../ui-settings/README.zh.md)——声明 `settings.section` 与共享配置表单的领域底座。
-- [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.zh.md)——分区显示的只读插件列表。
 - [settings](../../settings/README.zh.md)——持久化用户设置 seam 及其文件提供方。
 - [credentials](../../credentials/README.zh.md)——secret 字段写入所经的凭据引用 seam。
 - [ui-settings-general](../ui-settings-general/README.zh.md)——承载本分区的设置外壳。

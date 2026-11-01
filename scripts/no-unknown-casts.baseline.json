@@ -783,15 +783,6 @@
   "packages/client/ui-settings-models/tests/store.client.spec.ts": {
     "6b8b0a920c558092d20bc17623b7050e0f7403f896fde7da17bb45677899b910": 1
   },
-  "packages/client/ui-settings-plugin-inventory/tests/browser-plugin.client.spec.tsx": {
-    "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 1,
-    "85f4d0d762126e709ae2178ca656f586dac1ba425eb1d8dd402cb5577d6e8225": 1
-  },
-  "packages/client/ui-settings-plugin-inventory/tests/components.client.spec.tsx": {
-    "1070151ac0e95fbbfb14f701f59fe64cbddd6070f4d94850b57883aa10e0fb6c": 1,
-    "cce779b3f60ebbadd524376047258bfbcbf362abab0496f65306b0835026dc89": 1,
-    "f114de743e94f3757fa09965e519366b436af0dc7d4e228a87a51448b22fd326": 1
-  },
   "packages/client/ui-settings-plugins/tests/apply.client.spec.ts": {
     "3d455f54ba188122f29085e9d462bebbca24c517057052f346229efd175e6e3c": 1
   },

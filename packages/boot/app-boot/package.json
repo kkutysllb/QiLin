@@ -38,6 +38,7 @@
     "@eslint-community/regexpp": "^4.12.2",
     "@qilin-agent/atomic-write": "workspace:*",
     "@qilin-agent/dsh-compat": "workspace:*",
+    "@qilin-agent/official-bundles": "workspace:*",
     "@qilin-agent/package-manifest": "workspace:*",
     "ajv": "^8.20.0",
     "js-yaml": "^4.3.2",

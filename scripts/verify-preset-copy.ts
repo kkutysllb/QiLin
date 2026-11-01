@@ -80,7 +80,6 @@ export function checkPresetContractProse(path: string, source: string): string[]
 /** Every dictionary that renders shipped-preset copy. */
 const DICTIONARIES: readonly string[] = [
   'packages/client/ui-agent-preset/src/client/locales.ts',
-  'packages/client/ui-settings-plugin-inventory/src/client/locales.ts',
 ]
 
 /** One id→copy-key row of the display map. */

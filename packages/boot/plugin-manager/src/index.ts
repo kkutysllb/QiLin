@@ -92,7 +92,7 @@ const protectedModules = new Set([
   '@qilin-agent/plugin-manager', '@qilin-agent/kylin-plugin-loader',
   '@qilin-agent/kylin-plugin-include', '@qilin-agent/api-gateway',
   '@qilin-agent/host-webserver', '@qilin-agent/client-modules',
-  '@qilin-agent/client-ui-settings-plugin-inventory', '@qilin-agent/client-ui-plugin-manager',
+  '@qilin-agent/client-ui-plugin-manager',
   '@qilin-agent/host-plugin-inventory', '@qilin-agent/typert-registry',
   '@qilin-agent/api-remotes', '@qilin-agent/api-remote-access',
   '@qilin-agent/kylin-plugin-timer', '@qilin-agent/client-connection',

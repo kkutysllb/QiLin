@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { EXTENSION_BUNDLES, HIDDEN_BUNDLES, MORE_BUNDLES } from '@qilin-agent/official-bundles'
 import { createPortal } from 'react-dom'
 import type { PluginInstallFailureKind, Registry } from '@qilin-agent/api-remotes/client'
 import {
@@ -100,34 +101,6 @@ function AddPluginMenu({ t, disabled, openInstall, renderSlot }: {
 /** How long the list marks a package an install just enabled. */
 const HIGHLIGHT_MS = 2_400
 
-/** Built-in profile bundles stay out of this page even when the profile declares them as dependencies. */
-const BUILTIN_PROFILE_BUNDLES = new Set([
-  '@qilin-agent/base',
-  '@qilin-agent/web-app',
-  '@qilin-agent/headless',
-  '@qilin-agent/sdk-app',
-  '@qilin-agent/acp-app',
-  '@qilin-agent/sdk-minimal',
-])
-
-/** The optional bundles the main list always holds, in this order; new bundles join the main list. */
-const EXTENSION_BUNDLES = [
-  '@qilin-agent/experimental-agent-team-profile',
-  '@qilin-agent/experimental-voice-input-bundle',
-  '@qilin-agent/experimental-auto-review',
-  '@qilin-agent/experimental-inspector-profile',
-]
-/** The optional bundles the main list holds back until the profile picks them; the More list shows them from the start. */
-const MORE_BUNDLES = [
-  '@qilin-agent/experimental-tool-worktree',
-  '@qilin-agent/experimental-cot-translation-bundle',
-  '@qilin-agent/experimental-terminal-bundle',
-  '@qilin-agent/experimental-session-search',
-  '@qilin-agent/experimental-session-titles-bundle',
-  '@qilin-agent/experimental-badge-skill-bundle',
-  '@qilin-agent/experimental-ralph-bundle',
-  '@qilin-agent/experimental-plugin-market-bundle',
-]
 /**
  * Whether the main list shows an official optional bundle: the always-held ones, and any held-back one the profile enabled.
  * @param pkg - the official bundle as the Host reports it.
@@ -1584,7 +1557,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   // The page manages what the person installed, what the installation ships for them to switch on, and a
   // selected name the Host cannot read; the installation's other bundles are inspected in the Settings
   // Plugins section's Plugin list tab.
-  const listed = state.packages.filter(pkg => !BUILTIN_PROFILE_BUNDLES.has(pkg.name)
+  // Built-in profile layers stay out of this page even when the profile declares them as dependencies.
+  const listed = state.packages.filter(pkg => !HIDDEN_BUNDLES.has(pkg.name)
     && (pkg.installed || pkg.official || pkg.error !== undefined))
   const mine = listed.filter(pkg => !pkg.official)
   const official = listed.filter(pkg => pkg.official)

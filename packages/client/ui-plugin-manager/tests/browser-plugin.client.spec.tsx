@@ -139,7 +139,6 @@ describe('ui-plugin-manager browser plugin', () => {
     for (const name of ['plugins.detail.actions', 'plugins.detail.badge', 'plugins.detail.section'] as const) {
       expect(b.slots.spec(name)).toMatchObject({ kind: 'list', scope: 'root' })
     }
-    expect(b.slots.spec('settings.plugins.tab')).toBeUndefined()
     const injected: object = entry.inject!()
     const face = injected as PluginManagerFace
     const overlay = b.slots.entries('shell.overlay')[0]!

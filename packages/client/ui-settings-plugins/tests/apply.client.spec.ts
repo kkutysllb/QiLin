@@ -78,14 +78,13 @@ describe('ui-settings-plugins apply', () => {
     ])
   })
 
-  it('contributes no Settings navigation row and no tab of its own', async () => {
+  it('contributes no Settings navigation row of its own', async () => {
     const { ctx, slots } = await bench()
     declareRoot(slots)
 
     await ctx.plugin({ inject: [...inject], apply }).await()
 
     expect(slots.entries('settings.section')).toHaveLength(0)
-    expect(slots.spec('settings.plugins.tab')).toBeUndefined()
   })
 
   it('injects one business face per configuration page', async () => {

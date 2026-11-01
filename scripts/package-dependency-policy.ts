@@ -33,6 +33,7 @@ const CONFIGURATION_ONLY_DEV_DEPENDENCIES = {
 const DUPLICATE_SAFE_PACKAGES: readonly string[] = [
   '@qilin-agent/brand',
   '@qilin-agent/lazy-require',
+  '@qilin-agent/official-bundles',
   '@qilin-agent/typert-protocol',
   '@qilin-agent/util-crypto',
   '@qilin-agent/util-values',

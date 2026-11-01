@@ -1,5 +1,6 @@
 /** Display labels and toast sentences for global plugin management. */
 
+import { isExperimentalBundle } from '@qilin-agent/official-bundles'
 import type { IncompatiblePlugin, ManagementError, Registry, RestartReason } from '@qilin-agent/api-remotes/client'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { PluginManagerLocaleKey } from './locales.ts'
@@ -120,7 +121,7 @@ export function packageText(
   return {
     title: pkg.meta?.title === undefined ? pkg.name : resolveText(pkg.meta.title),
     description: pkg.meta?.description === undefined ? undefined : resolveText(pkg.meta.description) || undefined,
-    beta: pkg.name.startsWith('@qilin-agent/experimental-'),
+    beta: isExperimentalBundle(pkg.name),
   }
 }
 

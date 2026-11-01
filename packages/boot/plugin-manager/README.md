@@ -132,7 +132,6 @@ Results contain the last attempted stage, target, saved-state change, applicatio
 - [App boot](../app-boot/README.md) — profile layers and startup policy.
 - [Plugin inventory](../../host/plugin-inventory/README.md) — current Loader and preset observations.
 - [Plugin manager page](../../client/ui-plugin-manager/README.md) — the Web sidebar page over this service.
-- [Plugin settings](../../client/ui-settings-plugin-inventory/README.md) — the read-only Web inventory.
 
 <a id="model-experience"></a>
 ## Model Experience

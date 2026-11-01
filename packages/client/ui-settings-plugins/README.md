@@ -57,7 +57,7 @@ The package is one registration rule and one write path: each page is registered
 
 ### The registration rule
 
-The section declares `settings.plugins.tab`, a root list slot whose labels become ordered tabs; a lone contribution renders as the page itself, and a tab stays mounted after its first selection so search and the inventory snapshot survive switching. The configuration pages are `plugins.item` registrations, one per namespace, made through `ctx.slots.inject` when the shared settings mirror shows the Host serves the namespace and disposed when it stops; registration order is the page order, not the Host's description order, which follows plugin activation and can change between boots. A page owns its controls and copy; the Plugins page draws its title, icon, and crumb.
+The configuration pages are `plugins.item` registrations, one per namespace, made through `ctx.slots.inject` when the shared settings mirror shows the Host serves the namespace and disposed when it stops; registration order is the page order, not the Host's description order, which follows plugin activation and can change between boots. A page owns its controls and copy; the Plugins page draws its title, icon, and crumb.
 
 ### The write path
 
@@ -70,11 +70,10 @@ Saving writes staged fields through the client configuration form, which fences 
 <a id="further-exploration"></a>
 ## Further Exploration
 
-These pages cover the Plugins page, the settings base, the inventory tab, and the durable seams behind the forms.
+These pages cover the Plugins page, the settings base, and the durable seams behind the forms.
 
 - [ui-plugin-manager](../ui-plugin-manager/README.md) — the Plugins page where official plugins are configured.
 - [ui-settings](../ui-settings/README.md) — the domain base declaring `settings.section` and the shared configuration forms.
-- [ui-settings-plugin-inventory](../ui-settings-plugin-inventory/README.md) — the read-only inventory the section shows.
 - [settings](../../settings/README.md) — the durable user-settings seam and its file provider.
 - [credentials](../../credentials/README.md) — the credential-reference seam secret fields write through.
 - [ui-settings-general](../ui-settings-general/README.md) — the settings shell hosting the section.

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The `util/` group gives capability packages shared mechanical primitives instead of duplicate implementations. It covers atomic writes, branded ids, deques, lossless JSON values, UUIDs, Harness-home paths, launch environments, outbound proxy policy, native commands, output retention, time-zone canonicalization, code-grammar selection for source views, and timeout handling. Every root entry here is a library: it registers no product service or event, and the consuming capability retains the business semantics.
+The `util/` group gives capability packages shared mechanical primitives instead of duplicate implementations. It covers atomic writes, branded ids, deques, lossless JSON values, UUIDs, Harness-home paths, launch environments, outbound proxy policy, native commands, output retention, time-zone canonicalization, code-grammar selection for source views, installation-owned bundle lists, and timeout handling. Every root entry here is a library: it registers no product service or event, and the consuming capability retains the business semantics.
 
 ## Table of Contents
 
@@ -29,6 +29,7 @@ Each package provides one primitive; open a package page for how to use it.
 | [`brand/`](brand/README.md) | Nominal string types and their stateless constructor |
 | [`package-manifest/`](package-manifest/README.md) | Shared TypeScript declarations for package manifests |
 | [`plugin-detail/`](plugin-detail/README.md) | Reads package documentation and images for the plugin manager's detail pages |
+| [`official-bundles/`](official-bundles/README.md) | Names the bundles the Host admits and the Plugins page hides, orders, marks, or installs on demand |
 | [`crypto/`](crypto/README.md) | Mints RFC 9562 v4 UUIDs from the cross-runtime `crypto.getRandomValues` primitive |
 | [`deque/`](deque/README.md) | Provides amortized constant-time queue operations with bounded vacant storage |
 | [`chunked-list/`](chunked-list/README.md) | Retains immutable list versions with bounded append copying and checkpoint validation |

@@ -73,6 +73,7 @@
     "@qilin-agent/client-ui-workspace": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/package-manifest": "workspace:*",
+    "@qilin-agent/official-bundles": "workspace:*",
     "@qilin-agent/plugin-manager": "workspace:*",
     "@qilin-agent/util-crypto": "workspace:*",
     "@testing-library/react": "^16.1.0",

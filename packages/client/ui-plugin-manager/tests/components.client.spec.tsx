@@ -753,11 +753,11 @@ describe('PluginManagerPage', () => {
   })
 
   it.each([
-    '@qilin-agent/experimental-agent-team-profile',
-    '@qilin-agent/experimental-auto-review',
-    '@qilin-agent/experimental-fixture-input',
-    '@acme/dsh-local-tools',
-  ])('localizes Host metadata for %s across cards, details, switches, and uninstall confirmation', (name) => {
+    ['@qilin-agent/experimental-agent-team-profile', true],
+    ['@qilin-agent/experimental-auto-review', true],
+    ['@qilin-agent/experimental-fixture-input', false],
+    ['@acme/dsh-local-tools', false],
+  ] as const)('localizes Host metadata for %s across cards, details, switches, and uninstall confirmation', (name, beta) => {
     const meta = {
       title: { en: 'Installed tools', zh: '已安装工具' },
       description: { en: 'Tools on this host.', zh: '本机工具。' },
@@ -772,7 +772,8 @@ describe('PluginManagerPage', () => {
       expect(document.getElementById(card.getAttribute('aria-describedby')!)?.textContent).toBe(description(dict))
       expect(screen.getByRole('switch', { name: dict.enableToggle.replace('{name}', title(dict)) })).toBeTruthy()
       expect(screen.queryByText('Original metadata.')).toBeNull()
-      expect(screen.queryByText(dict.statusBeta) !== null).toBe(name.startsWith('@qilin-agent/experimental-'))
+      // The badge follows official-bundle admission: a name outside that list carries none, whatever its prefix.
+      expect(screen.queryByText(dict.statusBeta) !== null).toBe(beta)
     }
     assertCard(en)
     setLanguage(zh)

@@ -86,6 +86,8 @@ The registration exists while the bundle is on, so a bundle that is off shows no
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 
+The page's two lists and their Experimental badge read the installation's bundle admission from [`@qilin-agent/official-bundles`](../../util/official-bundles/README.md): the optional bundles the main list always holds, the ones the More list ranks last until the profile enables them, the built-in profile layers the page hides, and the bundles that carry the badge. A bundle the installation offers therefore reaches the page from one shared package instead of a client-side copy of its name.
+
 Package management uses the profile's dependency records: installed bundles can be toggled and removed; installation-owned bundles remain locked. A selected bundle that neither the profile nor the installation holds also offers uninstall, which only removes it from the profile's bundle list. This distinction does not select startup failure policy.
 
 <details>
@@ -115,6 +117,7 @@ These pages cover the Settings tab, the Remote calls, and the Host-side manager.
 - [ui-settings](../ui-settings/README.md) — the Settings shell; [ui-settings-plugins](../ui-settings-plugins/README.md) — the official configuration pages that register into this page's slots.
 - [api-remotes](../../api/remotes/README.md) — the Remote BFF surface behind `pluginManager.*` and `pluginInventory.*`.
 - [plugin-manager](../../boot/plugin-manager/README.md) — the Host-side manager this page drives.
+- [official bundles](../../util/official-bundles/README.md) — the bundle admission and placement lists this page reads.
 - [ui-settings-plugins](../ui-settings-plugins/README.md) — the official configuration pages that register into this page's slots.
 
 -----
