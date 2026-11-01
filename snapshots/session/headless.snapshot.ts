@@ -503,6 +503,16 @@ async function seedWorkspace(scenario: HeadlessScenario, cwd: string): Promise<v
 }
 
 const workspaceSetups: Record<string, (cwd: string) => Promise<void>> = {
+  async 'windows-acl-skill'(cwd) {
+    // The scenario loads the shipped ACL-diagnosis skill from the project skill root that the
+    // skill provider scans; the skill text and its bundled script are platform-neutral, so the
+    // workspace only has to place the packaged asset where a project `.qilin/skills` lookup finds it.
+    await cp(
+      join(repoRoot, 'packages/sandbox/sandbox-windows-acl/assets/diagnose-windows-sandbox-acl'),
+      join(cwd, '.qilin', 'skills', 'diagnose-windows-sandbox-acl'),
+      { recursive: true },
+    )
+  },
   async 'office-skills'(cwd) {
     await cp(join(repoRoot, 'packages/skill/skill-office/assets'), join(cwd, 'office-skills'), { recursive: true })
     await symlink(process.execPath, join(cwd, 'office-node'))
@@ -599,12 +609,32 @@ function pinOf(scenario: HeadlessScenario): HeadlessScenario {
   return pin
 }
 
+/** One tool result message's call identity, failure flag, and content blocks. */
+interface ToolResultFacts {
+  readonly toolCallId: string
+  readonly isError: boolean
+  readonly content: readonly { readonly type: string; readonly text?: string }[]
+}
+
+/**
+ * Read the tool results a persisted log records. The current writer stores the tool's own content
+ * blocks on the tool message with `toolCallId` and `isError` at message level; the historical
+ * wrapper block is not part of the LLM content union.
+ * @param log - one persisted session log.
+ * @returns every tool result in log order.
+ */
+function toolResults(log: string): ToolResultFacts[] {
+  return parseSessionLog(log).flatMap((event) => {
+    if (event.type !== 'tool/result') return []
+    const message = event.data.message
+    return [{ toolCallId: message.toolCallId, isError: message.isError, content: message.content }]
+  })
+}
+
 /** Require successful verification and the complete canonical event before refresh can write a fixture. */
 async function verifySessionQuerySpill(log: string, spillRoot: string, locatorRoot: string): Promise<void> {
   const events = parseSessionLog(log)
-  const results = events.flatMap(event => event.type === 'tool/result'
-    ? event.data.message.content.filter(block => block.type === 'tool-result')
-    : [])
+  const results = toolResults(log)
   const readResult = results.find(result => result.toolCallId === 'call_session_query_spill')
   const verification = results.find(result => result.toolCallId === 'call_verify_session_query_spill')
   expect(readResult?.isError).toBe(false)
@@ -629,9 +659,7 @@ async function verifySessionQuerySpill(log: string, spillRoot: string, locatorRo
 /** Require real resource results and literal instructions before recording or replay succeeds. */
 function verifyMcpResources(log: string, ptc: boolean): void {
   const events = parseSessionLog(log)
-  const nativeResults = events.flatMap(event => event.type === 'tool/result'
-    ? event.data.message.content.filter(block => block.type === 'tool-result')
-    : [])
+  const nativeResults = toolResults(log)
   const dispatches = events.flatMap(event => event.type === 'tool/ptc-dispatch' ? [event.data] : [])
   const results = ptc ? dispatches : nativeResults
   expect(results.length).toBeGreaterThanOrEqual(5)
