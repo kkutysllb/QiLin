@@ -3284,7 +3284,7 @@ describe('continuable settlement delivery', () => {
     // The parent leaves the registry before its turn closes: the boundary flush must not inject.
     const agents = ctx.agents
     const get = agents.get.bind(agents)
-    vi.spyOn(agents, 'get').mockImplementation(((id: SessionId) => id === parent.id ? undefined : get(id)) as typeof agents.get)
+    vi.spyOn(agents, 'get').mockImplementation((id: SessionId) => id === parent.id ? undefined : get(id))
     releaseParent.resolve(undefined)
     await vi.waitFor(() => { expect(parent.status).toBe('idle') })
     await vi.waitFor(() => { expect(parent.inbox.nextTurn).toHaveLength(0) })
