@@ -94,7 +94,6 @@
       - cell "SUBTOOL"
       - 'cell "bash{\"command\":\"echo hidden-input-ptc\"} → AUTO_REVIEW_DENIED"'
 - complementary "Event details":
-  - separator "Resize event details"
   - text: SUBTOOL Turn 1 · Step 2
   - button "Close details"
   - tablist "Event details":

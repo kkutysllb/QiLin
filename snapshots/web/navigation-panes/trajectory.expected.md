@@ -51,7 +51,6 @@
         - text: ASSISTANT
       - cell "Navigation Summary alpha nav beta nav echo WATERFALL"
 - complementary "Event details":
-  - separator "Resize event details"
   - text: TOOL Turn 1 · Step 1
   - button "Close details"
   - tablist "Event details":
