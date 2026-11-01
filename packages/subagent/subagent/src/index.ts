@@ -69,6 +69,7 @@ import type {
 } from './types.ts'
 import { SubagentError } from './error.ts'
 import { assertChildRouteAuthorized, resolveChildRoute } from './child-route.ts'
+import type { ChildRoutePreference } from './child-route.ts'
 import { assertSubagentMaxDepth } from './depth.ts'
 import { createActivationObserver, createLifecycleEmitter } from './lifecycle.ts'
 import type { ActivationObserver, LifecycleEmitter } from './lifecycle.ts'
@@ -90,6 +91,7 @@ export {
   resolveChildRoute, routeAllowedByPolicy,
 } from './child-route.ts'
 export type { AllowedModelRoute, ChildRouteDefaults } from './types.ts'
+export type { ChildRoutePreference } from './child-route.ts'
 export type {
   ContinuableCreateRequest,
   ContinuableCreateSpec,
@@ -226,6 +228,11 @@ export class SubagentRuntime extends TypertRemoteService {
   })
   static inject = ['workingDirectory']
   private providers = new Map<string, SubagentProvider>()
+  /**
+   * User preference registered by the delegation-tool settings row, read on
+   * every start so a settings save applies without a restart.
+   */
+  private childRoutePreference: ChildRoutePreference | undefined
   private manager: SubagentManager | undefined
   /**
    * The contained lifecycle-edge publisher. Built here because scoped dispatch
@@ -276,6 +283,20 @@ export class SubagentRuntime extends TypertRemoteService {
   }
 
   /**
+   * Register the user-selected default child route the seam applies when a
+   * start names none. The delegation-tool settings row owns it, so a saved
+   * preference applies to the next start without a restart.
+   * The most recently registered preference wins, so a recomposed settings row
+   * replaces its predecessor; its disposer clears the seam.
+   * @param preference - reads the current preference; an absent value falls back to the deployment base.
+   * @returns disposer that clears the registered preference.
+   */
+  setChildRoutePreference(preference: ChildRoutePreference): () => void {
+    this.childRoutePreference = preference
+    return () => { this.childRoutePreference = undefined }
+  }
+
+  /**
    * Start a local child under its reserved identity.
    * @param spec - local task, reserved child id, and result recipient.
    * @returns activation with its accepted initial message id.
@@ -300,9 +321,11 @@ export class SubagentRuntime extends TypertRemoteService {
       throw new SubagentError('reserved child ids require a local backend', 'UNSUPPORTED_CAPABILITY')
     }
     assertSubagentMaxDepth(spec.request.maxDepth)
-    // Resolve the deployment default before capability checks: the resolved
-    // route is what the provider must actually support.
-    const request = resolveChildRoute(this.config.childRouteDefaults, provider, spec.request)
+    // Resolve the default route before capability checks: the resolved route is
+    // what the provider must actually support. The user preference overrides
+    // the deployment base because it is the more specific choice.
+    const preference = this.childRoutePreference?.()
+    const request = resolveChildRoute(preference ?? this.config.childRouteDefaults, provider, spec.request)
     assertChildRouteAuthorized(request.parent, this.ctx.get('sessions'), request.agentOptions)
     this.assertCapabilities(provider, { ...request, signal: spec.signal })
     const manager = this.requireManager()

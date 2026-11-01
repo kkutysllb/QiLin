@@ -34,6 +34,8 @@ export type PluginsSettingsLocaleKey =
   | 'subagentModelSelectionPartial' | 'subagentModelSelectionUnavailable'
   | 'subagentModelSelectionUnavailableGroup' | 'subagentModelSelectionEmpty'
   | 'subagentModelSelectionRequired' | 'subagentModelSelectionConflict' | 'subagentModelSelectionOff'
+  | 'subagentModelSelectionDefaultLabel' | 'subagentModelSelectionDefaultNone'
+  | 'subagentModelSelectionDefaultHint'
 
 /** English copy. */
 export const en: Record<PluginsSettingsLocaleKey, string> = {
@@ -125,6 +127,9 @@ export const en: Record<PluginsSettingsLocaleKey, string> = {
   subagentModelSelectionRequired: 'Select at least one model before saving.',
   subagentModelSelectionConflict: 'Settings changed elsewhere. Discard your draft and try again.',
   subagentModelSelectionOff: 'Subagents use configured defaults or inherit the parent agent\'s model. Saved model choices are retained.',
+  subagentModelSelectionDefaultLabel: 'Default Subagent model',
+  subagentModelSelectionDefaultNone: 'No default — inherit the provider or deployment default',
+  subagentModelSelectionDefaultHint: 'Every delegation that names no model starts on this route. Only the authorized models above are offered.',
 }
 
 /** Simplified Chinese copy. */
@@ -217,4 +222,7 @@ export const zh: Record<PluginsSettingsLocaleKey, string> = {
   subagentModelSelectionRequired: '保存前请至少选择一个模型。',
   subagentModelSelectionConflict: '设置已在其他位置更新。请放弃修改后重试。',
   subagentModelSelectionOff: '关闭后，Subagent 使用配置的默认模型或继承父 Agent 的模型；已选模型会保留。',
+  subagentModelSelectionDefaultLabel: '默认 Subagent 模型',
+  subagentModelSelectionDefaultNone: '不设默认值，沿用提供方或部署的默认模型',
+  subagentModelSelectionDefaultHint: '未指定模型的委派都从这条路由开始。候选仅为上方已授权的模型。',
 }

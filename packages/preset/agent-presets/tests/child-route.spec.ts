@@ -1,11 +1,8 @@
 /**
- * The shipped presets pin the default route of a delegation child.
- *
- * Model-facing selection (the Plugins → Subagent allowlist) only authorizes
- * routes; a call that omits `provider`/`model` falls back to the tool
- * instance's configured child options. Both shipped presets therefore carry an
- * explicit default so delegation never silently lands on the parent's route —
- * the behavior this suite keeps from regressing when a preset row is edited.
+ * The shipped presets enable model-facing child selection but do not pin a
+ * route: the subagent seam owns the default (deployment `childRouteDefaults`
+ * and the Plugins → Subagent default selection), so a preset copied into
+ * another deployment does not carry one provider's model into it.
  */
 
 import { readFileSync } from 'node:fs'
@@ -22,9 +19,6 @@ interface PresetRow {
   readonly config?: unknown
   readonly [key: string]: unknown
 }
-
-/** The delegation tool's child-default route this repository ships. */
-const SHIPPED_CHILD_ROUTE = { provider: 'zai-coding-cn', model: 'glm-5.3' }
 
 /** Read one shipped preset's composition as parsed YAML rows. */
 function compositionOf(presetId: string): PresetRow[] {
@@ -46,15 +40,12 @@ function rowById(rows: readonly PresetRow[], id: string): PresetRow | undefined 
   return undefined
 }
 
-describe('shipped preset child routes', () => {
-  it.each(['standard', 'ptc'])('pins the %s delegation default route', (presetId) => {
+describe('shipped preset delegation rows', () => {
+  it.each(['standard', 'ptc'])('enables selection without pinning a route in %s', (presetId) => {
     const row = rowById(compositionOf(presetId), 'tool-subagent')
     expect(row?.name).toBe('@qilin-agent/tool-subagent')
-    expect(row?.config).toMatchObject({
-      toolName: 'subagent',
-      modelSelectionSettings: true,
-      agentOptions: SHIPPED_CHILD_ROUTE,
-    })
+    expect(row?.config).toMatchObject({ toolName: 'subagent', modelSelectionSettings: true })
+    expect(row?.config).not.toHaveProperty('agentOptions')
   })
 
   it.each(['standard', 'ptc'])('keeps the %s fork delegation on the parent route', (presetId) => {

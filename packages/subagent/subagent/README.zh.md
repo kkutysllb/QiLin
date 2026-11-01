@@ -52,7 +52,7 @@ kind: "package-reference"
 
 在 Host 插件上设置 `maxActiveSubagents`，限制每棵 activation 树中在线和正在创建的子级数量。默认值为 `8`，接受正安全整数。顶层父级建立由本地和外部后代共享的池，根父级不占名额。新建和冷恢复在让出执行前预留名额，资源释放完成后才归还。等待后代、有待处理收件箱内容以及正在停止的 activation 仍计入容量；向驻留子级发送消息复用其名额。委派深度是独立策略。
 
-设置 `childRouteDefaults`（`{ provider, model, reasoningEffort? }`）可为未指定路由的委派提供默认子代理模型路由。优先级为：调用方显式路由 > 提供方声明的 `agentRouteDefaults` > 本值。继承父方上下文的提供方会忽略这两个默认值，以保持继承前缀可复用。委派工具记录的会话授权名单仍然约束任何被选中的路由，本服务会拒绝未经授权的路由。
+设置 `childRouteDefaults`（`{ provider, model, reasoningEffort? }`）可为未指定路由的委派提供默认子代理模型路由。优先级为：调用方显式路由 > 提供方声明的 `agentRouteDefaults` > 插件 → Subagent 通过 `setChildRoutePreference` 注册的默认选择 > 本值。继承父方上下文的提供方会忽略这两个默认值，以保持继承前缀可复用。委派工具记录的会话授权名单仍然约束任何被选中的路由，本服务会拒绝未经授权的路由。
 
 每次新建或冷恢复 Activation 前都会读取当前 `maxActiveSubagents`。调高后已有树可接纳更多子代理；调低后驻留子代理继续运行，使用量降至上限以下前拒绝新接纳。
 

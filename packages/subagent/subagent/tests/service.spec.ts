@@ -21,6 +21,7 @@ import SubagentRuntime, {
   type SubagentRun,
   type SubagentRunEndInfo,
   type SubagentStartRequest,
+  type ChildRouteDefaults,
 } from '@qilin-agent/subagent'
 import { Session, SessionId, type SessionEvent } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
@@ -69,7 +70,10 @@ class StubProvider implements SubagentProvider {
 
 const contexts = new WeakMap<SubagentRuntime, Context>()
 
-async function service(withAgents = true): Promise<{ ctx: Context; subagents: SubagentRuntime }> {
+async function service(
+  withAgents = true,
+  options: { childRouteDefaults?: ChildRouteDefaults } = {},
+): Promise<{ ctx: Context; subagents: SubagentRuntime }> {
   const ctx = new Context()
   // The registry is a required injection of SubagentRuntime (its projection
   // units register in the constructor).
@@ -80,7 +84,7 @@ async function service(withAgents = true): Promise<{ ctx: Context; subagents: Su
     await ctx.plugin(SessionProjectionRegistry)
   }
   await mountWorkingDirectoryFixture(ctx)
-  await ctx.plugin(SubagentRuntime)
+  await ctx.plugin(SubagentRuntime, options)
   const subagents = ctx.subagents
   contexts.set(subagents, ctx)
   onTestFinished(() => ctx.fiber.dispose())
@@ -661,4 +665,82 @@ it('rejects a disposed parent before starting provider execution', async () => {
     request: { parent: handle.agent, prompt: [] },
   })).rejects.toMatchObject({ code: 'UNAUTHORIZED' })
   expect(provider.startCount).toBe(0)
+})
+
+describe('child route resolution at the seam', () => {
+  const DEFAULTS: ChildRouteDefaults = { provider: 'zai-coding-cn', model: 'glm-5.3' }
+
+  /** Start one delegation and read the provider's effective options. */
+  async function started(options: { childRouteDefaults?: ChildRouteDefaults } = {}) {
+    const { ctx, subagents } = await service(true, options)
+    const provider = new StubProvider('alpha')
+    subagents.registerProvider(provider)
+    const parent = (await ctx.agents.create({ sessionId: SessionId('route-parent') })).agent
+    return { ctx, subagents, provider, parent }
+  }
+
+  it('applies the deployment default when a start names no route', async () => {
+    const { subagents, provider, parent } = await started({ childRouteDefaults: DEFAULTS })
+    await subagents.startActivation({
+      provider: provider.name, label: 'work', delivery: 'caller', signal: new AbortController().signal,
+      request: { parent, prompt: [] },
+    })
+    expect(provider.lastRequest?.agentOptions).toMatchObject({ provider: 'zai-coding-cn', model: 'glm-5.3' })
+  })
+
+  it('lets the registered user preference outrank the deployment default', async () => {
+    const { subagents, provider, parent } = await started({ childRouteDefaults: DEFAULTS })
+    subagents.setChildRoutePreference(() => ({ provider: 'acme', model: 'acme-large' }))
+    await subagents.startActivation({
+      provider: provider.name, label: 'work', delivery: 'caller', signal: new AbortController().signal,
+      request: { parent, prompt: [] },
+    })
+    expect(provider.lastRequest?.agentOptions).toMatchObject({ provider: 'acme', model: 'acme-large' })
+  })
+
+  it('keeps an explicit route over every default layer', async () => {
+    const { subagents, provider, parent } = await started({ childRouteDefaults: DEFAULTS })
+    subagents.setChildRoutePreference(() => ({ provider: 'acme', model: 'acme-large' }))
+    await subagents.startActivation({
+      provider: provider.name, label: 'work', delivery: 'caller', signal: new AbortController().signal,
+      request: { parent, prompt: [], agentOptions: { provider: 'chosen', model: 'chosen-small' } },
+    })
+    expect(provider.lastRequest?.agentOptions).toMatchObject({ provider: 'chosen', model: 'chosen-small' })
+  })
+
+  it('rejects a route the parent Session never authorized', async () => {
+    const { subagents, provider, parent } = await started()
+    parent.session.append('subagent/model-selection-policy', {
+      allowedModels: [{ provider: 'zai-coding-cn', model: 'glm-5.3' }],
+    })
+    await expect(subagents.startActivation({
+      provider: provider.name, label: 'work', delivery: 'caller', signal: new AbortController().signal,
+      request: { parent, prompt: [], agentOptions: { provider: 'zai-coding-cn', model: 'glm-9' } },
+    })).rejects.toMatchObject({ code: 'UNAUTHORIZED' })
+    expect(provider.startCount).toBe(0)
+  })
+})
+
+describe('child route preference registration', () => {
+  it('registers, replaces, and removes the preference with its own disposer', async () => {
+    const { ctx, subagents } = await service()
+    const provider = new StubProvider('alpha')
+    subagents.registerProvider(provider)
+    const parent = (await ctx.agents.create({ sessionId: SessionId('preference-parent') })).agent
+    const dispose = subagents.setChildRoutePreference(() => ({ provider: 'first', model: 'first-small' }))
+    await subagents.startActivation({
+      provider: provider.name, label: 'work', delivery: 'caller', signal: new AbortController().signal,
+      request: { parent, prompt: [] },
+    })
+    expect(provider.lastRequest?.agentOptions).toMatchObject({ provider: 'first', model: 'first-small' })
+    dispose()
+    // A fresh provider proves the cleared preference left this start with no route.
+    const cleared = new StubProvider('beta')
+    subagents.registerProvider(cleared)
+    await subagents.startActivation({
+      provider: cleared.name, label: 'work', delivery: 'caller', signal: new AbortController().signal,
+      request: { parent, prompt: [] },
+    })
+    expect(cleared.lastRequest?.agentOptions).toBeUndefined()
+  })
 })

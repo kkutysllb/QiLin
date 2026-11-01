@@ -17,6 +17,9 @@ import type { Session, SessionId } from '@qilin-agent/session'
 import { SubagentError } from './error.ts'
 import type { AllowedModelRoute, ChildRouteDefaults, SubagentProvider } from './types.ts'
 
+/** Supplies the user-selected default child route to the seam, or undefined when unset. */
+export type ChildRoutePreference = () => AllowedModelRoute | undefined
+
 /** Deepest ancestor chain walked when a Session has recorded no policy of its own. */
 const POLICY_INHERITANCE_DEPTH = 8
 

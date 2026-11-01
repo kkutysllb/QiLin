@@ -3322,6 +3322,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'The numeric limit, or undefined when the provider owns depth enforcement.',
       },
       {
+        signature: 'setChildRoutePreference(preference: ChildRoutePreference): () => void',
+        description: 'Register the user-selected default child route the seam applies when a start names none. The delegation-tool settings row owns it, so a saved preference applies to the next start without a restart. The most recently registered preference wins, so a recomposed settings row replaces its predecessor; its disposer clears the seam.',
+        parameters: [{ name: 'preference', description: 'reads the current preference; an absent value falls back to the deployment base.' }],
+        returns: 'disposer that clears the registered preference.',
+      },
+      {
         signature: 'startActivation(spec: SubagentActivationSpec & { readonly childId: SessionId }): Promise<SubagentActivation & { readonly messageId: MessageId }>',
         description: 'Start a local child under its reserved identity.',
         parameters: [{ name: 'spec', description: 'local task, reserved child id, and result recipient.' }],
@@ -5243,6 +5249,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type AgentStatus = \'idle\' | \'running\';',
   },
   {
+    name: 'AllowedModelRoute',
+    declaration: 'export interface AllowedModelRoute {\n    readonly provider: string;\n    readonly model: string;\n}',
+  },
+  {
     name: 'AnonymousTranslationProvider',
     declaration: 'export type AnonymousTranslationProvider = \'google\' | \'bing\';',
   },
@@ -5509,6 +5519,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'CheckState',
     declaration: 'export type CheckState = \'pending\' | \'success\' | \'failure\' | \'neutral\' | \'skipped\' | \'cancelled\';',
+  },
+  {
+    name: 'ChildRoutePreference',
+    declaration: 'export type ChildRoutePreference = () => AllowedModelRoute | undefined;',
   },
   {
     name: 'ClientArtifactBaseline',
@@ -8656,7 +8670,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'SubagentRuntime',
-    declaration: 'export class SubagentRuntime extends TypertRemoteService {\n    static Config;\n    static inject;\n    constructor(ctx: Context, private config: Config);\n    resolveMaxDepth(configured?: number | \'provider-managed\'): number | undefined;\n    startActivation(spec: SubagentActivationSpec & {\n        readonly childId: SessionId;\n    }): Promise<SubagentActivation & {\n        readonly messageId: MessageId;\n    }>;\n    startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>;\n    async startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>;\n    async waitForChildren(parent: Agent): Promise<boolean>;\n    async flushSettlementNotices(parent: Agent, options: SettlementFlushOptions): Promise<SettlementFlushReport>;\n    async awaitStopped(childId: SessionId): Promise<void>;\n    async sendMessage(sender: Agent, targetId: SessionId, content: ContentBlock[], options: SubagentSendMessageOptions): Promise<MessageId>;\n    interrupt(targetSessionId: SessionId, authority: SubagentInterruptAuthority): void;\n    async drainDescendants(parents: readonly Agent[]): Promise<void>;\n    async drainChildren(parent: Agent, childIds: readonly SessionId[]): Promise<void>;\n    listChildren(parentSessionId: SessionId, signal?: AbortSignal): Promise<SubagentCatalogEntry[]>;\n    listDescendants(rootSessionId: SessionId, signal?: AbortSignal): Promise<SubagentDescendantListEntry[]>;\n    @Remote(\'prompt\')\n    async prompt(request: SubagentPromptRequest, signal: AbortSignal): P /* …truncated — full shape in source */',
+    declaration: 'export class SubagentRuntime extends TypertRemoteService {\n    static Config;\n    static inject;\n    constructor(ctx: Context, private config: Config);\n    resolveMaxDepth(configured?: number | \'provider-managed\'): number | undefined;\n    setChildRoutePreference(preference: ChildRoutePreference): () => void;\n    startActivation(spec: SubagentActivationSpec & {\n        readonly childId: SessionId;\n    }): Promise<SubagentActivation & {\n        readonly messageId: MessageId;\n    }>;\n    startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>;\n    async startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>;\n    async waitForChildren(parent: Agent): Promise<boolean>;\n    async flushSettlementNotices(parent: Agent, options: SettlementFlushOptions): Promise<SettlementFlushReport>;\n    async awaitStopped(childId: SessionId): Promise<void>;\n    async sendMessage(sender: Agent, targetId: SessionId, content: ContentBlock[], options: SubagentSendMessageOptions): Promise<MessageId>;\n    interrupt(targetSessionId: SessionId, authority: SubagentInterruptAuthority): void;\n    async drainDescendants(parents: readonly Agent[]): Promise<void>;\n    async drainChildren(parent: Agent, childIds: readonly SessionId[]): Promise<void>;\n    listChildren(parentSessionId: SessionId, signal?: AbortSignal): Promise<SubagentCatalogEntry[]>;\n    listDescendants(rootSessionId: SessionId, signal?: AbortSignal): Promise<SubagentDescendantListEntry[]>;\n    @Remote(\'prompt /* …truncated — full shape in source */',
   },
   {
     name: 'SubagentSendMessageOptions',

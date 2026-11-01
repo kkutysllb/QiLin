@@ -55,6 +55,7 @@ function modelsFace(
     hooks: { subagentModelSelectionCard: state as never },
     toggleEnabled: () => {},
     toggleModel: () => {},
+    selectDefaultRoute: () => {},
     retryCatalog: () => {},
     save,
     discard: () => {},

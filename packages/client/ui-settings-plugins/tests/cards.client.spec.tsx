@@ -25,7 +25,7 @@ import { SubagentModelSelectionFields } from '../src/client/SubagentModelSelecti
 import { WebSearchCard } from '../src/client/WebSearchCard.tsx'
 import type { WebSearchCardProps } from '../src/client/WebSearchCard.tsx'
 import type { WebSearchCardState } from '../src/client/web-search-card-controller.ts'
-import { en } from '../src/client/locales.ts'
+import { en, zh } from '../src/client/locales.ts'
 
 afterEach(() => { cleanup() })
 
@@ -275,7 +275,8 @@ describe('SubagentCard', () => {
 
   function mount(limitState = limits(), modelState = models(), view: 'summary' | 'page' = 'page') {
     const face = {
-      ...actions(), editLimit: vi.fn(), resetLimit: vi.fn(), toggleEnabled: vi.fn(), toggleModel: vi.fn(), retryCatalog: vi.fn(),
+      ...actions(), editLimit: vi.fn(), resetLimit: vi.fn(), toggleEnabled: vi.fn(), toggleModel: vi.fn(),
+      selectDefaultRoute: vi.fn(), retryCatalog: vi.fn(),
     }
     const props = {
       view, t, ...face, ...seats,
@@ -306,6 +307,20 @@ describe('SubagentCard', () => {
     mount(limits({ available: false }), models({ available: false }))
     expect(screen.queryByText(en.subagentLimitsTitle)).toBeNull()
     expect(screen.queryByText(en.subagentModelSelectionTitle)).toBeNull()
+  })
+
+  it('stages the default model from the authorized routes', () => {
+    const authorized: SubagentModelCandidate = {
+      key: 'alpha:fast', provider: 'alpha', model: 'fast', providerName: 'Alpha', modelName: 'Fast',
+      available: true, selected: true,
+    }
+    const { face } = mount(limits(), models({ enabled: true, dirty: true, candidates: [authorized] }))
+
+    fireEvent.change(screen.getByLabelText(en.subagentModelSelectionDefaultLabel), {
+      target: { value: authorized.key },
+    })
+
+    expect(face.selectDefaultRoute).toHaveBeenCalledWith(authorized.key)
   })
 })
 
@@ -339,10 +354,11 @@ describe('SubagentModelSelectionFields', () => {
   }
 
   function mount(overrides: Partial<SubagentModelSelectionCardState> = {}) {
-    const toggleEnabled = vi.fn(), toggleModel = vi.fn(), retryCatalog = vi.fn()
+    const toggleEnabled = vi.fn(), toggleModel = vi.fn(), retryCatalog = vi.fn(), selectDefaultRoute = vi.fn()
     render(<SubagentModelSelectionFields t={t} state={state(overrides)}
-      toggleEnabled={toggleEnabled} toggleModel={toggleModel} retryCatalog={retryCatalog} />)
-    return { toggleEnabled, toggleModel, retryCatalog }
+      toggleEnabled={toggleEnabled} toggleModel={toggleModel} selectDefaultRoute={selectDefaultRoute}
+      retryCatalog={retryCatalog} />)
+    return { toggleEnabled, toggleModel, retryCatalog, selectDefaultRoute }
   }
 
   it('stages the permission switch and each candidate row', () => {
@@ -376,5 +392,49 @@ describe('SubagentModelSelectionFields', () => {
     fireEvent.click(screen.getByRole('button', { name: en.subagentModelSelectionRetry }))
     expect(retryCatalog).toHaveBeenCalledOnce()
     expect(screen.getByRole('alert').textContent).toContain(en.subagentModelSelectionLoadFailed)
+  })
+
+  it('offers the authorized routes as the default model and stages its clearing', () => {
+    const authorized: SubagentModelCandidate = { ...candidate, key: 'alpha:fast', selected: true }
+    const other: SubagentModelCandidate = { ...authorized, key: 'beta:pro', provider: 'beta', modelName: 'Pro' }
+    const retired: SubagentModelCandidate = { ...authorized, key: 'gone:route', available: false }
+    const { selectDefaultRoute } = mount({ candidates: [authorized, other, retired], defaultRouteKey: authorized.key })
+    const select = screen.getByLabelText(en.subagentModelSelectionDefaultLabel) as HTMLSelectElement
+
+    expect(select.value).toBe(authorized.key)
+    expect(within(select).getAllByRole('option').map(option => option.textContent)).toEqual([
+      en.subagentModelSelectionDefaultNone,
+      `${authorized.modelName} · ${authorized.providerName}`,
+      `${other.modelName} · ${other.providerName}`,
+      `${retired.modelName} · ${retired.providerName}`,
+    ])
+    expect(screen.getByText(en.subagentModelSelectionDefaultHint)).toBeTruthy()
+
+    fireEvent.change(select, { target: { value: '' } })
+    expect(selectDefaultRoute).toHaveBeenCalledWith(undefined)
+    fireEvent.change(select, { target: { value: other.key } })
+    expect(selectDefaultRoute).toHaveBeenCalledWith(other.key)
+  })
+
+  it('disables the default control until a route is authorized', () => {
+    mount({ candidates: [{ ...candidate, selected: false }] })
+
+    const select = screen.getByLabelText(en.subagentModelSelectionDefaultLabel) as HTMLSelectElement
+    expect(select.disabled).toBe(true)
+    expect(within(select).getAllByRole('option')).toHaveLength(1)
+  })
+
+  it('disables the default control while a save is running', () => {
+    mount({ candidates: [candidate], saving: true })
+
+    expect((screen.getByLabelText(en.subagentModelSelectionDefaultLabel) as HTMLSelectElement).disabled).toBe(true)
+  })
+})
+
+describe('plugins settings locale', () => {
+  it('carries every key in both languages', () => {
+    expect(Object.keys(zh).sort()).toEqual(Object.keys(en).sort())
+    for (const [key, copy] of Object.entries(en)) expect(copy, key).not.toBe('')
+    for (const [key, copy] of Object.entries(zh)) expect(copy, key).not.toBe('')
   })
 })

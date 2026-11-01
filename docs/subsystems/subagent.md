@@ -533,6 +533,17 @@ Named provider registry with managed activations, durable discovery, and local c
 resolveMaxDepth(configured?: number | 'provider-managed'): number | undefined
 
 /**
+ * Register the user-selected default child route the seam applies when a
+ * start names none. The delegation-tool settings row owns it, so a saved
+ * preference applies to the next start without a restart.
+ * The most recently registered preference wins, so a recomposed settings row
+ * replaces its predecessor; its disposer clears the seam.
+ * @param preference - reads the current preference; an absent value falls back to the deployment base.
+ * @returns disposer that clears the registered preference.
+ */
+setChildRoutePreference(preference: ChildRoutePreference): () => void
+
+/**
  * Start a local child under its reserved identity.
  * @param spec - local task, reserved child id, and result recipient.
  * @returns activation with its accepted initial message id.

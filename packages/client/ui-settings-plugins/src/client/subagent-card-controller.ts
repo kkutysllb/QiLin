@@ -43,6 +43,7 @@ export interface SubagentCardFace {
   resetLimit: SubagentLimitsCardFace['resetField']
   toggleEnabled: SubagentModelSelectionCardFace['toggleEnabled']
   toggleModel: SubagentModelSelectionCardFace['toggleModel']
+  selectDefaultRoute: SubagentModelSelectionCardFace['selectDefaultRoute']
   retryCatalog: SubagentModelSelectionCardFace['retryCatalog']
   /** Save valid drafts through their owning namespace controllers. */
   save: () => void
@@ -88,6 +89,7 @@ export function subagentCardFace(
     resetLimit: limits.resetField,
     toggleEnabled: models.toggleEnabled,
     toggleModel: models.toggleModel,
+    selectDefaultRoute: models.selectDefaultRoute,
     retryCatalog: models.retryCatalog,
     save: () => {
       const limitState = limits.hooks.subagentLimitsCard.getSnapshot()

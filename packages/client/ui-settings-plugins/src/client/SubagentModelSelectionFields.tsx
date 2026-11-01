@@ -1,5 +1,6 @@
 /** User control for model-selectable subagent delegation in new sessions. */
 
+import { useId } from 'react'
 import { Switch } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type {
@@ -11,16 +12,17 @@ import css from './SubagentModelSelectionFields.module.css'
 
 /** Plain model state and callbacks supplied by the owning Subagent card. */
 export type SubagentModelSelectionFieldsProps = PropsLocale<'settings.plugins'>
-  & Pick<SubagentModelSelectionCardFace, 'toggleEnabled' | 'toggleModel' | 'retryCatalog'>
+  & Pick<SubagentModelSelectionCardFace, 'toggleEnabled' | 'toggleModel' | 'selectDefaultRoute' | 'retryCatalog'>
   & { state: SubagentModelSelectionCardState }
 
 /**
- * Render the default-off preference and its exact adapter-route choices.
- * @param props - locale copy, the card snapshot, and its toggle action.
- * @returns the model permission and route choices inside the shared card.
+ * Render the default-off preference, its exact adapter-route choices, and the route delegations start on.
+ * @param props - locale copy, the card snapshot, and its staged actions.
+ * @returns the model permission, route choices, and default route inside the shared card.
  */
 export function SubagentModelSelectionFields(props: SubagentModelSelectionFieldsProps) {
   const { t, state } = props
+  const defaultId = useId()
   const availableGroups = new Map<string, {
     providerName: string
     candidates: SubagentModelCandidate[]
@@ -41,6 +43,7 @@ export function SubagentModelSelectionFields(props: SubagentModelSelectionFields
       group.candidates.push(candidate)
     }
   }
+  const authorized = state.candidates.filter(candidate => candidate.selected)
   const renderCandidate = (candidate: SubagentModelCandidate) => (
     <label key={candidate.key} className={css.model}>
       <input
@@ -116,6 +119,28 @@ export function SubagentModelSelectionFields(props: SubagentModelSelectionFields
               : state.catalogStatus === 'ready'
                 ? <p className={css.notice}>{t('subagentModelSelectionEmpty')}</p>
                 : null}
+            <div className={css.defaultRoute}>
+              <label className={css.defaultLabel} htmlFor={defaultId}>
+                {t('subagentModelSelectionDefaultLabel')}
+              </label>
+              <select
+                id={defaultId}
+                className={css.defaultSelect}
+                value={state.defaultRouteKey ?? ''}
+                disabled={!state.writable || state.saving || authorized.length === 0}
+                onChange={(event) => {
+                  props.selectDefaultRoute(event.target.value === '' ? undefined : event.target.value)
+                }}
+              >
+                <option value="">{t('subagentModelSelectionDefaultNone')}</option>
+                {authorized.map(candidate => (
+                  <option key={candidate.key} value={candidate.key}>
+                    {`${candidate.modelName} · ${candidate.providerName}`}
+                  </option>
+                ))}
+              </select>
+              <p className={css.hint}>{t('subagentModelSelectionDefaultHint')}</p>
+            </div>
             {state.invalid ? <p className={css.invalid}>{t('subagentModelSelectionRequired')}</p> : null}
           </div>
         )

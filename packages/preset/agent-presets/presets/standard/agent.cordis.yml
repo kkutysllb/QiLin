@@ -186,11 +186,9 @@
     - id: tool-subagent-list-agents
       name: '@qilin-agent/tool-subagent-control/list-agents'
 
-    # Delegation children run on a fixed default route instead of inheriting the
-    # parent's: the model-facing selection below stays an override the parent may
-    # still exercise inside the authorized list, but an omitted route lands here.
-    # A deployment without this provider removes the two values (children then
-    # inherit the parent route again) or repoints them at its own default.
+    # The child route is owned by the subagent seam: an explicit call wins, then
+    # the provider default, then the deployment's `childRouteDefaults` and the
+    # Plugins → Subagent default selection. This row only enables selection.
     - id: tool-subagent
       name: '@qilin-agent/tool-subagent'
       config:
@@ -198,9 +196,6 @@
         toolName: subagent
         modelSelectionSettings: true
         backgroundMode: continuable
-        agentOptions:
-          provider: zai-coding-cn
-          model: glm-5.3
 
     # Fork omits model selection so provider/model stay equal to the parent and
     # the inherited history remains eligible for KV Cache reuse. This preset

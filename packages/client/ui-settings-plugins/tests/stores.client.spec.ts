@@ -866,6 +866,205 @@ describe('SubagentModelSelectionCardController', () => {
   })
 })
 
+describe('SubagentModelSelectionCardController default route', () => {
+  function ready(host: StubConfigForm<SubagentModelSelectionSettings>) {
+    const models = modelsApi({
+      groups: [{ id: 'alpha', name: 'Alpha API', models: [{ id: 'fast', name: 'Fast' }, { id: 'pro', name: 'Pro' }] }],
+    })
+    return { controller: new SubagentModelSelectionCardController(host.scope, models.ctx) }
+  }
+
+  const fast = { provider: 'alpha', model: 'fast' }
+  const pro = { provider: 'alpha', model: 'pro' }
+
+  it('writes a staged default among the routes it authorizes', async () => {
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
+    acceptWrites(host)
+    host.publish({
+      status: 'ready', writable: true, revision: 5,
+      value: { enabled: true, allowedModels: [fast, pro] }, user: {},
+    })
+    const face = ready(host).controller.inject()
+    const state = () => face.hooks.subagentModelSelectionCard.getSnapshot()
+    await vi.waitFor(() => { expect(state().catalogStatus).toBe('ready') })
+    expect(state().defaultRouteKey).toBeUndefined()
+    expect(state().dirty).toBe(false)
+
+    face.selectDefaultRoute('alpha\0pro')
+    expect(state()).toMatchObject({ defaultRouteKey: 'alpha\0pro', dirty: true })
+    face.save()
+    await vi.waitFor(() => {
+      expect(host.mutate).toHaveBeenCalledWith([
+        { op: 'set', path: ['enabled'], value: true },
+        { op: 'set', path: ['allowedModels'], value: [fast, pro] },
+        { op: 'set', path: ['defaultRoute'], value: pro },
+      ], 5)
+    })
+
+    expect(state()).toMatchObject({ defaultRouteKey: 'alpha\0pro', dirty: false, failed: false })
+  })
+
+  it('clears a stored default back to none', async () => {
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
+    acceptWrites(host)
+    host.publish({
+      status: 'ready', writable: true, revision: 2,
+      value: { enabled: true, allowedModels: [fast], defaultRoute: fast }, user: {},
+    })
+    const face = ready(host).controller.inject()
+    const state = () => face.hooks.subagentModelSelectionCard.getSnapshot()
+    await vi.waitFor(() => { expect(state().catalogStatus).toBe('ready') })
+    expect(state().defaultRouteKey).toBe('alpha\0fast')
+
+    face.selectDefaultRoute(undefined)
+    expect(state().dirty).toBe(true)
+    face.save()
+    await vi.waitFor(() => {
+      expect(host.mutate).toHaveBeenCalledWith([
+        { op: 'set', path: ['enabled'], value: true },
+        { op: 'set', path: ['allowedModels'], value: [fast] },
+        { op: 'unset', path: ['defaultRoute'] },
+      ], 2)
+    })
+
+    expect(state().defaultRouteKey).toBeUndefined()
+    expect(state()).toMatchObject({ dirty: false, failed: false })
+  })
+
+  it('leaves the default out of a write that does not change it', async () => {
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
+    acceptWrites(host)
+    host.publish({
+      status: 'ready', writable: true, revision: 3,
+      value: { enabled: true, allowedModels: [fast], defaultRoute: fast }, user: {},
+    })
+    const face = ready(host).controller.inject()
+    await vi.waitFor(() => {
+      expect(face.hooks.subagentModelSelectionCard.getSnapshot().catalogStatus).toBe('ready')
+    })
+
+    face.toggleModel('alpha\0pro')
+    face.save()
+
+    await vi.waitFor(() => {
+      expect(host.mutate).toHaveBeenCalledWith([
+        { op: 'set', path: ['enabled'], value: true },
+        { op: 'set', path: ['allowedModels'], value: [fast, pro] },
+      ], 3)
+    })
+  })
+
+  it('refuses a default the draft does not authorize', async () => {
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
+    host.publish({
+      status: 'ready', writable: true, revision: 1,
+      value: { enabled: true, allowedModels: [fast] }, user: {},
+    })
+    const face = ready(host).controller.inject()
+    const state = () => face.hooks.subagentModelSelectionCard.getSnapshot()
+    await vi.waitFor(() => { expect(state().catalogStatus).toBe('ready') })
+
+    face.selectDefaultRoute('alpha\0pro')
+
+    expect(state().defaultRouteKey).toBeUndefined()
+    expect(state().dirty).toBe(false)
+    face.save()
+    await Promise.resolve()
+    expect(host.mutate).not.toHaveBeenCalled()
+  })
+
+  it('revokes the staged default with the route it names', async () => {
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
+    host.publish({
+      status: 'ready', writable: true, revision: 1,
+      value: { enabled: true, allowedModels: [fast, pro] }, user: {},
+    })
+    const face = ready(host).controller.inject()
+    const state = () => face.hooks.subagentModelSelectionCard.getSnapshot()
+    await vi.waitFor(() => { expect(state().catalogStatus).toBe('ready') })
+
+    face.selectDefaultRoute('alpha\0fast')
+    expect(state().defaultRouteKey).toBe('alpha\0fast')
+
+    face.toggleModel('alpha\0fast')
+
+    expect(state().defaultRouteKey).toBeUndefined()
+    expect(state().dirty).toBe(true)
+  })
+
+  it('offers no default the authorized routes do not name', async () => {
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
+    acceptWrites(host)
+    host.publish({
+      status: 'ready', writable: true, revision: 1,
+      // A document the Host refuses to produce: its default names a route outside the allowlist.
+      value: { enabled: true, allowedModels: [fast], defaultRoute: pro }, user: {},
+    })
+    const face = ready(host).controller.inject()
+    const state = () => face.hooks.subagentModelSelectionCard.getSnapshot()
+    await vi.waitFor(() => { expect(state().catalogStatus).toBe('ready') })
+
+    expect(state().defaultRouteKey).toBeUndefined()
+    expect(state().dirty).toBe(true)
+
+    face.selectDefaultRoute(undefined)
+    face.save()
+    await vi.waitFor(() => {
+      expect(host.mutate).toHaveBeenCalledWith([
+        { op: 'set', path: ['enabled'], value: true },
+        { op: 'set', path: ['allowedModels'], value: [fast] },
+        { op: 'unset', path: ['defaultRoute'] },
+      ], 1)
+    })
+
+    expect(state()).toMatchObject({ dirty: false, failed: false })
+  })
+
+  it('stages a default only while the permission is on and the scope is writable', async () => {
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
+    host.publish({
+      status: 'ready', writable: true, revision: 1,
+      value: { enabled: false, allowedModels: [fast] }, user: {},
+    })
+    const face = ready(host).controller.inject()
+    const state = () => face.hooks.subagentModelSelectionCard.getSnapshot()
+
+    face.selectDefaultRoute('alpha\0fast')
+    expect(state().defaultRouteKey).toBeUndefined()
+
+    face.toggleEnabled()
+    host.publish({ writable: false })
+    face.selectDefaultRoute('alpha\0fast')
+    expect(state().defaultRouteKey).toBeUndefined()
+  })
+
+  it('settles or rejects a staged default when a newer revision arrives', async () => {
+    const host = stubConfigForm<SubagentModelSelectionSettings>()
+    host.publish({
+      status: 'ready', writable: true, revision: 4,
+      value: { enabled: true, allowedModels: [fast, pro] }, user: {},
+    })
+    const face = ready(host).controller.inject()
+    const state = () => face.hooks.subagentModelSelectionCard.getSnapshot()
+    await vi.waitFor(() => { expect(state().catalogStatus).toBe('ready') })
+
+    face.selectDefaultRoute('alpha\0fast')
+    host.publish({ revision: 5, value: { enabled: true, allowedModels: [fast, pro], defaultRoute: fast } })
+    expect(state()).toMatchObject({ conflicted: false, dirty: false, defaultRouteKey: 'alpha\0fast' })
+
+    face.selectDefaultRoute('alpha\0pro')
+    host.publish({ revision: 6, value: { enabled: true, allowedModels: [fast, pro], defaultRoute: fast } })
+    expect(state()).toMatchObject({ conflicted: true, dirty: true })
+
+    face.save()
+    await Promise.resolve()
+    expect(host.mutate).not.toHaveBeenCalled()
+
+    face.discard()
+    expect(state()).toMatchObject({ conflicted: false, dirty: false, defaultRouteKey: 'alpha\0fast' })
+  })
+})
+
 describe('WebSearchCardController', () => {
   /**
    * The three namespace scopes the web-search page edits. Only the scopes a

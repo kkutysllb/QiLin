@@ -3529,7 +3529,7 @@ export type JournalMode = 'wal' | 'delete' | 'truncate' | 'persist'
 
 - `inject`: `workingDirectory`
 - `refs`: `Volatile` (`@qilin-agent/kylin`)
-- `source`: [`packages/subagent/subagent/src/index.ts:200`](../packages/subagent/subagent/src/index.ts)
+- `source`: [`packages/subagent/subagent/src/index.ts:202`](../packages/subagent/subagent/src/index.ts)
 
 ```ts config-catalog
 /** Host configuration for continuable subagent capacity and delegation routes. */
