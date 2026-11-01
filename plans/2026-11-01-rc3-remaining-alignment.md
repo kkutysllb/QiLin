@@ -54,6 +54,13 @@
 
 - 现状：rc.2 时该 lane 长期红（15/25）；本轮修复了 settings-chrome、plugin 系列与若干时序 flake，但仍非全绿。
 - 需要：逐条定性（期望漂移/产品缺陷/环境），修到可纳入发布门禁；不能修的明确标注跳过原因。
+- rc.3 实测（`QILIN_SNAPSHOT=replay pnpm run test:web`）：136 文件 / 464 例 → **56 文件、93 例失败**（354 通过、17 跳过），exit 1。失败家族：
+  1. **超时 28 例**：多为 locator 等待 10–60s。抽样 `rail-search-expand` 孤立复跑仍 60s 超时；探针确认页面已是英文且 `Collapse sidebar` 按钮存在，卡在可点击性，需逐个查遮蔽/动画。
+  2. **ARIA golden 漂移 23 例**：抽样 `access-confirmation` 期望英文 `Auto review EXP`，实收中文 `自动审查 EXP`；孤立复跑同样失败，说明是这些场景启动页面的语言与 golden 不一致，属夹具/语言设置问题。
+  3. **回放夹具未消费完 12 条**：`llm-replay: fixture not fully consumed`，录制脚本与当前驱动步数不匹配。
+  4. **其余**：个别计数/布尔断言，以及控制台副作用（`client api: ... has no active Connection`）。
+- 与 rc.3 纸感/组件语言改动无关：失败日志中从未出现本次新增的设置字段或配色文案。
+- 下一步按家族修：(a) 未显式指定语言的场景统一走 English 页工厂；(b) 逐条判定 golden 该 refresh 还是产品缺陷；(c) 按当前驱动步数重录回放夹具；(d) 超时例先读 `saveFailureShot` 截图再决定。
 
 ### H. 发布与打包配套
 
