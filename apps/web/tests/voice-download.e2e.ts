@@ -22,7 +22,7 @@ const expected = fileURLToPath(new URL('./expected/voice-download.expected.md', 
  */
 async function openVoiceBundle(page: Page): Promise<Locator> {
   const settings = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
-  await settings.getByRole('button', { name: 'Built-in plugins', exact: true }).click()
+  await settings.getByRole('button', { name: 'Plugins', exact: true }).click()
   await settings.getByRole('tab', { name: 'Manage plugins', exact: true }).click()
   await settings.locator('[data-plugin-package="@qilin-agent/experimental-voice-input-bundle"]').getByRole('button').click()
   return settings

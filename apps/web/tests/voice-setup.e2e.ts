@@ -23,7 +23,7 @@ it('guides a newly enabled voice plugin to installation and lets the user postpo
   const page = await newEnglishPage(browser), tripwire = watchConsole(page)
   await page.goto(scaffold.authenticatedUrl)
   const settings = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
-  await settings.getByRole('button', { name: 'Built-in plugins', exact: true }).click()
+  await settings.getByRole('button', { name: 'Plugins', exact: true }).click()
   await settings.getByRole('tab', { name: 'Manage plugins', exact: true }).click()
   const toggle = settings.getByRole('switch', { name: 'Enable Voice input', exact: true })
   await toggle.waitFor()
