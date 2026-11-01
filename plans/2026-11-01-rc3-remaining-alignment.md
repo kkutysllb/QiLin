@@ -78,6 +78,9 @@
 - 已落地 B：record 模式注册 `deepseek-fixture` 路由，公布回放目录（V4-Flash / V4-Flash-Vision-Exp）并把 `stream` 转发到部署真实 provider/model，会话默认模型也指向该路由（`337cb4af89`）。此前 30s 点击超时的 `file-upload-round` 主用例现在 2.7s 通过。
 - **更正**：夹具并不"陈旧"。`recordFixture` 写入的是按格式版本命名的 `session.v5.jsonl`，该文件被 `.gitignore` 忽略、每次录制重新生成；因此 `git status` 看不到变化并不代表没重录。上一版记录里"夹具无法在本机重录"的判断作废。
 - 重录后 replay 仍失败的用例（`file-upload-round` 的 Trajectory 附件、`turn-tail-actions` 的 `processBottom + 8` 实得 16、`rail-search-expand` 的首击超时）属 **UI 状态断言**，需要逐个在真实页面上调试，不能再靠重录解决。
+- **Trajectory 附件已修**（`b65b9ac6c1`）：`.details` 的 `max-width: calc(100% - 280px)` 在窄面板把详情栏压成竖线；改为容器查询 ≤600px 时纵向堆叠，附件两例转绿（该 spec 7/8）。
+- **record/replay 的 provider id 不一致**（最后一例失败的原因）：record 目录用 `deepseek-fixture`，回放用 `deepseek-official`，夹具保真检查因此不等。尝试给 `llm-deepseek-api-key` 加可选 `providerId` 并在 record 模式把真实行改名为 `deepseek-live`：**启动阶段直接挂起**（hook 120s 超时）——凭据、模型设置、扩展与搜索等行都按 `deepseek-official` 绑定，改名要同步改这些依赖行。已回滚该尝试。
+- 结论：让 record 与 replay 共用同一 provider id 需要把 id 贯穿所有依赖行（凭据引用、`deepseek-llm-api-extensions`、`web-search-deepseek`、模型设置页），或退回「用例按能力选择模型」的方案 A。在两者之间，A 的改动面小一个数量级。
 
 ### H. 发布与打包配套
 
