@@ -2942,7 +2942,9 @@ export function TrajectoryTable({
         <aside
           className={css.details}
           aria-label={t('details.event')}
-          style={detailsWidth === null ? undefined : { width: detailsWidth }}
+          style={detailsWidth === null
+            ? undefined
+            : { '--trajectory-details-width': `${detailsWidth}px` } as CSSProperties}
         >
           <div
             className={css.detailsResizeHandle}

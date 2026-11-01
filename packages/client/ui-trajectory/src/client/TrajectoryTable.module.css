@@ -876,12 +876,35 @@
   display: flex;
   flex: none;
   flex-direction: column;
-  width: clamp(320px, 38%, 440px);
+  /* The dragged width arrives as a custom property so the stacked layout below
+     can ignore it without fighting an inline style. */
+  width: var(--trajectory-details-width, clamp(320px, 38%, 440px));
   max-width: calc(100% - 280px);
   min-width: 0;
   min-height: 0;
   border-left: 1px solid var(--qilin-alias-border-l2);
   background: var(--qilin-alias-bg-layer-1);
+}
+
+/* A detail pane narrower than its own minimum is unusable: below the combined
+   minimum width the split stacks instead of squeezing the pane into a sliver. */
+@container (max-width: 600px) {
+  .split {
+    flex-direction: column;
+  }
+
+  .details {
+    width: 100%;
+    max-width: none;
+    max-height: 60%;
+    flex: 0 0 auto;
+    border-left: 0;
+    border-top: 1px solid var(--qilin-alias-border-l2);
+  }
+
+  .detailsResizeHandle {
+    display: none;
+  }
 }
 
 .detailsResizeHandle {
