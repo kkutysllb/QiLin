@@ -105,3 +105,14 @@ pnpm run test:coverage
 - **`session/subagent-spawn-in-process` 抖动**：重录后的 fixture 存在约 1/12 概率的顺序竞态（子代理 `send_message` 的 `agent/inbox/spliced` 与父 `step/start` 先后），属既有 live 录制竞态而非 flush 引入；本轮登记为 known-flaky，下一版在归一化层稳定该事件对顺序。
 - **H 的 pnpm 跟随升级**：稳定线当前为 `12.16.1`（rc.3 为 11.23.0）；升级需同步 `packageManager`、根 devDependency、`apps/desktop` 与 `native/system` pin 并重生成 `pnpm-lock.yaml`，最后跑 `pnpm run build` 与 `test:web` 复验。
 - **G**：浏览器 lane 的剩余红按「期望漂移 / 产品缺陷 / 环境」三类处置；环境类（嵌套 `sandbox-exec`、`posix_openpt` 被宿主沙箱拒绝）需在非沙箱宿主复跑。
+
+### 本轮实测（权威数据）
+
+- **构建**：`pnpm run build` 绿，记录 439 个客户端产物（`.qilin-build/client-build-environment.json`）。
+- **文档门**：`pnpm run test:docs` 21/21 通过（含 pairing 1181 对、type-equiv 498 块、md 链接 2337 文件）。
+- **快照 lane**（full-access 宿主）：161 通过 / 5 红 / 2 跳过。5 红均为已登记项：`advanced-toolchain`、`advanced-toolchain-runtime`、`subagent-acp-diagnostic`、`subagent-depth-two-rejection`（需新模型响应，人工重写清单）与 `subagent-multi`（pinned v0 唯一覆盖）。此前的 6 条 ENV 红在放宽沙箱后全部转绿，确认为宿主限制而非产品问题。
+- **Web 浏览器 lane**（`QILIN_SNAPSHOT=replay`、4 worker、full-access）：`Test Files 53 failed | 82 passed | 1 skipped (136)`，`Tests 87 failed | 360 passed | 17 skipped (464)`，426s。相比本轮开始时的 70 红文件 / 151 红用例，刷新 27 个场景的过期 golden 并修 4 个 spec 后下降，但仍未达「可纳入发布门禁」。
+- 该 lane 的剩余红分成五类：① 已刷新 golden 仍红的行为层问题（隐藏元素与等待超时，12 文件 / 18 用例）；② 产品可疑待定（`background-job-list` 无 job id、`schedule-after` 域未开、`details-session-lifecycle` fixture 未消费完、`cordis-tool-round`/`document-preview`/`reference-composer` 超时）；③ `hmr-live` 已越过 dev:web 就绪（`onSuccess` 修复生效）但停在「空会话 hero wordmark 未出现」的英雄态假设；④ `skill-invocation-policy` 的引用预览结构变化待定性（可能是 ui-primitives markdown 改动副作用）；⑤ jsdom/testing-library 的 3 个跨文件错误。
+- **`dev:web` 就绪**：`scripts/dev-web.ts` 的 readiness 计数从内联 `build:done` 改回 tsdown `onSuccess` —— workspace 级 hook 会覆盖内联 hook，导致「就绪行永不打印」，这是 `hmr-live` 长期红的根因。
+- **未跑**：`test:coverage` 分区门（全量耗时超出本轮窗口；已用聚焦覆盖验证 D 改动的三个文件 100%，`internal.ts` 需含 `experimental/agent-team` 测试才到 100%；`projection.ts:160` 一条未覆盖分支非本轮引入，记为待验项）。
+- **H 的 pnpm 跟随升级未执行**：需要在验证过的树上做整仓 install + 锁文件重生成 + 全部门禁复跑，本轮未做，步骤已按上文记录。
