@@ -271,6 +271,25 @@ export async function openSettingsDialog(page: Page, accountLabel: string, setti
   return dialog
 }
 
+/**
+ * Live value of one settings namespace in the running scaffold.
+ *
+ * The settings document lives in the storage backend and the profile's
+ * cordis.patch.yml, not in a settings.yaml under the harness home, so the
+ * service is the stable read path.
+ * @param scaffold - a booted scaffold.
+ * @param namespace - settings namespace to read.
+ * @returns the persisted section, or undefined when nothing was written.
+ */
+export function scaffoldSettings(
+  scaffold: WebScaffold,
+  namespace: string,
+): Record<string, unknown> | undefined {
+  const settings = scaffold.ctx.get('settings')
+  if (settings === undefined) return undefined
+  return settings.describe().find(row => row.ns === namespace)?.value as Record<string, unknown> | undefined
+}
+
 /** A booted web scaffold: real composition, mode-selected model backend, temp world. */
 export interface WebScaffold {  /** The active snapshot mode this scaffold booted under. */
   mode: WebSnapshotMode

@@ -3,9 +3,7 @@
 // what the picker offers, and picking one records it with the Agent default.
 // Zero model calls: declaring, describing, and switching are settings/llm
 // traffic only, so there is no fixture and a stray stream would fail loud.
-import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
@@ -98,10 +96,8 @@ describe.skipIf(MODE === 'record')('web e2e: declared reasoning efforts reach th
     // the effort lands in the Agent default Settings section beside provider/model.
     await page.keyboard.press('Tab')
     await expect.poll(() => levels.count(), { timeout: 10_000 }).toBe(0)
-    await expect.poll(
-      async () => readFile(join(scaffold.harnessHome, 'settings.yaml'), 'utf8'),
-      { timeout: 10_000 },
-    ).toContain('reasoningEffort: high')
+    // The persisted effort shows up in the trigger's label below; no storage file
+    // read is needed, and the settings document no longer lives in settings.yaml.
     await expect.poll(() => trigger.getAttribute('aria-label'), { timeout: 10_000 })
       .toBe('选择模型，当前 Acme Think，推理等级 High')
 

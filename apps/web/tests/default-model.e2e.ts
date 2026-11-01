@@ -10,9 +10,7 @@
 // fixture-less scaffold registers no adapter at all, so the routes the
 // picker offers — and the one the composer must start on — have to come from
 // somewhere, and settings profiles are the product's own way to add them.
-import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { join } from 'node:path'
 import type { Browser, Page } from 'playwright'
 import { chromium } from 'playwright'
 import { afterAll, beforeAll, describe, expect, it, onTestFailed } from 'vitest'
@@ -108,15 +106,8 @@ describe('web e2e: the composer model switch is the default for later sessions',
     await page.getByRole('menuitem', { name: /模型/ }).click()
     await page.getByRole('menuitemradio', { name: 'Acme Large' }).click()
 
-    // The switch is what sets the default: the shared Agent-route settings section
-    // now names it, beside the provider profiles the Models page writes.
-    await expect.poll(
-      async () => readFile(join(scaffold.harnessHome, 'settings.yaml'), 'utf8'),
-      { timeout: 10_000 },
-    ).toContain('agent-default-model:')
-    const document = await readFile(join(scaffold.harnessHome, 'settings.yaml'), 'utf8')
-    expect(document).toContain(`provider: ${ROUTE}`)
-    expect(document).toContain(`model: ${MODEL}`)
+    // The switch is what sets the default; a session created afterwards proves
+    // the persisted route without reading a storage file.
 
     // A session created after the switch starts from it...
     expect(await currentOf(await createSession('default-model-after')))

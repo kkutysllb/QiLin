@@ -18,7 +18,7 @@ import type { ReplayOverrideDoc } from '@qilin-agent/llm-replay'
 import type { SessionEvent } from '@qilin-agent/session'
 import {
   acknowledgeReloadConnectionLoss, assertFixtureInventory, captureStableAria, compareOrRefreshGolden, fixtureUserPrompts,
-  launchWebScaffold, recordFixture, watchConsole, webSnapshotMode, type WebScaffold,
+  launchWebScaffold, recordFixture, scaffoldSettings, watchConsole, webSnapshotMode, type WebScaffold,
 } from './scaffold.ts'
 import {
   connectFreshWorkspace, expandTurnProcesses, newEnglishPage, openSettings, saveFailureShot,
@@ -302,8 +302,10 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     await expect.poll(() => process.isDisabled(), { timeout: 10_000 }).toBe(true)
     expect(await process.getAttribute('aria-expanded')).toBe('true')
     await tool.waitFor({ state: 'visible', timeout: 10_000 })
-    await expect.poll(async () => readFile(join(scaffold!.harnessHome, 'settings.yaml'), 'utf8'), { timeout: 5_000 })
-      .toMatch(/ui-chat:\n\s+transcriptView: verbose/)
+    // Persistence is read through the settings service: the document lives in the
+    // storage backend, not in a settings.yaml under the harness home.
+    await expect.poll(() => scaffoldSettings(scaffold!, 'ui-chat')?.transcriptView, { timeout: 5_000 })
+      .toBe('verbose')
 
     await selectWorkDetails('Full detail', 'Standard')
     await process.waitFor({ timeout: 10_000 })
