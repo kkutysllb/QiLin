@@ -60,7 +60,6 @@ import {
 import type { Profile, ProfileContext, ProfileResolutionMode } from '@qilin-agent/app-boot'
 import { qilinHomePath } from '@qilin-agent/home-paths'
 import { LlmAdapter } from '@qilin-agent/llm'
-import type { GenerateOptions } from '@qilin-agent/llm'
 import type {
   LlmModelInfo, LlmProviderInfo, LlmResolvedModelInfo, RetryPolicyConfig, StreamChunk,
 } from '@qilin-agent/llm'
@@ -211,8 +210,8 @@ const REPLAY_PROVIDERS = [{
  * adapter serves a session's route, and an empty registry is a test artifact,
  * not a product state.
  */
-abstract class CatalogAdapter extends LlmAdapter {
-  constructor(protected readonly providers: typeof REPLAY_PROVIDERS) {
+class RouteOnlyAdapter extends LlmAdapter {
+  constructor(private readonly providers: typeof REPLAY_PROVIDERS) {
     super()
   }
 
@@ -235,54 +234,12 @@ abstract class CatalogAdapter extends LlmAdapter {
       ...listed?.contextWindow === undefined ? {} : { contextWindow: listed.contextWindow },
     })
   }
-}
 
-class RouteOnlyAdapter extends CatalogAdapter {
   override async *stream(): AsyncIterable<StreamChunk> {
     throw new Error(
       'web e2e scaffold: a model call was issued by a scenario that declared no replay fixture'
       + ' — pass replayFixture, or keep the scenario free of model calls',
     )
-  }
-}
-
-/** Record mode's provider route: the fixture catalog under its own id. */
-const RECORD_PROVIDER_ID = 'deepseek-fixture'
-
-/**
- * Record-mode catalog adapter.
- *
- * Record mode must expose the fixture model ids that scenarios name, while the
- * deployment catalog it boots against carries different ones. This adapter
- * advertises the fixture catalog and forwards every stream to the deployment's
- * live route, resolved at call time because only the booted composition knows
- * which provider and model it configured.
- */
-class RecordCatalogAdapter extends CatalogAdapter {
-  constructor(
-    private readonly ctx: Context,
-    providers: typeof REPLAY_PROVIDERS,
-  ) {
-    super(providers)
-  }
-
-  override async *stream(options: GenerateOptions): AsyncIterable<StreamChunk> {
-    const live = await this.liveRoute()
-    yield* this.ctx.llm.stream({ ...options, provider: live.provider, model: live.model })
-  }
-
-  /** The deployment route every recorded call forwards to. */
-  private async liveRoute(): Promise<{ provider: string; model: string }> {
-    const live = this.ctx.llm.listProviders()
-      .find(entry => !this.providers.some(fixture => fixture.id === entry.id))
-    if (live === undefined) {
-      throw new Error('web e2e scaffold: record mode found no live provider route to forward to')
-    }
-    const [model] = await this.ctx.llm.listModels(live.id)
-    if (model === undefined) {
-      throw new Error(`web e2e scaffold: record mode found no live model on provider ${live.id}`)
-    }
-    return { provider: live.id, model: model.id }
   }
 }
 
@@ -635,11 +592,9 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
     // live configuration uses the shared DeepSeek route. Explicit overlays win.
     ...messages
       ? [{ id: 'agent-default-model', config: { provider: mode === 'record' || maskDeepSeekCredential ? 'deepseek-official' : 'deepseek-messages', model: maskDeepSeekCredential ? 'deepseek-flash' : 'deepseek-v4-flash' } }]
-      : mode === 'record'
-        ? [{ id: 'agent-default-model', config: { provider: RECORD_PROVIDER_ID, model: 'deepseek-v4-flash' } }]
-        : options.deepSeekMissingCredential === true
-          ? []
-          : [{ id: 'agent-default-model', config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' } }],
+      : mode === 'record' || options.deepSeekMissingCredential === true
+        ? []
+        : [{ id: 'agent-default-model', config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' } }],
     ...extraOverlayPatches,
     // The roster's shipped presets are the plugin's own, bundled inside
     // `qilin-agent-presets` and prepended by it. Pin only the machine-local
@@ -944,16 +899,7 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
         ...(replayChildFixtures === undefined ? {} : { childFiles: replayChildFixtures }),
         ...(options.paceMs === undefined ? {} : { paceMs: options.paceMs }),
       })
-    } else if (mode === 'record') {
-      // Scenarios name fixture model ids, so record mode publishes that catalog
-      // instead of whatever the deployment lists; the adapter forwards each call
-      // to the live route so the recording still reaches a real model.
-      const recordCatalog = [{ ...REPLAY_PROVIDERS[0]!, id: RECORD_PROVIDER_ID }]
-      ctx.effect(() => ctx.llm.registerAdapter(
-        [RECORD_PROVIDER_ID],
-        new RecordCatalogAdapter(ctx, recordCatalog),
-      ), 'web e2e scaffold: record catalog adapter')
-    } else if (options.deepSeekMissingCredential !== true) {
+    } else if (mode !== 'record' && options.deepSeekMissingCredential !== true) {
       // No fixture and no shipped adapter would leave the tree with ZERO
       // provider routes — a state no product composition has, and one the
       // composer refuses to type into. Register the same routes
