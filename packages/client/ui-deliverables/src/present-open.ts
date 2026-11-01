@@ -7,7 +7,7 @@ import type {} from '@qilin-agent/sandbox-policy'
 import { remoteErrorOf } from '@qilin-agent/typert-protocol'
 import type {} from '@qilin-agent/client-connection'
 import type {} from '@qilin-agent/session-query'
-import type { SessionId, SessionSeq } from '@qilin-agent/session'
+import type { SessionId, SessionSeq } from '@qilin-agent/session/types'
 import {
   CHANGES_DIFF_PATH, CHANGES_OPEN_PATH, CHANGES_SESSION_PATH, CHANGED_FILES_PATH, type ChangesSession,
   type ChangesSummary,

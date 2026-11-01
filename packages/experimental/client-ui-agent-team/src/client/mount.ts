@@ -2,6 +2,7 @@
 
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type { TypertRemoteContribution } from '@qilin-agent/typert-protocol'
+import type { ISessions } from '@qilin-agent/api-session-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import type {} from '@qilin-agent/client-locale/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
@@ -46,7 +47,11 @@ export function registerAgentTeamUi(ctx: ClientContext): void {
   const t = ctx.locale.bind(NS)
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'client-ui-agent-team: dictionaries')
   ctx.effect(() => ctx.sidebarRightTabs.register(teamDefinition(t)), 'client-ui-agent-team: team type')
-  const sessions = ctx.sessions
+  // The browser Session contract, not the host-plane `SessionStore` that also
+  // augments `Context.sessions` in this program: a client bundle mounts the
+  // controller-owned layer, and the two declarations share one key. Splitting
+  // the host augmentation out of `@qilin-agent/session` retires this narrowing.
+  const sessions = (ctx as ClientContext & { sessions: ISessions }).sessions
   const leadSessionId = (sessionId: SessionId): SessionId => {
     const address = sessions.binding(sessionId)?.session.getSnapshot().subagent?.address
     return address?.parentSessionId ?? sessionId

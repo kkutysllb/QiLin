@@ -4,7 +4,7 @@
  * everything through the source and acts only through these actions.
  */
 import type { ClientRemote } from '@qilin-agent/api-remotes/client'
-import type { SessionId } from '@qilin-agent/session'
+import type { SessionId } from '@qilin-agent/session/types'
 import { sidechatAddress, transcriptEntriesOfFrame } from './sidechat-model.ts'
 import type { SidechatSource } from './sidechat-source.ts'
 
