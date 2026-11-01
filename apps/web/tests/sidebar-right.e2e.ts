@@ -129,8 +129,13 @@ async function ensureExpanded(page: Page, column: Locator): Promise<void> {
 /** Clear only this fixture's saved layouts before an independent gesture case. */
 async function resetSidebar(page: Page): Promise<Locator> {
   await page.evaluate(() => {
+    // The layout store keeps its historical DSH-era namespace
+    // (dsh.sidebar-right.v1), so clearing the qilin-prefixed name alone leaves
+    // the expanded state behind; drop both spellings.
     for (const key of Object.keys(localStorage)) {
-      if (key.startsWith('qilin.sidebar-right.v1.')) localStorage.removeItem(key)
+      if (key.startsWith('dsh.sidebar-right.v1.') || key.startsWith('qilin.sidebar-right.v1.')) {
+        localStorage.removeItem(key)
+      }
     }
   })
   await page.reload({ waitUntil: 'load' })
