@@ -1,10 +1,8 @@
-- button "系统提示词"
 - text: 不用先查看目录，直接做四件事：把 intro.md 里的标题「示例项目」改成「项目说明」，新建 src/util.ts 导出一个两数相加的 add 函数，新建 app.local 写一行 mode=demo，最后用 bash 在 notes.txt 末尾追加一行 done。 {{clock}}
 - button "复制"
 - button "编辑此消息并重新发送"
 - status: 已完成
 - button "已完成，用时 {{duration}}" [expanded]
-- button "上下文注入 runtime-context"
 - button "执行了命令，已写入文件，已读取文件等" [expanded]
 - button "思考 The user wants four things done directly. But I need to read intro.md before editing (fs-observation-policy requires reading existing file first). The user says don't look at the directory first, but reading intro.md is needed for the edit tool. Let me just do it."
 - button "读取 intro.md":
@@ -31,8 +29,7 @@
 - list:
   - listitem:
     - strong:
-      - code:
-        - button "在侧边栏打开 intro.md": intro.md
+      - code: intro.md
     - text: — 标题
     - code: "# 示例项目"
     - text: 已改为
@@ -40,15 +37,13 @@
     - text: （仅改了标题行，正文未动）。
   - listitem:
     - strong:
-      - code:
-        - button "在侧边栏打开 src/util.ts": src/util.ts
+      - code: src/util.ts
     - text: — 新建，导出
     - code: "add(a: number, b: number): number"
     - text: 。
   - listitem:
     - strong:
-      - code:
-        - button "在侧边栏打开 app.local": app.local
+      - code: app.local
     - text: — 新建，内容为一行
     - code: mode=demo
     - text: 。
@@ -65,8 +60,7 @@
     - text: 两行。
 - paragraph:
   - text: 说明：
-  - code:
-    - button "在侧边栏打开 intro.md": intro.md
+  - code: intro.md
   - text: 的改动我按文件策略要求先读了一次原文件（只读该文件，未浏览目录），
   - code:
     - button "在侧边栏打开 notes.txt": notes.txt

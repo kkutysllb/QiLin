@@ -17,8 +17,7 @@
 - button "Bash Rejected by Auto review"
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
-- 'button "Access mode, current: Auto review"':
-  - text: Auto review
+- 'button "Access mode, current: Auto review"': Auto review
 - button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
 - button "1 turns 2 steps"
@@ -46,8 +45,7 @@
 - button "Inspect"
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
-- 'button "Access mode, current: Auto review"':
-  - text: Auto review
+- 'button "Access mode, current: Auto review"': Auto review
 - button "Select model, current DeepSeek-V4-Flash": DeepSeek-V4-Flash
 - button "Send message" [disabled]
 - button "1 turns 2 steps"

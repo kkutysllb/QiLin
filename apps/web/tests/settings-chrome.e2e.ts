@@ -399,20 +399,19 @@ describe('web e2e: settings modal and General preferences', () => {
       await page.getByRole('dialog', { name: '设置' }).getByText(String(px), { exact: true }).waitFor({ timeout: 5_000 })
       await expect.poll(readFontSize, { timeout: 5_000 }).toBe(`${px}px`)
     }
-    expect(await readFontSize()).toBe('14px')
+    expect(await readFontSize()).toBe('15px')
+    // Above the ≤14 boundary the secondary tier is the setting minus two.
     expect(await readSecondaryFontSize()).toBe('13px')
     await openSettings(page)
     const dialog = page.getByRole('dialog', { name: '设置' })
     await dialog.waitFor({ timeout: 10_000 })
-    // The stepper reveals its arrows on hover; the up arrow steps 14 → 15 → 16.
-    await dialog.getByText('14', { exact: true }).hover()
+    // The stepper reveals its arrows on hover; the up arrow steps 15 → 16 → 17.
+    await dialog.getByText('15', { exact: true }).hover()
     const increase = dialog.getByRole('button', { name: '增大字号' })
-    await stepFontSize(increase, 15)
-    // 15 is the piecewise boundary: the secondary tier holds at 13px (−2)
-    // where the ≤14 branch would have given 14px (−1).
-    await expect.poll(readSecondaryFontSize, { timeout: 5_000 }).toBe('13px')
     await stepFontSize(increase, 16)
     await expect.poll(readSecondaryFontSize, { timeout: 5_000 }).toBe('14px')
+    await stepFontSize(increase, 17)
+    await expect.poll(readSecondaryFontSize, { timeout: 5_000 }).toBe('15px')
     await page.keyboard.press('Escape')
 
     // Reload: the boot script embeds the durable size and ThemeRuntime seeds
@@ -422,17 +421,17 @@ describe('web e2e: settings modal and General preferences', () => {
     await page.reload({ waitUntil: 'load' })
     acknowledgeReloadConnectionLoss(tripwire, warningStart)
     await page.waitForSelector('[class*="frame"]', { timeout: 30_000 })
-    await expect.poll(readFontSize, { timeout: 5_000 }).toBe('16px')
-    expect(await readSecondaryFontSize()).toBe('14px')
+    await expect.poll(readFontSize, { timeout: 5_000 }).toBe('17px')
+    expect(await readSecondaryFontSize()).toBe('15px')
 
     // Restore the default for the specs that follow (and the dialog golden).
     await openSettings(page)
     const restored = page.getByRole('dialog', { name: '设置' })
     await restored.waitFor({ timeout: 10_000 })
-    await restored.getByText('16', { exact: true }).hover()
+    await restored.getByText('17', { exact: true }).hover()
     const decrease = restored.getByRole('button', { name: '减小字号' })
+    await stepFontSize(decrease, 16)
     await stepFontSize(decrease, 15)
-    await stepFontSize(decrease, 14)
     await page.keyboard.press('Escape')
     expect(tripwire.pageErrors).toEqual([])
   }, 90_000)

@@ -1,14 +1,13 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Use the bash tool to" [disabled]
+  - text: Standard mode
   - button "Open right sidebar"
-- button "System prompt"
 - text: "Use the bash tool to run exactly: echo WEB_E2E_OK. Then reply with the single word DONE and stop. {{clock}}"
 - button "Copy"
 - button "Edit this message and resend"
 - status: Completed
 - button "Completed in {{duration}}" [expanded]
-- button "Context injection runtime-context"
 - button "Ran commands" [expanded]
 - button "Think The user wants me to run a simple bash command and reply with \"DONE\"."
 - button "Bash Echo the test string"

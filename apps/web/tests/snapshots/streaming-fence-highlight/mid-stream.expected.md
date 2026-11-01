@@ -1,21 +1,20 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Stream one TypeScript fence for" [disabled]
+  - text: Standard mode
   - button "Open right sidebar"
-- button "System prompt"
 - text: Stream one TypeScript fence for the highlighting snapshot. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- button "Context injection runtime-context"
 - text: ts
 - button "Copy"
 - code: "const first: number = 1 const second = \"two\" let tail"
 - status: QiLin...
-- text: QiLin...
+- text: Working for {{duration}}...
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write
-- button "Select model, current streaming-fence-highlight-test/streaming-fence": streaming-fence-highlight-test/streaming-fence
+- button "Select model"
 - button "Stop generating"
 
 ---

@@ -1,14 +1,13 @@
 - banner:
   - navigation "Session hierarchy":
     - 'button "Using ONE run_code program: run" [disabled]'
+  - text: Coding mode
   - button "Open right sidebar"
-- button "System prompt"
 - text: "Using ONE run_code program: run bash `echo CODE_ROUND_OK`, then read the file missing.txt catching its error in the program. Return an object with both outcomes. Then reply DONE and stop. {{clock}}"
 - button "Copy"
 - button "Edit this message and resend"
 - status: Completed
 - button "Completed in {{duration}}" [expanded]
-- button "Context injection runtime-context"
 - button "Ran code, ran commands, read files" [expanded]
 - 'button "Think The user wants me to write a single `run_code` program that:"'
 - button "Code Run bash echo and catch missing file read"

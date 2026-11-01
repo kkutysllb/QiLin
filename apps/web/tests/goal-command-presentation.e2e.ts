@@ -84,7 +84,7 @@ describe('web e2e: /goal human transcript presentation', () => {
         chipFontSize: chipStyle.fontSize,
       }
     })
-    expect(typography).toMatchObject({ fontSize: '14px', lineHeight: '22px', chipText: '/goal', chipFontSize: '14px' })
+    expect(typography).toMatchObject({ fontSize: '15px', lineHeight: '23px', chipText: '/goal', chipFontSize: '15px' })
     // The bubble reads in the body face like a user bubble; only the command
     // chip carries the code face that marks the echoed token as a command.
     expect(typography.fontFamily).toBe(typography.parentFontFamily)

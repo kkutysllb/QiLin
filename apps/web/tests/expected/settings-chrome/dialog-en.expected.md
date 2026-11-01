@@ -20,7 +20,7 @@
   - button "Light"
   - button "Dark"
   - button "System" [pressed]
-  - text: Font size Only affects conversation content 14
+  - text: Font size Only affects conversation content 15
   - button "Increase font size"
   - button "Decrease font size"
   - text: px
