@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os'
 import { PassThrough } from 'node:stream'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { getQilinRuntimeVersion, initProfile, readProfileManifest } from '@qilin-agent/app-boot'
+import { parse } from 'yaml'
 import { anchorPathSpec, readProfileRegistry, runPluginCommand, runProfilePnpm, viewProfilePackage } from '../src/operations.ts'
 
 /** The manifest fields an inspection prints. */
@@ -974,4 +975,22 @@ it('uses application-owned executable arguments and environment for package oper
   expect(command.run).toHaveBeenLastCalledWith(runtime.command,
     [...runtime.args, 'view', 'example', 'name', 'version', 'description', 'qilin', 'dsh', '--json', '--config.fetch-retries=0'],
     expect.objectContaining({ env: expect.objectContaining(runtime.env) as unknown }))
+})
+
+it('folds versioned release-age exclusions and adds the operation package before pnpm runs', async () => {
+  const { dir, context } = fixture()
+  const workspace = join(dir, 'pnpm-workspace.yaml')
+  writeFileSync(workspace, 'minimumReleaseAge: 1\nminimumReleaseAgeExclude:\n  - plugin@0.1.0\n  - other@2.0.0\n')
+  const outcome = await runProfilePnpm(context, ['add', 'plugin@1.0.0'], { execution: 'service', outputBytes: 8_192 })
+  console.log('DEBUG', dir, outcome.exitCode, outcome.output, readFileSync(workspace, 'utf8'))
+  expect(parse(readFileSync(workspace, 'utf8'))).toMatchObject({
+    minimumReleaseAge: 1,
+    minimumReleaseAgeExclude: ['plugin', 'other'],
+  })
+
+  // A removal runs the same rewrite, so a package the run no longer installs stays exempt.
+  writeFileSync(workspace, 'minimumReleaseAgeExclude:\n  - plugin@0.1.0\n')
+  await runProfilePnpm(context, ['remove', 'plugin'], { execution: 'service', outputBytes: 8_192 })
+  expect((parse(readFileSync(workspace, 'utf8')) as { readonly minimumReleaseAgeExclude: readonly string[] })
+    .minimumReleaseAgeExclude).toEqual(['plugin'])
 })

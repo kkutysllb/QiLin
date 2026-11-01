@@ -13,6 +13,7 @@ import {
 } from '@qilin-agent/app-boot'
 import { scrubbedParentEnv } from '@qilin-agent/subprocess'
 import { parseInstallSpec } from './install-spec.ts'
+import { normalizeReleaseAgeExcludes, releaseAgeSubjects } from './release-age-excludes.ts'
 import { awaitTreeGone, leadsOwnGroup, treeAlive, type RunTree } from './run-tree.ts'
 import { incompatiblePlugin } from './failure.ts'
 import type { IncompatiblePlugin, PackageResult, Registry } from './types.ts'
@@ -348,6 +349,10 @@ export async function runProfilePnpm(
     } catch (error) { void error; continue }
   }
   if (preflight.length > 0) return await rejected(preflight, 'nothing was installed')
+  // pnpm 11 exempts packages from its release-age policy by bare name only. Rewrite the
+  // profile list before the run so a versioned historical entry cannot fail the lockfile
+  // check for a package this operation does not even touch.
+  await normalizeReleaseAgeExcludes(dir, releaseAgeSubjects(args))
   const cancellation = new AbortController()
   // A service run captures output, so execa terminates the tree it leads when the
   // run is killed: a lifecycle script outlives the pnpm process that started it.
