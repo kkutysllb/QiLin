@@ -1,10 +1,9 @@
-/** Hold child execution until the parent's capacity probe has been recorded. */
+/** Hold child execution until the parent's turn ends, so the capacity probe records first. */
 import type { Context } from '@qilin-agent/kylin'
 
 export const name = 'subagent-activation-limit'
-export const inject = ['agents', 'settings', 'subagents']
 
-/** Order parent admission and child completion without elapsed-time assumptions. */
+/** Order the parent's turn boundary before the child's first proposal without elapsed-time assumptions. */
 export function apply(ctx: Context): void {
   const parentClosed = Promise.withResolvers<undefined>()
   ctx.effect(() => () => { parentClosed.resolve(undefined) })
@@ -13,7 +12,6 @@ export function apply(ctx: Context): void {
   })
   ctx.on('agent/pre-step', async ({ agent }, next) => {
     if (agent.session.header.parentSession !== undefined) await parentClosed.promise
-    else await ctx.settings.update('subagent', { maxActiveSubagents: 1 })
     return next()
   })
 }

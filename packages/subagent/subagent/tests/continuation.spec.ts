@@ -317,6 +317,28 @@ describe('continuable activation capacity', () => {
     }
   })
 
+  it('refuses an over-capacity delegation without publishing a catalog row', async () => {
+    const release = Promise.withResolvers<undefined>()
+    const adapter = new GatedAdapter([{ chunks: textResponse('done'), gate: release.promise }])
+    const { ctx, parent } = await setupWith(adapter, { maxActiveSubagents: 1 })
+    parkParent(ctx, parent)
+    try {
+      const first = await ctx.subagents.startActivation({
+        ...startSpec(parent), childId: SessionId('reserved-first'), delivery: 'parent',
+      })
+      await expect(ctx.subagents.startActivation({
+        ...startSpec(parent), childId: SessionId('reserved-second'), delivery: 'parent',
+      })).rejects.toMatchObject({ code: 'ACTIVATION_LIMIT_REACHED' })
+      expect(parent.session.snapshotEvents().filter(event => event.type === 'subagent/catalog'))
+        .toMatchObject([{ type: 'subagent/catalog', data: { childId: first.childId, mode: 'continuable' } }])
+      release.resolve(undefined)
+      await waitNoActivation(ctx, first.childId)
+    } finally {
+      release.resolve(undefined)
+      await ctx.fiber.dispose()
+    }
+  })
+
   it('defaults to eight live children and reuses capacity after settlement', async () => {
     const release = Promise.withResolvers<undefined>()
     const adapter = new GatedAdapter([

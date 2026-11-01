@@ -89,6 +89,8 @@ interface MaterializeBase {
   parent: Agent
   signal: AbortSignal
   delivery?: 'parent' | 'caller' | undefined
+  /** Slot reserved at acceptance, so a refused delegation publishes no catalog row. */
+  admission?: { readonly pool: ActivationPool; readonly releaseSlot: () => void } | undefined
 }
 
 /** Creation inputs for a local residency or one external backend execution. */
@@ -439,9 +441,14 @@ export class SubagentManager {
     // Capture before the first await: a later parent switch belongs to the
     // parent's future, not to this child.
     const delegatedPolicies = captureDelegatedPolicyOverrides(parent)
-    // A reserved identity records its catalog fact before any await: concurrent
-    // delegations publish catalog rows in acceptance order instead of materialization order.
+    // Admission precedes the acceptance fact: a refused delegation must not publish a
+    // catalog row for a child that never materializes.
+    let admission: { pool: ActivationPool; releaseSlot: () => void } | undefined
     if (spec.childId !== undefined) {
+      const pool = this.resident.get(parent.id)?.pool ?? this.rootPool(parent)
+      admission = { pool, releaseSlot: pool.reserve(this.maxActiveSubagents()) }
+      // A reserved identity records its catalog fact before any await: concurrent
+      // delegations publish catalog rows in acceptance order instead of materialization order.
       acceptCatalogChild(parent.session, childId, Date.now(), { mode: descriptor.mode, label: descriptor.label })
       this.reserveNotice(parent.session, childId)
     }
@@ -479,6 +486,7 @@ export class SubagentManager {
         }
         const activation = await this.materialize({
           kind: 'local',
+          ...admission === undefined ? {} : { admission },
           childId,
           provider: spec.provider,
           parent,
@@ -514,6 +522,7 @@ export class SubagentManager {
       return { ...this.receipt(established), childId, messageId }
     } catch (error: unknown) {
       releaseHold()
+      admission?.releaseSlot()
       throw error
     }
   }
@@ -783,8 +792,8 @@ export class SubagentManager {
     this.assertAdmitting(inputs.parent)
     inputs.signal.throwIfAborted()
     const lineage = this.liveLineage(inputs.parent)
-    const pool = this.resident.get(inputs.parent.id)?.pool ?? this.rootPool(inputs.parent)
-    const releaseSlot = pool.reserve(this.maxActiveSubagents())
+    const pool = inputs.admission?.pool ?? this.resident.get(inputs.parent.id)?.pool ?? this.rootPool(inputs.parent)
+    const releaseSlot = inputs.admission?.releaseSlot ?? pool.reserve(this.maxActiveSubagents())
     const settled = Promise.withResolvers<void>()
     const controller = new AbortController()
     const materialization: Materialization = {
