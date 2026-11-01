@@ -1,7 +1,7 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .header {
@@ -28,10 +28,9 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 12px;
-  border-radius: 8px;
-  border: 0.5px solid var(--qilin-alias-border-l1);
-  background: var(--qilin-alias-bg-layer-2);
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 0.5px solid var(--qilin-alias-border-l3);
 }
 
 .errorTitle {
@@ -61,8 +60,9 @@
 }
 
 .groupTitle {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   font-size: 14px;
+  line-height: 22px;
   font-weight: 600;
   color: var(--qilin-alias-text-1);
 }
@@ -88,14 +88,15 @@
   list-style: none;
 }
 
+/* One server reads as a card, matching a configured model provider: the same
+   outlined 16px radius on the panel fill rather than a divider-separated row. */
 .row {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px;
-  border-radius: 8px;
-  border: 0.5px solid var(--qilin-alias-border-l1);
-  background: var(--qilin-alias-bg-layer-2);
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 0.5px solid var(--qilin-alias-border-l4);
 }
 
 .rowMain {
@@ -137,10 +138,9 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 12px;
-  border-radius: 8px;
-  border: 0.5px solid var(--qilin-alias-border-l1);
-  background: var(--qilin-alias-bg-layer-2);
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 0.5px solid var(--qilin-alias-border-l4);
 }
 
 .field {
