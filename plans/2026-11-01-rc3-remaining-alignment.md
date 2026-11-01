@@ -62,6 +62,17 @@
 - 与 rc.3 纸感/组件语言改动无关：失败日志中从未出现本次新增的设置字段或配色文案。
 - 下一步按家族修：(a) 未显式指定语言的场景统一走 English 页工厂；(b) 逐条判定 golden 该 refresh 还是产品缺陷；(c) 按当前驱动步数重录回放夹具；(d) 超时例先读 `saveFailureShot` 截图再决定。
 
+**进展（第一轮收口）**
+
+- 已完成：终端配色断言与 colors/theme golden（`b6a1274319`）；26 份 golden 重录并按文件核对归属（`9f7ac24a1d`）；composer「14 行」上限改为随行高计算（`9d701d0dfc`，这是字号升到 15px 后暴露的真实回归）；`goal-command-presentation`、`settings-chrome` 的硬编码字号期望同步。
+- 复核方式：重录后以 replay 复跑，9 个 spec 32/33 通过；`composer-draft-scroll` refresh 与 replay 各 7/7。
+
+**剩余家族的真实成因（本轮定位）**
+
+- **超时家族不是可点击性问题**：`file-upload-round` 等用例点的是 `DeepSeek-V4-Flash-Vision-Exp`，该 id 只存在于回放目录（`apps/web/tests/scaffold.ts` 的 `REPLAY_PROVIDERS`）。本机 `QILIN_SNAPSHOT=record` 走真实部署目录（当前为 V4.1-Flash / V4-Pro），用例点不存在的条目，才表现为 30s 点击超时（证据：`.artifacts/web-e2e-file-upload-drive.png` 显示模型菜单里只有 V4.1-Flash 与 V4-Pro）。
+- **因此夹具无法在本机忠实重录**：需要先让 record 模式也用固定目录（或让用例按位置/能力选择模型，而不是钉死名称），再在有固定目录的环境重录。
+- **夹具与断言耦合**：`file-upload-round` 的 Trajectory 附件失败（列表 hidden、`liveTrajectory` undefined）由回放未消费完导致，属同一根因的下游表现。
+
 ### H. 发布与打包配套
 
 - macOS 签名：`codesign --timestamp` 需要把 `HTTP_PROXY/HTTPS_PROXY` 指向本地代理（`http://127.0.0.1:7890`），签名缓存先预热两轮；未签名包仅作对照。
