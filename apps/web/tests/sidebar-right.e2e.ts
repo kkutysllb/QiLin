@@ -428,9 +428,14 @@ describe('web e2e: shipped right Sidebar', () => {
       }
 
       await expect.poll(async () => await tabTitles(column)).toEqual(['Start'])
-      await expect.poll(async () => await column.locator('[data-sidebar-right-guide-entry]').count()).toBe(7)
-      for (const kind of ['files', 'terminal', 'trajectory-graph', 'browser', 'tasks', 'plans', 'git']) {
+      // The guide lists the upstream surfaces only: Git, tasks, plans, and
+      // sidechat are not mounted in this composition.
+      await expect.poll(async () => await column.locator('[data-sidebar-right-guide-entry]').count()).toBe(4)
+      for (const kind of ['files', 'terminal', 'trajectory-graph', 'browser']) {
         expect(await column.locator('[data-sidebar-right-guide-entry="' + kind + '"]').count(), kind).toBe(1)
+      }
+      for (const kind of ['tasks', 'plans', 'git']) {
+        expect(await column.locator('[data-sidebar-right-guide-entry="' + kind + '"]').count(), kind).toBe(0)
       }
       // The ledger keeps no guide entry: the graph page is the Sidebar's only
       // trajectory page, and it carries the control that opens the ledger.
