@@ -33,6 +33,8 @@ kind: "package-reference"
 
 从 preset 组装的会话会运行该 preset `agent.cordis.yml` 所列插件：它的工具、提示词段落与 skill。加入同一 preset 的会话共享一份已安装的组装，且各会话的状态彼此隔离。subagent 会加入其父方的组装，因此它看到的工具与提示词段落和创建它的 agent 相同。
 
+随附的 `standard` 与 `ptc` preset 在其 `tool-subagent` 行固定了委派子代理的默认模型路由（`zai-coding-cn/glm-5.3`）。插件 → Subagent 设置只是授权父方可以显式指定的路由，不是默认值；因此调用时省略 `provider`/`model` 会落到固定路由上，而不是继承父方。需要让委派使用其他模型时，改写或删除该行的 `agentOptions.provider` 与 `agentOptions.model`；没有该提供方的部署必须先这样做，否则委派无法启动——子代理路由在工具运行时解析。
+
 可选的 preset 来自三类来源：本包 `presets/` 下随包交付的 preset、已配置的根目录，以及你自己放在 `<qilinHome>/.agent-presets` 下的 preset。选择器会展示每个 preset 的显示名与描述；组装无法加载的 preset 会连同原因一起列出而不是被隐藏，因此你能看到该修什么或删什么。
 
 ### 最小配置
