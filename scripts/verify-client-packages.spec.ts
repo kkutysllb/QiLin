@@ -6,6 +6,7 @@ import { dirname, join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
   collectClientPackageViolations,
+  collectHostRootImports,
   collectLocalSourceSpecifiers,
   collectRuntimeLocalSourceSpecifiers,
   collectRuntimeSourcePackageUses,
@@ -74,6 +75,31 @@ function facts(
     malformed: options.malformed ?? [],
   }
 }
+
+describe('client-half host entries', () => {
+  it('admits subpath types and rejects the host root entry', () => {
+    const files = new Map([
+      ['packages/client/a/src/client/ok.ts', "import type { SessionId } from '@qilin-agent/session/types'"],
+      ['packages/client/a/src/client/bad.ts', "import type { SessionStore } from '@qilin-agent/session'"],
+    ])
+    expect(collectHostRootImports(files)).toEqual(['packages/client/a/src/client/bad.ts: Client half imports the host entry "@qilin-agent/session"; import its subpath types instead.'])
+  })
+
+  it('rejects a re-export and reads .tsx sources', () => {
+    const files = new Map([
+      ['packages/client/a/src/client/bad.tsx', "export { pluginRecordOf } from '@qilin-agent/session'"],
+    ])
+    expect(collectHostRootImports(files)).toHaveLength(1)
+  })
+
+  it('ignores the host half and unrelated entries', () => {
+    const files = new Map([
+      ['packages/client/a/src/index.ts', "import { pluginRecordOf } from '@qilin-agent/session'"],
+      ['packages/client/a/src/client/ok.ts', "import { SessionSeq } from '@qilin-agent/session/surface'"],
+    ])
+    expect(collectHostRootImports(files)).toEqual([])
+  })
+})
 
 describe('source package uses', () => {
   it('includes root-relative runtime requests only when explicitly requested', () => {

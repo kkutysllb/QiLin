@@ -188,6 +188,47 @@ export function readClientDeclarations(root: string): ClientDeclarations {
   return { declarations, malformed }
 }
 
+/** Package root entries whose declarations augment the host Context and stay out of Client halves. */
+export const HOST_ROOT_ENTRIES = ['@qilin-agent/session'] as const
+
+/**
+ * Collect Client-half sources that import a host-only package root.
+ *
+ * A root entry such as `@qilin-agent/session` declares the host `Context.sessions`
+ * augmentation; a browser file that imports it pulls that declaration into the
+ * Client program beside the client contract. Subpath entries (`/types`, `/surface`)
+ * carry no augmentation and stay allowed.
+ * @param files - Sources keyed by repository-relative path; paths outside `src/client/` are skipped.
+ * @param roots - Package root specifiers only the host plane may import.
+ * @returns One diagnostic per offending file and entry, in path order.
+ */
+export function collectHostRootImports(
+  files: ReadonlyMap<string, string>,
+  roots: readonly string[] = HOST_ROOT_ENTRIES,
+): string[] {
+  const violations: string[] = []
+  for (const [path, source] of [...files].sort(([left], [right]) => left.localeCompare(right))) {
+    // Only the browser half is in scope; the package's host half lives beside it
+    // in `src/` and reaches the session root by design.
+    if (!path.includes('/src/client/')) continue
+    const file = ts.createSourceFile(
+      path, source, ts.ScriptTarget.Latest, true,
+      path.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    )
+    for (const statement of file.statements) {
+      if (!ts.isImportDeclaration(statement) && !ts.isExportDeclaration(statement)) continue
+      const specifier = statement.moduleSpecifier
+      if (specifier === undefined || !ts.isStringLiteral(specifier)) continue
+      if (!roots.includes(specifier.text)) continue
+      violations.push(
+        path + ': Client half imports the host entry ' + JSON.stringify(specifier.text)
+        + '; import its subpath types instead.',
+      )
+    }
+  }
+  return violations
+}
+
 /**
  * Return every client package policy violation.
  * @param facts - Package modes, manifests, source uses, and platform module lists.
@@ -692,7 +733,18 @@ async function main(): Promise<void> {
     )
     facts = await readFacts(root)
   }
-  const violations = collectClientPackageViolations(facts)
+  const clientHalfFiles = new Map<string, string>(
+    globSync('packages/*/*/src/client/**/*.{ts,tsx}', { cwd: root })
+      .map(normalizePath)
+      .sort()
+      .map(path => [path, readFileSync(resolve(root, path), 'utf8')]),
+  )
+  const violations = [
+    ...collectClientPackageViolations(facts),
+    ...(clientHalfFiles.size === 0
+      ? ['verify-client-packages: no Client-half sources were read; the host-entry scan would pass vacuously.']
+      : collectHostRootImports(clientHalfFiles)),
+  ].sort((left, right) => left.localeCompare(right))
   if (violations.length > 0) {
     console.error(GATE + ': ' + String(violations.length) + ' violation(s):')
     for (const violation of violations) console.error('  ' + violation)
