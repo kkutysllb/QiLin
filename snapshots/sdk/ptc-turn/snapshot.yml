@@ -4,6 +4,7 @@ profile: sdk
 composition: ptc
 recording: live
 header:
-  class: ptc
+  class: ptc-sdk
+  pin: true
 environment:
   QILIN_TOOLS_MODE: ptc

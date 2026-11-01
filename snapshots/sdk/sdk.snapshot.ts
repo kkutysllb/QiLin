@@ -146,6 +146,9 @@ const SDK_ASSERTIONS: Readonly<Record<string, SdkAssertions>> = {
   'subagent-continuable': {
     environment: { QILIN_SNAPSHOT_HUMAN_STEER: '1' },
   },
+  'subagent-spawn-in-process': {
+    patches: [fileURLToPath(new URL('./subagent-spawn-in-process/hold-child.cordis.yml', import.meta.url))],
+  },
   'subagent-qilin-sdk-diagnostic': {
     environment: { QILIN_TEST_CHILD_PATCH: qilinSdkDiagnosticChildPatch },
   },
@@ -261,6 +264,31 @@ interface PersistedLog {
 async function jsonlFiles(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { recursive: true })
   return latestPersistedSessionPaths(entries).map(entry => join(dir, entry))
+}
+
+/** Bound on the external SDK child settling its own turn before the runner closes the runtime. */
+const CHILD_SETTLE_TIMEOUT_MS = 60_000
+
+/**
+ * Wait until the separate SDK child session persists a settled turn. The child is an
+ * independent runtime: closing the parent runtime first disposes it mid-turn and leaves a
+ * truncated session as evidence, so the runner reads the child's own log instead of racing it.
+ * @param sessionsRoot - the child runtime's isolated home sessions directory.
+ * @returns once a child session log carries a turn/end event.
+ * @throws when no settled child turn appears within {@link CHILD_SETTLE_TIMEOUT_MS}.
+ */
+async function waitForChildSettlement(sessionsRoot: string): Promise<void> {
+  const deadline = Date.now() + CHILD_SETTLE_TIMEOUT_MS
+  while (Date.now() < deadline) {
+    if (existsSync(sessionsRoot)) {
+      for (const path of await jsonlFiles(sessionsRoot)) {
+        const content = await readFile(path, 'utf8')
+        if (content.split('\n').some(line => line.includes('"type":"turn/end"'))) return
+      }
+    }
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+  throw new Error(`${sessionsRoot}: the separate SDK child persisted no settled turn within ${CHILD_SETTLE_TIMEOUT_MS}ms`)
 }
 
 async function persistedLogs(sessionsRoot: string): Promise<PersistedLog[]> {
@@ -673,6 +701,7 @@ async function runScenario(scenario: CorpusScenario): Promise<{
     } finally {
       subscription.close()
     }
+    if (childSessionsRoot !== undefined) await waitForChildSettlement(childSessionsRoot)
     await harness.close()
     const logs = (await Promise.all([
       persistedLogs(sessionsRoot),
