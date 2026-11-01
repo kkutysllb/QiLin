@@ -374,6 +374,30 @@ function displayedZone(zone: string, dictionary: typeof en | typeof zh = en): st
   return zoneLabel(zone, makeTranslate(dictionary))
 }
 
+/** IANA alias pairs whose localized zone labels match when an engine lists both. */
+const ICU_ALIAS_PAIRS: readonly (readonly [string, string])[] = [
+  ['Asia/Kolkata', 'Asia/Calcutta'],
+  ['Asia/Kathmandu', 'Asia/Katmandu'],
+  ['Europe/Kyiv', 'Europe/Kiev'],
+  ['America/Argentina/Buenos_Aires', 'America/Buenos_Aires'],
+  ['Asia/Yangon', 'Asia/Rangoon'],
+]
+
+/**
+ * The first alias pair this engine's ICU data reports under one label.
+ *
+ * Which aliases share a printable name moves with the CLDR release, so the
+ * collapse case discovers its pair instead of pinning one: a pinned pair
+ * silently stops collapsing when ICU renames a zone.
+ * @returns the canonical zone and its alias.
+ */
+function sharedLabelPair(): readonly [string, string] {
+  for (const pair of ICU_ALIAS_PAIRS) {
+    if (displayedZone(pair[0], zh) === displayedZone(pair[1], zh)) return pair
+  }
+  throw new Error('no ICU alias pair shares a localized label on this engine')
+}
+
 /** Open the Time zone menu, filter by canonical IANA id, and choose the result. */
 function chooseZone(zone: string, dictionary: typeof en | typeof zh = en): void {
   fireEvent.click(zoneButton(dictionary))
@@ -2140,22 +2164,21 @@ describe('Task detail rule header and run-time card', () => {
   })
 
   it('collapses identical ICU labels while retaining every hidden IANA search alias', () => {
-    vi.spyOn(Intl, 'supportedValuesOf').mockReturnValue([
-      'America/Anchorage', 'America/Juneau', 'Asia/Shanghai',
-    ])
-    const stored: ScheduleCatalogEntry = { ...daily, timeZone: 'America/Juneau' }
+    const [canonical, alias] = sharedLabelPair()
+    vi.spyOn(Intl, 'supportedValuesOf').mockReturnValue([canonical, alias, 'Asia/Shanghai'])
+    const stored: ScheduleCatalogEntry = { ...daily, timeZone: alias }
     mount({ records: [stored] }, zh)
     fireEvent.click(screen.getByRole('button', { name: 'Daily weather' }))
     fireEvent.click(zoneButton(zh))
-    const alaska = displayedZone('America/Anchorage', zh)
-    expect(displayedZone('America/Juneau', zh)).toBe(alaska)
-    expect(screen.getAllByRole('menuitem').filter(item => item.textContent === alaska)).toHaveLength(1)
+    const label = displayedZone(canonical, zh)
+    expect(displayedZone(alias, zh)).toBe(label)
+    expect(screen.getAllByRole('menuitem').filter(item => item.textContent === label)).toHaveLength(1)
 
     fireEvent.change(screen.getByRole('searchbox', { name: zh['timing.zoneSearch'] }), {
-      target: { value: 'America/Juneau' },
+      target: { value: alias },
     })
     const result = screen.getByRole('menuitem')
-    expect(result.textContent).toBe(alaska)
+    expect(result.textContent).toBe(label)
     // The grouped row retains the exact stored id, so merely opening or
     // selecting it does not canonicalize an existing schedule behind the user.
     expect(result.querySelector('svg')).not.toBeNull()
