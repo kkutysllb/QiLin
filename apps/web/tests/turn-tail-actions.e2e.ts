@@ -121,6 +121,27 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     await page.keyboard.press('Escape')
   }
 
+  /** The label the Work-details row currently shows. */
+  async function currentWorkDetails(): Promise<string> {
+    const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
+    const row = dialog.getByText('Work details', { exact: true }).locator('../..')
+    const label = (await row.getByRole('button').first().innerText()).trim()
+    await page.keyboard.press('Escape')
+    return label
+  }
+
+  /**
+   * Switch to one work-details mode from whatever the deployment ships.
+   *
+   * The shipped default is Detailed, so a case that exercises the whole-Turn
+   * fold states the mode it needs instead of inheriting the default.
+   * @param next - label of the mode the case exercises.
+   */
+  async function useWorkDetails(next: string): Promise<void> {
+    const current = await currentWorkDetails()
+    if (current !== next) await selectWorkDetails(current, next)
+  }
+
   it.skipIf(MODE !== 'record')('records the narrate-then-call turn live through the composer', async () => {
     await launch()
     onTestFailed(() => saveFailureShot(page, 'web-e2e-turn-tail-actions-record'))
@@ -145,6 +166,9 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
       return { patches: [{ at: 1, entry: { kind: 'hang', readyFile: marker } }] }
     })
     onTestFailed(() => saveFailureShot(page, 'web-e2e-turn-tail-actions'))
+    // The whole-Turn fold belongs to the Standard mode; the shipped default is
+    // Detailed, so state the mode before the turn runs.
+    await useWorkDetails('Standard')
     // The barrier is armed before the park and awaited only after the stop
     // click, so its budget must cover the whole parked phase: marker poll,
     // live-state polls, and two captures with their stability windows. The
@@ -271,7 +295,7 @@ describe('web e2e: assistant IconActions wait for the turn to end', () => {
     // inline (Full detail) leaves the whole-Turn control mounted as a disabled,
     // permanently open header. The two-mode generation's saved `normal` is no
     // longer offered, so the switch runs against the modes the selector lists.
-    await selectWorkDetails('Standard', 'Full detail')
+    await useWorkDetails('Full detail')
     await expect.poll(() => process.count(), { timeout: 10_000 }).toBe(1)
     await expect.poll(() => process.isDisabled(), { timeout: 10_000 }).toBe(true)
     expect(await process.getAttribute('aria-expanded')).toBe('true')
