@@ -88,6 +88,15 @@
 - `pnpm` 随包版本：rc.3 已升到 11.23.0；下一版本继续跟随稳定线，升级时同步 `packageManager`、根 devDependency、`apps/desktop` 依赖与 `native/system` 的 pin。
 - vendor 族：本轮只 bump `qilin` 族；vendor 若有变更，按 `release:vendor` 独立批次并先于 qilin 发布。
 
+## 二·补、rc.4 发布后遗留（下一版本处理）
+
+rc.4 预览已发布（tag `v3.1.8-rc.4`），以下项明确延后：
+
+1. **插件配置入口缺口（产品缺陷，优先）**：`ui-plugin-manager` 的列表来自插件市场索引，profile 已挂载的插件不在其中，导致所有 `plugins.item` 卡片（shell/git/agent-loop/subagent/web-search/voice）在「设置 → Plugins」里不可达。修法：列表推导补「已挂载插件」条目，再回归该包单测与 `settings-chrome` golden。受影响的 web e2e：`voice-download`（5 例）、`voice-setup`（1 例）。
+2. **分组级焦点保持**：回合结束时，若读者焦点在被展开的进程行上，折叠仍会收回。已实现「读者手动展开跨代际保持」（`81fcedc6d5`），焦点接管那一层未做；对应 `turn-tail-actions` 1 例。
+3. **web e2e 剩余家族**（rc.4 时 59 例失败）：超时 16（集中在 `seeded-history` 4 例与语音 5 例）、golden 14、夹具未消费完 14。逐条定性已记录在本文件 G 节与 §二·补 1。
+4. **pnpm 跟随稳定线**：现为 11.23.0，下一版按稳定线升级并同步 `packageManager`、根 devDependency、`apps/desktop` 与 `native/system` 的 pin。
+
 ## 三、门禁命令（下一版本沿用）
 
 ```sh
