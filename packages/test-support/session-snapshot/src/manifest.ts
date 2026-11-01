@@ -118,6 +118,12 @@ export interface SnapshotManifest {
   workspace?: SnapshotWorkspaceManifest
   /** Exceptional controller input absent for ordinary log-driven scenarios. */
   input?: SnapshotInputManifest
+  /**
+   * Whether the run waits for every subagent it started to settle before closing the parent
+   * runtime. Declared by a scenario whose background child must persist a settled turn; absent
+   * for scenarios that leave children running on purpose.
+   */
+  settleChildren?: boolean
   /** Absent when this directory owns its selected parent fixture; present for a read-only borrower. */
   session?: SnapshotSessionReference
   /** Historical generation retained by an owner instead of tracking the current writer. */
@@ -223,6 +229,7 @@ export function parseSnapshotManifest(source: string, path = 'snapshot.yml'): Sn
       'input',
       'session',
       'sessionFormat',
+      'settleChildren',
     ], 'manifest')
     if (root.version !== 1) throw new Error('manifest.version must equal 1')
     const scenario = root.scenario === undefined ? undefined : name(root.scenario, 'manifest.scenario')
@@ -288,6 +295,12 @@ export function parseSnapshotManifest(source: string, path = 'snapshot.yml'): Sn
       exactKeys(value, ['override'], 'manifest.replay')
       if (value.override !== true) throw new Error('manifest.replay.override must equal true')
       replay = { override: true }
+    }
+
+    let settleChildren: boolean | undefined
+    if (root.settleChildren !== undefined) {
+      if (root.settleChildren !== true) throw new Error('manifest.settleChildren must equal true when present')
+      settleChildren = true
     }
 
     let platform: SnapshotPlatform | undefined
@@ -424,6 +437,7 @@ export function parseSnapshotManifest(source: string, path = 'snapshot.yml'): Sn
       ...(input === undefined ? {} : { input }),
       ...(session === undefined ? {} : { session }),
       ...(sessionFormat === undefined ? {} : { sessionFormat }),
+      ...(settleChildren === undefined ? {} : { settleChildren }),
     }
   } catch (error) {
     /* v8 ignore next -- every parser and validator above throws Error instances. */

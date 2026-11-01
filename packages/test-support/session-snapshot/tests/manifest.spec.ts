@@ -51,6 +51,18 @@ describe('snapshot manifest', () => {
     expect(writesCurrentSessionFixtures(retained, 'refresh')).toBe(false)
   })
 
+  it('parses a declared child settlement and rejects other values', () => {
+    expect(parseSnapshotManifest([
+      'version: 1',
+      'profile: sdk',
+      'settleChildren: true',
+      '',
+    ].join('\n'))).toEqual({ version: 1, profile: 'sdk', settleChildren: true })
+
+    expect(() => parseSnapshotManifest('version: 1\nprofile: sdk\nsettleChildren: false\n'))
+      .toThrow('manifest.settleChildren must equal true when present')
+  })
+
   it('parses a read-only session reference', () => {
     expect(parseSnapshotManifest([
       'version: 1',

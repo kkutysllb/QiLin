@@ -6,3 +6,4 @@ recording: live
 header:
   class: sdk-qilin-sdk-diagnostic
   pin: true
+settleChildren: true

@@ -10,7 +10,7 @@
  */
 
 import { existsSync } from 'node:fs'
-import { cp, mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { basename, delimiter, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -277,6 +277,82 @@ const CHILD_SETTLE_TIMEOUT_MS = 60_000
  * @returns once a child session log carries a turn/end event.
  * @throws when no settled child turn appears within {@link CHILD_SETTLE_TIMEOUT_MS}.
  */
+/** Bound on a declared scenario's child settlement before the parent runtime closes. */
+const DECLARED_CHILD_SETTLE_TIMEOUT_MS = 65_000
+
+/**
+ * Wait for every subagent a declared scenario started to settle, then for its settlement notice.
+ * A background SDK child outlives its parent turn; closing first makes the notice text and the
+ * child's own turn depend on exit timing. Waiting inside the live runtime makes both deterministic.
+ * @param feed - notification subscription over subagent start and finish edges.
+ * @param sessionsRoot - the parent runtime's sessions directory.
+ * @returns once every started child finished and its settlement notice is persisted, or
+ * immediately when the run started none.
+ * @throws when the children or their notices do not settle within {@link DECLARED_CHILD_SETTLE_TIMEOUT_MS}.
+ */
+async function waitForDeclaredChildSettlement(feed: NotificationSubscription, sessionsRoot: string): Promise<void> {
+  const deadline = Date.now() + DECLARED_CHILD_SETTLE_TIMEOUT_MS
+  let started = 0
+  let finished = 0
+  while (true) {
+    if (Date.now() >= deadline) {
+      throw new Error(`declared children did not settle within ${DECLARED_CHILD_SETTLE_TIMEOUT_MS}ms (started=${started}, finished=${finished})`)
+    }
+    const notification = await Promise.race([
+      feed.next(),
+      new Promise<undefined>((resolve) => { setTimeout(resolve, Math.min(1_000, deadline - Date.now())) }),
+    ])
+    if (notification === undefined) {
+      // No edge in the idle window: nothing started means nothing to wait for; anything started
+      // that has not finished keeps waiting until the deadline.
+      if (started === 0) return
+      if (finished >= started) break
+      continue
+    }
+    if (notification.method === 'subagent.started') started += 1
+    else if (notification.method === 'subagent.finished') finished += 1
+    if (started > 0 && finished >= started) break
+  }
+  // The notice is appended by the parent Agent after the finish edge; waiting for the persisted
+  // line keeps the recorded session independent of the close ordering.
+  while (Date.now() < deadline) {
+    if (existsSync(sessionsRoot)) {
+      let notices = 0
+      for (const path of await jsonlFiles(sessionsRoot)) {
+        const content = await readFile(path, 'utf8')
+        notices += content.split('"kind":"subagent-settled"').length - 1
+      }
+      if (notices >= finished) break
+    }
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+  // Delivery acknowledgments settle after the request that carried them, so the recorded tail
+  // depends on whether that callback lands before close; a quiet log makes the tail deterministic.
+  let lastBytes = -1
+  let stableSince = Date.now()
+  while (Date.now() < deadline) {
+    const bytes = await sessionLogBytes(sessionsRoot)
+    if (bytes !== lastBytes) {
+      lastBytes = bytes
+      stableSince = Date.now()
+    } else if (Date.now() - stableSince >= 1_000) return
+    await new Promise(resolve => setTimeout(resolve, 100))
+  }
+  throw new Error(`${sessionsRoot}: the session log did not quiesce within ${DECLARED_CHILD_SETTLE_TIMEOUT_MS}ms`)
+}
+
+/**
+ * Total persisted byte count of a sessions directory's current logs.
+ * @param sessionsRoot - sessions directory to measure.
+ * @returns summed byte size of every JSONL log under it.
+ */
+async function sessionLogBytes(sessionsRoot: string): Promise<number> {
+  if (!existsSync(sessionsRoot)) return 0
+  let bytes = 0
+  for (const path of await jsonlFiles(sessionsRoot)) bytes += (await stat(path)).size
+  return bytes
+}
+
 async function waitForChildSettlement(sessionsRoot: string): Promise<void> {
   const deadline = Date.now() + CHILD_SETTLE_TIMEOUT_MS
   while (Date.now() < deadline) {
@@ -655,6 +731,9 @@ async function runScenario(scenario: CorpusScenario): Promise<{
     const sessionId = 'fixture-root-session'
     const liveSessions: (string | undefined)[] = [sessionId]
     await harness.start()
+    const settlementFeed = scenario.manifest.settleChildren === true
+      ? harness.client.subscribe(notification => notification.method === 'subagent.started' || notification.method === 'subagent.finished')
+      : undefined
     const subscription = harness.client.subscribeSessionTree(sessionId)
     const observe = (notification: HarnessNotification): void => {
       observedMethods.add(notification.method)
@@ -700,6 +779,10 @@ async function runScenario(scenario: CorpusScenario): Promise<{
       }
     } finally {
       subscription.close()
+    }
+    if (settlementFeed !== undefined) {
+      await waitForDeclaredChildSettlement(settlementFeed, sessionsRoot)
+      settlementFeed.close()
     }
     if (childSessionsRoot !== undefined) await waitForChildSettlement(childSessionsRoot)
     await harness.close()
