@@ -68,5 +68,40 @@ pnpm run build
 pnpm exec tsc -b tsconfig.host.json && pnpm exec tsc -b tsconfig.client.json
 pnpm run test:docs
 QILIN_SNAPSHOT=replay pnpm run test:snapshot
-QILIN_COVERAGE_PARTITIONS=2 npm_execpath="$(command -v pnpm)" pnpm exec tsx scripts/run-gates.ts ci-coverage
+pnpm run test:web
+pnpm run test:coverage
 ```
+
+## 四、执行状态（2026-11-01，收口轮次）
+
+### 已收口
+
+- **E 快照 lane 构建前置**：新增 `scripts/snapshot-lane-build-freshness.ts`（含 7 例单测），`test:snapshot` / `test:snapshot:record` / `test:snapshot:refresh` 三脚本前置该守卫。判据是构建记录 `.qilin-build/client-build-environment.json` 与 `packages/**/src`、`apps/web/src` 的修改时间比较，源文件更新即报「build is stale」并指向 `pnpm run build`；`QILIN_SNAPSHOT_ALLOW_STALE_BUILD=1` 是显式逃生口。文档见 [testing.md](../docs/testing.md)。
+- **F Windows ACL 场景**：账本的「需要 Windows 环境验证」结论已过期——该场景的 workspace setup 只把平台中立的 skill 资产复制进 `.qilin/skills`，v5 fixture 已在树内。本机（macOS）`QILIN_SNAPSHOT=replay` 重放 `windows-acl-skill` 通过，corpus 门禁在删除条目后全绿；`PENDING_V4_SCENARIOS` 机制一并移除（无条目即不可达死码），v4 生成代仍按既有规则保留在目录中。
+- **H 发布配套（文档面）**：`docs/development.md` 不再复述 pnpm 具体版本（改指 `packageManager` 字段，原写法停在 11.7.0 已漂移）；macOS 签名补充「安全时间戳走 Apple 时间戳服务，只经本地代理出网的主机须为打包进程导出 `HTTP_PROXY`/`HTTPS_PROXY`，签名缓存前两轮预热，未签名包仅作对照」。
+- **H vendor 族**：`git log v3.1.8-rc.1..HEAD -- vendor/` 为空，本轮无 vendor 变更，故不出 vendor 批次；vendor 独立发布仍按 `release:vendor` 先于 qilin。
+
+### 决策记录
+
+- **A2 message-quotes 走「本地引文渲染」（路径 2）**：不引入上游 user-text registry 管线（会换掉 QiLin 现行 `projectUserText` 主路径，与「本地特性不回退」红线冲突）。引用选择/高亮/跳转/复制在现行渲染上增量实现，契约由新包承载。
+- **A1 official-bundles 走契约包（路径 B）**：ON_DEMAND 徽标经核实本就由 Host 派生下发、客户端无第二份名单；真正的缺口是 `EXTENSION_BUNDLES`/`MORE_BUNDLES`/`EXPERIMENTAL_BUNDLES` 在 `ui-plugin-manager` 里手写 + 用 `startsWith('@qilin-agent/experimental-')` 猜徽标。新增 `packages/util/official-bundles` 作为单一来源，Host 与 client 同源消费（client 只依赖 util 包，不越 client→Host 红线）。
+- **A3 插件清单 tab：删除**：`settings.plugins.tab` 自「内置插件」入口移除后无宿主，整包 `ui-settings-plugin-inventory` 不可达；按「删 tab 账本与死代码」处置，设置页能力由 `ui-plugin-manager` 承担。
+- **B2 代码行级高亮**：上游基线无此能力，按本地特性实现（CodeBlock hover/聚焦整行高亮，不做持久选中）；上游 `dbf7d54a18` 是侧栏文档预览的跳转行高亮，属另一个面，登记为后续项。
+- **B4 窄屏回流**：上游 client 侧唯一的宽度断点在 `ui-theme` 三个设置行的 `@media (max-width: 767px)`；`ui-sidebar` 的「窄屏」侧面是 9 处 `@media (hover: hover)`。
+
+### 本轮落地（代码面）
+
+- **A1**：新增 `packages/util/official-bundles`（HIDDEN/EXTENSION/MORE/EXPERIMENTAL/ON_DEMAND + 三个判定），app-boot 改为 re-export 并加「生成目录名单 == ON_DEMAND 名单」漂移守卫；ui-plugin-manager 删掉三份手写清单与包名前缀猜测，改读共享包。客户端通过 `INLINE_SAFE` 内联该纯数据包（不申请 `qilin.client.external`），Host 侧在 `DUPLICATE_SAFE_PACKAGES` 登记（不新增 `SAFE_HOST_DEPENDENCY_EXPORTS` 例外）。
+- **A2**：引文能力落在 `ui-primitives`（`quote-text.ts` 的扫描/解码/来源 token/插入序列化 + `QuotePreview`），`ui-chat` 用户气泡接入渲染、复制、跳转；新增 `apps/web/tests/user-quote.e2e.ts`。原计划的 `packages/session/message-quotes` **未入树**：它是 session 平面包却反向依赖 client 包，且零消费者，属分层错误，其中两项能力已并入 ui-primitives。
+- **A3**：删除整包 `ui-settings-plugin-inventory` 与 `settings.plugins.tab` slot、web-app 的组合行与依赖、`PROTECTED_PLUGINS` 死条目，文档成对更新，生成物重生成。
+- **B**：dockkit 中键关标签（停靠 chip 与浮窗标题双承载，含菜单门户守卫）、CodeBlock 行级悬停高亮（只改背景，减少动效下取消过渡，键盘仍只有 `pre` 一个停靠点）、侧栏间距档位对齐（外距 12→8px、新增 row-padding/label-gap/paint-inset、hover 收进 `@media (hover: hover)`）、ui-theme 三处窄屏断点、PWA 三枚自绘 PNG 图标 + manifest 六字段。
+- **C**：`ui-workspace` 的 grouped tree 与 flat list 切到共享 `AnimatedRows`（`data-row-key`、`ready`、`resetKey`、`watermarkMotionKey`），删除本地 `@keyframes row-in`；新增共享 `motion.ts`（`prefersReducedMotion()`）收敛两处重复的 matchMedia 判断；顺带修复 `.sessionOverflowButton` 读取从未发布的 `--qilin-workspace-indent`（改为已发布的 `--dsh-workspace-indent`，子级 Show more 恢复 12px/级缩进）。
+- **D**：`flushSettlementNotices` 有界幂等 flush + closing 批次；headless runner 恢复静默收敛循环（`settlementDeadlineMs`/`settlementMaxTurns` 两个 Config 界，超界 warn 未读数）；SDK shutdown 在 drainDescendants 之前 flush。
+
+### 已知红与下一版项
+
+- **D 引发的 fixture 缺口**：行为变化使 6 个 `recording: authored` 场景与 `advanced-toolchain`/`advanced-toolchain-runtime` 的 replay 需要新的模型响应（`llm-replay: script exhausted`）。6 个 authored 场景按 authored 手写流程补「一个 closure turn」处理；两个 advanced-toolchain 场景需要人工重写。
+- **`session/subagent-multi`**：`sessionFormat.version: 0` 且是 corpus 里 v0 `multi-hop` 与 `shipped-profile` 覆盖的唯一提供者，按「声明即冻结」不动它，本轮为已知红。下一版二选一：把两项 coverage 迁到受控迁移场景，或新增一个当前格式的并行场景承担行为回放。
+- **`session/subagent-spawn-in-process` 抖动**：重录后的 fixture 存在约 1/12 概率的顺序竞态（子代理 `send_message` 的 `agent/inbox/spliced` 与父 `step/start` 先后），属既有 live 录制竞态而非 flush 引入；本轮登记为 known-flaky，下一版在归一化层稳定该事件对顺序。
+- **H 的 pnpm 跟随升级**：稳定线当前为 `12.16.1`（rc.3 为 11.23.0）；升级需同步 `packageManager`、根 devDependency、`apps/desktop` 与 `native/system` pin 并重生成 `pnpm-lock.yaml`，最后跑 `pnpm run build` 与 `test:web` 复验。
+- **G**：浏览器 lane 的剩余红按「期望漂移 / 产品缺陷 / 环境」三类处置；环境类（嵌套 `sandbox-exec`、`posix_openpt` 被宿主沙箱拒绝）需在非沙箱宿主复跑。

@@ -3340,6 +3340,13 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'whether work was joined; hosts recheck parent idle after true.',
       },
       {
+        signature: 'async flushSettlementNotices(parent: Agent, options: SettlementFlushOptions): Promise<SettlementFlushReport>',
+        description: 'Flush the settlement notices a closing host still owes one exact live parent.\n\nOne bounded pass joins resident descendant settlement and, when notices are queued for the parent, opens exactly one closure turn that claims the whole batch as one step, so batch size adds no turns. The call declares closure for that parent: a notice arriving from then on waits for a flush batch instead of joining the parent\'s own turn, so the recorded order follows delivery order rather than which turn happened to be running. A pass that cannot read its batch publishes the notices into the parent\'s inbox before it returns, so a later process still reads them. The deadline and optional cancellation bound the wait, not the notice count: an expired pass reports the notices it left unread, and callers report that number rather than dropping it.\n\nIdempotent per parent — concurrent hosts share one pass — and immediate when the parent has no resident descendant and no queued notice.',
+        parameters: [{ name: 'parent', description: 'exact live parent whose host is closing.' }, { name: 'options', description: 'wall-clock budget and optional caller cancellation.' }],
+        returns: 'what the pass read, and any notice it left unread.',
+        throws: ['{TypeError} when the deadline is not a positive safe integer.'],
+      },
+      {
         signature: 'async awaitStopped(childId: SessionId): Promise<void>',
         description: 'Await one child\'s teardown and final Session flush by durable id. Resolves immediately when the child is no longer resident (already stopped), shares one settlement across repeated awaits, and is safe after disposal; the caller owns any timeout.',
         parameters: [{ name: 'childId', description: 'durable child Session id.' }],
@@ -8340,6 +8347,18 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface SettingsSecretView {\n    path: string[];\n    set: boolean;\n}',
   },
   {
+    name: 'SettlementFlushOptions',
+    declaration: 'export interface SettlementFlushOptions {\n    readonly deadlineMs: number;\n    readonly signal?: AbortSignal;\n}',
+  },
+  {
+    name: 'SettlementFlushReport',
+    declaration: 'export interface SettlementFlushReport {\n    readonly woke: boolean;\n    readonly queued: number;\n    readonly unread: number;\n    readonly stopped?: SettlementFlushStop;\n}',
+  },
+  {
+    name: 'SettlementFlushStop',
+    declaration: 'export type SettlementFlushStop = \'deadline\' | \'cancelled\';',
+  },
+  {
     name: 'ShellExecRequest',
     declaration: 'export interface ShellExecRequest {\n    command: string;\n    workdir?: string | undefined;\n    timeoutMs?: number | undefined;\n    stdoutMaxBytes?: number | undefined;\n    signal?: AbortSignal | undefined;\n    stdin?: string | undefined;\n    env?: Record<string, string> | undefined;\n    qilinEnv?: QilinEnvironment | undefined;\n    sandboxPolicy?: SandboxExecutionPolicy | undefined;\n}',
   },
@@ -8637,7 +8656,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'SubagentRuntime',
-    declaration: 'export class SubagentRuntime extends TypertRemoteService {\n    static Config;\n    static inject;\n    constructor(ctx: Context, private config: Config);\n    resolveMaxDepth(configured?: number | \'provider-managed\'): number | undefined;\n    startActivation(spec: SubagentActivationSpec & {\n        readonly childId: SessionId;\n    }): Promise<SubagentActivation & {\n        readonly messageId: MessageId;\n    }>;\n    startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>;\n    async startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>;\n    async waitForChildren(parent: Agent): Promise<boolean>;\n    async awaitStopped(childId: SessionId): Promise<void>;\n    async sendMessage(sender: Agent, targetId: SessionId, content: ContentBlock[], options: SubagentSendMessageOptions): Promise<MessageId>;\n    interrupt(targetSessionId: SessionId, authority: SubagentInterruptAuthority): void;\n    async drainDescendants(parents: readonly Agent[]): Promise<void>;\n    async drainChildren(parent: Agent, childIds: readonly SessionId[]): Promise<void>;\n    listChildren(parentSessionId: SessionId, signal?: AbortSignal): Promise<SubagentCatalogEntry[]>;\n    listDescendants(rootSessionId: SessionId, signal?: AbortSignal): Promise<SubagentDescendantListEntry[]>;\n    @Remote(\'prompt\')\n    async prompt(request: SubagentPromptRequest, signal: AbortSignal): Promise<SubagentPromptReceipt>;\n    @Remote(\'interruptByParent\')\n    interruptByParent(childSessionId: SessionId, p /* …truncated — full shape in source */',
+    declaration: 'export class SubagentRuntime extends TypertRemoteService {\n    static Config;\n    static inject;\n    constructor(ctx: Context, private config: Config);\n    resolveMaxDepth(configured?: number | \'provider-managed\'): number | undefined;\n    startActivation(spec: SubagentActivationSpec & {\n        readonly childId: SessionId;\n    }): Promise<SubagentActivation & {\n        readonly messageId: MessageId;\n    }>;\n    startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>;\n    async startActivation(spec: SubagentActivationSpec): Promise<SubagentActivation>;\n    async waitForChildren(parent: Agent): Promise<boolean>;\n    async flushSettlementNotices(parent: Agent, options: SettlementFlushOptions): Promise<SettlementFlushReport>;\n    async awaitStopped(childId: SessionId): Promise<void>;\n    async sendMessage(sender: Agent, targetId: SessionId, content: ContentBlock[], options: SubagentSendMessageOptions): Promise<MessageId>;\n    interrupt(targetSessionId: SessionId, authority: SubagentInterruptAuthority): void;\n    async drainDescendants(parents: readonly Agent[]): Promise<void>;\n    async drainChildren(parent: Agent, childIds: readonly SessionId[]): Promise<void>;\n    listChildren(parentSessionId: SessionId, signal?: AbortSignal): Promise<SubagentCatalogEntry[]>;\n    listDescendants(rootSessionId: SessionId, signal?: AbortSignal): Promise<SubagentDescendantListEntry[]>;\n    @Remote(\'prompt\')\n    async prompt(request: SubagentPromptRequest, signal: AbortSignal): P /* …truncated — full shape in source */',
   },
   {
     name: 'SubagentSendMessageOptions',

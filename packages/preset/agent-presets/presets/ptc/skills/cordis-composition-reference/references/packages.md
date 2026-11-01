@@ -98,7 +98,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/client-ui-settings-general` | no | Settings shell plugin: the General section, shell trigger/header chrome content, and settings dictionaries |
 | `@qilin-agent/client-ui-settings-mcp` | no | MCP servers page in Web Settings: patch-layer CRUD over the mcpServers Remote |
 | `@qilin-agent/client-ui-settings-models` | yes | Models settings and shared product-onboarding dialogs over existing settings and credential joins |
-| `@qilin-agent/client-ui-settings-plugin-inventory` | no | Read-only Cordis Loader inventory tab in Web Plugins settings |
 | `@qilin-agent/client-ui-settings-plugins` | no | Plugins settings section with feature-owned tabs and configurable host-plane plugin cards |
 | `@qilin-agent/client-ui-settings-session-log` | no | General settings control for Session-log upload with DeepSeek API requests |
 | `@qilin-agent/client-ui-settings-skills` | no | Skills page in Web Settings: the current Session's skill catalog grouped by discovery source |
@@ -173,6 +172,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 
 | Package | Config | Description |
 |---|---|---|
+| `@qilin-agent/deliverable-file-references` | no | Shared model guidance for file links and deliverables across QiLin hosts |
 | `@qilin-agent/tool-present` | yes | Explicit workspace file delivery declarations for the QiLin |
 | `@qilin-agent/workspace-changes` | yes | Per-turn workspace file changes recorded from git working-tree snapshots and whole-file captures, with per-file comparisons, for the QiLin |
 
@@ -196,10 +196,15 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-client-ui-agent-team` | no | Web Agent Teams roster, task board, and teammate navigation |
 | `@qilin-agent/experimental-client-ui-claude-code-mods` | no | Web band above the prompt for Claude Code mods: draws each session's mod tree and sends button presses back to the bridge |
 | `@qilin-agent/experimental-client-ui-cot-translation` | yes | Optional machine translation of expanded reasoning, preserving original Session text |
+| `@qilin-agent/experimental-client-ui-forge` | yes | Sidebar panel for a Session's change requests, with a worktree option for new Sessions and its Host Remote |
+| `@qilin-agent/experimental-client-ui-stats` | no | Per-turn and per-step context, timing, cache, and tool-cost table contributed as an experimental conversation View |
 | `@qilin-agent/experimental-client-ui-voice-input` | no | Record speech and insert editable text into the conversation draft |
 | `@qilin-agent/experimental-computer-use-cua-driver-mcp` | yes | Experimental computer use through an installed Cua Driver MCP executable |
 | `@qilin-agent/experimental-computer-use-cua-driver-native` | no | Experimental computer-use provider embedding the Cua Driver native npm SDK |
 | `@qilin-agent/experimental-cua-macos` | yes | macOS native provider for shared Computer Use application and window objects |
+| `@qilin-agent/experimental-forge` | yes | Provider-neutral change request registry with shared status polling |
+| `@qilin-agent/experimental-forge-github` | yes | GitHub provider for the experimental forge registry, read through the GitHub CLI on the host |
+| `@qilin-agent/experimental-forge-session` | yes | Binds change requests to the Session that created, pushed, or tracked them |
 | `@qilin-agent/experimental-hooks-claude-code` | yes | Bridge plugin: run a Claude Code hooks.json / settings hook config on the QiLin interception seams |
 | `@qilin-agent/experimental-hooks-codex` | yes | Bridge plugin: run a Codex hooks.json hook config on the QiLin interception seams |
 | `@qilin-agent/experimental-inspector` | yes | Experimental cross-realm CDP hub for Host debugging and Client Runtime inspection |

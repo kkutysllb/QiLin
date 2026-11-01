@@ -1735,6 +1735,9 @@ importers:
       '@qilin-agent/dsh-compat':
         specifier: workspace:*
         version: link:../../util/dsh-compat
+      '@qilin-agent/official-bundles':
+        specifier: workspace:*
+        version: link:../../util/official-bundles
       '@qilin-agent/package-manifest':
         specifier: workspace:*
         version: link:../../util/package-manifest
@@ -2665,9 +2668,6 @@ importers:
       '@qilin-agent/client-ui-settings-models':
         specifier: workspace:*
         version: link:../../client/ui-settings-models
-      '@qilin-agent/client-ui-settings-plugin-inventory':
-        specifier: workspace:*
-        version: link:../../client/ui-settings-plugin-inventory
       '@qilin-agent/client-ui-settings-plugins':
         specifier: workspace:*
         version: link:../../client/ui-settings-plugins
@@ -4645,6 +4645,9 @@ importers:
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+      '@qilin-agent/official-bundles':
+        specifier: workspace:*
+        version: link:../../util/official-bundles
       '@qilin-agent/package-manifest':
         specifier: workspace:*
         version: link:../../util/package-manifest
@@ -5218,54 +5221,6 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.3.1
-
-  packages/client/ui-settings-plugin-inventory:
-    devDependencies:
-      '@qilin-agent/agent-presets':
-        specifier: workspace:*
-        version: link:../../preset/agent-presets
-      '@qilin-agent/api-remotes':
-        specifier: workspace:*
-        version: link:../../api/remotes
-      '@qilin-agent/client-locale':
-        specifier: workspace:*
-        version: link:../locale
-      '@qilin-agent/client-modules':
-        specifier: workspace:*
-        version: link:../modules
-      '@qilin-agent/client-store':
-        specifier: workspace:*
-        version: link:../store
-      '@qilin-agent/client-test-runtime':
-        specifier: workspace:*
-        version: link:../../test-support/client-runtime
-      '@qilin-agent/client-ui-primitives':
-        specifier: workspace:*
-        version: link:../ui-primitives
-      '@qilin-agent/client-ui-renderer':
-        specifier: workspace:*
-        version: link:../ui-renderer
-      '@qilin-agent/client-ui-settings':
-        specifier: workspace:*
-        version: link:../ui-settings
-      '@qilin-agent/client-ui-slots':
-        specifier: workspace:*
-        version: link:../ui-slots
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@testing-library/react':
-        specifier: ^16.1.0
-        version: 16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/react':
-        specifier: ~18.3.1
-        version: 18.3.31
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
 
   packages/client/ui-settings-plugins:
     devDependencies:
@@ -15269,9 +15224,6 @@ importers:
       '@qilin-agent/client-ui-settings-models':
         specifier: workspace:*
         version: link:../../client/ui-settings-models
-      '@qilin-agent/client-ui-settings-plugin-inventory':
-        specifier: workspace:*
-        version: link:../../client/ui-settings-plugin-inventory
       '@qilin-agent/client-ui-settings-plugins':
         specifier: workspace:*
         version: link:../../client/ui-settings-plugins
@@ -15745,6 +15697,12 @@ importers:
         version: link:../../../vendor/cordis
 
   packages/util/native-command:
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
+  packages/util/official-bundles:
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~
