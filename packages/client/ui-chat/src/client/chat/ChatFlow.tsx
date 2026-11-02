@@ -56,10 +56,11 @@ export const ChatFlow = memo(function ChatFlow({
     const recordTurn = Number(focusRecordKey.slice(0, focusRecordKey.indexOf(':')))
     // Same-key wrappers can coexist while the regroup swaps a row between
     // groupings, so every wrapper carrying the recorded key takes part.
+    const recordedRows = (): HTMLElement[] => [...document.querySelectorAll<HTMLElement>('[data-chat-node-key]')]
+      .filter(element => element.dataset.chatNodeKey === focusedNode)
     const attempt = (): void => {
       const active = document.activeElement
-      const rows = [...document.querySelectorAll<HTMLElement>('[data-chat-node-key]')]
-        .filter(element => element.dataset.chatNodeKey === focusedNode)
+      const rows = recordedRows()
       if (active !== null && active !== document.body) {
         // Focus still standing inside a recorded row keeps the record for the
         // regroup that follows; anywhere else is the reader moving on.
@@ -77,11 +78,23 @@ export const ChatFlow = memo(function ChatFlow({
         }
       }
     }
+    // A reader focusing another control moves on in that instant. Waiting for the
+    // next DOM change would read that control's own removal as a dropped regroup
+    // and hand focus back to the recorded row, scrolling the transcript away.
+    const consumeOutside = (event: FocusEvent): void => {
+      const target = event.target
+      if (!(target instanceof Node) || recordedRows().some(row => row.contains(target))) return
+      actions.consumeTurnProcessFocus(recordTurn)
+    }
     attempt()
+    document.addEventListener('focusin', consumeOutside, true)
     const observer = new MutationObserver(() => { attempt() })
     observer.observe(document.body, { childList: true, subtree: true })
     restoreObserverRef.current = observer
-    return () => { observer.disconnect() }
+    return () => {
+      document.removeEventListener('focusin', consumeOutside, true)
+      observer.disconnect()
+    }
   }, [focusRecordKey, focusedNode, recordTurnClosed, actions])
 
   const renderMessageImages = useCallback<RenderMessageImages>(

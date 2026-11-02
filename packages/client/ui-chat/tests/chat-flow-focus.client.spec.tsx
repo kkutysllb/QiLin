@@ -161,4 +161,26 @@ describe('ChatFlow focus restoration', () => {
     expect(entry).toMatchObject({ turn: 1, reader: true })
     expect(entry?.focusedNode).toBeUndefined()
   })
+
+  it('does not restore the recorded member after the reader focuses another control', async () => {
+    const { props, chat } = makeFlow()
+    const view = render(<ChatFlow {...(props as ComponentProps<typeof ChatFlow>)} />)
+    const row = view.container.querySelector<HTMLElement>('[data-chat-node-key="step:1"]')!
+    // The outside control exists before the record does, so focusing it
+    // mutates nothing: only the focus move itself can tell the flow the
+    // reader has moved on.
+    const outside = document.createElement('button')
+    view.container.appendChild(outside)
+    act(() => { within(row).getByTestId('row-control').focus() })
+    expect(chat.store.getSnapshot().turnProcesses[0]?.focusedNode).toBe('step:1')
+
+    act(() => { outside.focus() })
+    expect(chat.store.getSnapshot().turnProcesses[0]?.focusedNode).toBeUndefined()
+
+    // The control unmounts as follow resumes; no restoration may scroll the
+    // transcript back to the recorded row.
+    act(() => { outside.remove() })
+    await act(async () => { await new Promise((resolve) => { setTimeout(resolve, 0) }) })
+    expect(document.activeElement).toBe(document.body)
+  })
 })
