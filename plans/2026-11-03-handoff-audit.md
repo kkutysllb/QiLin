@@ -163,3 +163,21 @@
 语料清单用例「共享会话引用必须指向属主的选中代」在本轮之前即红：8 个 web 场景的 `snapshot.yml` 仍写死 `session.v3.jsonl`，而属主（`fresh-round-trip`、`live-interactions`、`feedback-command`）的选中代已是 v5；`seeded-history` 没有 v5，其借用方保持 v3。
 
 只改这 8 份清单的 `session.source`：运行时本就按角色取最高代，行为与金标不变——同一批 8 个用例在改动前后都是 4 文件失败 / 31 通过 / 5 失败，红项全是既有登记项。语料清单用例 3/3 通过。
+
+## 十一、删除内置推荐的 MCP 服务器（2026-11-03 已完成）
+
+- 决策：部署不再提供 MCP 服务器定义。设置页曾附带的 fetch / context7 / sequential-thinking / playwright 推荐目录整体删除；服务器一律由用户通过设置页或 home 层补丁文件自行配置。
+- 服务面：`@qilin-agent/mcp-servers` 只保留 `list`/`save`/`delete`/`setEnabled`；`addBuiltin`、快照 `builtins` 字段、推荐徽标、命令可用性探测与 subprocess 注入全部移除（peer/dev 依赖同步删除）。
+- 页面面：设置页保留手工编辑器与启停/删除；中英词典删掉逐服务器描述与推荐段落；子系统参考补一句「部署自身不提供任何服务器」。
+- 记录：新增 Agent Note `implemented/feature/2026-11-03-mcp-servers-user-configured`（中英 + 配对账本）。
+- 复跑：两个包 77 例通过、`pnpm run build` 绿、`test:docs` 21/21、`hygiene` 21/21。
+
+## 十二、E 档：pnpm 跟随稳定线（2026-11-03 已完成）
+
+- 四处 pin 升到 12.16.1：根 `packageManager`、根 devDependency、`apps/desktop`、`native/system`。
+- 锁文件由 pnpm 12.16.1 重新生成：它把自身的包管理器依赖写成第一个 YAML 文档（`packageManagerDependencies` + `@pnpm/exe.*` 平台条目），原锁内容作为第二个文档保留；`--frozen-lockfile` 通过。
+- 复跑：`pnpm install`、`pnpm run build`（439 客户端产物）、`test:docs` 21/21、`hygiene` 21/21 全绿。
+
+## 十三、C 档：web e2e 剩余家族（进行中）
+
+两名队员并行清理：散点断言家族与超时家族。结论与逐文件处置见 `.tmp/web-scatter-report.md` 与 `.tmp/web-timeout-report.md`；需 key 重录的 B 族与 D 档不在本批。
