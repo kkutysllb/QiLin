@@ -192,7 +192,9 @@
   - lifecycle-chrome：已转绿——`[data-follow-end]` 横向跟随标记已移除，改为断言运行中 Think 行渲染出流式推理文本。
 - workflow-run：已转绿——两处真实缺陷：① 成员行打开子会话硬编码 `mode: 'one-shot'`，与实际地址不符被持久层拒绝（「subagent mode does not match the supplied address」），改 `mode: 'unknown'` 由历史读取解析；② 窄版阶段标题的 42% 上限落在 `width: max-content` 包装器里没有确定包含块，长阶段名越过摘要，给阶段内容包装器补 `flex: 1 1 auto; width: auto; min-width: 0`。测试探针改到真正的标题 span。
 - chat-scroll-contract：6/7——准备步在窄版重新展开 rail 后转绿一例。剩余一例的实测证据：`Back to bottom` 落点 `scrollTop=10562`（正是内容底），但折叠留下的预留空间让 `scrollHeight` 比内容多 1510px；100ms 内一次归因于读者的采样用含预留空间的 `floor` 判底，得出「远离底部」并把 `followingTail` 置 false，预留空间此后按「读者在下方的空间」保留，距离一直是 1510。
-- 该例的修法需要动底栏跟随模型本身（让 `nearBottom`/采样按内容底而不是含预留空间的滚动底判断，或在跟随态下禁止重新预留），已试过三处局部改法（补偿时跟随重钉、回底前清预留、贴内容底时允许回收）均未通过该场景，全部回滚，留作专项。
+- 采纳「跳到最新后保持跟随」的决定后，专项尝试了 A（把 `floor` 拆成 `contentFloor`：跟随判定、采样、回底都用内容底，原始 `floor` 只用于写入钳制）。`ui-chat` 的 14 个 fold-follow 单测给出硬约束：跟随读者落地在**原始 `floor`**，预留空间随内容增长被 `reclaimBelow` 逐步裁掉（`spacer = top + height - contentHeight`），把回底目标改成内容底会让「落地即贴内容底、空间留在下方」与既有断言冲突。
+- 又试了「回底时请运行中的折叠批次改落尾部」（复用 `retarget`）——触发条件是批次已装好重定向，而该场景的 1510px 预留是跳跃**之后**、跟随已释放时才出现的，所以未命中。
+- 两次尝试连同此前三处局部改法全部回滚（`ui-chat` 801 例保持绿）。真正要修的是「跳跃之后、跟随态下谁来重新预留/重新落地」这条路径；`floor` 的五个消费点（采样判底、回底目标、写入钳制、分页补偿、折叠落地）需要一次整体设计，不宜再逐点试探。
 - 覆盖提示：video 预览在 web e2e 已无覆盖，建议补一条；普通 Context 的行几何断言随行隐藏作废，若要几何保护应针对可见的「工具变更 Context」行另写。
 - B 族 10 例仍需 DEEPSEEK_API_KEY 重录；D 档按决定不做。
 ## 十四、preview-boot 第一层：编译器缺口已修（2026-11-03）
