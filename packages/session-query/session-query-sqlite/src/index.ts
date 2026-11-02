@@ -41,6 +41,7 @@ import {
   type JournalMode,
   openSearchDatabase,
 } from './schema.ts'
+import { ReconcileStaging, reconcileStagingPath, type StagedSession } from './staging.ts'
 import {
   type NormalizedEventRequest,
   type NormalizedSessionRequest,
@@ -140,7 +141,8 @@ interface ObservedSession {
 interface ObservedPersistedSession {
   header: SessionHeader
   revision: SessionPersistenceRevision
-  loaded?: ObservedSession
+  /** The revision's documents are in this reconcile's staging file. */
+  staged?: true
 }
 
 interface PersistenceBinding {
@@ -237,6 +239,7 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
   private _tail: Promise<void> = Promise.resolve()
   private _closed = false
   private _closePromise: Promise<void> | undefined
+  private _reconcileStaging: ReconcileStaging | undefined
   private readonly _optionalPersistenceFiber: Fiber
 
   constructor(ctx: Context, config: Config) {
@@ -356,6 +359,8 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
         // Opening already closed a partially-created handle; disposal only waits.
       }
     }
+    await this._reconcileStaging?.dispose()
+    this._reconcileStaging = undefined
     this._db?.close()
     this._db = undefined
   }
@@ -411,6 +416,18 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
     signal: AbortSignal | undefined,
     scope?: SessionId,
   ): Promise<PersistenceBinding> {
+    try {
+      return await this._reconcileBody(signal, scope)
+    } finally {
+      await this.staging().dispose()
+    }
+  }
+
+  /** One reconcile attempt series; the caller owns this reconcile's staging lifetime. */
+  private async _reconcileBody(
+    signal: AbortSignal | undefined,
+    scope: SessionId | undefined,
+  ): Promise<PersistenceBinding> {
     assertNotAborted(signal)
     const db = this._requireDb()
     const persistedRows = db.prepare(
@@ -425,7 +442,7 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
     assertNotAborted(signal)
     const persistentChanges = observation.persistenceBinding.service === undefined
       ? []
-      : [...observation.persisted.values()].filter(entry => entry.loaded !== undefined)
+      : [...observation.persisted.values()].filter(entry => entry.staged === true)
     const persistentDeletes = observation.persistenceBinding.service === undefined
       ? []
       : persistedRows.filter(row => !observation.persisted.has(row.id as SessionId))
@@ -460,10 +477,16 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
         db.exec('BEGIN IMMEDIATE')
         began = true
         for (const row of persistentDeletes) this._deleteSession('persisted', row.id as SessionId)
-        for (const entry of persistentChanges) {
-          /* v8 ignore next -- observation loads every entry whose revision differs */
-          if (entry.loaded === undefined) throw new Error(`missing loaded revision for session "${entry.header.id}"`)
-          this._replacePersistedSession(entry.loaded, entry.revision, nextMainGeneration)
+        if (persistentChanges.length > 0) {
+          let applied = 0
+          for await (const record of this.staging().records()) {
+            this._replacePersistedSession(record, nextMainGeneration)
+            applied += 1
+          }
+          /* v8 ignore next -- staging holds exactly the observed changed sessions */
+          if (applied !== persistentChanges.length) {
+            throw new Error(`reconcile staged ${String(applied)} of ${String(persistentChanges.length)} changed sessions`)
+          }
         }
         if (persistentChanges.length > 0 || persistentDeletes.length > 0) {
           db.prepare('UPDATE search_state SET global_generation = ? WHERE singleton = 1').run(nextMainGeneration)
@@ -505,6 +528,7 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
   ): Promise<Observation> {
     for (let attempt = 0; attempt < STABLE_OBSERVATION_ATTEMPTS; attempt += 1) {
       assertNotAborted(signal)
+      await this.staging().reset()
       const persistenceBinding = this._persistenceBinding
       const persistence = persistenceBinding.service
       const initiallyLive = new Set(this.ctx.sessions.list().map(session => session.id))
@@ -530,13 +554,21 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
             pending.push(entry)
           }
           // Sequential by contract: an abort must stop issuing further reads,
-          // and one ignored abort must not let the next inspection start.
+          // and one ignored abort must not let the next inspection start. Each
+          // session's documents go straight to staging, so the corpus never
+          // accumulates in memory.
           for (const entry of pending) {
             assertNotAborted(signal)
             const loaded = await readColdSessionLog(persistence, entry.header.id, signal)
             assertNotAborted(signal)
             assertSessionHeadersCompatible(entry.header, loaded.header)
-            entry.loaded = observeSession(loaded.header, loaded.inheritedEventCount, loaded.events)
+            await this.staging().append({
+              header: structuredClone(loaded.header),
+              inheritedEventCount: loaded.inheritedEventCount,
+              revision: entry.revision,
+              documents: observeDocuments(loaded.header, loaded.events),
+            })
+            entry.staged = true
           }
           assertNotAborted(signal)
           const afterSnapshots = await persistence.list(listOptions)
@@ -575,6 +607,13 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
     )
   }
 
+  /** One reconcile's staging file, created on first use from the resolved index path. */
+  private staging(): ReconcileStaging {
+    return this._reconcileStaging ??= new ReconcileStaging(
+      reconcileStagingPath(this.config.path, this._instance),
+    )
+  }
+
   private _mainGeneration(): number {
     const row = this._requireDb().prepare(
       'SELECT global_generation FROM search_state WHERE singleton = 1',
@@ -593,27 +632,23 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
     }
   }
 
-  private _replacePersistedSession(
-    entry: ObservedSession,
-    revision: SessionPersistenceRevision,
-    generation: number,
-  ): void {
-    this._deleteSession('persisted', entry.header.id)
+  private _replacePersistedSession(record: StagedSession, generation: number): void {
+    this._deleteSession('persisted', record.header.id)
     const db = this._requireDb()
     db.prepare(`
       INSERT INTO persisted_sessions
         (id, version, created_at, cwd, parent_session, seed_length, delegation_depth, agent_preset, revision, generation)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
-      ...headerBindings(entry.header, entry.inheritedEventCount),
-      revision,
+      ...headerBindings(record.header, record.inheritedEventCount),
+      record.revision,
       generation,
     )
     const insert = db.prepare(`
       INSERT INTO persisted_docs (text, session_id, seq, type, time, surface, codepoint_length)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `)
-    for (const document of entry.documents) {
+    for (const document of record.documents) {
       const text = sanitizeFtsText(document.text)
       insert.run(
         text,
@@ -885,6 +920,21 @@ function selectedDocumentsParams(query: string, persistenceVisible: boolean): Ar
 function observeLive(session: Session): ObservedSession {
   // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
   return observeSession(session.header, session.inheritedEventCount, session.snapshotEvents())
+}
+
+/**
+ * Build one persisted session's search documents without the live fingerprint:
+ * persisted reconciliation never compares fingerprints, and hashing every log
+ * only costs a second full serialization of it.
+ * @param header - stored session header.
+ * @param events - complete stored log.
+ * @returns detached documents in ascending seq order.
+ */
+function observeDocuments(
+  header: SessionHeader,
+  events: readonly SessionEvent[],
+): readonly SessionEventSearchDocument[] {
+  return buildSessionEventSearchDocuments(header.id, events)
 }
 
 function observeSession(

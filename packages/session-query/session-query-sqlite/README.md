@@ -85,7 +85,7 @@ This section explains the design decisions behind the backend and points at the 
 The backend is built on one separation and three commitments:
 
 - **Derived index, never the source store.** The FTS rows live in a dedicated disposable database; the session-persistence database is never opened here.
-- **Live-preferred observation.** One serialized state machine compares persistence snapshot revisions, reads only new or changed logs through short-lived read handles, and reconciles in one transaction, so a search reflects the newest stable state. An event search reconciles only its target session, so one session's question never reads every changed log in the corpus.
+- **Live-preferred observation.** One serialized state machine compares persistence snapshot revisions, reads only new or changed logs through short-lived read handles, and reconciles in one transaction, so a search reflects the newest stable state. Each changed log's extracted documents go to a private staging file during observation and stream back into that transaction, so a full-corpus reconcile keeps one session's text in memory at a time instead of the whole corpus; the file is removed when the reconcile settles. An event search reconciles only its target session, so one session's question never reads every changed log in the corpus.
 - **Generation-bound cursors.** Every corpus change bumps a generation; cursors carry the generation they were created under and fail stale rather than returning a shifted page.
 - **Literal phrases as data.** Caller query text is quoted into one FTS5 phrase so query syntax stays inert, and reserved highlight markers are stripped from documents before indexing.
 

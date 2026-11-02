@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { createAssistantMessage, createUserMessage } from '@qilin-agent/llm'
 import type { ContextFormed } from '@qilin-agent/llm'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -1196,6 +1197,26 @@ describe('SQLite reconciliation and source lifecycle', () => {
     // A corpus search still indexes the remaining sessions.
     await ctx.sessionQuery.searchSessions({ query: 'other needle' })
     expect(Object.fromEntries(TestPersistence.reads)).toEqual({ target: 1, other: 1 })
+  })
+
+  it('reconciles a full corpus through a private staging file and removes it', async () => {
+    const path = await temporaryPath()
+    const first = header('staged-first')
+    const second = header('staged-second')
+    TestPersistence.reset([
+      { meta: first, events: messageEvents('staged needle one') },
+      { meta: second, events: messageEvents('staged needle two') },
+    ])
+    const ctx = await liveContext({ path })
+    await ctx.plugin(TestPersistence)
+    const result = await ctx.sessionQuery.searchSessions({ query: 'needle' })
+    expect(result.items.map(item => item.header.id).sort()).toEqual([first.id, second.id].sort())
+    // The changed logs were staged outside the index and the file is gone.
+    expect(existsSync(`${path}.staging`)).toBe(false)
+    expect(Object.fromEntries(TestPersistence.reads)).toEqual({ 'staged-first': 1, 'staged-second': 1 })
+    await ctx.sessionQuery.searchSessions({ query: 'needle' })
+    // The applied rows came from staging, so an unchanged corpus reads nothing.
+    expect(Object.fromEntries(TestPersistence.reads)).toEqual({ 'staged-first': 1, 'staged-second': 1 })
   })
 
   it('drops connection-local live overlays on reopen and retains persistent bases', async () => {
