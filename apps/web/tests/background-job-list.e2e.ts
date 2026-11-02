@@ -91,7 +91,8 @@ describe.skipIf(MODE === 'record')('web e2e: background job list', () => {
       agent,
     })
     const reported = started.content.map(block => block.type === 'text' ? block.text : '').join('')
-    const matched = /\bbash-\d+\b/.exec(reported)
+    // Registry ids are `<kind>-<16 uuid hex characters>`, kind `bash` here.
+    const matched = /\bbash-[0-9a-f]{16}\b/.exec(reported)
     if (matched === null) throw new Error(`background bash reported no job id: ${reported}`)
     jobId = JobId(matched[0])
 

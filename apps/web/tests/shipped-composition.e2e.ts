@@ -751,13 +751,16 @@ it('lets a preset producer reach the background-job registry', async () => {
 
     // The full round trip: the output a host-plane producer wrote is collected
     // through a preset-plane control, which is the linkage the realm severed.
+    // The registry mints `<kind>-<16 uuid hex characters>` ids, so the call
+    // forwards the id the start reported instead of a stale literal.
+    const startedText = started.content.map(block => block.type === 'text' ? block.text : '').join('')
     const collected = await ctx.tools.execute({
       signal,
       callId: ToolCallId('shipped-task-output'),
       name: RUN_CODE_NAME,
       arguments: {
         description: 'collect the background probe output',
-        code: "return (await tools.job_output({ job_id: 'bash-1', wait: true })).text",
+        code: `return (await tools.job_output({ job_id: ${JSON.stringify(startedText)}, wait: true })).text`,
       },
       agent: handle.agent,
     })
