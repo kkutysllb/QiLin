@@ -245,3 +245,15 @@
 - 复验（全部实跑）：`storage` + `session-projection-cache` 136 例、`api/session-controller` + `session` 3497 例、`pnpm run build`、`test:docs` 21/21、`doc-sync` 全绿；改动文件 oxlint 0 error。
 - 顺手修复的既存红项（与本改动无关，生成物/文档门禁要求）：`docs/tool-catalog.md`、`docs/persistence-catalog*`、`docs/persistence-schema.json` 的过期生成物；`release-age-excludes.ts` 与 `child-route.ts` 的 5 处导出 JSDoc 缺项。
 - 下一窗口：P0-2（搜索 reconcile 作用域/并发/流式插入）与 P0-3（客户端 source 表剪枝、窗口上限）仍未动；窗口上限的「裁头后 `hasMore`/未解析位置」语义已被否决，需要另设计。
+
+## 十七、客户端 E2：键控 source 与图片读取上限（2026-11-03 已完成）
+
+- 体检（只读）：`ui-chat` 的 `MutableChatNodeStore` 有 `sources` / `processSources` / `bottomSources` 三张按键表；`replace()` 只清 `byKey`，三张表不剪，删除的 Turn 行会永久留下 source 对象与条目（`published` 由随后的 `publish()` 置空，但对象与键不释放）。`ui-conversation` 的 `MutableLocationDataStore`（按 Turn/Step 懒建）同样只增不删。
+- E2 落地：`MutableChatSource` 增加 `idle` 与「最后一个订阅者离开」回调；`replace()` 对移除的键在这三张表里剪掉无订阅者的条目，`onIdle` 再补剪「移除后才失去最后一个消费者」的条目。存活行与仍有消费者的 source 保持原 identity。
+- E7 只落低风险的一项：`HistoricalImageCache` 增加读取并发上限（`maxConcurrentImageReads`，默认 3）。超过上限的附件读取按请求顺序排队，队列在 dispose 时拒绝；这压住「一页历史图片同时解码」的峰值。
+- 明确没做的三项与原因：
+  - 图片 LRU：`MessageImageLoader` 没有 release 契约，淘汰时撤销 blob URL 会让仍在 DOM 里（只是离屏）的 `<img>` 在重渲染/重挂载时永久损坏；要做需先给渲染组件加「失效后重新拉取」。
+  - `content-visibility: auto` + `contain-intrinsic-size`：从未渲染的行只能用 fallback 高度，滚动范围会随行渲染而变化，直接影响 `chat-scroll-contract` 的锚点/回底/翻页几何契约；需要先有测量窗口再上。
+  - sidebar retained view 上限：退役一个 view 会丢在途草稿/composer 状态。
+- E2 的第二半（位置数据 store 剪枝）也暂缓：`ConversationLocationIndex` 没有公开的数据 store 访问器，行为无法用测试观测；要做得先在 assembler 层给出可断言的表面。
+- 复验（全部实跑）：`ui-chat` + `ui-conversation` 1430 例；`pnpm run test:gui` 685 文件/10527 例；`tsc -b tsconfig.client.json`；`doc-sync` 45/45；改动文件 oxlint 0 error。
