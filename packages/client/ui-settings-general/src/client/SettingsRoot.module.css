@@ -65,6 +65,9 @@
      styles/scrollbar.css for the rebinding contract). */
   --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
   --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
+  /* Nested pages (the plugin manager) paint their sticky header backdrop with
+     the hosting surface so it never reads as a darker card on this panel. */
+  --qilin-page-surface: var(--qilin-alias-bg-layer-2);
 }
 
 /* Nav rail (figma .Setting-nav 501:29958): default 240 wide, pad (12,22,12,0),

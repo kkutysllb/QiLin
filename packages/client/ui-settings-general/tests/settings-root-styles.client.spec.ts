@@ -9,10 +9,14 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 const css = readFileSync(fileURLToPath(new URL('../src/client/SettingsRoot.module.css', import.meta.url)), 'utf8')
+const pluginCss = readFileSync(
+  fileURLToPath(new URL('../../ui-plugin-manager/src/client/PluginManagerPage.module.css', import.meta.url)),
+  'utf8',
+)
 
-/** Declarations of one exact selector, keyed by property. */
-function declarations(selector: string): Map<string, string> | undefined {
-  const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, ' ')
+/** Declarations of one exact selector in one sheet, keyed by property. */
+function declarations(selector: string, sheet = css): Map<string, string> | undefined {
+  const withoutComments = sheet.replace(/\/\*[\s\S]*?\*\//g, ' ')
   for (const [, selectorList = '', body = ''] of withoutComments.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     if (!selectorList.split(',').map(value => value.trim()).includes(selector)) continue
     const found = new Map<string, string>()
@@ -27,6 +31,15 @@ function declarations(selector: string): Map<string, string> | undefined {
 }
 
 describe('SettingsRoot.module.css overlay', () => {
+  it('hosts sticky nested page headers on the panel surface, not the app canvas', () => {
+    const panel = declarations('.panel')
+    expect(panel?.get('--qilin-page-surface')).toBe('var(--qilin-alias-bg-layer-2)')
+    // The plugin manager paints its sticky header backdrop from that surface;
+    // bg-base is the canvas behind the panel, so it read as a darker card.
+    const bar = declarations('.pageBar[data-natural]::before', pluginCss)
+    expect(bar?.get('background')).toBe('var(--qilin-page-surface, var(--qilin-alias-bg-base))')
+  })
+
   it('fills the viewport and clears the caption height a self-drawn titlebar publishes', () => {
     const overlay = declarations('.overlay')
     expect(overlay?.get('position')).toBe('fixed')

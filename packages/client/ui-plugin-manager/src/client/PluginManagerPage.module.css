@@ -131,7 +131,9 @@
   position: absolute;
   inset: 0 0 auto;
   height: var(--plugin-header-paint-height, var(--plugin-header-rest-height));
-  background: var(--qilin-alias-bg-base);
+  /* The sticky backdrop must match the surface this page is hosted on; the
+     settings panel supplies it, a standalone host falls back to the canvas. */
+  background: var(--qilin-page-surface, var(--qilin-alias-bg-base));
   pointer-events: none;
 }
 
