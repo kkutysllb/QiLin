@@ -133,3 +133,14 @@
 
 1. 恢复一次性本地激活能力（管理器加一条 one-shot 通道，`tool-subagent` 收回 `backgroundMode` 并把模式传进激活），7 处 yml 键重新生效；
 2. 承认 one-shot 由 provider 选择表达，删除 7 处死键、改掉 base 的错误注释，并把该用例改成「外部 provider 的一次性绑定」或改期其期望。
+
+### 执行结果（backgroundMode 走 1：恢复能力，2026-11-03 已完成）
+
+- 实现：激活规格新增 `mode`（默认 `continuable`）；管理器按 mode 冻结描述符、跳过可续专用的返回指引，并拒绝「预留子 id + 一次性」的组合；工具把 `backgroundMode` 传进激活，且只对可续模式预留子 id（一次性子 id 没有后续消息可寻址）。README 配置表中英补该字段并重录配对。
+- 组合面：7 处声明重新生效——基础组合的 fork 行回到一次性（与其注释一致），两个出厂预设显式声明可续。
+- 实测：`packages/subagent` 774 通过（含新增的两条一次性用例）、`packages/preset` 214 通过、host/client 两面 tsc 绿、整树 build 绿、`test:docs` 21/21、oxlint 0 error。
+- 仍红：`shipped-composition` 的「一次性 / 可续 / 冷恢复子代理」一例。一次性阶段已通过（描述符 `one-shot`、子代理结算即拆除），卡在随后的可续父 prompt——父会话 30s 内没有关闭回合。该阶段在此前版本里从未跑到（旧失败停在一次性断言），属独立问题，需要专项核对子代理结算通知与父回合关闭的次序。
+
+### B-2（background-job-list）执行结果
+
+两处按旧编号写死的断言已改：匹配正则收紧为 `bash-<16 位十六进制>`，输出采集改为转发启动结果报告的编号。在非沙箱宿主上该文件 3/3 通过；同一轮把 `shipped-composition` 里同样的写死 id 一并改掉，该文件 7/8 通过。
