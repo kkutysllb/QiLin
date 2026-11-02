@@ -1,0 +1,46 @@
+{
+  "patches": [
+    {
+      "at": 3,
+      "entry": {
+        "kind": "chunks",
+        "chunks": [
+          {
+            "type": "block-start",
+            "index": 0,
+            "blockType": "text"
+          },
+          {
+            "type": "text-delta",
+            "index": 0,
+            "text": "PARENT_DONE"
+          },
+          {
+            "type": "block-end",
+            "index": 0,
+            "block": {
+              "type": "text",
+              "text": "PARENT_DONE"
+            }
+          },
+          {
+            "type": "usage",
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "totalTokens": 0,
+              "cacheReadTokens": 0,
+              "reasoningTokens": 0
+            }
+          },
+          {
+            "type": "finish",
+            "reason": {
+              "kind": "stop"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

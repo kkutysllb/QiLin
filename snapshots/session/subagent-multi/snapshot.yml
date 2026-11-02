@@ -8,3 +8,7 @@ sessionFormat:
   coverage: [multi-hop, shipped-profile]
 header:
   class: default
+# The pinned v0 input stays frozen; the closing settlement flush adds one model
+# call after the recorded three, so its response lives in the sidecar.
+replay:
+  override: true
