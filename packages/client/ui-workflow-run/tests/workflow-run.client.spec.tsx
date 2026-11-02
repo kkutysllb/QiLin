@@ -861,10 +861,12 @@ describe('WorkflowRunPanel', () => {
     const openSession = vi.fn()
     render(<WorkflowRunPanel {...panelProps(data, listState(), openSession)} />)
     fireEvent.click(screen.getByRole('button', { name: '打开 worker' }))
+    // The row carries no subagent mode, so the address asks the history read to
+    // resolve it rather than naming a mode the durable address can reject.
     expect(openSession).toHaveBeenCalledWith({
       parentSessionId: PARENT_ID,
       childSessionId: CHILD_ID,
-      mode: 'one-shot',
+      mode: 'unknown',
     })
   })
 

@@ -136,12 +136,14 @@ describe.skipIf(MODE === 'record')('web e2e: durable workflow run in Chat', () =
       const disclosures = element.querySelectorAll('[data-disclosure-row]')
       const runHeader = disclosures[0]
       const phaseHeader = disclosures[1]
-      const phaseTitle = phaseHeader?.children.item(1) as HTMLElement | null
+      // The header stacks a content wrapper above its title, count, and summary
+      // spans; the title itself wears the phase-title class.
+      const phaseTitle = element.querySelector('[class*="phaseTitle"]')
       const phaseStatus = element.querySelector('[data-phase-status-text]')
+      const phaseStatusLeft = phaseStatus?.getBoundingClientRect().left ?? 0
       const originalPhaseTitle = phaseTitle?.textContent ?? ''
       if (phaseTitle !== null) phaseTitle.textContent = 'A phase name long enough to require ellipsis in the narrow layout'
       const phaseTitleRight = phaseTitle?.getBoundingClientRect().right ?? 0
-      const phaseStatusLeft = phaseStatus?.getBoundingClientRect().left ?? 0
       if (phaseTitle !== null) phaseTitle.textContent = originalPhaseTitle
       return {
         clientWidth: element.clientWidth,
@@ -166,6 +168,7 @@ describe.skipIf(MODE === 'record')('web e2e: durable workflow run in Chat', () =
     expect(darkNarrow.statusFontSize).toBe('13px')
     expect(darkNarrow.runHeight).toBe(32)
     expect(darkNarrow.phaseHeight).toBe(32)
+    expect(darkNarrow.phaseStatusLeft).toBeGreaterThan(0)
     expect(darkNarrow.phaseTitleRight).toBeLessThanOrEqual(darkNarrow.phaseStatusLeft)
     await page.locator('[data-workflow-run]').evaluate((element) => {
       (element as HTMLElement).style.removeProperty('width')

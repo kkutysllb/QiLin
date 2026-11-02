@@ -274,7 +274,9 @@ function MemberRow({ member, navigable, openSession, parentSessionId, t }: {
           openSession({
             parentSessionId,
             childSessionId: member.childId,
-            mode: 'one-shot',
+            // The workflow row carries no subagent mode; let the child history
+            // read resolve it instead of guessing a mode the address rejects.
+            mode: 'unknown',
           })
         }
         : undefined}
@@ -315,6 +317,7 @@ function PhaseSection({
         rowClassName={css.phaseHeader}
         leadingClassName={css.phaseLeading}
         titleClassName={css.phaseTitle}
+        contentClassName={css.phaseContent}
         collapsedContent={(
           <>
             <span className={css.separator} aria-hidden />
