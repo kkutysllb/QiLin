@@ -203,4 +203,5 @@
   - worker 内置：补 `node:https`（复用 http 假服务器）、`node:tls`（含 `TLSSocket` 与 `_handle._parentWrap` 占位）、`node:dns`、`node:http2`、`assert`、`node:diagnostics_channel`、`http.Agent`。
   - CJS 形状：Node 的 `events` 模块值就是 EventEmitter 类本身，静态模块改为类形状（`class X extends require('events')` 依赖它）。
   - pi-ai stub 补齐 `getAllBuiltinModels` 与 `builtinModels`，`llm-pi-ai` 的激活不再抛错。
-- 现状：preview-boot 的 console 错误清单已清空（不再有模块解析/激活错误），测试推进到等待首页 hero（240s 未见 `Configure later`）。下一步是 worker 内 boot 状态：确认 tree 是否激活、首页状态机停在哪一档。
+- 首页 hero 缺失的根因已定位：预览部署没有 profile 级设置服务——base 组合在缺少 `profileContext` 时禁用 `settings` 与 `config-editor`，Models 联表因此返回 `unavailable`，引导步骤自行 complete，`Configure later` 本就不会出现。测试改为断言宿主输入框这一真实首个交互面。
+- 现状：页面、tree active（837 模块、lowering 契约一致）、传输面、会话列表全通过；场景停在 `session/rename`——preview-showcase 的迁移观察失败（`historical session generation changed during migration`，`/qilin/home/sessions/.../preview-architecture-review/session.v3.jsonl`），属预览夹具的历史代与投影缓存配对问题，与模块层无关。
