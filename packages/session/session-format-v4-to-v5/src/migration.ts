@@ -6,10 +6,12 @@ import { assertReleasedV4Header } from '@qilin-agent/session-format-v3-to-v4'
 import { assertReleasedV5Header } from './validation.ts'
 
 /**
- * Shipped preset ids a released V4 writer could persist that the single-preset roster no longer ships.
- * `code` is absent by construction: the released V2-to-V3 edge renames it before V3.
+ * Shipped preset ids a released V4 writer could persist that the current shipped roster no longer carries.
+ * `standard` is absent because the roster restored it as a shipped preset; folding a live id would rewrite
+ * every historical session's selected mode. `code` is absent by construction: the released V2-to-V3 edge
+ * renames it before V3.
  */
-export const RETIRED_SHIPPED_PRESET_IDS: ReadonlySet<string> = new Set(['standard', 'cordis', 'minimal'])
+export const RETIRED_SHIPPED_PRESET_IDS: ReadonlySet<string> = new Set(['cordis', 'minimal'])
 
 /**
  * Fold one stored preset id onto the shipped roster survivor.

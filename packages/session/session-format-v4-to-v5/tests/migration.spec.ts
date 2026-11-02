@@ -34,9 +34,14 @@ const selected = (seq: number, agentPreset: string): SessionFormatEvent => ({
 })
 
 describe('V4 to V5 header migration', () => {
-  it.each(['standard', 'cordis', 'minimal'] as const)('folds retired shipped id %s onto ptc', (retired) => {
+  it.each(['cordis', 'minimal'] as const)('folds retired shipped id %s onto ptc', (retired) => {
     const migrated = sessionFormatV4ToV5.migrateHeader({ ...header, agentPreset: retired })
     expect(migrated).toEqual({ ...header, version: 5, agentPreset: 'ptc' })
+  })
+
+  it('keeps the shipped standard preset through the migration', () => {
+    const migrated = sessionFormatV4ToV5.migrateHeader({ ...header, agentPreset: 'standard' })
+    expect(migrated).toEqual({ ...header, version: 5, agentPreset: 'standard' })
   })
 
   it('keeps custom preset ids and absent values unchanged', () => {
@@ -52,7 +57,7 @@ describe('V4 to V5 header migration', () => {
 
 describe('foldRetiredPresetId', () => {
   it.each([
-    ['standard', 'ptc'], ['cordis', 'ptc'], ['minimal', 'ptc'],
+    ['standard', 'standard'], ['cordis', 'ptc'], ['minimal', 'ptc'],
     ['ptc', 'ptc'], ['my-preset', 'my-preset'],
   ])('maps %s to %s', (input, expected) => {
     expect(foldRetiredPresetId(input)).toBe(expected)
@@ -71,7 +76,7 @@ describe('V4 to V5 stage', () => {
     const input = structuredClone(rows)
     const { events } = migrate(rows)
     expect(events).toEqual([
-      selected(0, 'ptc'),
+      rows[0],
       fact,
       selected(2, 'ptc'),
       rows[3],
@@ -94,7 +99,7 @@ describe('V4 to V5 stage', () => {
     expect(stage.cut).toBe(1)
     expect(stage.events.map(event => event.type === 'agent-preset/selected'
       ? (event.data as { agentPreset: string }).agentPreset : event.type))
-      .toEqual(['ptc', 'session/end-seed', 'feedback/record'])
+      .toEqual(['standard', 'session/end-seed', 'feedback/record'])
   })
 
   it('leaves selection events without a stored preset id untouched', () => {
@@ -135,7 +140,7 @@ describe('V4 to V5 strict restoration through the assembled catalog', () => {
     expect(restored.header).toEqual({ ...header, version: 5, agentPreset: 'ptc' })
     expect(restored.events.filter(event => event.type === 'agent-preset/selected')
       .map(event => (event.data as { agentPreset: string }).agentPreset))
-      .toEqual(['ptc', 'ptc', 'my-preset'])
+      .toEqual(['standard', 'ptc', 'my-preset'])
     expect(restored.inheritedEventCount).toBe(0)
   })
 
