@@ -50,6 +50,31 @@ it('classifies the current workspace and shares only runtime patch bytes', () =>
   expect(readFileSync(join(repository, 'pnpm-lock.yaml'))).toEqual(before)
 })
 
+it('reads the project document from a multi-document pnpm lockfile', () => {
+  const { source, project } = fixture()
+  // pnpm writes its own package-manager dependencies as a leading document.
+  const hash = createHash('sha256').update(patch).digest('hex')
+  writeFileSync(join(source, 'pnpm-lock.yaml'), [
+    yaml.dump({ lockfileVersion: '9.0', importers: {}, packages: {} }),
+    yaml.dump({ patchedDependencies: { 'fixture@1.0.0': hash } }),
+  ].join('---\n'))
+  const plan = prepareRuntimePatches(project, source, { 'fixture@1.0.0': shared }, {})
+  expect(plan.patches).toHaveLength(1)
+})
+
+it('verifies patches from a multi-document resolved lockfile', () => {
+  const { source, project } = fixture()
+  const plan = prepareRuntimePatches(project, source, { 'fixture@1.0.0': shared }, {})
+  writeFileSync(join(project, 'pnpm-lock.yaml'), [
+    yaml.dump({ lockfileVersion: '9.0', importers: {} }),
+    yaml.dump({
+      patchedDependencies: { 'fixture@1.0.0': plan.patches[0]!.hash },
+      packages: { 'fixture@1.0.0': {} },
+    }),
+  ].join('---\n'))
+  expect(() => { verifyRuntimePatches(project, plan) }).not.toThrow()
+})
+
 it('does not infer version overrides from selected patches', () => {
   const { source, project } = fixture()
   const before = readFileSync(join(source, 'pnpm-workspace.yaml'))
@@ -130,7 +155,9 @@ it.each([false, true])('pnpm applies runtime-only bytes and rejects an inapplica
     const failure: unknown = await install.catch((error: unknown) => error)
     if (!(failure instanceof Error) || !('stdout' in failure)) throw new Error('Expected a captured pnpm failure')
     expect(failure).toHaveProperty('code', 1)
-    expect(failure.stdout).toMatch(/PATCH_FAILED/u)
+    // pnpm 12 reports the patch failure on stderr; older releases used stdout.
+    const output = `${String(failure.stdout)}${String((failure as { stderr?: string }).stderr ?? '')}`
+    expect(output).toMatch(/PATCH_FAILED/u)
   } else {
     await install
     verifyRuntimePatches(project, plan)
