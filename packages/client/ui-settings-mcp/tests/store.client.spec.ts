@@ -6,7 +6,7 @@ import { McpServersStore } from '../src/client/store.ts'
 /** One answer the fake Remote hands back. */
 type Answer = { ok: true; value: McpServersSnapshot } | { ok: false; error: { code: string; message: string } }
 
-const EMPTY: McpServersSnapshot = { patchPath: '/home/.qilin/cordis.patch.yml', servers: [], builtins: [] }
+const EMPTY: McpServersSnapshot = { patchPath: '/home/.qilin/cordis.patch.yml', servers: [] }
 
 function snapshot(overrides: Partial<McpServersSnapshot> = {}): McpServersSnapshot {
   return { ...EMPTY, ...overrides }
@@ -17,7 +17,6 @@ function bench(answers: {
   save?: (draft: unknown, signal?: AbortSignal) => Promise<Answer>
   delete?: (serverName: string, signal?: AbortSignal) => Promise<Answer>
   setEnabled?: (serverName: string, enabled: boolean, signal?: AbortSignal) => Promise<Answer>
-  addBuiltin?: (id: string, signal?: AbortSignal) => Promise<Answer>
 }) {
   const fallback = async (): Promise<Answer> => ({ ok: true, value: snapshot() })
   const mcpServers = {
@@ -25,7 +24,6 @@ function bench(answers: {
     save: vi.fn(answers.save ?? fallback),
     delete: vi.fn(answers.delete ?? fallback),
     setEnabled: vi.fn(answers.setEnabled ?? fallback),
-    addBuiltin: vi.fn(answers.addBuiltin ?? fallback),
   }
   const ctx = { remote: { mcpServers } } as unknown as ClientContext
   const store = new McpServersStore(ctx)
@@ -121,14 +119,12 @@ describe('McpServersStore', () => {
     })
   })
 
-  it('forwards removal, enablement, and recommended-server additions', async () => {
+  it('forwards removal and enablement', async () => {
     const { store, mcpServers } = bench({})
     await store.remove('fetch')
     await store.setEnabled('fetch', false)
-    await store.addBuiltin('context7')
     expect(mcpServers.delete).toHaveBeenCalledWith('fetch', expect.anything())
     expect(mcpServers.setEnabled).toHaveBeenCalledWith('fetch', false, expect.anything())
-    expect(mcpServers.addBuiltin).toHaveBeenCalledWith('context7', expect.anything())
   })
 
   it('marks the namespace a write is in flight for', async () => {

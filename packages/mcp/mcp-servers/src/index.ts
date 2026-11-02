@@ -1,7 +1,6 @@
 /**
  * MCP server settings service: reads, adds, edits, enables, disables, and
- * removes the mcp-client entries of the home-level user patch layer, and
- * offers the recommended server set with each command's availability.
+ * removes the mcp-client entries of the home-level user patch layer.
  *
  * Every mutation writes the patch layer the launcher already watches, so a
  * saved server joins the running tree through Cordis HMR without a restart.
@@ -11,9 +10,7 @@
  */
 
 import type { Context } from '@qilin-agent/kylin'
-import type {} from '@qilin-agent/subprocess'
 import { Remote, RemoteError, TypertRemoteService } from '@qilin-agent/typert-protocol'
-import { MCP_BUILTINS, builtinByName, type McpBuiltinDefinition } from './builtins.ts'
 import {
   McpServerNameError,
   UserPatchFile,
@@ -23,10 +20,9 @@ import {
   describeEntry,
   type UserPatchEntry,
 } from './patch-file.ts'
-import type { McpBuiltinView, McpServerDraft, McpServersSnapshot, McpServerView } from './types.ts'
+import type { McpServerDraft, McpServersSnapshot, McpServerView } from './types.ts'
 
 export type * from './types.ts'
-export { MCP_BUILTINS, type McpBuiltinDefinition } from './builtins.ts'
 
 /** One configured entry as the settings section lists it. */
 function serverView(entry: UserPatchEntry): McpServerView {
@@ -37,7 +33,6 @@ function serverView(entry: UserPatchEntry): McpServerView {
     transport: described.transport,
     detail: described.detail,
     enabled: entry.enabled,
-    builtin: builtinByName(entry.serverName)?.id ?? null,
     command: configString(entry.config, 'command', ''),
     args: configStringList(entry.config, 'args'),
     cwd: configString(entry.config, 'cwd', ''),
@@ -77,30 +72,27 @@ function assertDraft(draft: McpServerDraft): void {
 
 /** Remote-only manager of the user patch layer's MCP server entries. */
 export class McpServers extends TypertRemoteService {
-  static inject = ['subprocess']
-
   private readonly file = new UserPatchFile()
 
   /**
-   * @param ctx - host context carrying the subprocess provider whose resolved
-   * PATH decides whether a recommended server can start.
+   * @param ctx - host context that owns this Remote service.
    */
   constructor(ctx: Context) {
     super(ctx, 'mcpServers')
   }
 
   /**
-   * Read every configured server and every recommended one.
-   * @param signal - caller cancellation, carried into command resolution.
+   * Read every configured server.
+   * @param signal - caller cancellation.
    * @returns the snapshot; its error field carries the reason when the patch layer is not addressable.
    */
   @Remote
   async list(signal: AbortSignal): Promise<McpServersSnapshot> {
-    const builtins = await this.builtinViews(signal)
+    signal.throwIfAborted()
     const read = await this.file.read()
     return read.error === undefined
-      ? this.snapshot(read.entries, builtins)
-      : this.snapshot([], builtins, read.error)
+      ? this.snapshot(read.entries)
+      : this.snapshot([], read.error)
   }
 
   /**
@@ -146,51 +138,6 @@ export class McpServers extends TypertRemoteService {
     return await this.list(signal)
   }
 
-  /**
-   * Add one recommended server if the layer does not declare it yet.
-   * @param id - recommended-server id from a previous snapshot.
-   * @param signal - caller cancellation.
-   * @returns the fresh snapshot after the write.
-   */
-  @Remote
-  async addBuiltin(id: string, signal: AbortSignal): Promise<McpServersSnapshot> {
-    signal.throwIfAborted()
-    const definition = MCP_BUILTINS.find(candidate => candidate.id === id)
-    if (definition === undefined) {
-      throw new RemoteError('mcp-server/unknown-builtin', 'no recommended server has id ' + id, { id })
-    }
-    await this.mutate(() => this.file.addBuiltin(definition))
-    return await this.list(signal)
-  }
-
-  /** Every recommended server, each with the availability of the command it would run. */
-  private async builtinViews(signal: AbortSignal): Promise<readonly McpBuiltinView[]> {
-    return await Promise.all(MCP_BUILTINS.map(async (definition): Promise<McpBuiltinView> => ({
-      id: definition.id,
-      name: definition.name,
-      command: definition.command,
-      args: [...definition.args],
-      available: await this.canResolve(definition, signal),
-    })))
-  }
-
-  /**
-   * Whether the harness's own subprocess provider resolves a recommended
-   * command. That provider is the one mcp-client resolves the same command
-   * with, so a positive answer is the entry's own start path.
-   */
-  private async canResolve(definition: McpBuiltinDefinition, signal: AbortSignal): Promise<boolean> {
-    try {
-      await this.ctx.subprocess.resolveExecutable(definition.command, undefined, signal)
-      return true
-    } catch {
-      // Resolution fails only for a command this machine cannot start, and
-      // cancellation must still reach the caller.
-      signal.throwIfAborted()
-      return false
-    }
-  }
-
   /** Run one patch-layer mutation, reporting a refused file or name as a wire refusal. */
   private async mutate(operation: () => Promise<unknown>): Promise<void> {
     try {
@@ -208,15 +155,10 @@ export class McpServers extends TypertRemoteService {
   }
 
   /** Assemble one snapshot, omitting the error field when the layer parsed. */
-  private snapshot(
-    entries: readonly UserPatchEntry[],
-    builtins: readonly McpBuiltinView[],
-    error?: string,
-  ): McpServersSnapshot {
+  private snapshot(entries: readonly UserPatchEntry[], error?: string): McpServersSnapshot {
     return {
       patchPath: this.file.path,
       servers: entries.map(serverView),
-      builtins,
       ...error === undefined ? {} : { error },
     }
   }

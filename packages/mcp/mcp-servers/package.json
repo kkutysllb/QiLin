@@ -53,13 +53,10 @@
     "zod": "^4.4.3"
   },
   "peerDependencies": {
-    "@qilin-agent/subprocess": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin-agent/subprocess": "workspace:*",
-    "@qilin-agent/subprocess-local": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   }

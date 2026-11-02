@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-11-03-mcp-servers-user-configured.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-11-03-mcp-servers-user-configured.md
+/agent-note-mcp-servers-are-user-configured-the-deployment-ships-no-recommended-set:
+  en: 04bee690464c6e25
+  zh: cdf5d9df6254bee1
+/agent-note-mcp-servers-are-user-configured-the-deployment-ships-no-recommended-set/problem:
+  en: a86ba7358096b03f
+  zh: 2c74790a0e9b692c
+/agent-note-mcp-servers-are-user-configured-the-deployment-ships-no-recommended-set/decision:
+  en: 1d2ea5311acb1a76
+  zh: 1d5ab837d535091b
+/agent-note-mcp-servers-are-user-configured-the-deployment-ships-no-recommended-set/alternatives-considered:
+  en: a6f522ee0374fd7f
+  zh: 847eda5cedce9698
+/agent-note-mcp-servers-are-user-configured-the-deployment-ships-no-recommended-set/consequences:
+  en: 3ea7c31ad5cc948b
+  zh: 2881cf7ba61e0537

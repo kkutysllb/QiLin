@@ -14,8 +14,6 @@ declare module '@qilin-agent/typert-protocol' {
     'mcp-server/missing-url': {}
     /** The submitted endpoint is not an http or https URL. */
     'mcp-server/invalid-url': {}
-    /** No recommended server carries the requested id. */
-    'mcp-server/unknown-builtin': { readonly id: string }
     /** The patch layer cannot be read or addressed, so no write was attempted. */
     'mcp-server/patch-file': {}
   }
@@ -39,8 +37,6 @@ export interface McpServerView {
   readonly detail: string
   /** Whether the entry is enabled in the patch layer. */
   readonly enabled: boolean
-  /** Recommended-server id this entry matches; null for a server the user configured. */
-  readonly builtin: string | null
   /** stdio: executable the entry runs; empty for a Streamable HTTP entry. */
   readonly command: string
   /** stdio: arguments in order; empty for a Streamable HTTP entry. */
@@ -53,28 +49,12 @@ export interface McpServerView {
   readonly failOnStartupError: boolean
 }
 
-/** One recommended MCP server the settings section can add. */
-export interface McpBuiltinView {
-  /** Stable catalog id. The settings section localizes the name and description from it. */
-  readonly id: string
-  /** `serverName` the added entry reserves. */
-  readonly name: string
-  /** Executable the entry runs. */
-  readonly command: string
-  /** Arguments passed to {@link McpBuiltinView.command}. */
-  readonly args: readonly string[]
-  /** Whether `command` resolves to an executable on the harness's own resolved `PATH`. */
-  readonly available: boolean
-}
-
 /** One complete read of the user patch layer. */
 export interface McpServersSnapshot {
   /** Absolute path of the patch layer this service reads and writes. */
   readonly patchPath: string
   /** Configured servers in patch-file order. */
   readonly servers: readonly McpServerView[]
-  /** Recommended servers, each carrying its current availability. */
-  readonly builtins: readonly McpBuiltinView[]
   /**
    * Why the patch layer cannot be read or addressed. Present means the file did
    * not parse or is not an entry list: no mutation is offered until the user

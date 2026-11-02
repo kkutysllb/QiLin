@@ -26,7 +26,6 @@ const SERVER = {
   transport: 'stdio' as const,
   detail: 'npx -y @upstash/context7-mcp',
   enabled: true,
-  builtin: 'context7',
   command: 'npx',
   args: ['-y', '@upstash/context7-mcp'],
   cwd: '',
@@ -42,17 +41,10 @@ const HTTP_SERVER = {
   transport: 'streamable-http' as const,
   detail: 'https://example.test/mcp',
   enabled: false,
-  builtin: null,
   command: '',
   args: [] as string[],
   url: 'https://example.test/mcp',
 }
-
-/** The recommended set: one runnable server and one whose command is missing. */
-const BUILTINS = [
-  { id: 'context7', name: 'context7', command: 'npx', args: ['-y', '@upstash/context7-mcp'], available: true },
-  { id: 'fetch', name: 'fetch', command: 'uvx', args: ['mcp-server-fetch'], available: false },
-]
 
 function pageState(overrides: Partial<McpPageState> = {}): McpPageState {
   return {
@@ -61,7 +53,6 @@ function pageState(overrides: Partial<McpPageState> = {}): McpPageState {
     layerError: null,
     patchPath: '/home/.qilin/cordis.patch.yml',
     servers: [],
-    builtins: BUILTINS,
     busy: null,
     ...overrides,
   }
@@ -74,7 +65,6 @@ function controller(landed = true) {
     save: vi.fn(async () => landed),
     remove: vi.fn(async () => landed),
     setEnabled: vi.fn(async () => landed),
-    addBuiltin: vi.fn(async () => landed),
   }
 }
 
@@ -104,20 +94,6 @@ describe('McpSection', () => {
     const bench = props(pageState())
     render(<McpSection {...bench.props} />)
     expect(bench.store.load).toHaveBeenCalledTimes(1)
-  })
-
-  it('refuses a recommended server whose command this machine does not resolve', () => {
-    const bench = props(pageState())
-    render(<McpSection {...bench.props} />)
-    expect(screen.getByRole('button', { name: 'Add fetch' })).toHaveProperty('disabled', true)
-    expect(screen.getByText('Needs uvx')).toBeDefined()
-  })
-
-  it('adds a recommended server in place', () => {
-    const bench = props(pageState())
-    render(<McpSection {...bench.props} />)
-    fireEvent.click(screen.getByRole('button', { name: 'Add context7' }))
-    expect(bench.store.addBuiltin).toHaveBeenCalledWith('context7')
   })
 
   it('submits one argument per line as a stdio draft', async () => {
@@ -193,7 +169,6 @@ describe('McpSection', () => {
     expect(screen.getByText('the file is not valid YAML')).toBeDefined()
     expect(screen.getByText('Patch file: /home/.qilin/cordis.patch.yml')).toBeDefined()
     expect(screen.getByRole('button', { name: 'Add server' })).toHaveProperty('disabled', true)
-    expect(screen.getByRole('button', { name: 'Add context7' })).toHaveProperty('disabled', true)
   })
 
   it('reports a failed call and retries through the store', () => {
@@ -230,11 +205,8 @@ describe('McpSection', () => {
     expect(screen.getByRole('button', { name: 'Add server' })).toBeDefined()
   })
 
-  it('marks a recommended server as being added and an open draft as being saved', () => {
-    const adding = props(pageState({ busy: 'context7' }))
-    const view = render(<McpSection {...adding.props} />)
-    expect(screen.getByRole('button', { name: 'Adding…' })).toBeDefined()
-    view.rerender(<McpSection {...props(pageState()).props} />)
+  it('marks an open draft as being saved', () => {
+    const view = render(<McpSection {...props(pageState()).props} />)
     fireEvent.click(screen.getByRole('button', { name: 'Add server' }))
     view.rerender(<McpSection {...props(pageState({ busy: 'draft' })).props} />)
     expect(screen.getByRole('button', { name: 'Saving…' })).toBeDefined()
@@ -287,7 +259,7 @@ describe('ui-settings-mcp browser plugin', () => {
     new RemoteService(ctx)
     const list = vi.fn(async (): Promise<{ ok: true; value: McpServersSnapshot }> => ({
       ok: true,
-      value: { patchPath: '/tmp/patch.yml', servers: [], builtins: [] },
+      value: { patchPath: '/tmp/patch.yml', servers: [] },
     }))
     ctx.provide('remote.mcpServers', { list })
     const slots = ctx.get('slots') as SlotRegistry

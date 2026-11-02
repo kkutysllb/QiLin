@@ -10,18 +10,9 @@ const contexts: Context[] = []
 let home = ''
 let previousHome: string | undefined
 
-/** A subprocess provider whose resolved PATH holds npx and nothing else. */
-const subprocess = {
-  resolveExecutable: async (command: string): Promise<string> => {
-    if (command === 'npx') return '/usr/local/bin/npx'
-    throw new Error('command ' + command + ' was not found on PATH')
-  },
-}
-
 async function harness(): Promise<McpServers> {
   const ctx = new Context()
   contexts.push(ctx)
-  ctx.provide('subprocess', subprocess as never)
   await ctx.plugin(McpServers)
   const service = ctx.get('mcpServers') as McpServers | undefined
   if (service === undefined) throw new Error('mcpServers did not activate')
@@ -52,43 +43,18 @@ describe('McpServers', () => {
       { method: 'save', invocation: { kind: 'direct' } },
       { method: 'delete', invocation: { kind: 'direct' } },
       { method: 'setEnabled', invocation: { kind: 'direct' } },
-      { method: 'addBuiltin', invocation: { kind: 'direct' } },
     ])
   })
 
-  it('reports an empty layer, its path, and each recommended command availability', async () => {
+  it('reports an empty layer and its path', async () => {
     const service = await harness()
     const snapshot = await service.list(signal)
     expect(snapshot.patchPath).toBe(join(home, 'cordis.patch.yml'))
     expect(snapshot.servers).toEqual([])
     expect(snapshot.error).toBeUndefined()
-    expect(snapshot.builtins).toEqual([
-      { id: 'fetch', name: 'fetch', command: 'uvx', args: ['mcp-server-fetch'], available: false },
-      {
-        id: 'context7',
-        name: 'context7',
-        command: 'npx',
-        args: ['-y', '@upstash/context7-mcp'],
-        available: true,
-      },
-      {
-        id: 'sequential-thinking',
-        name: 'sequential-thinking',
-        command: 'npx',
-        args: ['-y', '@modelcontextprotocol/server-sequential-thinking'],
-        available: true,
-      },
-      {
-        id: 'playwright',
-        name: 'playwright',
-        command: 'npx',
-        args: ['-y', '@playwright/mcp@latest'],
-        available: true,
-      },
-    ])
   })
 
-  it('saves a stdio server, then lists it with the recommended id it matches', async () => {
+  it('saves a stdio server, then lists it', async () => {
     const service = await harness()
     const saved = await service.save(
       { serverName: 'context7', transport: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] },
@@ -101,7 +67,6 @@ describe('McpServers', () => {
         transport: 'stdio',
         detail: 'npx -y @upstash/context7-mcp',
         enabled: true,
-        builtin: 'context7',
         command: 'npx',
         args: ['-y', '@upstash/context7-mcp'],
         cwd: '',
@@ -124,7 +89,6 @@ describe('McpServers', () => {
         transport: 'streamable-http',
         detail: 'https://example.test/mcp',
         enabled: true,
-        builtin: null,
         command: '',
         args: [],
         cwd: '',
@@ -145,32 +109,6 @@ describe('McpServers', () => {
     const service = await harness()
     await service.save({ serverName: 'added', transport: 'stdio', command: 'npx' }, signal)
     expect((await service.delete('added', signal)).servers).toEqual([])
-  })
-
-  it('adds a recommended server in place', async () => {
-    const service = await harness()
-    const added = await service.addBuiltin('fetch', signal)
-    expect(added.servers).toEqual([
-      {
-        serverName: 'fetch',
-        entryId: 'mcp-fetch',
-        transport: 'stdio',
-        detail: 'uvx mcp-server-fetch',
-        enabled: true,
-        builtin: 'fetch',
-        command: 'uvx',
-        args: ['mcp-server-fetch'],
-        cwd: '',
-        url: '',
-        failOnStartupError: false,
-      },
-    ])
-    expect((await service.addBuiltin('fetch', signal)).servers).toHaveLength(1)
-  })
-
-  it('refuses a recommended id it does not ship', async () => {
-    const service = await harness()
-    await expect(service.addBuiltin('nope', signal)).rejects.toThrow(/no recommended server has id nope/u)
   })
 
   it('refuses a namespace the Loader would reject', async () => {
@@ -207,7 +145,6 @@ describe('McpServers', () => {
       .rejects.toThrow(/is not a Loader patch list/u)
     await expect(service.delete('added', signal)).rejects.toThrow(/is not a Loader patch list/u)
     await expect(service.setEnabled('added', false, signal)).rejects.toThrow(/is not a Loader patch list/u)
-    await expect(service.addBuiltin('fetch', signal)).rejects.toThrow(/is not a Loader patch list/u)
   })
 
   it('reports a layer that does not parse', async () => {
@@ -242,6 +179,5 @@ describe('McpServers', () => {
       .rejects.toThrow()
     await expect(service.delete('added', cancelled.signal)).rejects.toThrow()
     await expect(service.setEnabled('added', false, cancelled.signal)).rejects.toThrow()
-    await expect(service.addBuiltin('fetch', cancelled.signal)).rejects.toThrow()
   })
 })

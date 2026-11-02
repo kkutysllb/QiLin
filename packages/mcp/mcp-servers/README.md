@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The settings page reads and writes the `mcp-client` entries of the home-level user patch layer through the `mcpServers` namespace. A snapshot lists every configured server with its transport, its command line or endpoint, its enablement, and the recommended server it matches, beside the recommended servers this deployment offers and whether each one's command resolves on the harness's own `PATH`. Saves, removals, enablement changes, and recommended-server additions rewrite only the patch nodes that address one server, so every other byte of the file — other patch entries, comments, quoting, and `!!js` expressions — survives unchanged.
+The settings page reads and writes the `mcp-client` entries of the home-level user patch layer through the `mcpServers` namespace. A snapshot lists every configured server with its transport, its command line or endpoint, and its enablement. Saves, removals, and enablement changes rewrite only the patch nodes that address one server, so every other byte of the file — other patch entries, comments, quoting, and `!!js` expressions — survives unchanged.
 
 ## Table of Contents
 
@@ -25,11 +25,11 @@ The settings page reads and writes the `mcp-client` entries of the home-level us
 <a id="use-this-package"></a>
 ## Use this package
 
-Call `mcpServers/list` to render the server list, and the four mutations — `save`, `delete`, `setEnabled`, `addBuiltin` — to change it. Each mutation returns a fresh snapshot, so a client never needs a second read to see what its own write produced.
+Call `mcpServers/list` to render the server list, and the three mutations — `save`, `delete`, `setEnabled` — to change it. Each mutation returns a fresh snapshot, so a client never needs a second read to see what its own write produced.
 
 ### What a snapshot contains
 
-Each configured row carries the `serverName` the entry reserves (which is also the middle segment of the server's model-facing tool names), the Loader entry id `mcp-<serverName>`, the transport, a display detail — the resolved command line for a stdio server, the endpoint for a Streamable HTTP one — whether the entry is enabled, and the recommended-server id it matches, or null for a server the user configured. The `builtins` rows name each recommended server with the command it would run and whether that command resolves to an executable through the harness's subprocess provider. `patchPath` names the file every write goes to.
+Each configured row carries the `serverName` the entry reserves (which is also the middle segment of the server's model-facing tool names), the Loader entry id `mcp-<serverName>`, the transport, a display detail — the resolved command line for a stdio server, the endpoint for a Streamable HTTP one — and whether the entry is enabled. `patchPath` names the file every write goes to.
 
 ### When the file cannot be addressed
 
@@ -55,7 +55,7 @@ Mutations are serialized inside the service: two settings actions cannot interle
 
 ### The service is Remote-only
 
-`McpServers` declares no same-process Kylin `Context` merge; the `mcpServers` namespace exists for the Remote client the settings page uses. It injects the subprocess provider because the availability probe must resolve a command exactly the way `@qilin-agent/mcp-client` will.
+`McpServers` declares no same-process Kylin `Context` merge; the `mcpServers` namespace exists for the Remote client the settings page uses.
 
 ## Further Exploration
 
@@ -85,11 +85,9 @@ None by itself. Enabling, disabling, adding, or removing a server changes the to
 
 These limits describe what this service cannot do and when it needs attention. They are current package constraints, not a comparison with other MCP server managers or a task backlog.
 
-- **Recommended servers are offered, never installed on their own** — the settings page adds one only when the user asks. A first boot writes nothing, so a machine without `uvx` or `npx` never carries a server that cannot start, and no deployment pays for servers its user did not choose.
 - **Environment and header maps are not editable from the settings page** — a save preserves existing `env`, `headers`, and `reconnect` nodes but cannot author new ones; adding a server that needs credentials means editing the patch file, which this service then leaves alone.
 - **A configured server cannot be renamed in place** — `serverName` is the entry's identity; changing it means adding a differently named server, which is deliberate because a rename would silently discard the old entry's credentials.
 - **Only the home-level layer is managed** — a profile's own `cordis.patch.yml` and any `--patch` overlay keep their entries read-only to this service; entries they declare still appear in the list, because reading walks the file the service writes and never the composed tree.
-- **The availability probe needs the subprocess capability** — the service injects it and stays pending without it, so a deployment that mounts no subprocess provider exposes no MCP settings section at all.
 - **Credentials written into a managed entry live in the patch file in clear text** — the file is owner-only, and no secret store is consulted.
 
 <a id="dev-note"></a>
@@ -102,7 +100,6 @@ This Dev Note is working context for maintainers: open design questions and dire
 
 - The entry id convention `mcp-<serverName>` is shared by this service and the settings page; a third consumer would make it a public contract.
 - `SERVER_NAME_PATTERN` is restated here from `@qilin-agent/mcp-client` because that package does not export it; exporting it would remove the duplicate.
-- Whether the recommended set should be materialized on first boot — the shape KCoder uses — is open. Offering them keeps opt-ins out of shipped defaults, at the cost of one click per server.
 - A read-only view of servers other layers insert would need the composed Loader tree rather than the file, which is a different service boundary.
 
 </details>

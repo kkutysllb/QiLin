@@ -9,17 +9,17 @@
   en: 72dc4bf7c04f259d
   zh: 5b5ddcd83cdd4386
 /qilin-agent-mcp-servers/summary:
-  en: 94fd739f7cdb0c3f
-  zh: 30e56e3d0b995936
+  en: 3a7a816240de058b
+  zh: 609ad91c426aa21a
 /qilin-agent-mcp-servers/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-mcp-servers/use-this-package:
-  en: 54aec62a0238d587
-  zh: 957aa94199799f5b
+  en: 391483ee10a303fe
+  zh: 4cd1ca5357c7df2b
 /qilin-agent-mcp-servers/use-this-package/what-a-snapshot-contains:
-  en: 5149b04240caa402
-  zh: 850987076950f02d
+  en: 33a99e92362bf4a8
+  zh: 7c9eeb75b48e64dc
 /qilin-agent-mcp-servers/use-this-package/when-the-file-cannot-be-addressed:
   en: 6865b612881fcb53
   zh: 22effebd55c8eeaa
@@ -39,8 +39,8 @@
   en: cfea5e8dc4679268
   zh: a7d178b94c7a93e0
 /qilin-agent-mcp-servers/understand-the-implementation/the-service-is-remote-only:
-  en: 7e627cdb18b27b88
-  zh: 090141e7dd626694
+  en: 191050ff7436b411
+  zh: f35ec3326cdb7e5b
 /qilin-agent-mcp-servers/further-exploration:
   en: 31ab3b0a6801a6b6
   zh: 29194bbbb14409b1
@@ -60,8 +60,8 @@
   en: a94187bcd3768063
   zh: 2753d79ebee88a68
 /qilin-agent-mcp-servers/known-limitations-and-deferred-work:
-  en: 53caec8ab125ba3b
-  zh: c23259726a0fb55e
+  en: 16feed74368b3f4b
+  zh: 15703ef68108d524
 /qilin-agent-mcp-servers/known-limitations-and-deferred-work/dev-note:
-  en: ecbee7ffcf70b8b0
-  zh: 8bdbb80fcc8e0d38
+  en: 2b7849528f3ba88b
+  zh: f6383ec3b90475cf

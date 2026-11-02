@@ -21,7 +21,6 @@ import { join } from 'node:path'
 import { writeFileAtomic } from '@qilin-agent/atomic-write'
 import { resolveQilinHome } from '@qilin-agent/home-paths'
 import { Document, isMap, isSeq, parseDocument, type YAMLMap, type YAMLSeq } from 'yaml'
-import type { McpBuiltinDefinition } from './builtins.ts'
 import type { McpServerDraft } from './types.ts'
 
 /**
@@ -308,29 +307,6 @@ export class UserPatchFile {
       if (enabled) located.node.delete('disabled')
       else located.node.set('disabled', true)
       await this.write(layer.document)
-    })
-  }
-
-  /**
-   * Add one recommended server if the layer does not declare it yet. An existing
-   * entry is left exactly as the user configured it.
-   * @param definition - the recommended server to add.
-   * @returns whether this call added an entry.
-   * @throws {UserPatchFileError} when the file is not an addressable patch list.
-   */
-  async addBuiltin(definition: McpBuiltinDefinition): Promise<boolean> {
-    return this.serialize(async () => {
-      const layer = await this.requiredLayer()
-      if (this.locate(layer, definition.name) !== undefined) return false
-      const draft: McpServerDraft = {
-        serverName: definition.name,
-        transport: 'stdio',
-        command: definition.command,
-        args: [...definition.args],
-      }
-      this.applyDraft(this.insert(layer, draft).node, draft)
-      await this.write(layer.document)
-      return true
     })
   }
 

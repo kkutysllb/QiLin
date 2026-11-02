@@ -11,9 +11,6 @@ export const en = {
   patchFile: 'Patch file',
   configured: 'Configured servers',
   configuredEmpty: 'No MCP server is configured yet.',
-  recommended: 'Recommended servers',
-  recommendedHint: 'Adding a server writes it to the patch layer; its tools appear once the entry is enabled and the layer reloads.',
-  badge: 'Recommended',
   edit: 'Edit',
   delete: 'Delete',
   enableNamed: 'Enable {name}',
@@ -24,8 +21,6 @@ export const en = {
   confirmDelete: 'Delete',
   cancel: 'Cancel',
   addServer: 'Add server',
-  addNamed: 'Add {name}',
-  adding: 'Adding…',
   editServer: 'Edit server',
   newServer: 'New server',
   save: 'Save',
@@ -44,11 +39,6 @@ export const en = {
   cwdHint: 'Optional; a blank field uses the harness directory.',
   url: 'Endpoint URL',
   failOnStartupError: 'Fail activation when the server cannot start',
-  unavailable: 'Needs {command}',
-  builtinFetch: 'Fetches a URL and converts the page to Markdown.',
-  builtinContext7: 'Looks up current library documentation.',
-  builtinSequentialThinking: 'Breaks a problem into revisable thinking steps.',
-  builtinPlaywright: 'Drives a browser for navigation and interaction.',
 }
 
 /** Chinese strings for the same key set. */
@@ -62,9 +52,6 @@ export const zh: Record<keyof typeof en, string> = {
   patchFile: '补丁文件',
   configured: '已配置服务器',
   configuredEmpty: '还没有配置任何 MCP 服务器。',
-  recommended: '推荐服务器',
-  recommendedHint: '添加服务器会把它写入补丁层；启用该条目并重载补丁层后，它的工具就会出现。',
-  badge: '推荐',
   edit: '编辑',
   delete: '删除',
   enableNamed: '启用 {name}',
@@ -75,8 +62,6 @@ export const zh: Record<keyof typeof en, string> = {
   confirmDelete: '删除',
   cancel: '取消',
   addServer: '添加服务器',
-  addNamed: '添加 {name}',
-  adding: '添加中…',
   editServer: '编辑服务器',
   newServer: '新建服务器',
   save: '保存',
@@ -95,11 +80,6 @@ export const zh: Record<keyof typeof en, string> = {
   cwdHint: '可选；留空则使用 harness 所在目录。',
   url: '端点 URL',
   failOnStartupError: '服务器无法启动时让激活失败',
-  unavailable: '需要 {command}',
-  builtinFetch: '抓取一个 URL 并把页面转成 Markdown。',
-  builtinContext7: '查询最新的库文档。',
-  builtinSequentialThinking: '把问题拆成可回溯的思考步骤。',
-  builtinPlaywright: '驱动浏览器完成导航与交互。',
 }
 
 /** Key set of one MCP servers page dictionary. */

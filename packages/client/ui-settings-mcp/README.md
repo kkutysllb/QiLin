@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The MCP servers page is one Settings section. It renders the servers the home-level user patch layer declares — each with its transport, command line or endpoint, and enablement — beside the recommended servers this deployment offers and whether each one's command resolves on the harness PATH. Adding, editing, enabling, disabling, and deleting all write through the \`mcpServers\` Remote, which rewrites only the patch nodes that address one server; the page never composes a patch file itself and never re-derives what the Host answered with.
+The MCP servers page is one Settings section. It renders the servers the home-level user patch layer declares — each with its transport, command line or endpoint, and enablement. Adding, editing, enabling, disabling, and deleting all write through the \`mcpServers\` Remote, which rewrites only the patch nodes that address one server; the page never composes a patch file itself and never re-derives what the Host answered with.
 
 ## Table of Contents
 
@@ -25,15 +25,11 @@ The MCP servers page is one Settings section. It renders the servers the home-le
 <a id="use-this-package"></a>
 ## Use this package
 
-Open Settings and choose MCP servers. The page loads one snapshot on mount and renders three areas: the configured servers, the recommended servers, and the editor for the server being added or changed.
+Open Settings and choose MCP servers. The page loads one snapshot on mount and renders two areas: the configured servers and the editor for the server being added or changed.
 
 ### Configured servers
 
-Each row names the server, its transport, and the command line or endpoint the entry runs, marks a server that matches one of the recommended definitions, and carries a switch, Edit, and Delete. The switch writes enablement immediately; Delete asks for confirmation first, because removing an entry is the one action the editor cannot undo. Edit opens the same form as adding, with the name field locked: a saved entry is addressed by its name, so changing it would silently drop that entry's settings.
-
-### Recommended servers
-
-Each recommended server shows the command it would run and, when the harness cannot resolve that command, says so instead of offering an unusable entry. Adding one writes it to the patch layer; its tools appear once the entry is enabled and the layer reloads, which the launcher does without a restart.
+Each row names the server, its transport, and the command line or endpoint the entry runs, and carries a switch, Edit, and Delete. The switch writes enablement immediately; Delete asks for confirmation first, because removing an entry is the one action the editor cannot undo. Edit opens the same form as adding, with the name field locked: a saved entry is addressed by its name, so changing it would silently drop that entry's settings.
 
 ### Refusals
 
@@ -81,7 +77,6 @@ These limits describe what this page cannot do and when it needs attention. They
 
 This Dev Note is working context for maintainers: open design questions and directions that are not decided. It is explicitly non-authoritative — shipped behavior, limits, and accepted rationale live in the sections above, the package code, and the linked Agent Notes.
 
-- Whether the recommended set should be materialized on first boot, the shape KCoder uses, is open on the Host side; this page only offers them.
 - Editing \`env\` and \`headers\` needs a key/value editor decision (repeated rows, a JSON block, or a file hand-off) before it can ship.
 - The page could subscribe to a patch-layer change event instead of reloading after its own writes; there is no such event today, so an edit made in a terminal shows up only after the next load.
 

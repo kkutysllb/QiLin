@@ -458,31 +458,3 @@ describe('UserPatchFile.setEnabled', () => {
     await expect(file.setEnabled('absent', false)).rejects.toThrow(/declares no MCP server named/u)
   })
 })
-
-describe('UserPatchFile.addBuiltin', () => {
-  const definition = { id: 'fetch', name: 'fetch', command: 'uvx', args: ['mcp-server-fetch'] }
-
-  it('adds a recommended server as an enabled stdio entry', async () => {
-    const { file } = layer(HAND_WRITTEN)
-    expect(await file.addBuiltin(definition)).toBe(true)
-    expect((await entries(file)).find(entry => entry.serverName === 'fetch')).toEqual({
-      serverName: 'fetch',
-      entryId: 'mcp-fetch',
-      config: {
-        transport: 'stdio',
-        serverName: 'fetch',
-        command: 'uvx',
-        args: ['mcp-server-fetch'],
-      },
-      enabled: true,
-    })
-  })
-
-  it('leaves a server the user already configured exactly as it is', async () => {
-    const { file, path } = layer(HAND_WRITTEN)
-    await file.upsert({ serverName: 'fetch', transport: 'stdio', command: 'node', args: ['mine.js'] })
-    const before = text(path)
-    expect(await file.addBuiltin(definition)).toBe(false)
-    expect(text(path)).toBe(before)
-  })
-})

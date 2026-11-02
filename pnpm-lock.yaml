@@ -12192,12 +12192,6 @@ importers:
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
-      '@qilin-agent/subprocess':
-        specifier: workspace:*
-        version: link:../../subprocess/subprocess
-      '@qilin-agent/subprocess-local':
-        specifier: workspace:*
-        version: link:../../subprocess/subprocess-local
       '@qilin-agent/typert-protocol':
         specifier: workspace:*
         version: link:../../typert/protocol

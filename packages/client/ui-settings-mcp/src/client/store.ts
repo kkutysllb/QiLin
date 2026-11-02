@@ -8,7 +8,7 @@
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { SnapshotStore } from '@qilin-agent/client-store'
-import type { McpBuiltinView, McpServerDraft, McpServersSnapshot, McpServerView } from '@qilin-agent/mcp-servers/types'
+import type { McpServerDraft, McpServersSnapshot, McpServerView } from '@qilin-agent/mcp-servers/types'
 import type { RemoteResult } from '@qilin-agent/typert-protocol'
 
 /** What the MCP servers page renders at any moment. */
@@ -22,7 +22,6 @@ export interface McpPageState {
   /** Absolute path of the patch layer every write goes to. */
   patchPath: string
   servers: readonly McpServerView[]
-  builtins: readonly McpBuiltinView[]
   /** Namespace of the server whose write is in flight; null when none is. */
   busy: string | null
 }
@@ -36,7 +35,6 @@ export class McpServersStore {
     layerError: null,
     patchPath: '',
     servers: [],
-    builtins: [],
     busy: null,
   })
 
@@ -87,15 +85,6 @@ export class McpServersStore {
   }
 
   /**
-   * Add one recommended server to the layer.
-   * @param id - recommended-server id from the current snapshot.
-   * @returns whether the server was added.
-   */
-  async addBuiltin(id: string): Promise<boolean> {
-    return await this.call(id, signal => this.ctx.remote.mcpServers.addBuiltin(id, signal))
-  }
-
-  /**
    * Run one Remote call and publish its snapshot or its failure. Cancellation
    * is owned here rather than by a component: a superseded read is aborted so
    * its answer cannot land after a newer one.
@@ -135,7 +124,6 @@ export class McpServersStore {
       state.layerError = snapshot.error ?? null
       state.patchPath = snapshot.patchPath
       state.servers = snapshot.servers
-      state.builtins = snapshot.builtins
     })
   }
 

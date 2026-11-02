@@ -1,8 +1,7 @@
 /**
- * MCP servers settings page: the servers the user patch layer declares, the
- * recommended set this deployment offers, and one editor card at a time. The
- * page writes only through the store, so every visible fact comes from the
- * last snapshot the Host answered with.
+ * MCP servers settings page: the servers the user patch layer declares and one
+ * editor card at a time. The page writes only through the store, so every
+ * visible fact comes from the last snapshot the Host answered with.
  */
 
 import { useEffect, useState } from 'react'
@@ -28,14 +27,6 @@ export interface McpSectionInjected {
 
 /** Props the renderer binds for this section. */
 export type McpSectionProps = PropsRuntime<'settings.section'> & InjectFace<McpSectionInjected>
-
-/** Which recommended definition owns which description key. */
-const BUILTIN_COPY: Readonly<Record<string, keyof typeof en>> = {
-  fetch: 'builtinFetch',
-  context7: 'builtinContext7',
-  'sequential-thinking': 'builtinSequentialThinking',
-  playwright: 'builtinPlaywright',
-}
 
 /** One editor draft, as the strings the form binds to. */
 interface Draft {
@@ -173,7 +164,6 @@ export function McpSection({ controller, useSnapshot, t }: McpSectionProps): Rea
                     <div className={styles.rowTitle}>
                       <span className={styles.name}>{server.serverName}</span>
                       <Tag>{t(server.transport === 'stdio' ? 'transportStdio' : 'transportHttp')}</Tag>
-                      {server.builtin !== null && <Tag>{t('badge')}</Tag>}
                     </div>
                     <span className={styles.detail}>{server.detail}</span>
                   </div>
@@ -219,34 +209,6 @@ export function McpSection({ controller, useSnapshot, t }: McpSectionProps): Rea
             })}
           </ul>
         )}
-
-      <h3 className={styles.groupTitle}>{t('recommended')}</h3>
-      <p className={styles.hint}>{t('recommendedHint')}</p>
-      <ul className={styles.list}>
-        {state.builtins.map((builtin) => {
-          const copyKey = BUILTIN_COPY[builtin.id]
-          const configured = state.servers.some(server => server.serverName === builtin.name)
-          return (
-            <li key={builtin.id} className={styles.row}>
-              <div className={styles.rowMain}>
-                <div className={styles.rowTitle}>
-                  <span className={styles.name}>{builtin.name}</span>
-                  {!builtin.available && <Tag>{fill(t('unavailable'), { command: builtin.command })}</Tag>}
-                </div>
-                <span className={styles.detail}>{[builtin.command, ...builtin.args].join(' ')}</span>
-                {copyKey !== undefined && <span className={styles.hint}>{t(copyKey)}</span>}
-              </div>
-              <Button
-                variant="outline"
-                disabled={configured || !builtin.available || pageBusy || broken}
-                onClick={() => { void controller.addBuiltin(builtin.id) }}
-              >
-                {state.busy === builtin.id ? t('adding') : named(t('addNamed'), builtin.name)}
-              </Button>
-            </li>
-          )
-        })}
-      </ul>
 
       {draft === null
         ? (
