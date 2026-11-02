@@ -265,5 +265,14 @@
 - 落地 2（冷标题）：按「保持富结构」的决定新增客户端可见 `titleSnapshot` 投影（`title`+`messageSeqs`+`source`+`eventSeq`+`updatedAt`），随检查点持久化；`readTitleSnapshots` 先读缓存 `titleSnapshot` 行，未命中回退精确日志；`SessionCorpus.projectMany` 增加 `cached(header)` 回调解锁零 I/O 命中。
 - 放弃的并发读取：`persistedReadConcurrency` 只在 `corpus.projectMany`（标题批量）里生效；sqlite 的 reconcile 保持串行，因为既有用例要求「中止后不再发起下一次检查」（`awaits an abort-ignoring inspection…`）。并发只省时间、不降内存峰值，收益与契约冲突不成比例。
 - 仍未做：`searchSessions` 全量首次对账的峰值（需要暂存表或分批提交，且不能打破 generation/cursor 语义）；搜索 bundle 的持久索引路径（`:memory:` + `first-search` 是组合选择，不是代码默认）。
-- 全量单测暴露的既存红项（与本轮无关，未修）：`plugin-manager` 三条私有仓库 Git/pnpm 安装（需要网络与凭据）；`apps/desktop` 的 `prepare-runtime-patches` 用单文档 `yaml.load` 读 pnpm 12 的双文档锁文件（E 档升级后遗留，属真实缺陷）；`webworker-runtime` 的 V3 fixture 期望 `agentPreset: ptc`，现输出 `standard`（V4→V5 折叠表跟进后的金标未刷新）。
+- 全量单测暴露的既存红项：`plugin-manager` 三条私有仓库 Git/pnpm 安装（需要网络与凭据，未修）；`apps/desktop` 的 `prepare-runtime-patches` 用单文档 `yaml.load` 读 pnpm 12 的双文档锁文件（E 档升级后遗留，已修，见第十九节）；`webworker-runtime` 的 V3 fixture 期望 `agentPreset: ptc`，现输出 `standard`（V4→V5 折叠表跟进后的金标未刷新，未修）。
 - 复验（全部实跑）：`session-query-sqlite` 71 例、`session-title` 73 例、`session-query` 170 例，其余相关包 157 文件 3653 例；`tsc -b tsconfig.host.json`、`pnpm run build`、`doc-sync` 45/45、改动文件 oxlint 0 error。
+
+## 十九、修 desktop 运行时补丁脚本的双文档锁文件读取（2026-11-03 已完成）
+
+- 现象：`apps/desktop/tests/prepare-runtime-patches.spec.ts` 两例红——`prepareRuntimePatches` 用单文档 `yaml.load` 读 `pnpm-lock.yaml`，而 pnpm 12.16.1（E 档升级）把自身包管理器依赖写成第一个 YAML 文档、项目锁写成第二个，抛出「expected a single document in the stream, but found more」。
+- 处置：新增模块内 `readLockfile`：`yaml.loadAll` 后选带 `patchedDependencies` 的项目文档（回退最后一个对象文档），`prepareRuntimePatches` 与 `verifyRuntimePatches` 共用；项目锁文档缺失时 loud 报错。
+- 同轮修掉测试里的第二处 pnpm 12 漂移：无效补丁用例只断言 stdout 里的 `PATCH_FAILED`，pnpm 12 改为在 stderr 输出；改为合并两个流断言，仍要求退出码 1。
+- 新增两条用例：多文档源锁（`prepareRuntimePatches`）与多文档已解析锁（`verifyRuntimePatches`）。
+- 复验：`prepare-runtime-patches` 18 例全绿（含读真实工作区锁的分类用例）；`tsc -b tsconfig.host.json` 绿；`apps/desktop/**` 在 oxlint 忽略列表内（其 lint lane 自理）。
+- 仍未修：`plugin-manager` 三条私有仓库安装（需网络/凭据）；`webworker-runtime` V3 fixture 的 `agentPreset` 金标。
