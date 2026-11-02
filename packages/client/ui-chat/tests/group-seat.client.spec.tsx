@@ -6,7 +6,7 @@ import { act, cleanup, fireEvent, render, within } from '@testing-library/react'
 import { useEffect, useRef, type ComponentProps } from 'react'
 import { SessionSeq } from '@qilin-agent/session/types'
 import type {
-  ConversationGroupData, GroupKey, GroupSnapshot, NodeKey, NodeReference, TurnLocation,
+  ConversationGroupData, GroupKey, GroupSnapshot, NodeKey, NodeReference, StepLocation, TurnLocation,
 } from '@qilin-agent/client-ui-conversation/client'
 import type { TurnEndReason } from '@qilin-agent/session/types'
 import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
@@ -99,11 +99,16 @@ function makeSeat(options: SeatOptions = {}) {
   const location = options.reason === undefined ? turn : endedTurn(options.reason)
   // A Step-located member: the seat only marks nodes below the Turn level as
   // process members, so the turn-level user fixture can never take that role.
-  const stepMember = {
+  const stepLocation: StepLocation = {
+    turn: 1, step: 1, start: undefined, end: undefined, status: 'open',
+    data: { get: () => undefined, source: () => ({ getSnapshot: () => undefined, subscribe: () => () => {} }) },
+  }
+  const stepMember: ChatConversationViewNode = {
     ...userNode('step:1', 2, location),
     kind: 'assistant-step',
-    location: { kind: 'step', turn: location, step: 1 },
-  } as unknown as ChatConversationViewNode
+    location: { kind: 'step', turn: location, step: stepLocation },
+    data: { status: 'settled', turn: 1, step: 1, blocks: [], time: 2 },
+  }
   const nodes = new Map<string, ChatConversationViewNode>([
     ['user:1', userNode('user:1', 1, location)],
     ['step:1', stepMember],

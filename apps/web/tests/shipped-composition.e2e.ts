@@ -730,7 +730,9 @@ it('lets a preset producer reach the background-job registry', async () => {
       agent: handle.agent,
     })
     expect(started.isError, JSON.stringify(started.content)).toBe(false)
-    expect(started.content).toEqual([{ type: 'text', text: expect.stringMatching(/^bash-[0-9a-f]{16}$/) as unknown as string }])
+    expect(started.content).toHaveLength(1)
+    const [startedBlock] = started.content
+    expect(startedBlock?.type === 'text' ? startedBlock.text : '').toMatch(/^bash-[0-9a-f]{16}$/)
 
     // The controller reads what the producer started: same registry, one
     // owner. A per-preset registry would list nothing here even on success.
@@ -745,9 +747,9 @@ it('lets a preset producer reach the background-job registry', async () => {
       agent: handle.agent,
     })
     expect(listed.isError).toBe(false)
-    expect(listed.content).toEqual([
-      { type: 'text', text: expect.stringContaining(' [bash]') as unknown as string },
-    ])
+    expect(listed.content).toHaveLength(1)
+    const [listedBlock] = listed.content
+    expect(listedBlock?.type === 'text' ? listedBlock.text : '').toContain(' [bash]')
 
     // The full round trip: the output a host-plane producer wrote is collected
     // through a preset-plane control, which is the linkage the realm severed.

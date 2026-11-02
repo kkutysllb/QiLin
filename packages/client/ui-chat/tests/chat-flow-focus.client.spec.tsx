@@ -18,7 +18,7 @@ import type { TurnProcessSpec } from '../src/client/contract/turn-process.ts'
 import { presentationPolicyFor } from '../src/client/presentation-policy.ts'
 import { createChatStore } from '../src/client/stores.ts'
 import { zh } from '../src/client/locale.ts'
-import type { TurnLocation } from '@qilin-agent/client-ui-conversation/client'
+import type { StepLocation, TurnLocation } from '@qilin-agent/client-ui-conversation/client'
 
 const turn: TurnLocation = {
   turn: 1, status: 'open', steps: [], end: undefined,
@@ -26,11 +26,16 @@ const turn: TurnLocation = {
   data: { get: () => undefined, source: () => ({ getSnapshot: () => undefined, subscribe: () => () => {} }) },
 }
 
-const stepMember = {
+const stepLocation: StepLocation = {
+  turn: 1, step: 1, start: undefined, end: undefined, status: 'open',
+  data: { get: () => undefined, source: () => ({ getSnapshot: () => undefined, subscribe: () => () => {} }) },
+}
+
+const stepMember: ChatNode<'assistant-step'> = {
   key: 'step:1', id: 'step:1', kind: 'assistant-step', target: 'chat', anchorSeq: 2, visibility: 'visible',
-  location: { kind: 'step', turn, step: 1 },
-  data: {},
-} as unknown as ChatConversationViewNode
+  location: { kind: 'step', turn, step: stepLocation },
+  data: { status: 'settled', turn: 1, step: 1, blocks: [], time: 2 },
+}
 
 const LIVE_SPEC: TurnProcessSpec = {
   turn: 1, controlAnchorSeq: 1, processStartSeq: 2, answerAnchorSeq: null, answerStep: 0,
