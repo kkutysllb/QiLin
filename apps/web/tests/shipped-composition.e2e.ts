@@ -954,6 +954,11 @@ it('reviews one-shot, continuable, and cold-resumed in-process child calls indep
     await expect(readFile(oneShotDeletePath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' })
     assertLeanChildRecord(oneShot, 'one-shot')
 
+    // The one-shot settlement notice opens a notice-only turn that the pre-step
+    // listener rejects. Wait for that driver to finish: a prompt accepted while
+    // it runs would wait behind the turn boundary the rejection ends.
+    await parent.whenIdle()
+
     await promptSession(scaffold, parentId, `${AUTO_PARENT_CONTINUABLE}: start the continuable child.`)
     await waitForCondition(
       () => continuableChildId !== undefined
