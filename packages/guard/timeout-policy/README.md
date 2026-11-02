@@ -127,8 +127,6 @@ These limits define when the policy is a poor fit. They are current package cons
 <details>
 <summary>Working context for maintainers — click to expand</summary>
 
-This Dev Note is working context for maintainers: open questions and directions that are not decided. It is explicitly non-authoritative — shipped behavior, limits, and accepted rationale live in the sections above, the package code, and the linked Agent Notes.
-
-The `src/index.ts` FIXME asks to settle a `@qilin-agent/timeout-guard` rename; the [naming ledger](../../../.agents/notes/archived/architecture/2026-08-11-repository-naming-contract-and-rename-ledger.md) already records `@qilin-agent/tool-call-timeout-policy` as the decided name, so the FIXME is stale pending a code cleanup.
+None.
 
 </details>
