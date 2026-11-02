@@ -88,7 +88,7 @@ async function baseContext(
 ): Promise<Context> {
   const ctx = new Context()
   await ctx.plugin(SlotRegistry).await()
-  new UiConversation(ctx, { binding: () => undefined } as never)
+  new UiConversation(ctx, { binding: () => undefined } as never, 3)
   ctx.provide('connection', { api: { settings: {} }, isLoopback: false } as never)
   ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => ({}) } as never)
   // `RemoteStub` registers the `remote` service itself, so this harness must not also

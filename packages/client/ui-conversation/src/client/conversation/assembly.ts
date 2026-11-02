@@ -197,13 +197,18 @@ export class UiConversation extends Service {
   /**
    * @param ctx - owning Client context.
    * @param sessions - Session Controller object layer.
+   * @param maxConcurrentImageReads - attachment reads kept in flight for rendered images.
    */
-  constructor(ctx: Context, private readonly sessions: ISessions) {
+  constructor(
+    ctx: Context,
+    private readonly sessions: ISessions,
+    maxConcurrentImageReads: number,
+  ) {
     super(ctx, 'uiConversation')
     this.events = new ConversationEventRegistry(ctx)
     this.views = new ConversationViewRegistry(ctx)
     this.groups = new ConversationGroupRegistry(ctx, this.views)
-    this.images = new HistoricalImageCache(ctx, sessions)
+    this.images = new HistoricalImageCache(ctx, sessions, maxConcurrentImageReads)
     const rebuild = (): void => {
       for (const record of this.bindings.values) record.binding.rebuild()
     }

@@ -769,7 +769,7 @@ describe('plugin registration', () => {
   it('registers the tail entry and fiber disposal removes it', async () => {
     const ctx = new Context()
     await ctx.plugin(SlotRegistry).await()
-    new UiConversation(ctx, { binding: () => undefined } as never)
+    new UiConversation(ctx, { binding: () => undefined } as never, 3)
     // The owning view's child declaration, stood up by a bench root entry.
     ctx.slots.register({
       name: 'root',

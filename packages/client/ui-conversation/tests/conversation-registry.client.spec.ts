@@ -132,7 +132,7 @@ async function bootRegistries(): Promise<{
   const ctx = new Context()
   onTestFinished(async () => { await ctx.fiber.dispose() })
   const { sessions, binding } = fakeSessions(ctx)
-  const uiConversation = new UiConversation(ctx, sessions)
+  const uiConversation = new UiConversation(ctx, sessions, 3)
   return {
     ctx,
     uiConversation,

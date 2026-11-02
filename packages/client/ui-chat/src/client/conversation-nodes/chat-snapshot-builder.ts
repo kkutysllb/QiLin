@@ -48,15 +48,22 @@ class MutableChatSource<Value> {
   constructor(
     private readonly read: () => Value,
     private readonly label: string,
+    private readonly onIdle?: () => void,
   ) {
     this.published = read()
   }
+
+  /** @returns whether no reactive consumer currently holds this source. */
+  get idle(): boolean { return this.listeners.size === 0 }
 
   readonly getSnapshot = (): Value => this.read()
 
   readonly subscribe = (listener: () => void): (() => void) => {
     this.listeners.add(listener)
-    return () => { this.listeners.delete(listener) }
+    return () => {
+      this.listeners.delete(listener)
+      if (this.listeners.size === 0) this.onIdle?.()
+    }
   }
 
   publish(): void {
@@ -87,18 +94,39 @@ class MutableChatNodeStore implements ChatNodeStore {
   }
 
   source(key: string): ChatNodeSource {
-    return cachedSource(this.sources, key, () => new MutableChatSource(
-      () => this.get(key),
-      `[ui-chat] node source ${key}`,
+    return cachedSource(this.sources, key, () => this.createSource(
+      this.sources, key, () => this.get(key), `[ui-chat] node source ${key}`,
     ))
   }
 
   bottomSource(key: string): ObservableSnapshot<boolean> {
-    return cachedSource(this.bottomSources, key, () => new MutableChatSource(() => {
+    return cachedSource(this.bottomSources, key, () => this.createSource(this.bottomSources, key, () => {
       const node = this.get(key) as ChatNode | undefined
       return node !== undefined && isVisibleChatNode(node)
         && this.exchanges.inLatest(locationCoordinates(node.location).turn)
     }, `[ui-chat] node bottom source ${key}`))
+  }
+
+  /**
+   * Create one keyed source that retires with its last consumer once the node
+   * itself is gone; a removed row must not leave a published value and three
+   * map entries behind for the rest of the Session.
+   */
+  private createSource<Value>(
+    sources: Map<string, MutableChatSource<Value>>,
+    key: string,
+    read: () => Value,
+    label: string,
+  ): MutableChatSource<Value> {
+    return new MutableChatSource(read, label, () => {
+      if (this.byKey.has(key)) return
+      if (sources.get(key)?.idle === true) sources.delete(key)
+    })
+  }
+
+  /** Drop one removed node's source once nothing observes it. */
+  private dropIdleSource<Value>(sources: Map<string, MutableChatSource<Value>>, key: string): void {
+    if (sources.get(key)?.idle === true) sources.delete(key)
   }
 
   /**
@@ -125,9 +153,8 @@ class MutableChatNodeStore implements ChatNodeStore {
   }
 
   processSource(key: string): ChatNodeProcessSource {
-    return cachedSource(this.processSources, key, () => new MutableChatSource(
-      () => this.process(key),
-      `[ui-chat] node process source ${key}`,
+    return cachedSource(this.processSources, key, () => this.createSource(
+      this.processSources, key, () => this.process(key), `[ui-chat] node process source ${key}`,
     ))
   }
 
@@ -159,6 +186,9 @@ class MutableChatNodeStore implements ChatNodeStore {
       this.exchanges.track(previous.get(key), undefined)
       this.dirtyKeys.add(key)
       this.dirtyProcessKeys.add(key)
+      this.dropIdleSource(this.sources, key)
+      this.dropIdleSource(this.processSources, key)
+      this.dropIdleSource(this.bottomSources, key)
     }
     this.valuesCache = [...this.byKey.values()]
     this.valuesDirty = false

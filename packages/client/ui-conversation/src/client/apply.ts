@@ -77,11 +77,14 @@ export const inject = [
 export interface Config {
   /** Maximum generic-file uploads allowed to run concurrently in browser Workers. */
   maxConcurrentFileUploads?: number
+  /** Maximum attachment reads kept in flight for Conversation images; the rest queue in request order. */
+  maxConcurrentImageReads?: number
 }
 
 /** Validated Conversation runtime configuration. */
 export const Config: z<Config> = z.object({
   maxConcurrentFileUploads: z.natural().min(1).default(2),
+  maxConcurrentImageReads: z.natural().min(1).default(3),
 })
 
 // Stable no-session sources keep the renderer's observable-hook cache and
@@ -155,8 +158,9 @@ export function apply(ctx: Context, config: Config = Config({})): void {
   const slots = ctx.slots
   // Schemastery's field default is materialized before Cordis calls apply.
   const maxConcurrentFileUploads = config.maxConcurrentFileUploads as number
+  const maxConcurrentImageReads = config.maxConcurrentImageReads as number
   const workspaceNavigation = ctx.get('uiWorkspace') as unknown as WorkspaceNavigation
-  const uiConversation = new UiConversation(ctx, sessions)
+  const uiConversation = new UiConversation(ctx, sessions, maxConcurrentImageReads)
 
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-conversation: dictionaries')
   const t = ctx.locale.bind(NS)

@@ -70,7 +70,7 @@ async function bench(options: {
     }),
   }
   ctx.provide('sessions', sessions)
-  const conversationEvents = new UiConversation(ctx, sessions as never).events
+  const conversationEvents = new UiConversation(ctx, sessions as never, 3).events
   function answer<T>(method: string, value: T) {
     return (...args: unknown[]) => {
       calls.push({ method, args })

@@ -298,7 +298,7 @@ async function bench(snapshot = historySnapshot(NODES)) {
   await reference.ready
   const trajectoryStore = createSnapshotStore(snapshot)
   const conversationStore = createSnapshotStore<ConversationSnapshot>(conversationSnapshot(snapshot))
-  const uiConversation = new UiConversation(ctx, runtime.sessions)
+  const uiConversation = new UiConversation(ctx, runtime.sessions, 3)
   const { events, views } = uiConversation
   const targetSources: ConversationTargetSources = {
     chat: createSnapshotStore<ChatSnapshot | undefined>(undefined),

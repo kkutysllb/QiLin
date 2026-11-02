@@ -50,4 +50,27 @@ describe('Chat Node keyed sources', () => {
     expect(next.nodes.source(changed.key)).toBe(sources[target])
     expect(next.nodes.get(changed.key)).toBe(changed)
   })
+
+  it('retires a removed node\'s keyed sources with its last consumer', () => {
+    const builder = new ChatSnapshotBuilder()
+    const nodes = [userNode(1), userNode(2), userNode(3)]
+    const first = builder.replace({ nodes, timeline })
+    builder.publish()
+    const survivor = first.nodes.source(nodes[0]!.key)
+    const observed = first.nodes.source(nodes[1]!.key)
+    const idle = first.nodes.source(nodes[2]!.key)
+    const unsubscribe = observed.subscribe(() => {})
+
+    const second = builder.replace({ nodes: [nodes[0]!], timeline })
+    builder.publish()
+    // A surviving row keeps its source identity.
+    expect(second.nodes.source(nodes[0]!.key)).toBe(survivor)
+    // An observed source outlives the removal, then retires with its consumer.
+    expect(second.nodes.source(nodes[1]!.key)).toBe(observed)
+    // An unobserved removed row leaves no entry behind for the Session.
+    expect(second.nodes.source(nodes[2]!.key)).not.toBe(idle)
+
+    unsubscribe()
+    expect(second.nodes.source(nodes[1]!.key)).not.toBe(observed)
+  })
 })

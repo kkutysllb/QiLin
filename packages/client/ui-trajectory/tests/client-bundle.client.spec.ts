@@ -102,7 +102,7 @@ describe('tsdown client artifact', () => {
     // the Host-facing settings/remote seams).
     const sessions = { binding: () => undefined }
     ctx.provide('sessions', sessions)
-    const uiConversation = new UiConversation(ctx, sessions as never)
+    const uiConversation = new UiConversation(ctx, sessions as never, 3)
     const { events, views } = uiConversation
     ctx.provide('connection', { api: { settings: {} }, isLoopback: false } as never)
     ctx.provide('remote', { $on: () => () => {} } as never)

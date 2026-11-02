@@ -15,7 +15,7 @@ describe('HistoricalImageCache', () => {
     })
     const reference = runtime.sessions.retain(sessionId)
     await reference.ready
-    const cache = new HistoricalImageCache(runtime.ctx, runtime.ctx.sessions)
+    const cache = new HistoricalImageCache(runtime.ctx, runtime.ctx.sessions, 3)
     const attachment = {
       attachmentId: AttachmentId('image-1'), mediaType: 'image/png', bytes: 1, width: 1, height: 1,
     } as const
@@ -40,7 +40,7 @@ describe('HistoricalImageCache', () => {
       const sessionId = await runtime.sessions.add({ id: 's1', session: { readAttachment: () => read.promise } })
       const reference = runtime.sessions.retain(sessionId)
       await reference.ready
-      const cache = new HistoricalImageCache(runtime.ctx, runtime.ctx.sessions)
+      const cache = new HistoricalImageCache(runtime.ctx, runtime.ctx.sessions, 3)
       const attachment = {
         attachmentId: AttachmentId('image-seeded'), mediaType: 'image/png', bytes: 1, width: 1, height: 1,
       } as const
@@ -79,7 +79,7 @@ describe('HistoricalImageCache', () => {
       })
       const reference = runtime.sessions.retain(sessionId)
       await reference.ready
-      const cache = new HistoricalImageCache(runtime.ctx, runtime.ctx.sessions)
+      const cache = new HistoricalImageCache(runtime.ctx, runtime.ctx.sessions, 3)
       const attachment = {
         attachmentId: AttachmentId('image-missing'), mediaType: 'image/png', bytes: 1, width: 1, height: 1,
       } as const
@@ -95,9 +95,42 @@ describe('HistoricalImageCache', () => {
     }
   })
 
+  it('queues attachment reads beyond the configured concurrency', async () => {
+    const pendingReads: Array<() => void> = []
+    let started = 0
+    const read = (): Promise<never> => new Promise<never>((_resolve, reject) => {
+      started += 1
+      pendingReads.push(() => { reject(new Error('read finished')) })
+    })
+    const runtime = await SlotTestRuntime.create()
+    const sessionId = await runtime.sessions.add({ id: 's1', session: { readAttachment: () => read() } })
+    const reference = runtime.sessions.retain(sessionId)
+    await reference.ready
+    const cache = new HistoricalImageCache(runtime.ctx, runtime.ctx.sessions, 1)
+    const attachmentOf = (id: string): Parameters<HistoricalImageCache['resolve']>[1] => ({
+      attachmentId: AttachmentId(id), mediaType: 'image/png', bytes: 1, width: 1, height: 1,
+    }) as const
+
+    const first = cache.resolve(sessionId, attachmentOf('image-a'))
+    const second = cache.resolve(sessionId, attachmentOf('image-b'))
+    // A started read enters the microtask queue; flush it before counting.
+    await runtime.flush()
+    // The second read waits for the only slot instead of starting alongside it.
+    expect(started).toBe(1)
+    pendingReads.shift()!()
+    await expect(first).rejects.toThrow('read finished')
+    await runtime.flush()
+    expect(started).toBe(2)
+    pendingReads.shift()!()
+    await expect(second).rejects.toThrow('read finished')
+
+    reference.release()
+    await runtime.dispose()
+  })
+
   it('refuses to seed for an unknown session', async () => {
     const runtime = await SlotTestRuntime.create()
-    const cache = new HistoricalImageCache(runtime.ctx, runtime.ctx.sessions)
+    const cache = new HistoricalImageCache(runtime.ctx, runtime.ctx.sessions, 3)
     const attachment = {
       attachmentId: AttachmentId('image-unknown'), mediaType: 'image/png', bytes: 1, width: 1, height: 1,
     } as const

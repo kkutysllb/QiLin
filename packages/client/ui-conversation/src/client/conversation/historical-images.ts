@@ -17,14 +17,42 @@ export class HistoricalImageCache {
   private readonly entries = new WeakMapWithValues<SessionBinding, Map<string, ImageUrlEntry>>()
   private readonly scopeDisposers = new WeakMapWithValues<SessionBinding, () => void>()
   private readonly urls = new Set<string>()
+  /** Reads awaiting a slot, in request order. */
+  private readonly queuedReads: Array<{ readonly start: () => void; readonly cancel: (error: Error) => void }> = []
+  private activeReads = 0
   private disposed = false
 
   /**
    * @param ctx - Owning ui-conversation fiber.
    * @param sessions - Session Controller object layer.
+   * @param maxConcurrentReads - attachment reads kept in flight; the rest queue, so a
+   * page of large images never holds every decoded attachment at once.
    */
-  constructor(ctx: Context, private readonly sessions: ISessions) {
+  constructor(
+    ctx: Context,
+    private readonly sessions: ISessions,
+    private readonly maxConcurrentReads: number,
+  ) {
     ctx.effect(() => () => { this.dispose() }, 'ui-conversation historical image cache')
+  }
+
+  /**
+   * Run one attachment read once a slot is free.
+   * @param read - starts the durable read.
+   * @returns the read's result; a queued read rejects when the cache is disposed first.
+   */
+  private enqueue<Value>(read: () => Promise<Value>): Promise<Value> {
+    return new Promise<Value>((resolve, reject) => {
+      const start = (): void => {
+        this.activeReads += 1
+        void Promise.resolve().then(read).then(resolve, reject).finally(() => {
+          this.activeReads -= 1
+          this.queuedReads.shift()?.start()
+        })
+      }
+      if (this.activeReads < this.maxConcurrentReads) start()
+      else this.queuedReads.push({ start, cancel: reject })
+    })
   }
 
   /**
@@ -105,7 +133,7 @@ export class HistoricalImageCache {
     entry: ImageUrlEntry,
     attachment: ImageAttachmentRef,
   ): Promise<string> {
-    return entry.binding.session.readAttachment(attachment.attachmentId)
+    return this.enqueue(() => entry.binding.session.readAttachment(attachment.attachmentId))
       .then((result) => {
         if (!result.ok) throw new Error(`${result.error.code}: ${result.error.message}`)
         this.assertLive(key, entry)
@@ -167,6 +195,9 @@ export class HistoricalImageCache {
   private dispose(): void {
     if (this.disposed) return
     this.disposed = true
+    for (const queued of this.queuedReads.splice(0)) {
+      queued.cancel(new Error('ui-conversation image cache was disposed before loading started'))
+    }
     for (const dispose of [...this.scopeDisposers.values]) dispose()
     this.scopeDisposers.clear()
     for (const url of this.urls) revokeUrl(url)
