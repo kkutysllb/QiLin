@@ -33,7 +33,11 @@ const SUBJECT_COMMANDS: Readonly<Record<string, 'add' | 'remove'>> = {
   upgrade: 'remove',
 }
 
-/** The bare package name of one list entry: pnpm ignores anything after '@' once the name starts. */
+/**
+ * The bare package name of one list entry: pnpm ignores anything after '@' once the name starts.
+ * @param entry - a package spec such as `left-pad@1.3.0` or `@scope/pkg@2`.
+ * @returns the name without its version or alias suffix.
+ */
 export function barePackageName(entry: string): string {
   const versionAt = entry.indexOf('@', entry.startsWith('@') ? 1 : 0)
   return versionAt <= 0 ? entry : entry.slice(0, versionAt)

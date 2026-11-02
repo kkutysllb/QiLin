@@ -2359,6 +2359,18 @@ Create one named, durable teammate. Only the Team Lead may call this tool.
         "fresh",
         "fork"
       ]
+    },
+    "provider": {
+      "type": "string",
+      "description": "LLM provider route for the teammate. Supply together with model; omit both to use the resolved child default."
+    },
+    "model": {
+      "type": "string",
+      "description": "Model id interpreted by provider. Supply together with provider; omit both to use the resolved child default."
+    },
+    "reasoning_effort": {
+      "type": "string",
+      "description": "Adapter-owned reasoning effort for the effective route. Omit to use the route default."
     }
   },
   "required": [

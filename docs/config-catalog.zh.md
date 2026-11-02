@@ -3072,6 +3072,19 @@ export interface Config {
   writeEveryEvents: number
   /** Longest time (milliseconds) a dirty checkpoint may stay unwritten between mandatory points. */
   writeIntervalMs: number
+  /**
+   * Session records the cache retains, oldest `createdAt` evicted first.
+   * Absent keeps every record. A cache record is derived data, so an evicted
+   * session simply refolds from its log on the next cold read.
+   */
+  maxRecords?: number
+  /**
+   * Largest serialized checkpoint one session may store, in UTF-8 bytes.
+   * Absent keeps every unit. The largest unit rows are dropped first: a
+   * dropped unit refolds from the log on the next restore, and the record
+   * keeps every unit that fits.
+   */
+  maxRecordBytes?: number
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/session-projection-cache -->
@@ -4186,6 +4199,12 @@ export interface Config {
    * the current Host subagent depth setting (default `1`) at each delegation.
    */
   maxDepth?: number | 'provider-managed'
+  /**
+   * Lifecycle for this tool's children. `continuable` (default) keeps a child
+   * resident for follow-up turns; `one-shot` tears it down when its answering
+   * turn settles. External providers are one-shot by contract and ignore this.
+   */
+  backgroundMode?: 'one-shot' | 'continuable'
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/tool-subagent -->
@@ -4744,7 +4763,7 @@ export interface Config {
 | `@qilin-agent/llm` | — | [`packages/llm/llm/src/index.ts`](../packages/llm/llm/src/index.ts) |
 | `@qilin-agent/lsp` | — | [`packages/lsp/lsp/src/index.ts`](../packages/lsp/lsp/src/index.ts) |
 | `@qilin-agent/mcp-resources` | `tools` | [`packages/mcp/mcp-resources/src/index.ts`](../packages/mcp/mcp-resources/src/index.ts) |
-| `@qilin-agent/mcp-servers` | `subprocess` | [`packages/mcp/mcp-servers/src/index.ts`](../packages/mcp/mcp-servers/src/index.ts) |
+| `@qilin-agent/mcp-servers` | — | [`packages/mcp/mcp-servers/src/index.ts`](../packages/mcp/mcp-servers/src/index.ts) |
 | `@qilin-agent/otel` | — | [`packages/telemetry/otel/src/index.ts`](../packages/telemetry/otel/src/index.ts) |
 | `@qilin-agent/sandbox-ssh` | `ssh` | [`packages/ssh/sandbox-ssh/src/index.ts`](../packages/ssh/sandbox-ssh/src/index.ts) |
 | `@qilin-agent/session` | — | [`packages/core/session/src/index.ts`](../packages/core/session/src/index.ts) |

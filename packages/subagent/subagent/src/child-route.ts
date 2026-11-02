@@ -23,7 +23,11 @@ export type ChildRoutePreference = () => AllowedModelRoute | undefined
 /** Deepest ancestor chain walked when a Session has recorded no policy of its own. */
 const POLICY_INHERITANCE_DEPTH = 8
 
-/** Exact route identity used for equality checks. */
+/**
+ * Exact route identity used for equality checks.
+ * @param route - one provider/model pair.
+ * @returns a string that is equal exactly when both fields are equal.
+ */
 export function modelRouteKey(route: AllowedModelRoute): string {
   return `${route.provider}\0${route.model}`
 }
@@ -31,6 +35,7 @@ export function modelRouteKey(route: AllowedModelRoute): string {
 /**
  * Reject malformed or duplicate routes at a durable or configuration boundary.
  * @param routes - candidate exact routes.
+ * @returns nothing; the assertion narrows `routes` or throws.
  */
 export function assertAllowedModelRoutes(routes: unknown): asserts routes is readonly AllowedModelRoute[] {
   if (!Array.isArray(routes)) {

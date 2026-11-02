@@ -2367,6 +2367,18 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
         "fresh",
         "fork"
       ]
+    },
+    "provider": {
+      "type": "string",
+      "description": "LLM provider route for the teammate. Supply together with model; omit both to use the resolved child default."
+    },
+    "model": {
+      "type": "string",
+      "description": "Model id interpreted by provider. Supply together with provider; omit both to use the resolved child default."
+    },
+    "reasoning_effort": {
+      "type": "string",
+      "description": "Adapter-owned reasoning effort for the effective route. Omit to use the route default."
     }
   },
   "required": [

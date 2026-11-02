@@ -960,10 +960,10 @@ Source: [`packages/subagent/subagent/src/descriptor.ts:38`](../packages/subagent
 
 ```ts persistence-catalog
 /**
- * Records that this session's delegation tool exposes child provider,
- * model, and reasoning-effort selection. Appended before the first model
- * request; absence means the fixed-route definition. Log-only: it carries
- * no `surfaceOp` and never enters model history.
+ * Records the child LLM routes this Session may select explicitly for a
+ * delegation. Appended before the definition can reach a model request;
+ * absence means no allowlist bounds selection. Log-only: it carries no
+ * `surfaceOp` and never enters model history.
  */
 'subagent/model-selection-policy': {
   /** Exact routes this Session may select explicitly for a child. */
@@ -971,7 +971,7 @@ Source: [`packages/subagent/subagent/src/descriptor.ts:38`](../packages/subagent
 }
 ```
 
-Source: [`packages/subagent/tool-subagent/src/model-selection-state.ts:17`](../packages/subagent/tool-subagent/src/model-selection-state.ts)
+Source: [`packages/subagent/subagent/src/types.ts:43`](../packages/subagent/subagent/src/types.ts)
 
 ### `system/*`
 
@@ -1010,7 +1010,7 @@ Source: [`packages/core/session/src/types.ts:330`](../packages/core/session/src/
 
 Types: [TeamId](subsystems/agent-team.md) · [TeamMemberSnapshot](subsystems/agent-team.md)
 
-Source: [`packages/experimental/agent-team/src/types.ts:229`](../packages/experimental/agent-team/src/types.ts)
+Source: [`packages/experimental/agent-team/src/types.ts:235`](../packages/experimental/agent-team/src/types.ts)
 
 <a id="teammessagedelivered--log-only"></a>
 
@@ -1028,7 +1028,7 @@ Source: [`packages/experimental/agent-team/src/types.ts:229`](../packages/experi
 
 Types: [TeamId](subsystems/agent-team.md) · [TeamMessageId](subsystems/agent-team.md)
 
-Source: [`packages/experimental/agent-team/src/types.ts:235`](../packages/experimental/agent-team/src/types.ts)
+Source: [`packages/experimental/agent-team/src/types.ts:241`](../packages/experimental/agent-team/src/types.ts)
 
 <a id="teammessagequeued--log-only"></a>
 
@@ -1041,7 +1041,7 @@ Source: [`packages/experimental/agent-team/src/types.ts:235`](../packages/experi
 
 Types: [TeamId](subsystems/agent-team.md) · [TeamMessageSnapshot](subsystems/agent-team.md)
 
-Source: [`packages/experimental/agent-team/src/types.ts:233`](../packages/experimental/agent-team/src/types.ts)
+Source: [`packages/experimental/agent-team/src/types.ts:239`](../packages/experimental/agent-team/src/types.ts)
 
 <a id="teamtask--log-only"></a>
 
@@ -1054,7 +1054,7 @@ Source: [`packages/experimental/agent-team/src/types.ts:233`](../packages/experi
 
 Types: [TeamId](subsystems/agent-team.md) · [TeamTaskSnapshot](subsystems/agent-team.md)
 
-Source: [`packages/experimental/agent-team/src/types.ts:231`](../packages/experimental/agent-team/src/types.ts)
+Source: [`packages/experimental/agent-team/src/types.ts:237`](../packages/experimental/agent-team/src/types.ts)
 
 ### `todo/*`
 
@@ -1986,7 +1986,7 @@ SHA-256: `c25d9333234073950e3f8f2cd06c85d1da5677422b3a4bf182e42c58e4236f09`
 
 SHA-256: `3242135ef44b303db49eba061c54b9952c7c9b886ca3c2b9a5c1646d03382a7c`
 
-Sources: [`packages/llm/llm/src/types.ts:414`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:440`](../packages/llm/llm/src/types.ts)
 
 `"in-history"`
 
@@ -3269,7 +3269,7 @@ Sources: [`packages/compaction/compaction/src/checkpoint.ts:22`](../packages/com
 
 SHA-256: `edc6c6d58a0dfcbad84a7e99d8ee6498f76204b8b8ef36d26e481f43ac4703cb`
 
-Sources: [`packages/llm/llm/src/types.ts:150`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:157`](../packages/llm/llm/src/types.ts)
 
 One of:
 
@@ -3291,7 +3291,7 @@ One of:
 
 SHA-256: `671fd4fa9a838ac494175b47544fab494702d6bb5c29fe00d84296c118105ee4`
 
-Sources: [`packages/llm/llm/src/types.ts:148`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:155`](../packages/llm/llm/src/types.ts)
 
 One of:
 
@@ -3484,7 +3484,7 @@ Sources: [`packages/attachment/attachment/src/types.ts:39`](../packages/attachme
 
 SHA-256: `8a694181d0ef8480ca67276e23ec75485204609f6f68fd40c22520fd15b90249`
 
-Sources: [`packages/llm/llm/src/types.ts:98`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:105`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -3501,7 +3501,7 @@ Sources: [`packages/llm/llm/src/types.ts:98`](../packages/llm/llm/src/types.ts)
 
 SHA-256: `bd7589123b6c5a670af3e08f26156eaec77353db3b66d5c612da6c1ae539d3d9`
 
-Sources: [`packages/llm/llm/src/types.ts:165`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:172`](../packages/llm/llm/src/types.ts)
 
 | kind | Form property | Other required fields | Full definition |
 |---|---|---|---|
@@ -3739,7 +3739,7 @@ Sources: [`packages/attachment/attachment/src/types.ts:11`](../packages/attachme
 
 SHA-256: `4f9c5e9cad9b362f8c83c9a638f101f474e91008a03175611a4c8d53a38b3678`
 
-Sources: [`packages/llm/llm/src/types.ts:79`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:86`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -4047,7 +4047,7 @@ Sources: [`packages/llm/llm/src/call-config.ts:36`](../packages/llm/llm/src/call
 
 SHA-256: `7b25af06fc2c64b9360dafce4db405e9291fbfd650cd918cbbf731ae6f26ba04`
 
-Sources: [`packages/llm/llm/src/types.ts:41`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:48`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -4515,7 +4515,7 @@ Sources: [`packages/core/tools/src/types.ts:12`](../packages/core/tools/src/type
 
 SHA-256: `d7a8fc62663c8ffb1bbd0c5fa77a3846fa46d18206ebad00c531ee2f543c08dc`
 
-Sources: [`packages/llm/llm/src/types.ts:68`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:75`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -4532,7 +4532,7 @@ Sources: [`packages/llm/llm/src/types.ts:68`](../packages/llm/llm/src/types.ts)
 
 SHA-256: `3d14971ac1c6990f3a33ef7bb7d08a2c8c9105f8effbe0ce511ca60f2a301549`
 
-Sources: [`packages/llm/llm/src/types.ts:448`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:474`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -4738,7 +4738,7 @@ Sources: [`packages/session/session-title-llm/src/index.ts:29`](../packages/sess
 
 <a id="persistence-type-packagessessionsession-titlesrctypestssessiontitlemodelidentity"></a>
 
-<a id="persistence-type-packagessubagenttool-subagentsrcmodel-selectiontsallowedmodelroute"></a>
+<a id="persistence-type-packagessubagentsubagentsrctypestsallowedmodelroute"></a>
 
 <a id="persistence-type-sessiontitlemodelidentity"></a>
 
@@ -4746,7 +4746,7 @@ Sources: [`packages/session/session-title-llm/src/index.ts:29`](../packages/sess
 
 SHA-256: `a5cb3ae36a6181bbfe9273e7bcd9994d9bc653ffd419b2cdc0341a110e08f596`
 
-Sources: [`packages/session/session-title/src/types.ts:20`](../packages/session/session-title/src/types.ts) · [`packages/subagent/tool-subagent/src/model-selection.ts:9`](../packages/subagent/tool-subagent/src/model-selection.ts)
+Sources: [`packages/session/session-title/src/types.ts:20`](../packages/session/session-title/src/types.ts) · [`packages/subagent/subagent/src/types.ts:22`](../packages/subagent/subagent/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -4826,7 +4826,7 @@ Sources: [`packages/skill/skill/src/index.ts:146`](../packages/skill/skill/src/i
 
 SHA-256: `59b06fa7136fcb216cbcfee15c7dc033e77b9b853efacbf11732ba75725e298a`
 
-Sources: [`packages/llm/llm/src/types.ts:470`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:496`](../packages/llm/llm/src/types.ts)
 
 One of:
 
@@ -4957,7 +4957,7 @@ Sources: [`packages/llm/llm/src/message.ts:35`](../packages/llm/llm/src/message.
 
 SHA-256: `36ca66820917e406d94c825a705b966d457e602592c4e0c757f3b45d16c74ceb`
 
-Sources: [`packages/experimental/agent-team/src/types.ts:44`](../packages/experimental/agent-team/src/types.ts)
+Sources: [`packages/experimental/agent-team/src/types.ts:45`](../packages/experimental/agent-team/src/types.ts)
 
 One of:
 
@@ -4975,7 +4975,7 @@ One of:
 
 SHA-256: `0cb68541703661cb54daa234e48bddccb52411140bd7f14383971eca303d83a8`
 
-Sources: [`packages/experimental/agent-team/src/types.ts:47`](../packages/experimental/agent-team/src/types.ts)
+Sources: [`packages/experimental/agent-team/src/types.ts:48`](../packages/experimental/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -4997,7 +4997,7 @@ Sources: [`packages/experimental/agent-team/src/types.ts:47`](../packages/experi
 
 SHA-256: `34f3cd11b4624d15f512bfe2fd6022bcff49e8c786704e54a9e5d29d3238409b`
 
-Sources: [`packages/experimental/agent-team/src/types.ts:128`](../packages/experimental/agent-team/src/types.ts)
+Sources: [`packages/experimental/agent-team/src/types.ts:129`](../packages/experimental/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5017,7 +5017,7 @@ Sources: [`packages/experimental/agent-team/src/types.ts:128`](../packages/exper
 
 SHA-256: `b892e5c5cd082f9d64c30bc5a3f4ba342d2473dcfaca2faf40abe5657b317676`
 
-Sources: [`packages/experimental/agent-team/src/types.ts:137`](../packages/experimental/agent-team/src/types.ts)
+Sources: [`packages/experimental/agent-team/src/types.ts:138`](../packages/experimental/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5037,7 +5037,7 @@ Sources: [`packages/experimental/agent-team/src/types.ts:137`](../packages/exper
 
 SHA-256: `0376ec76d72c4d69f4b71bc56ed68746fb543a916ae683f0504ff08287fff0eb`
 
-Sources: [`packages/experimental/agent-team/src/types.ts:74`](../packages/experimental/agent-team/src/types.ts)
+Sources: [`packages/experimental/agent-team/src/types.ts:75`](../packages/experimental/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5060,7 +5060,7 @@ Sources: [`packages/experimental/agent-team/src/types.ts:74`](../packages/experi
 
 SHA-256: `ba078fda2731a867900036b9fe5daf913727f2d1c8a3010ca210a02e75697eff`
 
-Sources: [`packages/experimental/agent-team/src/types.ts:71`](../packages/experimental/agent-team/src/types.ts)
+Sources: [`packages/experimental/agent-team/src/types.ts:72`](../packages/experimental/agent-team/src/types.ts)
 
 One of:
 
@@ -5079,7 +5079,7 @@ One of:
 
 SHA-256: `6fba63ebb3b6c58347148c26dcb9f6b6a85af543a741c83fb307410877401848`
 
-Sources: [`packages/llm/llm/src/types.ts:62`](../packages/llm/llm/src/types.ts) · [`packages/web/web-search-deepseek/src/provider.ts:66`](../packages/web/web-search-deepseek/src/provider.ts)
+Sources: [`packages/llm/llm/src/types.ts:69`](../packages/llm/llm/src/types.ts) · [`packages/web/web-search-deepseek/src/provider.ts:66`](../packages/web/web-search-deepseek/src/provider.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5121,7 +5121,7 @@ Array of [`TodoItem`](#persistence-type-sha256-1a351eb935aad292bc06ccbd377b06ce4
 
 SHA-256: `3e510f3729218fc3698f7efa057eb7b6fd50300062d535c53c121c3d3f5ae9d4`
 
-Sources: [`packages/llm/llm/src/types.ts:175`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:182`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5142,7 +5142,7 @@ Sources: [`packages/llm/llm/src/types.ts:175`](../packages/llm/llm/src/types.ts)
 
 SHA-256: `8cda8c3748839750667a91f03bbd1c5618a63cad536451413e76c1af21665f35`
 
-Sources: [`packages/llm/llm/src/types.ts:115`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:122`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5160,7 +5160,7 @@ Sources: [`packages/llm/llm/src/types.ts:115`](../packages/llm/llm/src/types.ts)
 
 SHA-256: `68ef2b803babfbe0f23ca55f5b23cd80bf22d12075411af5acf02b819177d392`
 
-Sources: [`packages/llm/llm/src/types.ts:105`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:112`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5196,7 +5196,7 @@ Sources: [`packages/llm/llm/src/message.ts:29`](../packages/llm/llm/src/message.
 
 SHA-256: `17d11f2e901514c251b7413f2a50adc5ae8b5409df256a3afc3d29d7fd10a9b4`
 
-Sources: [`packages/llm/llm/src/types.ts:127`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:134`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5251,7 +5251,7 @@ Sources: [`packages/llm/llm/src/message.ts:173`](../packages/llm/llm/src/message
 
 SHA-256: `6ca9e2e913f5923d207a5f7e93dccd4d1702235bec5acf2582b20e84df6e40ec`
 
-Sources: [`packages/llm/llm/src/types.ts:491`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:517`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5603,7 +5603,7 @@ Array of `number`.
 
 SHA-256: `1d389609982f42153fdab16a3a6a64d22ee7f68a401884ddc0b99293d0280baa`
 
-Sources: [`packages/api/session-controller/src/types.ts:508`](../packages/api/session-controller/src/types.ts) · [`packages/attachment/attachment/src/brand.ts:6`](../packages/attachment/attachment/src/brand.ts) · [`packages/compaction/compaction/src/brand.ts:4`](../packages/compaction/compaction/src/brand.ts) · [`packages/core/session/src/types.ts:20`](../packages/core/session/src/types.ts) · [`packages/experimental/agent-team/src/types.ts:20`](../packages/experimental/agent-team/src/types.ts) · [`packages/experimental/agent-team/src/types.ts:32`](../packages/experimental/agent-team/src/types.ts) · [`packages/experimental/agent-team/src/types.ts:8`](../packages/experimental/agent-team/src/types.ts) · [`packages/experimental/webhook/src/brand.ts:12`](../packages/experimental/webhook/src/brand.ts) · [`packages/experimental/webhook/src/brand.ts:6`](../packages/experimental/webhook/src/brand.ts) · [`packages/experimental/webhook/src/brand.ts:9`](../packages/experimental/webhook/src/brand.ts) · [`packages/feedback/message-feedback/src/types.ts:14`](../packages/feedback/message-feedback/src/types.ts) · [`packages/goal/goal/src/types.ts:17`](../packages/goal/goal/src/types.ts) · [`packages/interaction/commands/src/brand.ts:31`](../packages/interaction/commands/src/brand.ts) · [`packages/interaction/user-approval/src/types.ts:17`](../packages/interaction/user-approval/src/types.ts) · [`packages/jobs/jobs/src/brand.ts:19`](../packages/jobs/jobs/src/brand.ts) · [`packages/llm/llm-retry/src/brand.ts:4`](../packages/llm/llm-retry/src/brand.ts) · [`packages/llm/llm/src/brand.ts:16`](../packages/llm/llm/src/brand.ts) · [`packages/llm/llm/src/brand.ts:31`](../packages/llm/llm/src/brand.ts) · [`packages/llm/llm/src/brand.ts:43`](../packages/llm/llm/src/brand.ts) · [`packages/llm/llm/src/brand.ts:67`](../packages/llm/llm/src/brand.ts) · [`packages/schedule/schedule/src/types.ts:14`](../packages/schedule/schedule/src/types.ts) · [`packages/session/session-title/src/index.ts:42`](../packages/session/session-title/src/index.ts) · [`packages/session/session-title/src/types.ts:17`](../packages/session/session-title/src/types.ts) · [`packages/workflow/workflow/src/types.ts:13`](../packages/workflow/workflow/src/types.ts)
+Sources: [`packages/api/session-controller/src/types.ts:510`](../packages/api/session-controller/src/types.ts) · [`packages/attachment/attachment/src/brand.ts:6`](../packages/attachment/attachment/src/brand.ts) · [`packages/compaction/compaction/src/brand.ts:4`](../packages/compaction/compaction/src/brand.ts) · [`packages/core/session/src/types.ts:20`](../packages/core/session/src/types.ts) · [`packages/experimental/agent-team/src/types.ts:21`](../packages/experimental/agent-team/src/types.ts) · [`packages/experimental/agent-team/src/types.ts:33`](../packages/experimental/agent-team/src/types.ts) · [`packages/experimental/agent-team/src/types.ts:9`](../packages/experimental/agent-team/src/types.ts) · [`packages/experimental/webhook/src/brand.ts:12`](../packages/experimental/webhook/src/brand.ts) · [`packages/experimental/webhook/src/brand.ts:6`](../packages/experimental/webhook/src/brand.ts) · [`packages/experimental/webhook/src/brand.ts:9`](../packages/experimental/webhook/src/brand.ts) · [`packages/feedback/message-feedback/src/types.ts:14`](../packages/feedback/message-feedback/src/types.ts) · [`packages/goal/goal/src/types.ts:17`](../packages/goal/goal/src/types.ts) · [`packages/interaction/commands/src/brand.ts:31`](../packages/interaction/commands/src/brand.ts) · [`packages/interaction/user-approval/src/types.ts:17`](../packages/interaction/user-approval/src/types.ts) · [`packages/jobs/jobs/src/brand.ts:19`](../packages/jobs/jobs/src/brand.ts) · [`packages/llm/llm-retry/src/brand.ts:4`](../packages/llm/llm-retry/src/brand.ts) · [`packages/llm/llm/src/brand.ts:16`](../packages/llm/llm/src/brand.ts) · [`packages/llm/llm/src/brand.ts:31`](../packages/llm/llm/src/brand.ts) · [`packages/llm/llm/src/brand.ts:43`](../packages/llm/llm/src/brand.ts) · [`packages/llm/llm/src/brand.ts:67`](../packages/llm/llm/src/brand.ts) · [`packages/schedule/schedule/src/types.ts:14`](../packages/schedule/schedule/src/types.ts) · [`packages/session/session-title/src/index.ts:42`](../packages/session/session-title/src/index.ts) · [`packages/session/session-title/src/types.ts:17`](../packages/session/session-title/src/types.ts) · [`packages/workflow/workflow/src/types.ts:13`](../packages/workflow/workflow/src/types.ts)
 
 `string`
 
@@ -5813,7 +5813,7 @@ Sources: [`packages/preset/agent-presets/src/session.ts:28`](../packages/preset/
 
 SHA-256: `ab37b813ea89fa25cb4ff79dddedf1e6207685577e978f8862b92f0fe3eefd30`
 
-Sources: [`packages/subagent/tool-subagent/src/model-selection-state.ts:17`](../packages/subagent/tool-subagent/src/model-selection-state.ts)
+Sources: [`packages/subagent/subagent/src/types.ts:43`](../packages/subagent/subagent/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -6262,7 +6262,7 @@ Sources: [`packages/core/session/src/types.ts:375`](../packages/core/session/src
 
 SHA-256: `e94f8aad0dbe8be44ca74a1c3442844a85e27b327132a74f6d8e15ca5960a58e`
 
-Sources: [`packages/llm/llm/src/types.ts:160`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:167`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -6275,7 +6275,7 @@ Sources: [`packages/llm/llm/src/types.ts:160`](../packages/llm/llm/src/types.ts)
 
 SHA-256: `c2ad162365d273896eb3502e42e102534c416e418089a58e5adf02e97659e072`
 
-Sources: [`packages/llm/llm/src/types.ts:161`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:168`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -6786,7 +6786,7 @@ Sources: [`packages/core/session/src/types.ts:196`](../packages/core/session/src
 
 SHA-256: `341f6475ed7b23cfa5361bf487825311621d40a19306cf52ccb7b276f684fb49`
 
-Sources: [`packages/core/session/src/types.ts:214`](../packages/core/session/src/types.ts) · [`packages/llm/llm/src/types.ts:159`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/core/session/src/types.ts:214`](../packages/core/session/src/types.ts) · [`packages/llm/llm/src/types.ts:166`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7304,7 +7304,7 @@ SHA-256: `7ebed1b27e2bbce7ab378131a06116152c79ea42fd02b0fecf26b83c06027283`
 
 SHA-256: `b86b9954d3223c21c3218a44c780760e80d235faa3e102f0bbfd11c2108fbae3`
 
-Sources: [`packages/api/session-controller/src/types.ts:524`](../packages/api/session-controller/src/types.ts)
+Sources: [`packages/api/session-controller/src/types.ts:526`](../packages/api/session-controller/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7316,7 +7316,7 @@ Sources: [`packages/api/session-controller/src/types.ts:524`](../packages/api/se
 
 SHA-256: `5abaeb34ee047d9d33b6d8976ccf5c7fe2a98335e360209922219d2c5fc74b16`
 
-Sources: [`packages/llm/llm/src/types.ts:157`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:164`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7484,7 +7484,7 @@ SHA-256: `61840e67e19790474d10d3b1311086afa200f2be81ab6423859d1b62c97df0e8`
 
 SHA-256: `98c36a842a97c33134c466deae6ae87a2856bcb544a3626cf425bb095ef9a273`
 
-Sources: [`packages/llm/llm/src/types.ts:158`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:165`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7664,7 +7664,7 @@ Sources: [`packages/core/tools/src/index.ts:38`](../packages/core/tools/src/inde
 
 SHA-256: `35d718b1e14112b4704622a1e83de84611ee3bf2743c2300ff7a75d9fa8b7708`
 
-Sources: [`packages/api/session-controller/src/types.ts:517`](../packages/api/session-controller/src/types.ts)
+Sources: [`packages/api/session-controller/src/types.ts:519`](../packages/api/session-controller/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7817,7 +7817,7 @@ Sources: [`packages/web/web-search-deepseek/src/provider.ts:61`](../packages/web
 
 SHA-256: `0040cfc00431af2403f13ce6249c0359646d15d9e40b3d50b4843c641dd11ced`
 
-Sources: [`packages/experimental/agent-team/src/types.ts:229`](../packages/experimental/agent-team/src/types.ts)
+Sources: [`packages/experimental/agent-team/src/types.ts:235`](../packages/experimental/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7845,7 +7845,7 @@ Sources: [`packages/core/session/src/types.ts:330`](../packages/core/session/src
 
 SHA-256: `c6b994133e98a3c633001e95dffbc0847da85ff4261659560b0bdb28500b2fdb`
 
-Sources: [`packages/experimental/agent-team/src/types.ts:233`](../packages/experimental/agent-team/src/types.ts)
+Sources: [`packages/experimental/agent-team/src/types.ts:239`](../packages/experimental/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7859,7 +7859,7 @@ Sources: [`packages/experimental/agent-team/src/types.ts:233`](../packages/exper
 
 SHA-256: `d0175524814e681ffdd8235e04dd8a9e0ffd59508be1b65bcf582a6e9e1b283f`
 
-Sources: [`packages/experimental/agent-team/src/types.ts:235`](../packages/experimental/agent-team/src/types.ts)
+Sources: [`packages/experimental/agent-team/src/types.ts:241`](../packages/experimental/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -8005,7 +8005,7 @@ Sources: [`packages/compaction/compaction-image-offload/src/projection.ts:25`](.
 
 SHA-256: `6358dc41ca0490a18939f4f4d4c163659d3b743b1f655fba14d6bf25ec494de0`
 
-Sources: [`packages/experimental/agent-team/src/types.ts:231`](../packages/experimental/agent-team/src/types.ts)
+Sources: [`packages/experimental/agent-team/src/types.ts:237`](../packages/experimental/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -8156,7 +8156,7 @@ SHA-256: `525c28020c0927822a4739bdc5c45db2e29e1f5b7610667f5548b989e0c67b51`
 
 SHA-256: `bc07751e2f0d0d56356fc63613a602470a2b6227cacda25926ab8f203f91098e`
 
-Sources: [`packages/llm/llm/src/types.ts:475`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:501`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -8170,7 +8170,7 @@ Sources: [`packages/llm/llm/src/types.ts:475`](../packages/llm/llm/src/types.ts)
 
 SHA-256: `815d7410253f6ef19e3aed6d66f99be103b8d96ace1ae011e2df745161b52c8f`
 
-Sources: [`packages/llm/llm/src/types.ts:471`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:497`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -8388,7 +8388,7 @@ SHA-256: `ff61c86dabd35785849deda1f6eec9a9b264ef1130bf8a3f54aa89fbd2aac71c`
 
 SHA-256: `823eb66fb0f3c0aca80ed525ef6bc20772e443cb067b9f8db49786c8a579bbfa`
 
-Sources: [`packages/llm/llm/src/types.ts:477`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:503`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -8594,7 +8594,7 @@ Sources: [`packages/llm/llm/src/assistant-stream.ts:28`](../packages/llm/llm/src
 
 SHA-256: `9dd696c6822bc8557cc19cbcdaa089f9f50d07844db2d90defbf152013253f0f`
 
-Sources: [`packages/llm/llm/src/types.ts:473`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:499`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -8914,7 +8914,7 @@ Sources: [`packages/llm/llm/src/assistant-stream.ts:21`](../packages/llm/llm/src
 
 SHA-256: `13f085f500c3a6dcd657533e78bc8a61493b0c4ebcc8a574f52c45ada2c873a4`
 
-Sources: [`packages/llm/llm/src/types.ts:472`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:498`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -8962,7 +8962,7 @@ Sources: [`packages/llm/llm/src/assistant-stream.ts:35`](../packages/llm/llm/src
 
 SHA-256: `22555f389d6bcfa70b53f7162c2493718962a8469f852ed8eb557ddf7c51f6dc`
 
-Sources: [`packages/llm/llm/src/types.ts:474`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:500`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -9140,7 +9140,7 @@ SHA-256: `64455f912ad2e99a049d015e3c585968fc58e5bd6a891527fc9f1f31dd6d594f`
 
 SHA-256: `e25bdbb40a55047b4f3ee371dbada327c1a6c20326efa5bb1bffb48cf9887816`
 
-Sources: [`packages/llm/llm/src/types.ts:476`](../packages/llm/llm/src/types.ts)
+Sources: [`packages/llm/llm/src/types.ts:502`](../packages/llm/llm/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
