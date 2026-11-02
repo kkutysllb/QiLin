@@ -71,6 +71,8 @@ class Transformer {
   private readonly moduleRequests = new Set<string>()
   private readonly metaResolveRequests = new Set<string>()
   private readonly createRequireBindings = new Set<string>()
+  /** `yield*` nodes already lowered by their owning statement, never re-visited. */
+  private readonly loweredDelegations = new Set<number>()
 
   constructor(source: string, private readonly path: string) {
     // A `#!` line is only legal at offset zero, and the prologue takes that spot;
@@ -280,9 +282,9 @@ class Transformer {
   /**
    * `yield` resumes with whatever the consumer sent, so the snapshot is taken
    * before suspending and restored when the call completes. `yield*` delegates,
-   * which has no expression form here: it is desugared as a statement, and a
-   * consumer's `throw()` is not forwarded into the inner iterator (`next` and
-   * `return` are).
+   * which has no general expression form here: it is desugared as a statement or
+   * as `return yield* operand` (see {@link returnDelegate}), and a consumer's
+   * `throw()` is not forwarded into the inner iterator (`next` and `return` are).
    */
   private yieldExpression(node: Node, statement: Node | undefined): void {
     if (node.delegate !== true) {
@@ -308,6 +310,30 @@ class Transformer {
       `let ${sent};let ${exhausted}=false;`,
       `try{for(;;){const ${step}=${ALS}.resume(await ${ALS}.pause(${iterator}.next(${sent})));`,
       `if(${step}.done){${exhausted}=true;break}`,
+      `${sent}=${ALS}.afterYield(${ALS}.snapshot(),yield ${step}.value)}}`,
+      `finally{if(!${exhausted})${ALS}.resume(await ${ALS}.pause(${ALS}.close(${iterator})))}}`,
+    ].join(''))
+  }
+
+  /**
+   * `return yield* operand` hands the inner iterator's completion value to the
+   * caller: the same forwarding loop as the statement form, with its done branch
+   * returning instead of falling out of the block. The `finally` close still runs
+   * on an abrupt exit from the loop; the done branch marks the iterator exhausted
+   * so the close is skipped for a normal delegation end.
+   * @param node - the owning `return` statement, replaced as a whole.
+   * @param operand - the delegated iterator expression.
+   */
+  private returnDelegate(node: Node, operand: Node): void {
+    const iterator = this.alsTemp()
+    const step = this.alsTemp()
+    const sent = this.alsTemp()
+    const exhausted = this.alsTemp()
+    this.structural(node.start, node.end, inner => [
+      `{const ${iterator}=${ALS}.iterator(${inner(operand.start, operand.end)});`,
+      `let ${sent};let ${exhausted}=false;`,
+      `try{for(;;){const ${step}=${ALS}.resume(await ${ALS}.pause(${iterator}.next(${sent})));`,
+      `if(${step}.done){${exhausted}=true;return ${step}.value}`,
       `${sent}=${ALS}.afterYield(${ALS}.snapshot(),yield ${step}.value)}}`,
       `finally{if(!${exhausted})${ALS}.resume(await ${ALS}.pause(${ALS}.close(${iterator})))}}`,
     ].join(''))
@@ -399,8 +425,21 @@ class Transformer {
         }
         break
       }
+      case 'ReturnStatement': {
+        const operand = record.argument as Node | null
+        // `return yield* operand` is a completion-value delegation, not a plain
+        // yield: the async-iterator adapter ponyfills write it this way.
+        if (context.asyncGenerator && operand !== null && operand.type === 'YieldExpression'
+          && operand.delegate === true && (operand.argument as Node | null) !== null) {
+          this.returnDelegate(record, operand.argument as Node)
+          this.loweredDelegations.add(operand.start)
+        }
+        break
+      }
       case 'YieldExpression':
-        if (context.asyncGenerator) this.yieldExpression(record, context.statement)
+        if (context.asyncGenerator && !this.loweredDelegations.has(record.start)) {
+          this.yieldExpression(record, context.statement)
+        }
         break
       case 'FunctionDeclaration':
       case 'FunctionExpression':

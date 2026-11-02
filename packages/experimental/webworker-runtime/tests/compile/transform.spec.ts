@@ -542,6 +542,32 @@ function recordingAls(): { als: Record<string, unknown>; calls: string[] } {
   check('yield* forwards inner values then continues', collected, ['a', 'b', 'tail'])
 }
 
+{
+  // `return yield* iterable` delegates and hands the inner completion value to
+  // the caller; the async-iterator adapter ponyfills are written exactly so.
+  const code = transformModule(
+    'export async function* outer(inner) { return yield* inner }\n',
+    'probe.js',
+  )
+  parsesAsScript('return yield* rewrite', code)
+  const { als } = recordingAls()
+  const outer = runBody(code, () => ({}), als).outer as (inner: unknown) => AsyncGenerator<unknown, unknown, unknown>
+  const inner = async function* () {
+    yield 'a'
+    yield 'b'
+    return 'done'
+  }
+  const iterator = outer(inner())
+  const forwarded: unknown[] = []
+  let step = await iterator.next()
+  while (step.done !== true) {
+    forwarded.push(step.value)
+    step = await iterator.next()
+  }
+  check('return yield* forwards inner values', forwarded, ['a', 'b'])
+  check('return yield* returns the inner completion value', step.value, 'done')
+}
+
 // ---------------------------------------------------------------------------
 // 7. Line numbers. The debugging contract: a stack frame in a transformed body
 //    points at the same line as the artifact it came from.
