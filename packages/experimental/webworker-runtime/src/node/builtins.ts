@@ -24,12 +24,15 @@
 import * as nodeAsyncHooks from './builtin_modules/implemented/async_hooks.ts'
 import * as nodeBuffer from './builtin_modules/implemented/buffer.ts'
 import * as nodeCrypto from './builtin_modules/implemented/crypto.ts'
+import * as nodeDns from './builtin_modules/mock/dns.ts'
 import * as nodeDnsPromises from './builtin_modules/mock/dns/promises.ts'
 import * as nodeEvents from './builtin_modules/implemented/events.ts'
 import * as nodeFs from './builtin_modules/implemented/fs.ts'
 import * as nodeFsPromises from './builtin_modules/implemented/fs/promises.ts'
 import * as nodeHttp from './builtin_modules/implemented/http.ts'
+import * as nodeHttp2 from './builtin_modules/mock/http2.ts'
 import * as nodeHttps from './builtin_modules/implemented/https.ts'
+import * as nodeTls from './builtin_modules/mock/tls.ts'
 import * as nodeModule from './builtin_modules/implemented/module.ts'
 import * as nodeOs from './builtin_modules/implemented/os.ts'
 import * as nodePath from './builtin_modules/implemented/path.ts'
@@ -64,12 +67,15 @@ const BUILTINS: Record<string, StaticModuleFactory> = {
   buffer: () => nodeBuffer,
   child_process: () => nodeChildProcess,
   crypto: () => nodeCrypto,
+  dns: () => nodeDns,
   'dns/promises': () => nodeDnsPromises,
   events: () => nodeEvents,
   fs: () => nodeFs,
   'fs/promises': () => nodeFsPromises,
   http: () => nodeHttp,
+  http2: () => nodeHttp2,
   https: () => nodeHttps,
+  tls: () => nodeTls,
   module: () => nodeModule,
   net: () => nodeNet,
   os: () => nodeOs,

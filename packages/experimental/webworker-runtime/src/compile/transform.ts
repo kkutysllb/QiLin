@@ -219,6 +219,17 @@ class Transformer {
   private exportDefault(node: Node): void {
     this.moduleSyntax = true
     const declaration = node.declaration as Node
+    // A named class or function declaration keeps its module-scope binding:
+    // rewriting the keyword into an assignment would turn the declaration into an
+    // expression, and later top-level references to the name would throw. Keep
+    // the declaration and publish it after its own end instead.
+    const identifier = declaration.id as Node | null
+    if ((declaration.type === 'ClassDeclaration' || declaration.type === 'FunctionDeclaration')
+      && identifier !== null) {
+      this.replace(node.start, declaration.start, '')
+      this.insert(node.end, `;exports.default=${nameOf(identifier)};`)
+      return
+    }
     this.replace(node.start, declaration.start, 'exports.default = ')
   }
 

@@ -543,6 +543,33 @@ function recordingAls(): { als: Record<string, unknown>; calls: string[] } {
 }
 
 {
+  // A named default class/function keeps its module-scope binding: packages such
+  // as p-cancelable declare the class, then touch it at top level.
+  const code = transformModule(
+    'export default class Named {}\nObject.setPrototypeOf(Named.prototype, Promise.prototype)\n',
+    'probe.js',
+  )
+  parsesAsScript('named default class rewrite', code)
+  const exports = runBody(code, () => ({}), recordingAls().als) as { default?: { prototype: object } }
+  check('named default class is exported', typeof exports.default, 'function')
+  check(
+    'a later top-level reference to the class kept resolving',
+    Object.getPrototypeOf(exports.default!.prototype) === Promise.prototype,
+    true,
+  )
+}
+
+{
+  const code = transformModule(
+    'export default function named() {}\nnamed.marker = 1\n',
+    'probe.js',
+  )
+  const exports = runBody(code) as { default?: (() => void) & { marker?: number } }
+  check('named default function is exported', typeof exports.default, 'function')
+  check('a later top-level reference to the function kept resolving', exports.default!.marker, 1)
+}
+
+{
   // `return yield* iterable` delegates and hands the inner completion value to
   // the caller; the async-iterator adapter ponyfills are written exactly so.
   const code = transformModule(
