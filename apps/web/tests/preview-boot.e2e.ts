@@ -329,16 +329,13 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
     // report the older one.
     expect(bootLine).toContain(`image lowering=${WRAPPER_CONTRACT}`)
     expect(bootLine).toContain('data overlays=1')
-    // The provider onboarding dialog is the seeded preview's first stable
-    // interactive surface after the startup chain completes over the tunnel. A
-    // keyless fixture has no provider, so the scenario leaves it as a visitor
-    // would: the dialog's own dismissal, not the save the disabled button
-    // refuses.
-    const configureLater = page.getByRole('button', { name: 'Configure later', exact: true })
-    await configureLater.waitFor({ timeout: HERO_TIMEOUT_MS })
-    await configureLater.click()
+    // The preview deployment runs without a profile-level settings service:
+    // the base bundle disables `settings` and `config-editor` when no profile
+    // context exists, so the Models join reports 'unavailable' and the provider
+    // onboarding step completes itself. The composer hero is therefore the
+    // seeded preview's first stable interactive surface.
     await page.locator('[data-composer-input][data-placeholder="Describe what you want to build, / commands, @ files or sessions"]')
-      .waitFor({ timeout: 30_000 })
+      .waitFor({ timeout: HERO_TIMEOUT_MS })
 
     const exercised = await page.evaluate(async ({ seededSessionId, seededSessionTitle }) => {
       type Result<T> = { result: { ok: true; value: T } | { ok: false; error: { code: string; message: string } } }
