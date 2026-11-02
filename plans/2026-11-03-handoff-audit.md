@@ -285,3 +285,11 @@
 - 语义保持：仍是「读取 → 稳定性证明 → 单事务提交」，generation/cursor 契约不变；暂存文件是派生数据，崩溃后下次对账的 reset 会清掉。
 - 复验：sqlite 75 例（新增 staging 模块 3 例 + 全量对账清理 1 例）、`session-query` + `api/session-controller` 57 文件 1118 例；`tsc -b tsconfig.host.json`、`pnpm run build`、`doc-sync` 45/45、改动文件 oxlint 0 error。config catalog 因源码行号平移一并重录。
 - 仍未做：live 会话每次搜索仍全量克隆事件并重算指纹（比 persisted 小得多，可按会话 seq 增量）。
+
+## 二十一、live 观察复用与 VFS 示例预设（2026-11-03 已完成）
+
+- live 侧开销：每次搜索都对每个 live 会话 `snapshotEvents()` 全量、逐事件克隆、抽全部文档，再对整份日志 JSON 求 sha256，只为判断 live 行要不要重写。指纹改为「行绑定字段 + 抽取文档」的哈希后，不产生文档、也不改变 surface 的追加不再触发重写；再按 `session.seq`/继承前缀/头身份缓存观察，水位与身份未变且索引行指纹与 persisted 标记一致时直接复用，日志零触碰。缓存随 live 集合修剪。
+- 复验：sqlite 76 例（新增「未变更 live 会话不再 snapshotEvents」用例）；`session-query` + `session-controller` 58 文件 1124 例。
+- worker VFS 兼容：首版暂存用 `node:readline` + `createReadStream`，而 web worker 预览的内置模块表没有 `node:readline`，`searchSessions` 在预览里加载失败（`sessionController` 不可用，`preview-boot` 复现）。改为每会话一个 JSON 文件的目录布局，只用 `fs/promises`/`os`/`path`；`:memory:` 的暂存目录落在 worker VFS 的 `tmpdir()` 下。复验：`preview-boot.e2e` 通过。
+- VFS 示例预设：生成器仍写 `agentPreset: 'ptc'`，而提交的 V3 输入是 `standard`；折叠表回退后 `standard` 直通，恢复等价性分叉。生成器与两处断言改为 `standard`，V3 输入不动；`vfs-example-fixture` 5 例全绿。
+- 全量单测剩余红项只剩 `plugin-manager` 的三条私有仓库安装用例（需要网络与凭据，非代码问题）。
