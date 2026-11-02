@@ -113,3 +113,23 @@
 - 未跑：全量 `test:coverage` 分区门、web 浏览器 lane、快照 lane，原因见文首边界；快照 lane 的构建新鲜度守卫已由本次整树 build 刷新。
 - 一处计划外事实：包 README 的骨架门（`doc-standard`）要求`### Dev Note` 恒在，因此 FIXME 清理不能整段删除开发备注，改为模板的「无待决项」形态并重录配对账本。
 - 剩余项未动：B、C、D、E 档与上游对齐长期项（第四节），按第七节顺序推进。
+
+## 九、B 档第一项执行结果（shipped-composition，2026-11-03，已完成）
+
+- 决策口径：改组合——让场景按它自己注释假设的 PTC 呈现组装，而不是把断言削到默认组合上。
+- 落地：五处脚手架改用既有的 `toolsMode: 'ptc'` 组合接缝；主用例的 agent 同时改挂 `ptc` 预设（`EXPECTED_TOOLS` 描述的就是该预设的目录）。三处过期期望按现状校正：目录补 `plugin_manager`、文件引用提示词夹具重录（`present` 文件卡片指引落地后的文本）、后台作业 id 断言跟进 `bash-<16 位十六进制>`。
+- 实测：该文件 8 例中 5 例通过（此前 2 例通过、6 例失败）。
+- 余下三例的定性：
+  - 2 例属宿主沙箱限制——后台 bash 用例报 `sandbox-unavailable: sandbox_apply: Operation not permitted`，Auto 卸载用例报 `posix_openpt` 被拒；非沙箱宿主上应转绿。
+  - 1 例为产品面缺陷，见下。
+
+### 新发现：`backgroundMode` 已成死配置
+
+`tool-subagent` 的 `Config` 与激活调用里都没有 `backgroundMode`（激活重构把委派迁到 `startActivation` 之后移除，配置键未同步清理）。现在的模式由 provider 能力决定：实现 `prepareContinuable` 的 provider 一律走 continuable，而 `subagent-spawn-in-process` 与 `subagent-fork-in-process` 两个本地 provider 都实现了它。
+
+仍在声明该键的位置共 7 处：`packages/bundle/base/cordis.patch.yml` 两处（fork 那处还配着「这条 base 行保持 one-shot」的注释，与实际行为相反）、两个出厂预设各两处、`apps/web/tests/auto-review-child.overlay.yml` 一处。后果是 web 用例里那条「一次性绑定」造出来的子代理记成了 continuable，`reviews one-shot…` 用例因此红。
+
+处置二选一，需决策：
+
+1. 恢复一次性本地激活能力（管理器加一条 one-shot 通道，`tool-subagent` 收回 `backgroundMode` 并把模式传进激活），7 处 yml 键重新生效；
+2. 承认 one-shot 由 provider 选择表达，删除 7 处死键、改掉 base 的错误注释，并把该用例改成「外部 provider 的一次性绑定」或改期其期望。
