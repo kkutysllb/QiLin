@@ -6,6 +6,7 @@
 - text: Stream one TypeScript fence for the highlighting snapshot. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
+- button "QiLin..." [disabled] [expanded]
 - text: ts
 - button "Copy"
 - code: "const first: number = 1 const second = \"two\" let tail"

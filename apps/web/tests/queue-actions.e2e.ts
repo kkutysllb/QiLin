@@ -127,6 +127,12 @@ describe('web e2e: queue row actions', () => {
         buttons.every(button => (button as HTMLButtonElement).disabled))).toBe(true)
       expect(await input.textContent()).toBe('')
       expect(await input.getAttribute('contenteditable')).toBe('true')
+      // The stalled turn streams its 'partial' prefix before the ready marker,
+      // but the browser receives that frame over SSE: the sending capture pins
+      // the running disclosure and the streamed paragraph, so wait for both
+      // instead of racing the frame that carries them.
+      await page.locator('[data-turn-running]').first().waitFor({ timeout: 10_000 })
+      await page.getByText('partial', { exact: true }).waitFor({ timeout: 10_000 })
       const sending = await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd)
       await compareOrRefreshGolden(SENDING_EXPECTED, sending, MODE)
       await page.setViewportSize({ width: 390, height: 1000 })
@@ -265,7 +271,12 @@ describe('web e2e: queue row actions', () => {
 
     const stopButton = page.getByRole('button', { name: 'Stop generating' })
     await stopButton.hover()
-    await page.getByRole('tooltip', { name: 'Stop generating', exact: true }).waitFor()
+    // The stop bubble names the action and then its shortcut keycaps, so match
+    // the action as a prefix and assert the keycaps through the marker the
+    // bubble sets for them.
+    const stopTooltip = page.getByRole('tooltip', { name: /^Stop generating\b/ })
+    await stopTooltip.waitFor()
+    await expect.poll(() => stopTooltip.getAttribute('data-has-shortcut')).toBe('true')
     await stopButton.click()
     await firstSettled
     await expect.poll(() => page.getByRole('button', { name: 'Stop generating' }).count())

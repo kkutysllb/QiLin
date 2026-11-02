@@ -25,7 +25,14 @@ describe('third-party plugin bundle', () => {
   it('installs, is discovered by an agent, and executes without a core change', async () => {
     // `qilin plugin add` leaves a bundle installed and listed in the profile's
     // enabled set; this option reproduces both halves on the managed profile.
-    scaffold = await launchWebScaffold({ profile: { packages: [{ dir: FIXTURE, enabled: true }] } })
+    // The exercise needs the PTC transport: the shipped bundle now defaults to
+    // the native presentation, which registers no `run_code`, and a
+    // model-direct call to the fixture tool would bypass the transport this
+    // scenario is about.
+    scaffold = await launchWebScaffold({
+      profile: { packages: [{ dir: FIXTURE, enabled: true }] },
+      toolsMode: 'ptc',
+    })
     const ctx = scaffold.ctx
     // Process-wide discovery: the fixture's tool is registered beside the
     // shipped host rows, which is what tells a third party its plugin mounted.

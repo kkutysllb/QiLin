@@ -187,7 +187,12 @@ describe('web e2e: live-turn interactions (cancel / error / retry)', () => {
 
     const stopButton = page.getByRole('button', { name: 'Stop generating' })
     await stopButton.hover()
-    await page.getByRole('tooltip', { name: 'Stop generating', exact: true }).waitFor()
+    // The stop bubble names the action and then its shortcut keycaps, so match
+    // the action as a prefix and assert the keycaps through the marker the
+    // bubble sets for them.
+    const stopTooltip = page.getByRole('tooltip', { name: /^Stop generating\b/ })
+    await stopTooltip.waitFor()
+    await expect.poll(() => stopTooltip.getAttribute('data-has-shortcut')).toBe('true')
     await stopButton.click()
     await settled
     expect(turnEndReasons(sessionEvents).at(-1)).toBe('aborted')

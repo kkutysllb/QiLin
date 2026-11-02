@@ -31,30 +31,26 @@ describe('web e2e: sidebar panel sections', () => {
     await scaffold?.close()
   })
 
-  it('groups the engine panels under General and folds them', async () => {
+  it('renders no panel sections while the shipped composition contributes no panel', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-sidebar-sections'))
-    const general = page.getByRole('button', { name: 'General' })
-    await expect.poll(async () => general.count(), { timeout: 10_000 }).toBe(1)
-
-    // The engine registers its own panels, so the section is never empty.
-    const navigation = page.getByRole('navigation', { name: 'Global panels' })
-    await expect.poll(async () => (await navigation.getByRole('button').allTextContents()).includes('Plugins'))
-      .toBe(true)
-
-    const expanded = await general.getAttribute('aria-expanded')
-    expect(expanded).toBe('true')
-    await general.click()
-    await expect.poll(async () => general.getAttribute('aria-expanded'), { timeout: 10_000 }).toBe('false')
-    await expect.poll(async () => (await navigation.getByRole('button').allTextContents()).includes('Plugins'))
-      .toBe(false)
-
-    // Every remaining row is a plugin contribution: an Extensions section exists
-    // only when one registered, and never empty.
-    const extensions = page.getByRole('button', { name: 'Extensions' })
-    if (await extensions.count() > 0) {
-      const extensionsExpanded = await extensions.getAttribute('aria-expanded')
-      expect(extensionsExpanded === 'true' || extensionsExpanded === 'false').toBe(true)
-    }
+    // A section header (General/Extensions) exists only for a
+    // `sidebar.panellist` contributor, and the shipped web composition mounts
+    // none: the plugin manager became a settings section instead of a sidebar
+    // panel (b5b0c8eb3e), and the schedule bundle that owns the remaining panel
+    // ships switched off (packages/bundle/web-app/README.md). The sidebar
+    // therefore renders no panel navigation at all — this pins that state so a
+    // contributor reappearing is noticed here rather than in a UI bug report.
+    await expect.poll(
+      () => page.getByRole('navigation', { name: 'Global panels' }).count(),
+      { timeout: 10_000 },
+    ).toBe(0)
+    expect(await page.getByRole('button', { name: 'General' }).count()).toBe(0)
+    // The region the shell does own still renders: an empty panel list leaves a
+    // usable column, not a blank one.
+    await expect.poll(
+      () => page.getByText('Workspaces', { exact: true }).count(),
+      { timeout: 10_000 },
+    ).toBe(1)
     expect(tripwire.pageErrors).toEqual([])
   })
 })

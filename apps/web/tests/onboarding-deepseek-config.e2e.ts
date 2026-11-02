@@ -185,6 +185,13 @@ describe.skipIf(MODE === 'record')('web e2e: first-run DeepSeek credential setup
     for (let index = 0; index < 2; index++) {
       await settings.getByRole('button', { name: /删除模型/ }).first().click()
     }
+    // Rows animate out: a departing row keeps its inputs mounted until its exit
+    // frame ends, so adding the replacement before the empty catalog settles
+    // would leave two "模型 ID 1" fields in the form.
+    await expect.poll(
+      () => settings.locator('input[aria-label^="模型 ID"]').count(),
+      { timeout: 5_000 },
+    ).toBe(0)
     await settings.getByRole('button', { name: '添加模型' }).click()
     const customModelId = settings.getByLabel('模型 ID 1')
     await customModelId.fill('private-preview')

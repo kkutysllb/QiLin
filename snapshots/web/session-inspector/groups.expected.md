@@ -1,8 +1,7 @@
 - system-prompt
 - user
+- context
 - turn-process
-- context
-- context
 - group
 - assistant-step
 - tool-call

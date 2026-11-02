@@ -171,7 +171,15 @@ it('accepts a whole-page drop under the limits-labeled overlay and refuses an ov
   // desc line carries the projected limits — copy that can only render after
   // the imageLimits projection crossed the RemoteMock transport.
   const image = new File([new Uint8Array([137, 80, 78, 71])], 'dropped.png', { type: 'image/png' })
-  const dataTransfer = { types: ['Files'], files: [image], dropEffect: 'none' }
+  // A browser drop carries a DataTransferItemList next to `files`, and the
+  // product asks those entries whether the drop contained directories. The
+  // fake must answer that probe the way a single-file drop does.
+  const dataTransfer = {
+    types: ['Files'],
+    files: [image],
+    items: [{ kind: 'file', webkitGetAsEntry: () => ({ isDirectory: false }) }],
+    dropEffect: 'none',
+  }
   fireEvent.dragEnter(document.body, { dataTransfer })
   const overlay = await screen.findByRole('status')
   expect(overlay.textContent).toContain('Drag files or images here to add them')

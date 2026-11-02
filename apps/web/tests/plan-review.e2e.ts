@@ -191,8 +191,11 @@ describe('web e2e: plan review takeover round trip', () => {
       await card.getByRole('button', { name: 'Open plan in sidebar' }).click()
       await preview.waitFor({ state: 'visible' })
       expect(answered).toBe(false)
+      // The layout key is account-scoped and keeps its own namespace, so match
+      // the sidebar suffix instead of a fixed brand/account prefix: what this
+      // asserts is the persisted tab inventory, not the storage key spelling.
       const saved = await page.evaluate(() => Object.keys(localStorage)
-        .filter(key => key.startsWith('qilin.sidebar-right.v1.')).map(key => localStorage.getItem(key)).join('\n'))
+        .filter(key => key.includes('sidebar-right.v1.')).map(key => localStorage.getItem(key)).join('\n'))
       expect(saved).toContain('qilin-resource://plan-review/')
       expect(saved).not.toContain('Ask before implementation.')
       await card.getByRole('button', { name: 'Approve', exact: true }).click()
