@@ -248,7 +248,9 @@ fs.appendFileSync(${JSON.stringify(openLog)}, JSON.stringify({ path, action, con
           openFontSize: getComputedStyle(open).fontSize,
         }
       })
-      expect(geometry.answerToPresented).toBeCloseTo(20, 1)
+      // The Chat flow's item offset is 16px; the tail's own 4px margin applies
+      // only above the action row, so the delivered grid starts one flow gap down.
+      expect(geometry.answerToPresented).toBeCloseTo(16, 1)
       expect(geometry.presentedToActions).toBeCloseTo(20, 1)
       expect(geometry.cardHeight).toBeCloseTo(60, 1)
       expect(geometry.cardColumnGap).toBeCloseTo(10, 1)

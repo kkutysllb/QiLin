@@ -264,8 +264,9 @@ describe('web e2e: message IconActions and clocks on settled history', () => {
     const composer = page.locator('[data-composer-seat]')
     const tooltip = page.getByRole('tooltip', { name: 'Copy', exact: true })
     try {
-      // Grow the sticky seat upward so the bottom tooltip overlaps it without
-      // depending on the fixture's resting composer height.
+      // Grow the sticky seat upward and shorten the viewport so the conversation
+      // has scroll room; the fixture's Turn process is collapsed at rest.
+      await page.setViewportSize({ width: 1680, height: 640 })
       await composer.evaluate((element) => { element.style.paddingTop = '48px' })
       await copy.evaluate((button) => {
         const scrollport = button.closest<HTMLElement>('[data-conversation-scroll]')
@@ -305,6 +306,7 @@ describe('web e2e: message IconActions and clocks on settled history', () => {
       await page.mouse.move(0, 0)
       if (await copy.count() > 0) await copy.evaluate((element) => { element.blur() })
       if (await tooltip.count() > 0) await tooltip.waitFor({ state: 'hidden', timeout: 5_000 })
+      await page.setViewportSize({ width: 1680, height: 1000 })
     }
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
@@ -317,6 +319,9 @@ describe('web e2e: message IconActions and clocks on settled history', () => {
     // Keep a footer focused so opacity-hidden actions stay in the a11y tree
     // as an active/focused control during the capture.
     await page.getByRole('button', { name: 'Copy' }).first().focus()
+    // The focused control owns a tooltip that opens shortly after focus; wait for
+    // it so the capture never races its appearance.
+    await page.getByRole('tooltip', { name: 'Copy', exact: true }).first().waitFor({ timeout: 5_000 })
     const snapshot = (await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd))
       .split(SEED_ID).join('{{seededId}}')
     await compareOrRefreshGolden(UI_EXPECTED, snapshot, MODE)
