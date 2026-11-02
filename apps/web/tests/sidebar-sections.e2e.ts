@@ -36,7 +36,8 @@ describe('web e2e: sidebar panel sections', () => {
     // A section header (General/Extensions) exists only for a
     // `sidebar.panellist` contributor, and the shipped web composition mounts
     // none: the plugin manager became a settings section instead of a sidebar
-    // panel (b5b0c8eb3e), and the schedule bundle that owns the remaining panel
+    // panel (the plugin manager moved into Settings), and the schedule bundle
+    // that owns the remaining panel
     // ships switched off (packages/bundle/web-app/README.md). The sidebar
     // therefore renders no panel navigation at all — this pins that state so a
     // contributor reappearing is noticed here rather than in a UI bug report.
