@@ -257,3 +257,13 @@
   - sidebar retained view 上限：退役一个 view 会丢在途草稿/composer 状态。
 - E2 的第二半（位置数据 store 剪枝）也暂缓：`ConversationLocationIndex` 没有公开的数据 store 访问器，行为无法用测试观测；要做得先在 assembler 层给出可断言的表面。
 - 复验（全部实跑）：`ui-chat` + `ui-conversation` 1430 例；`pnpm run test:gui` 685 文件/10527 例；`tsc -b tsconfig.client.json`；`doc-sync` 45/45；改动文件 oxlint 0 error。
+
+## 十八、窗口 C：单会话搜索对账 + 冷标题走缓存（2026-11-03 已完成）
+
+- 体检结论修正：列表/刷新本来就不读正文（`session-cold.host.spec.ts` 钉住零 stat/零正文）；真正放大的是内容搜索——`searchEvents` 先对账整个语料，`_observeStable` 对每份 revision 变过的日志顺序冷读、抽取、克隆，并把全部 `ObservedSession` 留到事务提交；另一个入口 `readTitleSnapshots` 每 id 冷读整份日志、零缓存。
+- 落地 1（对账范围）：`_reconcile`/`_observeStable` 接受可选的目标会话 id，`searchEvents` 传入；只冷读目标，其余会话保留旧索引行，全量搜索再补。删除行与 live 覆盖仍按全量列表对账，generation 语义不变。
+- 落地 2（冷标题）：按「保持富结构」的决定新增客户端可见 `titleSnapshot` 投影（`title`+`messageSeqs`+`source`+`eventSeq`+`updatedAt`），随检查点持久化；`readTitleSnapshots` 先读缓存 `titleSnapshot` 行，未命中回退精确日志；`SessionCorpus.projectMany` 增加 `cached(header)` 回调解锁零 I/O 命中。
+- 放弃的并发读取：`persistedReadConcurrency` 只在 `corpus.projectMany`（标题批量）里生效；sqlite 的 reconcile 保持串行，因为既有用例要求「中止后不再发起下一次检查」（`awaits an abort-ignoring inspection…`）。并发只省时间、不降内存峰值，收益与契约冲突不成比例。
+- 仍未做：`searchSessions` 全量首次对账的峰值（需要暂存表或分批提交，且不能打破 generation/cursor 语义）；搜索 bundle 的持久索引路径（`:memory:` + `first-search` 是组合选择，不是代码默认）。
+- 全量单测暴露的既存红项（与本轮无关，未修）：`plugin-manager` 三条私有仓库 Git/pnpm 安装（需要网络与凭据）；`apps/desktop` 的 `prepare-runtime-patches` 用单文档 `yaml.load` 读 pnpm 12 的双文档锁文件（E 档升级后遗留，属真实缺陷）；`webworker-runtime` 的 V3 fixture 期望 `agentPreset: ptc`，现输出 `standard`（V4→V5 折叠表跟进后的金标未刷新）。
+- 复验（全部实跑）：`session-query-sqlite` 71 例、`session-title` 73 例、`session-query` 170 例，其余相关包 157 文件 3653 例；`tsc -b tsconfig.host.json`、`pnpm run build`、`doc-sync` 45/45、改动文件 oxlint 0 error。
