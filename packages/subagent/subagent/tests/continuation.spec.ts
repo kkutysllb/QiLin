@@ -550,6 +550,30 @@ describe('SubagentRuntime.startActivation', () => {
     expect(hasUserText(loaded.events, 'child task')).toBe(true)
   })
 
+  it('tears a one-shot child down when its single turn settles', async () => {
+    const { ctx, parent } = await setup([textResponse('one-shot answer')])
+
+    const started = await ctx.subagents.startActivation({ ...startSpec(parent), delivery: 'parent', mode: 'one-shot' })
+
+    // The durable catalog fact and the child's own descriptor both carry the mode.
+    const catalog = parent.session.snapshotEvents().filter(event => event.type === 'subagent/catalog')
+    expect(catalog.at(-1)?.data.mode).toBe('one-shot')
+    await started.result
+    await waitNoActivation(ctx, started.childId)
+    expect(ctx.agents.get(started.childId)).toBeUndefined()
+  })
+
+  it('rejects a reserved child id under one-shot mode', async () => {
+    const { ctx, parent } = await setup([])
+
+    await expect(ctx.subagents.startActivation({
+      ...startSpec(parent),
+      delivery: 'parent',
+      mode: 'one-shot',
+      childId: SessionId('00000000-0000-4000-8000-000000000124'),
+    })).rejects.toMatchObject({ code: 'UNSUPPORTED_CAPABILITY' })
+  })
+
   it('uses a caller-reserved child identity and rejects a duplicate reservation', async () => {
     const release = Promise.withResolvers<undefined>()
     const adapter = new GatedAdapter([

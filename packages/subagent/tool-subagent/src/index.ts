@@ -90,11 +90,18 @@ export interface Config {
    * the current Host subagent depth setting (default `1`) at each delegation.
    */
   maxDepth?: number | 'provider-managed'
+  /**
+   * Lifecycle for this tool's children. `continuable` (default) keeps a child
+   * resident for follow-up turns; `one-shot` tears it down when its answering
+   * turn settles. External providers are one-shot by contract and ignore this.
+   */
+  backgroundMode?: 'one-shot' | 'continuable'
 }
 
 export const Config: z<Config> = z.object({
   provider: z.string().required(),
   toolName: z.string().default('subagent'),
+  backgroundMode: z.union(['one-shot', 'continuable'] as const).default('continuable'),
   modelSelectionSettings: z.boolean().default(false),
   // Prevent Schemastery from materializing omitted agentOptions as `{}`.
   agentOptions: z.object({
@@ -279,11 +286,14 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
         },
         isConcurrencySafe: () => true,
         async execute(args, exec) {
-          // Accept-time identity for local backends only: an external provider owns the child id
-          // it returns, so reserving one here would be rejected as an unsupported capability.
+          // Accept-time identity for continuable local children only: an external
+          // provider owns the child id it returns, and a one-shot child has no
+          // follow-up to address, so neither takes a reservation.
           // Allocating before any await lets concurrent calls publish ids in call order.
           const provider = runtimeCtx.subagents.getProvider(config.provider)
-          const childId = provider?.prepareContinuable === undefined ? undefined : SessionId(randomUUID())
+          const reservesChild = provider?.prepareContinuable !== undefined
+            && (config.backgroundMode ?? 'continuable') === 'continuable'
+          const childId = reservesChild ? SessionId(randomUUID()) : undefined
           const parent = exec.agent
           if (!parent) {
             // Non-agent callers provide no parent for delegation ownership.
@@ -344,6 +354,7 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
             request,
             signal: exec.signal,
             delivery: 'parent',
+            ...(config.backgroundMode === undefined ? {} : { mode: config.backgroundMode }),
           })
           return { kind: 'activation' as const, subagentId: started.childId }
         },

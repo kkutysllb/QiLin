@@ -621,6 +621,7 @@ export class SubagentManager {
    * @returns the durable child id and accepted initial prompt message id.
    */
   async startLocal(spec: SubagentActivationSpec): Promise<SubagentActivation & { messageId: MessageId }> {
+    const mode = spec.mode ?? 'continuable'
     const request = spec.request
     const parent = request.parent
     this.assertAdmitting(parent)
@@ -635,8 +636,7 @@ export class SubagentManager {
     const agentProvider = agentOptions.provider
     const agentModel = agentOptions.model
     const agentReasoningEffort = agentOptions.reasoningEffort
-    const descriptor = snapshotSubagentDescriptor({
-      mode: 'continuable',
+    const descriptorFields = {
       provider: spec.provider,
       label: spec.label,
       ...agentProvider !== undefined ? { agentProvider } : {},
@@ -644,7 +644,12 @@ export class SubagentManager {
       ...agentReasoningEffort !== undefined ? { agentReasoningEffort } : {},
       ...request.persona !== undefined ? { persona: request.persona } : {},
       ...request.toolFilter !== undefined ? { toolFilter: request.toolFilter } : {},
-    })
+    }
+    // The descriptor overloads key on the literal mode, so the union resolves to
+    // one arm before the shared fields are spread into it.
+    const descriptor = mode === 'one-shot'
+      ? snapshotSubagentDescriptor({ mode: 'one-shot', ...descriptorFields })
+      : snapshotSubagentDescriptor({ mode: 'continuable', ...descriptorFields })
     // Capture before the first await: a later parent switch belongs to the
     // parent's future, not to this child.
     const delegatedPolicies = captureDelegatedPolicyOverrides(parent)
@@ -652,11 +657,16 @@ export class SubagentManager {
     // catalog row for a child that never materializes.
     let admission: { pool: ActivationPool; releaseSlot: () => void } | undefined
     if (spec.childId !== undefined) {
+      // A reserved identity is a continuation commitment: follow-ups address the
+      // same child, and the settlement-notice ordinal is claimed at acceptance.
+      if (mode !== 'continuable') {
+        throw new SubagentError('a reserved child id requires continuable mode', 'UNSUPPORTED_CAPABILITY')
+      }
       const pool = this.resident.get(parent.id)?.pool ?? this.rootPool(parent)
       admission = { pool, releaseSlot: pool.reserve(this.maxActiveSubagents()) }
       // A reserved identity records its catalog fact before any await: concurrent
       // delegations publish catalog rows in acceptance order instead of materialization order.
-      acceptCatalogChild(parent.session, childId, Date.now(), { mode: descriptor.mode, label: descriptor.label })
+      acceptCatalogChild(parent.session, childId, Date.now(), { mode, label: spec.label })
       this.reserveNotice(parent.session, childId)
     }
 
@@ -716,13 +726,13 @@ export class SubagentManager {
         const childHeader = child.session.header
         return await this.submitMaterialized(
           activation,
-          spec.delivery !== 'caller' && isAdjacentAgentSendMessageTool(this.ctx.get('tools')?.get('send_message', child))
+          spec.delivery !== 'caller' && mode === 'continuable' && isAdjacentAgentSendMessageTool(this.ctx.get('tools')?.get('send_message', child))
             ? withContinuableReturnGuidance(parent.id, request.prompt)
             : request.prompt,
           { source: { kind: 'user' }, signal: spec.signal, delivery: 'queue' },
           parent,
           spec.childId === undefined
-            ? () => { establishCatalogChild(parent.session, childHeader, descriptor) }
+            ? () => { establishCatalogChild(parent.session, childHeader, { mode, label: spec.label }) }
             : undefined,
         )
       })

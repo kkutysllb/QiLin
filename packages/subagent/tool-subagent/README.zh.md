@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用本包可为 agent 提供一个具名工具，把工作委派给已配置的子 agent 后端。每次调用都会启动一个受管的 activation 并返回子会话 id；运行时负责完成通知与清理。本地子会话支持消息与恢复，外部后端执行单个任务并通过完成通知返回最终结果。受支持的后端可公开获准的子级 LLM 路由；每个实例均可设置子 agent 的 persona、工具权限与深度限制。
+使用本包可为 agent 提供一个具名工具，把工作委派给已配置的子 agent 后端。每次调用都会启动一个受管的 activation 并返回子会话 id；运行时负责完成通知与清理。本地子会话默认保留常驻以支持消息与恢复，配置为 `one-shot` 时随作答 turn 结束拆除；外部后端执行单个任务并通过完成通知返回最终结果。受支持的后端可公开获准的子级 LLM 路由；每个实例均可设置子 agent 的 persona、工具权限与深度限制。
 
 ## 目录
 
@@ -46,6 +46,7 @@ kind: "package-reference"
 |---|---|---|
 | `provider` | 必填 | `ctx.subagents` 上的提供方名称（如 `spawn`、`fork`、`acp`） |
 | `toolName` | `subagent` | 面向模型的工具名称；每个已加载实例必须不同 |
+| `backgroundMode` | `continuable` | 本地子代理的生命周期：`continuable` 保留常驻，供后续 turn 与消息使用；`one-shot` 在其作答 turn 结算时拆除。外部后端按契约即一次性。 |
 | `modelSelectionSettings` | `false` | 为每个顶层 Session 读取宿主的精确路由授权偏好；常驻 preset 观察匹配 Session，直接 Agent setup 则显式传入其 Session；要求提供方支持 `agentOptions` |
 | `agentOptions` | — | 配置的子级 `provider`、`model`、适配器所有的 `reasoningEffort` 与正整数 `maxTokens` 默认值；要求提供方支持 `agentOptions`，并会覆盖提供方持有的路由默认值 |
 | `persona` | — | 每个子 agent 独立的 persona；要求提供方具备 `persona` 能力 |

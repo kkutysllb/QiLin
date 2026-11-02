@@ -225,6 +225,12 @@ export interface SubagentActivationSpec {
    * that wants the result without that notice must not use an activation yet.
    */
   readonly delivery: 'parent' | 'caller'
+  /**
+   * Lifecycle this activation establishes. `continuable` (the default) keeps the
+   * child resident for follow-up turns; `one-shot` tears the child down when its
+   * answering turn settles, and no follow-up can reach it afterwards.
+   */
+  readonly mode?: 'one-shot' | 'continuable'
 }
 
 /** One started activation: its identity, its terminal result, and its disposal. */
