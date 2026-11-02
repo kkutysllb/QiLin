@@ -195,7 +195,7 @@
 - 采纳「跳到最新后保持跟随」的决定后，专项尝试了 A（把 `floor` 拆成 `contentFloor`：跟随判定、采样、回底都用内容底，原始 `floor` 只用于写入钳制）。`ui-chat` 的 14 个 fold-follow 单测给出硬约束：跟随读者落地在**原始 `floor`**，预留空间随内容增长被 `reclaimBelow` 逐步裁掉（`spacer = top + height - contentHeight`），把回底目标改成内容底会让「落地即贴内容底、空间留在下方」与既有断言冲突。
 - 又试了「回底时请运行中的折叠批次改落尾部」（复用 `retarget`）——触发条件是批次已装好重定向，而该场景的 1510px 预留是跳跃**之后**、跟随已释放时才出现的，所以未命中。
 - 还试了「让待跑/运行中的折叠批次改落尾部」两条变体：仅认 `retarget` 已装好的情形不命中；用 `motion.inputActive()` 放宽后命中了 `chat-scroll.client.spec.tsx` 的「回底必须立即落地，并取消旧的折叠等待者」（`scrollTop` 0≠600）——把回底推迟给批次违背既有契约。
-- 全部尝试已回滚（`ui-chat` 801 例保持绿）。真正要改的是折叠批次的**提交时刻**：批次开始时 `tail` 已定，而回底可能发生在批次运行中；需要在非尾部提交分支里重新读一次 `reader.follow.active`，把「保持参考行不动 + 装预留」换成「落到尾部并上报 landing」。这是 `foldDriver` 内部的一次结构性改动，无法靠调用方补丁完成。
+- 全部尝试已回滚（`ui-chat` 801 例保持绿）。当轮的结论是「要改折叠批次的**提交时刻**：批次开始时 `tail` 已定，而回底可能发生在批次运行中，需要在非尾部提交分支里重新读一次 `reader.follow.active`」。**更正（2026-11-03，见第十五节）：该结论已被逐帧实测推翻——这一例全程没有折叠批次介入（`foldActive`/`inputActive` 均为 false、`spacer` 始终为 0），1510px 来自焦点恢复把工具行滚入视口。**
 - 覆盖提示：video 预览在 web e2e 已无覆盖，建议补一条；普通 Context 的行几何断言随行隐藏作废，若要几何保护应针对可见的「工具变更 Context」行另写。
 - B 族 10 例仍需 DEEPSEEK_API_KEY 重录；D 档按决定不做。
 ## 十四、preview-boot 第一层：编译器缺口已修（2026-11-03）
@@ -217,3 +217,17 @@
 - 迁移层的根因：V4→V5 折叠表在 V5 落地时（2026-10-11）把 `standard` 记为已退役，而 `standard` 在 2026-10-18 重新成为出厂预设，折叠表未回退——历史会话的选中模式因此被静默改写成 `ptc`，并与会话索引分歧，父会话迁移抛「historical session generation changed during migration」。折叠表收敛为仍缺席的 `cordis`/`minimal`，`standard` 直通。
 - 设置服务：预览引导的是组合后的条目清单而非启动器 profile，base 组合据此不挂载 `settings`/`config-editor`；preview-boot 改为记录该限制（断言 `settings service is absent`），凭据通路照旧实测。
 - **preview-boot 已全绿**：页面、tree active、宿主输入框、会话读写/重命名、技能目录、凭据、种子会话与子代理目录、控制台无错误。
+
+## 十五、chat-scroll-contract 最后一例收口：焦点恢复的回滚（2026-11-03 已完成）
+
+- 复现：该文件第 3 例在 `wheelToHistoryStart` 后点 `Back to bottom`，`expectBottom` 读到 1510。页面内逐帧探针（替换 `scrollTop` setter、逐帧采样、属性与 `focusin` 观察器）给出的顺序：
+  1. 点击前 `top=0`、`floor=12072`、`spacer=0`，没有折叠批次（`foldActive=false`、`inputActive=false`、`data-chat-motion` 计数 0）。
+  2. `returnToBottom` → `followTail` 写 `scrollTop=12072`；`after-set` 读回仍是 12072，`scrollHeight=12924`、`clientHeight=852`。
+  3. 同一帧内 `focusin` 落在一张工具行卡片（`[data-sample="bash"][role="button"]`）：`Back to bottom` 按钮随 `followingTail` 变真而卸载，焦点落回 `document.body`；`ChatFlow` 的「Turn 收尾重组后恢复焦点」观察者把这个回落当成重组丢焦点，重新 `focus()` 记录行里的 `role="button"`。
+  4. 浏览器为把该行滚入视口，把 `scrollTop` 拉到 10562（12072-1510）；`scrollHeight`/`clientHeight` 全程不变，也没有 ResizeObserver 通知。
+  5. 该 scroll 事件带 `movedByReader=true`（`readerInput` 由点击自身的 `pointerdown` 置位），`flushSample` 用带 1510 偏差的 `floor` 判底，得出「远离底部」并把 `followingTail` 置 false，此后不再回底。
+- 被否定的旧假设：`scrollTop=10562` 不是内容底，`scrollHeight` 也没有多出预留；`spacer` 始终为 0，`foldDriver` 没有跑过任何批次，`retarget` 从未装好。`contentFloor`、`retarget`、`inputActive` 三条改法都作用在一个不存在的折叠批次上。
+- 根因：`ChatFlow` 的焦点记录只在「下一次 DOM 变化」时判读焦点是否仍在记录行内。读者先聚焦别的控件、该控件随后被卸载时，`activeElement` 已是 `document.body`，被误判成重组丢失焦点，焦点还给记录行，浏览器随之把会话滚回去。代码注释本就说「读者聚焦别处即消费记录」，只是发生得太晚。
+- 处置：`ChatFlow` 在记录存活期间监听 `focusin`（捕获阶段），目标不在记录行内立即 `consumeTurnProcessFocus`；重组丢焦点的恢复观察者保留，两条路径共用同一个记录行查询。
+- 复验（全部实跑）：`chat-flow-focus` 新增用例先红后绿（移掉 `focusin` 监听即红）；`chat-scroll-contract` 7/7（该例 5.1s，整文件 30.8s）；`ui-chat` 802 例、`tsc -b tsconfig.client.json`、改动文件 oxlint 0 error。
+- 覆盖提示不变：video 预览在 web e2e 仍无覆盖。
