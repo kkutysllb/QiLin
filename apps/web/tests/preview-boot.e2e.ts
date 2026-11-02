@@ -391,19 +391,20 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
         )
       }
       await createDirectory('/qilin/workspace/.agents/skills', 'runtime-created')
-      // Settings and credentials both answer over the Remote carrier, so this
-      // half of the sweep posts the generated endpoints directly like the
-      // session read above.
-      const settings = await remote<{ namespaces: { ns: string; revision: number }[] }>(
-        'settings/describe', {},
-      )
-      const shell = settings.namespaces.find(namespace => namespace.ns === 'shell')
-      if (shell === undefined) throw new Error('settings/describe omitted the shell namespace')
-      await remote('settings/update', {
-        ns: 'shell',
-        patch: { timeoutMs: 61_000 },
-        expectedRevision: shell.revision,
+      // The preview boots a composed entry roster rather than a launcher
+      // profile, so the base bundle leaves `settings` and `config-editor`
+      // unmounted and the page has no settings document to describe. Record that
+      // limitation instead of asserting an editor the deployment cannot carry.
+      const settingsProbe = await transport.fetch('/api/settings/describe', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          type: 'client-request', rpcId: 'preview-settings-describe',
+          method: 'settings/describe', payload: { args: {} },
+        }),
       })
+      const settingsBody = await settingsProbe.json() as Result<unknown>
+      const settingsUnavailable = settingsBody.result.ok ? '' : settingsBody.result.error.message
       await remote('credentials/set', { ref: 'PREVIEW_TEST_SECRET', value: 'worker-only' })
       const credentials = await remote<Record<string, { configured: boolean }>>(
         'credentials/describe',
@@ -416,6 +417,7 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
         renameAdvanced: secondRename.seq > firstRename.seq,
         skillCount: skills.skills.length,
         credentialConfigured: credentials.PREVIEW_TEST_SECRET?.configured,
+        settingsUnavailable,
       }
     }, {
       seededSessionId: VFS_EXAMPLE_SESSION_IDS.main,
@@ -425,6 +427,7 @@ async function bootPreview(origin: string, browser: Browser): Promise<void> {
     expect(exercised.renameAdvanced).toBe(true)
     expect(exercised.skillCount).toBeGreaterThan(0)
     expect(exercised.credentialConfigured).toBe(true)
+    expect(exercised.settingsUnavailable).toContain('settings service is absent')
 
     const sessions = page.getByRole('tree', { name: 'Sessions' })
     const showcase = sessions.getByRole('treeitem').filter({ hasText: SHOWCASE_TITLE })
