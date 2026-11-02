@@ -73,6 +73,37 @@ export function getBuiltinModels(): unknown[] {
   return []
 }
 
+/**
+ * Every model of one installed catalog provider, chat and non-chat alike.
+ * `llm-pi-ai` reads it while it activates to decide whether a provider ships a
+ * chat model; this deployment ships none, so the empty collection is the truth.
+ * @returns no models.
+ */
+export function getAllBuiltinModels(): unknown[] {
+  return []
+}
+
+/**
+ * The mutable models collection `llm-pi-ai` builds its routes from. The
+ * collection starts empty and every mutation is accepted, so activation reads
+ * an empty catalog; streaming is the only member on a request path and stays
+ * loud.
+ * @returns an empty mutable models collection.
+ */
+export function builtinModels(): Record<string, unknown> {
+  const none: unknown[] = []
+  return {
+    clearProviders(): void {},
+    addProvider(): void {},
+    setProvider(): void {},
+    removeProvider(): void {},
+    listProviders: () => none,
+    getModels: () => none,
+    getModel: () => undefined,
+    streamSimple: notImplementedFail(MODULE, 'streamSimple'),
+  }
+}
+
 /** Anthropic messages API binding (unavailable). */
 export const anthropicMessagesApi = notImplementedFail(MODULE, 'anthropicMessagesApi')
 
@@ -88,6 +119,6 @@ export const __esModule = true
 /** CommonJS default export: the members `require()` hands a caller of this module. */
 export default {
   createProvider, createModels, getSupportedThinkingLevels, isContextOverflow, builtinProviders,
-  getBuiltinModels, getBuiltinProviders, anthropicMessagesApi, openAICompletionsApi,
-  openAIResponsesApi,
+  getBuiltinModels, getAllBuiltinModels, builtinModels, getBuiltinProviders, anthropicMessagesApi,
+  openAICompletionsApi, openAIResponsesApi,
 }
