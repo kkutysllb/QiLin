@@ -18,6 +18,7 @@ import {
 import { homedir, platform } from 'node:os'
 import { delimiter, dirname, join, resolve } from 'node:path'
 import { initProfile } from '@qilin-agent/app-boot'
+import { resolveQilinDesktopHome } from '@qilin-agent/home-paths'
 
 import {
   productDataDirectory,
@@ -335,6 +336,36 @@ export function readLegacySecrets(dataDir: string): Readonly<Record<string, stri
 }
 
 /**
+ * Resolve the directories one launch reads and writes.
+ *
+ * An explicit `QILIN_DESKTOP_HOME` names both the data directory and the Harness
+ * home, so a portable or test launch never falls back to the product's default
+ * roots. Without it the product manifest decides, keeping packaged installs on
+ * the product home under the operating-system home directory.
+ * @param product - Parsed product manifest.
+ * @param packaged - Whether this launch is a packaged application.
+ * @param home - Operating-system home directory the relative product roots resolve against.
+ * @param env - Environment that may carry `QILIN_DESKTOP_HOME`.
+ * @returns Absolute data directory and Harness home.
+ */
+export function resolveLaunchDirectories(
+  product: DesktopProduct,
+  packaged: boolean,
+  home: string = homedir(),
+  env: NodeJS.ProcessEnv = process.env,
+): { readonly dataDir: string; readonly harnessHome: string } {
+  const override = env.QILIN_DESKTOP_HOME
+  if (override !== undefined && override.trim() !== '') {
+    const root = resolveQilinDesktopHome(undefined, env)
+    return { dataDir: root, harnessHome: root }
+  }
+  return {
+    dataDir: productDataDirectory(product, packaged, home),
+    harnessHome: productHarnessHome(product, packaged, home),
+  }
+}
+
+/**
  * Prepare extraction, profile seeding, and the Host environment for one launch.
  * @param options - Launch facts.
  * @returns Paths and environment entries the shell applies before starting the Host.
@@ -346,8 +377,7 @@ export function prepareProductRuntime(options: PrepareProductRuntimeOptions): {
   const log = options.log ?? (() => {})
   const electron = options.electronExecutable ?? process.execPath
   const home = options.home ?? homedir()
-  const dataDir = productDataDirectory(options.product, options.packaged, home)
-  const harnessHome = productHarnessHome(options.product, options.packaged, home)
+  const { dataDir, harnessHome } = resolveLaunchDirectories(options.product, options.packaged, home)
   const profileDir = join(harnessHome, 'profiles', options.product.profile)
   const pluginDir = productPluginDirectory(options.product, options.root, options.packaged)
   const presetsDir = productPresetsDirectory(options.product, options.root, options.packaged)
