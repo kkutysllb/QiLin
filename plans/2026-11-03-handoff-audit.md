@@ -231,3 +231,17 @@
 - 处置：`ChatFlow` 在记录存活期间监听 `focusin`（捕获阶段），目标不在记录行内立即 `consumeTurnProcessFocus`；重组丢焦点的恢复观察者保留，两条路径共用同一个记录行查询。
 - 复验（全部实跑）：`chat-flow-focus` 新增用例先红后绿（移掉 `focusin` 监听即红）；`chat-scroll-contract` 7/7（该例 5.1s，整文件 30.8s）；`ui-chat` 802 例、`tsc -b tsconfig.client.json`、改动文件 oxlint 0 error。
 - 覆盖提示不变：video 预览在 web e2e 仍无覆盖。
+
+## 十六、窗口 A：投影缓存保留上限（2026-11-03 已完成）
+
+- 体检：`session_projcache` 的两处无界都成立——记录数随会话增长且**没有任何删除路径**（服务里没有一次 `table.delete`；归档/删除会话都不清），而 domain 在 `open` 时 `loadAll` 把每个 `<id>.json` 全读进内存。
+- 本机取样（23 条记录）：磁盘 3.40MB、rows 紧凑体积 1.64MB，其中 `contextTimeline` 一项占 1.37MB（88%）。该键在当前注册表里根本不存在——记录来自另一套构建（desktop dev home 挂的是上游 `dsh-context@0.72.0`）；缓存身份只校验 `formatVersion/createdAt/cwd/isSeeded`，不校验投影键集合，所以这类行会被永久保留且永远不被读取。
+- 决策：不做「未注册键」修剪。初始化时注册表键集合还不完整（agent preset 会为每个会话注册同一批工具投影），剪掉一个稍后才注册的键会让该会话下次 restore 从 seq 0 读整份日志，代价大于收益。改由字节上限覆盖超大行（本机 88% 的那一行正是最大行）。
+- 落地：
+  - 存储层新增 opt-in `retention: { maxRecords }`（`DomainSpec` → `KvUnitDescriptor`，仅 `per-record` 布局）：json 后端在 `loadAll` 前按写入时间保留最新 N 份文档并删除其余；sqlite 后端按 rowid 保留最新 N 行并删除其余。仍同步、不改变读契约。
+  - 缓存服务新增 `maxRecords` / `maxRecordBytes`：启动维护一次性修剪存量（重写超预算记录、淘汰最旧 `createdAt`），此后每次写入都执行字节预算并在超量时淘汰最旧记录；整条记录被全部丢弃时直接删除而不是写空壳。
+  - base 组合显式声明 `maxRecords: 256`、`maxRecordBytes: 131072`（128KiB）。
+- 实测收益（本机存量模拟）：字节上限只丢 2 行（两条大 `contextTimeline`），rows 紧凑体积 1636KB → 833KB（−49%）；叠加 `maxRecords=256` 后，记录数与单条体积都随部署有界。首启仍会完整载入一次旧存量，之后由介质层上限约束载入量。
+- 复验（全部实跑）：`storage` + `session-projection-cache` 136 例、`api/session-controller` + `session` 3497 例、`pnpm run build`、`test:docs` 21/21、`doc-sync` 全绿；改动文件 oxlint 0 error。
+- 顺手修复的既存红项（与本改动无关，生成物/文档门禁要求）：`docs/tool-catalog.md`、`docs/persistence-catalog*`、`docs/persistence-schema.json` 的过期生成物；`release-age-excludes.ts` 与 `child-route.ts` 的 5 处导出 JSDoc 缺项。
+- 下一窗口：P0-2（搜索 reconcile 作用域/并发/流式插入）与 P0-3（客户端 source 表剪枝、窗口上限）仍未动；窗口上限的「裁头后 `hasMore`/未解析位置」语义已被否决，需要另设计。
