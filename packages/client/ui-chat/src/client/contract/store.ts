@@ -11,6 +11,8 @@ export interface TurnProcessViewEntry {
   readonly collapsed?: true
   /** Written by the reader's own toggle rather than an automatic reveal. */
   readonly reader?: true
+  /** The member node that held reader focus; the flow's restoration consumes it. */
+  readonly focusedNode?: string
 }
 
 /** Per-Session state shared only by the Chat view and details surface. */

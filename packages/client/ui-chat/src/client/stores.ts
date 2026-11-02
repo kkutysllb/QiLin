@@ -10,7 +10,9 @@ type ChatActions = {
     answerStep: number,
     open: boolean,
     reader?: boolean,
+    focusedNode?: string,
   ) => void
+  consumeTurnProcessFocus: (draft: ChatStoreState, turn: number) => void
 }
 
 /**
@@ -57,13 +59,26 @@ export function createChatStore(): EngineStoreHandle<ChatStoreState, ChatActions
   return defineStore({
     init: (): ChatStoreState => ({ turnProcesses: [] }),
     actions: {
-      setTurnProcessOpen: (draft, turn, answerStep, open, reader = false) => {
+      setTurnProcessOpen: (draft, turn, answerStep, open, reader = false, focusedNode) => {
         const index = draft.turnProcesses.findIndex(entry => entry.turn === turn)
+        const previous = index < 0 ? undefined : draft.turnProcesses[index]
+        const carriedFocusedNode = focusedNode ?? previous?.focusedNode
         const next = (open
-          ? { turn, answerStep, ...reader ? { reader: true as const } : {} }
+          ? {
+            turn, answerStep,
+            ...reader ? { reader: true as const } : {},
+            ...(carriedFocusedNode === undefined ? {} : { focusedNode: carriedFocusedNode }),
+          }
           : { turn, answerStep, collapsed: true as const }) satisfies TurnProcessViewEntry
         if (index < 0) draft.turnProcesses.push(next)
         else draft.turnProcesses[index] = next
+      },
+      consumeTurnProcessFocus: (draft, turn) => {
+        const index = draft.turnProcesses.findIndex(entry => entry.turn === turn)
+        const entry = index < 0 ? undefined : draft.turnProcesses[index]
+        if (entry === undefined || entry.focusedNode === undefined) return
+        const { focusedNode: _consumed, ...next } = entry
+        draft.turnProcesses[index] = next
       },
     },
   })

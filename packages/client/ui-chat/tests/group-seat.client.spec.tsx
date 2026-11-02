@@ -2,7 +2,7 @@
 
 /** Driven fixture for the process-group seat: one group, its members, and the live policy. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, fireEvent, render } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, within } from '@testing-library/react'
 import { useEffect, useRef, type ComponentProps } from 'react'
 import { SessionSeq } from '@qilin-agent/session/types'
 import type {
@@ -88,6 +88,8 @@ interface SeatOptions {
   readonly closed?: boolean
   readonly reason?: TurnEndReason
   readonly process?: ChatTurnProcessPresentation
+  /** Replaces the member slot renderer, so a test can seat focusable rows. */
+  readonly renderMemberSlot?: () => React.ReactNode
 }
 
 /** One rendered group seat plus the mutable inputs a test drives. */
@@ -95,7 +97,17 @@ function makeSeat(options: SeatOptions = {}) {
   const groupKey = 'group:1' as GroupKey
   const members = options.members ?? [{ kind: 'node' as const, key: 'user:1' as NodeKey }]
   const location = options.reason === undefined ? turn : endedTurn(options.reason)
-  const nodes = new Map<string, ChatConversationViewNode>([['user:1', userNode('user:1', 1, location)]])
+  // A Step-located member: the seat only marks nodes below the Turn level as
+  // process members, so the turn-level user fixture can never take that role.
+  const stepMember = {
+    ...userNode('step:1', 2, location),
+    kind: 'assistant-step',
+    location: { kind: 'step', turn: location, step: 1 },
+  } as unknown as ChatConversationViewNode
+  const nodes = new Map<string, ChatConversationViewNode>([
+    ['user:1', userNode('user:1', 1, location)],
+    ['step:1', stepMember],
+  ])
   const nodeSources = new Map<string, ObservableSnapshot<ChatConversationViewNode | undefined>>()
   const processSources = new Map<string, ObservableSnapshot<undefined>>()
   const presentationSource = createSnapshotStore<ChatTurnProcessPresentation | undefined>(options.process)
@@ -156,7 +168,7 @@ function makeSeat(options: SeatOptions = {}) {
     usePresentation: bindSnapshotSelector(policyStore),
     useStore: bindSnapshotSelector(chat),
     actions: chat.actions,
-    renderSlot: () => null,
+    renderSlot: options.renderMemberSlot ?? (() => null),
     openFile: () => {},
     openSkill: () => {},
     inspectCall: () => {},
@@ -169,6 +181,7 @@ function makeSeat(options: SeatOptions = {}) {
   return {
     props,
     members,
+    chat,
     setPolicy: (mode: TranscriptViewMode) => { policyStore.set(presentationPolicyFor(mode)) },
     setGroup: (next: GroupSnapshot<ProcessGroupData>) => { groupStore.set({ ...next, key: groupKey }) },
   }
@@ -416,5 +429,29 @@ describe('ChatGroupSeat', () => {
 
     fireEvent.click(header)
     expect(FakeResizeObserver.instances).toHaveLength(0)
+  })
+
+  it('writes reader intent when a member takes focus while its Turn runs', () => {
+    const live: ChatTurnProcessPresentation = {
+      turn: 1,
+      spec: {
+        turn: 1, controlAnchorSeq: 1, processStartSeq: 2, answerAnchorSeq: null, answerStep: 0,
+        inlineReasoning: false, messageCount: 0, toolCallCount: 0, subagentCount: 0,
+      },
+      turnStarted: true, turnClosed: false, hasExternalProcess: true, hasInterleavedInput: false, compactAnswer: false,
+    }
+    const { props, chat } = makeSeat({
+      process: live,
+      members: [{ kind: 'node', key: 'step:1' as NodeKey }],
+      renderMemberSlot: () => <button data-testid="row-control" type="button" />,
+    })
+    const view = render(<ChatGroupSeat {...props} />)
+    const member = view.container.querySelector<HTMLElement>('[data-turn-process-member]')
+    expect(member?.getAttribute('data-chat-node-key')).toBe('step:1')
+    // Real focus on the row's own control is what bubbles to the member wrapper.
+    fireEvent.focus(within(member!).getByTestId('row-control'))
+    expect(chat.store.getSnapshot().turnProcesses).toEqual([
+      { turn: 1, answerStep: 0, reader: true, focusedNode: 'step:1' },
+    ])
   })
 })

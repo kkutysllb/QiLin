@@ -1,5 +1,5 @@
 /** Ordered Chat rows, local echoes, and running status share the flow slot's parent. */
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useEffect, useRef } from 'react'
 import type { RenderMessageImages } from '@qilin-agent/client-ui-conversation/client'
 import { assertNever } from '@qilin-agent/util-values'
 import type { ChatFlowSlotProps } from '../contract/slots.ts'
@@ -29,6 +29,61 @@ export const ChatFlow = memo(function ChatFlow({
     if (turn === undefined || turn.status !== 'open') return undefined
     return turn.start?.time ?? turn.steps.find(step => step.start !== undefined)?.start?.time
   })
+  // The completion regroup replaces member subtrees without re-rendering every
+  // owning seat, dropping the focused control to the document body. This flow
+  // outlives that regroup: while a record names the focused member of a closed
+  // Turn, an observer retries the restoration after each DOM change until the
+  // recorded row takes focus. The reader focusing anything else consumes the
+  // record and stops this.
+  const focusRecordKey = useStore((state) => {
+    const entry = [...state.turnProcesses].reverse().find(item => item.focusedNode !== undefined)
+    return entry === undefined ? undefined : `${entry.turn}:${entry.focusedNode}`
+  })
+  const focusedNode = focusRecordKey === undefined ? undefined : focusRecordKey.slice(focusRecordKey.indexOf(':') + 1)
+  const recordTurnKey = focusRecordKey === undefined ? undefined : Number(focusRecordKey.slice(0, focusRecordKey.indexOf(':')))
+  // The timeline's Turn status is the closed signal that survives full
+  // settlement: a node's process presentation can detach once the answer
+  // settles, which would disarm the observer mid-restoration.
+  const recordTurnClosed = useChat(snapshot => recordTurnKey === undefined
+    ? false : snapshot.timeline.turns.get(recordTurnKey)?.status === 'closed')
+  const restoreObserverRef = useRef<MutationObserver | null>(null)
+  useEffect(() => {
+    if (focusRecordKey === undefined || !recordTurnClosed) {
+      restoreObserverRef.current?.disconnect()
+      restoreObserverRef.current = null
+      return
+    }
+    const recordTurn = Number(focusRecordKey.slice(0, focusRecordKey.indexOf(':')))
+    // Same-key wrappers can coexist while the regroup swaps a row between
+    // groupings, so every wrapper carrying the recorded key takes part.
+    const attempt = (): void => {
+      const active = document.activeElement
+      const rows = [...document.querySelectorAll<HTMLElement>('[data-chat-node-key]')]
+        .filter(element => element.dataset.chatNodeKey === focusedNode)
+      if (active !== null && active !== document.body) {
+        // Focus still standing inside a recorded row keeps the record for the
+        // regroup that follows; anywhere else is the reader moving on.
+        if (!rows.some(row => row.contains(active))) actions.consumeTurnProcessFocus(recordTurn)
+        return
+      }
+      // Row controls include role=button elements, not just <button>.
+      for (const control of rows.flatMap(row => [...row.querySelectorAll<HTMLElement>('button:not([disabled]), [role="button"]:not([disabled]):not([aria-disabled="true"])')])) {
+        // Collapsed content hides its own buttons, and a hidden button
+        // silently refuses focus; walk until one actually takes it.
+        control.focus()
+        if (document.activeElement === control) {
+          actions.consumeTurnProcessFocus(recordTurn)
+          return
+        }
+      }
+    }
+    attempt()
+    const observer = new MutationObserver(() => { attempt() })
+    observer.observe(document.body, { childList: true, subtree: true })
+    restoreObserverRef.current = observer
+    return () => { observer.disconnect() }
+  }, [focusRecordKey, focusedNode, recordTurnClosed, actions])
+
   const renderMessageImages = useCallback<RenderMessageImages>(
     owner => renderSlot('conversation.message.images', { ...owner, loadImage }),
     [loadImage, renderSlot],

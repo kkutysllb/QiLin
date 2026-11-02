@@ -519,7 +519,7 @@ function makeHarness(
     session.set(sessionUpdate)
   }
   return {
-    set, setSession: session.set, setChat: chatSource.set, ChatView, props,
+    set, setSession: session.set, setChat: chatSource.set, ChatView, props, chat,
     openFile, openSkill, loadOlder, loadThrough, openView,
     setOutline: (value: unknown) => { outlineValue = value },
     chatScroll, forkAt, toolOwners,
@@ -2408,6 +2408,20 @@ describe('ChatView', () => {
     expect(toggle.hasAttribute('data-open')).toBe(false)
     expect(processRow.getAttribute('hidden')).toBe('until-found')
     expect(view.getByLabelText('回到底部')).toBeTruthy()
+  })
+
+  it('records nothing when focus lands on the disclosure itself', () => {
+    const h = makeHarness({
+      nodes: [
+        user(1, 'question'),
+        assistant(3, 'working', 1, 1),
+        assistant(4, 'final answer', 1, 2),
+      ],
+      turnEnds: new Map([[1, 5]]),
+    })
+    const view = render(<h.ChatView {...h.props} />)
+    turnProcessControl(view.container)!.focus()
+    expect(h.chat.store.getSnapshot().turnProcesses).toEqual([])
   })
 
   it('keeps a focused process row visible when a live Turn completes', () => {

@@ -44,4 +44,30 @@ describe('createChatStore', () => {
     expect(turnProcessOpen(store.store.getSnapshot(), { turn: 2, answerStep: 4 }, defaultOpen)).toBe(defaultOpen)
     expect(turnProcessOpen(store.store.getSnapshot(), { turn: 3, answerStep: 3 }, defaultOpen)).toBe(defaultOpen)
   })
+
+  it('carries the recorded focus through a later rewrite of the same Turn', () => {
+    const store = createChatStore().create()
+    store.actions.setTurnProcessOpen(2, 3, true, true, 'step:9')
+    expect(store.store.getSnapshot().turnProcesses)
+      .toEqual([{ turn: 2, answerStep: 3, reader: true, focusedNode: 'step:9' }])
+
+    store.actions.setTurnProcessOpen(2, 4, true, true)
+    expect(store.store.getSnapshot().turnProcesses)
+      .toEqual([{ turn: 2, answerStep: 4, reader: true, focusedNode: 'step:9' }])
+  })
+
+  it('consumes the recorded focus and leaves the rest of the entry in place', () => {
+    const store = createChatStore().create()
+    store.actions.setTurnProcessOpen(2, 3, true, true, 'step:9')
+    store.actions.consumeTurnProcessFocus(2)
+    expect(store.store.getSnapshot().turnProcesses).toEqual([{ turn: 2, answerStep: 3, reader: true }])
+  })
+
+  it('ignores a Turn with no entry and an entry without a recorded focus', () => {
+    const store = createChatStore().create()
+    store.actions.consumeTurnProcessFocus(7)
+    store.actions.setTurnProcessOpen(2, 3, true)
+    store.actions.consumeTurnProcessFocus(2)
+    expect(store.store.getSnapshot().turnProcesses).toEqual([{ turn: 2, answerStep: 3 }])
+  })
 })

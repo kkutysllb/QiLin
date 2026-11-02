@@ -120,6 +120,19 @@ export const ChatNodeSeat = memo(function ChatNodeSeat({
     // reader's choice, so it folds again with its own generation.
     if (processMember) writeOpen(true, false)
   }, [processMember, setOpen])
+  /**
+   * The reader focusing a member is attention on this process, so the intent
+   * lands while the Turn is still live and the completion fold sees it in its
+   * first frame instead of racing a reveal. A hidden row cannot receive focus.
+   */
+  const captureFocus = useCallback(() => {
+    // Focus alone is not a writing action, so it only marks the reader's
+    // presence: the fold this row sits in stays open at the answer boundary,
+    // and the flow's restoration learns which row carried the focus.
+    if (processMember) {
+      actions.setTurnProcessOpen(processSpec.turn, processSpec.answerStep ?? 0, true, true, routedNode.key)
+    }
+  }, [actions, processMember, processSpec, routedNode])
   const wrapperRef = useGroupAction(processHidden, revealProcess)
   const [disclosureReset] = useState(() => createSnapshotStore(0))
   const turnData = turnDataOf(routedNode)
@@ -170,6 +183,7 @@ export const ChatNodeSeat = memo(function ChatNodeSeat({
       data-turn-process-member={processMember || undefined}
       data-turn-process-hidden={processHidden || undefined}
       data-turn-process-answer={compactAnswer || undefined}
+      onFocus={captureFocus}
     >
       {renderSlot('conversation.chat.node', routedOwner, {
         entryKey: routedNode.kind,
