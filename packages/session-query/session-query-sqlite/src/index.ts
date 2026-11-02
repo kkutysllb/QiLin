@@ -42,6 +42,9 @@ import {
   openSearchDatabase,
 } from './schema.ts'
 import { ReconcileStaging, reconcileStagingPath, type StagedSession } from './staging.ts'
+
+/** No documents to insert: a reused live observation never replaces its row. */
+const EMPTY_DOCUMENTS: readonly SessionEventSearchDocument[] = Object.freeze([])
 import {
   type NormalizedEventRequest,
   type NormalizedSessionRequest,
@@ -134,7 +137,7 @@ interface ResolvedConfig {
 interface ObservedSession {
   header: SessionHeader
   inheritedEventCount: SessionLogOffset
-  documents: SessionEventSearchDocument[]
+  documents: readonly SessionEventSearchDocument[]
   fingerprint: string
 }
 
@@ -154,6 +157,14 @@ interface Observation {
   persistenceBinding: PersistenceBinding
   persisted: Map<SessionId, ObservedPersistedSession>
   live: Map<SessionId, ObservedSession>
+}
+
+/** One live session's last successful observation, keyed by its log watermark. */
+interface LiveObservationCache {
+  readonly seq: number
+  readonly inheritedEventCount: number
+  readonly headerKey: string
+  readonly fingerprint: string
 }
 
 interface IndexedPersistedRow {
@@ -240,6 +251,7 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
   private _closed = false
   private _closePromise: Promise<void> | undefined
   private _reconcileStaging: ReconcileStaging | undefined
+  private readonly _liveObservations = new Map<SessionId, LiveObservationCache>()
   private readonly _optionalPersistenceFiber: Fiber
 
   constructor(ctx: Context, config: Config) {
@@ -438,7 +450,7 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
     ).all() as unknown as IndexedLiveRow[]
     const persistedById = new Map(persistedRows.map(row => [row.id as SessionId, row]))
     const liveById = new Map(liveRows.map(row => [row.id as SessionId, row]))
-    const observation = await this._observeStable(persistedById, signal, scope)
+    const observation = await this._observeStable(persistedById, liveById, signal, scope)
     assertNotAborted(signal)
     const persistentChanges = observation.persistenceBinding.service === undefined
       ? []
@@ -523,6 +535,7 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
 
   private async _observeStable(
     indexed: ReadonlyMap<SessionId, IndexedPersistedRow>,
+    liveIndexed: ReadonlyMap<SessionId, IndexedLiveRow>,
     signal: AbortSignal | undefined,
     scope: SessionId | undefined,
   ): Promise<Observation> {
@@ -593,10 +606,13 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
       }
       const live = new Map<SessionId, ObservedSession>()
       for (const session of this.ctx.sessions.list()) {
-        const observed = observeLive(session)
         const durable = persisted.get(session.id)
+        const observed = this._observeLive(session, durable !== undefined, liveIndexed.get(session.id))
         if (durable !== undefined) assertSessionHeadersCompatible(observed.header, durable.header)
         live.set(session.id, observed)
+      }
+      for (const id of this._liveObservations.keys()) {
+        if (!live.has(id)) this._liveObservations.delete(id)
       }
       if (!sameSessionIds(initiallyLive, live)) continue
       return { persistenceBinding, persisted, live }
@@ -612,6 +628,53 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
     return this._reconcileStaging ??= new ReconcileStaging(
       reconcileStagingPath(this.config.path, this._instance),
     )
+  }
+
+  /**
+   * Observe one live session, reusing the last observation while its log
+   * watermark, identity, and indexed row are unchanged. A stable session then
+   * costs a sequence check instead of cloning its whole log and re-extracting
+   * every document on each search.
+   * @param session - mounted live session.
+   * @param persistedNow - whether the persistence snapshot also holds the session.
+   * @param indexed - the session's indexed live row, when present.
+   * @returns the detached observation for reconciliation.
+   */
+  private _observeLive(
+    session: Session,
+    persistedNow: boolean,
+    indexed: IndexedLiveRow | undefined,
+  ): ObservedSession {
+    const headerKey = liveHeaderKey(session.header, session.inheritedEventCount)
+    const cached = this._liveObservations.get(session.id)
+    if (cached !== undefined
+      && cached.seq === session.seq
+      && cached.inheritedEventCount === session.inheritedEventCount
+      && cached.headerKey === headerKey
+      && indexed?.fingerprint === cached.fingerprint
+      && indexed.persisted === (persistedNow ? 1 : 0)) {
+      return {
+        header: structuredClone(session.header),
+        inheritedEventCount: session.inheritedEventCount,
+        documents: EMPTY_DOCUMENTS,
+        fingerprint: cached.fingerprint,
+      }
+    }
+    // oxlint-disable-next-line typescript/no-deprecated -- Object-layer log read for the search index; migration deferred.
+    const documents = buildSessionEventSearchDocuments(session.header.id, session.snapshotEvents())
+    const fingerprint = liveFingerprint(session.header, session.inheritedEventCount, documents)
+    this._liveObservations.set(session.id, {
+      seq: session.seq,
+      inheritedEventCount: session.inheritedEventCount,
+      headerKey,
+      fingerprint,
+    })
+    return {
+      header: structuredClone(session.header),
+      inheritedEventCount: session.inheritedEventCount,
+      documents,
+      fingerprint,
+    }
   }
 
   private _mainGeneration(): number {
@@ -917,9 +980,34 @@ function selectedDocumentsParams(query: string, persistenceVisible: boolean): Ar
   ]
 }
 
-function observeLive(session: Session): ObservedSession {
-  // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
-  return observeSession(session.header, session.inheritedEventCount, session.snapshotEvents())
+/**
+ * Identity a live index row binds for one header; a change forces a fresh
+ * observation instead of reusing the cached fingerprint.
+ * @param header - session header.
+ * @param inheritedEventCount - fork-inherited prefix length the row stores.
+ * @returns a stable serialization of the bound identity fields.
+ */
+function liveHeaderKey(header: SessionHeader, inheritedEventCount: SessionLogOffset): string {
+  return JSON.stringify(headerBindings(header, inheritedEventCount))
+}
+
+/**
+ * Fingerprint the indexed live content: the row's identity bindings plus the
+ * extracted documents. Events that produce no document and change no surface
+ * leave the row identical, so they need no replacement.
+ * @param header - session header.
+ * @param inheritedEventCount - fork-inherited prefix length the row stores.
+ * @param documents - extracted documents for the observed log.
+ * @returns the fingerprint stored on the live row.
+ */
+function liveFingerprint(
+  header: SessionHeader,
+  inheritedEventCount: SessionLogOffset,
+  documents: readonly SessionEventSearchDocument[],
+): string {
+  return createHash('sha256')
+    .update(JSON.stringify({ header: headerBindings(header, inheritedEventCount), documents }))
+    .digest('base64url')
 }
 
 /**
@@ -937,22 +1025,6 @@ function observeDocuments(
   return buildSessionEventSearchDocuments(header.id, events)
 }
 
-function observeSession(
-  header: SessionHeader,
-  inheritedEventCount: SessionLogOffset,
-  events: readonly SessionEvent[],
-): ObservedSession {
-  const detachedHeader = structuredClone(header)
-  const detachedEvents = events.map(event => structuredClone(event))
-  return {
-    header: detachedHeader,
-    inheritedEventCount,
-    documents: buildSessionEventSearchDocuments(detachedHeader.id, detachedEvents),
-    fingerprint: createHash('sha256')
-      .update(JSON.stringify({ header: detachedHeader, inheritedEventCount, events: detachedEvents }))
-      .digest('base64url'),
-  }
-}
 
 function materializePersistenceSnapshots(
   snapshots: readonly SessionPersistenceSnapshot[],

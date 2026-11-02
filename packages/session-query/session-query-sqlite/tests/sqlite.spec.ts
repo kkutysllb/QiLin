@@ -366,6 +366,29 @@ describe('SQLite session search', () => {
       .resolves.toMatchObject({ items: [{ header: session.header, live: true, persisted: false }] })
   })
 
+  it("reuses a live observation until that session's log changes", async () => {
+    const ctx = await liveContext()
+    const session = ctx.sessions.create(SessionId('live-cached'), {
+      seed: messageEvents('needle seed'),
+      meta: { createdAt: 1 },
+    })
+    const snapshot = vi.spyOn(session, 'snapshotEvents')
+
+    await ctx.sessionQuery.searchSessions({ query: 'needle' })
+    expect(snapshot).toHaveBeenCalledTimes(1)
+    // An unchanged live session costs a watermark check, not a full log snapshot.
+    await ctx.sessionQuery.searchSessions({ query: 'needle' })
+    expect(snapshot).toHaveBeenCalledTimes(1)
+
+    session.append(
+      'user/message',
+      createUserMessage({ content: [{ type: 'text', text: 'needle follow-up' }], source: { kind: 'user' } }),
+      { surfaceOp: 'append' },
+    )
+    await ctx.sessionQuery.searchSessions({ query: 'needle' })
+    expect(snapshot).toHaveBeenCalledTimes(2)
+  })
+
   it('excludes assistant reasoning while indexing visible answer text', async () => {
     const ctx = await liveContext()
     const session = ctx.sessions.create(SessionId('reasoning'))
