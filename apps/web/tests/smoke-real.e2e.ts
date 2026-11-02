@@ -585,11 +585,38 @@ describe('qilin web keyless CLI smoke', () => {
           "type": "text",
         }
       `)
-      // The shipped tools mode is PTC, so the wire surface is the run_code
-      // transport alone; web_search and web_fetch reach the model through it.
+      // The shipped tools mode is native, so every tool reaches the wire by name;
+      // the run_code transport is the QILIN_TOOLS_MODE=ptc case below.
       expect(captured.tools?.map(tool => tool.name)).toMatchInlineSnapshot(`
         [
-          "run_code",
+          "ask_user_question",
+          "bash",
+          "create_goal",
+          "edit",
+          "exit_plan_mode",
+          "get_goal",
+          "glob",
+          "grep",
+          "interrupt_agent",
+          "job_kill",
+          "job_list",
+          "job_output",
+          "list_agents",
+          "present",
+          "read",
+          "read_image",
+          "send_message",
+          "sidebar_open",
+          "skill",
+          "subagent",
+          "subagent_fork",
+          "todo_write",
+          "update_goal",
+          "web_fetch",
+          "web_search",
+          "workflow",
+          "working_directory",
+          "write",
         ]
       `)
     } finally {
@@ -616,9 +643,13 @@ describe('qilin web keyless CLI smoke', () => {
       request.setEncoding('utf8')
       request.on('data', (chunk: string) => { body += chunk })
       request.on('end', () => {
-        const parsed = JSON.parse(body) as { max_tokens?: number; messages?: unknown[] }
-        const titleRequest = parsed.max_tokens === 64
+        // The title row is an auxiliary request: it carries no tool surface, while
+        // the main turn sends the native tool list. Session events logged into the
+        // main request also quote the title prompt, so only the tool list identifies one.
+        const parsed = JSON.parse(body) as { tools?: unknown[] }
+        const titleRequest = !Array.isArray(parsed.tools) || parsed.tools.length === 0
         const mainRequest = !titleRequest && body.includes(promptMarker)
+
         response.writeHead(200, { 'content-type': 'text/event-stream' })
         if (!mainRequest) {
           response.end(messagesResponse('Web retry title'))
@@ -896,7 +927,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
     await screen(page, '07-back-to-chat')
   })
 
-  it('bash differential rendering: tool row click leaves the default details column closed', async (context) => {
+  it('bash differential rendering: tool row click leaves the details column untouched', async (context) => {
     // The shipped composition runs tools through the host sandbox; a host that
     // refuses one (a nested sandbox-exec) can never render the bash card, so
     // the case reports itself skipped instead of failing.
@@ -912,10 +943,12 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY || notReady.length > 0)('web smoke
     const toolRow = page.locator('[data-sample="bash"]')
     await toolRow.waitFor({ timeout: 120_000 })
     await screen(page, '08-bash-round')
-    expect(await detailsTrack(page)).toBe(0)
+    // The shipped frame opens the details column at its default share of the
+    // frame; a tool row click must not drive layout.openDetails on top of it.
+    const defaultDetails = await detailsTrack(page)
+    expect(defaultDetails).toBeGreaterThan(0)
     await toolRow.click()
-    // Tool rows do not drive layout.openDetails; the default column stays closed.
-    expect(await detailsTrack(page)).toBe(0)
+    expect(await detailsTrack(page)).toBe(defaultDetails)
     await screen(page, '09-details-closed')
   }, 150_000)
 

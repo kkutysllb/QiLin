@@ -1,17 +1,18 @@
 - tree "Sessions":
   - treeitem "{{workspace}}" [expanded]
-  - treeitem "Review deepseek-ai/deepseek-harness#314 Pin Session actions for Review deepseek-ai/deepseek-harness#314" [selected]:
+  - treeitem "Review deepseek-ai/deepseek-harness#314 Session actions for Review deepseek-ai/deepseek-harness#314 Archive session Pin" [selected]:
     - text: Review deepseek-ai/deepseek-harness#314
-    - button "Pin"
     - button "Session actions for Review deepseek-ai/deepseek-harness#314"
+    - button "Archive session"
+    - button "Pin"
 
 ---
 
 - banner:
   - navigation "Session hierarchy":
     - button "Review deepseek-ai/deepseek-harness#314" [disabled]
+  - text: Standard mode
   - button "Open right sidebar"
-- button "System prompt"
 - button "GitHub event received {{clock}}":
   - text: GitHub event received
   - time: {{clock}}
@@ -26,6 +27,6 @@
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Read Only"': Read Only
-- button "Select model, current github-webhook-review-test/reply": github-webhook-review-test/reply
+- button "Select model"
 - button "Send message" [disabled]
 - button "1 turns 1 steps"

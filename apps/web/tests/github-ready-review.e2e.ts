@@ -91,7 +91,17 @@ describe.skipIf(MODE === 'record')('web e2e: GitHub ready-for-review', () => {
     process.env.QILIN_GITHUB_WEBHOOK_PORT = String(port)
     process.env.QILIN_GITHUB_WEBHOOK_SECRET = SECRET
     webhookOrigin = `http://127.0.0.1:${String(port)}`
-    scaffold = await launchWebScaffold({ extraOverlayPath: OVERLAY })
+    scaffold = await launchWebScaffold({
+      extraOverlayPath: OVERLAY,
+      // The overlay is written the way a third-party profile carries it: the rows
+      // name installed packages, so the scaffold must link them as `plugin add` would.
+      profile: {
+        packages: [
+          { dir: fileURLToPath(new URL('../../../packages/experimental/webhook', import.meta.url)) },
+          { dir: fileURLToPath(new URL('../../../packages/experimental/webhook-github', import.meta.url)) },
+        ],
+      },
+    })
     scaffold.ctx.effect(
       () => scaffold.ctx.llm.registerAdapter([PROVIDER], adapter),
       'GitHub webhook review adapter',
