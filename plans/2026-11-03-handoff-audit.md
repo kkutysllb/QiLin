@@ -178,6 +178,13 @@
 - 锁文件由 pnpm 12.16.1 重新生成：它把自身的包管理器依赖写成第一个 YAML 文档（`packageManagerDependencies` + `@pnpm/exe.*` 平台条目），原锁内容作为第二个文档保留；`--frozen-lockfile` 通过。
 - 复跑：`pnpm install`、`pnpm run build`（439 客户端产物）、`test:docs` 21/21、`hygiene` 21/21 全绿。
 
-## 十三、C 档：web e2e 剩余家族（进行中）
+## 十三、C 档：web e2e 家族（2026-11-03 第一轮已完成）
 
-两名队员并行清理：散点断言家族与超时家族。结论与逐文件处置见 `.tmp/web-scatter-report.md` 与 `.tmp/web-timeout-report.md`；需 key 重录的 B 族与 D 档不在本批。
+- 超时家族：清零。六个文件 25 通过 / 1 跳过（seeded-history、rail-search-expand、models-settings-recovery、document-preview、reference-composer、details-session-lifecycle）。更正：details-session-lifecycle 不是 composition 漂移，而是 markdown 改渲染式只读预览、右栏默认 0.35、面板外宽不再 +1；不需要 key 重录。
+- 散点家族：九文件 / 九例转绿（image-display、streaming-fence-highlight、session-inspector、live-interactions、queue-actions、onboarding-deepseek-config、sidebar-sections、third-party-plugin、plan-review）。
+- 仍红 13 例，逐条定性见 `.tmp/web-scatter-report.md` 第二节：
+  - 产品缺陷：preview-boot——webworker 编译器不支持依赖里的 `return yield*`（`transform.ts:295`）。
+  - 需决策：skill-user-invoke 两例（普通 Context 注入不再成行）、smoke-real 三例（wire 工具快照仍钉 `run_code`、重试次数、bash 详情列默认展开）、github-ready-review（profile 解析不到 experimental-webhook；本轮已整树 build 并升 pnpm 12，可复跑复核）。
+  - 布局几何：message-actions、lifecycle-chrome、present、workflow-run、chat-scroll-contract 两例。
+- 覆盖提示：video 预览在 web e2e 已无覆盖，建议补一条；普通 Context 的行几何断言随行隐藏作废，若要几何保护应针对可见的「工具变更 Context」行另写。
+- B 族 10 例仍需 DEEPSEEK_API_KEY 重录；D 档按决定不做。
