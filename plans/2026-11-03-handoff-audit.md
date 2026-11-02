@@ -198,3 +198,9 @@
   - `webworker modules: no static module is registered for "node:https"`：导入链是 `web-app/lib/startup.js → host-webserver`，即宿主 webserver 被拉进 worker 镜像；要么给 module table 补 `node:https`，要么让该依赖不进 worker 图。
   - `llm-pi-ai: TypeError: getAllBuiltinModels is not a function`：`catalog.ts` 从 `@earendil-works/pi-ai/providers/all` 引入该导出，worker 里解析到的构建不含它（版本/生成物对齐问题）。
 - 因此预览启动仍红（2 个必需插件未激活），已不再属于编译器缺口；下一步需专项决定 module table 与依赖携带策略。
+- 后续同轮继续推进（2026-11-03 深夜），逐层收口：
+  - 编译器：命名默认导出曾降级成 `exports.default = class Name {}`，名字不再进模块作用域（`p-cancelable` 末尾引用直接炸）；改为保留声明、语句末追加导出。
+  - worker 内置：补 `node:https`（复用 http 假服务器）、`node:tls`（含 `TLSSocket` 与 `_handle._parentWrap` 占位）、`node:dns`、`node:http2`、`assert`、`node:diagnostics_channel`、`http.Agent`。
+  - CJS 形状：Node 的 `events` 模块值就是 EventEmitter 类本身，静态模块改为类形状（`class X extends require('events')` 依赖它）。
+  - pi-ai stub 补齐 `getAllBuiltinModels` 与 `builtinModels`，`llm-pi-ai` 的激活不再抛错。
+- 现状：preview-boot 的 console 错误清单已清空（不再有模块解析/激活错误），测试推进到等待首页 hero（240s 未见 `Configure later`）。下一步是 worker 内 boot 状态：确认 tree 是否激活、首页状态机停在哪一档。
