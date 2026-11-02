@@ -276,3 +276,12 @@
 - 新增两条用例：多文档源锁（`prepareRuntimePatches`）与多文档已解析锁（`verifyRuntimePatches`）。
 - 复验：`prepare-runtime-patches` 18 例全绿（含读真实工作区锁的分类用例）；`tsc -b tsconfig.host.json` 绿；`apps/desktop/**` 在 oxlint 忽略列表内（其 lint lane 自理）。
 - 仍未修：`plugin-manager` 三条私有仓库安装（需网络/凭据）；`webworker-runtime` V3 fixture 的 `agentPreset` 金标。
+
+## 二十、窗口 D：全语料对账改为文件暂存（2026-11-03 已完成）
+
+- 问题：`searchSessions` 首次全量对账把每份已更改日志抽出的文档（外加只为 live 比较才需要的整日志指纹）留在内存里，直到唯一的事务提交；峰值≈整个语料的索引文本，是「刷新一下突然很占」的直接来源。
+- 处置：新增 `staging.ts`。观察阶段逐会话把 `{header, inheritedEventCount, revision, documents}` 以 NDJSON 写入私有暂存文件（0o600；durable 库旁 `<path>.staging`，`:memory:` 落 OS 临时目录）并立即释放观察对象；稳定性证明通过后，在一个事务里从暂存文件流式写回索引，结束后删除（每次尝试前 reset，失败/重试/关闭都清理）。
+- 顺带去掉两处多余开销：persisted 会话不再计算整日志 sha256 指纹（只服务 live 比较），文档抽取也不再克隆整份事件数组；内存峰值从「整个语料」降到「一个会话 + 一条暂存行」。
+- 语义保持：仍是「读取 → 稳定性证明 → 单事务提交」，generation/cursor 契约不变；暂存文件是派生数据，崩溃后下次对账的 reset 会清掉。
+- 复验：sqlite 75 例（新增 staging 模块 3 例 + 全量对账清理 1 例）、`session-query` + `api/session-controller` 57 文件 1118 例；`tsc -b tsconfig.host.json`、`pnpm run build`、`doc-sync` 45/45、改动文件 oxlint 0 error。config catalog 因源码行号平移一并重录。
+- 仍未做：live 会话每次搜索仍全量克隆事件并重算指纹（比 persisted 小得多，可按会话 seq 增量）。
