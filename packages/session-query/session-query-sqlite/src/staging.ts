@@ -1,18 +1,20 @@
 /**
  * Bounded-memory staging for one reconcile observation. A full-corpus cold
  * read used to retain every changed session's extracted documents until the
- * single insert transaction; this writes them to a private file instead and
- * streams them back during that transaction. The file is derived data: it is
- * truncated before each observation attempt and removed once the reconcile
+ * single insert transaction; this writes them as one private file per session
+ * and streams them back during that transaction. The directory is derived data:
+ * it is cleared before each observation attempt and removed once the reconcile
  * settles.
+ *
+ * The layout uses only `fs/promises`, `os`, and `path`: the browser preview runs
+ * this backend inside the web worker's VFS, which serves those modules and not
+ * `node:readline`.
  * @module @qilin-agent/session-query-sqlite/src/staging
  */
 
-import { createReadStream } from 'node:fs'
-import { open, rm, type FileHandle } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { createInterface } from 'node:readline'
 import type { SessionEventSearchDocument } from '@qilin-agent/session-query'
 import type { SessionHeader, SessionLogOffset } from '@qilin-agent/session'
 import type { SessionPersistenceRevision } from '@qilin-agent/session-persistence'
@@ -26,28 +28,28 @@ export interface StagedSession {
 }
 
 /**
- * Private file path for one index database's staging.
- * @param dbPath - configured index path; `:memory:` gets an OS-temp path.
+ * Private staging directory for one index database.
+ * @param dbPath - configured index path; `:memory:` gets a VFS temp directory.
  * @param instance - per-engine instance id, keeping temp paths distinct.
- * @returns absolute staging path.
+ * @returns absolute staging directory.
  */
 export function reconcileStagingPath(dbPath: string, instance: string): string {
   return dbPath === ':memory:'
-    ? join(tmpdir(), `qilin-session-search-${process.pid}-${instance}.staging`)
+    ? join(tmpdir(), `qilin-session-search-${instance}.staging`)
     : `${dbPath}.staging`
 }
 
 /** One reconcile's staged sessions, written and read back in observation order. */
 export class ReconcileStaging {
-  private handle: FileHandle | undefined
+  private next = 0
 
-  /** @param file - absolute staging path owned by this engine. */
-  constructor(private readonly file: string) {}
+  /** @param directory - absolute staging directory owned by this engine. */
+  constructor(private readonly directory: string) {}
 
   /** Discard this attempt's staged sessions and start a new attempt. */
   async reset(): Promise<void> {
-    await this.closeHandle()
-    await rm(this.file, { force: true })
+    this.next = 0
+    await rm(this.directory, { recursive: true, force: true })
   }
 
   /**
@@ -55,37 +57,32 @@ export class ReconcileStaging {
    * @param record - detached header, revision, and documents.
    */
   async append(record: StagedSession): Promise<void> {
-    this.handle ??= await open(this.file, 'a', 0o600)
-    await this.handle.write(`${JSON.stringify(record)}\n`)
+    await mkdir(this.directory, { recursive: true, mode: 0o700 })
+    const name = `${String(this.next).padStart(8, '0')}.json`
+    this.next += 1
+    await writeFile(join(this.directory, name), JSON.stringify(record), { mode: 0o600 })
   }
 
   /**
    * Iterate the staged sessions in observation order.
-   * @returns one detached session per staged line.
+   * @returns one detached session per staged file; nothing was staged when absent.
    */
   async *records(): AsyncGenerator<StagedSession> {
-    await this.closeHandle()
-    const stream = createReadStream(this.file, { encoding: 'utf8' })
-    const lines = createInterface({ input: stream, crlfDelay: Number.POSITIVE_INFINITY })
+    let names: string[]
     try {
-      for await (const line of lines) {
-        if (line !== '') yield JSON.parse(line) as StagedSession
-      }
-    } finally {
-      lines.close()
-      stream.destroy()
+      names = await readdir(this.directory)
+    } catch (error: unknown) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return
+      throw error
+    }
+    for (const name of names.sort()) {
+      yield JSON.parse(await readFile(join(this.directory, name), 'utf8')) as StagedSession
     }
   }
 
-  /** Close the handle and remove the file. */
+  /** Remove the staged directory. */
   async dispose(): Promise<void> {
-    await this.closeHandle()
-    await rm(this.file, { force: true })
-  }
-
-  private async closeHandle(): Promise<void> {
-    const handle = this.handle
-    this.handle = undefined
-    if (handle !== undefined) await handle.close()
+    this.next = 0
+    await rm(this.directory, { recursive: true, force: true })
   }
 }

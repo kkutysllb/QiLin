@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { mkdtemp, readdir, rm, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -12,11 +12,11 @@ afterEach(async () => {
   for (const directory of directories.splice(0)) await rm(directory, { recursive: true, force: true })
 })
 
-async function harness(): Promise<{ store: ReconcileStaging; file: string }> {
-  const directory = await mkdtemp(join(tmpdir(), 'qilin-search-staging-'))
-  directories.push(directory)
-  const file = join(directory, 'index.db.staging')
-  return { store: new ReconcileStaging(file), file }
+async function harness(): Promise<{ store: ReconcileStaging; directory: string }> {
+  const root = await mkdtemp(join(tmpdir(), 'qilin-search-staging-'))
+  directories.push(root)
+  const directory = join(root, 'index.db.staging')
+  return { store: new ReconcileStaging(directory), directory }
 }
 
 function record(revision: string): Parameters<ReconcileStaging['append']>[0] {
@@ -36,37 +36,43 @@ function record(revision: string): Parameters<ReconcileStaging['append']>[0] {
 }
 
 describe('reconcileStagingPath', () => {
-  it('stays beside a durable index and moves to the OS temp directory for :memory:', () => {
+  it('stays beside a durable index and moves to the VFS temp directory for :memory:', () => {
     expect(reconcileStagingPath('/data/index.db', 'instance')).toBe('/data/index.db.staging')
-    expect(reconcileStagingPath(':memory:', 'instance')).toMatch(/qilin-session-search-.*-instance\.staging$/u)
+    expect(reconcileStagingPath(':memory:', 'instance')).toMatch(/qilin-session-search-instance\.staging$/u)
   })
 })
 
 describe('ReconcileStaging', () => {
-  it('streams staged sessions back in append order and skips empty lines', async () => {
-    const { store, file } = await harness()
+  it('stages one private file per session and reads them back in observation order', async () => {
+    const { store, directory } = await harness()
+    // Nothing staged yet: the directory does not exist and iteration yields nothing.
+    const empty: string[] = []
+    for await (const staged of store.records()) empty.push(staged.revision)
+    expect(empty).toEqual([])
+    await expect(stat(directory)).rejects.toMatchObject({ code: 'ENOENT' })
+
     await store.reset()
     await store.append(record('first'))
     await store.append(record('second'))
-    await writeFile(file, `${await readFile(file, 'utf8')}\n`)
+    expect(await readdir(directory)).toEqual(['00000000.json', '00000001.json'])
     const revisions: string[] = []
     for await (const staged of store.records()) revisions.push(staged.revision)
     expect(revisions).toEqual(['first', 'second'])
     await store.dispose()
+    await expect(stat(directory)).rejects.toMatchObject({ code: 'ENOENT' })
   })
 
-  it('removes the file on reset and on dispose', async () => {
-    const { store, file } = await harness()
+  it('clears the directory on reset and dispose, including an absent one', async () => {
+    const { store, directory } = await harness()
     await store.reset()
     await store.append(record('first'))
-    await expect(stat(file)).resolves.toBeDefined()
+    await expect(stat(directory)).resolves.toBeDefined()
     await store.reset()
-    await expect(stat(file)).rejects.toMatchObject({ code: 'ENOENT' })
-    // An absent file is a no-op for both operations.
+    await expect(stat(directory)).rejects.toMatchObject({ code: 'ENOENT' })
     await store.reset()
     await store.append(record('second'))
     await store.dispose()
-    await expect(stat(file)).rejects.toMatchObject({ code: 'ENOENT' })
+    await expect(stat(directory)).rejects.toMatchObject({ code: 'ENOENT' })
     await store.dispose()
   })
 })
