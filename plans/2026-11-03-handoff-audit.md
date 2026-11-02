@@ -189,7 +189,8 @@
   - skill-user-invoke 两例：已转绿——按「注入不进 transcript」改在会话日志断言 `skill-invocation` 消息；引用 chip 改为断言文档页签与内容；ARIA 金标刷新。
   - present：已转绿——交付物上方间距是流自身的 16px（尾部 4px 只作用于动作行）。
   - message-actions：已转绿——Turn 过程默认折叠后无滚动余量，用例临时压视口制造滚动范围；焦点工具提示改为先等可见再抓 ARIA；视口恢复移到清理之后。
-  - **仍红 4 例布局几何**：lifecycle-chrome（480px 视口下代码块横向溢出的前提）、workflow-run（阶段标题截断的探针选错元素：`children.item(1)` 是内容包装器而非标题 span；且阶段摘要只在折叠态渲染，展开态由 `keepContentWhenOpen` 负责但探针查询为 0，需产品面确认该属性是否生效）、chat-scroll-contract 两例（判底失败与 `Search sessions` 控件在窄态不渲染）。
+  - lifecycle-chrome：已转绿——`[data-follow-end]` 横向跟随标记已移除，改为断言运行中 Think 行渲染出流式推理文本。
+  - **仍红 3 例布局几何**：workflow-run（把探针改到真正的标题 span 后，356px 窄版下长阶段名与阶段摘要重叠约 50px，属窄版 CSS 未给摘要留位；需要产品面决定修 CSS 还是改断言口径）、chat-scroll-contract 两例（判底差 1510px；700px 窄版下 `Search sessions` 控件不渲染，`openSeed` 的准备步拿不到它）。
 - 覆盖提示：video 预览在 web e2e 已无覆盖，建议补一条；普通 Context 的行几何断言随行隐藏作废，若要几何保护应针对可见的「工具变更 Context」行另写。
 - B 族 10 例仍需 DEEPSEEK_API_KEY 重录；D 档按决定不做。
 ## 十四、preview-boot 第一层：编译器缺口已修（2026-11-03）
