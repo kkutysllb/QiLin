@@ -198,7 +198,9 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
       ...[90, 180, 270].map(rotation => writeFile(join(cwd, `rotated-${rotation}.pdf`), pdfFixture(4, rotation))),
       writeFile(join(cwd, 'selection.pdf'), selectionPdfFixture()),
       ...['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].map(extension => writeFile(join(cwd, `unavailable.${extension}`), Buffer.from('PK\u0003\u0004OFFICE_BINARY_PREVIEW'))),
-      writeFile(join(cwd, 'clip.mp4'), Buffer.from([0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70])),
+      // Archives have no renderer, so this stays the unviewable binary case.
+      // (`mp4` left it: the video viewer claims it now.)
+      writeFile(join(cwd, 'clip.zip'), Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00, 0x00])),
     ])
 
     const column = page.locator('[data-rightbar-col]')
@@ -697,12 +699,12 @@ describe.skipIf(MODE === 'record')('web e2e: document preview through Files', ()
     sections.push(['## Unknown suffix', '', `- Viewer menu hidden: ${String(await viewer.count() === 0)}`, `- Text: ${fallback.join(' | ')}`].join('\n'))
 
     await filesTab.click()
-    await column.locator('[data-files-entry="file"]').getByRole('button', { name: 'clip.mp4', exact: true }).click()
+    await column.locator('[data-files-entry="file"]').getByRole('button', { name: 'clip.zip', exact: true }).click()
     const unsupported = column.locator('[data-textpreview-state="unsupported"]')
     await unsupported.waitFor({ timeout: 15_000 })
     const unsupportedLine = await unsupported.locator('[data-textpreview-unsupported]').innerText()
     expect(unsupportedLine).toContain('Preview is not available for this file type yet.')
-    expect(await unsupported.locator('[data-textpreview-path]').innerText()).toContain('clip.mp4')
+    expect(await unsupported.locator('[data-textpreview-path]').innerText()).toContain('clip.zip')
     expect(await unsupported.locator('[data-document-viewer-menu]').count()).toBe(0)
     expect(await unsupported.locator('[data-textpreview-tool="reload"]').count()).toBe(0)
     await successShot(page, 'unsupported')

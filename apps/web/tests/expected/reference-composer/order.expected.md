@@ -5,7 +5,6 @@
 - text: Research notes what changed? Referenced session · Research notes {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- button "Session recall Research notes"
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"
 - 'button "Access mode, current: Workspace Write"': Workspace Write

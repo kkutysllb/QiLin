@@ -23,6 +23,7 @@ import {
   captureStableAria,
   compareOrRefreshGolden,
   launchWebScaffold,
+  readPersistedEvents,
   seedSession,
   watchConsole,
   webSnapshotMode,
@@ -390,7 +391,7 @@ describe.skipIf(MODE === 'record')('web e2e: file and session references through
     expect(tripwire.warnings).toEqual([])
   })
 
-  it('renders the durable direct-message then recall order', async () => {
+  it('keeps the referenced direct message visible while the recall context stays row-less', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-reference-order'))
     const group = page.getByRole('treeitem', { name: /Ungrouped/ })
     await group.waitFor({ timeout: 15_000 })
@@ -402,12 +403,19 @@ describe.skipIf(MODE === 'record')('web e2e: file and session references through
     const target = groupSection.locator('[role="treeitem"]').nth(1)
     await target.waitFor({ timeout: 15_000 })
     await target.click()
-    await page.getByRole('button', { name: /^Session recall\s*Research notes$/ }).waitFor({ timeout: 15_000 })
+    await page.getByText('Research notes what changed?', { exact: false }).first().waitFor({ timeout: 15_000 })
+    // The recall injection is durable but row-less: Chat hides ordinary Context
+    // (ui-chat's isVisibleChatNode), so only the referenced message renders.
+    await expect.poll(
+      async () => (await readPersistedEvents(scaffold, SessionId(TARGET_SESSION_ID)))
+        .some(event => JSON.stringify(event).includes('Research notes')),
+      { timeout: 10_000 },
+    ).toBe(true)
+    expect(await page.getByRole('button', { name: /^Session recall/u }).count()).toBe(0)
 
     const snapshot = (await captureStableAria(page, '[class*="centerCol"]', scaffold.workspaceCwd))
       .split(TARGET_SESSION_ID).join('{{targetId}}')
     await compareOrRefreshGolden(ORDER_EXPECTED, snapshot, MODE)
-    expect(snapshot.indexOf('Research notes what changed?')).toBeLessThan(snapshot.indexOf('Session recall Research notes'))
     expect(tripwire.pageErrors).toEqual([])
     expect(tripwire.warnings).toEqual([])
     await assertFixtureInventory(SNAPSHOT_DIR, ['menu.expected.md', 'order.expected.md'])

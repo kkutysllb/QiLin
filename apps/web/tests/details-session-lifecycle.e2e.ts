@@ -171,9 +171,10 @@ describe.skipIf(MODE === 'record')('web e2e: details panel follows the current S
     await page.locator('[data-sidebar-right-expand]').click()
     await blankColumn.locator('[data-sidebar-right-guide-entry="files"]').click()
     await blankColumn.locator('[data-files-entry="file"]').getByRole('button', { name: 'before-chat.md', exact: true }).click()
-    // A Markdown path is an editable extension, so the workbench claims the
-    // row and the editor opens it; the loaded line is the content proof.
-    await blankColumn.locator('[data-file-state="ready"]').waitFor({ timeout: 15_000 })
+    // Markdown opens the rendered read-only preview (the document renderer
+    // claims the suffix), so the rendered heading and body are the content proof.
+    await blankColumn.getByRole('heading', { name: 'Before the first message', exact: true })
+      .waitFor({ timeout: 15_000 })
     await blankColumn.getByText('Workspace preview is available.', { exact: true }).waitFor()
     // The blank-draft hero carries no session title and QiLin's own headline
     // copy is locale-owned; the conversation root's phase is the anchor.
@@ -292,7 +293,9 @@ describe.skipIf(MODE === 'record')('web e2e: details panel follows the current S
     const column = page.locator('[data-rightbar-col]')
     const panel = column.locator('[data-sidebar-right-panel]')
     const panes = column.locator('[data-dockkit-pane]')
-    const normalWidth = Math.round(viewport.width * 0.45)
+    // RIGHTBAR_DEFAULT_RATIO: the first-open preference declared in
+    // packages/client/ui-layout/src/client/columns.ts.
+    const normalWidth = Math.round(viewport.width * 0.35)
     const normalColumns = [280, viewport.width - 280 - normalWidth, normalWidth]
     const checkpoints: string[] = ['# Recorded-session Sidebar states']
     const checkpoint = async (label: string): Promise<void> => {
@@ -322,15 +325,18 @@ describe.skipIf(MODE === 'record')('web e2e: details panel follows the current S
         await Promise.allSettled(frame.getAnimations().map(animation => animation.finished))
       })
       await expect.poll(() => detailsTrack(page)).toBe(0)
-      await panel.waitFor({ state: 'hidden' })
+      // A push panel unmounts when closed; a fullscreen panel keeps its node for
+      // the retained tabs but marks it inert, so no panel stays interactive.
+      await expect.poll(async () => await column.locator('[data-sidebar-right-panel]')
+        .evaluateAll(panels => panels.filter(panel => panel.getAttribute('aria-hidden') !== 'true').length)).toBe(0)
     }
 
     await select(original, 'LIGHTHOUSE')
     await open()
-    // The content-box panel adds its one rendered border pixel outside the
-    // CSS width assigned by the grid solver.
+    // The panel's painted width is exactly the CSS width the grid solver
+    // assigns (the border sits inside it, so no extra outer pixel).
     await expect.poll(() => sidebarSnapshot(page), { timeout: 5_000 })
-      .toMatchObject({ mode: 'push', panelContentWidth: normalWidth, panelOuterWidth: normalWidth + 1, resizeHandleWidth: 8 })
+      .toMatchObject({ mode: 'push', panelContentWidth: normalWidth, panelOuterWidth: normalWidth, resizeHandleWidth: 8 })
     await expect.poll(async () => ({
       filesVisible: await column.locator('[data-files-state="tree"]').isVisible(),
       errors: tripwire.pageErrors,
