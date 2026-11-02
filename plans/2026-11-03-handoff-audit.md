@@ -204,4 +204,6 @@
   - CJS 形状：Node 的 `events` 模块值就是 EventEmitter 类本身，静态模块改为类形状（`class X extends require('events')` 依赖它）。
   - pi-ai stub 补齐 `getAllBuiltinModels` 与 `builtinModels`，`llm-pi-ai` 的激活不再抛错。
 - 首页 hero 缺失的根因已定位：预览部署没有 profile 级设置服务——base 组合在缺少 `profileContext` 时禁用 `settings` 与 `config-editor`，Models 联表因此返回 `unavailable`，引导步骤自行 complete，`Configure later` 本就不会出现。测试改为断言宿主输入框这一真实首个交互面。
-- 现状：页面、tree active（837 模块、lowering 契约一致）、传输面、会话列表全通过；场景停在 `session/rename`——preview-showcase 的迁移观察失败（`historical session generation changed during migration`，`/qilin/home/sessions/.../preview-architecture-review/session.v3.jsonl`），属预览夹具的历史代与投影缓存配对问题，与模块层无关。
+- 迁移层的根因：V4→V5 折叠表在 V5 落地时（2026-10-11）把 `standard` 记为已退役，而 `standard` 在 2026-10-18 重新成为出厂预设，折叠表未回退——历史会话的选中模式因此被静默改写成 `ptc`，并与会话索引分歧，父会话迁移抛「historical session generation changed during migration」。折叠表收敛为仍缺席的 `cordis`/`minimal`，`standard` 直通。
+- 设置服务：预览引导的是组合后的条目清单而非启动器 profile，base 组合据此不挂载 `settings`/`config-editor`；preview-boot 改为记录该限制（断言 `settings service is absent`），凭据通路照旧实测。
+- **preview-boot 已全绿**：页面、tree active、宿主输入框、会话读写/重命名、技能目录、凭据、种子会话与子代理目录、控制台无错误。
