@@ -15,16 +15,17 @@ const expected = fileURLToPath(new URL('./expected/voice-download.expected.md', 
 
 /**
  * Open the installed voice bundle's detail page the way a user reaches it.
- * The plugin manager is the Settings dialog's built-in-plugins section, not a
- * page of its own, so the section and its management tab are opened first.
+ * The plugin manager is the Settings dialog's Plugins section, not a page of
+ * its own: opening the section's nav row shows the management list directly.
  * @param page - booted application page advertising English.
  * @returns the Settings dialog holding the bundle's page.
  */
 async function openVoiceBundle(page: Page): Promise<Locator> {
   const settings = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
   await settings.getByRole('button', { name: 'Plugins', exact: true }).click()
-  await settings.getByRole('tab', { name: 'Manage plugins', exact: true }).click()
-  await settings.locator('[data-plugin-package="@qilin-agent/experimental-voice-input-bundle"]').getByRole('button').click()
+  const panel = page.locator('[data-plugin-panel]')
+  await panel.getByRole('heading', { name: 'Plugins', exact: true }).waitFor({ timeout: 20_000 })
+  await panel.locator('[data-plugin-package="@qilin-agent/experimental-voice-input-bundle"]').getByRole('button').click()
   return settings
 }
 
@@ -59,7 +60,9 @@ it('shows the failed asset, actual download source and recovery advice, then ret
   await page.goto(scaffold.authenticatedUrl)
   const settings = await openVoiceBundle(page)
   await settings.getByRole('button', { name: 'Download and prepare', exact: true }).click()
-  const alert = settings.getByRole('alert')
+  // The preparation page also reports an unsupported microphone as its own
+  // alert; the scenario asserts the download failure beside it.
+  const alert = settings.locator('[class*="downloadFailure"]')
   await alert.waitFor()
   expect(await alert.textContent()).toContain('HTTP 503')
   expect(await alert.textContent()).toContain(`Download source: ${origin}`)

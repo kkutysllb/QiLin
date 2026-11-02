@@ -5,7 +5,6 @@ import { expect, it, onTestFinished } from 'vitest'
 import { captureStableAria, compareOrRefreshGolden, launchWebScaffold, watchConsole, webSnapshotMode, type WebScaffold } from './scaffold.ts'
 import { newEnglishPage, openSettings } from './support.ts'
 
-const bundle = fileURLToPath(new URL('../../../packages/experimental/voice-input-bundle', import.meta.url))
 const expected = fileURLToPath(new URL('./expected/voice-setup.expected.md', import.meta.url))
 // The Settings dialog is open behind the activation prompt, and both are
 // role="dialog"; name the prompt's own modal so the golden captures it.
@@ -16,7 +15,10 @@ it('guides a newly enabled voice plugin to installation and lets the user postpo
   onTestFinished(async () => {
     try { await resources.browser?.close() } finally { await resources.scaffold?.close() }
   })
-  const scaffold = await launchWebScaffold({ profile: { packages: [{ dir: bundle, enabled: false }] } })
+  // The installation-provided bundle composes nowhere until its switch turns
+  // on, so enabling it from the card applies live; a profile-local copy of the
+  // package would shadow the installation's and demand a restart instead.
+  const scaffold = await launchWebScaffold({})
   resources.scaffold = scaffold
   const browser = await chromium.launch()
   resources.browser = browser
@@ -24,9 +26,11 @@ it('guides a newly enabled voice plugin to installation and lets the user postpo
   await page.goto(scaffold.authenticatedUrl)
   const settings = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
   await settings.getByRole('button', { name: 'Plugins', exact: true }).click()
-  await settings.getByRole('tab', { name: 'Manage plugins', exact: true }).click()
+  // The Plugins section's management list is the panel itself; it has no tab of its own.
+  const panel = page.locator('[data-plugin-panel]')
+  await panel.getByRole('heading', { name: 'Plugins', exact: true }).waitFor({ timeout: 20_000 })
   const toggle = settings.getByRole('switch', { name: 'Enable Voice input', exact: true })
-  await toggle.waitFor()
+  await toggle.waitFor({ timeout: 20_000 })
   expect(await toggle.getAttribute('aria-checked')).toBe('false')
   const dialog = page.getByRole('dialog', { name: 'Set up voice input before recording', exact: true })
   expect(await dialog.count()).toBe(0)
@@ -39,7 +43,9 @@ it('guides a newly enabled voice plugin to installation and lets the user postpo
   const card = page.locator('[data-plugin-package="@qilin-agent/experimental-voice-input-bundle"]')
   expect(await card.getByRole('status').count()).toBe(0)
   await toggle.click()
-  await expect.poll(() => toggle.getAttribute('aria-checked')).toBe('false')
+  // The disable recompose stops the bundle the enable just mounted, and that
+  // teardown can outlast the write's usual round trip.
+  await expect.poll(() => toggle.getAttribute('aria-checked'), { timeout: 20_000 }).toBe('false')
   await toggle.click()
   await dialog.getByRole('button', { name: 'Go to setup', exact: true }).click()
   await page.getByRole('button', { name: 'Download and prepare', exact: true }).waitFor()
