@@ -67,11 +67,11 @@ export function apply(ctx: ClientContext): void {
 
 The form snapshot carries what a card needs: the resolved `value`, the composition `base`, and the raw `user` layer, whose key **presence** — not its value — is what marks a field overridden. `form.set(field, value)` stores one field and `form.unset(field)` clears it back to the composition layer; a write the Host refuses leaves the section unchanged and the controller reloads the served state. The staged-draft form model cards build on is `SettingsFormModel` in [`client-ui-primitives`](../../packages/client/ui-primitives); the controllers under [`ui-settings-plugins/src/client`](../../packages/client/ui-settings-plugins) are the worked examples.
 
-Verify: `pnpm --filter <package> bundle`, restart `qilin web`, and open **Settings → Built-in plugins → Manage plugins** — the card sits in the Official group. Save an edit and the running plugin reads the new value through its `Volatile` reference without a restart.
+Verify: `pnpm --filter <package> bundle`, restart `qilin web`, and open **Settings → Plugins** — the card sits in the Built-in plugin settings group. Save an edit and the running plugin reads the new value through its `Volatile` reference without a restart.
 
-## 3. What the tab does with it
+## 3. What the page does with it
 
-The **Manage plugins** tab renders every `plugins.item` entry in the Official group, ordered by `order`. Registration follows the settings document, so a card mounts when the Host serves its namespace and withdraws when the Host stops — a deployment that never composes the Host half shows no trace of the card. A served namespace no card claims renders nothing there, which is how the namespaces whose cards live on other sections stay off this tab. Each served form also reports `autoGenerate` for clients that build a page from the schema; no shipped client does so today.
+The **Plugins** page renders every `plugins.item` entry in the Built-in plugin settings group, ordered by `order`. Registration follows the settings document, so a card mounts when the Host serves its namespace and withdraws when the Host stops — a deployment that never composes the Host half shows no trace of the card. A served namespace no card claims renders nothing there, which is how the namespaces whose cards live on other sections stay off the page. Each served form also reports `autoGenerate` for clients that build a page from the schema; no shipped client does so today.
 
 ## Packaging
 

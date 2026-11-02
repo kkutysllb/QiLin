@@ -67,11 +67,11 @@ export function apply(ctx: ClientContext): void {
 
 表单快照携带卡片所需的一切：解析后的 `value`、组装层 `base`，以及原始的 `user` 层——字段是否被覆盖，取决于它在 `user` 层中是否**出现**，而非它的值。`form.set(field, value)` 存一个字段，`form.unset(field)` 把它清回组装层；被 Host 拒绝的写入不改动该分区，控制器会重新加载服务端状态。卡片赖以搭建暂存草稿的表单模型是 [`client-ui-primitives`](../../packages/client/ui-primitives) 的 `SettingsFormModel`；[`ui-settings-plugins/src/client`](../../packages/client/ui-settings-plugins) 下的各控制器是现成例子。
 
-验证：`pnpm --filter <package> bundle`，重启 `qilin web`，打开 **设置 → 内置插件 → 管理插件**——卡片位于 Official 分组。保存一处编辑，运行中的插件会经它的 `Volatile` 引用读到新值，无需重启。
+验证：`pnpm --filter <package> bundle`，重启 `qilin web`，打开 **设置 → 插件**——卡片位于「内置插件配置」分组。保存一处编辑，运行中的插件会经它的 `Volatile` 引用读到新值，无需重启。
 
-## 3. 标签页拿它做什么
+## 3. 页面拿它做什么
 
-**管理插件**标签页把每一个 `plugins.item` entry 渲染在 Official 分组里，按 `order` 排序。注册跟随 settings 文档：卡片在 Host 服务其命名空间时挂载，在 Host 停止时撤下——从未组装过 Host 半侧的部署不会留下这张卡片的任何痕迹。被服务却无人认领的命名空间在标签页上什么都不渲染，卡片属于其他分区的那些命名空间正是这样留在本标签页之外。每个被服务的表单还上报 `autoGenerate`，供从 schema 生成页面的客户端使用；目前没有随仓库发布的客户端这样做。
+**插件**页把每一个 `plugins.item` entry 渲染在「内置插件配置」分组里，按 `order` 排序。注册跟随 settings 文档：卡片在 Host 服务其命名空间时挂载，在 Host 停止时撤下——从未组装过 Host 半侧的部署不会留下这张卡片的任何痕迹。被服务却无人认领的命名空间在页面上什么都不渲染，卡片属于其他分区的那些命名空间正是这样留在本页之外。每个被服务的表单还上报 `autoGenerate`，供从 schema 生成页面的客户端使用；目前没有随仓库发布的客户端这样做。
 
 ## 打包
 
