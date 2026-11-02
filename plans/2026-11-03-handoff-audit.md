@@ -188,3 +188,13 @@
   - 布局几何：message-actions、lifecycle-chrome、present、workflow-run、chat-scroll-contract 两例。
 - 覆盖提示：video 预览在 web e2e 已无覆盖，建议补一条；普通 Context 的行几何断言随行隐藏作废，若要几何保护应针对可见的「工具变更 Context」行另写。
 - B 族 10 例仍需 DEEPSEEK_API_KEY 重录；D 档按决定不做。
+## 十四、preview-boot 第一层：编译器缺口已修（2026-11-03）
+
+- 根因：webworker 编译器只把语句位置的 `yield*` 降级为转发循环，`return yield*` 直接拒绝；而 `@sec-ant/readable-stream` 的 `fromAnyIterable` 正是 `async function* () { return yield* o }`。
+- 处置：新增 `returnDelegate`（同形态转发循环，完成分支 `return step.value`；正常结束跳过 close，异常退出仍在 `finally` 关闭），遍历器记录已降级节点避免二次改写；值位置与赋值位置的 `yield*` 仍 loud 拒绝。
+- 复验：transform 138 例（含新增的转发与完成值用例）与包内 921 例全绿；预览启动场景里该错误消失。
+- 场景越过编译器后停在打包层，三处新阻塞（均有实测日志）：
+  - `PCancelable is not defined`：`include:` 模块里的打包残留，源码无直接引用，需定位具体依赖。
+  - `webworker modules: no static module is registered for "node:https"`：导入链是 `web-app/lib/startup.js → host-webserver`，即宿主 webserver 被拉进 worker 镜像；要么给 module table 补 `node:https`，要么让该依赖不进 worker 图。
+  - `llm-pi-ai: TypeError: getAllBuiltinModels is not a function`：`catalog.ts` 从 `@earendil-works/pi-ai/providers/all` 引入该导出，worker 里解析到的构建不含它（版本/生成物对齐问题）。
+- 因此预览启动仍红（2 个必需插件未激活），已不再属于编译器缺口；下一步需专项决定 module table 与依赖携带策略。
