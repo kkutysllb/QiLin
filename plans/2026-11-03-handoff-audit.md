@@ -105,3 +105,11 @@
 4. 把 rc.3 计划重写为「rc.5 待办」与「历史」两节，并在文件头固定一次权威 e2e 数字（通过/失败/跳过三元组），旧数字下移历史节。
 5. proposed 下 26 条全部无 implemented 对应件：13 条有回指可留，13 条零回指且无代码痕迹，逐条做或 rejected，其中会话重构 5 条建议合并重写。
 6. C 档等有 key 与非沙箱宿主的窗口再动，不要与 A、B 并行摊开。
+
+## 八、A 档执行结果（2026-11-03，已完成）
+
+- 七笔提交，按主题拆分：`chore(repo)` 忽略 `.tmp/`；`fix(chat)` 分组级焦点保持（含新流级用例与存储分支覆盖）；`docs(guard)` 清掉陈旧改名 FIXME；`test(web)` 语音场景跟进现行入口；`test(web)` 链接图标断言；`docs(cookbook)` 设置卡片入口；`docs(plans)` 本审计与上一轮交接。
+- 门禁复跑（全部实跑）：改动文件 oxlint 0 error；`tsc -b tsconfig.client.json` 绿；ui-chat 801/801，`stores.ts` 与 `client/chat` 组的语句、分支、函数、行覆盖均为 100%；`test:gui` 685 文件 10525 通过 1 跳过；`test:docs` 21/21；`verify-repository-references` 绿；整树 `pnpm run build` 绿（439 个客户端产物）。
+- 未跑：全量 `test:coverage` 分区门、web 浏览器 lane、快照 lane，原因见文首边界；快照 lane 的构建新鲜度守卫已由本次整树 build 刷新。
+- 一处计划外事实：包 README 的骨架门（`doc-standard`）要求`### Dev Note` 恒在，因此 FIXME 清理不能整段删除开发备注，改为模板的「无待决项」形态并重录配对账本。
+- 剩余项未动：B、C、D、E 档与上游对齐长期项（第四节），按第七节顺序推进。
