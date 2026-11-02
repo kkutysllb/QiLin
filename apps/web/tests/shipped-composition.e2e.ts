@@ -507,6 +507,7 @@ const EXPECTED_TOOLS = [
   'job_list',
   'job_output',
   'list_agents',
+  'plugin_manager',
   'present',
   'read',
   'read_image',
@@ -546,7 +547,7 @@ afterEach(async () => {
 })
 
 it('assembles the shipped Web transport, catalog, guidance, and defaults', async () => {
-  scaffold = await launchWebScaffold({ deepSeekMissingCredential: true })
+  scaffold = await launchWebScaffold({ deepSeekMissingCredential: true, toolsMode: 'ptc' })
   expect(existsSync(join(scaffold.harnessHome, 'profiles', 'node_modules'))).toBe(false)
   const ctx = scaffold.ctx
   expect(ctx.llm.listProviders().some(provider => provider.id === 'deepseek-messages')).toBe(false)
@@ -624,7 +625,7 @@ it('assembles the shipped Web transport, catalog, guidance, and defaults', async
     .toEqual(['run_code', 'sidebar_open', 'working_directory'])
   const handle = await ctx.agents.create({
     sessionId: SessionId('shipped-composition'),
-    setup: agentCtx => ctx.agentPresets.mount(agentCtx).then(() => undefined),
+    setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
   })
   try {
     const names = ctx.tools.schemas(handle.agent).map(schema => schema.name).sort()
@@ -697,7 +698,7 @@ it('ships PTC with run_code but without the general workflow SDK binding under d
 }, 120_000)
 
 it('lets a preset producer reach the background-job registry', async () => {
-  scaffold = await launchWebScaffold()
+  scaffold = await launchWebScaffold({ toolsMode: 'ptc' })
   const ctx = scaffold.ctx
   const handle = await ctx.agents.create({
     sessionId: SessionId('shipped-background-job'),
@@ -728,8 +729,8 @@ it('lets a preset producer reach the background-job registry', async () => {
       },
       agent: handle.agent,
     })
-    expect(started.isError).toBe(false)
-    expect(started.content).toEqual([{ type: 'text', text: 'bash-1' }])
+    expect(started.isError, JSON.stringify(started.content)).toBe(false)
+    expect(started.content).toEqual([{ type: 'text', text: expect.stringMatching(/^bash-[0-9a-f]{16}$/) as unknown as string }])
 
     // The controller reads what the producer started: same registry, one
     // owner. A per-preset registry would list nothing here even on success.
@@ -745,7 +746,7 @@ it('lets a preset producer reach the background-job registry', async () => {
     })
     expect(listed.isError).toBe(false)
     expect(listed.content).toEqual([
-      { type: 'text', text: expect.stringContaining('bash-1 [bash]') as unknown as string },
+      { type: 'text', text: expect.stringContaining(' [bash]') as unknown as string },
     ])
 
     // The full round trip: the output a host-plane producer wrote is collected
@@ -770,7 +771,7 @@ it('lets a preset producer reach the background-job registry', async () => {
 }, 120_000)
 
 it('routes one browser-authored Auto request through the same model and asks the user after a denial', async () => {
-  scaffold = await launchWebScaffold(AUTO_REVIEW_FIXTURE)
+  scaffold = await launchWebScaffold({ ...AUTO_REVIEW_FIXTURE, toolsMode: 'ptc' })
   const ctx = scaffold.ctx
   const targetPath = join(scaffold.workspaceCwd, 'auto-review-pre-existing.txt')
   await writeFile(targetPath, 'PRE_EXISTING_MUST_REMAIN\n')
@@ -1045,7 +1046,7 @@ it('reviews one-shot, continuable, and cold-resumed in-process child calls indep
 }, 120_000)
 
 it('rolls back a failed shipped Auto initialization before publishing or intercepting tools', async () => {
-  scaffold = await launchWebScaffold(AUTO_REVIEW_FIXTURE)
+  scaffold = await launchWebScaffold({ ...AUTO_REVIEW_FIXTURE, toolsMode: 'ptc' })
   const ctx = scaffold.ctx
   const autoEntry = [...ctx.loader.entries()].find(entry => entry.options.id === 'auto-review')
   if (autoEntry === undefined) throw new Error('shipped Auto review Loader entry is missing')
