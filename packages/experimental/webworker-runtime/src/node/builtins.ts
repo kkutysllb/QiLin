@@ -21,9 +21,11 @@
  * other import. Deferring a shim's own start-up cost therefore belongs inside
  * that shim, on the path that first needs it.
  */
+import * as nodeAssert from './builtin_modules/mock/assert.ts'
 import * as nodeAsyncHooks from './builtin_modules/implemented/async_hooks.ts'
 import * as nodeBuffer from './builtin_modules/implemented/buffer.ts'
 import * as nodeCrypto from './builtin_modules/implemented/crypto.ts'
+import * as nodeDiagnosticsChannel from './builtin_modules/mock/diagnostics_channel.ts'
 import * as nodeDns from './builtin_modules/mock/dns.ts'
 import * as nodeDnsPromises from './builtin_modules/mock/dns/promises.ts'
 import * as nodeEvents from './builtin_modules/implemented/events.ts'
@@ -61,15 +63,42 @@ import * as ws from './external_packages/ws.ts'
 import { REPLACED_EXTERNAL_PACKAGES } from './external_packages/replaced-externals.ts'
 import type { StaticModuleFactory } from '../module-system/module-loader.ts'
 
+/**
+ * Node's `events` module IS the EventEmitter class, carrying itself on
+ * `.EventEmitter`; CommonJS dependencies such as `http2-wrapper` write
+ * `class Agent extends require('events')`, so the static module must answer the
+ * class rather than our module namespace.
+ */
+const eventsModule = Object.assign(nodeEvents.EventEmitter, {
+  EventEmitter: nodeEvents.EventEmitter,
+  default: nodeEvents.EventEmitter,
+  __esModule: true,
+})
+
+/**
+ * Node's `assert` module IS the assertion function; the properties below keep the
+ * named members a CommonJS dependency may also destructure.
+ */
+const assertModule = Object.assign(nodeAssert.assert, {
+  ok: nodeAssert.assert,
+  equal: nodeAssert.equal,
+  strictEqual: nodeAssert.strictEqual,
+  AssertionError: nodeAssert.AssertionError,
+  default: nodeAssert.assert,
+  __esModule: true,
+})
+
 /** Builtin modules, keyed with and without the `node:` prefix. */
 const BUILTINS: Record<string, StaticModuleFactory> = {
+  assert: () => assertModule,
   async_hooks: () => nodeAsyncHooks,
   buffer: () => nodeBuffer,
   child_process: () => nodeChildProcess,
   crypto: () => nodeCrypto,
+  diagnostics_channel: () => nodeDiagnosticsChannel,
   dns: () => nodeDns,
   'dns/promises': () => nodeDnsPromises,
-  events: () => nodeEvents,
+  events: () => eventsModule,
   fs: () => nodeFs,
   'fs/promises': () => nodeFsPromises,
   http: () => nodeHttp,

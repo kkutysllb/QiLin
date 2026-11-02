@@ -36,6 +36,16 @@ export async function whenRequestListener(): Promise<RequestListener> {
   return await new Promise<RequestListener>(resolve => waiting.add(resolve))
 }
 
+/**
+ * Connection pool placeholder. Node's `http.Agent` is the base class of the
+ * proxy agents `got`'s HTTP/2 connection cache builds at module scope; a worker
+ * never opens a pooled connection, so the pool is inert.
+ */
+export class Agent {
+  /** Release the pool (nothing to release). */
+  destroy(): void {}
+}
+
 /** Fake Server: event registrations are stored and never emitted. */
 class FakeServer {
   private readonly listeners = new Map<string, Set<Listener>>()
