@@ -71,6 +71,15 @@ export interface KvUnitDescriptor {
    * exact-version.
    */
   readonly compatibleVersions?: readonly number[]
+  /**
+   * Disposable-data retention. When present, one open loads at most
+   * `maxRecords` records and the medium drops the rest, keeping the most
+   * recently written. The owner declares this only for domains whose records
+   * are derived data a caller can rebuild after a miss; an authoritative
+   * domain must not set it. A backend that cannot enforce it rejects the
+   * descriptor at open.
+   */
+  readonly retention?: { readonly maxRecords: number }
 }
 
 /**

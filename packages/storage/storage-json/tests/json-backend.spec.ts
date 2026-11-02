@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, readdir, rename, rm, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
@@ -267,6 +267,26 @@ describe('per-record layout', () => {
     expect(JSON.parse(await readFile(join(root, 'recs', 'global.json'), 'utf8')))
       .toEqual({ version: 2, record: 'G' })
     expect(await unit.loadAll()).toEqual({ tables: { t: { k1: { v: 1 }, k2: { v: 2 } } }, global: 'G' })
+    await backend.close()
+  })
+
+  it('drops documents beyond retention.maxRecords on load, keeping the newest written', async () => {
+    const root = await freshRoot()
+    const backend = new JsonStorageBackend(root)
+    const unit = await backend.kv.open(descriptor)
+    for (const key of ['old', 'middle', 'new']) await unit.putRecord('t', key, { key })
+    await unit.close()
+    // Distinct write times: retention keeps the most recently written documents.
+    await utimes(recordPath(root, 'old'), new Date(1_000), new Date(1_000))
+    await utimes(recordPath(root, 'middle'), new Date(2_000), new Date(2_000))
+    await utimes(recordPath(root, 'new'), new Date(3_000), new Date(3_000))
+    const retained = { ...descriptor, retention: { maxRecords: 2 } }
+    const unit2 = await backend.kv.open(retained)
+    expect(await unit2.loadAll()).toEqual({
+      tables: { t: { middle: { key: 'middle' }, new: { key: 'new' } } },
+      global: null,
+    })
+    expect((await readdir(join(root, 'recs', 't'))).sort()).toEqual(['middle.json', 'new.json'])
     await backend.close()
   })
 

@@ -71,6 +71,18 @@ describe('defineDomain', () => {
     expect(descriptorOf(spec)).not.toHaveProperty('compatibleVersions')
   })
 
+  it('validates retention and projects it onto the descriptor', () => {
+    expect(() => defineDomain({ name: 'ok', version: 1, retention: { maxRecords: 2 }, tables: {} }))
+      .toThrow(/per-record/)
+    expect(() => defineDomain({
+      name: 'ok', version: 1, layout: 'per-record', retention: { maxRecords: 0 }, tables: {},
+    })).toThrow(/maxRecords/)
+    expect(descriptorOf(defineDomain({
+      name: 'ok', version: 1, layout: 'per-record', retention: { maxRecords: 3 }, tables: {},
+    }))).toMatchObject({ layout: 'per-record', retention: { maxRecords: 3 } })
+    expect(descriptorOf(bareSpec)).not.toHaveProperty('retention')
+  })
+
   it('rejects an unknown invalidRecords policy', () => {
     expect(() => defineDomain({
       name: 'ok', version: 1, invalidRecords: 'zap' as 'backup-and-skip', tables: {},

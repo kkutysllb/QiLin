@@ -184,12 +184,17 @@
     # Persisted projection cache: throttled write-behind over the
     # session_projcache domain (per-record layout — one version-stamped
     # checkpoint document per session), serving the session listing's
-    # projection column.
+    # projection column. Every record is derived data, so the cache bounds
+    # itself: the medium loads at most `maxRecords` (oldest identity dropped
+    # first), and one session stores at most `maxRecordBytes` of unit rows
+    # (the largest units drop first and refold on the next cold read).
     - id: session-projection-cache
       name: '@qilin-agent/session-projection-cache'
       config:
         writeEveryEvents: 200
         writeIntervalMs: 5000
+        maxRecords: 256
+        maxRecordBytes: 131072
 
     - id: otel
       name: '@qilin-agent/otel'

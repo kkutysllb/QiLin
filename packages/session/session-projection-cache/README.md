@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This package keeps durable per-session projection checkpoints so history lists, statistics, and goal snapshots can read cached values without loading each session log. Cold projection folds can resume after the checkpointed prefix, reducing restart work. The session log remains authoritative: a crash can leave a checkpoint stale, but never ahead of committed events, and incompatible records are ignored or backed up. Choose it for restarted sessions with frequent projection reads; skip it when projections are live-only or extra storage writes and unbounded checkpoint retention outweigh the saved work.
+This package keeps durable per-session projection checkpoints so history lists, statistics, and goal snapshots can read cached values without loading each session log. Cold projection folds can resume after the checkpointed prefix, reducing restart work. The session log remains authoritative: a crash can leave a checkpoint stale, but never ahead of committed events, and incompatible records are ignored or backed up. Choose it for restarted sessions with frequent projection reads; skip it when projections are live-only or the extra storage writes and retained-checkpoint footprint outweigh the saved work. Both retention caps are optional and bound that footprint.
 
 ## Table of Contents
 
@@ -33,7 +33,7 @@ Choose it when a deployment restarts sessions and needs durable projection value
 
 ### Minimal configuration
 
-Both throttle fields are required — flush cadence is a deployment choice with no universally correct value:
+Both throttle fields are required — flush cadence is a deployment choice with no universally correct value. The two retention fields are optional: one bounds how many sessions the cache keeps, the other how much one session may store.
 
 The cache opens its domain through the storage stack, so base mounts `storage`, `storage-json` (root `qilinHomePath('storages')`), and `storage-domain` (`backend: json`) before it:
 
@@ -43,18 +43,26 @@ The cache opens its domain through the storage stack, so base mounts `storage`, 
   config:
     writeEveryEvents: 200
     writeIntervalMs: 5000
+    maxRecords: 256
+    maxRecordBytes: 131072
 ```
 
 | Field | Default | Meaning |
 |---|---|---|
 | `writeEveryEvents` | required | Committed events per session that force a durable checkpoint write between mandatory points |
 | `writeIntervalMs` | required | Longest time a dirty checkpoint may stay unwritten between mandatory points |
+| `maxRecords` | unbounded | Session records retained; the oldest `createdAt` identities are dropped first |
+| `maxRecordBytes` | unbounded | Largest serialized checkpoint one session may store; the largest unit rows are dropped until it fits |
 
 The plugin injects `storageDomain`, `sessionProjections`, and `sessions`. The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentsession-projection-cache) is the exhaustive source for every accepted field and its JSDoc.
 
 ### How checkpoints are written
 
 Three mandatory points always write: session creation persists the seed-derived cut, `turn/end` persists the value that listing reads want, and session disposal persists the final live cut. Between them, the configured count and interval throttles write as events accumulate. Every write atomically replaces the session's complete record through the domain write chain; a failure logs a warning and keeps the cache stale, and the next write self-heals.
+
+### Retention
+
+Every record is derived data, so both caps are safe: an evicted session refolds from its log on the next cold read, and a unit row dropped for size refolds from the log on the next restore while every unit that fits keeps seeding. `maxRecords` reaches the medium too — one open loads at most that many records and deletes the rest — so a large store never becomes a large resident table. Startup maintenance applies both caps once to records written before they were configured; writes keep them enforced afterwards.
 
 ### Reading cached values
 

@@ -17,6 +17,8 @@ interface TableStatements {
   upsert: StatementSync
   remove: StatementSync
   selectAll: StatementSync
+  /** Disposable-data retention: drop rows beyond `maxRecords` before loading them. */
+  trim?: StatementSync
 }
 
 /**
@@ -50,6 +52,14 @@ export class SqliteKvUnit implements KvUnit {
         ),
         remove: db.prepare(`DELETE FROM "${physical}" WHERE key = ?`),
         selectAll: db.prepare(`SELECT key, value FROM "${physical}"`),
+        ...descriptor.retention === undefined ? {} : {
+          // Keep the newest rows by insertion order (an upsert keeps its
+          // original rowid) and delete the rest before they are loaded.
+          trim: db.prepare(
+            `DELETE FROM "${physical}" WHERE rowid NOT IN `
+            + `(SELECT rowid FROM "${physical}" ORDER BY rowid DESC LIMIT ?)`,
+          ),
+        },
       })
     }
     this.globalUpsert = descriptor.hasGlobal
@@ -66,6 +76,7 @@ export class SqliteKvUnit implements KvUnit {
     return this.settle(() => {
       const tables: Record<string, Record<string, unknown>> = {}
       for (const [name, statements] of this.tables) {
+        statements.trim?.run(this.descriptor.retention?.maxRecords ?? 0)
         // Null prototype: record keys are arbitrary strings, so '__proto__'
         // must land as an own property instead of mutating the prototype.
         const records: Record<string, unknown> = Object.create(null) as Record<string, unknown>

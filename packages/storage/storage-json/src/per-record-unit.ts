@@ -26,7 +26,7 @@
  * @module @qilin-agent/storage-json/src/per-record-unit
  */
 
-import { mkdir, readFile, readdir, rename, rm } from 'node:fs/promises'
+import { mkdir, readFile, readdir, rename, rm, stat } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import type { Dirent } from 'node:fs'
 import { StorageError } from '@qilin-agent/storage'
@@ -87,7 +87,7 @@ async function loadPerRecordState(descriptor: KvUnitDescriptor, dir: string): Pr
       if (entry.isDirectory()) {
         const records = state.tables.get(entry.name)
         if (records !== undefined) {
-          return loadTableRecords(records, versions, join(dir, entry.name))
+          return loadTableRecords(records, versions, join(dir, entry.name), descriptor.retention)
         }
       }
       if (entry.name === 'global.json' && descriptor.hasGlobal) {
@@ -161,10 +161,16 @@ async function bootstrapLegacyUnit(descriptor: KvUnitDescriptor, dir: string, st
  * @returns whether the directory contains any `.json` document path,
  * independently of key safety, readability, or stored version.
  */
-async function loadTableRecords(records: Map<string, unknown>, versions: readonly number[], dir: string): Promise<boolean> {
+async function loadTableRecords(
+  records: Map<string, unknown>,
+  versions: readonly number[],
+  dir: string,
+  retention: { readonly maxRecords: number } | undefined,
+): Promise<boolean> {
   const files = await readdir(dir, { withFileTypes: true })
   const hasDocuments = files.some(file => file.name.endsWith('.json'))
-  const loaded = await Promise.all(files.map(async (file) => {
+  const documents = await retainNewestDocuments(files, dir, retention)
+  const loaded = await Promise.all(documents.map(async (file) => {
     if (!file.name.endsWith('.json')) return
     const key = file.name.slice(0, -'.json'.length)
     if (!SAFE_KEY_RE.test(key)) return
@@ -175,6 +181,42 @@ async function loadTableRecords(records: Map<string, unknown>, versions: readonl
     if (record !== undefined) records.set(...record)
   }
   return hasDocuments
+}
+
+/**
+ * Apply the descriptor's disposable-data retention before a single document is
+ * read: keep the newest `maxRecords` documents by write time and delete the
+ * rest, so one open's memory and the medium both stay bounded. Deletion is a
+ * medium operation on records the owner declared rebuildable.
+ * @param files - directory entries of one table.
+ * @param dir - the table directory those entries belong to.
+ * @param retention - the descriptor's retention, or undefined for all records.
+ * @returns the documents to read, newest first when retention applies.
+ */
+async function retainNewestDocuments(
+  files: readonly Dirent[],
+  dir: string,
+  retention: { readonly maxRecords: number } | undefined,
+): Promise<Dirent[]> {
+  if (retention === undefined) return [...files]
+  const documents = files.filter(file => file.name.endsWith('.json'))
+  if (documents.length <= retention.maxRecords) return documents
+  const stamped = await Promise.all(documents.map(async (file) => {
+    try {
+      return { file, mtimeMs: (await stat(join(dir, file.name))).mtimeMs }
+    } catch {
+      // A document that vanished between readdir and stat is not ours to keep.
+      return undefined
+    }
+  }))
+  const ordered = stamped
+    .filter((entry): entry is { file: Dirent; mtimeMs: number } => entry !== undefined)
+    .sort((left, right) => right.mtimeMs - left.mtimeMs || right.file.name.localeCompare(left.file.name))
+  const kept = ordered.slice(0, retention.maxRecords)
+  for (const entry of ordered.slice(retention.maxRecords)) {
+    await rm(join(dir, entry.file.name), { force: true })
+  }
+  return kept.map(entry => entry.file)
 }
 
 /** Read one record document; a foreign (unreadable or stale) one reads as absent. */

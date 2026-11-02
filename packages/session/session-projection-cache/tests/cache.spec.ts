@@ -11,7 +11,7 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { Context } from '@qilin-agent/kylin'
@@ -130,7 +130,12 @@ const headerOf = (id: SessionId, createdAt = 0, cwd?: string): SessionHeader =>
 
 interface HarnessOptions {
   root?: string
-  config?: { writeEveryEvents: number; writeIntervalMs: number }
+  config?: {
+    writeEveryEvents: number
+    writeIntervalMs: number
+    maxRecords?: number
+    maxRecordBytes?: number
+  }
   stateVersion?: number
 }
 
@@ -807,5 +812,77 @@ describe('SessionProjectionCache cold-read seeding', () => {
     await vi.waitFor(() => {
       expect(warn).toHaveBeenCalledWith(expect.stringContaining('cold-read write-back for "cold-fail" failed'))
     }, { timeout: 5_000 })
+  })
+})
+
+describe('SessionProjectionCache retention', () => {
+  /** A durable record identity for a listed session of a given creation time. */
+  const identityOf = (createdAt: number): CheckpointRecord['identity'] => ({
+    formatVersion: SESSION_FORMAT_VERSION,
+    createdAt,
+    isSeeded: false,
+    inheritedEventCount: SessionLogOffset(0),
+  })
+
+  it('drops the largest unit rows beyond maxRecordBytes and refolds them on a cold read', async () => {
+    const { ctx, root } = await harness({
+      config: { writeEveryEvents: 100, writeIntervalMs: 60_000, maxRecordBytes: 512 },
+    })
+    const big = 'x'.repeat(4_096)
+    ctx.sessionProjections.register({
+      key: 'cache-test/secondary-marks',
+      stateSchema: z.object({ marks: z.array(z.string()) }).nullable(),
+      init: () => ({ marks: [big] }),
+      apply: state => state,
+      wire: {
+        viewSchema: z.object({ marks: z.array(z.string()) }),
+        view: state => state ?? { marks: [] },
+      },
+      stateVersion: 1,
+    })
+    const id = SessionId('budget')
+    const written = whenWritten(ctx, id)
+    const session = ctx.sessions.create(id)
+    await written
+    // The oversized unit is dropped; the small one still seeds a listing read.
+    expect(Object.keys((await storedRows(root, id)) ?? {})).toEqual(['cache-test/marks'])
+    expect(ctx.sessionProjectionCache.cachedSnapshot(session.header)?.values)
+      .toEqual({ 'cache-test/marks': { marks: [] } })
+    // A dropped row is only a lost shortcut: the same session still folds it.
+    expect(ctx.sessionProjectionCache.coldSnapshot(session.header, SessionLogOffset(0), []).values)
+      .toMatchObject({ 'cache-test/secondary-marks': { marks: [big] } })
+  })
+
+  it('trims an oversized stored record during startup maintenance', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'qilin-projcache-'))
+    roots.push(root)
+    await seedRecord(root, 'oversized', {
+      'cache-test/marks': { ver: 1, seq: -1, val: { marks: ['kept'] } },
+      'cache-test/secondary-marks': { ver: 1, seq: -1, val: { marks: ['y'.repeat(4_096)] } },
+    })
+    await harness({
+      root,
+      config: { writeEveryEvents: 100, writeIntervalMs: 60_000, maxRecordBytes: 512 },
+    })
+    const rows = await storedRows(root, SessionId('oversized'))
+    expect(Object.keys(rows ?? {})).toEqual(['cache-test/marks'])
+    expect(rows?.['cache-test/marks']?.val).toEqual({ marks: ['kept'] })
+  })
+
+  it('drops records beyond maxRecords at startup, oldest identity first', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'qilin-projcache-'))
+    roots.push(root)
+    const rows = { 'cache-test/marks': { ver: 1, seq: -1 as const, val: { marks: ['x'] } } }
+    await seedRecord(root, 'older', rows, identityOf(1))
+    await seedRecord(root, 'newer', rows, identityOf(2))
+    // Distinct document times keep the medium's own load-time cap deterministic.
+    await utimes(recordPath(root, SessionId('older')), new Date(1_000), new Date(1_000))
+    await utimes(recordPath(root, SessionId('newer')), new Date(2_000), new Date(2_000))
+    await harness({
+      root,
+      config: { writeEveryEvents: 100, writeIntervalMs: 60_000, maxRecords: 1 },
+    })
+    expect(await storedRecord(root, SessionId('older'))).toBeUndefined()
+    expect(await storedRecord(root, SessionId('newer'))).toBeDefined()
   })
 })

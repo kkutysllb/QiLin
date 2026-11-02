@@ -77,11 +77,26 @@ export interface Config {
   writeEveryEvents: number
   /** Longest time (milliseconds) a dirty checkpoint may stay unwritten between mandatory points. */
   writeIntervalMs: number
+  /**
+   * Session records the cache retains, oldest `createdAt` evicted first.
+   * Absent keeps every record. A cache record is derived data, so an evicted
+   * session simply refolds from its log on the next cold read.
+   */
+  maxRecords?: number
+  /**
+   * Largest serialized checkpoint one session may store, in UTF-8 bytes.
+   * Absent keeps every unit. The largest unit rows are dropped first: a
+   * dropped unit refolds from the log on the next restore, and the record
+   * keeps every unit that fits.
+   */
+  maxRecordBytes?: number
 }
 
 export const Config: z<Config> = z.object({
   writeEveryEvents: z.natural().min(1).required(),
   writeIntervalMs: z.natural().min(1).required(),
+  maxRecords: z.natural().min(1),
+  maxRecordBytes: z.natural().min(1),
 })
 
 /** Per-session write-behind bookkeeping (live sessions only; dropped at retire). */
@@ -115,10 +130,17 @@ export class SessionProjectionCache extends Service {
 
   /** Open the domain and install the write-behind listeners. */
   protected async [Service.init](): Promise<void> {
-    const domain = await this.ctx.storageDomain.open(projectionCacheDomainSpec)
+    // Retention is a deployment choice, so it joins the declared spec at open
+    // instead of living in the shared declaration: the medium then loads at
+    // most `maxRecords` records and drops the rest before memory holds them.
+    const maxRecords = this.config.maxRecords
+    const domain = await this.ctx.storageDomain.open(maxRecords === undefined
+      ? projectionCacheDomainSpec
+      : { ...projectionCacheDomainSpec, retention: { maxRecords } })
     this.ctx.effect(() => () => domain.close(), 'sessionProjectionCache.domainClose')
     this.table = domain.table('sessions')
     this.installWritePath()
+    await this.maintain('startup')
   }
 
   /**
@@ -391,7 +413,87 @@ export class SessionProjectionCache extends Service {
     if (detached === undefined) {
       throw new TypeError('projection checkpoint is not losslessly JSON-serializable (a unit state violates the plain-JSON contract)')
     }
-    await this.requireTable().put(id, { identity, rows: detached as CheckpointRecord['rows'] })
+    const limited = this.limitRows(detached as CheckpointRecord['rows'])
+    // A record whose every unit overran the budget is worthless: delete instead
+    // of storing an empty shell that would still occupy a table slot.
+    if (Object.keys(limited).length === 0) {
+      await this.requireTable().delete(id)
+      return
+    }
+    await this.requireTable().put(id, { identity, rows: limited })
+    await this.enforceMaxRecords()
+  }
+
+  /**
+   * Enforce the deployment's retention over already-stored records: cap every
+   * record's serialized size, then evict the oldest identities. Runs once at
+   * init (a one-time migration for records written before the caps existed)
+   * and after each write (a no-op while the cache fits).
+   */
+  private async maintain(trigger: string): Promise<void> {
+    const table = this.requireTable()
+    let rewritten = 0
+    let removed = 0
+    for (const [id, record] of [...table.entries()]) {
+      const limited = this.limitRows(record.rows)
+      if (Object.keys(limited).length === 0) {
+        await table.delete(id)
+        removed += 1
+        continue
+      }
+      if (Object.keys(limited).length !== Object.keys(record.rows).length) {
+        await table.put(id, { identity: record.identity, rows: limited })
+        rewritten += 1
+      }
+    }
+    removed += await this.enforceMaxRecords()
+    if (rewritten !== 0 || removed !== 0) {
+      this.ctx.logger.debug(
+        `session projection cache: ${trigger} retention trimmed ${rewritten} records and dropped ${removed}`,
+      )
+    }
+  }
+
+  /**
+   * Drop the largest unit rows until the record fits the configured byte
+   * budget. A dropped row is only a lost fold shortcut: its unit refolds from
+   * the log on the next restore, while every unit that fits keeps seeding.
+   */
+  private limitRows(rows: CheckpointRecord['rows']): CheckpointRecord['rows'] {
+    const budget = this.config.maxRecordBytes
+    if (budget === undefined) return rows
+    const entries = Object.entries(rows)
+    const sizes = new Map(entries.map(([key, row]) => [key, Buffer.byteLength(key) + Buffer.byteLength(JSON.stringify(row))]))
+    let total = [...sizes.values()].reduce((sum, size) => sum + size, 0)
+    if (total <= budget) return rows
+    const dropped = new Set<string>()
+    for (const [key, size] of [...sizes.entries()].sort((left, right) => right[1] - left[1])) {
+      if (total <= budget) break
+      dropped.add(key)
+      total -= size
+    }
+    return Object.fromEntries(entries.filter(([key]) => !dropped.has(key)))
+  }
+
+  /**
+   * Delete the oldest records until the retained count fits `maxRecords`.
+   * @returns how many records were dropped.
+   */
+  private async enforceMaxRecords(): Promise<number> {
+    const max = this.config.maxRecords
+    const table = this.requireTable()
+    if (max === undefined || table.size <= max) return 0
+    // Re-read the count as deletes land: a concurrent write may have evicted
+    // its own overflow, and this pass must not drop records it no longer needs to.
+    const ordered = [...table.entries()]
+      .sort((left, right) => left[1].identity.createdAt - right[1].identity.createdAt)
+    let removed = 0
+    for (const [id] of ordered) {
+      if (table.size <= max) break
+      await table.delete(id)
+      removed += 1
+    }
+    return removed
   }
 
   private requireTable(): KvTable<SessionId, CheckpointRecord> {

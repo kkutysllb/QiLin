@@ -65,6 +65,15 @@ export interface DomainSpec {
    * to the rejecting default. The global slot always rejects.
    */
   readonly invalidRecords?: 'backup-and-skip'
+  /**
+   * Disposable-data retention forwarded to the medium. `maxRecords` bounds
+   * what one open loads: records beyond it are dropped, least recently written
+   * first, and a later read rebuilds them. Declaring this promises every
+   * record is derived data — an authoritative domain must not set it — and
+   * requires the `per-record` layout, whose records are individually
+   * disposable.
+   */
+  readonly retention?: { readonly maxRecords: number }
   /** Optional global singleton slot. */
   readonly global?: DomainGlobalSpec<unknown>
   /** Table declarations keyed by table name; each name must match `UNIT_NAME_RE`. */
@@ -126,6 +135,16 @@ export function defineDomain<S extends DomainSpec>(spec: S): S {
       throw new Error(`domain '${spec.name}' layout must be 'single' or 'per-record', got ${layout}`)
     }
   }
+  if (spec.retention !== undefined) {
+    if (spec.layout !== 'per-record') {
+      throw new Error(`domain '${spec.name}' retention requires the 'per-record' layout`)
+    }
+    if (!Number.isInteger(spec.retention.maxRecords) || spec.retention.maxRecords < 1) {
+      throw new Error(
+        `domain '${spec.name}' retention.maxRecords must be a positive integer, got ${String(spec.retention.maxRecords)}`,
+      )
+    }
+  }
   if (spec.invalidRecords !== undefined) {
     const policy: string = spec.invalidRecords
     if (policy !== 'backup-and-skip') {
@@ -159,5 +178,6 @@ export function descriptorOf(spec: DomainSpec): KvUnitDescriptor {
     hasGlobal: spec.global !== undefined,
     ...spec.layout === undefined ? {} : { layout: spec.layout },
     ...spec.compatibleVersions === undefined ? {} : { compatibleVersions: spec.compatibleVersions },
+    ...spec.retention === undefined ? {} : { retention: spec.retention },
   }
 }

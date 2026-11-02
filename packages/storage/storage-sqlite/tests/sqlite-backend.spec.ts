@@ -50,6 +50,21 @@ describe('sqlite backend specifics', () => {
     await backend.close()
   })
 
+  it('drops rows beyond retention.maxRecords on load, keeping the newest inserted', async () => {
+    const backend = backendAt(':memory:')
+    const retained: KvUnitDescriptor = { ...DESCRIPTOR, retention: { maxRecords: 2 } }
+    const unit = await backend.kv.open(retained)
+    for (const key of ['old', 'middle', 'new']) await unit.putRecord('records', key, { key })
+    expect((await unit.loadAll()).tables['records']).toEqual({
+      middle: { key: 'middle' },
+      new: { key: 'new' },
+    })
+    // The dropped row is gone from the medium, not merely hidden from this read.
+    const reopened = await backend.kv.open({ ...DESCRIPTOR, name: 'specimen2', retention: { maxRecords: 2 } })
+    expect((await reopened.loadAll()).tables['records']).toEqual({})
+    await backend.close()
+  })
+
   it('materializes STRICT record tables and stamps the schema version', async () => {
     const path = await freshDbPath()
     const backend = backendAt(path)
