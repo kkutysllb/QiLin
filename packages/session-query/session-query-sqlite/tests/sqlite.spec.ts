@@ -1180,6 +1180,24 @@ describe('SQLite reconciliation and source lifecycle', () => {
     expect(after.has(added.id)).toBe(true)
   })
 
+  it("reads only the target session's log for one session's event search", async () => {
+    const target = header('target')
+    const other = header('other')
+    TestPersistence.reset([
+      { meta: target, events: messageEvents('target needle') },
+      { meta: other, events: messageEvents('other needle') },
+    ])
+    const ctx = await liveContext({ path: await temporaryPath() })
+    await ctx.plugin(TestPersistence)
+    const page = await ctx.sessionQuery.searchEvents({ sessionId: target.id, query: 'needle' })
+    expect(page.session.id).toBe(target.id)
+    // The other changed log is not read: one session's search reconciles only it.
+    expect(Object.fromEntries(TestPersistence.reads)).toEqual({ target: 1 })
+    // A corpus search still indexes the remaining sessions.
+    await ctx.sessionQuery.searchSessions({ query: 'other needle' })
+    expect(Object.fromEntries(TestPersistence.reads)).toEqual({ target: 1, other: 1 })
+  })
+
   it('drops connection-local live overlays on reopen and retains persistent bases', async () => {
     const path = await temporaryPath()
     const shared = header('shared', 10)

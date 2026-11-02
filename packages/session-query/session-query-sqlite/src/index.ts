@@ -302,7 +302,10 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
     const signal = exec?.signal
     return this._serialized(signal, async () => {
       await this._ensureReady(signal)
-      const persistenceBinding = await this._reconcile(signal)
+      // One session's event search needs that session's text and nothing else:
+      // reconciling the whole corpus first is what made a single search read
+      // every changed log in the process.
+      const persistenceBinding = await this._reconcile(signal, normalized.sessionId)
       assertNotAborted(signal)
       const target = this._targetObservation(normalized.sessionId, persistenceBinding)
       const fingerprint = requestFingerprint(normalized)
@@ -404,7 +407,10 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
     }
   }
 
-  private async _reconcile(signal: AbortSignal | undefined): Promise<PersistenceBinding> {
+  private async _reconcile(
+    signal: AbortSignal | undefined,
+    scope?: SessionId,
+  ): Promise<PersistenceBinding> {
     assertNotAborted(signal)
     const db = this._requireDb()
     const persistedRows = db.prepare(
@@ -415,7 +421,7 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
     ).all() as unknown as IndexedLiveRow[]
     const persistedById = new Map(persistedRows.map(row => [row.id as SessionId, row]))
     const liveById = new Map(liveRows.map(row => [row.id as SessionId, row]))
-    const observation = await this._observeStable(persistedById, signal)
+    const observation = await this._observeStable(persistedById, signal, scope)
     assertNotAborted(signal)
     const persistentChanges = observation.persistenceBinding.service === undefined
       ? []
@@ -495,6 +501,7 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
   private async _observeStable(
     indexed: ReadonlyMap<SessionId, IndexedPersistedRow>,
     signal: AbortSignal | undefined,
+    scope: SessionId | undefined,
   ): Promise<Observation> {
     for (let attempt = 0; attempt < STABLE_OBSERVATION_ATTEMPTS; attempt += 1) {
       assertNotAborted(signal)
@@ -510,6 +517,7 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
           const before = await persistence.list(listOptions)
           assertNotAborted(signal)
           persisted = materializePersistenceSnapshots(before)
+          const pending: ObservedPersistedSession[] = []
           for (const entry of persisted.values()) {
             if (canReuseIndexed && indexed.get(entry.header.id)?.revision === entry.revision) continue
             // Skip work already shadowed by a live owner. The cold read is
@@ -518,6 +526,12 @@ export class SqliteSessionQueryEngine extends SessionQueryEngine {
             // the live-membership retry below makes the returned observation
             // live-preferred.
             if (initiallyLive.has(entry.header.id) || this.ctx.sessions.get(entry.header.id) !== undefined) continue
+            if (scope !== undefined && entry.header.id !== scope) continue
+            pending.push(entry)
+          }
+          // Sequential by contract: an abort must stop issuing further reads,
+          // and one ignored abort must not let the next inspection start.
+          for (const entry of pending) {
             assertNotAborted(signal)
             const loaded = await readColdSessionLog(persistence, entry.header.id, signal)
             assertNotAborted(signal)
