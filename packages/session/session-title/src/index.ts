@@ -265,6 +265,30 @@ function collectSessionTitleMessages(
 
 const titleViewSchema: ZodType<string | null> = zod.string().min(1).nullable()
 
+const sessionTitleSourceSchema = zod.discriminatedUnion('kind', [
+  zod.object({ kind: zod.literal('fallback') }).strict(),
+  zod.object({
+    kind: zod.literal('provider'),
+    provider: zod.string().min(1),
+    model: zod.object({ provider: zod.string().min(1), model: zod.string().min(1) }).strict().optional(),
+  }).strict(),
+  zod.object({ kind: zod.literal('user') }).strict(),
+]).transform((source): SessionTitleSource => (source.kind === 'provider'
+  ? {
+    kind: 'provider',
+    provider: source.provider as SessionTitleProviderId,
+    ...(source.model === undefined ? {} : { model: { ...source.model } }),
+  }
+  : source))
+
+const titleSnapshotSchema = zod.object({
+  title: zod.string().min(1),
+  messageSeqs: zod.array(zod.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).transform(SessionSeq)),
+  source: sessionTitleSourceSchema,
+  eventSeq: zod.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).transform(SessionSeq),
+  updatedAt: zod.number().int().nonnegative(),
+}).strict().nullable()
+
 /** Latest logged title text and its client view. */
 export const titleProjectionDefinition = {
   key: 'title',
@@ -279,6 +303,30 @@ export const titleProjectionDefinition = {
     view: state => state,
   },
 } satisfies ProjectionDefinition<'title', string | null>
+
+/**
+ * Latest logged title plus its event envelope, cached so a cold-listing reader
+ * can answer `readTitleSnapshots` without folding the session log.
+ */
+export const titleSnapshotProjectionDefinition = {
+  key: 'titleSnapshot',
+  stateVersion: 1,
+  stateSchema: titleSnapshotSchema,
+  init: () => null,
+  apply: (state, event) => (event.type === 'session/title'
+    ? titleSnapshotFromState({
+      title: event.data.title,
+      messageSeqs: event.data.messageSeqs,
+      source: event.data.source,
+      eventSeq: event.seq,
+      updatedAt: event.time,
+    })
+    : state),
+  wire: {
+    viewSchema: titleSnapshotSchema,
+    view: state => state,
+  },
+} satisfies ProjectionDefinition<'titleSnapshot', SessionTitleSnapshot | null>
 
 /**
  * Fold the latest logged title without consulting mutable metadata.
@@ -342,6 +390,7 @@ export class SessionTitleService extends Service {
     }, 'sessionTitle lifecycle')
 
     ctx.sessionProjections.register(titleProjectionDefinition)
+    ctx.sessionProjections.register(titleSnapshotProjectionDefinition)
 
     ctx.sessionProjections.register<'titleInput', TitleInputState>({
       key: 'titleInput',

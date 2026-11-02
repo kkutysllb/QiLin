@@ -55,7 +55,7 @@ interface SessionSurfaceSnapshot {
 }
 ```
 
-`SessionTitleObservation` 将同样的原子观测规则应用于标题折叠，使执行授权检查的消费方能够验证提供标题的源 header。批量读取会按顺序为每个唯一请求 id 返回一个 `SessionTitleObservationResult`：操作失败只影响对应 id，而取消会拒绝整个操作。
+`SessionTitleObservation` 将同样的原子观测规则应用于标题折叠，使执行授权检查的消费方能够验证提供标题的源 header。持久会话在检查点持有 `titleSnapshot` 行时由投影缓存回答；未命中则回退到精确日志。批量读取会按顺序为每个唯一请求 id 返回一个 `SessionTitleObservationResult`：操作失败只影响对应 id，而取消会拒绝整个操作。
 
 ```ts type-equiv
 /** Latest folded title bound to the same session-header observation. */

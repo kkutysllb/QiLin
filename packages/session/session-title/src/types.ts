@@ -80,6 +80,8 @@ declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Latest logged title text, or null. */
     title: string | null
+    /** Latest logged title snapshot (text plus the title event's envelope), or null. */
+    titleSnapshot: SessionTitleSnapshot | null
     /** Eligible human title input. */
     titleInput: TitleInputState
   }
@@ -90,5 +92,11 @@ declare module '@qilin-agent/session-projection/types' {
      * plain string: the shape the client list rows consume.
      */
     title: string | null
+    /**
+     * The latest `session/title` snapshot folded from the log: the same text
+     * plus `messageSeqs`, `source`, `eventSeq`, and `updatedAt`. A host reader
+     * that needs those envelope facts reads this instead of folding the log.
+     */
+    titleSnapshot: SessionTitleSnapshot | null
   }
 }

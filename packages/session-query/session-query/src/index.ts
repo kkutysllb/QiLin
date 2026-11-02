@@ -10,11 +10,13 @@ import {
   Session,
   SessionSeq,
   snapshotSessionEvent,
+  type SessionHeader,
   type SessionId,
   type SessionSeq as SessionSeqType,
 } from '@qilin-agent/session'
 import { foldSessionTitle } from '@qilin-agent/session-title'
 import type { SessionTitleSnapshot } from '@qilin-agent/session-title'
+import type SessionProjectionCache from '@qilin-agent/session-projection-cache'
 import type {
   SessionEventResultFilter,
   SessionEventSearchPage,
@@ -252,13 +254,17 @@ export abstract class SessionQueryEngine extends Service {
     sessionIds: readonly SessionId[],
     signal?: AbortSignal,
   ): Promise<SessionTitleObservationResult[]> {
+    // A cold session's checkpoint carries the whole title snapshot; folding its
+    // log costs the entire log for four small fields (see the `titleSnapshot`
+    // projection). A miss still takes the exact-log path.
+    const cache = this.ctx.get('sessionProjectionCache')
     return this._corpus.projectMany(sessionIds, (source): SessionTitleObservation => {
       const title = foldSessionTitle(source.events)
       return {
         session: structuredClone(source.header),
         ...title === undefined ? {} : { title },
       }
-    }, signal)
+    }, signal, cache === undefined ? undefined : header => cachedTitleObservation(cache, header))
   }
 
   /**
@@ -405,4 +411,22 @@ export abstract class SessionQueryEngine extends Service {
   }
 }
 
+
+/**
+ * Read the checkpointed rich title for one listed persisted session.
+ * @param cache - persisted projection cache mounted in this host.
+ * @param header - listed session header (the cache's lifecycle witness).
+ * @returns the observation, or `undefined` when the cache has no usable row.
+ */
+function cachedTitleObservation(
+  cache: SessionProjectionCache,
+  header: SessionHeader,
+): SessionTitleObservation | undefined {
+  const snapshot = cache.cachedSnapshot(header, ['titleSnapshot'])?.values.titleSnapshot
+  if (snapshot === undefined) return undefined
+  return {
+    session: structuredClone(header),
+    ...snapshot === null ? {} : { title: snapshot },
+  }
+}
 export default SessionQueryEngine

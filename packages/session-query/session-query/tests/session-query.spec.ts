@@ -609,6 +609,32 @@ describe('session-query exact reads', () => {
     expect(TestPersistence.readSignals).toEqual([signal, signal])
   })
 
+  it('answers a cold title from the projection cache without opening the log', async () => {
+    const persisted = header('cached-title', 10)
+    TestPersistence.reset([{ meta: persisted, events: eventLog('cached-title') }])
+    const ctx = await liveContext()
+    await ctx.plugin(TestPersistence)
+    const title = {
+      title: 'Cached title',
+      messageSeqs: [SessionSeq(0)],
+      source: { kind: 'user' as const },
+      eventSeq: SessionSeq(1),
+      updatedAt: 2,
+    }
+    let cached: unknown = { asOfSeq: SessionSeq(1), values: { titleSnapshot: title } }
+    ctx.provide('sessionProjectionCache', { cachedSnapshot: () => cached } as never)
+
+    const [result] = await ctx.sessionQuery.readTitleSnapshots([persisted.id])
+    expect(result).toMatchObject({ status: 'fulfilled', value: { session: persisted, title } })
+    expect(TestPersistence.listCalls).toBe(1)
+    expect(TestPersistence.readCalls).toEqual([])
+
+    // A cache without the row still folds the exact log.
+    cached = undefined
+    await ctx.sessionQuery.readTitleSnapshots([persisted.id])
+    expect(TestPersistence.readCalls).toEqual([persisted.id])
+  })
+
   it('bounds persisted title inspection concurrency while preserving ordered results', async () => {
     const entries = Array.from({ length: 12 }, (_, index) => {
       const meta = header(`bounded-title-${index}`, index)

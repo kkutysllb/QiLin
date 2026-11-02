@@ -45,13 +45,27 @@ describe('title projection unit', () => {
     const firstSeq = appendTitle(session, 'First title')
     const secondSeq = appendTitle(session, 'Second title')
     session.append('turn/start', { turn: 1 })
-    expect(changes).toEqual([
+    expect(changes.filter(change => change.key === 'title')).toEqual([
       { key: 'title', value: 'First title', seq: firstSeq },
       { key: 'title', value: 'Second title', seq: secondSeq },
     ])
     const snapshot = ctx.sessionProjections.snapshot(session)
     expect(snapshot.values.title).toBe('Second title')
     expect(snapshot.asOfSeq).toBe(session.seq - 1)
+  })
+
+  it('folds the rich title snapshot into the cache-facing projection', async () => {
+    const { ctx, session } = await harness(true)
+    expect(ctx.sessionProjections.checkpoint(session).titleSnapshot).toEqual({ ver: 1, seq: -1, val: null })
+    appendTitle(session, 'Rich title')
+    const value = ctx.sessionProjections.snapshot(session).values.titleSnapshot
+    expect(value).toMatchObject({
+      title: 'Rich title',
+      source: { kind: 'fallback' },
+      messageSeqs: [SessionSeq(0)],
+      eventSeq: SessionSeq(1),
+    })
+    expect(value?.updatedAt).toBeGreaterThan(0)
   })
 
   it('reads the version-1 string checkpoint format used by existing title caches', async () => {

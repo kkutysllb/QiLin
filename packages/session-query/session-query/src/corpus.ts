@@ -127,12 +127,15 @@ export class SessionCorpus {
    * @param sessionIds - sessions to resolve in first-occurrence order.
    * @param project - synchronous fold that owns/clones every retained value.
    * @param signal - cancellation shared by listing and every persisted inspection.
+   * @param cached - zero-I/O answer for one listed persisted session; `undefined` falls back to
+   * the exact log read.
    * @returns one fulfilled or rejected projected result per unique requested id.
    */
   async projectMany<Value>(
     sessionIds: readonly SessionId[],
     project: (source: LogicalSessionSource) => Value,
     signal?: AbortSignal,
+    cached?: (header: SessionHeader) => Value | undefined,
   ): Promise<LogicalProjectionResult<Value>[]> {
     const ids = [...new Set(sessionIds)]
     signal?.throwIfAborted()
@@ -175,6 +178,13 @@ export class SessionCorpus {
         resolved.set(sessionId, attached === undefined
           ? { sessionId, status: 'rejected', reason: notFound(sessionId) }
           : projectSource(sessionId, sourceLive(attached), project, signal))
+        return
+      }
+      // A durable hint answers without reading the log; the header identity is
+      // the one the hint was looked up with, so no compatibility check applies.
+      const hint = cached?.(listed)
+      if (hint !== undefined) {
+        resolved.set(sessionId, { sessionId, status: 'fulfilled', value: hint })
         return
       }
       try {
