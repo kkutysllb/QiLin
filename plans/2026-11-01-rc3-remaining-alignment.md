@@ -64,7 +64,7 @@
 
 **进展（第一轮收口）**
 
-- 已完成：终端配色断言与 colors/theme golden（`b6a1274319`）；26 份 golden 重录并按文件核对归属（`9f7ac24a1d`）；composer「14 行」上限改为随行高计算（`9d701d0dfc`，这是字号升到 15px 后暴露的真实回归）；`goal-command-presentation`、`settings-chrome` 的硬编码字号期望同步。
+- 已完成：终端配色断言与 colors/theme golden；26 份 golden 重录并按文件核对归属；composer「14 行」上限改为随行高计算（这是字号升到 15px 后暴露的真实回归)；`goal-command-presentation`、`settings-chrome` 的硬编码字号期望同步。
 - 复核方式：重录后以 replay 复跑，9 个 spec 32/33 通过；`composer-draft-scroll` refresh 与 replay 各 7/7。
 
 **剩余家族的真实成因（本轮定位）**
@@ -75,10 +75,10 @@
 
 **第二轮进展与更正**
 
-- 已落地 B：record 模式注册 `deepseek-fixture` 路由，公布回放目录（V4-Flash / V4-Flash-Vision-Exp）并把 `stream` 转发到部署真实 provider/model，会话默认模型也指向该路由（`337cb4af89`）。此前 30s 点击超时的 `file-upload-round` 主用例现在 2.7s 通过。
+- 已落地 B：record 模式注册 `deepseek-fixture` 路由，公布回放目录（V4-Flash / V4-Flash-Vision-Exp）并把 `stream` 转发到部署真实 provider/model，会话默认模型也指向该路由。此前 30s 点击超时的 `file-upload-round` 主用例现在 2.7s 通过。
 - **更正**：夹具并不"陈旧"。`recordFixture` 写入的是按格式版本命名的 `session.v5.jsonl`，该文件被 `.gitignore` 忽略、每次录制重新生成；因此 `git status` 看不到变化并不代表没重录。上一版记录里"夹具无法在本机重录"的判断作废。
 - 重录后 replay 仍失败的用例（`file-upload-round` 的 Trajectory 附件、`turn-tail-actions` 的 `processBottom + 8` 实得 16、`rail-search-expand` 的首击超时）属 **UI 状态断言**，需要逐个在真实页面上调试，不能再靠重录解决。
-- **Trajectory 附件已修**（`b65b9ac6c1`）：`.details` 的 `max-width: calc(100% - 280px)` 在窄面板把详情栏压成竖线；改为容器查询 ≤600px 时纵向堆叠，附件两例转绿（该 spec 7/8）。
+- **Trajectory 附件已修**：`.details` 的 `max-width: calc(100% - 280px)` 在窄面板把详情栏压成竖线；改为容器查询 ≤600px 时纵向堆叠，附件两例转绿（该 spec 7/8）。
 - **record/replay 的 provider id 不一致**（最后一例失败的原因）：record 目录用 `deepseek-fixture`，回放用 `deepseek-official`，夹具保真检查因此不等。尝试给 `llm-deepseek-api-key` 加可选 `providerId` 并在 record 模式把真实行改名为 `deepseek-live`：**启动阶段直接挂起**（hook 120s 超时）——凭据、模型设置、扩展与搜索等行都按 `deepseek-official` 绑定，改名要同步改这些依赖行。已回滚该尝试。
 - 结论：让 record 与 replay 共用同一 provider id 需要把 id 贯穿所有依赖行（凭据引用、`deepseek-llm-api-extensions`、`web-search-deepseek`、模型设置页），或退回「用例按能力选择模型」的方案 A。在两者之间，A 的改动面小一个数量级。
 
@@ -93,9 +93,33 @@
 rc.4 预览已发布（tag `v3.1.8-rc.4`），以下项明确延后：
 
 1. **插件配置入口缺口（产品缺陷，优先）**：`ui-plugin-manager` 的列表来自插件市场索引，profile 已挂载的插件不在其中，导致所有 `plugins.item` 卡片（shell/git/agent-loop/subagent/web-search/voice）在「设置 → Plugins」里不可达。修法：列表推导补「已挂载插件」条目，再回归该包单测与 `settings-chrome` golden。受影响的 web e2e：`voice-download`（5 例）、`voice-setup`（1 例）。
-2. **分组级焦点保持**：回合结束时，若读者焦点在被展开的进程行上，折叠仍会收回。已实现「读者手动展开跨代际保持」（`81fcedc6d5`），焦点接管那一层未做；对应 `turn-tail-actions` 1 例。
-3. **web e2e 剩余家族**（rc.4 时 59 例失败）：超时 16（集中在 `seeded-history` 4 例与语音 5 例）、golden 14、夹具未消费完 14。逐条定性已记录在本文件 G 节与 §二·补 1。
+2. **分组级焦点保持**：回合结束时，若读者焦点在被展开的进程行上，折叠仍会收回。已实现「读者手动展开跨代际保持」，焦点接管那一层未做；对应 `turn-tail-actions` 1 例。
+
+   **第 2 项收口进展（2026-11-03，全部收口）**
+
+   - 折叠半面：成员行获得读者焦点即在 live 期间写入 reader 意图（ChatNodeSeat 的 onFocus → setTurnProcessOpen(..., reader)），完成帧第一帧即判开，不再「先折再 reveal」。
+   - 焦点半面：完成重组会把行子树整体换节点（焦点掉回 body），且最新完成回合在 Standard 下扁平渲染、行控件是 role="button" 的 div——任何行/组级挂点都活不过重组。恢复落在 ChatFlow（会话级组件，跨重组存活）：store 记录聚焦节点 key（focusedNode），回合 timeline 状态为 closed 期间挂 body 级 MutationObserver，DOM 变化后按 key 遍历同键 wrapper、逐个尝试 button/[role=button] 直到真正拿到焦点，随后消费记录（读者主动移焦也消费，杜绝焦点偷取）。
+   - 验收：turn-tail-actions 全文件 7/7 通过（record-only 1 例跳过），含聚焦用例的折叠与焦点双断言；ui-chat 798/798 绿（新增 chat-flow-focus 流级恢复用例、group-seat 写意图用例、chat-view 折叠控件聚焦不写入用例）。
+
+3. **web e2e 剩余家族**：rc.4 时 59 例失败。**2026-11-03 非沙箱权威定性**（干净整树 build 后全量 replay：50 失败/395 通过；①②已消 11 例）：
+
+   - **已修（本轮验证）**：voice-download 1 例（设置页同时存在设备错误与下载失败两个 alert，定位器收窄到 downloadFailure）；clickable-links-gallery 1 例（链接图标多 path 化，图标 mark 断言收 first）。另修 4 处 tsc 类型错误使 `pnpm run build` 恢复绿（包级重建曾绕过严格类型检查，导致 built-boot 守卫红）。
+   - **需带 key 重录（~10 例，keyless 不可修）**：changed-files-turn ×3、file-upload-round ×2、steering ×2、subagent-interrupt-ui ×2、details-session-lifecycle ×1。根因是 composition 漂移：live 会话新增 skill-catalog 系统提醒事件（host 技能插件注入，preset 钉扎无法移除，已试并回退），且工具面改为 run_code 直调（录制时代的 `read` 等直接工具现报 UNKNOWN_TOOL），录制与驱动的调用序列无法对齐。
+   - **产品/组合面待定（~8 例）**：shipped-composition ×5（期望直调工具清单含 run_code，现行 web 组合不含——preset split 后组合面漂移，改期望还是补组合需产品决策）；background-job-list ×2（后台 bash 启动后不返 job id——产品回归嫌疑）；schedule-panel 1 超时 + schedule-after 8 例跳过（schedule 域未开）。
+   - **超时家族（既有，~8 例）**：seeded-history ×4、rail-search-expand ×1、models-settings-recovery ×1、document-preview/reference-composer 等等待超时——需逐个查遮蔽/时序。
+   - **lane 并发 flake**：turn-tail、voice-input 在全量 lane 挂、隔离复跑绿——并发资源竞争，非产品。
+   - **散点断言（~20 例）**：image-display、message-actions ×2、lifecycle-chrome、sidebar-sections、streaming-fence-highlight、present、session-inspector、onboarding、github-ready-review、third-party-plugin、preview-boot、workflow-run、queue-actions、live-interactions、chat-scroll-contract ×2、skill-user-invoke ×2、smoke-real ×3、plan-review——后续轮次逐个按「期望漂移/产品缺陷」二分。
 4. **pnpm 跟随稳定线**：现为 11.23.0，下一版按稳定线升级并同步 `packageManager`、根 devDependency、`apps/desktop` 与 `native/system` 的 pin。
+
+**第 1 项收口进展（2026-11-02）**
+
+- 定性更正：「`plugins.item` 卡片不可达」未复现——卡片由 `ui-settings-plugins` 按 Host 正在服务的 settings 命名空间注册，与市场索引无关；replay 实测 `plugin-manager` 6/6、`plugin-config` 11/11，卡片与三个分组渲染正常。
+- 语音 6 例的真实成因有两层，均已修复：
+  1. 选择器漂移：`voice-download`/`voice-setup` 仍点击 A3 已删除的「Manage plugins」tab（唯一注册者 `ui-settings-plugin-inventory` 删除后 `plugins.tab` 无注册者，页面不再渲染 tab 条）；两处导航已改到现行入口（Plugins 导航行 → 等 `[data-plugin-panel]` 标题 → 直接操作卡片）。
+  2. 脚手架错位：`voice-setup` 把仓库目录包组合进 profile，遮蔽安装自带的同名可选包；启用写回 `package-moved` 重启要求（预期行为：profile 本地副本不许 live 顶替安装包），激活对话框因此不出现。已改用默认组合，启用走安装自带包的 live 激活；禁用轮询放宽到 20s，承载刚挂载 bundle 的慢卸载。
+- `docs/cookbook/adding-a-settings-card{,.zh}.md` 清掉「内置插件 → 管理插件」旧入口描述，配对账本重录。
+- 回归证据：`voice-download` 5/5、`voice-setup` 1/1、`settings-chrome` 13/13、`ui-plugin-manager` + `ui-settings-plugins` 单测 451/451 全绿。
+- 遗留（非本项）：`verify-repository-references` 在 HEAD 即红，源于本文件早前记录的裸提交哈希（本节已一并清理）与上个会话遗留的未跟踪 `.tmp/` 草稿（`commit-msg*.txt` 等，留待处置）。
 
 ## 三、门禁命令（下一版本沿用）
 
