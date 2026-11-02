@@ -182,10 +182,14 @@
 
 - 超时家族：清零。六个文件 25 通过 / 1 跳过（seeded-history、rail-search-expand、models-settings-recovery、document-preview、reference-composer、details-session-lifecycle）。更正：details-session-lifecycle 不是 composition 漂移，而是 markdown 改渲染式只读预览、右栏默认 0.35、面板外宽不再 +1；不需要 key 重录。
 - 散点家族：九文件 / 九例转绿（image-display、streaming-fence-highlight、session-inspector、live-interactions、queue-actions、onboarding-deepseek-config、sidebar-sections、third-party-plugin、plan-review）。
-- 仍红 13 例，逐条定性见 `.tmp/web-scatter-report.md` 第二节：
-  - 产品缺陷：preview-boot——webworker 编译器不支持依赖里的 `return yield*`（`transform.ts:295`）。
-  - 需决策：skill-user-invoke 两例（普通 Context 注入不再成行）、smoke-real 三例（wire 工具快照仍钉 `run_code`、重试次数、bash 详情列默认展开）、github-ready-review（profile 解析不到 experimental-webhook；本轮已整树 build 并升 pnpm 12，可复跑复核）。
-  - 布局几何：message-actions、lifecycle-chrome、present、workflow-run、chat-scroll-contract 两例。
+- 首轮仍红 13 例，后续处理结果：
+  - preview-boot：已转绿（见第十四节起）。
+  - github-ready-review：已转绿——示例覆盖层按第三方 profile 直接命名已安装包，scaffold 只链接 `profile.packages`，测试补链接后会话创建通过，ARIA 金标按现行外壳刷新。
+  - smoke-real 三例：已转绿——wire 快照改为 native 清单；标题请求改用「无工具面」识别，重试次数回到 2；bash 详情列默认按 0.35 打开，断言改为「点击不改动列宽」。
+  - skill-user-invoke 两例：已转绿——按「注入不进 transcript」改在会话日志断言 `skill-invocation` 消息；引用 chip 改为断言文档页签与内容；ARIA 金标刷新。
+  - present：已转绿——交付物上方间距是流自身的 16px（尾部 4px 只作用于动作行）。
+  - message-actions：已转绿——Turn 过程默认折叠后无滚动余量，用例临时压视口制造滚动范围；焦点工具提示改为先等可见再抓 ARIA；视口恢复移到清理之后。
+  - **仍红 4 例布局几何**：lifecycle-chrome（480px 视口下代码块横向溢出的前提）、workflow-run（阶段标题截断的探针选错元素：`children.item(1)` 是内容包装器而非标题 span；且阶段摘要只在折叠态渲染，展开态由 `keepContentWhenOpen` 负责但探针查询为 0，需产品面确认该属性是否生效）、chat-scroll-contract 两例（判底失败与 `Search sessions` 控件在窄态不渲染）。
 - 覆盖提示：video 预览在 web e2e 已无覆盖，建议补一条；普通 Context 的行几何断言随行隐藏作废，若要几何保护应针对可见的「工具变更 Context」行另写。
 - B 族 10 例仍需 DEEPSEEK_API_KEY 重录；D 档按决定不做。
 ## 十四、preview-boot 第一层：编译器缺口已修（2026-11-03）
