@@ -1,8 +1,8 @@
 - banner:
   - navigation "Session hierarchy":
     - button "/user-invoke-demo @\"meeting notes.md\" an" [disabled]
+  - text: Standard mode
   - button "Open right sidebar"
-- button "System prompt"
 - button "/user-invoke-demo"
 - button "meeting notes.md"
 - text: and confirm the fixture wiring {{clock}}
