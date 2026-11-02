@@ -273,8 +273,14 @@ async function loadedFlowRows(page: Page): Promise<number> {
 }
 
 async function openSeed(page: Page, fixture: ChatScrollFixture, tailMarker?: string): Promise<void> {
-  // Search collapsed into a header action; expand it before filling.
+  // Search collapsed into a header action; expand it before filling. The
+  // narrow breakpoint collapses the whole sidebar to its rail whenever the
+  // other column takes the screen, so reopen the wide chrome first.
   const searchButton = page.getByRole('button', { name: 'Search sessions' })
+  if (await searchButton.count() === 0) {
+    await page.getByRole('button', { name: 'Open sidebar', exact: true }).first().click()
+    await searchButton.waitFor({ timeout: 10_000 })
+  }
   if (await searchButton.getAttribute('aria-expanded') !== 'true') await searchButton.click()
   const search = page.getByRole('textbox', { name: 'Search sessions...', exact: true })
   // Cold summaries initially show the temporary workspace basename, so the
