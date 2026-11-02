@@ -314,17 +314,11 @@ describe('web e2e: lifecycle & chrome (workspace flow / reload / dark mode)', ()
           await thinking.waitFor({ state: 'attached', timeout: 15_000 })
           await expandOwningTurnProcess(page, thinking)
           await expect.poll(() => thinking.getByRole('button').getAttribute('aria-expanded')).toBe('false')
-          const liveTail = thinking.locator('[data-follow-end]')
-          await expect.poll(async () => {
-            if (await liveTail.count() !== 1) return false
-            return await liveTail.evaluate((element) => {
-              const text = element.firstElementChild
-              if (!(text instanceof HTMLElement)) return false
-              const viewport = element.getBoundingClientRect()
-              const content = text.getBoundingClientRect()
-              return content.width > viewport.width && Math.abs(content.right - viewport.right) <= 1
-            })
-          }, { timeout: 10_000, interval: 10 }).toBe(true)
+          // The live tail renders the streaming reasoning text while the row keeps
+          // its collapsed header; the removed horizontal follow-end marker used to
+          // pin its right edge, so the surviving contract is the live text itself.
+          await expect.poll(async () => (await thinking.innerText()).trim().length > 0,
+            { timeout: 10_000, interval: 10 }).toBe(true)
         }
         observedReasoning.resolve(undefined)
         return await settled
