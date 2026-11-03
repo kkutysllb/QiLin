@@ -309,3 +309,9 @@
 - 预览→规范化替换、Session scope 释放、缓存销毁的字节记账同步增减。
 - 复验：`historical-images` 9 例（新增 4 例）、`message-image` 21 例（新增 2 例）、`views.client` 38 例（新增 1 例）；`test:gui` 683 文件 10528 例；全量单测 2215 文件 / 39160 例 0 失败。
 - 环境注意：`QILIN_SNAPSHOT=replay pnpm run test:web` 当前在本机有 12 个真实回合回放失败（steering/schedule/ptc/question 等），经 git 二分验证在今日全部改动之前的提交上同样失败——属回合中途时序竞态的本机漂移，非代码回归；待机器空闲后重跑泳道确认。
+
+## 二十四、对齐 dsh 0.2.1-rc.5 思考块渲染定制（2026-11-03 已完成）
+
+- 上游 `534dac8c81`（#7484）：新增 `reasoningText()`——剥除思考输出里的 `<signature>…</signature>` 前缀（流式未闭合窗口期返回空串）；`ReasoningRow` 以 `rawText`/`text` 双字段向 reasoning Body Slot 供数，纯签名思考块整行隐藏；组标题 live 摘要同步剥签名；`ReasoningContentInput` 改为独立接口（不再继承 owner props）。
+- 移植面：reasoning-text.ts 与其单元用例、ReasoningRow/contract/process-activity/ReasoningContent、fixture 改走生产 DefaultReasoningBody、cot-translation 文档与测试参数化、slot catalog 重生成、reasoning-body-props 升级指南（中英 + 配对）。reasoning-preview.e2e 未移植（QiLin 无该 harness）。
+- 复验：reasoning/cot-translation 9 文件 100 例；`test:gui` 684 文件 10533 例；`doc-sync` 45/45。
