@@ -416,7 +416,6 @@
       "@qilin-agent/sidebar-opens/types": ["./packages/host/sidebar-opens/src/types.ts"],
 
       "@qilin-agent/otel": ["./packages/telemetry/otel/src"],
-      "@qilin-agent/client-ui-settings-session-log": ["./packages/client/ui-settings-session-log/src"],
       "@qilin-agent/experimental-schedule-bundle": ["./packages/experimental/schedule-bundle/src"],
       // BEGIN generated package aliases — pnpm run gen-tsconfig-paths
       "@qilin-agent/accounts-local": ["./packages/identity/accounts-local/src"],

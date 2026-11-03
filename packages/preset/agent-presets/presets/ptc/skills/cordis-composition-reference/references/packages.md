@@ -99,7 +99,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/client-ui-settings-mcp` | no | MCP servers page in Web Settings: patch-layer CRUD over the mcpServers Remote |
 | `@qilin-agent/client-ui-settings-models` | yes | Models settings and shared product-onboarding dialogs over existing settings and credential joins |
 | `@qilin-agent/client-ui-settings-plugins` | no | Plugins settings section with feature-owned tabs and configurable host-plane plugin cards |
-| `@qilin-agent/client-ui-settings-session-log` | no | General settings control for Session-log upload with DeepSeek API requests |
 | `@qilin-agent/client-ui-settings-skills` | no | Skills page in Web Settings: the current Session's skill catalog grouped by discovery source |
 | `@qilin-agent/client-ui-settings-unarchive-sessions` | no | Archived-session settings page: the registry-global archive set with one Unarchive action per row |
 | `@qilin-agent/client-ui-shortcuts` | no | Keyboard shortcut reference, recording, and local preference editing |

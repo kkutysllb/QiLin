@@ -448,8 +448,6 @@
     # plugin draft.
     - id: entry-customization
       name: '@qilin-agent/client-ui-entry-customization'
-    - id: ui-settings-session-log
-      name: '@qilin-agent/client-ui-settings-session-log'
 
 
     # Plugin configuration: the host-plane sections a user owns, as expandable
