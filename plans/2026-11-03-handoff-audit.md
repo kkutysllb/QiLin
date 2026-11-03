@@ -301,3 +301,11 @@
 - 宿主 `session-log-deepseek` 保留：`enabled`（默认 true）/`maxBytes` 仍是 cordis.yml Config 字段；要整体关闭上传用配置 `session-log-deepseek.enabled: false`，后续若要彻底移除可整包删除（连同 `qilin_session_log` 请求字段贡献与 `deepseek-llm-api-extensions` 的消费方梳理）。
 - 边界：会话格式目录里的 `qilin_session_log` 扩展标识与各迁移包保留——历史日志里的接受水位记录仍需可读，属格式兼容层，不随功能下线。
 - 复验：全量单测 2215 文件 / 39153 例 0 失败；`settings-chrome` 重录后回放绿；`preview-boot` 绿；`doc-sync` 45/45；build 绿。
+
+## 二十三、P0-3 图片缓存 LRU 落地（2026-11-03 已完成）
+
+- 前置先行的失败重取已就位：`ui-attachment` 的 `MessageImage` 与轨迹图检查器缩略图在 `<img>` onError 后自动重读一次（驱逐恢复），再失败交给既有重试面，不与坏字节死循环。
+- `HistoricalImageCache` 新增 `maxCachedImageBytes`（默认 64 MiB，Config 可改）：按最近使用驱逐，读取在途条目跳过，字节落定视为一次使用，仅剩最新一条时停止（单独超预算的孤本保持缓存，不自驱逐）。
+- 预览→规范化替换、Session scope 释放、缓存销毁的字节记账同步增减。
+- 复验：`historical-images` 9 例（新增 4 例）、`message-image` 21 例（新增 2 例）、`views.client` 38 例（新增 1 例）；`test:gui` 683 文件 10528 例；全量单测 2215 文件 / 39160 例 0 失败。
+- 环境注意：`QILIN_SNAPSHOT=replay pnpm run test:web` 当前在本机有 12 个真实回合回放失败（steering/schedule/ptc/question 等），经 git 二分验证在今日全部改动之前的提交上同样失败——属回合中途时序竞态的本机漂移，非代码回归；待机器空闲后重跑泳道确认。
