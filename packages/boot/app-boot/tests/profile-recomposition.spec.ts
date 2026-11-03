@@ -359,7 +359,7 @@ describe('profile recomposition', () => {
         })
         host.on('loader/patch-context', (row, next) => {
           if (breaking && row.options.id === 'held') throw new Error('patch context failed')
-          next()
+          void next()
         })
         await host.plugin(PluginPackages, { generation, recompute: async () => moved })
       },

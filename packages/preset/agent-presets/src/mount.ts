@@ -18,7 +18,7 @@ import { pathToFileURL } from 'node:url'
 import { Context, type Fiber } from '@qilin-agent/kylin'
 import { prepareProfileEntries } from '@qilin-agent/app-boot'
 import { Include } from '@qilin-agent/kylin-plugin-include'
-import { EntryGroup, type EntryOptions, type EntryTree } from '@qilin-agent/kylin-plugin-loader'
+import { EntryGroup, type EntryChange, type EntryOptions, type EntryTree } from '@qilin-agent/kylin-plugin-loader'
 import { scopeOf, scopeParentOf, type ScopeKey } from '@qilin-agent/scope'
 import { RemoteError } from '@qilin-agent/typert-protocol'
 import type { AgentPreset } from './preset.ts'
@@ -136,20 +136,21 @@ class PresetTree extends Include {
   /**
    * A preset is an input, never a persistence target.
    *
-   * The Loader writes a tree back through this method whenever it decides the
-   * config changed — a plugin self-disposing is enough, and tearing an agent
-   * down disposes its whole subtree. Inherited, that rewrites the preset file
-   * with whatever the dying tree held, which in practice means truncating a
-   * shipped composition to `[]` the first time a session ends. Persisting a
-   * preset is also meaningless: nothing here is user state, and the same file
-   * backs every session that names it.
+   * Every tree mutation reaches this method, and the inherited Include
+   * implementation journals it for a later file write. Inherited, a plugin
+   * self-disposal is enough to queue one, and tearing an agent down disposes its
+   * whole subtree — the journal would then persist whatever the dying tree held,
+   * in practice truncating a shipped composition to `[]` the first time a
+   * session ends. Persisting a preset is also meaningless: nothing here is user
+   * state, and the same file backs every session that names it.
    *
-   * Dropping the write drops the `loader/config-update` the inherited method
-   * emits with it. No consumer observes one for a preset subtree, and a
-   * future "edit your preset while it runs" flow needs a deliberate
-   * persistence path rather than this method's return.
+   * Reporting nothing drops the `loader/config-update` the inherited method
+   * emits with it. No consumer observes one for a preset subtree, and a future
+   * "edit your preset while it runs" flow needs a deliberate persistence path
+   * rather than this method's journal.
+   * @param _change - the applied tree mutation, which a preset does not record.
    */
-  override write(): void {
+  override commit(_change: EntryChange): void {
   }
 }
 
@@ -246,7 +247,7 @@ export function leakedServices(ctx: Context, mount: Fiber): string[] {
        clearing it, so an own symbol always resolves; the guard exists only
        because the store's index signature is optional. */
     if (impl === undefined) continue
-    if (!withinFiber(impl.fiber, mount)) continue
+    if (!withinFiber(impl.ctx.fiber, mount)) continue
     if (rootIsolate[impl.name] === key) leaked.push(impl.name)
   }
   return leaked.sort((left, right) => left.localeCompare(right))
@@ -316,7 +317,7 @@ export function serviceForAgent<K extends string & keyof Context>(
     /* v8 ignore next -- cordis deletes a store slot on disposal rather than clearing it */
     if (impl === undefined) continue
     if (impl.name !== name) continue
-    if (withinFiber(impl.fiber, mount.fiber)) return impl.value as Context[K]
+    if (withinFiber(impl.ctx.fiber, mount.fiber)) return impl.value as Context[K]
   }
   return undefined
 }

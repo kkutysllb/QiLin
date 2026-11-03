@@ -63,6 +63,7 @@ import type { AdapterRegistrationHandle, DirectoryRegistrationHandle, LlmConfigu
 import type {} from '@qilin-agent/fs'
 import type {} from '@qilin-agent/settings'
 import { deepEqualJson } from '@qilin-agent/util-values'
+import type { PiAiRequestHeaderContext } from './types.ts'
 import { PiAiAdapter } from './adapter.ts'
 import { authContextFrom, credentialStoreFrom } from './auth.ts'
 import { catalogProvider, catalogProviderIds } from './catalog.ts'
@@ -74,6 +75,7 @@ import { registerPiAiFlows } from './login.ts'
 import { providerDefaultsOf } from './provider-data.ts'
 
 export { PiAiAdapter } from './adapter.ts'
+export type { PiAiRequestHeaderContext } from './types.ts'
 export type { PiAiAdapterOptions } from './adapter.ts'
 export { Config } from './config.ts'
 export type {
@@ -150,6 +152,25 @@ function directoryEntries(
 }
 
 /** Register one generic pi-ai adapter for all configured provider routes. */
+declare module '@qilin-agent/kylin' {
+  interface Events {
+    /**
+     * Prepare headers for one pi-ai inference call, excluding model discovery.
+     * Listeners run synchronously and must call next(); they may edit only the
+     * request-owned headers and must not retain them. Throws fail the call with
+     * REQUEST_HEADERS before inference I/O. Harness attribution wins afterward.
+     * Non-TypeError messages are user-visible and must exclude secrets. TypeError
+     * details and non-Error values are replaced with safe guidance.
+     * @mode waterfall
+     * @param request - immutable routing metadata from the exact prepared call.
+     * @param headers - fresh profile headers, shared only within this dispatch.
+     * @param next - continue header preparation through the remaining listeners.
+     * @returns headers passed to pi-ai after Harness attribution is applied.
+     */
+    'llm-pi-ai/request-headers'(request: PiAiRequestHeaderContext, headers: Headers, next: () => Headers): Headers
+  }
+}
+
 export function apply(ctx: Context, config: Config): void {
   ctx.inject(['settings'], (child) => { child.effect(() => child.settings.configure({ auto: false }, ctx.fiber)) })
   const settingsNs = ctx.fiber.entry?.options.id ?? NS
@@ -175,9 +196,9 @@ export function apply(ctx: Context, config: Config): void {
   profiles()
   // A profile patch write resolves through here before persisting, so a route
   // this registry would refuse fails the write instead of the swap.
-  ctx.on('internal/config', function (this: import('@qilin-agent/kylin').Fiber, _raw, next) {
+  ctx.on('internal/config', (fiber, next) => {
     const raw: unknown = next()
-    if (this !== ctx.fiber) return raw
+    if (fiber !== ctx.fiber) return raw
     const candidate = Config(raw as import('./config.ts').Options)
     assertServiceable(
       { providers: structuredClone(candidate.providers.get()) } as import('./config.ts').Options,
@@ -225,6 +246,7 @@ export function apply(ctx: Context, config: Config): void {
       hostPath => ctx.get('fs')?.processPathFromHostPath(hostPath),
       ref,
     ),
+    prepareHeaders: (request, headers) => ctx.waterfall('llm-pi-ai/request-headers', request, headers, () => headers),
     onReplayDegrade: ({ provider, model, reason }) => {
       ctx.logger.warn(
         `llm-pi-ai: unusable replay state on assistant history for route "${provider}/${model}";`

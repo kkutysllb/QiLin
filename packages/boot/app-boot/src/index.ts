@@ -413,10 +413,13 @@ async function recompose(
     const prepared = prepareProfilePatches(ctx, patches, parentURL, binName)
     applying = true
     const retried = [...new Set([...running, ...withResolution ? [...ctx.loader.entries()].filter(importFailed) : []])]
+    // Group.update replaces its data array and attempts every row it still lists, including failed imports.
+    const priorData = new Map(retried.map(row => [row, row.parent.data]))
     try {
       await entry.update({ config: { ...includeConfig, patches: prepared } })
     } finally {
-      await resume(ctx, retried)
+      // Only rows whose Group did not update still need an explicit retry after the awaited update.
+      await resume(ctx, retried.filter(row => row.parent.data === priorData.get(row)))
     }
     const results = await Promise.allSettled(previousFibers.map(({ fiber }) => fiber.await()))
     await ctx.loader.await()
@@ -1235,11 +1238,6 @@ export async function boot(
   try {
     ctx.baseUrl = pathToFileURL(dirname(absoluteConfigPath)).href + '/'
     ctx.provide('qilinHomePath', qilinHomePath)
-    // Fiber.update() discards the restart promise. Observe it before the
-    // waterfall returns; activation audits still report the failed fiber.
-    ctx.on('internal/update', (_config, _noSave, next: () => unknown) => {
-      void Promise.resolve(next()).catch((error: unknown) => { ctx.logger.error(error) })
-    }, { global: true, prepend: true })
     await ctx.plugin(Loader)
     await prepare?.(ctx)
     stage = 'plugin tree failed to load'

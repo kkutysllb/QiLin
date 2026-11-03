@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/kylin-plugin-include",
   "description": "Include files in cordis configurations",
-  "version": "1.0.10",
+  "version": "1.0.11-alpha.2",
   "publishConfig": {
     "access": "public"
   },

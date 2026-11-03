@@ -290,17 +290,20 @@ describe('real Loader composition', () => {
     expect(renameControl.attempts).toBeGreaterThanOrEqual(2)
   })
 
-  it('reports a terminal debounced-write failure again to the teardown owner', { timeout: 60_000 }, async () => {
+  it('reports unsaved changes at shutdown and clears the error after a successful retry', { timeout: 60_000 }, async () => {
     stubAttendedHost()
     const { ctx } = await loadComposition('127.0.0.1')
     const autoEntry = [...ctx.loader.entries()].find(entry => entry.options.name === AUTO)!
     const include = includeTree(ctx)
     renameControl.failureCode = 'EIO'
-    renameControl.remainingFailures = 1
+    renameControl.remainingFailures = Infinity
 
     await autoEntry.fiber!.dispose()
     await expect.poll(() => renameControl.injectedFailures).toBe(1)
     await expect(include.stop()).rejects.toMatchObject({ code: 'EIO' })
+    renameControl.remainingFailures = 0
+    await expect(include.flush()).resolves.toBeUndefined()
+    await expect(include.flush()).resolves.toBeUndefined()
     await expect(ctx.fiber.dispose()).resolves.not.toThrow()
     context = undefined
   })

@@ -36,12 +36,13 @@ export class EntryGroup {
 
   remove(id: string, isDispose = false) {
     const entry = this.tree.store[id]
-    if (!entry) return
+    if (!entry || entry.parent !== this) return
+    // Unregister before disposal so Loader can distinguish removal from self-disposal.
+    delete this.tree.store[id]
     entry.fiber?.dispose()
     if (!isDispose) {
       this.unlink(entry.options)
     }
-    delete this.tree.store[id]
     this.context.emit('loader/partial-dispose', entry, entry.options, false)
   }
 
@@ -78,13 +79,7 @@ export class Group extends EntryGroup {
 
   constructor(public ctx: Context, public config: EntryOptions[]) {
     super(ctx, ctx.fiber.entry!.parent.tree)
-    ctx.on('internal/update', (config) => {
-      // A refusing entry rejects the whole update; the group fiber logs it
-      // here because the event carries no awaiter.
-      this.update(config).catch((error) => {
-        this.ctx.logger.error(error)
-      })
-    })
+    ctx.on('internal/update', config => this.update(config))
   }
 
   async* [Service.init]() {
