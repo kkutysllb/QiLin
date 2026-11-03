@@ -294,3 +294,10 @@
 - VFS 示例预设：生成器仍写 `agentPreset: 'ptc'`，而提交的 V3 输入是 `standard`；折叠表回退后 `standard` 直通，恢复等价性分叉。生成器与两处断言改为 `standard`，V3 输入不动；`vfs-example-fixture` 5 例全绿。
 - （已修，见下条）全量单测剩余红项只剩 `plugin-manager` 的三条私有仓库安装用例（需要网络与凭据，非代码问题）。
 - plugin-manager 三条私仓安装红项已修（2026-11-03 补记）：不是凭据问题——fixture 本就自包含（本地仓库 + `insteadOf` 重写 + 401 代理），真正原因是 desktop 带 pnpm 12.16.1 后不再「HTTPS 401 自动回退 SSH」。用例改按 pnpm 12 的 insteadOf 机制把三种传输形态的完整 URL 映射到本地仓库，代理断言改为「HTTPS 探测必经代理拦截」的隔离性质。全量单测红项清零。
+
+## 二十二、移除官方 API Session Log 上传偏好设置（2026-11-03 已完成）
+
+- 麒麟不需要「在使用官方模型 API 时上传 Session Log」的用户开关。删除 `ui-settings-session-log` client 包（设置行 + 保存 toast）与全部接线：web-app bundle 注册/依赖、client slot catalog、聚合 tsconfig、pnpm-lock；`settings-chrome` 双语 ARIA 金标重录（各减 2 行）；生成目录重录（config catalog、module-graph、PTC 组合参考 packages.md）；README 模型体验门禁的豁免条目移除。
+- 宿主 `session-log-deepseek` 保留：`enabled`（默认 true）/`maxBytes` 仍是 cordis.yml Config 字段；要整体关闭上传用配置 `session-log-deepseek.enabled: false`，后续若要彻底移除可整包删除（连同 `qilin_session_log` 请求字段贡献与 `deepseek-llm-api-extensions` 的消费方梳理）。
+- 边界：会话格式目录里的 `qilin_session_log` 扩展标识与各迁移包保留——历史日志里的接受水位记录仍需可读，属格式兼容层，不随功能下线。
+- 复验：全量单测 2215 文件 / 39153 例 0 失败；`settings-chrome` 重录后回放绿；`preview-boot` 绿；`doc-sync` 45/45；build 绿。
