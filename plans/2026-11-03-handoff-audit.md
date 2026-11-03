@@ -315,3 +315,9 @@
 - 上游 `534dac8c81`（#7484）：新增 `reasoningText()`——剥除思考输出里的 `<signature>…</signature>` 前缀（流式未闭合窗口期返回空串）；`ReasoningRow` 以 `rawText`/`text` 双字段向 reasoning Body Slot 供数，纯签名思考块整行隐藏；组标题 live 摘要同步剥签名；`ReasoningContentInput` 改为独立接口（不再继承 owner props）。
 - 移植面：reasoning-text.ts 与其单元用例、ReasoningRow/contract/process-activity/ReasoningContent、fixture 改走生产 DefaultReasoningBody、cot-translation 文档与测试参数化、slot catalog 重生成、reasoning-body-props 升级指南（中英 + 配对）。reasoning-preview.e2e 未移植（QiLin 无该 harness）。
 - 复验：reasoning/cot-translation 9 文件 100 例；`test:gui` 684 文件 10533 例；`doc-sync` 45/45。
+
+## 二十五、用量页图表美化（2026-11-03 已完成）
+
+- 三个观感问题：命中率面积 brand 色整面铺满（深色下成一大块黑）、柱宽按步距 62% 无上限（单日柱占半幅）、tooltip 单行贴顶。改为：命中率 2px 细线 + 低透明渐变面积；柱宽上限 6.5 单位并在步距内居中；堆叠带反向绘制向上补边实现柱顶圆角、带间无缝；稀疏 x 轴日期（约每 8 根 + 末尾）；tooltip 升级为逐系列卡片（色点 + 右对齐数值 + 命中率行），锚定在选中柱的堆叠顶部。
+- 交互全部保留：图例折叠、hover/键盘左右导航、ARIA、逐日 tooltip。tooltip 的 elevation 阴影不与中性 border 同用（elevation-styles 门禁抓出后改为阴影自带描边）。
+- 复验：`usage` 22 例（新增柱宽上限/居中/折线断言与 tooltip 卡片断言）；`test:gui` 684 文件 10533 例绿；`tsc`、oxlint、build 绿。
