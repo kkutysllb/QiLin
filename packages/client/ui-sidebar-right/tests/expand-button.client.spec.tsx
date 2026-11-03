@@ -21,6 +21,7 @@ const standard: GlobalStandardProps & SessionStandardProps = {
   useInput: unused, useChat: unused, useTrajectory: unused,
   usePanelInfo: unused, useSessions: unused, useSessionStatus: unused,
   useSessionRetainInfo: unused, useResource: unused, useRemoteAccess: unused, useWorkspaces: unused,
+  useSessionAccess: unused, useAccess: unused,
   inputActions: { captureInsertion: unused, insertText: unused, setDraft: unused,
     persistDraft: () => {},
     addAttachments: unused, removeAttachment: unused, pruneAttachments: unused, submit: unused },
@@ -55,7 +56,7 @@ describe('ExpandButton', () => {
     const { control, view } = mountButton([{ id: 'sidebar.right.toggle' as never, label: 'Toggle', aliases: [],
       binding: null, keys: ['Ctrl', 'B'], aria: 'Control+B', modified: true, conflicts: [], issue: null }])
     expect(control()?.getAttribute('aria-keyshortcuts')).toBe('Control+B')
-    fireEvent.mouseEnter(control()!)
+    fireEvent.pointerEnter(control()!)
     const tooltip = await view.findByRole('tooltip')
     expect(tooltip.textContent).toContain('chrome.expand')
     expect(Array.from(tooltip.querySelectorAll('kbd'), key => key.textContent)).toEqual(['Ctrl', 'B'])

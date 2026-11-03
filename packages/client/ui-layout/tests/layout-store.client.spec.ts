@@ -63,6 +63,24 @@ describe('createLayoutStore', () => {
     expect(store.getSnapshot().layoutInfo).toMatchObject({ sidebar: 400, narrowExpanded: false })
   })
 
+  it('closes the open drawer when a main panel is selected below the drawer breakpoint', () => {
+    const { store, actions } = createLayoutStore().create()
+    actions.setViewportWidth(700)
+    actions.toggleSidebar()
+    expect(store.getSnapshot().layoutInfo.narrowExpanded).toBe(true)
+    actions.selectPanel('panel-a' as MainPanelId)
+    expect(store.getSnapshot().layoutInfo.narrowExpanded).toBe(false)
+  })
+
+  it('clears the manual override when the frame crosses the drawer breakpoint', () => {
+    const { store, actions } = createLayoutStore().create()
+    actions.setViewportWidth(700)
+    actions.toggleSidebar()
+    // Still below the auto-collapse breakpoint, but the drawer presentation ends.
+    actions.setViewportWidth(768)
+    expect(store.getSnapshot().layoutInfo.narrowExpanded).toBe(false)
+  })
+
   it('clears the manual override only when crossing 1024px', () => {
     const { store, actions } = createLayoutStore().create()
     actions.setViewportWidth(980)

@@ -662,7 +662,7 @@ describe('PluginManagerController', () => {
     gate.resolve(ok({ ...APPLIED, bundle: 'dsh-new', version: '1.0.0' }))
     await vi.waitFor(() => { expect(state().install.phase).toBe('done') })
     expect(state().install).toMatchObject({
-      installed: 'dsh-new', installedVersion: '1.0.0', upToDate: false, restartRequired: false, detailsOpen: true,
+      installed: 'dsh-new', installedVersion: '1.0.0', upToDate: false, restartRequired: false, detailsOpen: true, logPath: null,
     })
     // The finished install settled its run; a trailing last chunk still lands
     // on it, while a chunk for a run the dialog never saw is dropped.
@@ -748,7 +748,7 @@ describe('PluginManagerController', () => {
     face.editInstallSpec('dsh-x')
     face.runInstall()
     await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
-    expect(state().install.failure).toEqual({ reason: 'ERR', code: 'operation-error', kind: 'network' })
+    expect(state().install.failure).toEqual({ reason: 'ERR', code: 'operation-error', kind: 'network', stage: 'enable' })
     face.cancelInstall()
     expect(state().install).toMatchObject({ open: true, phase: 'idle', spec: 'dsh-x', failure: null, subject: null })
   })
@@ -1160,7 +1160,9 @@ describe('PluginManagerController', () => {
       pendingBuilds: ['native'],
     }))
     await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
-    expect(state().install.failure).toEqual({ reason: 'ERR_PNPM_IGNORED_BUILDS', code: 'operation-error', kind: 'build-blocked', pendingBuilds: ['native'] })
+    expect(state().install.failure).toEqual({
+      reason: 'ERR_PNPM_IGNORED_BUILDS', code: 'operation-error', kind: 'build-blocked', stage: 'enable', pendingBuilds: ['native'],
+    })
     // The retry keeps the subject the check produced and carries the approved names under a new request id.
     face.approveBuildsAndRetry()
     const second = await started()
@@ -1231,10 +1233,19 @@ describe('PluginManagerController', () => {
     }
     // No chunk arrived: the Host's words are the reason, and there is no run; the kind is kept.
     await installing()
-    answer(ok(failed({ code: 'operation-error', diagnostic: 'ERR_PNPM' }, { exitCode: 1, output: 'ERR_PNPM', truncated: false, logPath: '/l', kind: 'network' })))
+    answer(ok({
+      ...failed({ code: 'operation-error', diagnostic: 'ERR_PNPM' }, { exitCode: 1, output: 'ERR_PNPM', truncated: false, logPath: '/l', kind: 'network' }),
+      enabled: true,
+    }))
     await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
     expect(state().install.runs).toEqual([])
-    expect(state().install.failure).toEqual({ reason: 'ERR_PNPM', code: 'operation-error', kind: 'network' })
+    // The answer names the step it reached and whether enabling was asked, so
+    // the dialog can tell an install failure from an enablement failure.
+    expect(state().install.failure).toEqual({
+      reason: 'ERR_PNPM', code: 'operation-error', kind: 'network', stage: 'enable', enabled: true,
+    })
+    // The Host's complete log stays available behind the details.
+    expect(state().install.logPath).toBe('/l')
     expect(state().install.subject).toEqual({ spec: 'x', ...INSPECTED })
     // A lost answer cannot establish whether the Host stopped the process.
     await installing()
@@ -1262,17 +1273,19 @@ describe('PluginManagerController', () => {
       { jobId: 'j', command: 'pnpm add x', cwd: '/p', output: 'partial', exitCode: 0 },
       { jobId: 'k', command: 'pnpm add x', cwd: '/p', output: 'open', exitCode: null },
     ])
-    expect(state().install.failure).toEqual({ reason: '', code: 'not-bundle' })
+    expect(state().install.failure).toEqual({ reason: '', code: 'not-bundle', stage: 'enable' })
     // An incompatibility keeps the packages it names.
     await installing()
     answer(ok(failed({ code: 'incompatible-version', incompatible: [INCOMPATIBLE] })))
     await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
-    expect(state().install.failure).toEqual({ reason: '', code: 'incompatible-version', incompatible: [INCOMPATIBLE] })
+    expect(state().install.failure).toEqual({
+      reason: '', code: 'incompatible-version', incompatible: [INCOMPATIBLE], stage: 'enable',
+    })
     // A failure the Host does not explain has neither code nor words.
     await installing()
     answer(ok(failed()))
     await vi.waitFor(() => { expect(state().install.phase).toBe('failed') })
-    expect(state().install.failure).toEqual({ reason: '' })
+    expect(state().install.failure).toEqual({ reason: '', stage: 'enable' })
     expect(plugins.installBundle).toHaveBeenCalledTimes(6)
     // Editing the spec after a failure starts over too.
     face.editInstallSpec('y')

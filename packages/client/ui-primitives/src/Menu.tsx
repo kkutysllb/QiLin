@@ -1,14 +1,15 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode, SyntheticEvent } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import { IconCheckOutlineRegular } from './icons/index.tsx'
-import { overlayTopMargin } from './overlay-top-margin.ts'
+import { useAnchoredPosition } from './useAnchoredPosition.ts'
 import { usePointerGrace } from './pointer-grace.ts'
 import { isBehindModal } from './useModalLayer.ts'
 import { observeComposition } from './keyboard-composition.ts'
 import { focusWithoutRing } from './focus.ts'
 import { ShortcutKeys } from './ShortcutKeys.tsx'
+import { Tooltip } from './Tooltip.tsx'
 import { MenuSurface } from './MenuSurface.tsx'
 import css from './Menu.module.css'
 
@@ -55,6 +56,12 @@ export interface MenuItemButtonProps {
   current?: boolean
   /** Whether the row cannot be activated. */
   disabled?: boolean
+  /**
+   * Why the disabled row cannot be activated. The row then stays hoverable and
+   * focusable, shows the reason in a tooltip, and exposes it as the row's
+   * description; an enabled row ignores it.
+   */
+  disabledReason?: string | undefined
   /** Destructive row: error-colored text/icon and danger hover fill. */
   danger?: boolean
   /**
@@ -79,30 +86,41 @@ export interface MenuItemButtonProps {
  * @param props.icon - optional leading icon.
  * @param props.current - whether the row identifies the currently displayed page or view.
  * @param props.disabled - whether the row cannot be activated.
+ * @param props.disabledReason - why a disabled row cannot be activated, shown in a tooltip and read as its description.
  * @param props.danger - whether to use the destructive row colors.
  * @param props.separatorBefore - whether this row starts a new group (hairline above it).
  * @param props.onSelect - row activation callback.
  * @returns one menu-item row.
  */
 export function MenuItemButton({
-  children, shortcut, icon, current, disabled = false, danger = false, separatorBefore = false, onSelect,
+  children, shortcut, icon, current, disabled = false, disabledReason, danger = false, separatorBefore = false, onSelect,
 }: MenuItemButtonProps) {
+  const reasonId = useId()
+  // Native disabled buttons do not deliver the hover/focus events Tooltip needs,
+  // so an explained row is only marked unavailable. The Tooltip wraps every row,
+  // so a reason that comes or goes never remounts the focused row.
+  const explained = disabled && disabledReason !== undefined
   return (
     <div className={css.itemWrap}>
       {separatorBefore && <div className={css.separator} role="separator" />}
-      <button
-        type="button"
-        role="menuitem"
-        className={clsx(css.item, danger && css.danger)}
-        disabled={disabled}
-        aria-keyshortcuts={shortcut?.aria}
-        aria-current={current === true ? 'page' : undefined}
-        onClick={onSelect}
-      >
-        {icon !== undefined && <span className={css.itemIcon}>{icon}</span>}
-        <span className={css.itemLabel}>{children}</span>
-        {shortcut !== undefined && <span aria-hidden="true" className={css.shortcut}><ShortcutKeys keys={shortcut.keys} className={css.shortcutKeys} /></span>}
-      </button>
+      <Tooltip label={disabledReason ?? ''} disabled={!explained} side="bottom" delayMs={500} maxWidth={300} portal>
+        <button
+          type="button"
+          role="menuitem"
+          className={clsx(css.item, danger && css.danger)}
+          disabled={disabled && !explained}
+          aria-disabled={explained || undefined}
+          aria-describedby={explained ? reasonId : undefined}
+          aria-keyshortcuts={shortcut?.aria}
+          aria-current={current === true ? 'page' : undefined}
+          onClick={explained ? undefined : onSelect}
+        >
+          {icon !== undefined && <span className={css.itemIcon}>{icon}</span>}
+          <span className={css.itemLabel}>{children}</span>
+          {shortcut !== undefined && <span aria-hidden="true" className={css.shortcut}><ShortcutKeys keys={shortcut.keys} className={css.shortcutKeys} /></span>}
+        </button>
+      </Tooltip>
+      {explained && <span id={reasonId} hidden>{disabledReason}</span>}
     </div>
   )
 }
@@ -239,72 +257,25 @@ export function Menu({ open, anchor, items = [], children, selectedId, selectedI
   const openRef = useRef(open)
   openRef.current = open
   const [openSubmenuId, setOpenSubmenuId] = useState<string | null>(null)
-  const [fixedPos, setFixedPos] = useState<CSSProperties | null>(null)
   const { arm: armClose, cancel: cancelClose } = usePointerGrace(onClose)
 
-  // Portal mode: fixed-position the list from the anchor rect before paint;
-  // track the anchor while open (capture-phase scroll catches nested panes).
+  // Portal mode: place the list from the anchor and keep it there. The shared
+  // hook owns viewport clamping, zoom/soft-keyboard tracking, the size caps the
+  // card reads from `--qilin-anchored-max-*`, and the anchor minimum width.
   // getAnchorRect trumps measuring the wrapper span: a child layout effect
   // runs before the parent's, so a wrapper the host positions in its own
   // effect measures stale here — the host callback owns the truth instead.
-  useLayoutEffect(() => {
-    if (!open || !portal) { setFixedPos(null); return }
-    const place = () => {
-      let r: DOMRect | null
-      if (getAnchorRect !== undefined) {
-        r = getAnchorRect()
-      } else {
-        /* v8 ignore next 2 -- the ref is attached before the layout effect runs and the listeners die with it. */
-        r = rootRef.current?.getBoundingClientRect() ?? null
-      }
-      if (r === null) return
-      const MARGIN = 12
-      const vw = window.innerWidth
-      const vh = window.innerHeight
-      const listEl = listRef.current
-      if (listEl !== null) {
-        const minimum = minWidthFromAnchor ? `${Math.min(r.width, Math.max(0, vw - MARGIN * 2))}px` : ''
-        if (listEl.style.minWidth !== minimum) listEl.style.minWidth = minimum
-      }
-      const lw = listEl?.offsetWidth ?? 0
-      const lh = listEl?.offsetHeight ?? 0
-
-      let x: number
-      let y: number
-      if (side === 'right') {
-        x = r.right + 4
-        y = r.top
-      } else if (align === 'start') {
-        x = r.left
-        y = side === 'bottom' ? r.bottom + 4 : r.top - lh - 4
-      } else {
-        x = r.right - lw
-        y = side === 'bottom' ? r.bottom + 4 : r.top - lh - 4
-      }
-
-      if (lw > 0) x = Math.min(Math.max(x, MARGIN), vw - lw - MARGIN)
-      if (lh > 0) y = Math.min(Math.max(y, overlayTopMargin(MARGIN)), vh - lh - MARGIN)
-
-      setFixedPos(current => current?.left === x && current.top === y ? current : { left: x, top: y })
-    }
-    // First run measures the hidden pre-render (same commit as `open`), so
-    // end/top alignment and clamping use real dimensions before anything
-    // paints — no visible jump from a zero-size first guess.
-    place()
-    // Dragging or transforming an ancestor moves the anchor without a scroll or resize event.
-    const track = () => {
-      place()
-      frame = requestAnimationFrame(track)
-    }
-    let frame = requestAnimationFrame(track)
-    window.addEventListener('scroll', place, true)
-    window.addEventListener('resize', place)
-    return () => {
-      cancelAnimationFrame(frame)
-      window.removeEventListener('scroll', place, true)
-      window.removeEventListener('resize', place)
-    }
-  }, [open, portal, align, side, getAnchorRect, minWidthFromAnchor])
+  const fixedPos = useAnchoredPosition({
+    open: open && portal,
+    anchorRef: rootRef,
+    panelRef: listRef,
+    side,
+    align,
+    gap: 4,
+    margin: 12,
+    ...getAnchorRect === undefined ? {} : { getAnchorRect },
+    minWidthFromAnchor,
+  })
 
   // Opening remembers where the keyboard was, so closing can hand it back to
   // that control — an anchor wrapping several (a split button) cannot be asked

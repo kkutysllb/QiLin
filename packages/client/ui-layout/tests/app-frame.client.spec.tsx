@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /** Frame interactions with a real store and explicitly driven browser measurements. */
 import type { GlobalStandardProps, RenderOpts } from '@qilin-agent/client-ui-slots'
-import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render } from '@testing-library/react'
 import { AppFrame } from '../src/client/AppFrame.tsx'
@@ -12,7 +12,6 @@ import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/cl
 import type { SessionId } from '@qilin-agent/session/types'
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 let selectedSession: SessionId | undefined
 let selectedSessionTitle: string | undefined
 let workspacesReady = true
@@ -98,7 +97,7 @@ function mountFrame(windowWidth = frameWidth) {
       usePanelInfo={usePanelInfo}
       useSessionStatus={useSessionStatus}
       useSessionRetainInfo={() => undefined}
-      useResource={useResource} useRemoteAccess={useRemoteAccess}
+      useResource={useResource} {...allowAllAccess}
       useWorkspaces={sel => sel(workspaceState)}
       t={key => key === 'brand.localBuild' ? 'QILIN Local Build' : key}
     />
@@ -199,7 +198,7 @@ describe('AppFrame', () => {
   it('renders owner props for the default sidebar and prospective right panel', () => {
     const { frame, rightOwner, sidebarOwner, slotCalls } = mountFrame()
     expect(tracks(frame)).toEqual([280, 0])
-    expect(sidebarOwner()).toEqual({ collapsed: false, width: 280 })
+    expect(sidebarOwner()).toEqual({ collapsed: false, width: 280, drawer: false })
     expect(rightOwner()).toEqual({ width: 672, viewportWidth: 1920, canShow: true })
     expect(slotCalls.find(c => c.key === 'main')).toEqual({ key: 'main', props: {}, options: { entryKey: 'conversation' } })
   })
@@ -237,27 +236,74 @@ describe('AppFrame', () => {
     const { frame, instance, sidebarOwner, getByTestId } = mountFrame()
     act(() => { instance.actions.toggleSidebar() })
     expect(tracks(frame)).toEqual([56, 0])
-    expect(sidebarOwner()).toEqual({ collapsed: true, width: 56 })
+    expect(sidebarOwner()).toEqual({ collapsed: true, width: 56, drawer: false })
     expect(getByTestId('sidebar-content')).toBeTruthy()
     expect(frame.querySelector('[data-side="sidebar"]')).toBeNull()
   })
 
-  it('switches only the keyed main outlet when the active panel changes', () => {
+  it('presents a narrow sidebar as an overlay drawer that closes through its mask', () => {
+    frameWidth = 700
+    const { frame, instance, sidebarOwner, getByTestId } = mountFrame()
+    expect(frame.dataset.sidebarDrawer).toBe('true')
+    expect(frame.dataset.sidebarCollapsed).toBe('true')
+    // The drawer takes no grid track; the column keeps its expanded width.
+    expect(tracks(frame)).toEqual([0, 0])
+    expect(sidebarOwner()).toEqual({ collapsed: true, width: 280, drawer: true })
+    const column = getByTestId('sidebar-content').parentElement!
+    expect(column.getAttribute('style')).toContain('width: 280px')
+    expect(column.hasAttribute('inert')).toBe(true)
+    expect(frame.querySelector('[data-side="sidebar"]')).toBeNull()
+
+    act(() => { instance.actions.toggleSidebar() })
+    expect(frame.dataset.sidebarCollapsed).toBeUndefined()
+    expect(column.hasAttribute('inert')).toBe(false)
+    // The page behind the drawer is out of reach while the drawer owns the view.
+    expect(getByTestId('main-content').parentElement!.hasAttribute('inert')).toBe(true)
+    const mask = frame.querySelector('[data-sidebar-mask]')!
+    act(() => { (mask as HTMLElement).click() })
+    expect(frame.dataset.sidebarCollapsed).toBe('true')
+  })
+
+  it('keeps the rail on narrow global panels, where no header seat can reopen a drawer', () => {
+    frameWidth = 700
+    const { frame, instance, sidebarOwner } = mountFrame()
+    act(() => { instance.actions.selectPanel('panel-a' as MainPanelId) })
+    expect(frame.dataset.sidebarDrawer).toBeUndefined()
+    expect(frame.dataset.sidebarCollapsed).toBe('true')
+    expect(tracks(frame)).toEqual([56, 0])
+    expect(sidebarOwner()).toEqual({ collapsed: true, width: 56, drawer: false })
+  })
+
+  it('switches only the keyed main outlet when the active global panel changes', () => {
     selectedSessionTitle = 'Session title'
     const { instance, frame, slotCalls, getByTestId } = mountFrame()
     const sessionId = selectedSession
     const layoutInfo = instance.getSnapshot().layoutInfo
-    for (const panelId of ['panel-a' as MainPanelId, 'panel-b' as MainPanelId, null]) {
+    act(() => { instance.actions.selectPanel('panel-a' as MainPanelId) })
+    for (const panelId of ['panel-b' as MainPanelId, 'panel-a' as MainPanelId]) {
       slotCalls.length = 0
       act(() => { instance.actions.selectPanel(panelId) })
-      expect(slotCalls).toEqual([{ key: 'main', props: {}, options: { entryKey: panelId ?? 'conversation' } }])
-      expect(getByTestId('main-content').getAttribute('data-entry-key')).toBe(panelId ?? 'conversation')
+      expect(slotCalls).toEqual([{ key: 'main', props: {}, options: { entryKey: panelId } }])
+      expect(getByTestId('main-content').getAttribute('data-entry-key')).toBe(panelId)
       expect(instance.getSnapshot().panelInfo).toEqual({ activePanelId: panelId })
       expect(instance.getSnapshot().layoutInfo).toBe(layoutInfo)
       expect(tracks(frame)).toEqual([280, 0])
       expect(selectedSession).toBe(sessionId)
-      expect(document.title).toBe(panelId === null ? 'Session title — QILIN Local Build' : 'QILIN Local Build')
+      expect(document.title).toBe('QILIN Local Build')
     }
+    // Crossing between the Conversation and a global panel re-renders the
+    // frame: the narrow drawer presentation depends on which kind is selected.
+    slotCalls.length = 0
+    act(() => { instance.actions.selectPanel(null) })
+    expect(slotCalls.filter(call => call.key === 'main')).toEqual([
+      { key: 'main', props: {}, options: { entryKey: 'conversation' } },
+    ])
+    expect(getByTestId('main-content').getAttribute('data-entry-key')).toBe('conversation')
+    expect(instance.getSnapshot().panelInfo).toEqual({ activePanelId: null })
+    expect(instance.getSnapshot().layoutInfo).toBe(layoutInfo)
+    expect(tracks(frame)).toEqual([280, 0])
+    expect(selectedSession).toBe(sessionId)
+    expect(document.title).toBe('Session title — QILIN Local Build')
   })
 })
 
@@ -288,7 +334,8 @@ describe('AppFrame normal width concessions', () => {
     expect(instance.getSnapshot().layoutInfo).toMatchObject({ rightbarShown: true, rightbar: 672 })
     act(() => { instance.actions.closeRightbar() })
     resize(455)
-    expect(tracks(frame)).toEqual([56, 0])
+    // Below the drawer breakpoint the closed sidebar takes no track at all.
+    expect(tracks(frame)).toEqual([0, 0])
     resize(1920)
     expect(tracks(frame)).toEqual([420, 0])
   })
@@ -305,7 +352,7 @@ describe('AppFrame normal width concessions', () => {
     expect(rightOwner().canShow).toBe(true)
   })
 
-  it.each([[756, 300, true], [755, 0, false]] as const)('reports eligibility at %ipx', (width, rightbar, canShow) => {
+  it.each([[701, 300, true], [699, 0, false]] as const)('reports eligibility at %ipx', (width, rightbar, canShow) => {
     frameWidth = width
     const { instance, rightOwner } = mountFrame()
     act(() => { instance.actions.toggleSidebar() })
@@ -429,11 +476,12 @@ describe('AppFrame right panel presentation', () => {
   })
 
   it('retains fullscreen without a track when normal columns cannot fit', () => {
-    frameWidth = 700
+    frameWidth = 600
     const { frame, instance, rightOwner } = mountFrame()
     act(() => { instance.actions.openRightbar(false, true) })
-    expect(tracks(frame)).toEqual([56, 0])
-    expect(rightOwner()).toEqual({ width: 0, viewportWidth: 700, canShow: false })
+    // Below the drawer breakpoint the hidden sidebar keeps no rail track.
+    expect(tracks(frame)).toEqual([0, 0])
+    expect(rightOwner()).toEqual({ width: 0, viewportWidth: 600, canShow: false })
     expect(instance.getSnapshot().layoutInfo.rightbarShown).toBe(true)
     expect(frame.querySelector('[data-side="rightbar"]')).toBeNull()
   })

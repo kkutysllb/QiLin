@@ -47,6 +47,7 @@
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin-agent/api-remote-access": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/api-remotes": "workspace:*",
     "@qilin-agent/api-session-controller": "workspace:*",

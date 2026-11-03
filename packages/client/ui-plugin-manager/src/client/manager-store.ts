@@ -235,6 +235,12 @@ export interface InstallState {
   readonly runs: readonly InstallRun[]
   /** Whether the run's command and output are unfolded, including after reopening. */
   readonly detailsOpen: boolean
+  /**
+   * The complete Host log file of the run that settled the dialog, which the
+   * details point to for diagnostics the captured terminal output does not
+   * carry; null until a run settles.
+   */
+  readonly logPath: string | null
   /** The bundle the finished run added or replaced; ordinary installs await enablement, catalog operations carry their selection. */
   readonly installed: string | null
   /** The version the finished run installed, when its manifest declares one; null otherwise. */
@@ -259,6 +265,10 @@ export interface InstallState {
     /** The packages an `incompatible-version` refusal names. */
     readonly incompatible?: readonly IncompatiblePlugin[]
     readonly kind?: PluginInstallFailureKind
+    /** The step the failed change reached; `enable` means the installation finished and applying the bundle failed. */
+    readonly stage?: ChangeResult['stage']
+    /** Whether the failed change also asked to enable the installed bundle; an enable-stage sentence needs both. */
+    readonly enabled?: boolean
     /** What the last failed run could not reach, as the Host attributed it: the registry, or the spec's own host. */
     readonly failedAt?: 'registry' | 'spec-host'
     readonly pendingBuilds?: readonly string[]
@@ -480,16 +490,18 @@ class RemoteAnswerError extends Error {
   }
 }
 
-/** The dialog's reading of a failed change: the Host's code and diagnostic, and the run's classified failure. */
+/** The dialog's reading of a failed change: the Host's code and diagnostic, the step it reached, and the run's classified failure. */
 function failureOf(
-  error: ManagementError | undefined, kind: PluginInstallFailureKind | undefined, pendingBuilds?: readonly string[],
-  failedAt?: ChangeResult['failedAt'],
+  error: ManagementError | undefined, kind: PluginInstallFailureKind | undefined, pendingBuilds: readonly string[] | undefined,
+  failedAt: ChangeResult['failedAt'], stage: ChangeResult['stage'], enabled: ChangeResult['enabled'],
 ): NonNullable<InstallState['failure']> {
   return {
     reason: error?.diagnostic ?? '',
     ...error === undefined ? {} : { code: error.code },
     ...error?.incompatible === undefined ? {} : { incompatible: error.incompatible },
     ...kind === undefined ? {} : { kind },
+    stage,
+    ...enabled === undefined ? {} : { enabled },
     ...failedAt === undefined ? {} : { failedAt },
     ...pendingBuilds === undefined || pendingBuilds.length === 0 ? {} : { pendingBuilds },
   }
@@ -571,7 +583,7 @@ export function sortPackages(packages: readonly PackageView[]): PackageView[] {
 const IDLE_INSTALL: InstallState = {
   open: false, spec: '', registries: null, registry: OFFICIAL_REGISTRY, registryOpen: false, registryError: false, attempts: null,
   phase: 'idle', inputError: null, subject: null, runs: [], detailsOpen: false,
-  installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
+  installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false, logPath: null,
 }
 
 /** The dialog back at its spec: the run and its outcome forgotten, the spec and the registries kept. */
@@ -1155,7 +1167,7 @@ export class PluginManagerController {
     this.inspectAbort = controller
     this.patchInstall({
       phase: 'checking', inputError: null, subject: catalogSubject ?? null, runs: [], detailsOpen: false, attempts: null, registryOpen: false,
-      installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [],
+      installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [], logPath: null,
     })
     const read = this.registryRead
     if (read !== undefined && choice === read.choice && read.done !== undefined) {
@@ -1198,7 +1210,10 @@ export class PluginManagerController {
     const requestId = randomUUID() as PluginInstallRequestId
     const request: InstallRequest = { requestId, acknowledged: false, replyLost: false, recovering: false }
     this.request = request
-    this.patchInstall({ phase: 'starting', requestId, subject, runs: [], attempts: null, failure: null, installed: null, installedVersion: null, upToDate: false, approvedBuilds: [] })
+    this.patchInstall({
+      phase: 'starting', requestId, subject, runs: [], attempts: null, failure: null, logPath: null,
+      installed: null, installedVersion: null, upToDate: false, approvedBuilds: [],
+    })
     // The Host announces `plugin-manager/changed` while the run is still on
     // the wire, and every such event reads again; those reads must not cancel
     // the run's settlement.
@@ -1248,18 +1263,24 @@ export class PluginManagerController {
     const asked = result.registries === undefined
       ? {}
       : { attempts: { registries: result.registries, total: Math.max(attempts?.total ?? 0, result.registries.length) } }
+    // The run's own record, whatever the outcome: its complete log path and,
+    // for a failure, the exit status and classified kind.
+    const packages = result.packageResult
     if (result.application === 'cancelled') {
       this.offerSpecAgain({ kind: 'cancelled', seq: ++this.noticeSeq })
     } else if (result.application === 'failed') {
-      const packages = result.packageResult
       this.patchInstall({
         phase: 'failed', runs: settledRuns(runs, packages?.exitCode ?? null),
-        failure: failureOf(result.error, packages?.kind, result.pendingBuilds, result.failedAt),
+        failure: failureOf(result.error, packages?.kind, result.pendingBuilds, result.failedAt, result.stage, result.enabled),
+        // The complete log the Host kept for the run, for diagnostics the
+        // captured terminal output dropped.
+        logPath: packages?.logPath ?? null,
         ...asked,
       })
     } else {
       this.patchInstall({
         phase: 'done', runs: settledRuns(runs, 0), failure: null,
+        logPath: packages?.logPath ?? null,
         installed: result.bundle ?? null,
         installedVersion: result.version ?? null,
         upToDate: result.upToDate === true,

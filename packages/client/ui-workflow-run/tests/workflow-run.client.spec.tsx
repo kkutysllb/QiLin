@@ -19,7 +19,7 @@ import type {
 import type { SessionEvent, SessionId } from '@qilin-agent/session/types'
 import { apply as applyLocale, inject as localeInject } from '@qilin-agent/client-locale/client'
 import {
-  chatSnapshot as emptyChatSnapshot, conversationSnapshot, makeTranslate, sessionSnapshot,
+  allowAllAccess, chatSnapshot as emptyChatSnapshot, conversationSnapshot, makeTranslate, sessionSnapshot,
   stubConfigForm, TestSessions, workspaceSnapshot,
 } from '@qilin-agent/client-test-runtime'
 import {
@@ -35,7 +35,6 @@ import type {} from '../src/client/index.ts'
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(cleanup)
@@ -340,7 +339,7 @@ function panelProps(data: WorkflowRunChatData, sessions = listState(), openSessi
     useGroupAction: () => { throw new Error('unused') },
     sessionId: PARENT_ID,
     useSessions: selector => selector(sessions),
-    usePanelInfo, useResource, useRemoteAccess,
+    usePanelInfo, useResource, ...allowAllAccess,
     useSessionStatus: selector => selector(panelAttention),
     useSessionRetainInfo: () => undefined,
     useSession: selector => selector(panelSession),

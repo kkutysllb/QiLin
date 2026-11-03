@@ -121,6 +121,8 @@ const kit: Omit<QuestionComposerProps, 'matched'> = {
   useSession: selector => selector(sessionState),
   useSessions: selector => selector(sessionList),
   usePanelInfo, useResource, useRemoteAccess,
+  useSessionAccess: () => true,
+  useAccess: () => true,
   useSessionStatus: selector => selector(attentionState),
   useSessionRetainInfo: () => undefined,
   useWorkspaces: selector => selector(workspaceState),

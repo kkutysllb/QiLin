@@ -176,6 +176,23 @@ describe('workspace browser rows', () => {
     expect(onToggle).toHaveBeenCalledOnce()
   })
 
+  it('toggles a Workspace row from the keyboard and stays out of nested controls', () => {
+    const onToggle = vi.fn()
+    const group: GroupNode = {
+      key: 'project', workspaceId: wid('project'), cwd: '/projects/project', createdAt: 0, label: 'Project',
+      sessionCount: 1, expanded: true, containsCurrent: false, sessions: [],
+    }
+    render(<ProjectRowItem group={group} onToggle={onToggle} onCreate={vi.fn()} t={t} />)
+    const row = screen.getByRole('treeitem')
+    expect(row.tabIndex).toBe(0)
+    fireEvent.keyDown(row, { key: 'Enter' })
+    fireEvent.keyDown(row, { key: ' ' })
+    expect(onToggle).toHaveBeenCalledTimes(2)
+    // Keys inside the row's own controls never fold the group.
+    fireEvent.keyDown(screen.getByRole('button', { name: '在“Project”中新建会话' }), { key: 'Enter' })
+    expect(onToggle).toHaveBeenCalledTimes(2)
+  })
+
   it('renders and opens a selected running Session row', () => {
     const node: SessionNode = {
       id: sid('session'), title: 'Session', blank: false, running: true,
@@ -224,6 +241,14 @@ describe('workspace browser rows', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  it('leaves a touch-entered title at rest', () => {
+    const { row, title } = renderClippedRow('A Session Title Long Enough To Be Clipped (1)')
+    stubTitleGeometry(title, 320, 180)
+    fireEvent.pointerEnter(row, { pointerType: 'touch' })
+    expect(title.scrollLeft).toBe(0)
+    expect(title.dataset.clipped).toBeUndefined()
   })
 
   it('returns a marqueed title to its start in one step and stops the crawl', () => {
@@ -322,14 +347,14 @@ describe('workspace browser rows', () => {
     try {
       renderClippedRow('Row verbs')
       const archive = screen.getByRole('button', { name: '归档会话' })
-      fireEvent.mouseEnter(archive)
+      fireEvent.pointerEnter(archive)
       act(() => { vi.advanceTimersByTime(500) })
       expect(screen.getByRole('tooltip').textContent).toBe('归档会话')
-      fireEvent.mouseLeave(archive)
+      fireEvent.pointerLeave(archive)
       expect(screen.queryByRole('tooltip')).toBeNull()
 
       const pin = screen.getByRole('button', { name: '置顶会话' })
-      fireEvent.mouseEnter(pin)
+      fireEvent.pointerEnter(pin)
       act(() => { vi.advanceTimersByTime(500) })
       expect(screen.getByRole('tooltip').textContent).toBe('置顶会话')
     } finally {

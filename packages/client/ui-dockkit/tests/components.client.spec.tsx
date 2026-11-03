@@ -266,10 +266,10 @@ describe('DockSurface', () => {
       renderSurface(seededController(), spyIntents())
       const button = screen.getByRole('button', { name: TEST_LABELS.splitPane })
       expect(button.hasAttribute('title')).toBe(false)
-      fireEvent.mouseEnter(button)
+      fireEvent.pointerEnter(button)
       act(() => { vi.advanceTimersByTime(500) })
       expect(screen.getByRole('tooltip').textContent).toBe(TEST_LABELS.splitPane)
-      fireEvent.mouseLeave(button)
+      fireEvent.pointerLeave(button)
       expect(screen.queryByRole('tooltip')).toBeNull()
     } finally {
       vi.useRealTimers()

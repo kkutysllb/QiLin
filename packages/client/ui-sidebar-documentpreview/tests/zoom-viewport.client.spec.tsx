@@ -12,11 +12,15 @@ let elementFromPointDescriptor: PropertyDescriptor | undefined
 
 beforeEach(() => {
   width = 500
+  resize = undefined
   elementFromPointDescriptor = Object.getOwnPropertyDescriptor(document, 'elementFromPoint')
   Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: () => null })
   vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(() => width)
   vi.stubGlobal('ResizeObserver', class {
-    constructor(callback: ResizeObserverCallback) { resize = callback }
+    // The viewport's observer is the first one constructed; a portaled menu
+    // opened later adds its own anchored observer, which this test must not
+    // mistake for the pane it resizes.
+    constructor(callback: ResizeObserverCallback) { resize ??= callback }
     observe(): void {}
     disconnect(): void {}
   })

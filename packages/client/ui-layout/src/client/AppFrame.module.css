@@ -178,6 +178,61 @@
   overflow: visible;
 }
 
+/* Narrow frames present the retained sidebar as an overlay drawer instead of a
+   grid track: the column leaves the flow, slides over the centre, and dims the
+   page it covers. The mask and the drawer sit above the frame's content layers
+   (handles 11, overlay 20) and below portaled modals (1000). */
+.frame[data-sidebar-drawer] {
+  overflow: hidden;
+}
+
+.frame[data-sidebar-drawer] .sidebarCol {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 71;
+  box-sizing: border-box;
+  border-right: none;
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform var(--ds-transition-duration-slow) var(--ds-ease-in-out);
+}
+
+.frame[data-sidebar-drawer][data-sidebar-collapsed] .sidebarCol {
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition:
+    transform var(--ds-transition-duration-slow) var(--ds-ease-in-out),
+    visibility 0s linear var(--ds-transition-duration-slow);
+}
+
+.frame[data-sidebar-drawer][data-sidebar-instant] .sidebarCol {
+  transition: none;
+}
+
+.drawerMask {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  background: var(--qilin-alias-bg-mask-1);
+  backdrop-filter: var(--qilin-mask-blur);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ds-transition-duration-slow) var(--ds-ease-in-out);
+}
+
+.frame[data-sidebar-drawer]:not([data-sidebar-collapsed]) .drawerMask {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame[data-sidebar-drawer] .sidebarCol,
+  .frame[data-sidebar-drawer][data-sidebar-collapsed] .sidebarCol,
+  .drawerMask {
+    transition: none;
+  }
+}
+
 .bottomRow {
   grid-column: 1 / -1;
   min-width: 0;

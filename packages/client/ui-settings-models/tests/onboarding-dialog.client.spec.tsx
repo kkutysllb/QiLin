@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import Schema from '@qilin-agent/schemastery'
 import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
 import type { JsonValue } from '@qilin-agent/util-values'
-import { bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
 import { DeepSeekOnboardingDialog } from '../src/client/DeepSeekOnboardingDialog.tsx'
 import type { DeepSeekOnboardingDialogProps } from '../src/client/DeepSeekOnboardingDialog.tsx'
 import { SettingsDescribeMirror } from '@qilin-agent/client-ui-settings/src/client/settings-mirror.ts'
@@ -17,7 +17,6 @@ import { settingsSchema } from './settings-schema.client.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(() => {
@@ -150,7 +149,7 @@ function harness(options: {
     openSection,
     useSessions: unusedHook,
     useSessionStatus,
-    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess,
+    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, ...allowAllAccess,
     useWorkspaces: unusedHook,
     controller,
     useModels: bindSnapshotSelector(controller.store),

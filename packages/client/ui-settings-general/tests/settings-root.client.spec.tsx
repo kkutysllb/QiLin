@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { SessionListState } from '@qilin-agent/api-session-controller/client'
 import { SessionId } from '@qilin-agent/session/types'
 import type { SettingsRootComponentProps } from '../src/client/shell-contract.ts'
@@ -14,7 +14,6 @@ import { en, zh } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 beforeEach(() => {
@@ -64,6 +63,7 @@ function mount({
     { id: 'first-step', order: -100 },
     { id: 'credential', order: 0 },
   ],
+  contributedIcons = {},
 }: {
   wide?: boolean
   dictionary?: typeof en
@@ -72,6 +72,7 @@ function mount({
   mainView?: boolean
   rows?: Row[]
   steps?: Step[]
+  contributedIcons?: Record<string, ReactNode>
 } = {}) {
   // Mutable row source standing in for the bound useSections hook; bump()
   // plays a ledger change through the same observable contract.
@@ -83,8 +84,13 @@ function mount({
   const openHandlers = new Set<(sectionId?: string) => void>()
   const reconnect = vi.fn()
   const renderSlot = vi.fn(
-    ((key: string, _owner: unknown, opts?: { only?: string }) => {
+    ((key: string, _owner: unknown, opts?: { only?: string; fallback?: ReactNode }) => {
       if (key === 'settings.section') return <div data-testid={`section-${opts?.only ?? 'all'}`} />
+      // The icon seat dispatches by section id, so the fixture answers with a
+      // contributed glyph or the shell's fallback — the outlet's own contract.
+      if (key === 'settings.section.icon') {
+        return contributedIcons[opts?.only ?? ''] ?? opts?.fallback
+      }
       return SEAT_CONTENT[key]
     }) as SettingsRootComponentProps['renderSlot'],
   )
@@ -110,7 +116,7 @@ function mount({
     actions: shell.actions,
     useSessions: select => select(sessions),
     useSessionStatus,
-    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess,
+    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, ...allowAllAccess,
     useWorkspaces: unusedHook,
     wide,
     reconnect,
@@ -481,6 +487,22 @@ describe('SettingsPanel navigation', () => {
     // including one this package never heard of — shares the gear.
     expect(new Set(glyphs.slice(0, 5)).size).toBe(5)
     expect(glyphs[5]).toBe(glyphs[0])
+  })
+
+  it('seats a contributed section icon by id and keeps the shell glyph otherwise', () => {
+    const { renderSlot } = mount({ contributedIcons: { models: <svg data-testid="contributed-icon" /> } })
+    openPanel()
+    const models = screen.getByRole('button', { name: 'Models' })
+    expect(within(models).getByTestId('contributed-icon')).toBeTruthy()
+    // Unmatched ids keep the shell's own glyph.
+    expect(screen.getByRole('button', { name: 'General' }).querySelector('[data-testid="contributed-icon"]')).toBeNull()
+    expect(screen.getByRole('button', { name: 'General' }).querySelector('svg')).toBeTruthy()
+    // The owner props carry the requested glyph size and the selection state.
+    const modelCall = renderSlot.mock.calls.find(call => call[0] === 'settings.section.icon' && call[2]?.only === 'models')
+    expect(modelCall?.[1]).toEqual({ size: 16, active: false })
+    fireEvent.click(models)
+    const activeCall = renderSlot.mock.calls.filter(call => call[0] === 'settings.section.icon' && call[2]?.only === 'models').at(-1)
+    expect(activeCall?.[1]).toEqual({ size: 16, active: true })
   })
 
   it('switches the rendered section on nav click', () => {

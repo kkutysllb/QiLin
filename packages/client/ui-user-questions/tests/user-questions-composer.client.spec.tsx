@@ -120,6 +120,8 @@ const kitBase: Omit<QuestionComposerProps, 'matched' | 'useStore' | 'useQuestion
   useSession: selector => selector(sessionState),
   useSessions: selector => selector(sessionList),
   usePanelInfo, useResource, useRemoteAccess,
+  useSessionAccess: () => true,
+  useAccess: () => true,
   useSessionStatus: selector => selector(attentionState),
   useSessionRetainInfo: () => undefined,
   useWorkspaces: selector => selector(workspaceState),

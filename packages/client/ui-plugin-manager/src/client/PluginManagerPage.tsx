@@ -941,7 +941,10 @@ function failureText(failure: InstallState['failure'], t: Translate, install?: P
   }
   if (failure.kind !== undefined) return t(FAILURE_KIND_KEYS[failure.kind])
   if (failure.code !== undefined) return managementText({ code: failure.code, diagnostic: failure.reason }, t)
-  return failure.reason === '' ? t('installFailureGeneric') : failure.reason
+  if (failure.reason !== '') return failure.reason
+  // An enabled install that failed applying the bundle names that step, never
+  // the install command it already finished.
+  return failure.stage === 'enable' && failure.enabled === true ? t('installFailedEnabling') : t('installFailureGeneric')
 }
 
 interface SubjectLines {
@@ -1338,6 +1341,9 @@ function InstallDialog({
   const pendingBuilds = phase === 'failed' ? install.failure?.pendingBuilds ?? [] : []
   const approvable = pendingBuilds.length > 0
   const firstRun = install.runs[0]
+  // A settled screen whose install never reported a run can say the details
+  // received no terminal output.
+  const settledDetails = phase === 'failed' || phase === 'done' || phase === 'unknown'
   // The registries the Host asked, once there is more than one: the attempt under way while it runs, a badge on each run.
   const asked = install.attempts !== null && install.attempts.registries.length > 1 ? install.attempts : null
   const current = asked === null ? undefined : asked.registries.at(-1)
@@ -1385,6 +1391,12 @@ function InstallDialog({
             </span>
             <h2 className={css.wizardTitle} role={phase === 'failed' ? 'alert' : 'status'}>{heading}</h2>
             {phase === 'failed' ? <p className={css.wizardSub}>{failureText(install.failure, t, install)}</p> : null}
+            {/* Both planes are reported: the install command finished, and the
+                failure happened when the freshly installed bundle was enabled. */}
+            {phase === 'failed' && failure?.stage === 'enable' && failure.enabled === true
+              && (failure.code !== undefined || failure.reason !== '')
+              ? <p className={css.wizardSub}>{t('installFailedEnabling')}</p>
+              : null}
             {attemptLine === null ? null : <p className={css.wizardSub}>{attemptLine}</p>}
             {uncertaintyText === null ? null : <p className={css.wizardSub} role="alert">{uncertaintyText}</p>}
             {phase === 'unknown' ? <p className={css.wizardSub}>{t('installUnknownDescription')}</p> : null}
@@ -1457,7 +1469,11 @@ function InstallDialog({
           {install.detailsOpen
             ? (
               <div className={css.detailsBody}>
-                <p className={css.installLocation}>{firstRun === undefined ? t('terminalNoOutput') : t('installLocation', { dir: firstRun.cwd })}</p>
+                {firstRun !== undefined
+                  ? <p className={css.installLocation}>{t('installLocation', { dir: firstRun.cwd })}</p>
+                  : settledDetails
+                    ? <p className={css.installLocation}>{t('installDetailsNoOutput')}</p>
+                    : null}
                 {install.runs.map((run, index) => {
                   const registry = asked?.registries[index]
                   return (
@@ -1477,6 +1493,9 @@ function InstallDialog({
                     </div>
                   )
                 })}
+                {install.logPath === null
+                  ? null
+                  : <p className={css.installLocation}>{t('installLogPath', { path: install.logPath })}</p>}
               </div>
             )
             : null}

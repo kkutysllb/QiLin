@@ -1,24 +1,14 @@
-/* Rendered only on macOS desktop (the component returns null elsewhere) and
-   shown only while the sidebar column is fully hidden: expanded, the sidebar
-   holds its own toggle/New Session and the traffic lights sit over the
-   column. */
+/* Shown only while the sidebar column is fully hidden: expanded, the sidebar
+   holds its own toggle/New Session and the traffic lights sit over the column.
+   Two presentations hide it — the macOS desktop collapse and the narrow
+   drawer — and each keeps its own inline clearance. */
 .controls {
   display: none;
-}
-
-/* Left padding clears the hiddenInset traffic lights: they span x 16..~68 in
-   window coordinates and the header already pads 20, so 68 lands the first
-   control at x 88 — a full control-width of air after the lights. Trailing
-   margin restores the leading seat's 8px gap to the breadcrumbs (the seat
-   itself carries none, so the empty expanded state adds no width). */
-:global([data-sidebar-collapsed]) .controls {
-  display: flex;
   align-items: center;
   /* Same 8px rhythm as the header's trailing controls (ConversationRoot
      .headerUtilities/.headerCorner), so both ends of the title row read as one
      control set. */
   gap: 8px;
-  padding-left: 68px;
   margin-right: 8px;
   /* The collapsed seat overlays the header's window-drag region from a
      positioned box: the draggable mask is cut per painted box, so the strip
@@ -27,15 +17,30 @@
   -webkit-app-region: no-drag;
 }
 
-:global([data-sidebar-collapsed]) .controls button {
+.controls button {
   -webkit-app-region: no-drag;
+}
+
+/* macOS desktop: left padding clears the hiddenInset traffic lights: they span
+   x 16..~68 in window coordinates and the header already pads 20, so 68 lands
+   the first control at x 88 — a full control-width of air after the lights. */
+:global(html[data-platform='darwin']) :global([data-sidebar-collapsed]:not([data-sidebar-drawer])) .controls {
+  display: flex;
+  padding-left: 68px;
+}
+
+/* Narrow drawer on any platform: the header already carries its own edge
+   padding, so the opener only needs its leading inset. */
+:global([data-sidebar-drawer][data-sidebar-collapsed]) .controls {
+  display: flex;
+  padding-left: 12px;
 }
 
 /* OpenKylin: one optical line with the hiddenInset traffic lights and the
    sidebar's topStrip toggle — both center at y 26 (the 52px strip), while
    this 48px header centers its items at y 24. align-items:center centers the
    margin box, so a 4px top margin lands the controls' center at 26. */
-:global(html[data-platform='darwin']) :global([data-sidebar-collapsed]) .controls {
+:global(html[data-platform='darwin']) :global([data-sidebar-collapsed]:not([data-sidebar-drawer])) .controls {
   margin-top: 4px;
 }
 
@@ -55,8 +60,10 @@
   cursor: pointer;
 }
 
-.iconButton:hover {
-  background: var(--qilin-alias-interactive-bg-hover);
+@media (hover: hover) {
+  .iconButton:hover {
+    background: var(--qilin-alias-interactive-bg-hover);
+  }
 }
 
 /* Glyphs match the right-side header controls (ui-sidebar-right ExpandButton):

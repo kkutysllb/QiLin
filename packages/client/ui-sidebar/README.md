@@ -39,7 +39,7 @@ While the root-scoped `sidebar.panellist.actions` list has registrations, a **Mo
 
 ### Collapse behavior
 
-During a live collapse, the expanded content fades out at its current width, the upper controls share one fade and leftward translation into the 56px rail, and the layout's column slide ends the motion. A page that starts collapsed renders the rail statically, and reduced-motion mode disables both transitions. The bottom-pinned footer seats share the fade timing but have no horizontal translation.
+During a live collapse, the expanded content fades out at its current width, the upper controls share one fade and leftward translation into the 56px rail, and the layout's column slide ends the motion. A page that starts collapsed renders the rail statically, and reduced-motion mode disables both transitions. The bottom-pinned footer seats share the fade timing but have no horizontal translation. A narrow frame presents the column as a drawer: its content stays mounted, the column becomes a modal dialog closed by Escape or the mask, and focus that the drawer held returns to the header's `[data-sidebar-opener]` control; a collapsed rail returns focus to its own toggle.
 
 The top expand button hosts the optional, non-interactive `sidebar.toggle.badge` slot while collapsed. Its occupant supplies status and tooltip content without adding another action or changing the button's navigation behavior.
 

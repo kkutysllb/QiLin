@@ -549,7 +549,7 @@ describe('a long card description', () => {
     try {
       renderSection({ rows: [{ id: 'zh', trust: 'user', isDefault: false, name: '中文助手', description: LONG }] })
 
-      fireEvent.mouseEnter(within(rowFor('zh')).getByText(LONG))
+      fireEvent.pointerEnter(within(rowFor('zh')).getByText(LONG))
       act(() => { vi.advanceTimersByTime(400) })
 
       expect(screen.getByRole('tooltip').textContent).toBe(LONG)
@@ -564,7 +564,7 @@ describe('a long card description', () => {
     try {
       renderSection({ rows: [{ id: 'zh', trust: 'user', isDefault: false, name: '中文助手', description: '短描述。' }] })
 
-      fireEvent.mouseEnter(within(rowFor('zh')).getByText('短描述。'))
+      fireEvent.pointerEnter(within(rowFor('zh')).getByText('短描述。'))
       act(() => { vi.advanceTimersByTime(400) })
 
       // A bubble repeating what is already fully on the card is noise.

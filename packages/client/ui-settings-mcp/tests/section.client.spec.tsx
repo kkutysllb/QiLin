@@ -7,6 +7,7 @@ import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
 import { usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
 import type { McpServersSnapshot } from '@qilin-agent/mcp-servers/types'
+import type { ReactElement } from 'react'
 import { McpSection } from '../src/client/McpSection.tsx'
 import type { McpSectionProps } from '../src/client/McpSection.tsx'
 import { McpServersStore, type McpPageState } from '../src/client/store.ts'
@@ -265,7 +266,10 @@ describe('ui-settings-mcp browser plugin', () => {
     const slots = ctx.get('slots') as SlotRegistry
     slots.register({
       name: 'root',
-      children: { 'settings.section': { kind: 'list', scope: 'root' } },
+      children: {
+        'settings.section': { kind: 'list', scope: 'root' },
+        'settings.section.icon': { kind: 'list', scope: 'root', inline: true },
+      },
     } as never, () => null)
 
     await ctx.plugin({ inject: [...inject], apply }).await()
@@ -283,6 +287,16 @@ describe('ui-settings-mcp browser plugin', () => {
     expect(face?.controller).toBeInstanceOf(McpServersStore)
     expect(face?.t('nav')).toBe('MCP servers')
     expect(new McpServersStore(ctx).store.getSnapshot().status).toBe('idle')
+    // The nav glyph shares the section id, so the shell seats it on this row.
+    const icon = slots.entries('settings.section.icon')[0]
+    expect(icon?.options.id).toBe('mcp')
+    const draw = (active: boolean): ReactElement<{ size: number }> => (icon!.component as (
+      props: { size: number; active: boolean },
+    ) => ReactElement<{ size: number }>)({ size: 16, active })
+    expect(draw(false).props.size).toBe(16)
+    expect(draw(true).props.size).toBe(16)
+    expect(draw(true).type).not.toBe(draw(false).type)
     await ctx.fiber.dispose()
+    expect(slots.entries('settings.section.icon')).toHaveLength(0)
   })
 })

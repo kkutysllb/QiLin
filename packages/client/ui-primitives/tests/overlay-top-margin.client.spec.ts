@@ -33,4 +33,15 @@ describe('overlayTopMargin', () => {
     expect(overlayTopMargin(0)).toBe(20)
     expect(overlayTopMargin(32)).toBe(32)
   })
+
+  it('never pushes an overlay away from an anchor inside the top strip', () => {
+    frame('38', false)
+    // The anchor's bottom edge plus the gap is below the frame clearance, so
+    // the panel may sit next to the control that opened it.
+    expect(overlayTopMargin(12, { top: 6, bottom: 30 }, 4)).toBe(34)
+    // An anchor below the strip leaves the clearance rule in charge.
+    expect(overlayTopMargin(12, { top: 120, bottom: 140 }, 4)).toBe(58)
+    // A scrolled-away anchor (negative top) does not cap the margin.
+    expect(overlayTopMargin(12, { top: -40, bottom: -20 }, 4)).toBe(58)
+  })
 })

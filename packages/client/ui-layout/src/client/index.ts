@@ -62,8 +62,9 @@ declare module '@qilin-agent/client-ui-slots' {
      * the seats it declares disappear with it. To add something to the
      * sidebar, register into one of those inner seats instead.
      *
-     * The occupant receives the frame's live column state (collapsed, width)
-     * and is expected to render the compact control rail while collapsed.
+     * The occupant receives the frame's collapsed state, width and drawer mode.
+     * A drawer keeps its content mounted while hidden and overlays the centre;
+     * other browser columns retain a compact control rail while collapsed.
      */
     'sidebar': { kind: 'single'; scope: 'root'; owner: SidebarOwnerProps }
     /**
@@ -113,10 +114,12 @@ declare module '@qilin-agent/client-ui-slots' {
 
 /** Sidebar owner share: live column state from the frame's concession solve. */
 export interface SidebarOwnerProps {
-  /** True when the sidebar is closed (the column renders the compact control rail). */
+  /** True when closed; a drawer is hidden, while other browser columns retain a rail. */
   collapsed: boolean
-  /** Rendered column width in px (SIDEBAR_COLLAPSED when collapsed). */
+  /** Rendered sidebar width in px; a hidden drawer retains its expanded width. */
   width: number
+  /** Present the retained sidebar content as an overlay drawer. */
+  drawer: boolean
 }
 
 /** Right column owner share: resolved normal geometry and opening eligibility. */
@@ -182,7 +185,9 @@ export function apply(ctx: ClientContext): void {
         'web:macos': { code: 'KeyB', modifiers: ['primary', 'alt'] },
         'web:windows': { code: 'KeyB', modifiers: ['primary', 'alt'] },
       },
-      regions: ['page', 'editable'], modals: [],
+      // The drawer is a dialog the same command closes, so the toggle stays
+      // available while it owns the foreground.
+      regions: ['page', 'editable'], modals: ['sidebar'],
       resolve: () => ({ status: 'handled', run: () => { layout.toggleSidebar() } }),
     })
     const disposePanels = ctx.slots.subscribe('main', retainMainPanels)

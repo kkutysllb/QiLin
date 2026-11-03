@@ -461,6 +461,9 @@
 }
 
 .modelEntry {
+  /* The entry, not the viewport, decides the row's width: the same list renders
+     in the settings page and inside the narrow onboarding dialog. */
+  container: model-row / inline-size;
   position: relative;
   border: 1px solid var(--qilin-alias-border-l4);
   border-radius: 10px;
@@ -472,6 +475,25 @@
   grid-template-columns: auto minmax(0, 1.4fr) minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 6px;
+}
+
+/* Below 440px the two identity inputs no longer fit side by side: the id keeps
+   the first row and the display name moves to its own full-width row, so both
+   stay editable instead of shrinking under their placeholders. */
+@container model-row (max-width: 440px) {
+  .modelRow {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+  }
+
+  .modelRow > input:nth-of-type(1) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .modelRow > input:nth-of-type(2) {
+    grid-column: 2 / -1;
+    grid-row: 2;
+  }
 }
 
 .modelDragHandle:not(:disabled) {

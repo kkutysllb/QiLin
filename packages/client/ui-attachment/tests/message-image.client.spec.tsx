@@ -354,6 +354,7 @@ describe('ImageGallery', () => {
       useSession,
       useSessions,
       usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess,
+      useSessionAccess: () => true, useAccess: () => true,
       useSessionStatus,
       useWorkspaces,
       useProjection: () => undefined,

@@ -39,7 +39,7 @@ kind: "package-reference"
 
 ### 填充设置 slot
 
-设置界面会注册进本包声明的 slot 类型。外壳（`sidebar.settings` 占位方、导航、界面框架）位于 ui-settings-general；功能页面注册 `settings.section` 贡献；首次使用引导步骤注册 `settings.onboarding`。外壳自有的「关于」页面渲染 `settings.about.mark`；QiLin 品牌包为该标识席位提供印章。跨命名空间的表面（schema 内省、已服务命名空间目录、`hasDocument`）通过 `ctx.configForms.describe()` 读同一面镜像。
+设置界面会注册进本包声明的 slot 类型。外壳（`sidebar.settings` 占位方、导航、界面框架）位于 ui-settings-general；功能页面注册 `settings.section` 贡献；首次使用引导步骤注册 `settings.onboarding`。页面可以按自己的分区 id 在 `settings.section.icon` 注册组件来替换导航图标：id 不匹配不会渲染，图标的 label 选项不会显示，在出现匹配之前外壳一直使用默认图标。外壳自有的「关于」页面渲染 `settings.about.mark`；QiLin 品牌包为该标识席位提供印章。跨命名空间的表面（schema 内省、已服务命名空间目录、`hasDocument`）通过 `ctx.configForms.describe()` 读同一面镜像。
 
 ### 可观察的成功与失败
 

@@ -1,4 +1,4 @@
-/** Focus presentation for automatic entry and restoration. */
+/** Focus presentation for automatic entry and restoration, plus device input shape. */
 const releases = new WeakMap<HTMLElement, () => void>()
 const navigationKeys = new Set(['Tab', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'])
 
@@ -26,4 +26,21 @@ export function focusWithoutRing(element: HTMLElement, options?: FocusOptions): 
   element.addEventListener('keydown', navigate, true)
   element.focus(options)
   if (!element.matches(':focus')) release()
+}
+/** Cached answer for mobile-device detection: one browser viewport has one answer. */
+let mobileDevice: boolean | undefined
+
+/**
+ * Whether this browser runs on a touch-first mobile device.
+ *
+ * The answer is cached, so a caller must not expect it to follow a viewport
+ * resize. It drives input-shape choices only; layout reacts to container width.
+ * @returns `true` on a mobile browser, `false` on a desktop one.
+ */
+export function isMobileDevice(): boolean {
+  if (mobileDevice !== undefined) return mobileDevice
+  const { userAgent, platform, maxTouchPoints } = navigator
+  mobileDevice = /Android|iPhone|iPad|iPod/i.test(userAgent)
+    || (platform === 'MacIntel' && maxTouchPoints > 1)
+  return mobileDevice
 }

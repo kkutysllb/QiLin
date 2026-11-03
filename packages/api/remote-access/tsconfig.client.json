@@ -7,7 +7,9 @@
   },
   "files": [
     "src/client/index.ts",
+    "src/client/types.ts",
     "src/client/mount.ts",
+    "src/client/when-allowed.ts",
     "src/client/state.ts",
     "src/snapshot.ts",
     "src/types.ts"

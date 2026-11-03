@@ -18,7 +18,7 @@ import { parseInjectedBaseline } from './state.ts'
 export type {
   RemoteAccessAction, RemoteAccessEndpoint, RemoteAccessFrame, RemoteAccessGrant, RemoteAccessResource, TypertResourceKind,
 } from '../types.ts'
-export type { ClientRemoteAccess, RemoteEndpoint } from './mount.ts'
+export type { AccessEffect, ClientRemoteAccess, RemoteEndpoint } from './mount.ts'
 
 /** Required Client services: the Remote mount face and the Slot registry. */
 export const inject = ['remote', 'slots']

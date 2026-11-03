@@ -1,6 +1,9 @@
 /** Skills settings page for the Web client. */
 
+import { createElement } from 'react'
 import type { Context as ClientContext } from '@qilin-agent/kylin'
+import { IconSkillOutlineMedium, IconSkillOutlineRegular } from '@qilin-agent/client-ui-primitives'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type {} from '@qilin-agent/client-locale/client'
 import type {} from '@qilin-agent/client-ui-settings/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
@@ -31,6 +34,17 @@ export const NS = 'settings.skills'
 export const inject = ['slots', 'locale', 'remote', 'remote.skills', 'uiWorkspace']
 
 /**
+ * Skills page navigation glyph: the section icon at the shell's requested
+ * size, drawn heavier while the page is the selected section.
+ * @param props - owner props supplied by the settings shell's nav row.
+ * @returns the skills glyph.
+ */
+const SkillsNavIcon = ({ size, active }: PropsRuntime<'settings.section.icon'>) => createElement(
+  active ? IconSkillOutlineMedium : IconSkillOutlineRegular,
+  { size },
+)
+
+/**
  * Register the skills page once the settings shell declares its section slot,
  * and hand it the one store every mount shares.
  * @param ctx - client root context.
@@ -45,6 +59,11 @@ export function apply(ctx: ClientContext): void {
     hooks: { snapshot: controller.store, selection: ctx.uiWorkspace.selection },
     t,
   })
+
+  ctx.slots.inject('settings.section.icon', () => ctx.slots.register({
+    name: 'settings.section.icon',
+    id: 'skills',
+  }, SkillsNavIcon))
 
   ctx.slots.inject('settings.section', () => ctx.slots.register({
     name: 'settings.section',

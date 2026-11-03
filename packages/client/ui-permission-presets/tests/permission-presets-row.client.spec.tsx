@@ -2,7 +2,7 @@
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
 import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
 import type { PermissionCatalog } from '@qilin-agent/permission-presets/client'
 import { PermissionRow, type PermissionRowProps } from '../src/client/PermissionRow.tsx'
@@ -12,7 +12,6 @@ import { PermissionPresetSettingsController } from '../src/client/settings-store
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 const CATALOG: PermissionCatalog = {
@@ -79,7 +78,7 @@ const useSessionStatus: PermissionRowProps['useSessionStatus'] = selector => sel
 const runtime = {
   useSessions: (() => { throw new Error('unused') }) as never,
   useSessionStatus,
-  usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess,
+  usePanelInfo, useSessionRetainInfo: () => undefined, useResource, ...allowAllAccess,
   useWorkspaces: (() => { throw new Error('unused') }) as never,
 }
 

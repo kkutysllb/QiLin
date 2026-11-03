@@ -8,7 +8,7 @@
  * session and workspace hover cards are suppressed while a menu is open.
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { RefObject } from 'react'
+import type { PointerEvent, RefObject } from 'react'
 import clsx from 'clsx'
 import {
   HoverCard, IconArchiveOutlineRegular, IconBranchOutlineRegular, IconCopyOutlineRegular,
@@ -82,11 +82,17 @@ function restTitle(title: HTMLSpanElement): void {
  * @param title - ref to the row's clipping title element.
  * @returns stable pointer enter/leave handlers for the row.
  */
-function useTitleMarquee(title: RefObject<HTMLSpanElement | null>): { enter: () => void; leave: () => void } {
+function useTitleMarquee(title: RefObject<HTMLSpanElement | null>): {
+  enter: (event: PointerEvent) => void
+  leave: () => void
+} {
   const frame = useRef(0)
   useEffect(() => () => { cancelAnimationFrame(frame.current) }, [])
   return useMemo(() => ({
-    enter: (): void => {
+    enter: (event: PointerEvent): void => {
+      // A touch pointer enters the row only to tap it; a crawl would run under
+      // the finger and be discarded with the next row.
+      if (event.pointerType === 'touch') return
       /* v8 ignore next -- defensive: the title span renders unconditionally. */
       if (title.current === null) return
       const element = title.current
@@ -227,7 +233,13 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
       role="treeitem"
       data-row-key={`workspace:${row.key}`}
       aria-expanded={row.expanded}
+      tabIndex={0}
       onClick={onToggle}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget || !['Enter', ' '].includes(event.key)) return
+        event.preventDefault()
+        onToggle()
+      }}
       draggable={drag !== undefined}
       onDragStart={drag === undefined
         ? undefined
@@ -633,7 +645,7 @@ export function SessionNodeItem({
           <Tooltip label={t('actions.archive')} side="bottom" delayMs={500} portal>
             <button
               type="button"
-              className={css.iconButton}
+              className={clsx(css.iconButton, css.secondaryAction)}
               aria-label={t('menu.archiveSession')}
               onClick={(e) => { e.stopPropagation(); onArchive(node.id) }}
             >

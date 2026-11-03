@@ -91,6 +91,8 @@ function props(
     useWorkspaces: unused,
     useResource: unused,
     useRemoteAccess: unused,
+    useSessionAccess: () => true,
+    useAccess: () => true,
     useProjection: unused,
     useConversation: unused,
     useInput: unused,

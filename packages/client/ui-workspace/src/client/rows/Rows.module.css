@@ -14,9 +14,13 @@
   color: var(--qilin-alias-label-primary);
 }
 
-.projectRow:hover,
-.sessionRow:hover {
-  background-color: var(--qilin-alias-interactive-bg-hover);
+/* A touch tap latches :hover on the row it opened; guarding every hover-only
+   fill and affordance keeps a tapped row from staying visually selected. */
+@media (hover: hover) {
+  .projectRow:hover,
+  .sessionRow:hover {
+    background-color: var(--qilin-alias-interactive-bg-hover);
+  }
 }
 
 .sessionRow.selected {
@@ -41,8 +45,10 @@
   color: var(--qilin-alias-label-primary);
 }
 
-.searchResultRow:hover {
-  background-color: var(--qilin-alias-interactive-bg-hover);
+@media (hover: hover) {
+  .searchResultRow:hover {
+    background-color: var(--qilin-alias-interactive-bg-hover);
+  }
 }
 
 .searchResultRow.selected {
@@ -142,8 +148,11 @@
 
 /* Project leading slot: folder by default, expand arrow on row hover. */
 .projectRow .chevron { display: none; }
-.projectRow:hover .chevron { display: inline-flex; }
-.projectRow:hover .folder { display: none; }
+
+@media (hover: hover) {
+  .projectRow:hover .chevron { display: inline-flex; }
+  .projectRow:hover .folder { display: none; }
+}
 
 /* Expand arrow (filled triangle): points right closed, rotates to point down open. */
 .arrow {
@@ -254,9 +263,18 @@
   color: var(--qilin-alias-label-caption);
 }
 
-.sessionRow:hover .pinIndicator,
 .sessionRow.menuOpen .pinIndicator {
   display: none;
+}
+
+@media (hover: hover) {
+  .sessionRow:hover .pinIndicator { display: none; }
+}
+
+/* Touch keeps the resting marker off: the action strip it makes room for is
+   always drawn on a coarse pointer. */
+@media (hover: none) {
+  .sessionRow .pinIndicator { display: none; }
 }
 
 /* The trailing strip keeps a shared gap between its fixed-size control boxes. */
@@ -267,16 +285,34 @@
   gap: 13px;
 }
 
-.projectRow:hover .rowActions,
-.sessionRow:hover .rowActions,
+/* An open menu or keyboard focus pins the strip: both are reachable without a
+   pointer resting on the row. */
 .projectRow.menuOpen .rowActions,
-.sessionRow.menuOpen .rowActions {
+.sessionRow.menuOpen .rowActions,
+.projectRow:focus-within .rowActions,
+.sessionRow:focus-within .rowActions {
   display: inline-flex;
 }
 
-.sessionRow:hover .time,
 .sessionRow.menuOpen .time {
   display: none;
+}
+
+@media (hover: hover) {
+  .projectRow:hover .rowActions,
+  .sessionRow:hover .rowActions { display: inline-flex; }
+  .sessionRow:hover .time { display: none; }
+}
+
+/* A coarse pointer draws no hover, so the strip is the row's only affordance
+   and stays visible; the archive verb yields its cell to the menu and pin
+   verbs (it remains in the row menu). A collapsed Workspace keeps none. */
+@media (hover: none) {
+  .projectRow .rowActions,
+  .sessionRow .rowActions { display: inline-flex; }
+  .projectRow[aria-expanded='false'] .rowActions { display: none; }
+  .sessionRow .time { display: none; }
+  .secondaryAction { display: none; }
 }
 
 /* An open row menu pins the hover affordances (figma: the row keeps its

@@ -25,6 +25,14 @@
   color: var(--qilin-alias-label-primary);
 }
 
+/* A phone-width page keeps a fixed 20px inset: the 4vw clamp collapses to a
+   margin too narrow to separate the head controls from the screen edge. */
+@media (max-width: 767px) {
+  .page {
+    --plugin-page-inset: 20px;
+  }
+}
+
 .page > * {
   flex: none;
   width: 100%;

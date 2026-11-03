@@ -1,5 +1,6 @@
 /** What the browser half registers, and that it all leaves with the fiber. */
 
+import type { ReactElement } from 'react'
 import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import { resolveSlotLabel } from '@qilin-agent/client-ui-slots'
@@ -62,6 +63,7 @@ function declareRoot(slots: SlotRegistry): () => void {
     name: 'root',
     children: {
       'settings.section': { kind: 'list', scope: 'root' },
+      'settings.section.icon': { kind: 'list', scope: 'root', inline: true },
       'plugins.item': { kind: 'list', scope: 'root' },
     },
   } as never, () => null)
@@ -85,6 +87,27 @@ describe('ui-settings-plugins apply', () => {
     await ctx.plugin({ inject: [...inject], apply }).await()
 
     expect(slots.entries('settings.section')).toHaveLength(0)
+  })
+
+  it('seats the Plugins section navigation glyph for the manager-owned id', async () => {
+    const { ctx, slots } = await bench()
+    declareRoot(slots)
+
+    await ctx.plugin({ inject: [...inject], apply }).await()
+
+    const icon = slots.entries('settings.section.icon')[0]
+    expect(icon?.options.id).toBe('plugins')
+    const draw = (active: boolean): ReactElement<{ size: number }> => (icon!.component as (
+      props: { size: number; active: boolean },
+    ) => ReactElement<{ size: number }>)({ size: 16, active })
+    // The shell requests one square edge; the selected section draws a
+    // different glyph weight.
+    expect(draw(false).props.size).toBe(16)
+    expect(draw(true).props.size).toBe(16)
+    expect(draw(true).type).not.toBe(draw(false).type)
+    // The glyph leaves with the plugin's own fiber.
+    await ctx.fiber.dispose()
+    expect(slots.entries('settings.section.icon')).toHaveLength(0)
   })
 
   it('injects one business face per configuration page', async () => {

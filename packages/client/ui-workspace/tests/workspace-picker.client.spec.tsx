@@ -7,7 +7,7 @@ import type {
   WorkspaceId, WorkspaceSnapshot, WorkspaceView,
 } from '@qilin-agent/api-workspace-controller/client'
 import type {} from '@qilin-agent/client-locale/client'
-import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { DirectoryFlowOwnerProps, WorkspacePickerProps } from '../src/client/contract/slots.ts'
@@ -16,7 +16,6 @@ import { zh } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(cleanup)
@@ -101,7 +100,7 @@ function mount(
       useSessions={hook(sessions)}
       useSessionStatus={hook(noPendingInteraction)}
       useSessionRetainInfo={() => undefined}
-      usePanelInfo={usePanelInfo} useResource={useResource} useRemoteAccess={useRemoteAccess}
+      usePanelInfo={usePanelInfo} useResource={useResource} {...allowAllAccess}
       useWorkspaces={hook(workspaceState(nextItems))}
       onPick={onPick}
       onClose={onClose}
@@ -224,7 +223,7 @@ describe('WorkspacePicker', () => {
         open useSessions={hook(sessions)} useWorkspaces={hook(workspaceState([workspace('alpha', 'Alpha')]))}
         useSessionStatus={hook(noPendingInteraction)}
         useSessionRetainInfo={() => undefined}
-        usePanelInfo={usePanelInfo} useResource={useResource} useRemoteAccess={useRemoteAccess}
+        usePanelInfo={usePanelInfo} useResource={useResource} {...allowAllAccess}
         onPick={vi.fn()} onClose={vi.fn()} createWorkspace={vi.fn()}
         useDirectoryFlow={occupancySource().useDirectoryFlow} renderSlot={renderSlot} t={t}
       />,
@@ -242,7 +241,7 @@ describe('WorkspacePicker', () => {
         open anchorRef={anchor()} useSessions={hook(sessions)} useWorkspaces={hook(state)}
         useSessionStatus={hook(noPendingInteraction)}
         useSessionRetainInfo={() => undefined}
-        usePanelInfo={usePanelInfo} useResource={useResource} useRemoteAccess={useRemoteAccess}
+        usePanelInfo={usePanelInfo} useResource={useResource} {...allowAllAccess}
         onPick={vi.fn()} onClose={vi.fn()} createWorkspace={vi.fn()}
         useDirectoryFlow={occupancySource().useDirectoryFlow} renderSlot={renderSlot} t={t}
       />,

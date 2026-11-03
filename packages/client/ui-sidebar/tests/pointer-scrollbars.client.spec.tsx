@@ -15,6 +15,7 @@ import { en } from '../src/client/locales.ts'
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
 const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
+const useSessionAccess: GlobalStandardProps['useSessionAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 /** Pinned column box; the shell compares pointer coordinates against it. */
@@ -40,12 +41,12 @@ afterEach(() => {
 function mountColumn(): { column: HTMLElement; quiet: () => boolean } {
   const view = render(
     <SidebarRoot
-      collapsed={false} width={300}
+      collapsed={false} width={300} drawer={false}
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
       usePanelInfo={usePanelInfo} selectPanel={() => {}} setPinned={() => {}} trackEntryClick={() => {}}
       usePanels={selector => selector([])} useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useShortcuts={selector => selector([])}
-      useResource={useResource} useRemoteAccess={useRemoteAccess} useWorkspaces={neverHook}
+      useResource={useResource} useRemoteAccess={useRemoteAccess} useSessionAccess={useSessionAccess} useWorkspaces={neverHook}
       startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
       renderSlot={((_key: string, owner: SidebarSectionOwnerProps) =>
         <div data-testid="region" data-wide={owner.wide} />) as SidebarRootComponentProps['renderSlot']}

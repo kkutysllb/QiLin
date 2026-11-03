@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react'
 import { Context, Service } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
@@ -41,7 +42,13 @@ async function bench() {
   workspaceService(ctx)
   const slots = ctx.get('slots') as SlotRegistry
   slots.register(
-    { name: 'root', children: { 'settings.section': { kind: 'list', scope: 'root' } } } as never,
+    {
+      name: 'root',
+      children: {
+        'settings.section': { kind: 'list', scope: 'root' },
+        'settings.section.icon': { kind: 'list', scope: 'root', inline: true },
+      },
+    } as never,
     () => null,
   )
   const fiber = ctx.plugin({ inject: [...inject], apply })
@@ -77,5 +84,21 @@ describe('ui-settings-skills apply', () => {
     expect(skills.list).not.toHaveBeenCalled()
     await fiber.dispose()
     expect(slots.entries('settings.section')).toHaveLength(0)
+  })
+
+  it('seats the page navigation glyph for its own section id', async () => {
+    const { fiber, slots } = await bench()
+    const icon = slots.entries('settings.section.icon')[0]
+    expect(icon?.options.id).toBe('skills')
+    const draw = (active: boolean): ReactElement<{ size: number }> => (icon!.component as (
+      props: { size: number; active: boolean },
+    ) => ReactElement<{ size: number }>)({ size: 16, active })
+    // The shell requests one square edge; the selected section draws a
+    // different glyph weight.
+    expect(draw(false).props.size).toBe(16)
+    expect(draw(true).props.size).toBe(16)
+    expect(draw(true).type).not.toBe(draw(false).type)
+    await fiber.dispose()
+    expect(slots.entries('settings.section.icon')).toHaveLength(0)
   })
 })

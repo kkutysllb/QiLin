@@ -12,6 +12,9 @@
       "path": "../../../vendor/cordis"
     },
     {
+      "path": "../../api/remote-access/tsconfig.client.json"
+    },
+    {
       "path": "../../api/remotes/tsconfig.client.json"
     },
     {

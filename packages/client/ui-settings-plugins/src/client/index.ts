@@ -7,6 +7,9 @@
  */
 
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
+import { createElement } from 'react'
+import { IconCordisPluginOutlineMedium, IconCordisPluginOutlineRegular } from '@qilin-agent/client-ui-primitives'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type {} from '@qilin-agent/client-locale/client'
 // Type-only: the settings shell's SlotMap merge (the 'settings.section' entry)
 // and the ctx.configForms Context merge. Cross-plugin collaboration goes
@@ -59,12 +62,31 @@ export const inject = [
 ]
 
 /**
+ * Plugins page navigation glyph: the section icon at the shell's requested
+ * size, drawn heavier while the page is the selected section.
+ * @param props - owner props supplied by the settings shell's nav row.
+ * @returns the plugin glyph.
+ */
+const PluginsNavIcon = ({ size, active }: PropsRuntime<'settings.section.icon'>) => createElement(
+  active ? IconCordisPluginOutlineMedium : IconCordisPluginOutlineRegular,
+  { size },
+)
+
+/**
  * Mount the configuration pages this package ships.
  * @param ctx - the browser plugin context.
  */
 export function apply(ctx: ClientContext): void {
   const t = ctx.locale.bind(NS)
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-settings-plugins: section dictionaries')
+
+  // The Plugins section itself is ui-plugin-manager's; its navigation glyph is
+  // the plugin configuration face this package owns, so the id matches that
+  // section rather than one this package registers.
+  ctx.slots.inject('settings.section.icon', () => ctx.slots.register({
+    name: 'settings.section.icon',
+    id: 'plugins',
+  }, PluginsNavIcon))
 
   const bash = new BashCardController(ctx.configForms.get(SHELL_NS))
   const git = new GitCardController(ctx.configForms.get(GIT_NS))

@@ -17,40 +17,13 @@ import type {} from '@qilin-agent/api-remote-access/remote'
 import type { HostObservable, RootStandardSourceContribution } from '@qilin-agent/client-ui-slots'
 // Type-only: the SlotRegistry (`ctx.slots`) merge.
 import type {} from '@qilin-agent/client-ui-renderer/client'
-import type { TypertRemoteContribution, TypertRemoteMap, TypertResourceKind } from '@qilin-agent/typert-protocol'
+import type { TypertRemoteContribution, TypertResourceKind } from '@qilin-agent/typert-protocol'
 import type { RemoteAccessFrame } from '../types.ts'
+import type { AccessEffect, ClientRemoteAccess, RemoteEndpoint } from './types.ts'
 import { ClientAccessState, type Baseline } from './state.ts'
+import { whenAllowed } from './when-allowed.ts'
 
-/** Every endpoint the Client Remote namespaces declare. */
-export type RemoteEndpoint = Extract<keyof TypertRemoteMap, string>
-
-/** Client access answers over the calling Peer's snapshot; it never issues a request. */
-export interface ClientRemoteAccess {
-  /**
-   * Whether the current Peer may call `action` on one resource.
-   * True for the owner; false without a baseline and after a non-owner
-   * stream fails; otherwise whether the resource's grant lists the action.
-   * @param kind - resource kind declared in `TypertResourceMap`.
-   * @param id - resource identity.
-   * @param action - endpoint action the caller would invoke.
-   * @returns identity-stable boolean source for this `(kind, id, action)`.
-   */
-  source(kind: TypertResourceKind, id: string, action: string): HostObservable<boolean>
-}
-
-declare module '@qilin-agent/kylin' {
-  interface Context {
-    /** Client access answers for the calling Peer. */
-    remoteAccess: ClientRemoteAccess
-  }
-}
-
-declare module '@qilin-agent/client-ui-slots' {
-  interface GlobalStandardProps {
-    /** Whether the current Peer may call `action` on the global resource. */
-    useRemoteAccess: (action: RemoteEndpoint) => boolean
-  }
-}
+export type { AccessEffect, ClientRemoteAccess, RemoteEndpoint } from './types.ts'
 
 type IncrementFrame = Exclude<RemoteAccessFrame, { type: 'baseline' }>
 
@@ -66,6 +39,16 @@ class ClientRemoteAccessService extends Service implements ClientRemoteAccess {
 
   source(kind: TypertResourceKind, id: string, action: string): HostObservable<boolean> {
     return this.state.resource(kind, id, action)
+  }
+
+  // Prototype methods: the Cordis service proxy binds `this.ctx` to the caller's Context.
+  whenAccess(action: RemoteEndpoint, callback: () => AccessEffect): () => void {
+    return whenAllowed(this.ctx, this.state.global(action), callback, `remoteAccess.whenAccess(${JSON.stringify(action)})`)
+  }
+
+  whenResourceAccess(kind: TypertResourceKind, id: string, action: RemoteEndpoint, callback: () => AccessEffect): () => void {
+    return whenAllowed(this.ctx, this.state.resource(kind, id, action), callback,
+      `remoteAccess.whenResourceAccess(${JSON.stringify(kind)}, ${JSON.stringify(id)}, ${JSON.stringify(action)})`)
   }
 }
 

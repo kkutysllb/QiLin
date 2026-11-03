@@ -27,14 +27,16 @@
   --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
 }
 
-/* Primary card is 218 wide in the design across both hosts. */
+/* Primary card is 218 wide in the design across both hosts. The anchored hook
+ * publishes the visible-viewport cap; the card never exceeds either bound, so
+ * a menu on a narrow frame shrinks instead of overflowing. */
 .list {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   z-index: 100;
-  min-width: 218px;
-  max-width: 360px;
+  min-width: min(218px, var(--qilin-anchored-max-width, var(--dsh-anchored-max-width, 100vw)));
+  max-width: min(360px, var(--qilin-anchored-max-width, var(--dsh-anchored-max-width, 100vw)));
 }
 
 /* Portal mode: fixed in the viewport, coordinates supplied inline from the
@@ -65,7 +67,17 @@
  * this class — the overflow clip would crop the side card, so they rely on
  * staying short. */
 .scrollable {
-  max-height: calc(100vh - 24px);
+  /* The static cap keeps the design's viewport fit; the anchored cap wins when
+   * the hook has measured a shorter visible height (soft keyboard, zoom). The
+   * dynamic unit follows mobile chrome that `vh` overstates. */
+  max-height: min(
+    calc(100vh - 24px),
+    var(--qilin-anchored-max-height, var(--dsh-anchored-max-height, 100vh))
+  );
+  max-height: min(
+    calc(100dvh - 24px),
+    var(--qilin-anchored-max-height, var(--dsh-anchored-max-height, 100vh))
+  );
 }
 
 .viewport {
@@ -261,7 +273,8 @@
   bottom: -4px;
   left: calc(100% + 10px);
   z-index: 101;
-  min-width: 163px;
+  min-width: min(163px, var(--qilin-anchored-max-width, var(--dsh-anchored-max-width, 100vw)));
+  max-width: var(--qilin-anchored-max-width, var(--dsh-anchored-max-width, none));
 }
 
 .submenu::before {

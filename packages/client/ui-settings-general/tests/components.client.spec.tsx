@@ -2,7 +2,7 @@
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { GeneralSectionComponentProps } from '../src/client/GeneralSection.tsx'
 import { GeneralSection } from '../src/client/GeneralSection.tsx'
@@ -19,7 +19,6 @@ import type { ClientReleaseChange } from '@qilin-agent/client-modules/client'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 /** Store over a real mirror derived from the same scripted context. */
@@ -41,7 +40,7 @@ const noAttention: AttentionSnapshot = new Map()
 const useSessionStatus: HeaderContentProps['useSessionStatus'] = selector => selector(noAttention)
 const kit = {
   useSessions: unusedHook, useSessionStatus,
-  usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess, useWorkspaces: unusedHook,
+  usePanelInfo, useSessionRetainInfo: () => undefined, useResource, ...allowAllAccess, useWorkspaces: unusedHook,
 }
 
 describe('chrome content', () => {

@@ -156,9 +156,9 @@ describe('OpenInAppAction launching', () => {
     render(<OpenInAppAction {...bench({ apps: ['finder'], cwd: '/w/dir' }).props} />)
     const main = screen.getByRole('button', { name: zh['open.title'].replace('{app}', zh['app.finder']) })
     expect(main.getAttribute('title')).toBeNull()
-    fireEvent.mouseEnter(main)
+    fireEvent.pointerEnter(main)
     expect(await screen.findByText(zh['open.tooltip'])).toBeDefined()
-    fireEvent.mouseLeave(main)
+    fireEvent.pointerLeave(main)
     await waitFor(() => {
       expect(screen.queryByText(zh['open.tooltip'])).toBeNull()
     })

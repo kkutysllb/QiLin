@@ -74,7 +74,7 @@ const MIRROR_OPTION = `${en.registryNpmmirror} registry.npmmirror.com`
 
 const IDLE_INSTALL: InstallState = {
   open: false, spec: '', registries: null, registry: { kind: 'offered', registry: null }, registryOpen: false, registryError: false, attempts: null,
-  phase: 'idle', inputError: null, subject: null, runs: [], detailsOpen: false,
+  phase: 'idle', inputError: null, subject: null, runs: [], detailsOpen: false, logPath: null,
   installed: null, installedVersion: null, restartRequired: false, failure: null, approvedBuilds: [], enabling: false,
 }
 
@@ -160,6 +160,7 @@ function renderTab(
     useSessionRetainInfo: unusedStandardHook,
     useResource: unusedStandardHook,
     useRemoteAccess: unusedStandardHook,
+    useSessionAccess: unusedStandardHook,
   }
   const navigation = createNavigationStore().create()
   const props: PluginManagerPageProps = {
@@ -1616,7 +1617,7 @@ describe('PluginManagerPage', () => {
     expect(screen.getByText('line 8')).toBeTruthy()
     // Before the first chunk there is no location to name.
     set({ install: { ...IDLE_INSTALL, open: true, spec: 'dsh-x', phase: 'running', subject, detailsOpen: true } })
-    expect(screen.getByText(en.terminalNoOutput)).toBeTruthy()
+    expect(screen.queryByText(en.terminalNoOutput)).toBeNull()
     // Cancel and the back control each ask the Host to stop the run; the close control asks too, and closes once the Host confirms.
     fireEvent.click(screen.getByRole('button', { name: en.installCancel }))
     fireEvent.click(screen.getByRole('button', { name: en.installCancelAndEdit }))
@@ -1812,6 +1813,32 @@ describe('PluginManagerPage', () => {
     // A tarball spec reads by its kind too.
     set({ install: { ...IDLE_INSTALL, open: true, spec: '/p/x.tgz', phase: 'failed', subject: { spec: '/p/x.tgz', status: 'accepted', kind: 'tarball', bundle: null, registry: null }, failure: null } })
     expect(screen.getByText(en.installSubjectTarball)).toBeTruthy()
+  })
+
+  it('separates an enablement failure from an install failure and points at the complete log', () => {
+    const subject = { spec: 'dsh-x', status: 'accepted', kind: 'registry', name: 'dsh-x', bundle: true, registry: null } as const
+    const { set } = renderTab({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'dsh-x', phase: 'failed', subject, detailsOpen: true,
+        failure: { reason: 'boom', code: 'operation-error', stage: 'enable', enabled: true },
+        logPath: '/home/u/.dsh/profiles/web/install.log',
+      },
+    })
+    // Both planes are reported: the command's refusal, then the enablement step.
+    expect(screen.getByText('boom')).toBeTruthy()
+    expect(screen.getByText(en.installFailedEnabling)).toBeTruthy()
+    // A settled run that streamed nothing says so instead of showing an empty terminal.
+    expect(screen.getByText(en.installDetailsNoOutput)).toBeTruthy()
+    expect(screen.getByText(en.installLogPath.replace('{path}', '/home/u/.dsh/profiles/web/install.log'))).toBeTruthy()
+    // An install-stage failure keeps the generic sentence and says nothing about enabling.
+    set({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'dsh-x', phase: 'failed', subject, detailsOpen: true,
+        failure: { reason: '', kind: 'unknown', stage: 'install' },
+      },
+    })
+    expect(screen.getByText(en.installFailureGeneric)).toBeTruthy()
+    expect(screen.queryByText(en.installFailedEnabling)).toBeNull()
   })
 
   it.each(['network', 'timeout'] as const)('shows GitHub recovery only after a %s failure and returns to package input', (kind) => {

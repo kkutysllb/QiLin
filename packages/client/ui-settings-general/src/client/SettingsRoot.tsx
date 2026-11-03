@@ -124,13 +124,13 @@ function SettingsNavResizeHandle({ label, width, onResize }: {
 
 /** Nav glyph by section id; unknown ids fall back to the settings gear. */
 function navIcon(id: string) {
-  if (id === 'models') return <IconDataOutlineMedium className={css.navIcon} size={16} />
-  if (id === 'agent-presets') return <IconAgentPresetOutlineMedium className={css.navIcon} size={16} />
-  if (id === 'plugins') return <IconPersonalizationOutlineMedium className={css.navIcon} size={16} />
+  if (id === 'models') return <IconDataOutlineMedium size={16} />
+  if (id === 'agent-presets') return <IconAgentPresetOutlineMedium size={16} />
+  if (id === 'plugins') return <IconPersonalizationOutlineMedium size={16} />
   // 20-native glyph in the rail's 16px icon slot, as on the Session row menu.
-  if (id === 'archived-sessions') return <IconArchiveOutlineMedium className={css.navIcon} size={16} />
-  if (id === 'about') return <IconQuestionOutlineMedium className={css.navIcon} size={16} />
-  return <IconSettingsOutlineMedium className={css.navIcon} size={16} />
+  if (id === 'archived-sessions') return <IconArchiveOutlineMedium size={16} />
+  if (id === 'about') return <IconQuestionOutlineMedium size={16} />
+  return <IconSettingsOutlineMedium size={16} />
 }
 
 type PanelProps = {
@@ -160,6 +160,16 @@ function SettingsPanel({
   const active = rows.find(r => r.id === activeId)?.id ?? rows[0]?.id
   const aboutRow = rows.find(row => row.id === 'about')
   const titleId = useId()
+  // Registrants may replace a section's nav glyph by id; the shell keeps its
+  // own glyph when none matches (the icon slot is inline, so the cell's
+  // decorative wrapper stays the shell's).
+  const sectionIcon = (id: string) => (
+    <span className={css.navIcon} aria-hidden="true">
+      {renderSlot('settings.section.icon', { size: 16, active: id === active }, {
+        only: id, fallback: navIcon(id),
+      })}
+    </span>
+  )
 
   // The page owns Escape, Tab, and focus return through the shared modal
   // layer; automatic entry focus lands on the rail (the nav title with no
@@ -197,7 +207,7 @@ function SettingsPanel({
                 data-modal-autofocus={row.id === active ? '' : undefined}
                 onClick={() => { onSelect(row.id) }}
               >
-                {navIcon(row.id)}
+                {sectionIcon(row.id)}
                 <span className={css.navLabel}>{row.label}</span>
               </button>
             ))}
@@ -210,7 +220,7 @@ function SettingsPanel({
               aria-current={active === 'about' ? 'true' : undefined}
               onClick={() => { onSelect('about') }}
             >
-              {navIcon('about')}
+              {sectionIcon('about')}
               <span className={css.navLabel}>{aboutRow.label}</span>
             </button>
           )}

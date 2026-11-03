@@ -17,11 +17,13 @@
  * scrollbar indirection away while it is elsewhere, so a list the user is not
  * pointing at carries no bar.
  */
-import { Fragment, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
+import {
+  Fragment, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent,
+} from 'react'
 import clsx from 'clsx'
 import {
-  IconAppsAddOutlineRegular, IconNewChatOutlineRegular, IconPanelLeftOutlineRegular,
-  isDarwinDesktop, Menu, QilinSeal, ShortcutKeys, Tooltip,
+  focusWithoutRing, IconAppsAddOutlineRegular, IconNewChatOutlineRegular, IconPanelLeftOutlineRegular,
+  isBehindModal, isDarwinDesktop, Menu, QilinSeal, ShortcutKeys, Tooltip, useModalLayer,
 } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type {
@@ -154,6 +156,7 @@ function PanelMoreMenu({ wide, label, entries, onOpen, onPinnedChange, trackEntr
 export function SidebarRoot({
   collapsed,
   width,
+  drawer,
   startSession,
   toggleSidebar,
   selectPanel,
@@ -175,14 +178,15 @@ export function SidebarRoot({
   const newShortcut = useShortcuts(rows => rows.find(row => row.id === 'session.new'))
   // Wide content stays mounted while the collapse animates (fading via
   // .collapsed .wide), unmounts at settle, and remounts right away on expand.
+  // A closed drawer retains its content with the rail phase already settled.
   const [settled, setSettled] = useState(collapsed)
   useEffect(() => {
-    if (!collapsed) { setSettled(false); return }
+    if (drawer || !collapsed) { setSettled(collapsed); return }
     const timer = window.setTimeout(() => { setSettled(true) }, COLLAPSE_SETTLE_MS)
     return () => { window.clearTimeout(timer) }
-  }, [collapsed])
+  }, [collapsed, drawer])
   const windowsTitlebar = document.documentElement.hasAttribute('data-windows-titlebar')
-  const wide = windowsTitlebar ? !collapsed : !collapsed || !settled
+  const wide = drawer || (windowsTitlebar ? !collapsed : !collapsed || !settled)
   // The Windows titlebar hosts the New Session controls while the sidebar is collapsed.
   const openNewSession = (): void => {
     trackEntryClick({ menu_name: 'new_session', position: windowsTitlebar && collapsed ? 'titlebar' : 'sidebar' })
@@ -193,18 +197,34 @@ export function SidebarRoot({
   // && wide): the sliding column then clips it instead of reflowing it. The
   // rail layout (.collapsed styles) only applies once the fade settles.
   const lastWideWidth = useRef(width)
-  if (!collapsed) lastWideWidth.current = width
+  if (drawer || !collapsed) lastWideWidth.current = width
 
-  // Rail-in only crossfades a live collapse: a refresh straight into the
-  // collapsed state renders the rail statically (no delay-hidden icons).
-  const everWide = useRef(!collapsed)
-  if (!collapsed) everWide.current = true
+  // A closed drawer returns to the static rail; only a live collapse fades in.
+  const animateRail = useRef(!collapsed)
+  if (drawer || !collapsed) animateRail.current = !collapsed
 
   // Scrollbars in the column follow the pointer (.quietBars rebinds them
   // away): drawn while it is inside, and for SCROLLBAR_LINGER_MS after it
   // leaves. A pointer that returns within that window cancels the pending
   // hide rather than restarting from a hidden bar.
   const column = useRef<HTMLDivElement>(null)
+  const toggleButton = useRef<HTMLButtonElement>(null)
+  // Focus owned by the column before it hid: the collapse moves focus back to
+  // the control that reopens it (the header opener for a drawer, the rail
+  // toggle otherwise). The modal layer's own return focus cannot cover a
+  // column that stays mounted, so this handoff lives here.
+  const sidebarFocus = useRef<Element | null>(null)
+  useModalLayer(column, drawer && !collapsed, toggleSidebar)
+  useLayoutEffect(() => {
+    if (!collapsed) return
+    const controlled = sidebarFocus.current?.getAttribute('aria-controls')?.split(/\s+/) ?? []
+    const ownsMenuFocus = controlled.some(id => document.getElementById(id)?.contains(document.activeElement))
+    if (sidebarFocus.current !== document.activeElement && !ownsMenuFocus) return
+    const opener = drawer
+      ? column.current?.ownerDocument.querySelector<HTMLElement>('[data-sidebar-opener]')
+      : toggleButton.current
+    if (opener != null && !isBehindModal(opener)) focusWithoutRing(opener, { preventScroll: true })
+  }, [drawer, collapsed])
   const [pointerInside, setPointerInside] = useState(false)
   const lingerTimer = useRef<number | undefined>(undefined)
   const armLinger = (): void => {
@@ -271,8 +291,11 @@ export function SidebarRoot({
   // (the expand affordance, figma sidebar-hover flow). Expanded it is a plain
   // panel icon.
   const toggle = (
-    <Tooltip label={collapsed ? t('toggle.open') : t('toggle.collapse')} shortcutKeys={shortcut?.keys} delayMs={500}>
+    <Tooltip label={collapsed ? t('toggle.open') : t('toggle.collapse')} shortcutKeys={shortcut?.keys} delayMs={500} portal={drawer}>
       <button
+        ref={toggleButton}
+        data-sidebar-toggle=""
+        data-modal-autofocus={drawer || undefined}
         type="button"
         className={clsx(css.iconButton, css.toggle)}
         aria-label={collapsed ? t('toggle.open') : t('toggle.collapse')}
@@ -294,11 +317,17 @@ export function SidebarRoot({
   return (
     <div
       ref={column}
+      onFocusCapture={(event) => { sidebarFocus.current = event.target }}
+      role={drawer ? 'dialog' : undefined}
+      data-shortcut-modal={drawer ? 'sidebar' : undefined}
+      aria-modal={drawer && !collapsed ? true : undefined}
+      aria-label={drawer ? t('navigation.label') : undefined}
+      tabIndex={drawer ? -1 : undefined}
       className={clsx(
-        css.root, !wide && css.collapsed, !wide && everWide.current && css.railIn,
-        collapsed && wide && css.fading, !pointerInside && css.quietBars,
+        css.root, !wide && css.collapsed, !wide && animateRail.current && css.railIn,
+        !drawer && collapsed && wide && css.fading, !pointerInside && css.quietBars,
       )}
-      style={wide ? { width: collapsed ? lastWideWidth.current : width } : undefined}
+      style={wide ? { width: !drawer && collapsed ? lastWideWidth.current : width } : undefined}
       onPointerEnter={() => {
         cancelLinger()
         setPointerInside(true)

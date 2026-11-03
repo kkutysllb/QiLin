@@ -19,6 +19,7 @@ export type {
   TypertResourceMap,
 } from '@qilin-agent/typert-protocol'
 
+
 /** Canonical `<namespace>/<method>` Remote endpoint; its segments never contain `:`. */
 export type RemoteAccessEndpoint = `${string}/${string}`
 

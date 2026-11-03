@@ -17,23 +17,25 @@ export type HeaderLeadingControlsProps =
 /**
  * Sidebar-open and New Session controls in the conversation header's
  * root-scoped leading seat, which the resident header renders with or without
- * a selected Session. On macOS desktop a collapsed sidebar hides entirely (no
- * rail), taking both controls off screen; this occupant puts them back beside
- * the traffic lights. Mounted whenever the platform matches; visibility rides the
- * AppFrame-published `data-sidebar-collapsed` attribute in CSS, so no
- * collapse-state pipe is added here.
+ * a selected Session. A hidden sidebar keeps no rail, so this occupant puts the
+ * opener back in the header; CSS shows it only while the frame reports a hidden
+ * sidebar, whether that is the macOS desktop collapse or the narrow drawer.
+ * New Session belongs to the desktop collapse alone (the drawer owner keeps its
+ * own primary action). The opener carries `data-sidebar-opener`, the handoff
+ * target the sidebar focuses when a drawer closes.
  * @param props - Injected sidebar actions plus the sidebar locale seat.
- * @returns the two header controls, or null off macOS desktop.
+ * @returns the header controls; CSS decides whether they are visible.
  */
 export function HeaderLeadingControls({ toggleSidebar, startSession, trackEntryClick, useShortcuts, t }: HeaderLeadingControlsProps) {
   const shortcut = useShortcuts(rows => rows.find(row => row.id === 'sidebar.left.toggle'))
   const newShortcut = useShortcuts(rows => rows.find(row => row.id === 'session.new'))
   const newHint = newShortcut?.keys.length ? t('shortcut.hint', { label: t('session.new.label'), keys: newShortcut.keys.join(' ') }) : t('session.new.label')
-  if (!isDarwinDesktop()) return null
+  const darwinDesktop = isDarwinDesktop()
   return (
     <div className={css.controls}>
       <Tooltip label={shortcut?.keys.length ? t('shortcut.hint', { label: t('toggle.open'), keys: shortcut.keys.join(' ') }) : t('toggle.open')} delayMs={500}>
         <button
+          data-sidebar-opener=""
           type="button"
           className={css.iconButton}
           aria-label={t('toggle.open')}
@@ -43,7 +45,7 @@ export function HeaderLeadingControls({ toggleSidebar, startSession, trackEntryC
           <IconPanelLeftOutlineRegular size={16} />
         </button>
       </Tooltip>
-      <Tooltip label={newHint} delayMs={500}>
+      {darwinDesktop && <Tooltip label={newHint} delayMs={500}>
         <button
           type="button"
           className={css.iconButton}
@@ -56,7 +58,7 @@ export function HeaderLeadingControls({ toggleSidebar, startSession, trackEntryC
         >
           <IconNewChatOutlineRegular size={16} />
         </button>
-      </Tooltip>
+      </Tooltip>}
     </div>
   )
 }

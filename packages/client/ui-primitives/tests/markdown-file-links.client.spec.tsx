@@ -10,6 +10,38 @@ afterEach(cleanup)
 describe('Markdown file links', () => {
   it.each([
     ['src/index.ts', 'src/index.ts', undefined],
+    ['src/index.ts:24', 'src/index.ts', { line: 24 }],
+    ['/workspace/src/index.ts:24', '/workspace/src/index.ts', { line: 24 }],
+    ['./README:24', './README', { line: 24 }],
+    ['./Makefile:12', './Makefile', { line: 12 }],
+    ['src/index.ts:24:5', 'src/index.ts', { line: 24 }],
+    ['src/index.ts:24:0', 'src/index.ts', { line: 24 }],
+    ['src/index.ts:0:5', 'src/index.ts', undefined],
+    ['src/index.ts:0', 'src/index.ts', undefined],
+    ['src/index.ts:30-24', 'src/index.ts', undefined],
+    ['src/index.ts:1-0', 'src/index.ts', undefined],
+    ['src/index.ts:9007199254740992', 'src/index.ts', undefined],
+    ['src/index.ts:1-9007199254740992', 'src/index.ts', undefined],
+    ['//server/file:24', '//server/file', { line: 24 }],
+    ['%5C%5Cserver%5Cfile:24', '\\\\server\\file', { line: 24 }],
+    ['%5Cwork%5Cfile:24', '\\work\\file', { line: 24 }],
+    ['../index.ts:24', '../index.ts', { line: 24 }],
+    ['./index.ts:24', './index.ts', { line: 24 }],
+    ['index%2Ets', 'index.ts', undefined],
+    ['file.ts#heading', 'file.ts', undefined],
+    ['file.ts#L0', 'file.ts', undefined],
+    ['file.ts#L3-L2', 'file.ts', undefined],
+    ['file.ts#L9007199254740992', 'file.ts', undefined],
+    ['file.ts#L1-L9007199254740992', 'file.ts', undefined],
+    ['file.ts#L024', 'file.ts', { line: 24 }],
+    ['src/index.ts:024', 'src/index.ts', { line: 24 }],
+    ['../docs/My%20Notes.md:24-30', '../docs/My Notes.md', { line: 24 }],
+    ['C:/work/file.ts:2', 'C:/work/file.ts', { line: 2 }],
+    ['C:%5Cwork%5Cfile.ts:2-3', 'C:\\work\\file.ts', { line: 2 }],
+    ['docs/notes%3A24', 'docs/notes:24', undefined],
+    ['docs/notes%3A24:30', 'docs/notes:24', { line: 30 }],
+    ['docs/notes:24#L3', 'docs/notes:24', { line: 3 }],
+    ['docs/notes:review', 'docs/notes:review', undefined],
     ['/workspace/src/index.ts#L24', '/workspace/src/index.ts', { line: 24 }],
     ['../docs/My%20Notes.md#L24-L30', '../docs/My Notes.md', { line: 24 }],
     ['C:/work/file.ts#L2', 'C:/work/file.ts', { line: 2 }],
@@ -102,11 +134,10 @@ describe('Markdown file links', () => {
   })
 
   it.each([
-    '//example.com/file', '%2F%2Fexample.com/file', '%5C%5Cserver%5Cfile',
     'javascript:alert', 'data:text/plain,hi', 'file:///etc/passwd', 'vscode:open',
     '%6Aavascript:alert', '#L2', 'file.ts?raw=1', 'file%ZZ.ts', 'file%00.ts',
-    'file.ts#heading', 'file.ts#L0', 'file.ts#L3-L2',
-    'file.ts#L9007199254740992', 'file.ts#L1-L9007199254740992',
+    'vbscript:msgbox', ':24', 'data:123', 'blob:123', 'javascript:123',
+    '%6Aavascript:123', 'javascript:alert:24', 'index%2Ets:24', 'C:/file.ts?raw=1',
   ])('keeps unsupported destination %s inert', (target) => {
     const openFile = vi.fn()
     const view = render(
@@ -152,6 +183,16 @@ describe('Markdown file links', () => {
     expect(second).toHaveBeenCalledOnce()
     expect(first).toHaveBeenCalledOnce()
   })
+
+  it.each(['C:/file.ts:24', '%5C%5Cserver%5Cfile:24', './file.ts:24:5'])(
+    'leaves file destination %s inert while streaming', (target) => {
+      const view = render(<MarkdownDelegateProvider openFile={vi.fn()}>
+        <MarkdownText text={`[source](${target})`} streaming />
+      </MarkdownDelegateProvider>)
+      expect(view.getByText('source')).toBeTruthy()
+      expect(view.container.querySelector('a, button')).toBeNull()
+    },
+  )
 
   it('routes file and HTTP(S) links through the same provider', () => {
     const openFile = vi.fn()
