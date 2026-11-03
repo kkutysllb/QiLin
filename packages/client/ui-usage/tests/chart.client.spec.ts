@@ -89,6 +89,17 @@ describe('usage chart data', () => {
     expect((output?.y ?? 0) + (output?.height ?? 0)).toBeCloseTo(input?.y ?? 0)
     expect(chart.area.startsWith('M 0 100')).toBe(true)
     expect(chart.ticks.map(tick => tick.label)).toEqual(['0', '50', '100', '150', '200'])
+    // The width caps at a readable bar: two days read as two slim columns, not
+    // two half-plot slabs, and the hit-rate line crosses both.
+    expect(chart.bars[1]?.width).toBe(6.5)
+    expect((chart.bars[1]?.x ?? 0) + (chart.bars[1]?.width ?? 0) / 2).toBeCloseTo(75)
+    expect(chart.line).toContain('L')
+
+    // A sparse range caps the bar width and centers each bar in its step, so one
+    // quiet day never paints half the plot.
+    const sparse = usageChart(days.slice(0, 1), { height: 0, baseline: 100 })
+    expect(sparse.bars[0]?.width).toBe(6.5)
+    expect((sparse.bars[0]?.x ?? 0) + (sparse.bars[0]?.width ?? 0) / 2).toBeCloseTo(50)
 
     // Folding a series drops its band and rescales what remains.
     const folded = usageChart(days, { height: 0, baseline: 100, hidden: ['outputTokens'] })

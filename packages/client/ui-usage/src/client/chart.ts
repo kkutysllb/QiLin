@@ -210,6 +210,8 @@ export interface UsageChart {
   readonly bars: readonly UsageBar[]
   /** SVG path of the hit-rate area behind the bars. */
   readonly area: string
+  /** SVG path of the hit-rate line drawn over the bars; empty under two points. */
+  readonly line: string
   /** Largest stacked total, before folding, in tokens. */
   readonly peakTokens: number
   /** Horizontal gridlines with their token labels, bottom first. */
@@ -220,6 +222,8 @@ export interface UsageChart {
 
 /** How many gridlines a chart draws. */
 const TICKS = 4
+/** Widest one bar may render, in canvas units: a sparse range never spans the plot. */
+const MAX_BAR_WIDTH = 6.5
 
 /**
  * Lay one range of days out as stacked bars with a cache-hit-rate area behind
@@ -245,7 +249,8 @@ export function usageChart(
       offset += height
       return band
     })
-    return { day: day.day, x: index * step, width: step * 0.62, bands }
+    const width = Math.min(step * 0.62, MAX_BAR_WIDTH)
+    return { day: day.day, x: index * step + (step - width) / 2, width, bands }
   })
   const points = days.map((day, index) => {
     const x = index * step + step * 0.31
@@ -255,9 +260,10 @@ export function usageChart(
   const area = points.length === 0
     ? ''
     : `M 0 ${String(options.baseline)} L ${points.join(' L ')} L 100 ${String(options.baseline)} Z`
+  const line = points.length < 2 ? '' : `M ${points.join(' L ')}`
   const ticks = Array.from({ length: TICKS + 1 }, (_, index) => {
     const share = index / TICKS
     return { y: options.baseline - share * plot, label: formatTokens(Math.round(peakTokens * share)) }
   })
-  return { bars, area, peakTokens, ticks, baseline: options.baseline }
+  return { bars, area, line, peakTokens, ticks, baseline: options.baseline }
 }

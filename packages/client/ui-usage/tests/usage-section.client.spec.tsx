@@ -108,10 +108,12 @@ describe('usage settings section', () => {
     const bar = bars[bars.length - 1]
     expect(bar).not.toBeUndefined()
     fireEvent.mouseOver(bar as Element)
-    // 300 of 400 prompt tokens came from cache.
-    expect(screen.getByText(new RegExp(`${en['metric.hitRate']} 75%`, 'u'))).toBeTruthy()
+    // 300 of 400 prompt tokens came from cache; the card names the day and lists
+    // every series as its own row.
+    expect(screen.getAllByText(new RegExp(`${en['metric.hitRate']} 75%`, 'u')).length).toBeGreaterThan(0)
+    expect(screen.getByText(/^\d{4}-\d{2}-\d{2}$/u)).toBeTruthy()
     fireEvent.mouseOut(bar as Element)
-    expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 75%`, 'u'))).toBeNull()
+    expect(screen.queryAllByText(new RegExp(`${en['metric.hitRate']} 75%`, 'u'))).toHaveLength(0)
   })
 
   it('shows the administrator every account and the deployment total', async () => {

@@ -104,11 +104,6 @@
   stroke-width: 0.25;
 }
 
-.tickLabel {
-  fill: var(--qilin-alias-label-tertiary);
-  font-size: 3px;
-}
-
 .band {
   transition: opacity 120ms ease;
 }
@@ -117,13 +112,23 @@
   outline: none;
 }
 
+.bar:hover .band {
+  filter: brightness(1.06);
+}
+
 .bar:focus-visible .band {
   opacity: 0.7;
 }
 
-.area {
-  fill: var(--qilin-alias-brand-primary);
-  opacity: 0.35;
+/* The hit rate reads as one thin line over a soft gradient, never a filled
+   block: 96% cache coverage would otherwise paint the whole plot. */
+.rateLine {
+  fill: none;
+  stroke: var(--qilin-alias-brand-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
 }
 
 .legend {
@@ -159,18 +164,60 @@
   border-radius: 2px;
 }
 
+.xAxis {
+  position: relative;
+  height: 16px;
+  margin-top: 2px;
+}
+
+.xLabel {
+  position: absolute;
+  transform: translateX(-50%);
+  color: var(--qilin-alias-label-tertiary);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .tooltip {
   position: absolute;
-  top: 0;
-  transform: translate(-50%, 0);
-  border: 1px solid var(--qilin-alias-border-l3);
+  transform: translate(-50%, calc(-100% - 8px));
+  min-width: 170px;
+  border: 0;
   border-radius: var(--qilin-radius-sm);
-  padding: 6px 8px;
+  padding: 8px 10px;
   background: var(--qilin-alias-bg-layer-3);
+  box-shadow: var(--qilin-elevation-panel);
   font-size: 0.72rem;
   font-variant-numeric: tabular-nums;
   pointer-events: none;
   white-space: nowrap;
+}
+
+.tooltipDay {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.8;
+  color: var(--qilin-alias-label-secondary);
+}
+
+.tooltipDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.tooltipValue {
+  margin-left: auto;
+  padding-left: 12px;
+  color: var(--qilin-alias-label-primary);
 }
 
 .tableWrap {

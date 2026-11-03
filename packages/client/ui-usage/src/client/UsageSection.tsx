@@ -1,6 +1,6 @@
 /** The usage page: metric cards, a foldable stacked bar chart with a hit-rate area, and a per-session table. */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import css from './UsageSection.module.css'
 import {
@@ -64,6 +64,8 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
   const [areaHidden, setAreaHidden] = useState(false)
   const [active, setActive] = useState<string | undefined>(undefined)
   const bars = useRef<(SVGGElement | null)[]>([])
+  // One gradient instance per page: the id must survive React's useId punctuation.
+  const gradientId = `usage-rate-${useId().replace(/[^a-zA-Z0-9-]/g, '')}`
 
   useEffect(() => {
     const controller = new AbortController()
@@ -112,6 +114,12 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
     cacheReadTokens: t('metric.cacheRead'),
   }
   const activeDay = days.find(entry => entry.day === active)
+  // Sparse day labels: about every eighth bar, plus the last day of the range.
+  const stepPercent = days.length === 0 ? 0 : 100 / days.length
+  const labelStep = Math.max(1, Math.ceil(days.length / 8))
+  const xLabels = days
+    .map((day, index) => ({ day: day.day, x: (index + 0.5) * stepPercent, index }))
+    .filter(({ index }) => index % labelStep === 0 || index === days.length - 1)
 
   return (
     <div className={css.page}>
@@ -150,10 +158,21 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
               </div>
               <div className={css.plotArea}>
                 <svg className={css.plot} viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label={t('chart.title')}>
+                  <defs>
+                    <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="var(--qilin-alias-brand-primary)" stopOpacity={0.2} />
+                      <stop offset="100%" stopColor="var(--qilin-alias-brand-primary)" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
                   {chart.ticks.map(tick => (
                     <line key={tick.label + String(tick.y)} className={css.grid} x1={0} x2={100} y1={tick.y} y2={tick.y} />
                   ))}
-                  {areaHidden ? null : <path className={css.area} d={chart.area} />}
+                  {areaHidden ? null : (
+                    <>
+                      <path className={css.rateArea} d={chart.area} fill={`url(#${gradientId})`} />
+                      <path className={css.rateLine} d={chart.line} vectorEffect="non-scaling-stroke" />
+                    </>
+                  )}
                   {chart.bars.map((bar, index) => (
                     <g
                       key={bar.day}
@@ -173,26 +192,62 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
                       }}
                     >
                       <rect x={bar.x} y={0} width={bar.width} height={BASELINE} fill="transparent" />
-                      {bar.bands.map(band => (
-                        <rect
-                          key={band.series}
-                          className={css.band}
-                          x={bar.x}
-                          y={band.y}
-                          width={bar.width}
-                          height={band.height}
-                          fill={BAND_FILL[band.series]}
-                        />
-                      ))}
+                      {/* Top band first so a lower band's upward padding covers the
+                          rounding of the band above it; the top band keeps its own
+                          rounded crown and every lower seam stays hidden. */}
+                      {[...bar.bands].reverse().map((band, drawIndex) => {
+                        const isTop = drawIndex === 0
+                        const radius = Math.min(1.2, bar.width / 2, band.height / 2)
+                        const drop = isTop ? 0 : Math.min(radius, band.height)
+                        return (
+                          <rect
+                            key={band.series}
+                            className={css.band}
+                            x={bar.x}
+                            y={band.y - drop}
+                            width={bar.width}
+                            height={band.height + drop}
+                            rx={radius}
+                            fill={BAND_FILL[band.series]}
+                          />
+                        )
+                      })}
                     </g>
                   ))}
                 </svg>
+                <div className={css.xAxis} aria-hidden="true">
+                  {xLabels.map(({ day, x }) => (
+                    <span key={day} className={css.xLabel} style={{ left: `${x.toFixed(2)}%` }}>{day.slice(5)}</span>
+                  ))}
+                </div>
                 {activeDay === undefined ? null : (
                   <div
                     className={css.tooltip}
-                    style={{ left: `${((days.findIndex(entry => entry.day === activeDay.day) + 0.5) * (100 / Math.max(1, days.length))).toFixed(2)}%` }}
+                    style={{
+                      left: `${((days.findIndex(entry => entry.day === activeDay.day) + 0.5) * (100 / Math.max(1, days.length))).toFixed(2)}%`,
+                      top: `${Math.max(12, chart.bars[days.findIndex(entry => entry.day === activeDay.day)]?.bands[0]?.y ?? BASELINE)}%`,
+                    }}
                   >
-                    {activeDay.day} · {label.inputTokens} {formatTokens(activeDay.inputTokens)} · {label.outputTokens} {formatTokens(activeDay.outputTokens)} · {label.cacheReadTokens} {formatTokens(activeDay.cacheReadTokens)} · {t('metric.hitRate')} {rate(cacheHitRate(activeDay.cacheReadTokens, activeDay.inputTokens))}
+                    <div className={css.tooltipDay}>{activeDay.day}</div>
+                    <div className={css.tooltipRow}>
+                      <span className={css.tooltipDot} style={{ background: BAND_FILL.inputTokens }} />
+                      {label.inputTokens}
+                      <span className={css.tooltipValue}>{formatTokens(activeDay.inputTokens)}</span>
+                    </div>
+                    <div className={css.tooltipRow}>
+                      <span className={css.tooltipDot} style={{ background: BAND_FILL.outputTokens }} />
+                      {label.outputTokens}
+                      <span className={css.tooltipValue}>{formatTokens(activeDay.outputTokens)}</span>
+                    </div>
+                    <div className={css.tooltipRow}>
+                      <span className={css.tooltipDot} style={{ background: BAND_FILL.cacheReadTokens }} />
+                      {label.cacheReadTokens}
+                      <span className={css.tooltipValue}>{formatTokens(activeDay.cacheReadTokens)}</span>
+                    </div>
+                    <div className={css.tooltipRow}>
+                      <span className={css.tooltipDot} style={{ background: 'var(--qilin-alias-brand-primary)' }} />
+                      <span className={css.tooltipValue}>{`${t('metric.hitRate')} ${rate(cacheHitRate(activeDay.cacheReadTokens, activeDay.inputTokens))}`}</span>
+                    </div>
                   </div>
                 )}
               </div>
