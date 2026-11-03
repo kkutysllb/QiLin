@@ -22,7 +22,7 @@ import { inspectSystemPrompt, type SystemPromptState } from '../contract/system-
 import { ConversationNodeAssembler } from './assembler.ts'
 import type { SessionInputResolver } from '../contract/input.ts'
 import { ConversationEventRegistry } from './event-registry.ts'
-import { HistoricalImageCache } from './historical-images.ts'
+import { DEFAULT_MAX_CACHED_IMAGE_BYTES, HistoricalImageCache } from './historical-images.ts'
 import { ConversationGroupRegistry } from './group-registry.ts'
 import { ConversationViewRegistry } from './view-registry.ts'
 
@@ -198,17 +198,20 @@ export class UiConversation extends Service {
    * @param ctx - owning Client context.
    * @param sessions - Session Controller object layer.
    * @param maxConcurrentImageReads - attachment reads kept in flight for rendered images.
+   * @param maxCachedImageBytes - byte ceiling for cached durable image URLs; the oldest
+   *   rendered image evicts first and re-reads when its mounted `<img>` fails.
    */
   constructor(
     ctx: Context,
     private readonly sessions: ISessions,
     maxConcurrentImageReads: number,
+    maxCachedImageBytes: number = DEFAULT_MAX_CACHED_IMAGE_BYTES,
   ) {
     super(ctx, 'uiConversation')
     this.events = new ConversationEventRegistry(ctx)
     this.views = new ConversationViewRegistry(ctx)
     this.groups = new ConversationGroupRegistry(ctx, this.views)
-    this.images = new HistoricalImageCache(ctx, sessions, maxConcurrentImageReads)
+    this.images = new HistoricalImageCache(ctx, sessions, maxConcurrentImageReads, maxCachedImageBytes)
     const rebuild = (): void => {
       for (const record of this.bindings.values) record.binding.rebuild()
     }

@@ -13,6 +13,7 @@ import type {} from '@qilin-agent/client-ui-renderer/client'
 import type {} from '@qilin-agent/client-ui-session/client'
 import type {} from '@qilin-agent/client-ui-settings/client'
 import { UiConversation } from './conversation/assembly.ts'
+import { DEFAULT_MAX_CACHED_IMAGE_BYTES } from './conversation/historical-images.ts'
 import type { ViewTab } from './contract/views.ts'
 import type {
   ComposerBarInjected, ConversationInjected, ConversationSessionHeaderInjected,
@@ -79,12 +80,16 @@ export interface Config {
   maxConcurrentFileUploads?: number
   /** Maximum attachment reads kept in flight for Conversation images; the rest queue in request order. */
   maxConcurrentImageReads?: number
+  /** Byte ceiling for cached Conversation image URLs; the oldest rendered image evicts first.
+   * A mounted `<img>` whose URL was evicted re-reads the attachment through its error path. */
+  maxCachedImageBytes?: number
 }
 
 /** Validated Conversation runtime configuration. */
 export const Config: z<Config> = z.object({
   maxConcurrentFileUploads: z.natural().min(1).default(2),
   maxConcurrentImageReads: z.natural().min(1).default(3),
+  maxCachedImageBytes: z.natural().min(1).default(DEFAULT_MAX_CACHED_IMAGE_BYTES),
 })
 
 // Stable no-session sources keep the renderer's observable-hook cache and
@@ -159,8 +164,9 @@ export function apply(ctx: Context, config: Config = Config({})): void {
   // Schemastery's field default is materialized before Cordis calls apply.
   const maxConcurrentFileUploads = config.maxConcurrentFileUploads as number
   const maxConcurrentImageReads = config.maxConcurrentImageReads as number
+  const maxCachedImageBytes = config.maxCachedImageBytes as number
   const workspaceNavigation = ctx.get('uiWorkspace') as unknown as WorkspaceNavigation
-  const uiConversation = new UiConversation(ctx, sessions, maxConcurrentImageReads)
+  const uiConversation = new UiConversation(ctx, sessions, maxConcurrentImageReads, maxCachedImageBytes)
 
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-conversation: dictionaries')
   const t = ctx.locale.bind(NS)

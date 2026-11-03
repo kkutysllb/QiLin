@@ -15,7 +15,7 @@
  * width into the layout, so the graph spreads its swimlanes across a wide pane
  * and the canvas centers the sheet whenever it fits no more.
  */
-import { useEffect, useMemo, useRef, useState,
+import { useCallback, useEffect, useMemo, useRef, useState,
   type PointerEvent as ReactPointerEvent, type ReactNode } from 'react'
 import {
   IconChevronDownOutlineMedium, IconCloseOutlineRegular, IconFullscreenOutlineRegular,
@@ -264,9 +264,26 @@ export function TrajectoryGraphView(
   const [matchIndex, setMatchIndex] = useState(0)
   const [pinnedEdgeKind, setPinnedEdgeKind] = useState<TrajectoryGraphEdgeKind | null>(null)
   const [hoverEdgeKind, setHoverEdgeKind] = useState<TrajectoryGraphEdgeKind | null>(null)
-  const [imageUrls, setImageUrls] = useState<Record<string, string>>({})
-  const urlCacheRef = useRef<Record<string, string>>({})
+  const [imageUrls, setImageUrls] = useState<Record<string, string | undefined>>({})
+  const urlCacheRef = useRef<Record<string, string | undefined>>({})
   const [lightbox, setLightbox] = useState<{ url: string; name: string } | null>(null)
+  // The shared image cache may evict a blob URL behind a still-mounted
+  // thumbnail; re-read each attachment once through its error. A second
+  // failure means the bytes themselves are broken, not a cache miss.
+  const [imageReloadTick, setImageReloadTick] = useState(0)
+  const reloadedImagesRef = useRef<Set<string>>(new Set())
+  const reloadImage = useCallback((attachmentId: string): void => {
+    if (reloadedImagesRef.current.has(attachmentId)) return
+    reloadedImagesRef.current.add(attachmentId)
+    urlCacheRef.current[attachmentId] = undefined
+    setImageUrls((current) => {
+      if (current[attachmentId] === undefined) return current
+      const next: Record<string, string | undefined> = { ...current }
+      next[attachmentId] = undefined
+      return next
+    })
+    setImageReloadTick(tick => tick + 1)
+  }, [])
 
   const modelById = useMemo(
     () => new Map(windowed.graph.nodes.map(node => [node.id, node])),
@@ -429,7 +446,7 @@ export function TrajectoryGraphView(
         .catch(() => { /* a failed authorized read leaves this row icon-only */ })
     }
     return () => { cancelled = true }
-  }, [selected, loadImage])
+  }, [selected, loadImage, imageReloadTick])
 
   /** Change the scale, keeping the canvas point at the given viewport offsets fixed. */
   function zoomBy(factor: number, offsetInViewportX?: number, offsetInViewportY?: number): void {
@@ -878,7 +895,7 @@ export function TrajectoryGraphView(
                                   title={t('graph.attachment.view')}
                                   onClick={() => { setLightbox({ url, name: presentation.name }) }}
                                 >
-                                  <img src={url} alt={presentation.name} loading="lazy" />
+                                  <img src={url} alt={presentation.name} loading="lazy" onError={() => { reloadImage(attachment.attachmentId) }} />
                                 </button>
                               ))
                             : <span className={css.attachmentIcon} aria-hidden="true"><IconPaperclipOutlineRegular size={14} /></span>}

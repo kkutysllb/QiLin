@@ -6,6 +6,7 @@
  * and fiber disposal removes both. The ledger's timeline projection and
  * inclusive focus edge cases ride along.
  */
+import { AttachmentId } from '@qilin-agent/attachment'
 import type { GlobalStandardProps, StoredEntry } from '@qilin-agent/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
@@ -42,7 +43,10 @@ import { TRAJECTORY_ID, TRAJECTORY_KIND } from '../src/client/trajectory-tab-def
 import {
   TRAJECTORY_GRAPH_ID, TRAJECTORY_GRAPH_KIND,
 } from '../src/client/trajectory-graph-tab-definition.ts'
-import { TrajectoryGraphView } from '../src/client/TrajectoryGraphView.tsx'
+import {
+  TrajectoryGraphView,
+  type TrajectoryGraphViewInjected, type TrajectoryGraphViewProps,
+} from '../src/client/TrajectoryGraphView.tsx'
 import type { TrajectoryTurnModel } from '../src/client/layout.ts'
 import { PartialArguments } from '@qilin-agent/util-values'
 import { TrajectoryTimeline as LocalizedTrajectoryTimeline } from '../src/client/TrajectoryTimeline.tsx'
@@ -378,6 +382,7 @@ function injectBody(
 function mount(
   fixture: Awaited<ReturnType<typeof bench>>,
   useTabInfo: () => SidebarRightTabInfo = tabInfoHook(),
+  loadImageOverride?: ComponentProps<typeof TrajectoryView>['loadImage'],
 ) {
   const { runtime, trajectoryStore, conversationStore } = fixture
   const session = runtime.sessions.binding(SID)?.session
@@ -427,7 +432,7 @@ function mount(
       useTabInfo={useTabInfo}
       useDuration={bindSnapshotSelector(injected.hooks.duration)}
       loadOlder={injected.loadOlder}
-      loadImage={injected.loadImage}
+      loadImage={loadImageOverride ?? injected.loadImage}
       setActualDuration={injected.setActualDuration}
       renderSlot={() => null}
       SessionProvider={({ children }) => <>{children}</>}
@@ -743,6 +748,62 @@ describe('trajectory Sidebar tab body', () => {
     expect(selectedRow?.getAttribute('aria-selected')).toBe('true')
     expect(view.container.querySelector('tr[data-timeline-focus]')).toBeNull()
     expect(screen.getByRole('complementary', { name: '事件详情' })).toBeTruthy()
+  })
+
+  it('reloads a graph attachment thumbnail once when its blob URL fails', async () => {
+    const nodes: LegacyConversationSlice['nodes'] = [
+      { kind: 'user', seq: 1, time: 1_000, content: [], source: null },
+      {
+        kind: 'assistant', seq: 2, time: 2_000, turn: 1, step: 1,
+        blocks: [
+          { kind: 'text', text: 'shot thumbnail' },
+          { kind: 'image', attachment: { attachmentId: AttachmentId('img-1'), mediaType: 'image/png', bytes: 3, width: 2, height: 2, name: 'shot.png' } },
+        ],
+        timing: { stepStartTime: 1_800, firstTokenTime: 1_900, completedTime: 2_000 },
+      },
+    ]
+    const b = await bench(historySnapshot(nodes))
+    const graphEntry = b.slots.entries('sidebar.right.pane.tab')
+      .find(candidate => candidate.options.key === TRAJECTORY_GRAPH_ID)
+    expect(graphEntry).toBeDefined()
+    const GraphView = graphEntry!.component as FC<TrajectoryGraphViewProps>
+    const graphInject = (graphEntry!.inject as unknown as
+      (sessionId: SessionId) => TrajectoryGraphViewInjected)(SID)
+    const firstUrl = 'data:image/png;base64,AAAA'
+    const secondUrl = 'data:image/png;base64,BBBBBB'
+    let firstPeekUsed = false
+    let reloaded = false
+    const loadImage = Object.assign(
+      vi.fn(() => {
+        reloaded = true
+        return Promise.resolve(secondUrl)
+      }),
+      { peek: vi.fn(() => (!firstPeekUsed && !reloaded ? (firstPeekUsed = true, firstUrl) : undefined)) },
+    )
+    render(
+      <GraphView
+        {...(graphInject as unknown as TrajectoryGraphViewProps)}
+        useTrajectory={bindSnapshotSelector(b.trajectoryStore)}
+        t={tZh}
+        {...{ loadImage }}
+      />,
+    )
+    // The search jump selects the assistant record; jsdom cannot lay out the
+    // canvas nodes, so a canvas click cannot drive selection here.
+    const search = screen.getByLabelText('搜索记录')
+    fireEvent.change(search, { target: { value: 'assistant' } })
+    fireEvent.keyDown(search, { key: 'Enter' })
+    const thumb = await screen.findByAltText('shot.png')
+    expect((thumb as HTMLImageElement).src).toContain('AAAA')
+    // The cache evicted the blob behind the mounted thumbnail: one error
+    // re-reads it; a second failure stops instead of looping.
+    fireEvent.error(screen.getByAltText('shot.png'))
+    await waitFor(() => {
+      expect(document.querySelector('img')?.src).toContain('BBBB')
+    })
+    expect(loadImage).toHaveBeenCalledTimes(1)
+    fireEvent.error(screen.getByAltText('shot.png'))
+    expect(loadImage).toHaveBeenCalledTimes(1)
   })
 
   it('empty window keeps the toolbar and reports no timing data', async () => {

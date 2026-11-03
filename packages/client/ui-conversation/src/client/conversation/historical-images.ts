@@ -6,10 +6,15 @@ import type { SessionId } from '@qilin-agent/session/types'
 import { bytesToBase64 } from '@qilin-agent/util-crypto'
 import { WeakMapWithValues } from '@qilin-agent/util-values'
 
+/** Default ceiling for cached image bytes; the ui-conversation Config overrides it. */
+export const DEFAULT_MAX_CACHED_IMAGE_BYTES = 64 * 1024 * 1024
+
 interface ImageUrlEntry {
   readonly binding: SessionBinding
   current?: string
   pending: Promise<string>
+  /** Serialized size of `current`; undefined while the canonical read is in flight. */
+  bytes?: number
 }
 
 /** Resolve durable Conversation images and release their browser URLs with Session scope. */
@@ -17,6 +22,10 @@ export class HistoricalImageCache {
   private readonly entries = new WeakMapWithValues<SessionBinding, Map<string, ImageUrlEntry>>()
   private readonly scopeDisposers = new WeakMapWithValues<SessionBinding, () => void>()
   private readonly urls = new Set<string>()
+  /** Cached entries in use order; the map front is the next eviction candidate. */
+  private readonly lru = new Map<ImageUrlEntry, { readonly binding: SessionBinding; readonly key: string }>()
+  private cachedBytes = 0
+  private readonly maxCachedImageBytes: number
   /** Reads awaiting a slot, in request order. */
   private readonly queuedReads: Array<{ readonly start: () => void; readonly cancel: (error: Error) => void }> = []
   private activeReads = 0
@@ -27,12 +36,17 @@ export class HistoricalImageCache {
    * @param sessions - Session Controller object layer.
    * @param maxConcurrentReads - attachment reads kept in flight; the rest queue, so a
    * page of large images never holds every decoded attachment at once.
+   * @param maxCachedImageBytes - byte ceiling for cached image URLs; the oldest rendered
+   * image evicts first, and a mounted `<img>` re-reads it through its error recovery
+   * when it renders again.
    */
   constructor(
     ctx: Context,
     private readonly sessions: ISessions,
     private readonly maxConcurrentReads: number,
+    maxCachedImageBytes: number = DEFAULT_MAX_CACHED_IMAGE_BYTES,
   ) {
+    this.maxCachedImageBytes = maxCachedImageBytes
     ctx.effect(() => () => { this.dispose() }, 'ui-conversation historical image cache')
   }
 
@@ -70,12 +84,16 @@ export class HistoricalImageCache {
     const entries = this.bindScope(binding)
     const key = attachment.attachmentId
     const cached = entries.get(key)
-    if (cached !== undefined) return cached.pending
+    if (cached !== undefined) {
+      this.touch(cached, binding, key)
+      return cached.pending
+    }
     const entry: ImageUrlEntry = {
       binding,
       pending: Promise.resolve(''),
     }
     entries.set(key, entry)
+    this.touch(entry, binding, key)
     entry.pending = this.loadCanonical(key, entry, attachment)
     return entry.pending
   }
@@ -114,9 +132,11 @@ export class HistoricalImageCache {
     }
     this.urls.add(url)
     entries.set(key, entry)
+    this.touch(entry, binding, key)
     entry.pending = this.loadCanonical(key, entry, attachment).catch((error: unknown) => {
       if (entries.get(key) === entry && entry.current === url) {
         entries.delete(key)
+        this.lru.delete(entry)
         this.releaseUrl(url)
       }
       throw error
@@ -149,13 +169,55 @@ export class HistoricalImageCache {
         const previous = entry.current
         entry.current = url
         if (previous !== undefined && previous !== url) this.releaseUrl(previous)
+        if (entry.bytes !== undefined) this.cachedBytes -= entry.bytes
+        entry.bytes = result.value.data.byteLength
+        this.cachedBytes += entry.bytes
+        // Bytes landing is a use: the just-displayable image survives while an
+        // older settled entry pays the budget.
+        this.touch(entry, entry.binding, key)
+        this.enforceBudget()
         return url
       })
       .catch((error: unknown) => {
         const entries = this.entries.get(entry.binding)
-        if (entries?.get(key) === entry && entry.current === undefined) entries.delete(key)
+        if (entries?.get(key) === entry && entry.current === undefined) {
+          entries.delete(key)
+          this.lru.delete(entry)
+        }
         throw error
       })
+  }
+
+  /** Move one entry to the most-recently used end of the eviction order. */
+  private touch(entry: ImageUrlEntry, binding: SessionBinding, key: string): void {
+    this.lru.delete(entry)
+    this.lru.set(entry, { binding, key })
+  }
+
+  /**
+   * Evict least-recently used settled entries until the cache fits its byte
+   * budget. In-flight reads never evict (their bytes are unknown), and the
+   * newest insert stays: a lone oversized image remains cached over budget
+   * instead of evict/reload looping against its own mounted `<img>`.
+   */
+  private enforceBudget(): void {
+    if (this.cachedBytes <= this.maxCachedImageBytes) return
+    const order = [...this.lru.entries()]
+    for (let index = 0; index < order.length - 1 && this.cachedBytes > this.maxCachedImageBytes; index += 1) {
+      const pair = order[index]
+      if (pair === undefined) break
+      const [entry, ref] = pair
+      if (entry.bytes === undefined) continue
+      const entries = this.entries.get(ref.binding)
+      if (entries?.get(ref.key) !== entry) {
+        this.lru.delete(entry)
+        continue
+      }
+      entries.delete(ref.key)
+      if (entry.current !== undefined) this.releaseUrl(entry.current)
+      this.cachedBytes -= entry.bytes
+      this.lru.delete(entry)
+    }
   }
 
   private assertLive(key: string, entry: ImageUrlEntry): void {
@@ -182,6 +244,8 @@ export class HistoricalImageCache {
   private release(binding: SessionBinding, entries: Map<string, ImageUrlEntry>): void {
     if (this.entries.get(binding) === entries) this.entries.delete(binding)
     for (const entry of entries.values()) {
+      this.lru.delete(entry)
+      if (entry.bytes !== undefined) this.cachedBytes -= entry.bytes
       if (entry.current !== undefined) this.releaseUrl(entry.current)
     }
     entries.clear()
@@ -204,6 +268,8 @@ export class HistoricalImageCache {
     this.urls.clear()
     for (const entries of this.entries.values) entries.clear()
     this.entries.clear()
+    this.lru.clear()
+    this.cachedBytes = 0
   }
 }
 

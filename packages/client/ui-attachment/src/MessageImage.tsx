@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ImageAttachmentRef } from '@qilin-agent/attachment'
 import { IconLoadingOutlineRegular, IconRefreshOutlineRegular, ImageLightbox } from '@qilin-agent/client-ui-primitives'
 import type { ImageLightboxLabels } from '@qilin-agent/client-ui-primitives'
@@ -96,6 +96,11 @@ export function MessageImage({ image, load, variant, labels }: {
   // Retry re-arms the one load effect below, so every attempt — first load or
   // retry — runs under the same liveness guard and the same reset.
   const [attempt, setAttempt] = useState(0)
+  // The shared cache may evict the blob behind a still-mounted <img>; one
+  // automatic re-arm re-reads it. Further errors mean the bytes themselves are
+  // broken — the retry button takes over from there.
+  const autoReloads = useRef(0)
+  const autoReloadsFor = useRef<string | undefined>(undefined)
   const request = useCallback(() => { setAttempt(a => a + 1) }, [])
   const close = useCallback(() => { setOpen(false) }, [])
   const dimensions = useMemo(() => dimensionsOf(image), [image])
@@ -115,6 +120,10 @@ export function MessageImage({ image, load, variant, labels }: {
     if (attachment === undefined) return
     let live = true
     setError(false)
+    if (autoReloadsFor.current !== attachment.attachmentId) {
+      autoReloads.current = 0
+      autoReloadsFor.current = attachment.attachmentId
+    }
     setLoaded(load.peek?.(attachment) ?? null)
     void load(attachment).then((url) => { if (live) setLoaded(url) }).catch(() => { if (live) setError(true) })
     return () => { live = false }
@@ -156,7 +165,19 @@ export function MessageImage({ image, load, variant, labels }: {
               {loadingThumbnail ? <IconLoadingOutlineRegular className={css.spinner} /> : labels.loading}
             </span>
           )
-          : <img src={src} alt={label} style={fit === undefined ? undefined : { objectPosition: fit.objectPosition }} />}
+          : (
+            <img
+              src={src}
+              alt={label}
+              style={fit === undefined ? undefined : { objectPosition: fit.objectPosition }}
+              onError={attachment === undefined ? undefined : () => {
+                if (autoReloads.current < 1) {
+                  autoReloads.current += 1
+                  request()
+                } else setError(true)
+              }}
+            />
+          )}
       </button>
       {open && src !== null && <ImageLightbox src={src} alt={label} labels={labels.lightbox} onClose={close} />}
     </>

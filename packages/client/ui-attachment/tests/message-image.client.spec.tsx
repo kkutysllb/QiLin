@@ -95,6 +95,40 @@ describe('MessageImage', () => {
     expect(view.getByRole('button', { name: '图片，点击查看原图' })).toBeTruthy()
   })
 
+  it('reloads automatically when a mounted image loses its blob URL', async () => {
+    let call = 0
+    const load = vi.fn(() => {
+      call += 1
+      return Promise.resolve(call === 1 ? 'blob:first' : 'blob:second')
+    })
+    const view = render(<MessageImage image={{ attachment }} load={load} variant="single" labels={labels} />)
+    const first = await view.findByAltText('history.png')
+    expect((first as HTMLImageElement).src).toContain('blob:first')
+    // The cache evicted the blob behind the mounted element: the browser fires
+    // error, the component re-arms once, and the loader serves fresh bytes.
+    fireEvent.error(first)
+    await waitFor(() => {
+      expect((view.getByAltText('history.png') as HTMLImageElement).src).toContain('blob:second')
+    })
+    expect(load).toHaveBeenCalledTimes(2)
+  })
+
+  it('falls back to the retry control when the automatic reload errors again', async () => {
+    let call = 0
+    const load = vi.fn(() => {
+      call += 1
+      return Promise.resolve(`blob:broken-${String(call)}`)
+    })
+    const view = render(<MessageImage image={{ attachment }} load={load} variant="single" labels={labels} />)
+    const first = await view.findByAltText('history.png')
+    fireEvent.error(first)
+    await waitFor(() => expect(load).toHaveBeenCalledTimes(2))
+    // The second failure exhausts the automatic re-read; the retry button
+    // takes over instead of looping against permanently broken bytes.
+    fireEvent.error(view.getByAltText('history.png'))
+    await view.findByRole('button', { name: '图片加载失败，点击重试' })
+  })
+
   it('surfaces a retry control when durable bytes cannot be read, including a failed retry', async () => {
     const load = vi.fn()
       .mockRejectedValueOnce(new Error('offline'))
