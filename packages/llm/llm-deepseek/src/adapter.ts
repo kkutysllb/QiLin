@@ -52,7 +52,7 @@ export class DeepSeekAdapter<C extends Connection = Connection> extends LlmAdapt
     this.dependencies.admit?.(connection, model)
     return { model: modelInfo(connection, provider, model), stream: options => this.generate(options, connection) }
   }
-  stream(options: GenerateOptions): AsyncIterable<StreamChunk> {
+  stream(options: GenerateOptions<string>): AsyncIterable<StreamChunk> {
     const connection = this.dependencies.options()
     this.dependencies.admit?.(connection, options.model)
     return this.generate(options, connection)
@@ -62,7 +62,7 @@ export class DeepSeekAdapter<C extends Connection = Connection> extends LlmAdapt
     return this.dependencies.connect?.(signal) ?? Promise.resolve(this.dependencies.options())
   }
 
-  private async * generate(options: GenerateOptions, connection: C): AsyncGenerator<StreamChunk> {
+  private async * generate(options: GenerateOptions<string>, connection: C): AsyncGenerator<StreamChunk> {
     const consumer = new AbortController()
     const signal = options.signal === undefined ? consumer.signal : AbortSignal.any([consumer.signal, options.signal])
     using watchdog = idleWatchdog(signal, connection.streamIdleTimeoutMs, 'MESSAGES_IDLE')
@@ -89,7 +89,7 @@ export class DeepSeekAdapter<C extends Connection = Connection> extends LlmAdapt
   }
 
   private async * request(
-    options: GenerateOptions, connection: C, signal: AbortSignal, activity: () => void,
+    options: GenerateOptions<string>, connection: C, signal: AbortSignal, activity: () => void,
   ): AsyncGenerator<StreamChunk> {
     signal.throwIfAborted()
     const { messages, versions } = await prepareImages(

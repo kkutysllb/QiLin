@@ -55,7 +55,7 @@ const definition = {
 
 ### Register and read
 
-`register(definition)` installs the unit; registrants with the same key and `stateVersion` share its cells, while an incompatible version or invalid `stateVersion` throws. Registration is an effect on the calling fiber, so the last unload removes the key and its cached cells. Carriers read a consistent synchronous cut over every client-visible unit with `snapshot(session)` — `{ asOfSeq, values }`, where `asOfSeq` is the seq of the last event every value reflects — and subscribe to per-change notifications with `onChanged(listener)`. `stateOf(session, key)` reads one unit's live read-only host state without computing unrelated views.
+`register(definition)` installs the unit; registrants with the same key and `stateVersion` share its cells, while an incompatible version, a different summary membership, or an invalid `stateVersion` throws. Registration is an effect on the calling fiber, so the last unload removes the key from live drives, restores, and client snapshots, while its checkpoint rows stay until the key registers again and the new unit refolds the log. Carriers read a consistent synchronous cut over every client-visible unit with `snapshot(session, keys)` — `{ asOfSeq, values }`, where `asOfSeq` is the seq of the last event every value reflects — and subscribe to per-change notifications with `onChanged(listener)`. Only the selected units are computed, so a key-subset read neither folds nor advances the others; `summaryKeys()` returns the stable set a Session summary carries, derived from the registered client-visible keys whose unit does not declare `wire.summary: false`. `stateOf(session, key)` reads one unit's live read-only host state. `cachedSnapshot(session, keys)` is deprecated: it returns only cells another read already computed and may omit keys, so it cannot decide behavior.
 
 ```text
 const dispose = ctx.sessionProjections.register(definition)
@@ -66,7 +66,7 @@ A domain that requires projected state declares `sessionProjections` as a Kylin 
 
 ### Persisted checkpoints
 
-Every unit's state is checkpointed — client-visible and host-only alike — through `checkpoint(session)`, and the sibling [session-projection-cache](../session-projection-cache/README.md) persists those checkpoints so cold reads skip full log loads. Checkpoint watermarks use `SessionSeqCursor` (`-1` for an empty log), while replay starts use `SessionLogOffset`; `restoreFloor` and `restore` implement the read recipe without conflating an existing event with a log gap.
+Every unit's state is checkpointed — client-visible and host-only alike — through `checkpoint(session)`, and the sibling [session-projection-cache](../session-projection-cache/README.md) persists those checkpoints so cold reads skip full log loads. A released unit contributes the Session's last cell and gains no new ones, so a writer running after a plugin unloads keeps that unit's latest checkpointed state, while `restore` folds live units only and its refreshed rows omit released keys. Checkpoint watermarks use `SessionSeqCursor` (`-1` for an empty log), while replay starts use `SessionLogOffset`; `restoreFloor` and `restore` implement the read recipe without conflating an existing event with a log gap.
 
 -----
 

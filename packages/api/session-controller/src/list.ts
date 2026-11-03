@@ -105,7 +105,10 @@ export class ApiSessionList {
   }
 
   /**
-   * Build one current attached-Session summary.
+   * Build one current attached-Session summary. Blankness and recency come from
+   * the `sessionListMetadata` unit computed by the same summary read that
+   * serves the projection hints; the first call for a Session computes these
+   * over its whole in-memory log and later calls advance them incrementally.
    * @param session - attached Session to summarize.
    * @returns current list metadata and available projections.
    */
@@ -291,16 +294,22 @@ export class ApiSessionList {
     session: Session | undefined,
   ): SessionProjectionHints | undefined {
     try {
+      const keys = this.ctx.sessionProjections.summaryKeys()
       if (session !== undefined) {
-        // The live registry computed the block for this Session: its watermark
-        // shares the sequence space of the Session's baselines and frames.
-        return hintsOf('sequenced', this.ctx.sessionProjections.cachedSnapshot(session))
+        // The live registry computes the summary block for this Session: its
+        // watermark shares the sequence space of the Session's baselines and
+        // frames.
+        return hintsOf('sequenced', this.ctx.sessionProjections.snapshot(session, keys))
       }
       // A cold row reads the persisted cache by header alone; the cache serves
       // seeded and unseeded lifecycles alike because a listing never seeds a
-      // fold. The watermark is the stored record's own.
+      // fold. The watermark is the stored record's own, and the cache serves
+      // only the rows it holds, so the block stays partial.
       const cache = this.ctx.get('sessionProjectionCache')
-      return hintsOf('cached', cache?.cachedSnapshot(header) ?? cache?.cachedPredecessorTitle(header))
+      return hintsOf(
+        'cached',
+        cache?.cachedSnapshot(header, [...keys]) ?? cache?.cachedPredecessorTitle(header),
+      )
     } catch (error) {
       this.ctx.logger.warn(
         `api-session.list: projection column for "${header.id}" failed; serving the row without it: ${String(error)}`,
@@ -321,8 +330,8 @@ function hintsOf(
   block: ProjectionSnapshot | undefined,
 ): SessionProjectionHints | undefined {
   if (block === undefined || Object.keys(block.values).length === 0) return undefined
-  // Listing hints contain every wire value the source currently holds but
-  // remain partial: missing cells and cache rows are never materialized here.
+  // Listing hints contain every summary wire value the source holds; cached
+  // hints remain partial because missing cache rows are never folded here.
   return { kind, asOfSeq: block.asOfSeq, values: block.values as SessionProjectionValues }
 }
 

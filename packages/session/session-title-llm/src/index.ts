@@ -4,6 +4,12 @@
  * @module @qilin-agent/session-title-llm
  */
 
+declare module '@qilin-agent/llm/types' {
+  interface LlmRequestPurposeMap {
+    'session-title': true
+  }
+}
+
 import type { Context } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
 import { createUserMessage, BlockAssembler } from '@qilin-agent/llm'

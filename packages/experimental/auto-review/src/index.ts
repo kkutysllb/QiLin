@@ -8,6 +8,12 @@
  * @module @qilin-agent/experimental-auto-review
  */
 
+declare module '@qilin-agent/llm/types' {
+  interface LlmRequestPurposeMap {
+    'auto-review': true
+  }
+}
+
 import type {} from '@qilin-agent/working-directory'
 import type { Context } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
@@ -620,6 +626,7 @@ async function classifyRisk(
   const cwd = await ctx.workingDirectory.ensure(agent, signal)
   const snapshot = snapshotAutoReview(agent, exec, cwd)
   // This review prompt is sent only through ctx.llm.stream and never enters a Session log.
+  // The Session id also supplies provider routing and request-extension identity.
   const options: GenerateOptions = deepFreeze({
     provider: snapshot.provider,
     model: snapshot.model,
@@ -629,6 +636,8 @@ async function classifyRisk(
       content: [{ type: 'text', text: reviewUserText(snapshot) }],
     }],
     temperature: 0,
+    sessionId: agent.session.id,
+    purpose: 'auto-review',
     signal,
   })
   return readDecision(ctx.llm.stream(options))

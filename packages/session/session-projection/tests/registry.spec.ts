@@ -508,6 +508,50 @@ describe('SessionProjectionRegistry drive', () => {
     expect(ctx.sessionProjections.snapshot(session).values['test/marks']).toEqual({ marks: ['cached'] })
   })
 
+  it('keeps a released unit checkpoint, stops folding it, and refolds it on re-registration', async () => {
+    const { ctx, session } = await harness()
+    const dispose = ctx.sessionProjections.register(marksUnit())
+    mark(session, ['kept'])
+    const rows = ctx.sessionProjections.checkpoint(session)
+    expect(Object.keys(rows)).toEqual(['test/marks'])
+    dispose()
+
+    // A released predecessor leaves live drives, restores, and client snapshots.
+    expect(ctx.sessionProjections.snapshot(session).values).toEqual({})
+    expect(ctx.sessionProjections.stateOf(session, 'test/marks')).toBeUndefined()
+    mark(session, ['after-release'])
+    // Its checkpoint row is the last cell the registry advanced, so a writer
+    // that runs after a plugin unload keeps serving that unit's latest state.
+    expect(ctx.sessionProjections.checkpoint(session)).toEqual(rows)
+    // A Session the released unit never touched has no cell and no row.
+    expect(ctx.sessionProjections.checkpoint(ctx.sessions.create())).toEqual({})
+    // Re-registering replaces the predecessor and the new unit refolds the log.
+    ctx.sessionProjections.register(marksUnit())
+    expect(ctx.sessionProjections.snapshot(session).values['test/marks']).toEqual({ marks: ['after-release'] })
+  })
+
+  it('snapshot computes only the selected units', async () => {
+    const { ctx, session } = await harness()
+    mark(session, ['a'])
+    // Registered after the event, so neither unit has a cell yet: a read
+    // materializes exactly the keys it was asked for.
+    ctx.sessionProjections.register(marksUnit())
+    ctx.sessionProjections.register(stableViewUnit(state => state.value))
+
+    expect(ctx.sessionProjections.snapshot(session, ['test/marks']).values).toEqual({
+      'test/marks': { marks: ['a'] },
+    })
+    // The unselected units were neither folded nor advanced by that read.
+    // oxlint-disable-next-line typescript/no-deprecated -- This case pins the deprecated cached face itself.
+    expect(ctx.sessionProjections.cachedSnapshot(session)?.values).toEqual({
+      'test/marks': { marks: ['a'] },
+    })
+    expect(ctx.sessionProjections.snapshot(session).values).toEqual({
+      'test/marks': { marks: ['a'] },
+      'test/stable-view': { marks: ['a'] },
+    })
+  })
+
   it('removes registrations and change listeners when their owning fiber unloads (HMR safety)', async () => {
     const { ctx, session } = await harness()
     const notifications: string[] = []

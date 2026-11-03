@@ -154,9 +154,12 @@ describe('SessionSkillCatalog', () => {
     const list = vi.fn(() => Promise.resolve([]))
     ctx.provide('skills', { list } as never)
     const catalog = new SessionSkillCatalog(ctx)
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
 
     await expect(catalog.list({ sessionId }, new AbortController().signal)).resolves.toEqual({ skills: [] })
     expect(list).toHaveBeenCalledWith({ cwd: '/cold/project', scope: undefined })
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('preset "gone"'))
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('unknown preset'))
   })
 
   it.each([

@@ -4,6 +4,12 @@
  * @module @qilin-agent/compaction-basic/types
  */
 
+declare module '@qilin-agent/llm/types' {
+  interface LlmRequestPurposeMap {
+    'compaction': true
+  }
+}
+
 import type { LlmCallConfig } from '@qilin-agent/llm'
 
 /** Policy fields shared by the default policy and exact model overrides. */

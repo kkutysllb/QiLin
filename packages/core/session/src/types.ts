@@ -1,3 +1,4 @@
+import type { TypertResource } from '@qilin-agent/typert-protocol'
 import { brandNumber, brandString, type Branded, type BrandedNumber } from '@qilin-agent/brand'
 import type {
   AssistantMessage,
@@ -549,6 +550,18 @@ export interface PluginRecord {
 }
 
 declare module '@qilin-agent/typert-protocol' {
+  interface RemoteErrorDetailsMap {
+    /** The named Session does not exist; produced by every layer that resolves a SessionId. */
+    'session/not-found': { readonly sessionId: SessionId }
+  }
+}
+
+declare module '@qilin-agent/typert-protocol' {
+  interface TypertResourceMap {
+    /** One Session; the Session Controller registers its default `sessionId` wire field. */
+    session: TypertResource<SessionId>
+  }
+
   interface RemoteErrorDetailsMap {
     /** The named Session does not exist; produced by every layer that resolves a SessionId. */
     'session/not-found': { readonly sessionId: SessionId }

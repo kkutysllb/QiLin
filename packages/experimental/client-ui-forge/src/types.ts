@@ -392,10 +392,3 @@ declare module '@qilin-agent/session-projection/types' {
     forgeWorktree: ForgeSessionWorktree | null
   }
 }
-
-declare module '@qilin-agent/typert-protocol' {
-  interface TypertResourceMap {
-    /** One Session identity, the unit both the Session-driven and the shared-state Remote methods filter their results by. */
-    session: import('@qilin-agent/typert-protocol').TypertResource<string>
-  }
-}

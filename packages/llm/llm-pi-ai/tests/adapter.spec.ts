@@ -14,7 +14,9 @@ import * as LlmPiAi from '@qilin-agent/llm-pi-ai'
 import { PiAiAdapter } from '@qilin-agent/llm-pi-ai'
 import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { getBuiltinModels } from '@earendil-works/pi-ai/providers/all'
-import { DEFAULT_MAX_REQUEST_IMAGE_BYTES, resolveProfiles } from '../src/config.ts'
+import {
+  DEFAULT_IMAGE_OFFLOAD_COUNT_QUANTUM, DEFAULT_MAX_REQUEST_IMAGE_BYTES, DEFAULT_MAX_REQUEST_IMAGES, resolveProfiles,
+} from '../src/config.ts'
 import { memoryAuth } from './auth-double.ts'
 import { assemble } from './assemble.ts'
 import { anthropicTextEvents, closeMockServers, mockServer, textEvents } from './mock-server.ts'
@@ -122,6 +124,60 @@ describe('PiAiAdapter provider routing', () => {
     await assemble(ctx, { model: 'deepseek-flash', messages: [] })
     expect(server.headers[0]?.['x-company']).toBe('private')
     expect(server.headers[0]?.['user-agent']).toBe(userAgent())
+  })
+
+  it('prepares request headers per call from the prepared route before attribution wins', async () => {
+    const server = await mockServer([{ events: textEvents }])
+    const seen: import('../src/types.ts').PiAiRequestHeaderContext[] = []
+    const ctx = new Context()
+    await ctx.plugin(LlmRuntime)
+    ctx.llm.registerAdapter(['deepseek'], new PiAiAdapter({
+      profiles: () => resolveProfiles({
+        deepseek: { apiKeyEnv: 'PI_TEST_KEY', baseURL: server.url, headers: { 'x-company': 'static' } },
+      }),
+      resolveApiKey: () => Promise.resolve('test-key'),
+      auth: memoryAuth(),
+      prepareHeaders: (request, headers) => {
+        seen.push(request)
+        expect(Object.isFrozen(request)).toBe(true)
+        headers.set('x-request-session', String(request.sessionId))
+        headers.set('user-agent', 'contributor')
+        return headers
+      },
+    }))
+
+    await assemble(ctx, { model: 'deepseek-flash', messages: [], sessionId: 'one' as never })
+
+    expect(seen).toEqual([{ provider: 'deepseek', model: 'deepseek-flash', baseURL: server.url, sessionId: 'one' }])
+    // Harness attribution wins over the contributor, and profile headers survive.
+    expect(server.headers[0]).toMatchObject({
+      'x-request-session': 'one', 'x-company': 'static', 'user-agent': userAgent(),
+    })
+  })
+
+  it.each([
+    ['a TypeError that can echo secrets', new TypeError('private-token-fixture'),
+      'TypeError during header preparation; check the contributing plugin\'s header names, values, and configuration'],
+    ['a plain Error', new Error('fixture header failure'), 'fixture header failure'],
+    ['a non-Error value', 'private-thrown-fixture',
+      'the contributing plugin threw a non-Error value; throw an Error with a safe diagnostic'],
+  ])('fails a call with a safe REQUEST_HEADERS diagnostic before HTTP when header preparation reports %s', async (_name, thrown, detail) => {
+    const server = await mockServer([])
+    const ctx = new Context()
+    await ctx.plugin(LlmRuntime)
+    ctx.llm.registerAdapter(['deepseek'], new PiAiAdapter({
+      profiles: () => resolveProfiles({ deepseek: { apiKeyEnv: 'PI_TEST_KEY', baseURL: server.url } }),
+      resolveApiKey: () => Promise.resolve('test-key'),
+      auth: memoryAuth(),
+      prepareHeaders: () => { throw thrown },
+    }))
+
+    const result = await assemble(ctx, { model: 'deepseek-flash', messages: [] })
+
+    expect(result.finish).toMatchObject({ kind: 'error', failure: { code: 'REQUEST_HEADERS' } })
+    expect(JSON.stringify(result.finish)).toContain(detail)
+    expect(JSON.stringify(result.finish)).not.toContain('private-')
+    expect(server.requests).toHaveLength(0)
   })
 
   it('forwards common stream options and profile reasoning', async () => {
@@ -943,6 +999,15 @@ describe('provider profile lifecycle', () => {
       .toBe(DEFAULT_MAX_REQUEST_IMAGE_BYTES)
     expect(resolveProfiles({ openai: { maxRequestImageBytes: 1024 } }).get('openai')?.maxRequestImageBytes)
       .toBe(1024)
+    expect(() => resolveProfiles({ openai: { maxRequestImages: 0 } })).toThrow(/maxRequestImages must/)
+    expect(() => resolveProfiles({ openai: { maxRequestImages: 1.5 } })).toThrow(/maxRequestImages must/)
+    expect(resolveProfiles({ openai: {} }).get('openai')?.maxRequestImages).toBe(DEFAULT_MAX_REQUEST_IMAGES)
+    expect(resolveProfiles({ openai: { maxRequestImages: 100 } }).get('openai')?.maxRequestImages).toBe(100)
+    expect(resolveProfiles({ openai: {} }).get('openai')?.imageOffloadCountQuantum).toBe(DEFAULT_IMAGE_OFFLOAD_COUNT_QUANTUM)
+    expect(resolveProfiles({ openai: { maxRequestImages: 4 } }).get('openai')?.imageOffloadCountQuantum).toBe(4)
+    expect(() => resolveProfiles({ openai: { maxRequestImages: 4, imageOffloadCountQuantum: 5 } }))
+      .toThrow(/imageOffloadCountQuantum must be .* no greater than maxRequestImages/)
+    expect(() => resolveProfiles({ openai: { imageOffloadCountQuantum: 0 } })).toThrow(/imageOffloadCountQuantum must/)
   })
 
   it.each([
@@ -976,6 +1041,7 @@ describe('provider profile lifecycle', () => {
       { maxRequestImageBytes: 0 },
       { maxRequestImageBytes: 1.5 },
       { maxRequestImageBytes: Number.NaN },
+      { maxRequestImages: 0 },
     ]
     for (const entry of invalid) {
       const ctx = new Context()

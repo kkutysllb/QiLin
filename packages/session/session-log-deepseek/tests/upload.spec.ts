@@ -416,6 +416,94 @@ describe('incremental DeepSeek session-log upload', () => {
     })
   })
 
+  it.each([undefined, 'compaction', 'session-title', 'auto-review'])(
+    'uploads and acknowledges eligible requests with purpose %s by default', async (purpose) => {
+      const { ctx, session } = await harness('default-upload')
+      session.append('turn/start', { turn: 1 })
+      const prepared = await ctx.deepseekLlmApiExtensions.prepare({
+        body: body(), signal: SIGNAL, sessionId: session.id, ...purpose === undefined ? {} : { purpose },
+      })
+      expect(prepared.fields.qilin_session_log).toMatchObject({ afterSeq: -1, throughSeq: 0 })
+      await prepared.accept()
+      expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(0)
+      expect(session.snapshotEvents().at(-1)?.type).toBe('session-log-deepseek/delivery-accepted')
+    },
+  )
+
+  it.each([false, true])('omits a matching upload independently of registration order (%s)', async (reverse) => {
+    const { ctx, session } = await harness('excluded-upload')
+    session.append('turn/start', { turn: 1 })
+    const rules = [
+      () => false,
+      (request: import('../src/types.ts').SessionLogUploadRequest) => request.purpose === 'private-operation',
+    ]
+    const consumer = ctx.inject(['sessionLogDeepSeek'], (child) => {
+      for (const rule of reverse ? rules.toReversed() : rules) child.sessionLogDeepSeek.registerExclusion(rule)
+    })
+    await consumer
+    const excluded = await ctx.deepseekLlmApiExtensions.prepare({
+      body: body(), signal: SIGNAL, sessionId: session.id, purpose: 'private-operation',
+    })
+    expect(excluded.fields).not.toHaveProperty('qilin_session_log')
+    await excluded.accept()
+    expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)
+    expect(session.snapshotEvents()).toHaveLength(1)
+
+    const ordinary = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
+    expect(ordinary.fields.qilin_session_log).toMatchObject({ afterSeq: -1, throughSeq: 0 })
+    await consumer.dispose()
+    const restored = await ctx.deepseekLlmApiExtensions.prepare({
+      body: body(), signal: SIGNAL, sessionId: session.id, purpose: 'private-operation',
+    })
+    expect(restored.fields.qilin_session_log).toMatchObject({ afterSeq: -1, throughSeq: 0 })
+    await restored.accept()
+    expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(0)
+  })
+
+  it('owns duplicate predicates as separate disposable registrations', async () => {
+    const { ctx, session } = await harness('duplicate-exclusion')
+    session.append('turn/start', { turn: 1 })
+    const rule = () => true
+    const first = ctx.sessionLogDeepSeek.registerExclusion(rule)
+    const second = ctx.sessionLogDeepSeek.registerExclusion(rule)
+    await first()
+    const retained = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
+    expect(retained.fields).not.toHaveProperty('qilin_session_log')
+    await second()
+    const restored = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
+    expect(restored.fields.qilin_session_log).toMatchObject({ afterSeq: -1, throughSeq: 0 })
+  })
+
+  it('reports a throwing exclusion and omits its log contribution without acknowledgement', async () => {
+    const { ctx, session } = await harness('failed-exclusion')
+    session.append('turn/start', { turn: 1 })
+    const failure = new Error('upload exclusion failed')
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
+    const dispose = ctx.sessionLogDeepSeek.registerExclusion(() => { throw failure })
+    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
+    expect(prepared.fields).not.toHaveProperty('qilin_session_log')
+    await prepared.accept()
+    expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(-1)
+    expect(session.snapshotEvents()).toHaveLength(1)
+    expect(String(warn.mock.calls[0]?.[0])).toContain('omitting field "qilin_session_log"')
+    expect(warn.mock.calls[0]?.[1]).toBe(failure)
+    await dispose()
+    const restored = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
+    expect(restored.fields.qilin_session_log).toMatchObject({ afterSeq: -1, throughSeq: 0 })
+  })
+
+  it('keeps prepared contributions valid when an exclusion is registered later', async () => {
+    const { ctx, session } = await harness('prepared-exclusion')
+    session.append('turn/start', { turn: 1 })
+    const prepared = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
+    ctx.sessionLogDeepSeek.registerExclusion(() => true)
+    expect(prepared.fields).toHaveProperty('qilin_session_log')
+    await prepared.accept()
+    expect(SessionLogDeepSeek.acceptedThrough(session)).toBe(0)
+    const next = await ctx.deepseekLlmApiExtensions.prepare({ body: body(), signal: SIGNAL, sessionId: session.id })
+    expect(next.fields).not.toHaveProperty('qilin_session_log')
+  })
+
   it('contributes complete events without reading request messages', async () => {
     const { ctx, session } = await harness('direct-events')
     session.append('turn/start', { turn: 1 })

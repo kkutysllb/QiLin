@@ -4,6 +4,8 @@
  * @module @qilin-agent/token-meter/projection
  */
 
+import type { SessionProjectionSummaryExcluded } from '@qilin-agent/session-projection/types'
+
 /**
  * Durable cumulative provider usage for a complete session log.
  *
@@ -70,8 +72,8 @@ declare module '@qilin-agent/session-projection/types' {
     /** Provider-reported usage accumulated across the complete durable log. */
     tokenUsage: TokenUsageProjection
     /** Newest request pressure paired with the newest known route capacity. */
-    contextPressure: ContextPressureProjection
+    contextPressure: SessionProjectionSummaryExcluded<ContextPressureProjection>
     /** Heuristic system/tools/message composition of the next request. */
-    contextBreakdown: ContextBreakdownProjection
+    contextBreakdown: SessionProjectionSummaryExcluded<ContextBreakdownProjection>
   }
 }

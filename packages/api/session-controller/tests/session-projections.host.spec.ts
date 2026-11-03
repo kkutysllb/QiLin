@@ -473,7 +473,7 @@ describe('session.history projections block', () => {
 })
 
 describe('session.list projections column', () => {
-  it('serves every already-materialized wire value from the live registry without folding', async () => {
+  it('serves every summary wire value from the live registry', async () => {
     const { ctx, session } = await harness(true)
     ctx.sessionProjections.register(lastUserUnit())
     const gateway = remote(ctx)
@@ -507,29 +507,38 @@ describe('session.list projections column', () => {
     expect(row?.projections?.values.agentPreset).toBe('minimal')
   })
 
-  it('omits an unmaterialized live projection instead of folding history for listing', async () => {
+  it('computes every summary key for a live row without computing summary-excluded units', async () => {
     const { ctx, session } = await harness(true)
     seedMessages(session, 1)
-    const unit = lastUserUnit()
-    const apply = vi.fn(unit.apply)
-    ctx.sessionProjections.register({ ...unit, apply })
+    ctx.sessionProjections.register(lastUserUnit())
+    const excludedApply = vi.fn((state: number) => state + 1)
+    ctx.sessionProjections.register({
+      key: 'test/summary-excluded',
+      stateSchema: z.number().int().nonnegative(),
+      init: () => 0,
+      apply: excludedApply,
+      wire: { viewSchema: z.number().int().nonnegative(), view: state => state, summary: false },
+      stateVersion: 1,
+    })
 
     const response = await remote(ctx).list(request({}))
     if (!response.ok) throw new Error('unreachable')
     const row = response.value.items.find(item => item.sessionId === session.id)
-    expect(row).toBeDefined()
-    expect('test/last-user' in (row?.projections?.values ?? {})).toBe(false)
-    expect(apply).not.toHaveBeenCalled()
+    expect(row?.projections?.values['test/last-user']).toEqual({ text: 'm0' })
+    expect(row?.projections?.asOfSeq).toBe(session.seq - 1)
+    expect('test/summary-excluded' in (row?.projections?.values ?? {})).toBe(false)
+    expect(excludedApply).not.toHaveBeenCalled()
   })
 
-  it('omits the column entirely when no registry is mounted', async () => {
+  it('carries exactly the registered summary keys', async () => {
     const { ctx, session } = await harness(false)
     seedMessages(session, 1)
     const response = await remote(ctx).list(request({}))
     if (!response.ok) throw new Error('unreachable')
     const row = response.value.items.find(item => item.sessionId === session.id)
-    expect(row).toBeDefined()
-    expect(row !== undefined && 'projections' in row).toBe(false)
+    expect(row?.projections?.kind).toBe('sequenced')
+    expect(Object.keys(row?.projections?.values ?? {})).toEqual([...ctx.sessionProjections.summaryKeys()])
+    expect(Object.keys(row?.projections?.values ?? {})).toContain('sessionListMetadata')
   })
 
   it('serves every available cold projection hint from the cache with zero log loads', async () => {

@@ -9,20 +9,23 @@
   en: f25b1fb9e3f8edfe
   zh: 50d4112ca394c18d
 /qilin-agent-session-log-deepseek/summary:
-  en: 19c182dbd7d8e064
-  zh: 51c043d6ea52db0d
+  en: 467bb168b5fefa4f
+  zh: 43344fd75b7351ab
 /qilin-agent-session-log-deepseek/table-of-contents:
-  en: e2aa29e41bc101c4
-  zh: 2ef629f2a444bc13
+  en: 9c45752de058b4f6
+  zh: 16cd997397a1c7e5
 /qilin-agent-session-log-deepseek/configuration:
-  en: 1b899e63d8039643
-  zh: d489461bbb618b5d
+  en: 89f7fadc946381cf
+  zh: ea4c3135e61fffaa
 /qilin-agent-session-log-deepseek/request-field:
-  en: 65795dc44af4b15e
-  zh: 849c7d57f16f66af
+  en: ad1fedc255d4a38b
+  zh: a3a0bfdcf66966f7
+/qilin-agent-session-log-deepseek/upload-exclusions:
+  en: 9d303e05a05a8737
+  zh: 8b12d1e7a2d04060
 /qilin-agent-session-log-deepseek/acceptance-and-retry:
-  en: 3688592c474b3e95
-  zh: 5e83afeb9aa9e9e3
+  en: 4b760cc9ed24998b
+  zh: 1fcab0556bfc7792
 /qilin-agent-session-log-deepseek/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -30,8 +33,8 @@
   en: 468b9eaee350f6e2
   zh: c192ad6228e7044d
 /qilin-agent-session-log-deepseek/model-experience/session-log-metadata/what-the-model-sees:
-  en: 89fef23a54a0f9d6
-  zh: fd17806f1df6083e
+  en: 3314577e15b37ed6
+  zh: dd6641051f9c0c00
 /qilin-agent-session-log-deepseek/model-experience/session-log-metadata/token-effect:
   en: 6a1bb7bbc7db7f06
   zh: 94ddaa773b7538f7

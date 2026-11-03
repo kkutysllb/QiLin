@@ -102,8 +102,12 @@ export class SessionSkillCatalog extends TypertRemoteService {
     if (presets === undefined) return undefined
     try {
       return await presets.standingKeyFor(agentPreset)
-    } catch {
-      // An unknown or unusable recorded preset falls back to the global registry.
+    } catch (error: unknown) {
+      // An unknown or unusable recorded preset must not fail the read: the
+      // caller serves the global skill registry instead.
+      this.ctx.logger.warn(
+        `skill catalog could not resolve the standing scope of preset "${String(agentPreset)}"; using global skills: ${String(error)}`,
+      )
       return undefined
     }
   }
