@@ -77,7 +77,12 @@ async function setupScheduleHost(): Promise<{ ctx: Context; parent: Agent; dispa
   })
   ctx.loader.builtins['tool-schedule'] = ToolSchedule
   ctx.llm.registerAdapter(['mock'], new MockAdapter([
-    toolCallResponse('schedule-call', 'schedule_create', { prompt: 'Check', title: 'Check', after_seconds: 60 }),
+    toolCallResponse('schedule-call', 'schedule_create', {
+      title: 'Check',
+      prompt: 'Check',
+      rrule: 'DTSTART:20990101T000000Z\nRRULE:FREQ=DAILY;COUNT=1',
+      target: 'this_session',
+    }),
     textResponse('child done'),
   ]))
   const handle = await ctx.agents.create({
@@ -111,7 +116,7 @@ describe('a delegated child under a preset that mounts the Schedule tools', () =
     expect(ctx.tools.schemas(child).map(schema => schema.name)).toContain('schedule_create')
     await run.result
     expect(toolResultTexts(child).join('')).toContain('"code":"subagent_session"')
-    expect(await ctx.schedule.list({ sessionId: child.session.id })).toEqual([])
+    expect(await ctx.schedule.list({})).toMatchObject({ items: [], total: 0 })
     expect(await ctx.schedule.catalog()).toEqual([])
     expect(dispatched).not.toHaveBeenCalled()
     await run.dispose()
