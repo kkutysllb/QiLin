@@ -1,10 +1,34 @@
 /** Resolve build-owned Desktop paths without sharing mutable state across release targets. */
 
+import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 
 const APP_ROOT = resolve(import.meta.dirname, '..')
 const BUILD_ROOT = join(APP_ROOT, '.desktop-build')
 const SUPPORTED_TARGETS = new Set(['mac-arm64', 'mac-x64', 'win-x64'])
+
+/** Fixed product directory under the shared artifacts root; one flat level, versions stay in file names. */
+export const DESKTOP_ARTIFACTS_PRODUCT = 'QiLin'
+
+/**
+ * Resolve the artifacts root every product repository shares, the only place this repository does it.
+ * Final release artifacts live there so macOS never registers duplicate bundles from a checkout.
+ * @param {NodeJS.ProcessEnv} env - Packaging environment; a relative override resolves against the current directory.
+ * @returns {string} Absolute artifacts root: `KK_ARTIFACTS_ROOT` or `$HOME/kk_Projects/.artifacts`.
+ */
+export function resolveArtifactsRoot(env = process.env) {
+  const override = (env.KK_ARTIFACTS_ROOT ?? '').trim()
+  return override === '' ? join(homedir(), 'kk_Projects', '.artifacts') : resolve(override)
+}
+
+/**
+ * Resolve the directory that receives this product's final release artifacts.
+ * @param {NodeJS.ProcessEnv} env - Packaging environment.
+ * @returns {string} Absolute product artifacts directory: `<root>/QiLin`.
+ */
+export function resolveDesktopArtifactsDirectory(env = process.env) {
+  return join(resolveArtifactsRoot(env), DESKTOP_ARTIFACTS_PRODUCT)
+}
 
 /**
  * Resolve the fixed build target selected by a packaging environment.
@@ -36,19 +60,23 @@ function assertSupportedTarget(target) {
 }
 
 /**
- * Return the mutable preparation and artifact directories owned by one release target.
+ * Return the mutable preparation directories owned by one release target and the shared artifact directory.
+ * Preparation stays inside the checkout; every packaging mode writes its final artifacts to one product
+ * directory, where the mode shows up only as a file-name suffix instead of a deeper path.
  * @param {'mac-arm64' | 'mac-x64' | 'win-x64'} target - Supported Desktop target name.
+ * @param {NodeJS.ProcessEnv} env - Packaging environment that names the artifacts root.
  * @returns {{ root: string, artifacts: string, unsignedArtifacts: string, unnotarizedArtifacts: string, runtime: string, packageSet: string, qilin: string, qilinPnpm: string, electron: string, packedQilin: string, packedVendor: string, packedLandlock: string, downloads: string }} Target paths plus the shared immutable download cache.
  */
-export function desktopTargetBuildPaths(target) {
+export function desktopTargetBuildPaths(target, env = process.env) {
   assertSupportedTarget(target)
   const root = join(BUILD_ROOT, 'targets', target)
   const packed = join(root, 'packed')
+  const artifacts = resolveDesktopArtifactsDirectory(env)
   return {
     root,
-    artifacts: join(root, 'artifacts'),
-    unsignedArtifacts: join(root, 'unsigned-artifacts'),
-    unnotarizedArtifacts: join(root, 'unnotarized-artifacts'),
+    artifacts,
+    unsignedArtifacts: artifacts,
+    unnotarizedArtifacts: artifacts,
     runtime: join(root, 'runtime'),
     packageSet: join(root, 'package-set'),
     qilin: join(root, 'qilin'),
@@ -87,7 +115,7 @@ export function resolveDesktopTargetBuildPaths(
   hostPlatform = process.platform,
   hostArch = process.arch,
 ) {
-  return desktopTargetBuildPaths(resolveDesktopBuildTarget(env, hostPlatform, hostArch))
+  return desktopTargetBuildPaths(resolveDesktopBuildTarget(env, hostPlatform, hostArch), env)
 }
 
 /**
@@ -109,6 +137,7 @@ export function developmentRuntimeDirectory(
 
 /**
  * Select the output directory and filename suffix for one packaging mode.
+ * Every mode writes to the same product directory; the suffix keeps debugging artifacts distinguishable.
  * @param {{ artifacts: string, unsignedArtifacts: string, unnotarizedArtifacts: string }} paths Target artifact directories.
  * @param {{ unsigned: boolean, skipNotarization: boolean }} mode Validated packaging mode.
  * @returns {{ directory: string, suffix: string }} Matching artifact destination and filename marker.

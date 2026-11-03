@@ -12,6 +12,7 @@ import {
   assertMacOSRuntimeSignatureDetails,
   assertMacOSSignatureDetails,
 } from '../scripts/verify-macos-signature.mjs'
+import { resolveDesktopArtifactsDirectory } from '../scripts/desktop-build-paths.mjs'
 
 const require = createRequire(import.meta.url)
 const { validateConfiguration } = require('app-builder-lib/out/util/config/config.js') as {
@@ -49,7 +50,8 @@ describe('desktop macOS release signature', () => {
     const { createElectronBuilderConfig } = await import('../electron-builder.config.mjs')
     const config = createElectronBuilderConfig(RELEASE_ENVIRONMENT, 'darwin', 'arm64')
     expect(config.protocols).toEqual([{ name: 'QiLin Desktop', schemes: ['qilin'] }])
-    expect(portablePath(config.directories.output)).toContain('/.desktop-build/targets/mac-arm64/artifacts')
+    // Final artifacts leave the checkout and land in the shared product directory.
+    expect(portablePath(config.directories.output)).toBe(portablePath(resolveDesktopArtifactsDirectory(RELEASE_ENVIRONMENT)))
     expect(config.mac.extendInfo.NSMicrophoneUsageDescription).toContain('microphone')
     expect(config.mac.extendInfo.NSLocalNetworkUsageDescription).toContain('local network')
     expect(config.mac.extendInfo.CFBundleLocalizations).toEqual(['en', 'zh_CN'])
@@ -147,7 +149,7 @@ describe('desktop macOS release signature', () => {
       QILIN_DESKTOP_TARGET_PLATFORM: 'win32',
       QILIN_DESKTOP_UNSIGNED: '1',
     }, 'win32', 'x64')
-    expect(portablePath(config.directories.output)).toContain('/targets/win-x64/unsigned-artifacts')
+    expect(portablePath(config.directories.output)).toBe(portablePath(resolveDesktopArtifactsDirectory({})))
     expect(portablePath(config.nsis.include)).toMatch(/\/scripts\/installer\.nsh$/u)
     expect(config).toMatchObject({
       win: { forceCodeSigning: false, signtoolOptions: { sign: undefined } },
@@ -161,7 +163,7 @@ describe('desktop macOS release signature', () => {
       QILIN_DESKTOP_APP_ID: RELEASE_ENVIRONMENT.QILIN_DESKTOP_APP_ID,
       QILIN_DESKTOP_UNSIGNED: '1',
     }, 'darwin', arch)
-    expect(portablePath(config.directories.output)).toContain(`/targets/mac-${arch}/unsigned-artifacts`)
+    expect(portablePath(config.directories.output)).toBe(portablePath(resolveDesktopArtifactsDirectory({})))
     expect(config.artifactName).toBe('QiLin-${version}-${os}-${arch}-unsigned.${ext}')
     expect(config.mac).toMatchObject({ identity: '-', forceCodeSigning: false, notarize: false, target: ['dmg'] })
     expect(config.dmg).toMatchObject({ sign: false, writeUpdateInfo: false })
@@ -293,7 +295,7 @@ it('signs debugging artifacts without Apple credentials and isolates them from r
   expect(config.dmg.sign).toBe(true)
   expect(config.mac).toMatchObject({ target: ['dmg', 'zip'] })
   expect(config.artifactName).toContain('-unnotarized.')
-  expect(portablePath(config.directories.output)).toContain('/unnotarized-artifacts')
+  expect(portablePath(config.directories.output)).toBe(portablePath(resolveDesktopArtifactsDirectory({})))
   expect(() => createElectronBuilderConfig({ ...RELEASE_ENVIRONMENT, QILIN_DESKTOP_MACOS_SKIP_NOTARIZATION: 'yes' }, 'darwin', 'arm64')).toThrow(/must be 0 or 1/u)
   expect(() => createElectronBuilderConfig({ ...RELEASE_ENVIRONMENT, QILIN_DESKTOP_MACOS_SKIP_NOTARIZATION: '1', QILIN_DESKTOP_UNSIGNED: '1' }, 'darwin', 'arm64')).toThrow(/requires a signed macOS build/u)
 })

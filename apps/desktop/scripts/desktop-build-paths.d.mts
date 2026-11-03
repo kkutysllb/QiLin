@@ -30,12 +30,30 @@ export function resolveDesktopBuildTarget(
   hostArch?: string,
 ): DesktopAutoUpdateTarget
 
+/** Fixed product directory under the shared artifacts root; one flat level, versions stay in file names. */
+export const DESKTOP_ARTIFACTS_PRODUCT: 'QiLin'
+
+/**
+ * Resolve the artifacts root every product repository shares, the only place this repository does it.
+ * @param env - Packaging environment; a relative override resolves against the current directory.
+ * @returns Absolute artifacts root: `KK_ARTIFACTS_ROOT` or `$HOME/kk_Projects/.artifacts`.
+ */
+export function resolveArtifactsRoot(env?: NodeJS.ProcessEnv): string
+
+/**
+ * Resolve the directory that receives this product's final release artifacts.
+ * @param env - Packaging environment.
+ * @returns Absolute product artifacts directory: `<root>/QiLin`.
+ */
+export function resolveDesktopArtifactsDirectory(env?: NodeJS.ProcessEnv): string
+
 /**
  * Return the mutable preparation and artifact directories owned by one release target.
  * @param target - Supported Desktop target name.
+ * @param env - Packaging environment that names the artifacts root.
  * @returns Target paths plus the shared immutable download cache.
  */
-export function desktopTargetBuildPaths(target: DesktopAutoUpdateTarget): DesktopTargetBuildPaths
+export function desktopTargetBuildPaths(target: DesktopAutoUpdateTarget, env?: NodeJS.ProcessEnv): DesktopTargetBuildPaths
 
 /**
  * Return the platform and architecture of the payload one release target prepares.

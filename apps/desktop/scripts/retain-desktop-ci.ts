@@ -1,7 +1,7 @@
 /** Retain completed CI packages for later manual publication. */
 import { appendFile, readFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
-import { desktopTargetBuildPaths, resolveDesktopBuildTarget } from './desktop-build-paths.mjs'
+import { desktopArtifactOutput, desktopTargetBuildPaths, resolveDesktopBuildTarget } from './desktop-build-paths.mjs'
 import { desktopBuildRecordFilename, desktopUpdateMetadataFilename, resolveDesktopUpdateChannel } from './desktop-auto-update-environment.mjs'
 import { loadDesktopPackageEnvironment } from './desktop-package-environment.mjs'
 import { retainDesktopRelease, type DesktopRetainedSource } from './desktop-release-store.ts'
@@ -53,11 +53,15 @@ export async function retainDesktopCi(env: NodeJS.ProcessEnv, appRoot = resolve(
     testReleaseId: preset === 'test' ? (settings.DOWNLOAD_TEST_RELEASE_ID || null) : null,
     qualification,
   }
-  const paths = desktopTargetBuildPaths(target)
+  const paths = desktopTargetBuildPaths(target, env)
   // The CLI's checkout owns these paths; alternate app roots are used by fixtures.
   const mode = qualification === 'unsigned' ? 'unsigned-artifacts' : qualification === 'unnotarized' ? 'unnotarized-artifacts' : 'artifacts'
+  // Release artifacts live outside the checkout, so the fixture branch keeps its own internal tree.
   const artifacts = appRoot === resolve(import.meta.dirname, '..')
-    ? join(paths.root, mode) : join(appRoot, '.desktop-build', 'targets', target, mode)
+    ? desktopArtifactOutput(paths, {
+      unsigned: qualification === 'unsigned', skipNotarization: qualification === 'unnotarized',
+    }).directory
+    : join(appRoot, '.desktop-build', 'targets', target, mode)
   const base = `QiLin-${version}-${windows ? 'win-x64' : target}`
   const debugSuffix = qualification === 'unnotarized' ? '-unnotarized' : qualification === 'unsigned' ? '-unsigned' : ''
   const names = windows ? [`${base}${debugSuffix}.exe`] : [`${base}${debugSuffix}.dmg`, `${base}${debugSuffix}.zip`]

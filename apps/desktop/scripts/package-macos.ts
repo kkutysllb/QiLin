@@ -31,6 +31,8 @@ export interface MacOSArtifactRequest {
   readonly arch: 'arm64' | 'x64'
   readonly version: string
   readonly artifactsRoot: string
+  /** Directory that owns the temporary notarization copies; defaults beside the artifacts directory. */
+  readonly workRoot?: string
   readonly environment: NodeJS.ProcessEnv
 }
 
@@ -73,13 +75,13 @@ export async function packageMacOSArtifacts(
   build: (artifact: DesktopPrepackagedArtifact) => Promise<void>,
   apple: MacOSArtifactOperations = operations,
 ): Promise<void> {
-  const { arch, version, artifactsRoot, environment } = request
+  const { arch, version, artifactsRoot, workRoot, environment } = request
   const secrets = Object.entries(environment).filter(([name]) => /KEY|SECRET|TOKEN|PASSWORD|APPLE_ID/iu.test(name)).map(([, value]) => value ?? '')
   const expected = resolveMacOSSigningEnvironment(environment)
   const credentials = resolveMacOSNotarizationEnvironment(environment)
   const update = resolveDesktopAutoUpdateConfig(environment, 'darwin', arch)
   const appPath = join(artifactsRoot, arch === 'arm64' ? 'mac-arm64' : 'mac', 'QiLin Desktop.app')
-  const root = await mkdtemp(join(dirname(artifactsRoot), 'notarization-'))
+  const root = await mkdtemp(join(workRoot ?? dirname(artifactsRoot), 'notarization-'))
   const zipApp = join(root, 'zip', basename(appPath))
   const dmgApp = join(root, 'dmg', basename(appPath))
   const zipOutput = join(root, 'zip-artifacts')

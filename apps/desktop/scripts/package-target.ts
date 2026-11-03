@@ -398,11 +398,14 @@ async function main(): Promise<void> {
     else process.env.QILIN_DESKTOP_PACKAGING_RUN_DIR = previousDirectory
     run.finish(success)
   }
-  if (success && target.platform === 'darwin' && !invocation.directory && !invocation.prepareOnly) {
-    const paths = desktopTargetBuildPaths(target.name)
-    const output = desktopArtifactOutput(paths, invocation)
-    const filename = `QiLin-${buildVersion}-mac-${target.arch}${output.suffix}.dmg`
-    console.log(`DMG: ${join(output.directory, filename)}`)
+  // Final artifacts leave the checkout, so the run must state where they landed.
+  if (success && !invocation.prepareOnly) {
+    const output = desktopArtifactOutput(desktopTargetBuildPaths(target.name), invocation)
+    console.log(`ARTIFACTS: ${output.directory}`)
+    if (target.platform === 'darwin' && !invocation.directory) {
+      const filename = `QiLin-${buildVersion}-mac-${target.arch}${output.suffix}.dmg`
+      console.log(`DMG: ${join(output.directory, filename)}`)
+    }
   }
 }
 
@@ -510,6 +513,8 @@ export async function packageTarget(
       // electron-builder named these artifacts after the published version, so locating them uses the same identifier.
       version: resolveDesktopBuildVersion(environment, packageVersion(join(APP_ROOT, 'package.json'), 'desktop package')),
       artifactsRoot: buildPaths.artifacts,
+      // Copies and per-lane output staging are intermediates, so they stay in the checkout.
+      workRoot: buildPaths.root,
       environment: electronBuilderEnv,
     }, artifact => execute(desktopElectronBuilderArguments(target, false, artifact), electronBuilderEnv)), undefined, undefined, proxyEvent)
   } else if (target.platform === 'darwin' && !invocation.unsigned && !invocation.skipNotarization) {

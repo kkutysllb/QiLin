@@ -1,22 +1,22 @@
-import { join, sep } from 'node:path'
+import { homedir } from 'node:os'
+import { join, resolve, sep } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   desktopTargetBuildPaths,
   desktopTargetPlatform,
   developmentRuntimeDirectory,
+  resolveArtifactsRoot,
+  resolveDesktopArtifactsDirectory,
   resolveDesktopBuildTarget,
 } from '../scripts/desktop-build-paths.mjs'
 
 describe('desktop build paths', () => {
-  it('isolates every mutable build directory by complete target', () => {
-    const arm64 = desktopTargetBuildPaths('mac-arm64')
-    const x64 = desktopTargetBuildPaths('mac-x64')
-    const windows = desktopTargetBuildPaths('win-x64')
+  it('isolates every mutable preparation directory by complete target', () => {
+    const arm64 = desktopTargetBuildPaths('mac-arm64', {})
+    const x64 = desktopTargetBuildPaths('mac-x64', {})
+    const windows = desktopTargetBuildPaths('win-x64', {})
     const mutableKeys = [
       'root',
-      'artifacts',
-      'unsignedArtifacts',
-      'unnotarizedArtifacts',
       'runtime',
       'packageSet',
       'qilin',
@@ -30,9 +30,29 @@ describe('desktop build paths', () => {
     for (const key of mutableKeys) {
       expect(new Set([arm64[key], x64[key], windows[key]]).size).toBe(3)
     }
-    expect(arm64.artifacts).toContain(join('targets', 'mac-arm64', 'artifacts'))
+    expect(arm64.runtime).toContain(join('targets', 'mac-arm64', 'runtime'))
     expect(x64.qilin).toContain(join('targets', 'mac-x64', 'qilin'))
     expect(windows.runtime).toContain(join('targets', 'win-x64', 'runtime'))
+  })
+
+  it('writes every packaging mode into the shared product artifacts directory', () => {
+    const expected = join(homedir(), 'kk_Projects', '.artifacts', 'QiLin')
+    for (const target of ['mac-arm64', 'mac-x64', 'win-x64'] as const) {
+      const paths = desktopTargetBuildPaths(target, {})
+      expect(paths.artifacts).toBe(expected)
+      expect(paths.unsignedArtifacts).toBe(expected)
+      expect(paths.unnotarizedArtifacts).toBe(expected)
+    }
+    expect(resolveDesktopArtifactsDirectory({})).toBe(expected)
+  })
+
+  it('overrides the artifacts root with KK_ARTIFACTS_ROOT', () => {
+    expect(resolveArtifactsRoot({})).toBe(join(homedir(), 'kk_Projects', '.artifacts'))
+    expect(resolveArtifactsRoot({ KK_ARTIFACTS_ROOT: '/tmp/artifacts-test' })).toBe(resolve('/tmp/artifacts-test'))
+    expect(resolveDesktopArtifactsDirectory({ KK_ARTIFACTS_ROOT: '/tmp/artifacts-test' }))
+      .toBe(join(resolve('/tmp/artifacts-test'), 'QiLin'))
+    expect(desktopTargetBuildPaths('mac-arm64', { KK_ARTIFACTS_ROOT: '/tmp/artifacts-test' }).artifacts)
+      .toBe(join(resolve('/tmp/artifacts-test'), 'QiLin'))
   })
 
   it('shares only the immutable upstream download cache', () => {

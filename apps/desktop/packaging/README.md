@@ -15,6 +15,7 @@ Build Desktop installers locally or through Windows or macOS Actions, choose dep
 - [Choose a build path](#choose-a-build)
 - [Release versions](#release-versions)
 - [Configuration and local builds](#configuration-and-local-builds)
+- [Build artifacts directory](#build-artifacts-directory)
 - [Windows Actions packaging](#windows-actions)
 - [macOS self-hosted packaging](#macos-actions)
 - [Unsigned Windows test installer](#unsigned-windows-test-installer)
@@ -97,7 +98,15 @@ The macOS arm64 command requires Apple Silicon. The macOS x64 command runs on In
 
 Both release and local unsigned macOS DMGs use LZMA compression (`dmg.format: 'ULMO'`) in [the electron-builder configuration](../scripts/electron-builder-config.mjs). A [build-time patch](../../../patches/app-builder-lib@26.17.0.patch) adds this format to the pinned builder's validation and TypeScript declarations.
 
-Each target owns its packed package inputs, prepared runtime, package set, qilin tree, pnpm preparation state, unpacked application, update metadata, and final artifacts under `apps/desktop/.desktop-build/targets/<target>/`. The Electron archive cache remains shared under `.desktop-build/downloads` because every archive name includes its version, platform, and architecture and is verified before extraction. A target build never consumes another target's mutable preparation state.
+Each target owns its packed package inputs, prepared runtime, package set, qilin tree, and pnpm preparation state under `apps/desktop/.desktop-build/targets/<target>/`; its final artifacts leave the checkout for the shared [artifacts directory](#build-artifacts-directory). The Electron archive cache remains shared under `.desktop-build/downloads` because every archive name includes its version, platform, and architecture and is verified before extraction. A target build never consumes another target's mutable preparation state.
+
+<a id="build-artifacts-directory"></a>
+
+## Build artifacts directory
+
+Final release artifacts are written outside the checkout to `~/kk_Projects/.artifacts/QiLin/`: DMG, ZIP, EXE, AppImage, DEB, the `--dir` application bundle, `latest*.yml` update metadata, blockmaps, and the release completion record. One product owns one fixed directory; version, target, architecture, and packaging mode stay in the file name (`QiLin-<version>-mac-<arch>-unsigned.dmg`) instead of adding a version level, and electron-builder keeps its own `<platform-arch>` directory for the unpacked application inside it. Set `KK_ARTIFACTS_ROOT` to move the shared root — `KK_ARTIFACTS_ROOT=/tmp/artifacts-test` resolves to `/tmp/artifacts-test/QiLin/` — and otherwise the root is `$HOME/kk_Projects/.artifacts`. [`scripts/desktop-build-paths.mjs`](../scripts/desktop-build-paths.mjs) resolves both values in one place, and a completed package command prints `ARTIFACTS:` with the absolute directory. Packed inputs, prepared runtime, package set, qilin tree, notarization copies, packaging runs, and the Electron cache are intermediates and remain under `apps/desktop/.desktop-build/`.
+
+Keep the shared root out of Spotlight and launch installed applications from `/Applications`, never from the artifacts directory: application bundles collected in a checkout or a home directory are what make macOS LaunchServices register duplicate icons. Retention of older builds and unregistering removed copies follow the shared `.artifacts` convention.
 
 <a id="windows-actions"></a>
 
@@ -120,7 +129,7 @@ Run `node apps/desktop/scripts/setup-macos-packaging.mjs "$HOME/dsh-ci"` to prep
 Run `bash apps/desktop/scripts/start-macos-packaging-runner.sh "$HOME/dsh-ci/runner" "$HOME/dsh-ci/packaging" <absolute-node-24-bin-directory> --check` to check the host tools and configuration files. The script selects the active Xcode and its macOS SDK together and compiles a small linker probe. After registration, omit `--check` to run in the foreground with a cleared inherited environment and prevent idle sleep while the runner is alive. Stop it with Ctrl-C before installing the service below. The runner owns its `_work` checkout, separate from daily development. The account can read its signing files, so run only trusted code. The existing notarization proxy restoration rules apply; after forced termination, inspect retained recovery records before another build. New setup templates set `QILIN_DESKTOP_MACOS_SIGNATURE_CACHE_DIR` to the absolute `cache/macos-signatures` directory outside checkout. For existing installations, rerun setup and add that field to each preset; existing files are preserved. This retains signatures across clean checkouts; cache verification and limits are described under [macOS signing](#macos-release-signing).
 
 
-The `skip_notarization` workflow option defaults to `false`; the equivalent CLI flag is `--skip-notarization`. It retains Developer ID signing, DMG signature verification and packaged-runtime verification, but omits Apple notarization and stapling and does not require Apple notarization credentials. DMG/ZIP filenames carry `-unnotarized`, are stored under `.desktop-build/targets/<target>/unnotarized-artifacts/`, and are uploaded with an `unnotarized-debug` label. These artifacts are for internal debugging only: Gatekeeper may block downloaded copies, and they are not qualified for distribution or update publishing. No release completion record is written. The flag rejects unsigned, Windows and preparation-only builds.
+The `skip_notarization` workflow option defaults to `false`; the equivalent CLI flag is `--skip-notarization`. It retains Developer ID signing, DMG signature verification and packaged-runtime verification, but omits Apple notarization and stapling and does not require Apple notarization credentials. DMG/ZIP filenames carry `-unnotarized`, are stored under `~/kk_Projects/.artifacts/QiLin/`, and are uploaded with an `unnotarized-debug` label. These artifacts are for internal debugging only: Gatekeeper may block downloaded copies, and they are not qualified for distribution or update publishing. No release completion record is written. The flag rejects unsigned, Windows and preparation-only builds.
 
 Install the user service from the checkout as the same account that registered the runner, without `sudo`:
 
@@ -142,7 +151,7 @@ On Windows x64, use the complete unsigned packaging command for local installati
 pnpm run package:desktop:win:x64:unsigned
 ```
 
-The command reads `.env.windows` and requires `QILIN_DESKTOP_APP_ID` and the [mandatory-update policy settings](../README.md#mandatory-update-policy), including a real HTTPS service origin. The local run and CI use Node 24; the remaining tools are the root `packageManager` version of pnpm, Git, PowerShell, tar, Python, Visual C++ Build Tools and a Windows SDK. Set `PYTHON` when Python is absent from `PATH`. It writes the installer to `.desktop-build/targets/win-x64/unsigned-artifacts/`, omits ordinary automatic-update configuration, strips signing credentials, and creates no release completion record. EV and upload credentials are unnecessary. Signed packaging and upload retain their release requirements.
+The command reads `.env.windows` and requires `QILIN_DESKTOP_APP_ID` and the [mandatory-update policy settings](../README.md#mandatory-update-policy), including a real HTTPS service origin. The local run and CI use Node 24; the remaining tools are the root `packageManager` version of pnpm, Git, PowerShell, tar, Python, Visual C++ Build Tools and a Windows SDK. Set `PYTHON` when Python is absent from `PATH`. It writes the installer to `~/kk_Projects/.artifacts/QiLin/`, omits ordinary automatic-update configuration, strips signing credentials, and creates no release completion record. EV and upload credentials are unnecessary. Signed packaging and upload retain their release requirements.
 
 Run `pnpm install --frozen-lockfile`, then `pnpm run package:desktop:win:x64:unsigned --check` to validate configuration and tooling before the full command above. Packaging performs its own complete build and isolated runtime smoke without an online model. Stage logs remain under `.desktop-build/packaging-runs/`; a successful build alone does not qualify the installer. Dependency installation and runtime preparation need access to npm, GitHub release assets and nodejs.org; use the existing registry and proxy configuration when the network requires it. Caches and tool locations belong to the build machine, not tracked personal paths.
 
@@ -157,7 +166,7 @@ pnpm run package:desktop:mac:arm64:unsigned
 pnpm run package:desktop:mac:x64:unsigned
 ```
 
-Add `--check` to validate local configuration and tools without building, or `--dir` to stop at the unpacked application. The DMG is `apps/desktop/.desktop-build/targets/<target>/unsigned-artifacts/QiLin-<version>-mac-<arch>-unsigned.dmg`. After all checks pass, the command prints `DMG:` followed by its absolute path. Open it and copy the application to a local test directory.
+Add `--check` to validate local configuration and tools without building, or `--dir` to stop at the unpacked application. The DMG is `~/kk_Projects/.artifacts/QiLin/QiLin-<version>-mac-<arch>-unsigned.dmg`. After all checks pass, the command prints `ARTIFACTS:` for the directory and `DMG:` followed by the artifact's absolute path. Open it and copy the application to a local test directory.
 
 These commands ignore `.env.macos` and inherited release settings, use `com.qilin.desktop` as the app ID, and omit automatic-update and mandatory-update configuration. Build tools, standard network proxies, and `QILIN_DESKTOP_NPM_REGISTRY` remain available from the shell. They skip Developer ID signing, Apple notarization, temporary signing keychains, and notarization proxy changes. Electron receives a local ad-hoc signature without certificates so the modified executable can run; the DMG is unsigned. Both preparation and the assembled application still run runtime integrity and smoke checks. Local builds omit update feeds, ZIPs, and release completion records, and the upload commands cannot publish them. macOS may require approval in System Settings → Privacy & Security to open an unnotarized application.
 
