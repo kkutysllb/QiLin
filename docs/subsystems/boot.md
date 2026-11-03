@@ -203,7 +203,8 @@ Manage profile files and apply their declared reload lifecycle.
 /**
  * Install a package using the same pnpm implementation as qilin plugin. GitHub
  * repositories get a connection check bounded by githubConnectionTimeoutMs before pnpm starts;
- * only network failures or timeouts stop installation, while pnpm owns authentication and transport fallback. A run
+ * only network failures or timeouts stop installation, and a stop streams the check's diagnostic
+ * as the installation's install-log run under its request id, while pnpm owns authentication and transport fallback. A run
  * that fails, is cancelled, or adds a package without a bundle patch restores
  * `package.json` and `pnpm-lock.yaml` as they were; downloaded files can stay.
  * @param spec One package spec, including local paths relative to the invocation directory.
@@ -397,11 +398,11 @@ Source: [`packages/boot/plugin-manager/src/types.ts`](../../packages/boot/plugin
 
 #### `plugin-manager/install-log` — emit
 
-One chunk of a pnpm run's output, streamed as the run produces it.
+One chunk of an installation run's output, streamed as the run produces it.
 
 ```ts cordis-catalog
 /**
- * One chunk of a pnpm run's output, streamed as the run produces it.
+ * One chunk of an installation run's output, streamed as the run produces it.
  * @mode emit
  * @param chunk - the chunk and the run it belongs to.
  */

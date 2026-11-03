@@ -108,6 +108,13 @@ const GROUP_ORDER = [
 
 const SERVICE_ROLES: ServiceRole[] = [
   {
+    key: 'sessionLogDeepSeek',
+    pkg: 'session-log-deepseek',
+    title: 'DeepSeek canonical Session-log upload',
+    mode: 'core',
+    note: 'Records the lossless canonical Session-log suffix and lets owners exclude individual uploads from one request.',
+  },
+  {
     key: 'hmr',
     pkg: 'hmr',
     title: 'Serialized module and configuration reloads',

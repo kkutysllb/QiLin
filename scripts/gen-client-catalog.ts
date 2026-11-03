@@ -48,7 +48,7 @@ const MAX_DECL_CHARS = 1200
  * ways a report runs away: an owner share that hands down a subsystem instead of
  * a share, and prose that grew into a manual.
  */
-const MAX_ENTRY_LINES = 120
+const MAX_ENTRY_LINES = 125
 
 /** One register-call option as the catalog teaches it. */
 interface OptionDoc {

@@ -15,6 +15,7 @@ import AgentRegistry from '@qilin-agent/agent'
 import type { Agent } from '@qilin-agent/agent'
 import { createScope } from '@qilin-agent/scope'
 import SessionStore, { SessionId } from '@qilin-agent/session'
+import ScheduleService from '@qilin-agent/schedule'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import SqliteSessionQueryEngine from '@qilin-agent/session-query-sqlite'
 import GoalService from '@qilin-agent/goal'
@@ -459,14 +460,15 @@ const TOOL_PACKAGES: ToolPackage[] = [
     pkg: '@qilin-agent/tool-schedule',
     dir: 'tool-schedule',
     source: 'packages/schedule/tool-schedule/src/index.ts',
-    requires: ['ctx.tools', 'ctx.schedule'],
+    requires: ['ctx.tools', 'ctx.schedule', 'ctx.systemPrompt'],
     writes: ['tool/call', 'Schedule storage domain create, update, or delete', 'tool/result'],
     async mount(ctx) {
       await ctx.plugin(SessionStore)
       // Schema harvest never dispatches a reminder operation; every method refuses.
       const refused = () => Promise.reject(new Error('gen-tool-catalog: Schedule operations are unreachable during schema harvest'))
       ctx.provide('schedule', {
-        create: refused, list: refused, update: refused, delete: refused, catalog: refused,
+        deliveryLimits: () => ({ newSessionIntervalSeconds: ScheduleService.Config({}).newSessionIntervalSeconds }),
+        create: refused, list: refused, view: refused, edit: refused, catalog: refused,
       } as never)
       const session = ctx.sessions.create(SessionId('tool-catalog-schedule'))
       const agent = { id: session.id, session } as Agent
@@ -476,10 +478,10 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
     scope: ctx => catalogChildScopes.get(ctx) as Agent,
     note:
-      'Mounted by the presets that carry it; every call acts on the calling Agent\'s Session and a '
-      + 'delegated child is refused. Accepts after_seconds, explicit absolute at, bounded fixed-rate '
-      + 'every_seconds, daily and weekly local times in an explicit IANA zone, and cron as a '
-      + 'five-field expression. Management uses the Host storage domain; due messages resume the original Session.',
+      'A preset or Agent scope mounts this package and decides which agents receive its tools. '
+      + 'Management reads and writes Host tasks by id across Sessions. '
+      + 'Tasks store an RFC 5545 recurrence and an existing, first-created-and-reused, or per-run-new Session target. '
+      + 'Delegated subagents cannot call these tools.',
   },
   {
     pkg: '@qilin-agent/tool-lsp',

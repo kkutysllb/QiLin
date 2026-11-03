@@ -50,6 +50,7 @@ export { REGION_BEGIN, REGION_END }
  * errors, so the partition can never silently drift from the service API.
  */
 export const SERVICE_PAGE: Record<string, string> = {
+  sessionLogDeepSeek: 'session-telemetry.md',
   configEditor: 'settings.md',
   connection: 'web-server.md',
   themeBoot: 'web-server.md',
@@ -224,6 +225,7 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
  * {@link EVENT_WALK_EXEMPTIONS} names each one with its documentation owner.
  */
 export const EVENT_SCOPE_PAGE: Record<string, string> = {
+  'llm-pi-ai': 'llm-streaming.md',
   'app-boot': 'boot.md',
   hmr: 'boot.md',
   'plugin-manager': 'boot.md',
@@ -845,6 +847,19 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   SessionLogReporter: 'otel.md',
   WorkflowRunInfo: 'workflow.md',
   WorkflowStartRequest: 'workflow.md',
+  PiAiRequestHeaderContext: 'llm-streaming.md',
+  PatchHunk: 'filesystem.md',
+  FsDeleteOutcome: 'filesystem.md',
+  FsMoveFileOutcome: 'filesystem.md',
+  ProjectionKeySelection: 'session-projection.md',
+  ScheduleListResult: 'schedule.md',
+  ScheduleViewRequest: 'schedule.md',
+  ScheduleViewResult: 'schedule.md',
+  ScheduleRunRequest: 'schedule.md',
+  ScheduleRunResult: 'schedule.md',
+  ScheduleEditRequest: 'schedule.md',
+  ScheduleEditResult: 'schedule.md',
+  ScheduleDeleteInactiveResult: 'schedule.md',
   ProjectionDefinition: 'session-projection.md',
   SessionProjectionMap: 'session-projection.md',
   SessionProjectionStateMap: 'session-projection.md',
@@ -893,6 +908,8 @@ export const FOUNDATION_TYPE_NAMES: ReadonlySet<string> = new Set([
   'Request',
   'Response',
   'IncomingMessage',
+  'Headers',
+  'ReadonlySet',
   'ServerResponse',
   'ReturnType',
   'Uint8Array',
@@ -900,6 +917,7 @@ export const FOUNDATION_TYPE_NAMES: ReadonlySet<string> = new Set([
 
 /** Project types deliberately documented outside the subsystems catalog. */
 export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
+  SessionLogUploadExclusion: 'packages/session/session-log-deepseek/README.md',
   ConnectionFetchHandler: 'shared Fetch dispatch is owned by packages/client/connection/src/rpc.ts',
   ConnectionRequestRejection: 'transport rejection status is owned by packages/client/connection/src/rpc.ts',
   ConnectionTrustRequest: 'transport authentication input is owned by packages/client/connection/src/rpc.ts',
@@ -1073,25 +1091,26 @@ export const CORDIS_CATALOG_POLICY: CordisCatalogPolicy = {
         jsDoc: '/** Return an async iterator of timer ticks. */',
       },
       {
-        signature: 'throttle<F extends (...args: any[]) => void>(callback: F, delay: number, noTrailing?: boolean): F & { dispose: () => void }',
+        signature: 'throttle<F extends (...args: any[]) => any>(callback: F, delay: number, noTrailing?: boolean): ((...args: Parameters<F>) => void) & { dispose: () => void }',
         jsDoc: '/** Return a throttled function whose timer is disposed with the current fiber. */',
       },
       {
-        signature: 'debounce<F extends (...args: any[]) => void>(callback: F, delay: number): F & { dispose: () => void }',
+        signature: 'debounce<F extends (...args: any[]) => any>(callback: F, delay: number): ((...args: Parameters<F>) => void) & { dispose: () => void }',
         jsDoc: '/** Return a debounced function whose timer is disposed with the current fiber. */',
       },
     ],
   }],
   inheritedEvents: [
-    { name: 'internal/plugin', summary: 'A plugin fiber was created.', source: 'vendor/cordis/src/events.ts:331' },
-    { name: 'internal/status', summary: 'A fiber changed lifecycle state.', source: 'vendor/cordis/src/events.ts:333' },
-    { name: 'internal/service', summary: 'Interception hook for a service binding (no core producer).', source: 'vendor/cordis/src/events.ts:341' },
-    { name: 'internal/update', summary: 'Waterfall: a fiber config update is being applied.', source: 'vendor/cordis/src/events.ts:343' },
-    { name: 'internal/config', summary: 'Waterfall: a fiber config is being resolved before validation.', source: 'vendor/cordis/src/events.ts:339' },
-    { name: 'internal/get', summary: 'Waterfall: a service is being read from the store.', source: 'vendor/cordis/src/events.ts:345' },
-    { name: 'internal/set', summary: 'Waterfall: a service is being written to the store.', source: 'vendor/cordis/src/events.ts:347' },
-    { name: 'internal/listener', summary: 'A listener was registered.', source: 'vendor/cordis/src/events.ts:349' },
-    { name: 'internal/dispatch', summary: 'An event is being dispatched to listeners.', source: 'vendor/cordis/src/events.ts:351' },
+    { name: 'internal/plugin', summary: 'A plugin fiber was created.', source: 'vendor/cordis/src/events.ts:337' },
+    { name: 'internal/status', summary: 'A fiber changed lifecycle state.', source: 'vendor/cordis/src/events.ts:339' },
+    { name: 'internal/service', summary: 'A service binding was refreshed in the matching isolation scope.', source: 'vendor/cordis/src/events.ts:341' },
+    { name: 'internal/update', summary: 'Waterfall: apply resolved config; omitting next() keeps the current instance.', source: 'vendor/cordis/src/events.ts:348' },
+    { name: 'internal/commit', summary: 'Persist raw config from a programmatic update unless noSave is set.', source: 'vendor/cordis/src/events.ts:355' },
+    { name: 'internal/config', summary: 'Waterfall: resolve a candidate after injections are active without publishing it.', source: 'vendor/cordis/src/events.ts:362' },
+    { name: 'internal/get', summary: 'Waterfall: a service is being read from the store.', source: 'vendor/cordis/src/events.ts:364' },
+    { name: 'internal/set', summary: 'Waterfall: a service is being written to the store.', source: 'vendor/cordis/src/events.ts:366' },
+    { name: 'internal/listener', summary: 'A listener was registered.', source: 'vendor/cordis/src/events.ts:368' },
+    { name: 'internal/dispatch', summary: 'An event is being dispatched to listeners.', source: 'vendor/cordis/src/events.ts:370' },
     { name: 'exit', summary: 'The process is exiting on a signal.', source: 'vendor/loader/src/index.ts:25' },
     { name: 'loader/config-update', summary: 'The loader config tree changed.', source: 'vendor/loader/src/index.ts:26' },
     { name: 'loader/entry-init', summary: 'A config entry is being initialized.', source: 'vendor/loader/src/index.ts:27' },
