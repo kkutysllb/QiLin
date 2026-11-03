@@ -292,4 +292,5 @@
 - 复验：sqlite 76 例（新增「未变更 live 会话不再 snapshotEvents」用例）；`session-query` + `session-controller` 58 文件 1124 例。
 - worker VFS 兼容：首版暂存用 `node:readline` + `createReadStream`，而 web worker 预览的内置模块表没有 `node:readline`，`searchSessions` 在预览里加载失败（`sessionController` 不可用，`preview-boot` 复现）。改为每会话一个 JSON 文件的目录布局，只用 `fs/promises`/`os`/`path`；`:memory:` 的暂存目录落在 worker VFS 的 `tmpdir()` 下。复验：`preview-boot.e2e` 通过。
 - VFS 示例预设：生成器仍写 `agentPreset: 'ptc'`，而提交的 V3 输入是 `standard`；折叠表回退后 `standard` 直通，恢复等价性分叉。生成器与两处断言改为 `standard`，V3 输入不动；`vfs-example-fixture` 5 例全绿。
-- 全量单测剩余红项只剩 `plugin-manager` 的三条私有仓库安装用例（需要网络与凭据，非代码问题）。
+- （已修，见下条）全量单测剩余红项只剩 `plugin-manager` 的三条私有仓库安装用例（需要网络与凭据，非代码问题）。
+- plugin-manager 三条私仓安装红项已修（2026-11-03 补记）：不是凭据问题——fixture 本就自包含（本地仓库 + `insteadOf` 重写 + 401 代理），真正原因是 desktop 带 pnpm 12.16.1 后不再「HTTPS 401 自动回退 SSH」。用例改按 pnpm 12 的 insteadOf 机制把三种传输形态的完整 URL 映射到本地仓库，代理断言改为「HTTPS 探测必经代理拦截」的隔离性质。全量单测红项清零。
