@@ -31,7 +31,9 @@
   "license": "MIT",
   "dependencies": {
     "diff": "^9.0.0",
-    "@qilin-agent/schemastery": "workspace:~"
+    "@qilin-agent/fs-patch": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
+    "@qilin-agent/util-values": "workspace:*"
   },
   "peerDependencies": {
     "@qilin-agent/attachment": "workspace:*",

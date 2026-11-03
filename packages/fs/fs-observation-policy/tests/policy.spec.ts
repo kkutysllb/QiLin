@@ -22,6 +22,10 @@ function writeIntent(ctx: Context, t: FsTarget, actor: object | undefined): Prom
 function editIntent(ctx: Context, t: FsTarget, actor: object | undefined): Promise<{ version: FsVersion } | undefined> {
   return ctx.waterfall('fs/edit-intent', t, actor, () => undefined)
 }
+/** Dispatch the delete-intent waterfall with the bare default thunk. */
+function deleteIntent(ctx: Context, t: FsTarget, actor: object | undefined): Promise<{ version: FsVersion } | undefined> {
+  return ctx.waterfall('fs/delete-intent', t, actor, () => undefined)
+}
 
 async function setup() {
   const ctx = new Context()
@@ -235,5 +239,21 @@ describe('disposal releases recorded state (HMR safety)', () => {
     await fiber.dispose()
     // With no listener, the waterfall falls through to the bare default.
     expect(await writeIntent(ctx, target('a.txt'), ownerExec({}))).toBeUndefined()
+  })
+})
+
+describe('delete-intent decision', () => {
+  it('rejects unseen and absent sources, returns a present version, and releases its listener on disposal', async () => {
+    const { ctx, fiber } = await setup()
+    const actor = ownerExec({})
+    const t = target('a')
+    try {
+      await expect(deleteIntent(ctx, t, actor)).rejects.toMatchObject({ code: 'FS_NOT_OBSERVED', message: 'delete requires reading "a" first' })
+      ctx.emit('fs/observed', t, absent, actor)
+      await expect(deleteIntent(ctx, t, actor)).rejects.toMatchObject({ code: 'FS_NOT_FOUND', message: 'cannot delete "a": not found' })
+      ctx.emit('fs/observed', t, present('v7'), actor)
+      expect(await deleteIntent(ctx, t, actor)).toEqual({ version: 'v7' })
+    } finally { await fiber.dispose() }
+    expect(await deleteIntent(ctx, t, actor)).toBeUndefined()
   })
 })

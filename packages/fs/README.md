@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The `fs/` group gives agents durable, policy-governed access to files: the `ctx.fs` service contract in `fs/`, the host-filesystem and sandbox-enforcing backends in `fs-local/` and `fs-sandbox/`, the read-before-edit policy in `fs-observation-policy/`, and the model-facing tools in `tool-fs/` (`read`, `read_image`, `write`, `edit`) and `tool-fs-search/` (`glob`, `grep`). A deployment mounts one backend, loads the policy for freshness-guarded mutations, and registers the tool packages the model should see; backends swap without touching the tools or the policy. File I/O takes no timeout by design: a deadline would kill work the OS still finishes, so cancellation is a best-effort signal at syscall boundaries.
+The `fs/` group gives agents policy-governed file access: the `ctx.fs` contract in `fs/`, a pure patch parser in `fs-patch/`, host and sandbox-enforcing backends in `fs-local/` and `fs-sandbox/`, the read-before-edit policy in `fs-observation-policy/`, and the tools in `tool-fs/` (`read`, `read_image`, `write`, `edit`, optional `apply_patch`) and `tool-fs-search/` (`glob`, `grep`). A deployment mounts one backend, optionally loads the policy for guarded mutations, and registers the tools the model should see; backends swap without touching them. File I/O takes no timeout by design: a deadline would kill work the OS still finishes, so cancellation is best-effort at syscall boundaries.
 
 ## Table of Contents
 
@@ -27,10 +27,11 @@ Seven packages play the filesystem roles; the subsystem reference owns the exhau
 | Package | Role | ctx key |
 |---|---|---|
 | [`fs/`](fs/README.md) | `ctx.fs` service contract: execution-world paths, bounded text I/O, and atomic mutations with an optional version guard | `ctx.fs` |
+| [`fs-patch/`](fs-patch/README.md) | Pure patch syntax and text-update library: parses Codex-style patch text and applies hunks to LF text without filesystem access | no service |
 | [`fs-local/`](fs-local/README.md) | Host-filesystem backend: reads, writes, and edits real files on the local machine | registers on `ctx.fs` |
 | [`fs-sandbox/`](fs-sandbox/README.md) | Sandbox-enforcing backend: fences writes and edits by the per-call sandbox mode while reads pass through | registers on `ctx.fs` |
 | [`fs-observation-policy/`](fs-observation-policy/README.md) | Read-before-edit policy: records observed presence or absence and guards write/edit through the `fs/*` events | `fs/*` listeners |
-| [`tool-fs/`](tool-fs/README.md) | Model-facing `read`, `read_image`, `write`, and `edit` tools plus their executor | registers on `ctx.tools` |
+| [`tool-fs/`](tool-fs/README.md) | Model-facing `read`, `read_image`, `write`, `edit`, and optional `apply_patch` tools plus their executor | registers on `ctx.tools` |
 | [`tool-fs-search/`](tool-fs-search/README.md) | Model-facing `glob` and `grep` discovery tools backed by the packaged ripgrep binary | registers on `ctx.tools` |
 | [`tool-str-replace-editor/`](tool-str-replace-editor/README.md) | Standalone `str_replace_editor` tool: `view`, `create`, `str_replace`, and `insert` over `ctx.fs` | registers on `ctx.tools` |
 

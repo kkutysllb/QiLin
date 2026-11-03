@@ -1,26 +1,21 @@
 /** Filesystem provider preserving remote identities and helper-owned atomic mutations. */
 import { posix } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { FileSystem, FsError } from '@qilin-agent/fs'
-import type { FsDirEntry, FsEditOutcome, FsEditRequest, FsErrorCode, FsInfo, FsMoveOutcome, FsPathInfo, FsRemoveOutcome, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin-agent/fs'
+import { FS_ERROR_CODES, FileSystem, FsError } from '@qilin-agent/fs'
+import type { FsDeleteOutcome, FsDirEntry, FsEditOutcome, FsEditRequest, FsErrorCode, FsInfo, FsMoveFileOutcome, FsMoveOutcome, FsPathInfo, FsRemoveOutcome, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin-agent/fs'
 import type { SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
 import type {} from '@qilin-agent/sandbox-policy'
 import type {} from '@qilin-agent/ssh'
 import { RemoteOperationError } from '@qilin-agent/ssh/protocol'
-import { editResultSchema, entriesSchema, infoSchema, pathInfoSchema, targetSchema, textStreamIdSchema, writeResultSchema } from '@qilin-agent/ssh/schemas'
+import { deleteResultSchema, moveResultSchema, editResultSchema, entriesSchema, infoSchema, pathInfoSchema, targetSchema, textStreamIdSchema, writeResultSchema } from '@qilin-agent/ssh/schemas'
 import { z } from 'zod'
 
-const errorCodes: Record<FsErrorCode, true> = {
-  FS_NOT_FOUND: true, FS_NOT_DIRECTORY: true, FS_NOT_TEXT: true, FS_NOT_REGULAR_FILE: true,
-  FS_NOT_EMPTY: true, FS_EXISTS: true,
-  FS_TOO_LARGE: true, FS_PERMISSION_DENIED: true, FS_SANDBOX_DENIED: true, FS_IO_ERROR: true,
-  FS_STALE_VERSION: true, FS_NOT_OBSERVED: true, FS_AMBIGUOUS_EDIT: true, FS_EDIT_NOT_FOUND: true, FS_ABORTED: true,
-}
+const errorCodes = new Set<string>(FS_ERROR_CODES)
 
 /** What the remote helper observed after removing a target. */
 const removeResultSchema = z.object({ directory: z.boolean() }).strict()
-/** What the remote helper observed after moving a target. */
-const moveResultSchema = z.object({ version: z.string().optional(), replaced: z.boolean() }).strict()
+/** What the remote helper observed after renaming a target. */
+const renameResultSchema = z.object({ version: z.string().optional(), replaced: z.boolean() }).strict()
 
 /** Remote filesystem paired with the SSH subprocess and sandbox providers. */
 export class SshFileSystem extends FileSystem {
@@ -114,6 +109,29 @@ export class SshFileSystem extends FileSystem {
     return await this.call('fs.edit', { target, edit, expected, policy }, editResultSchema, signal) as FsEditOutcome
   }
 
+  override async patchText(
+    target: FsTarget, hunks: Parameters<FileSystem['patchText']>[1], expected?: { version: FsVersion },
+    signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsEditOutcome> {
+    const policy = sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
+    return await this.call('fs.patch', { target, hunks, expected, policy }, editResultSchema, signal) as FsEditOutcome
+  }
+
+  override async deleteFile(
+    target: FsTarget, expected?: { version: FsVersion }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsDeleteOutcome> {
+    const policy = sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
+    return this.call('fs.delete', { target, expected, policy }, deleteResultSchema, signal)
+  }
+
+  override async moveFile(
+    source: FsTarget, destination: FsTarget, options: Parameters<FileSystem['moveFile']>[2],
+    signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsMoveFileOutcome> {
+    const policy = sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
+    return await this.call('fs.move', { source, destination, options, policy }, moveResultSchema, signal) as FsMoveFileOutcome
+  }
+
   override async remove(
     target: FsTarget, opts: { recursive: boolean }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy,
   ): Promise<FsRemoveOutcome> {
@@ -126,7 +144,7 @@ export class SshFileSystem extends FileSystem {
     signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy,
   ): Promise<FsMoveOutcome> {
     const policy = sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
-    return await this.call('fs.move', { from, to, overwrite: opts.overwrite, policy }, moveResultSchema, signal) as FsMoveOutcome
+    return await this.call('fs.rename', { from, to, overwrite: opts.overwrite, policy }, renameResultSchema, signal) as FsMoveOutcome
   }
 
   override async createDirectory(
@@ -138,7 +156,7 @@ export class SshFileSystem extends FileSystem {
 
   private async call<T>(method: string, params: unknown, schema: z.ZodType<T>, signal?: AbortSignal): Promise<T> {
     try { return await this.ctx.ssh.request(method, params, schema, signal) } catch (error) {
-      if (error instanceof RemoteOperationError && error.code !== undefined && Object.hasOwn(errorCodes, error.code)) {
+      if (error instanceof RemoteOperationError && error.code !== undefined && errorCodes.has(error.code)) {
         throw new FsError(error.message, error.code as FsErrorCode, { cause: error })
       }
       throw new FsError(error instanceof Error ? error.message : String(error), signal?.aborted ? 'FS_ABORTED' : 'FS_IO_ERROR', { cause: error })

@@ -4,6 +4,8 @@
  * @module @qilin-agent/fs-local
  */
 
+import { applyHunks } from '@qilin-agent/fs-patch'
+import type { PatchHunk } from '@qilin-agent/fs-patch'
 import { Context } from '@qilin-agent/kylin'
 import { constants as bufferConstants } from 'node:buffer'
 import { isAbsolute, relative, resolve, sep } from 'node:path'
@@ -11,10 +13,12 @@ import { pathToFileURL } from 'node:url'
 import z from '@qilin-agent/schemastery'
 import { FileSystem, FsError, FsVersion } from '@qilin-agent/fs'
 import type {
+  FsDeleteOutcome,
   FsDirEntry,
   FsEditOutcome,
   FsEditRequest,
   FsInfo,
+  FsMoveFileOutcome,
   FsMoveOutcome,
   FsPathInfo,
   FsRemoveOutcome,
@@ -36,6 +40,7 @@ import {
   readTextForDiff,
   readWholeBytes,
   readWholeText,
+  removeFile,
   removePath,
   resolveLocalTarget,
   restoreLineEndings,
@@ -94,20 +99,35 @@ export class LocalFileSystem extends FileSystem {
     this.config = resolved
   }
 
-  /** Run `op` with exclusive access to `targetKey` (FIFO per key). */
-  private async withLock<T>(targetKey: string, op: () => Promise<T>): Promise<T> {
-    const prior = this.locks.get(targetKey) ?? Promise.resolve()
-    const run = prior.then(op, op)
-    // Keep the chain alive but swallow this op's result/throw for the *next* waiter.
-    const tail = run.then(() => undefined, () => undefined)
-    this.locks.set(targetKey, tail)
-    try {
-      return await run
-    } finally {
-      if (this.locks.get(targetKey) === tail) {
-        this.locks.delete(targetKey)
+  /** Run one mutation under the same lock ordering as multi-target operations. */
+  private withLock<T>(targetKey: string, op: () => Promise<T>): Promise<T> {
+    return this.withLocks([targetKey], op)
+  }
+
+  /**
+   * Acquire distinct keys in lexical order, so two operations sharing keys
+   * serialize instead of deadlocking, and release inner locks before outer locks.
+   * @param keys - the target keys the operation touches.
+   * @param op - the critical section holding every key.
+   * @returns the operation's result.
+   */
+  private withLocks<T>(keys: readonly string[], op: () => Promise<T>): Promise<T> {
+    const ordered = [...new Set(keys)].sort()
+    const acquire = async (index: number): Promise<T> => {
+      const key = ordered[index]
+      if (key === undefined) return op()
+      const prior = this.locks.get(key) ?? Promise.resolve()
+      const run = prior.then(() => acquire(index + 1))
+      // Keep the chain alive but swallow this op's result/throw for the *next* waiter.
+      const tail = run.then(() => undefined, () => undefined)
+      this.locks.set(key, tail)
+      try {
+        return await run
+      } finally {
+        if (this.locks.get(key) === tail) this.locks.delete(key)
       }
     }
+    return acquire(0)
   }
 
   override async resolve(path: string, opts?: { cwd?: string; signal?: AbortSignal }): Promise<FsTarget> {
@@ -230,7 +250,7 @@ export class LocalFileSystem extends FileSystem {
       existing?.mode,
       signal,
       this.internals,
-      expected?.kind === 'createIfAbsent' ? { displayPath: target.displayPath } : undefined,
+      { displayPath: target.displayPath, createIfAbsent: expected?.kind === 'createIfAbsent' },
     )
     return probe(target.targetKey)
   }
@@ -303,7 +323,7 @@ export class LocalFileSystem extends FileSystem {
       const original = await readForEdit(target.targetKey, target.displayPath, signal)
       const edited = applyLiteralEdit(original.content, edit.oldString, edit.newString, edit.replaceAll, target.displayPath)
       const content = restoreLineEndings(edited.content, original.lineEndings)
-      await writeFileAtomic(target.targetKey, content, existing.mode, signal, this.internals)
+      await writeFileAtomic(target.targetKey, content, existing.mode, signal, this.internals, { displayPath: target.displayPath })
 
       const after = await probe(target.targetKey)
       return {
@@ -314,6 +334,112 @@ export class LocalFileSystem extends FileSystem {
         after: edited.content,
       }
     })
+  }
+
+  override async patchText(
+    target: FsTarget,
+    hunks: readonly PatchHunk[],
+    expected?: { version: FsVersion },
+    signal?: AbortSignal,
+  ): Promise<FsEditOutcome> {
+    return this.withLock(target.targetKey, async () => {
+      const existing = await this.requireFile(target, expected, 'patch')
+      const original = await readForEdit(target.targetKey, target.displayPath, signal)
+      const after = this.patchContent(target, original.content, hunks)
+      await writeFileAtomic(target.targetKey, restoreLineEndings(after, original.lineEndings), existing.mode, signal, this.internals,
+        { displayPath: target.displayPath })
+      return { version: this.versionAfterWrite(await probe(target.targetKey), target), before: original.content, after }
+    })
+  }
+
+  override async deleteFile(
+    target: FsTarget,
+    expected?: { version: FsVersion },
+    signal?: AbortSignal,
+  ): Promise<FsDeleteOutcome> {
+    return this.withLock(target.targetKey, async () => {
+      await this.requireFile(target, expected, 'delete')
+      const before = await readTextForDiff(target.targetKey, this.config.diffBasisMaxBytes, signal)
+      await this.internals.inspectBeforeMutation?.(target)
+      if (signal?.aborted) throw new FsError('delete aborted', 'FS_ABORTED')
+      await removeFile(target.targetKey, target.displayPath, this.internals)
+      return { before }
+    })
+  }
+
+  override async moveFile(
+    source: FsTarget,
+    destination: FsTarget,
+    options: Parameters<FileSystem['moveFile']>[2],
+    signal?: AbortSignal,
+  ): Promise<FsMoveFileOutcome> {
+    if (source.targetKey === destination.targetKey) {
+      throw new FsError(`cannot move "${source.displayPath}" to itself`, 'FS_SAME_TARGET')
+    }
+    return this.withLocks([source.targetKey, destination.targetKey], async () => {
+      const sourceInfo = await this.requireFile(source, options.expectedSource, 'move')
+      const existing = await this.writePrecondition(destination, options.expectedDestination)
+      const original = await readForEdit(source.targetKey, source.displayPath, signal)
+      const after = options.hunks === undefined ? original.content : this.patchContent(source, original.content, options.hunks)
+      const content = restoreLineEndings(after, original.lineEndings)
+      const before = existing && Buffer.byteLength(content, 'utf8') < this.config.diffBasisMaxBytes
+        ? await readTextForDiff(destination.targetKey, this.config.diffBasisMaxBytes, signal) : null
+      await this.internals.inspectBeforeMutation?.(source)
+      if (signal?.aborted) throw new FsError('move aborted', 'FS_ABORTED')
+      // After this checkpoint, complete both effects and report them even if cancellation arrives.
+      await writeFileAtomic(destination.targetKey, content, sourceInfo.mode, undefined, this.internals, {
+        displayPath: destination.displayPath,
+        createIfAbsent: options.expectedDestination?.kind === 'createIfAbsent',
+        existingDestination: existing !== null,
+      })
+      const outcome: FsWriteOutcome = {
+        operation: existing ? 'update' : 'create',
+        version: this.versionAfterWrite(await probe(destination.targetKey), destination), before, after,
+      }
+      const sourceBefore = Buffer.byteLength(original.content, 'utf8') < this.config.diffBasisMaxBytes ? original.content : null
+      try {
+        await removeFile(source.targetKey, source.displayPath, this.internals)
+      } catch (error) {
+        // removeFile maps I/O failures; unexpected defects must still reject.
+        if (!(error instanceof FsError)) throw error
+        return { sourceBefore, destination: outcome, sourceDeleted: false, sourceFailure: { code: error.code, message: error.message } }
+      }
+      return { sourceBefore, destination: outcome, sourceDeleted: true }
+    })
+  }
+
+  /**
+   * The state a locked source must be in before a patch, delete, or move reads it.
+   * @param target - the source being mutated, for failing-path diagnostics.
+   * @param expected - the caller's observed version, when it has one.
+   * @param verb - the operation name used in diagnostics.
+   * @returns the source's state before the mutation.
+   * @throws {FsError} `FS_STALE_VERSION` for an absent or changed source, `FS_NOT_REGULAR_FILE` for a non-file.
+   */
+  private async requireFile(target: FsTarget, expected: { version: FsVersion } | undefined, verb: string): Promise<PathInfo> {
+    const existing = await probe(target.targetKey)
+    if (!existing) throw new FsError(`cannot ${verb} "${target.displayPath}": file changed since it was read`, 'FS_STALE_VERSION')
+    if (existing.type !== 'file') throw new FsError(`cannot ${verb} "${target.displayPath}": not a regular file`, 'FS_NOT_REGULAR_FILE')
+    if (expected && existing.version !== expected.version) {
+      throw new FsError(`cannot ${verb} "${target.displayPath}": file changed since it was read`, 'FS_STALE_VERSION')
+    }
+    return existing
+  }
+
+  /**
+   * Apply parsed hunks to LF-normalized content.
+   * @param target - the file being patched, for failing-hunk diagnostics.
+   * @param before - the file's LF-normalized current text.
+   * @param hunks - ordered hunks from the patch parser.
+   * @returns the patched LF-normalized text.
+   * @throws {FsError} `FS_PATCH_MISMATCH` naming the failing hunk's patch line and stage.
+   */
+  private patchContent(target: FsTarget, before: string, hunks: readonly PatchHunk[]): string {
+    const result = applyHunks(before, hunks)
+    if (!result.ok) {
+      throw new FsError(`cannot patch "${target.displayPath}": hunk at patch line ${result.failure.hunkLineNumber} (${result.failure.stage}) does not match`, 'FS_PATCH_MISMATCH')
+    }
+    return result.after
   }
 
   override async remove(
@@ -342,12 +468,6 @@ export class LocalFileSystem extends FileSystem {
     signal?: AbortSignal,
   ): Promise<void> {
     return this.withLock(target.targetKey, () => createDirectoryPath(target, opts.recursive, signal))
-  }
-
-  /** Run `op` holding every listed key's lock, taking them in the given order. */
-  private withLocks<T>(targetKeys: readonly string[], op: () => Promise<T>): Promise<T> {
-    const [key, ...rest] = targetKeys
-    return key === undefined ? op() : this.withLock(key, () => this.withLocks(rest, op))
   }
 
   /* v8 ignore next 5 -- the post-write probe finding the file absent requires a

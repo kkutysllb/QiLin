@@ -35,10 +35,12 @@
   },
   "dependencies": {
     "koffi": "3.1.1",
+    "@qilin-agent/fs-patch": "workspace:*",
     "@qilin-agent/schemastery": "workspace:~"
   },
   "devDependencies": {
     "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/fs-patch": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   }

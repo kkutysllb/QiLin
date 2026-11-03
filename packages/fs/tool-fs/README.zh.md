@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用 `qilin-tool-fs` 可让模型带行号读取 UTF-8 文件、读取受支持的图片、创建或原子地替换文件，以及执行有针对性的字面量编辑。结果都有上限，失败会提供稳定错误码与恢复指令。当写入和编辑必须在成功读取后执行时，请添加 `qilin-fs-observation-policy`；省略它时，变更仍是原子的，但不受此条件约束。图片读取需要持久附件存储和支持图片输入的路由模型。glob 或 grep 搜索请选择同级的发现工具包。
+使用 `qilin-tool-fs` 可让模型带行号读取 UTF-8 文件、读取受支持的图片、创建或原子地替换文件、执行有针对性的字面量编辑，并在启用 `applyPatch` 时用一份 Codex 风格补丁跨文件应用改动。结果都有上限，失败会提供稳定错误码与恢复指令。当写入和编辑必须在成功读取后执行时，请添加 `qilin-fs-observation-policy`；省略它时，变更仍是原子的，但不受此条件约束。图片读取需要持久附件存储和支持图片输入的路由模型。glob 或 grep 搜索请选择同级的发现工具包。
 
 ## 目录
 
@@ -47,12 +47,13 @@ kind: "package-reference"
 | `read_image` | `file_path` | 读取并持久保存 PNG/JPEG/WebP/GIF 源图；无扩展名路径（包括规范化附件对象路径）按文件签名识别格式；规范化可在下一次模型请求前缩小图片，因此模型无需先创建缩略图 |
 | `write` | `file_path`、`content` | 创建或完整替换文件；有策略插件时，覆盖要求先在未变版本上执行 `read`，创建不需要 |
 | `edit` | `file_path`、`old_string`、`new_string`、`replace_all?` | 字面量替换，除非 `replace_all` 为 true 否则要求唯一匹配；有策略插件时，要求先执行 `read` 且文件未变 |
+| `apply_patch` | `input` | Codex 风格补丁文本，含 `*** Add File`、`*** Update File`（可带 `*** Move to`）与 `*** Delete File` 操作。整份补丁先被检查（语法、hunk 匹配、源观察）；被拒的补丁不产生任何改动，提交阶段则按顺序执行、在首个失败处停下且不回滚已完成的操作 |
 
 字段名使用 snake_case，与 Claude Code 和现有 harness 工具 schema 一致。成功返回紧凑信封——读取窗口、图像引用或 `Created file`/`Updated file` 确认——`write`/`edit` 还会派生可回放的 diff 卡片元数据供 UI 展示。
 
 ### 配置
 
-所有键均为可选。`read`、`readImage`、`write` 与 `edit` 四个开关默认均为 `true`；把开关设为 `false` 即可省略该工具及其指引。四个开关可以全部关闭。启用 `readImage` 仍需要附件存储与支持图像的模型。`read` 关闭时，读取上限仍会被校验。
+所有键均为可选。`read`、`readImage`、`write` 与 `edit` 四个开关默认均为 `true`；把开关设为 `false` 即可省略该工具及其指引。四个开关可以全部关闭。`applyPatch` 默认为 `false`，因此 `apply_patch` 及其指引只在组合显式启用时出现；QiLin 出厂的行保持关闭。启用 `readImage` 仍需要附件存储与支持图像的模型。`read` 关闭时，读取上限仍会被校验。
 
 | 键 | 默认值 | 含义 |
 |---|---|---|
@@ -150,13 +151,19 @@ Use the read tool — not shell commands like cat — to inspect text files. Res
 ##### Write 指导
 
 ```markdown
-Use the write tool to create files or completely replace file contents. Existing files are overwritten, so read an existing file first (the default fs-observation-policy requires it) and prefer edit for targeted changes.
+Use the write tool to create files or completely replace file contents. Existing files are overwritten, so read an existing file first and prefer edit for targeted changes.
 ```
 
 ##### Edit 指导
 
 ```markdown
-Use the edit tool for targeted changes to existing UTF-8 text files. It replaces literal old_string with new_string; by default old_string must appear exactly once. If old_string appears multiple times, provide a more specific old_string or set replace_all to true. Read the file first (the default fs-observation-policy requires it), unless you just created or edited it in this session.
+Use the edit tool for targeted changes to existing UTF-8 text files. It replaces literal old_string with new_string; by default old_string must appear exactly once. If old_string appears multiple times, provide a more specific old_string or set replace_all to true. Read the file first unless you just created or edited it in this session.
+```
+
+##### apply_patch 指导（仅在 `applyPatch: true` 时注册）
+
+```markdown
+Prefer apply_patch over separate edit calls for changes across files or separated regions. Give every hunk enough surrounding context lines to match one place in the current file. The whole patch is checked first (syntax, hunk matching, missing files) and a rejected patch changes nothing; once applying starts, operations run in order, stop at the first failure, and are not rolled back, so re-read affected files before retrying when needed.
 ```
 
 #### Token 影响
@@ -171,7 +178,7 @@ Use the edit tool for targeted changes to existing UTF-8 text files. It replaces
 
 #### 模型看到的内容
 
-模型会看到已生成的 [`read`、`read_image`、`write` 和 `edit` schema](../../../docs/tool-catalog.zh.md#qilin-agenttool-fs)，参数使用 snake_case。图片工具只在持久附件存储已挂载时出现；schema 本身与路由无关，严格门禁在执行时拒绝。作用域工具限制可以为某个 agent 移除任一定义。
+模型会看到已生成的 [`read`、`read_image`、`write`、`edit` 以及启用时的 `apply_patch` schema](../../../docs/tool-catalog.zh.md#qilin-agenttool-fs)，参数使用 snake_case。图片工具只在持久附件存储已挂载时出现；schema 本身与路由无关，严格门禁在执行时拒绝。作用域工具限制可以为某个 agent 移除任一定义。
 
 #### Token 影响
 

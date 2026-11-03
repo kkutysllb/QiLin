@@ -33,7 +33,9 @@ Pick [`fs-local`](../fs-local/README.md) for ordinary host files or [`fs-sandbox
 
 ### What the service lets you do
 
-Through `ctx.fs` you can resolve any path to a stable target identity, read a whole text file or stream it in chunks, read raw bytes up to an explicit cap, list one directory level, atomically create or replace a file, apply a literal text edit atomically, remove a file or a directory, move or rename an entry inside one backend, and create a directory (with its missing parents when asked). The version guard on file writes and edits is optional: omit it for unconditional create-or-overwrite, or supply it to fail when the file changed since you last observed it. Read, listing, and mutation failures are typed `FsError`s with stable codes such as `FS_NOT_FOUND`, `FS_STALE_VERSION`, or `FS_AMBIGUOUS_EDIT`, so callers branch on the code, never on message text.
+Through `ctx.fs` you can resolve any path to a stable target identity, read a whole text file or stream it in chunks, read raw bytes up to an explicit cap, list one directory level, atomically create or replace a file, apply a literal text edit atomically, apply parsed patch hunks atomically, delete one regular file, publish a file's text at a new destination and remove the source, remove a file or a directory, move or rename an entry inside one backend, and create a directory (with its missing parents when asked). The version guard on writes and edit-family mutations is optional: omit it for unconditional create-or-overwrite, or supply it to fail when the file changed since you last observed it. Read, listing, and mutation failures are typed `FsError`s with stable codes such as `FS_NOT_FOUND`, `FS_STALE_VERSION`, or `FS_AMBIGUOUS_EDIT`, so callers branch on the code, never on message text.
+
+`patchText`, `deleteFile`, and `moveFile` are the parsed-patch family: an unmatched hunk reports `FS_PATCH_MISMATCH`, a move whose two targets are the same identity reports `FS_SAME_TARGET`, and a move reports its published destination separately from source removal, so a retained source is a final outcome (`sourceDeleted: false` with `sourceFailure`) rather than a lost destination. `moveFile` is the patch-level move; the separate `move` primitive is the rename within one backend, and its result type is `FsMoveOutcome` (`FsMoveFileOutcome` is the patch-level one).
 
 `remove`, `move`, and `createDirectory` keep that vocabulary: an absent target is `FS_NOT_FOUND`, a directory removed without `recursive` while it still holds entries is `FS_NOT_EMPTY`, and a create or a move onto an entry that already exists is `FS_EXISTS`. A backend that cannot perform the move at all — a rename across filesystems, for instance — reports `FS_IO_ERROR` instead of copying the content.
 
@@ -53,7 +55,7 @@ This section explains the design decisions behind the contract and points at the
 
 The contract is built on one separation and three commitments:
 
-- **Contract over mechanism.** The service names what a storage layer can do — resolve, stat, read, list, watch, write, edit, remove, move, createDirectory — and never how it stores bytes. Backends own target identity, execution-world coordinates, decoding, binary rejection, and atomicity.
+- **Contract over mechanism.** The service names what a storage layer can do — resolve, stat, read, list, watch, write, edit, patch, delete, move, moveFile, createDirectory — and never how it stores bytes. Backends own target identity, execution-world coordinates, decoding, binary rejection, and atomicity.
 - **Policy stays off the base class.** Observed-state, read-before-edit, and version-guarded mutations are a plugin's job (`qilin-fs-observation-policy`), added by supplying the optional guard — so a sandboxed or remote backend inherits no model-facing observation policy.
 - **`editText` stays on the seam.** Version check, literal match, and atomic rewrite share one critical section, so error attribution and one-wins/one-stale concurrency stay correct; a remote backend may implement it as a native compare-and-edit.
 - **Bounds live at this seam.** `readBytes` requires `maxBytes` and fails with `FS_TOO_LARGE` rather than truncating, so no backend ever buffers an unbounded file. `readByteRange` is bounded by its window instead: a backend transfers at most the requested `length` beyond the prefix it skips, so the caller's cap on `length` is the guard.
@@ -63,7 +65,7 @@ The contract is built on one separation and three commitments:
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | Service definition: the abstract `FileSystem` class, the `ctx.fs` declaration, and the `fs/*` event vocabulary |
-| [`src/types.ts`](src/types.ts) | Vocabulary: `FsTarget`/`FsTargetKey`, `FsVersion`, `FsObservation`, `FsWriteIntent`, `FsRemoveOutcome`, `FsMoveOutcome`, `FsError` and its codes |
+| [`src/types.ts`](src/types.ts) | Vocabulary: `FsTarget`/`FsTargetKey`, `FsVersion`, `FsObservation`, `FsWriteIntent`, `FsRemoveOutcome`, `FsMoveOutcome`, `FsDeleteOutcome`, `FsMoveFileOutcome`, `FS_ERROR_CODES`, and `FsError` |
 
 ### How a call flows
 
@@ -71,7 +73,7 @@ Every ordinary operation starts with `resolve(path, { cwd })`, which produces a 
 
 ### The `fs/*` policy events
 
-The package declares three events so the emitter (`qilin-tool-fs`) and the policy listener (`qilin-fs-observation-policy`) share a vocabulary without the emitter depending on the policy plugin. `fs/write-intent` and `fs/edit-intent` are single-slot decision waterfalls: the first listener decides outright and never calls `next()`. `fs/observed` is a fire-and-forget recording event carrying an `FsObservation` — present with a version, or confirmed absent. The events carry only `qilin-fs` vocabulary plus an opaque `object` actor.
+The package declares four events so the emitter (`qilin-tool-fs`) and the policy listener (`qilin-fs-observation-policy`) share a vocabulary without the emitter depending on the policy plugin. `fs/write-intent`, `fs/edit-intent`, and `fs/delete-intent` are single-slot decision waterfalls: the first listener decides outright and never calls `next()`. `fs/observed` is a fire-and-forget recording event carrying an `FsObservation` — present with a version, or confirmed absent. The events carry only `qilin-fs` vocabulary plus an opaque `object` actor.
 
 ### Invariants
 

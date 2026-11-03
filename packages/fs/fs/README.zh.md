@@ -33,7 +33,9 @@ kind: "package-reference"
 
 ### 服务能做什么
 
-通过 `ctx.fs`，你可以把任意路径解析为稳定的目标身份、完整读取或分片流式读取文本文件、按显式上限读取原始字节、列出一层目录、原子地创建或替换文件、原子地应用字面量文本编辑、删除文件或目录、在同一后端内移动或重命名一个条目，以及新建目录（按需连同缺失的父目录）。文件写入与编辑上的版本防护是可选的：省略它即无条件创建或覆盖，提供它则在文件自上次观察以来发生变化时失败。读取、列出与变更操作的失败使用携带稳定错误码（如 `FS_NOT_FOUND`、`FS_STALE_VERSION`、`FS_AMBIGUOUS_EDIT`）的类型化 `FsError`，调用方依据错误码分支，绝不解析消息文本。
+通过 `ctx.fs`，你可以把任意路径解析为稳定的目标身份、完整读取或分片流式读取文本文件、按显式上限读取原始字节、列出一层目录、原子地创建或替换文件、原子地应用字面量文本编辑、原子地应用解析后的补丁 hunk、删除单个普通文件、把文件文本发布到新目标并移除源、删除文件或目录、在同一后端内移动或重命名一个条目，以及新建目录（按需连同缺失的父目录）。写入与编辑族变更上的版本防护是可选的：省略它即无条件创建或覆盖，提供它则在文件自上次观察以来发生变化时失败。读取、列出与变更操作的失败使用携带稳定错误码（如 `FS_NOT_FOUND`、`FS_STALE_VERSION`、`FS_AMBIGUOUS_EDIT`）的类型化 `FsError`，调用方依据错误码分支，绝不解析消息文本。
+
+`patchText`、`deleteFile` 与 `moveFile` 属于补丁族：hunk 不匹配报告 `FS_PATCH_MISMATCH`；移动的两端是同一身份时报告 `FS_SAME_TARGET`；移动把已发布的目标与源移除分开报告，因此源被保留是一个最终结果（`sourceDeleted: false` 加 `sourceFailure`），而不是目标丢失。`moveFile` 是补丁级移动；独立的 `move` 原语是同一后端内的重命名，其结果类型是 `FsMoveOutcome`（`FsMoveFileOutcome` 是补丁级的那一个）。
 
 `remove`、`move` 与 `createDirectory` 沿用同一套词汇：目标不存在是 `FS_NOT_FOUND`；未带 `recursive` 而目录仍有条目时删除是 `FS_NOT_EMPTY`；新建或移动落在一个已存在的条目上是 `FS_EXISTS`。后端根本无法执行该移动时——例如跨文件系统重命名——报告 `FS_IO_ERROR`，而不是改为复制内容。
 
@@ -53,7 +55,7 @@ kind: "package-reference"
 
 该约定建立在一个分离与三项承诺之上：
 
-- **约定高于机制。** 服务只命名存储层能做什么——解析、stat、读取、列出、监听、写入、编辑、删除、移动、新建目录——绝不规定如何存储字节。后端拥有目标身份、执行世界坐标、解码、二进制拒绝与原子性。
+- **约定高于机制。** 服务只命名存储层能做什么——解析、stat、读取、列出、监听、写入、编辑、打补丁、删除、移动、补丁级移动、新建目录——绝不规定如何存储字节。后端拥有目标身份、执行世界坐标、解码、二进制拒绝与原子性。
 - **策略不放在基类上。** 已观察状态、编辑前读取与版本防护的变更是插件（`qilin-fs-observation-policy`）的职责，通过提供可选防护来添加——因此沙箱化或远程后端不会继承任何面向模型的观察策略。
 - **`editText` 留在 seam 上。** 版本校验、字面量匹配与原子重写共享同一个临界区，错误归因与一方胜出/一方陈旧的并发语义因此保持正确；远程后端也可以将其实现为原生比较并编辑操作。
 - **界限制在此 seam 上。** `readBytes` 要求 `maxBytes`，并以 `FS_TOO_LARGE` 失败而不是截断，因此任何后端都不会无界缓冲文件。`readByteRange` 则以窗口为界：后端最多传输所请求的 `length` 字节（外加为到达 `offset` 而跳过的前缀），因此由调用方对 `length` 的上限承担防护。
@@ -63,7 +65,7 @@ kind: "package-reference"
 | 文件 | 职责 |
 |---|---|
 | [`src/index.ts`](src/index.ts) | 服务定义：抽象 `FileSystem` 类、`ctx.fs` 声明与 `fs/*` 事件词汇 |
-| [`src/types.ts`](src/types.ts) | 词汇：`FsTarget`/`FsTargetKey`、`FsVersion`、`FsObservation`、`FsWriteIntent`、`FsRemoveOutcome`、`FsMoveOutcome`、`FsError` 及其错误码 |
+| [`src/types.ts`](src/types.ts) | 词汇：`FsTarget`/`FsTargetKey`、`FsVersion`、`FsObservation`、`FsWriteIntent`、`FsRemoveOutcome`、`FsMoveOutcome`、`FsDeleteOutcome`、`FsMoveFileOutcome`、`FS_ERROR_CODES` 与 `FsError` |
 
 ### 调用流程
 
@@ -71,7 +73,7 @@ kind: "package-reference"
 
 ### `fs/*` 策略事件
 
-本包声明三个事件，使发出方（`qilin-tool-fs`）与策略监听器（`qilin-fs-observation-policy`）共享词汇，而无需让发出方依赖策略插件。`fs/write-intent` 与 `fs/edit-intent` 是单槽决策 waterfall（瀑布式事件）：第一个监听器直接决策，绝不调用 `next()`。`fs/observed` 是发后即忘的记录事件，携带 `FsObservation`——存在并带版本，或确认缺失。事件只携带 `qilin-fs` 词汇和一个不透明 `object` 参与者。
+本包声明四个事件，使发出方（`qilin-tool-fs`）与策略监听器（`qilin-fs-observation-policy`）共享词汇，而无需让发出方依赖策略插件。`fs/write-intent`、`fs/edit-intent` 与 `fs/delete-intent` 是单槽决策 waterfall（瀑布式事件）：第一个监听器直接决策，绝不调用 `next()`。`fs/observed` 是发后即忘的记录事件，携带 `FsObservation`——存在并带版本，或确认缺失。事件只携带 `qilin-fs` 词汇和一个不透明 `object` 参与者。
 
 ### 不变式
 

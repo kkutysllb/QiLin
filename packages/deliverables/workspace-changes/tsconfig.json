@@ -24,6 +24,9 @@
       "path": "../../core/tools"
     },
     {
+      "path": "../../fs/fs-patch"
+    },
+    {
       "path": "../../subprocess/subprocess"
     },
     {

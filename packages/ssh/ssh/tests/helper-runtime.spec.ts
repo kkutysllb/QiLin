@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { LocalSandboxProvider } from '@qilin-agent/sandbox-local'
 import { z } from 'zod'
 import { createHelperHarness as helper } from './fixtures/helper.ts'
-import { targetSchema, writeResultSchema, editResultSchema, infoSchema, entriesSchema } from '../src/schemas.ts'
+import { deleteResultSchema, moveResultSchema, targetSchema, writeResultSchema, editResultSchema, infoSchema, entriesSchema } from '../src/schemas.ts'
 
 
 const policy = (workspaceRoot: string) => ({ mode: 'workspace-write', workspaceRoot })
@@ -54,13 +54,31 @@ describe.skipIf(process.platform === 'win32')('SSH helper runtime', () => {
       const moveResult = z.object({ version: z.string().optional(), replaced: z.boolean() }).strict()
       expect(await test.client.request('fs.createDirectory', { target: directory, recursive: true, policy: policy(test.root) }, z.null())).toBeNull()
       expect(await test.client.request('fs.stat', { target: directory }, infoSchema)).toMatchObject({ type: 'directory' })
-      expect(await test.client.request('fs.move', { from: source, to: destination, overwrite: false, policy: policy(test.root) }, moveResult)).toMatchObject({ replaced: false })
+      expect(await test.client.request('fs.rename', { from: source, to: destination, overwrite: false, policy: policy(test.root) }, moveResult)).toMatchObject({ replaced: false })
       expect(await test.client.request('fs.stat', { target: source }, z.null())).toBeNull()
       expect(await test.client.request('fs.readText', { target: destination }, z.string())).toBe('first')
       expect(await test.client.request('fs.remove', { target: destination, recursive: false, policy: policy(test.root) }, removeResult)).toEqual({ directory: false })
       expect(await test.client.request('fs.remove', { target: directory, recursive: true, policy: policy(test.root) }, removeResult)).toEqual({ directory: true })
       await expect(test.client.request('fs.remove', { target: destination, recursive: false, policy: policy(test.root) }, z.unknown())).rejects.toMatchObject({ code: 'FS_NOT_FOUND' })
       await expect(test.client.request('fs.createDirectory', { target: directory, recursive: false, policy: { mode: 'read-only', workspaceRoot: test.root } }, z.unknown())).rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
+    } finally { await test.close() }
+  })
+
+  it('patches, deletes, and moves files with independent guards under the call policy', async () => {
+    const test = await helper()
+    try {
+      await writeFile(`${test.root}/a.txt`, 'old\n')
+      const source = await test.client.request('fs.resolve', { path: 'a.txt' }, targetSchema)
+      const hunks = [{ lineNumber: 3, oldLines: ['old'], newLines: ['patched'], isEndOfFile: false }]
+      const patched = await test.client.request('fs.patch', { target: source, hunks, policy: policy(test.root) }, editResultSchema)
+      expect(patched).toMatchObject({ before: 'old\n', after: 'patched\n' })
+      expect(await test.client.request('fs.readText', { target: source }, z.string())).toBe('patched\n')
+      const destination = await test.client.request('fs.resolve', { path: 'b.txt' }, targetSchema)
+      expect(await test.client.request('fs.move', { source, destination, options: {}, policy: policy(test.root) }, moveResultSchema)).toMatchObject({ sourceDeleted: true, destination: { after: 'patched\n' }, sourceBefore: 'patched\n' })
+      await expect(test.client.request('fs.readText', { target: source }, z.string())).rejects.toMatchObject({ code: 'FS_NOT_FOUND' })
+      expect(await test.client.request('fs.delete', { target: destination, policy: policy(test.root) }, deleteResultSchema)).toEqual({ before: 'patched\n' })
+      await expect(test.client.request('fs.delete', { target: destination, policy: policy(test.root) }, deleteResultSchema)).rejects.toMatchObject({ code: 'FS_STALE_VERSION' })
+      await expect(test.client.request('fs.patch', { target: destination, hunks, policy: { mode: 'read-only', workspaceRoot: test.root } }, editResultSchema)).rejects.toMatchObject({ code: 'FS_SANDBOX_DENIED' })
     } finally { await test.close() }
   })
 

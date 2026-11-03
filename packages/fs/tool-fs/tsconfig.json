@@ -28,6 +28,12 @@
       "path": "../fs"
     },
     {
+      "path": "../fs-patch"
+    },
+    {
+      "path": "../../util/values"
+    },
+    {
       "path": "../fs-observation-policy"
     },
     {

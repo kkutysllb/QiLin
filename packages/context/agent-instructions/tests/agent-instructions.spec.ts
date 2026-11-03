@@ -208,6 +208,9 @@ class RecordingFileSystem extends FileSystem {
     return { version: FsVersion('unused'), before: '', after: '' }
   }
 
+  override async patchText(): Promise<never> { throw new Error('not needed in instruction tests') }
+  override async deleteFile(): Promise<never> { throw new Error('not needed in instruction tests') }
+  override async moveFile(): Promise<never> { throw new Error('not needed in instruction tests') }
   override async remove(): Promise<never> { throw new Error('not needed in instruction tests') }
   override async move(): Promise<never> { throw new Error('not needed in instruction tests') }
   override async createDirectory(): Promise<never> { throw new Error('not needed in instruction tests') }

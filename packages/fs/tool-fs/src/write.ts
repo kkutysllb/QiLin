@@ -65,7 +65,7 @@ export function applyWriteTool(ctx: Context, sandbox: FsSandboxController): void
     order: ctx.systemPrompt.getSectionOrder('TOOL_WRITE'),
     text: ({ scope }) => ctx.tools.get('write', scope) === undefined
       ? ''
-      : 'Use the write tool to create files or completely replace file contents. Existing files are overwritten, so read an existing file first (the default fs-observation-policy requires it)'
+      : 'Use the write tool to create files or completely replace file contents. Existing files are overwritten, so read an existing file first'
         + (ctx.tools.get('edit', scope) === undefined ? '' : ' and prefer edit for targeted changes')
         + '.',
   })

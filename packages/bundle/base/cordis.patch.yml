@@ -291,11 +291,18 @@
     - id: sidebar-opens
       name: '@qilin-agent/sidebar-opens'
 
+    # Shipped compositions mount the file tools without the read-before-write
+    # policy: guarded mutations stay the provider's own guarantee, while the
+    # policy remains an opt-in plugin for deployments that want it.
     - id: fs-observation-policy
       name: '@qilin-agent/fs-observation-policy'
+      disabled: true
 
     - id: tool-fs
       name: '@qilin-agent/tool-fs'
+      config:
+        # Set true to add the apply_patch tool beside edit.
+        applyPatch: false
 
     - id: tool-fs-search
       name: '@qilin-agent/tool-fs-search'

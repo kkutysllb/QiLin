@@ -9,8 +9,8 @@
   en: 72e25dc4f025f0f1
   zh: 59561b3144e79238
 /qilin-agent-tool-fs/summary:
-  en: dc545d37d2e8fcc9
-  zh: bbe3e2a2c0217129
+  en: 670ba1c64cdbc7fc
+  zh: ab1f8f2927fdfca7
 /qilin-agent-tool-fs/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -21,11 +21,11 @@
   en: eb21d89a3ecbd2d4
   zh: f05ccbb1e7515f32
 /qilin-agent-tool-fs/use-this-package/the-tools:
-  en: e70e0164411016b5
-  zh: 3fa6caa8f3d70552
+  en: d61b4476dc64203e
+  zh: e4ce53db68d70551
 /qilin-agent-tool-fs/use-this-package/configuration:
-  en: 6793a31cbf9b3d69
-  zh: 5878f5ea7514a50b
+  en: 14acb4bea7fac461
+  zh: 1e925e514a8479d9
 /qilin-agent-tool-fs/use-this-package/policy-and-sandbox-behavior:
   en: 245b4be79ea4cc6b
   zh: ff15b41e778fadab
@@ -68,6 +68,9 @@
 /qilin-agent-tool-fs/model-experience/system-prompt/what-the-model-sees/edit-guidance:
   en: 28f07502a411303b
   zh: 437897dc99fc4360
+/qilin-agent-tool-fs/model-experience/system-prompt/what-the-model-sees/apply-patch-guidance-registered-only-with-applypatch-true:
+  en: 2d104f952af8129f
+  zh: 190a4c64fba67386
 /qilin-agent-tool-fs/model-experience/system-prompt/token-effect:
   en: 7a44cabe439a879a
   zh: 1adf9bf3de7658b6
@@ -78,8 +81,8 @@
   en: 3039bc5e7a796b21
   zh: 6b7a9eaf69c9ea53
 /qilin-agent-tool-fs/model-experience/tool-schemas/what-the-model-sees:
-  en: 1573cadc9800a26b
-  zh: 7a1c0581d738c04a
+  en: b110bcb188d5e971
+  zh: 3f5e41b5b5ac15a9
 /qilin-agent-tool-fs/model-experience/tool-schemas/token-effect:
   en: 68517f7d65ef7e9d
   zh: 544a4b81e8ea16c0

@@ -29,6 +29,9 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
+  "dependencies": {
+    "@qilin-agent/fs-patch": "workspace:*"
+  },
   "peerDependencies": {
     "@qilin-agent/brand": "workspace:*",
     "@qilin-agent/llm": "workspace:*",

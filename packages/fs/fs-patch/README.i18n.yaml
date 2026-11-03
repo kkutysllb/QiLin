@@ -1,0 +1,55 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/fs/fs-patch/README.md
+/:
+  en: 500cdc04ee1c2a90
+  zh: 57a6fbd03cc572a6
+/qilin-agent-fs-patch:
+  en: 6ea041aa9c53e97b
+  zh: c4248d1e55701752
+/qilin-agent-fs-patch/summary:
+  en: 614121759671f168
+  zh: 6fa4f51c4c783b4d
+/qilin-agent-fs-patch/table-of-contents:
+  en: 93787c26faea9f4a
+  zh: 791a5a37600955e2
+/qilin-agent-fs-patch/use-this-package:
+  en: 142b3b023512fc72
+  zh: a00db03caaa4209c
+/qilin-agent-fs-patch/compatibility:
+  en: 6e0e9218e6ff5301
+  zh: 230dedc70dc27760
+/qilin-agent-fs-patch/compatibility/parsing:
+  en: 06644a9c38f7d569
+  zh: 694491382a9291e8
+/qilin-agent-fs-patch/compatibility/matching-and-text-updates:
+  en: 7b009bb4ee0eadcb
+  zh: 1606965122af51ff
+/qilin-agent-fs-patch/understand-the-implementation:
+  en: 5e60c87076478199
+  zh: aa53947faf751697
+/qilin-agent-fs-patch/further-exploration:
+  en: 682c8c777193ff45
+  zh: 11a50096e46c5ac4
+/qilin-agent-fs-patch/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-fs-patch/model-experience/patch-match-diagnostics:
+  en: b26eb2d94a45179a
+  zh: 4552bbaac6a423e2
+/qilin-agent-fs-patch/model-experience/patch-match-diagnostics/what-the-model-sees:
+  en: 708b9cd799b88413
+  zh: cc4c93d66e68cbff
+/qilin-agent-fs-patch/model-experience/patch-match-diagnostics/token-effect:
+  en: 4e82ff1f0fe926bb
+  zh: d89e1a0b88f56c92
+/qilin-agent-fs-patch/model-experience/patch-match-diagnostics/kv-cache-effect:
+  en: 1d154f6439d88803
+  zh: 045cfa78f15e4097
+/qilin-agent-fs-patch/known-limitations-and-deferred-work:
+  en: b18ead2791224bc2
+  zh: b1ba2cae742504a6
+/qilin-agent-fs-patch/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: e88aeb617ffb74ea

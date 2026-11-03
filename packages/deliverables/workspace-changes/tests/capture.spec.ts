@@ -2,7 +2,7 @@
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { captureFile, mutationPath, sameCapture } from '../src/capture.ts'
+import { captureFile, mutationPaths, sameCapture } from '../src/capture.ts'
 import { scratchDir } from './support.ts'
 
 const cleanups: Array<() => Promise<unknown>> = []
@@ -44,23 +44,36 @@ describe('captureFile', () => {
   })
 })
 
-describe('mutationPath', () => {
+describe('mutationPaths', () => {
   it('names the path of write, edit, and mutating editor calls', () => {
-    expect(mutationPath('write', { file_path: 'a.txt', content: 'x' })).toBe('a.txt')
-    expect(mutationPath('edit', { file_path: 'a.txt', old_string: 'x', new_string: 'y' })).toBe('a.txt')
-    expect(mutationPath('str_replace_editor', { command: 'create', path: 'b.txt', file_text: 'b' })).toBe('b.txt')
-    expect(mutationPath('str_replace_editor', { command: 'str_replace', path: 'b.txt', old_str: 'b' })).toBe('b.txt')
-    expect(mutationPath('str_replace_editor', { command: 'insert', path: 'b.txt', insert_line: 1, new_str: 'i' })).toBe('b.txt')
+    expect(mutationPaths('write', { file_path: 'a.txt', content: 'x' })).toEqual(['a.txt'])
+    expect(mutationPaths('edit', { file_path: 'a.txt', old_string: 'x', new_string: 'y' })).toEqual(['a.txt'])
+    expect(mutationPaths('str_replace_editor', { command: 'create', path: 'b.txt', file_text: 'b' })).toEqual(['b.txt'])
+    expect(mutationPaths('str_replace_editor', { command: 'str_replace', path: 'b.txt', old_str: 'b' })).toEqual(['b.txt'])
+    expect(mutationPaths('str_replace_editor', { command: 'insert', path: 'b.txt', insert_line: 1, new_str: 'i' })).toEqual(['b.txt'])
+  })
+
+  it('names every apply_patch path, keeping both ends of a move in patch order', () => {
+    const patch = (...operations: string[]) => ['*** Begin Patch', ...operations, '*** End Patch'].join('\n')
+    expect(mutationPaths('apply_patch', { input: patch(
+      '*** Add File: added.txt', '+created',
+      '*** Update File: source.txt', '@@', '-old', '+new',
+      '*** Update File: moved.txt', '*** Move to: nested/target.txt', '@@', '-old', '+new',
+      '*** Delete File: gone.txt',
+    ) })).toEqual(['added.txt', 'source.txt', 'moved.txt', 'nested/target.txt', 'gone.txt'])
+    // A malformed patch changes nothing, so it captures nothing.
+    expect(mutationPaths('apply_patch', { input: 'invalid' })).toEqual([])
   })
 
   it('yields nothing for reads, unknown tools, and incomplete arguments', () => {
-    expect(mutationPath('write', undefined)).toBeUndefined()
-    expect(mutationPath('write', [])).toBeUndefined()
-    expect(mutationPath('read', { file_path: 'a.txt' })).toBeUndefined()
-    expect(mutationPath('write', { file_path: ' ', content: 'x' })).toBeUndefined()
-    expect(mutationPath('write', { file_path: 'a.txt' })).toBeUndefined()
-    expect(mutationPath('edit', { file_path: 'a.txt', old_string: 'x' })).toBeUndefined()
-    expect(mutationPath('str_replace_editor', { command: 'view', path: 'b.txt' })).toBeUndefined()
-    expect(mutationPath('str_replace_editor', { command: 'create', path: '' })).toBeUndefined()
+    expect(mutationPaths('write', undefined)).toEqual([])
+    expect(mutationPaths('write', [])).toEqual([])
+    expect(mutationPaths('read', { file_path: 'a.txt' })).toEqual([])
+    expect(mutationPaths('write', { file_path: ' ', content: 'x' })).toEqual([])
+    expect(mutationPaths('write', { file_path: 'a.txt' })).toEqual([])
+    expect(mutationPaths('edit', { file_path: 'a.txt', old_string: 'x' })).toEqual([])
+    expect(mutationPaths('str_replace_editor', { command: 'view', path: 'b.txt' })).toEqual([])
+    expect(mutationPaths('str_replace_editor', { command: 'create', path: '' })).toEqual([])
+    expect(mutationPaths('apply_patch', { input: '   ' })).toEqual([])
   })
 })

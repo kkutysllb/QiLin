@@ -7,6 +7,7 @@
 import { createHash } from 'node:crypto'
 import { mkdir, open, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { parsePatch, PatchParseError } from '@qilin-agent/fs-patch'
 
 /** Bytes git inspects for a NUL byte before treating content as binary. */
 const BINARY_PROBE_BYTES = 8000
@@ -89,24 +90,44 @@ function text(value: unknown): string | undefined {
 }
 
 /**
- * The path a first-party file-tool call is about to mutate: `write`, `edit`,
- * and the mutating `str_replace_editor` commands. Other tools, reads, and
- * incomplete arguments yield undefined.
+ * The paths a first-party file-tool call is about to mutate: `write`, `edit`,
+ * the mutating `str_replace_editor` commands, and every path a
+ * syntax-valid `apply_patch` addresses (both ends of a move). Other tools,
+ * reads, and incomplete arguments yield nothing.
  * @param name - wire tool name.
  * @param args - parsed call arguments.
- * @returns the model-facing path, or undefined.
+ * @returns the model-facing paths, empty when the call mutates no known path.
  */
-export function mutationPath(name: string, args: unknown): string | undefined {
-  if (typeof args !== 'object' || args === null || Array.isArray(args)) return undefined
+export function mutationPaths(name: string, args: unknown): string[] {
+  if (typeof args !== 'object' || args === null || Array.isArray(args)) return []
   const record = args as Record<string, unknown>
   switch (name) {
-    case 'write':
-      return typeof record.content === 'string' ? text(record.file_path) : undefined
-    case 'edit':
-      return typeof record.old_string === 'string' && typeof record.new_string === 'string' ? text(record.file_path) : undefined
-    case 'str_replace_editor':
-      return record.command === 'create' || record.command === 'str_replace' || record.command === 'insert' ? text(record.path) : undefined
+    case 'write': {
+      const path = typeof record.content === 'string' ? text(record.file_path) : undefined
+      return path === undefined ? [] : [path]
+    }
+    case 'edit': {
+      const path = typeof record.old_string === 'string' && typeof record.new_string === 'string' ? text(record.file_path) : undefined
+      return path === undefined ? [] : [path]
+    }
+    case 'str_replace_editor': {
+      const path = record.command === 'create' || record.command === 'str_replace' || record.command === 'insert' ? text(record.path) : undefined
+      return path === undefined ? [] : [path]
+    }
+    case 'apply_patch': {
+      if (typeof record.input !== 'string' || record.input.trim() === '') return []
+      try {
+        return parsePatch(record.input).flatMap(operation =>
+          operation.kind === 'update' && operation.moveTo !== undefined
+            ? [operation.path, operation.moveTo]
+            : [operation.path])
+      } catch (error) {
+        // A malformed patch changes nothing; the tool reports the syntax error itself.
+        if (error instanceof PatchParseError) return []
+        throw error
+      }
+    }
     default:
-      return undefined
+      return []
   }
 }

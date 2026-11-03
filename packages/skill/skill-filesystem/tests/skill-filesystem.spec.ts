@@ -151,6 +151,9 @@ class TestFileSystem extends FileSystem {
     throw new Error('not needed in skill tests')
   }
 
+  override async patchText(): Promise<never> { throw new Error('not needed in skill tests') }
+  override async deleteFile(): Promise<never> { throw new Error('not needed in skill tests') }
+  override async moveFile(): Promise<never> { throw new Error('not needed in skill tests') }
   override async remove(): Promise<never> { throw new Error('not needed in skill tests') }
   override async move(): Promise<never> { throw new Error('not needed in skill tests') }
   override async createDirectory(): Promise<never> { throw new Error('not needed in skill tests') }

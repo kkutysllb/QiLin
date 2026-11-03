@@ -35,6 +35,7 @@
     "lib/types/**/*.d.ts"
   ],
   "dependencies": {
+    "@qilin-agent/fs-patch": "workspace:*",
     "@qilin-agent/schemastery": "workspace:~",
     "diff": "^9.0.0"
   },

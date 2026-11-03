@@ -2,9 +2,9 @@
 
 English | [中文](filesystem.zh.md)
 
-The optional filesystem capability has four parts: [qilin-fs](../../packages/fs/fs) owns `ctx.fs` and atomic text operations with optional guards, [qilin-fs-local](../../packages/fs/fs-local) implements local disk, [qilin-fs-observation-policy](../../packages/fs/fs-observation-policy) records observed presence or absence and adds freshness rules through events rather than a service, and [qilin-tool-fs](../../packages/fs/tool-fs) directly executes model-facing read/write/edit calls and renders windows. It is outside the agent-loop spine; alternate backends do not change policy or tool schemas.
+The optional filesystem capability has five parts: [qilin-fs](../../packages/fs/fs) owns `ctx.fs` and atomic text operations with optional guards, [qilin-fs-patch](../../packages/fs/fs-patch) parses Codex-style patch text and applies hunks without filesystem access, [qilin-fs-local](../../packages/fs/fs-local) implements local disk, [qilin-fs-observation-policy](../../packages/fs/fs-observation-policy) records observed presence or absence and adds freshness rules through events rather than a service, and [qilin-tool-fs](../../packages/fs/tool-fs) directly executes model-facing read/write/edit calls and renders windows. It is outside the agent-loop spine; alternate backends do not change policy or tool schemas.
 
-`qilin-fs-observation-policy` is optional. Without it, the `FileSystem` Service Definition, a provider, and the `qilin-tool-fs` Consumer form the complete, unconstrained filesystem seam: `write` unconditionally creates or overwrites, and `edit` unconditionally replaces literal text. The policy plugin changes these operations by deciding the `fs/*` waterfalls. Removing it does not break the tool because the tool calls `ctx.fs` and dispatches events; it does not call policy methods. A deployment that loads `qilin-tool-fs` is expected to also load `qilin-fs-observation-policy` so the default behavior is read-before-write/edit.
+`qilin-fs-observation-policy` is optional. Without it, the `FileSystem` Service Definition, a provider, and the `qilin-tool-fs` Consumer form the complete, unconstrained filesystem seam: `write` unconditionally creates or overwrites, and `edit` unconditionally replaces literal text. The policy plugin changes these operations by deciding the `fs/*` waterfalls. Removing it does not break the tool because the tool calls `ctx.fs` and dispatches events; it does not call policy methods. The shipped QiLin compositions mount `qilin-tool-fs` without `qilin-fs-observation-policy`: `base` disables that row, so the model-visible default is the provider's own atomic guarantee. A deployment that wants read-before-write/edit enables the row.
 
 Provider source: [`packages/fs/fs/src/types.ts`](../../packages/fs/fs/src/types.ts) and [`packages/fs/fs/src/index.ts`](../../packages/fs/fs/src/index.ts). Policy source: [`packages/fs/fs-observation-policy/src/types.ts`](../../packages/fs/fs-observation-policy/src/types.ts). Read-rendering source: [`packages/fs/tool-fs/src/read-render.ts`](../../packages/fs/tool-fs/src/read-render.ts).
 
@@ -180,17 +180,53 @@ interface FsEditOutcome {
 }
 ```
 
+## Patch, delete, and patch-level move (provider contract)
+
+`patchText`, `deleteFile`, and `moveFile` are the parsed-patch family the optional `apply_patch` tool drives. Each takes the same optional version guard as `editText`: an absent or changed source reports `FS_STALE_VERSION`, a non-file source `FS_NOT_REGULAR_FILE`, and an unmatched hunk `FS_PATCH_MISMATCH`. `patchText` applies parsed hunks to the LF-normalized text, restores the stored line-ending style, and returns the same before/after basis as an edit.
+
+`deleteFile` removes one regular file after the optional guard and returns its bounded LF-normalized content, or `null` when the backend cannot offer a basis. `moveFile` publishes the source text — optionally patched — at the destination, then removes the source: the destination guard follows `writeText`, the source guard follows `patchText`, both targets stay locked in canonical order, and identical targets report `FS_SAME_TARGET`. The two effects are separate by design, so a published destination whose source removal failed is a final outcome (`sourceDeleted: false` with `sourceFailure`) rather than a move that reports failure.
+
+```ts type-equiv
+/** Outcome of a guarded delete; the bounded basis follows FsWriteOutcome.before. */
+interface FsDeleteOutcome {
+  /** LF-normalized removed content, or null for an unavailable, binary, or over-limit basis. */
+  before: string | null
+}
+```
+
+```ts type-equiv
+/** Serializable failure after a move has published its destination but retained its source. */
+interface FsMoveSourceFailure {
+  /** Filesystem failure code for source removal. */
+  code: FsErrorCode
+  /** Diagnostic identifying the source and the failed removal. */
+  message: string
+}
+```
+
+```ts type-equiv
+/**
+ * Published destination and removal status of {@link FileSystem.moveFile};
+ * `sourceBefore` is the bounded LF source basis captured under the move lock.
+ */
+type FsMoveFileOutcome =
+  | { sourceBefore: string | null; destination: FsWriteOutcome; sourceDeleted: true }
+  | { sourceBefore: string | null; destination: FsWriteOutcome; sourceDeleted: false; sourceFailure: FsMoveSourceFailure }
+```
+
+`moveFile` is the patch-level move. The `move` primitive on the same service renames a directory entry inside one backend and reports `FsMoveOutcome` (`version?` plus `replaced`); the two operations share no outcome type.
+
 ## Removal, move, and directory creation (provider contract)
 
-`remove`, `move`, and `createDirectory` change directory entries rather than file content, so they take no version guard: each acts on the entry its target resolves to at the moment of the call, and a caller that needs a freshness precondition reads (or stats) first. Every one of them acts on the resolved identity, exactly as `writeText` does, so a path reaching a file through a symbolic link removes or moves that file; containment stays the policy layer's job. A backend that cannot perform a requested move — `rename` across filesystems, for instance — reports `FS_IO_ERROR` instead of copying the content.
+`remove`, `move`, and `createDirectory` change directory entries rather than file content, and — unlike the guarded patch family above — take no version guard: each acts on the entry its target resolves to at the moment of the call, and a caller that needs a freshness precondition reads (or stats) first. Every one of them acts on the resolved identity, exactly as `writeText` does, so a path reaching a file through a symbolic link removes or moves that file; containment stays the policy layer's job. A backend that cannot perform a requested move — `rename` across filesystems, for instance — reports `FS_IO_ERROR` instead of copying the content.
 
 Each backend serializes the mutations it can interleave. `fs-local` holds one FIFO lock per target and takes both keys of a move in sorted order, so two moves over the same pair of targets serialize rather than deadlock. The sandboxing backend fences every end of a mutation against the caller's per-call policy before anything changes, so a move whose destination leaves the writable roots is refused as a whole.
 
 ## The fs policy events (provider contract vocabulary)
 
-`qilin-fs` owns three events the tool dispatches and the policy plugin listens for, so the emitter (`qilin-tool-fs`) and the listener (`qilin-fs-observation-policy`) share a vocabulary without the emitter depending on the policy plugin. They carry only `qilin-fs` vocabulary plus an opaque `object` actor — no model-facing concepts and no agent/session owner structure.
+`qilin-fs` owns four events the tool dispatches and the policy plugin listens for, so the emitter (`qilin-tool-fs`) and the listener (`qilin-fs-observation-policy`) share a vocabulary without the emitter depending on the policy plugin. They carry only `qilin-fs` vocabulary plus an opaque `object` actor — no model-facing concepts and no agent/session owner structure.
 
-`fs/write-intent` and `fs/edit-intent` are **single-slot decision waterfalls**: the tool dispatches each with a default thunk returning `undefined` (the bare provider), and a listener fully decides without calling `next()`. The slot is first-wins by registration order — the policy plugin owning it is a deployment convention, not an enforced invariant. `fs/observed` is a fire-and-forget recording event carrying an `FsObservation`: present at a version or confirmed absent. It is dispatched with a plain `ctx.emit`; its listener MUST be synchronous and side-effect-only, because the tool does NOT guard the emit — a throwing listener can replace a read error or surface as the tool's `isError` result after a mutation already succeeded. The generated [cordis surface](#kylin-surface) below shows the exact signatures.
+`fs/write-intent`, `fs/edit-intent`, and `fs/delete-intent` are **single-slot decision waterfalls**: the tool dispatches each with a default thunk returning `undefined` (the bare provider), and a listener fully decides without calling `next()`. The slot is first-wins by registration order — the policy plugin owning it is a deployment convention, not an enforced invariant. `fs/observed` is a fire-and-forget recording event carrying an `FsObservation`: present at a version or confirmed absent. It is dispatched with a plain `ctx.emit`; its listener MUST be synchronous and side-effect-only, because the tool does NOT guard the emit — a throwing listener can replace a read error or surface as the tool's `isError` result after a mutation already succeeded. The generated [cordis surface](#kylin-surface) below shows the exact signatures.
 
 ```ts type-equiv
 /**
@@ -254,27 +290,8 @@ Observed state is a `WeakMap<owner, Map<targetKey, FsObservation>>` held inside 
 Filesystem failures use stable `FsErrorCode` strings carried by `FsError` (`HarnessError`). The tool registry preserves `{ name, code }` on error results, so retry, permission, and UI layers can branch without parsing text.
 
 ```ts type-equiv
-/**
- * Stable, machine-routable codes for filesystem failures. Carried on
- * {@link FsError}; the tool registry exposes `{ name, code }` on `isError`
- * results so retry/permission/UI layers can branch without parsing messages.
- */
-type FsErrorCode =
-  | 'FS_NOT_FOUND'
-  | 'FS_NOT_DIRECTORY'
-  | 'FS_NOT_TEXT'
-  | 'FS_NOT_REGULAR_FILE'
-  | 'FS_NOT_EMPTY'
-  | 'FS_EXISTS'
-  | 'FS_TOO_LARGE'
-  | 'FS_PERMISSION_DENIED'
-  | 'FS_SANDBOX_DENIED'
-  | 'FS_IO_ERROR'
-  | 'FS_STALE_VERSION'
-  | 'FS_NOT_OBSERVED'
-  | 'FS_AMBIGUOUS_EDIT'
-  | 'FS_EDIT_NOT_FOUND'
-  | 'FS_ABORTED'
+/** One machine-routable filesystem failure code from {@link FS_ERROR_CODES}. */
+type FsErrorCode = typeof FS_ERROR_CODES[number]
 ```
 
 `FS_NOT_DIRECTORY`, `FS_PERMISSION_DENIED`, and `FS_IO_ERROR` are used by directory listing to distinguish an existing non-directory target, a denied listing, and an unexpected backend I/O failure. `FS_SANDBOX_DENIED` is a POLICY refusal from a sandbox-enforcing backend (`qilin-fs-sandbox`) — the mode fence denied a write/edit — distinct from `FS_PERMISSION_DENIED` (the host kernel refusing). `FS_NOT_OBSERVED` means the policy plugin has no prior-observation record for this owner (or a `createIfAbsent` hit an existing file). `FS_NOT_FOUND` also represents an edit rejected from confirmed absence. `FS_STALE_VERSION` means the backend version no longer matches the observed one (or the provider itself receives an edit for a missing target). `FS_NOT_EMPTY` and `FS_EXISTS` belong to the entry mutations: `FS_NOT_EMPTY` refuses deleting a directory that still holds entries (or replacing one), and `FS_EXISTS` refuses creating an entry where one already exists, including a move onto an existing destination. Freshness authorization has no partial/full distinction, so there is no `FS_PARTIAL_OBSERVATION`.
@@ -285,7 +302,7 @@ type FsErrorCode =
 
 ## The service and the plugin
 
-`FileSystem` (`ctx.fs`, abstract) owns the provider primitives: `resolve`, `processPath`, `processPathFromHostPath`, `fileUrl`, `contains`, `stat`, `lstat`, `readText`, `streamText`, `readBytes`, `listDir`, `writeText`, `writeBytes`, `editText`, `remove`, `move`, and `createDirectory`. `qilin-fs-observation-policy` registers **no service** — it is a plugin that adds policy through the `fs/*` event gate: it decides the write/edit intent waterfalls from unseen/absent/present state and records `FsObservation` values. The executor is `qilin-tool-fs`: it reads/writes/edits through `ctx.fs`, dispatches the waterfalls, and emits the recording event. The generated [`ctx.fs` section](#ctxfs--filesystem-abstract-seam) below shows the exact signatures.
+`FileSystem` (`ctx.fs`, abstract) owns the provider primitives: `resolve`, `processPath`, `processPathFromHostPath`, `fileUrl`, `contains`, `stat`, `lstat`, `readText`, `streamText`, `readBytes`, `listDir`, `writeText`, `writeBytes`, `editText`, `patchText`, `deleteFile`, `moveFile`, `remove`, `move`, and `createDirectory`. `qilin-fs-observation-policy` registers **no service** — it is a plugin that adds policy through the `fs/*` event gate: it decides the write/edit/delete intent waterfalls from unseen/absent/present state and records `FsObservation` values. The executor is `qilin-tool-fs`: it reads/writes/edits through `ctx.fs`, dispatches the waterfalls, and emits the recording event. The generated [`ctx.fs` section](#ctxfs--filesystem-abstract-seam) below shows the exact signatures.
 
 <!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
@@ -299,7 +316,7 @@ Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm
 
 ### `ctx.fs` — `FileSystem` (abstract seam)
 
-Abstract filesystem provider. Targets must preserve identity across aliases; reads expose regular UTF-8 text or typed errors, listings are stable and content-free, and mutations are atomic. Optional guards add stale protection without changing the unguarded provider contract.
+Abstract filesystem provider. Targets must preserve identity across aliases; reads expose regular UTF-8 text or typed errors, listings are stable and content-free, and single-file publication is atomic. Moves can retain their source after publishing the destination. Optional guards add stale protection without changing the unguarded provider contract.
 
 ```ts cordis-catalog
 /**
@@ -485,6 +502,53 @@ abstract writeBytes( target: FsTarget, content: Uint8Array, expected?: FsWriteIn
 abstract editText( target: FsTarget, edit: FsEditRequest, expected?: { version: FsVersion }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsEditOutcome>
 
 /**
+ * Atomically apply parsed hunks to the LF-normalized text and restore the
+ * stored line-ending style. A missing or stale target reports
+ * `FS_STALE_VERSION`; an unmatched hunk reports `FS_PATCH_MISMATCH`.
+ * @param target - the resolved regular file to patch.
+ * @param hunks - ordered hunks from `parsePatch`.
+ * @param expected - the version guard; omit for an unconditional patch.
+ * @param signal - aborts before atomic publication takes effect.
+ * @param sandboxPolicy - the per-call mode and workspace root this patch runs
+ *   under; a sandboxing backend fences the patch by it, the bare backend
+ *   ignores it. Omit to leave the backend its own default.
+ * @returns the outcome, including the version the patch produced.
+ */
+abstract patchText( target: FsTarget, hunks: readonly PatchHunk[], expected?: { version: FsVersion }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsEditOutcome>
+
+/**
+ * Remove a regular file. A missing or stale target reports `FS_STALE_VERSION`;
+ * a directory or other non-file reports `FS_NOT_REGULAR_FILE`. Resolution has
+ * already followed symlinks, so the target is the real file.
+ * @param target - the resolved file to remove.
+ * @param expected - the version guard; omit for an unconditional removal.
+ * @param signal - aborts before removal.
+ * @param sandboxPolicy - the per-call mode and workspace root this removal
+ *   runs under; a sandboxing backend fences it, the bare backend ignores it.
+ *   Omit to leave the backend its own default.
+ * @returns the bounded LF-normalized removed text, or null when no basis is available.
+ */
+abstract deleteFile( target: FsTarget, expected?: { version: FsVersion }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsDeleteOutcome>
+
+/**
+ * Publish the source text, optionally patched, at the destination, then remove
+ * the source. Both targets stay locked in canonical order. Identical targets
+ * report `FS_SAME_TARGET`; the source guard follows `patchText` and the
+ * destination guard follows `writeText`. The two effects are separate: a
+ * published destination with a retained source is a final outcome reported
+ * through `sourceDeleted: false`.
+ * @param source - the resolved regular source; its line-ending style and mode carry over.
+ * @param destination - the resolved destination within the same provider.
+ * @param options - optional hunks and the source/destination guards; an omitted guard is unconditional.
+ * @param signal - checked before destination staging; the commit then completes both effects.
+ * @param sandboxPolicy - the per-call mode and workspace root both paths run
+ *   under; a sandboxing backend fences them, the bare backend ignores it.
+ *   Omit to leave the backend its own default.
+ * @returns the bounded LF source basis, the destination outcome, and the source-removal status.
+ */
+abstract moveFile( source: FsTarget, destination: FsTarget, options: { hunks?: readonly PatchHunk[] expectedSource?: { version: FsVersion } expectedDestination?: FsWriteIntent }, signal?: AbortSignal, sandboxPolicy?: SandboxExecutionPolicy, ): Promise<FsMoveFileOutcome>
+
+/**
  * Remove one file or directory. The operation acts on the target's stable
  * identity, so a path reached through a final symbolic link removes what that
  * link resolves to, exactly as {@link writeText} writes through it.
@@ -555,6 +619,26 @@ Source: [`packages/fs/fs/src/index.ts`](../../packages/fs/fs/src/index.ts)
 <a id="fs-events"></a>
 
 ### `fs/*` events
+
+<a id="fsdelete-intent--waterfall"></a>
+
+#### `fs/delete-intent` — waterfall
+
+Single-slot decision for FileSystem.deleteFile; the first returned guard wins. Calling `next()` delegates to an unconditional deletion.
+
+```ts cordis-catalog
+/**
+ * Single-slot decision for {@link FileSystem.deleteFile}; the first returned guard wins.
+ * Calling `next()` delegates to an unconditional deletion.
+ * @param target - the resolved source about to be removed.
+ * @param actor - the opaque tool-execution context used to select observed state.
+ * @param next - delegates to an unconditional deletion.
+ * @mode waterfall
+ */
+'fs/delete-intent'(target: FsTarget, actor: object | undefined, next: () => { version: FsVersion } | undefined | Promise<{ version: FsVersion } | undefined>): Promise<{ version: FsVersion } | undefined>
+```
+
+Source: [`packages/fs/fs/src/index.ts`](../../packages/fs/fs/src/index.ts)
 
 <a id="fsedit-intent--waterfall"></a>
 

@@ -370,6 +370,59 @@ describe('workspace-changes without a repository', () => {
     await expect(stat(join(cwd, '.git'))).rejects.toThrow()
   })
 
+  it('captures every path an apply_patch call addresses, including both ends of a move', async () => {
+    const cwd = await scratchDir('qilin-workspace-changes-patch-', cleanups)
+    await writeFile(join(cwd, 'source.txt'), 'old\n')
+    await writeFile(join(cwd, 'gone.txt'), 'gone\n')
+    const { ctx } = await boot()
+    const session = ctx.sessions.create(SessionId('patch'), { meta: { cwd } })
+    startTurn(session, 1)
+    await settle(ctx, session)
+    const input = [
+      '*** Begin Patch',
+      '*** Add File: added.txt',
+      '+created',
+      '*** Update File: source.txt',
+      '@@',
+      '-old',
+      '+patched',
+      '*** Update File: source.txt',
+      '*** Move to: nested/moved.txt',
+      '@@',
+      '-patched',
+      '+moved',
+      '*** Delete File: gone.txt',
+      '*** End Patch',
+    ].join('\n')
+    await mutate(ctx, session, 1, 'apply_patch', { input }, async () => {
+      await mkdir(join(cwd, 'nested'))
+      await writeFile(join(cwd, 'added.txt'), 'created\n')
+      await writeFile(join(cwd, 'nested/moved.txt'), 'moved\n')
+      await rm(join(cwd, 'source.txt'))
+      await rm(join(cwd, 'gone.txt'))
+    }, { meta: { stopped: false } })
+    endTurn(session, 1)
+    await settle(ctx, session)
+    const [recorded] = changes(ctx, session)
+    expect(recorded!.files.map(file => file.path)).toEqual([
+      'added.txt', 'gone.txt', 'nested/moved.txt', 'source.txt',
+    ])
+    expect(recorded).toMatchObject({ total: 4, added: 2, deleted: 2 })
+    const seq = announcedSeq(session)
+    expect(await ctx.workspaceChanges.diff(session.id, seq, 0, signal)).toEqual({
+      kind: 'text', path: 'added.txt', display: 'added.txt', before: false, after: true, coarse: false,
+      hunks: [{ oldStart: 1, oldLines: 0, newStart: 1, newLines: 1, lines: ['+created'] }],
+    })
+    expect(await ctx.workspaceChanges.diff(session.id, seq, 1, signal)).toEqual({
+      kind: 'text', path: 'gone.txt', display: 'gone.txt', before: true, after: false, coarse: false,
+      hunks: [{ oldStart: 1, oldLines: 1, newStart: 1, newLines: 0, lines: ['-gone'] }],
+    })
+    expect(await ctx.workspaceChanges.diff(session.id, seq, 3, signal)).toEqual({
+      kind: 'text', path: 'source.txt', display: 'source.txt', before: true, after: false, coarse: false,
+      hunks: [{ oldStart: 1, oldLines: 1, newStart: 1, newLines: 0, lines: ['-old'] }],
+    })
+  })
+
   it('lists oversized and binary captured files without counts and serves no lines for them', async () => {
     const cwd = await scratchDir('qilin-workspace-changes-bounds-', cleanups)
     // The recorder places its temporary directory under the platform temp root; point that root at a scratch directory.

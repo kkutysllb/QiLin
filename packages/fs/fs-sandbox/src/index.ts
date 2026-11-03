@@ -5,9 +5,9 @@
  * write, the read-match-write edit critical section, removal, move, and
  * directory creation — are the local implementation's, verbatim; this package
  * adds only the per-call POLICY fence on the mutations (text write, byte
- * write, text edit, remove, move, createDirectory). Reads pass through
- * untouched: every mode permits reading. A move fences both of its ends before
- * anything moves.
+ * write, text edit, patch, delete, move, moveFile, createDirectory). Reads pass
+ * through untouched: every mode permits reading. A move or moveFile fences both
+ * of its ends before anything happens.
  *
  * The fence is a policy check in TRUSTED code over a MODEL-CONTROLLED path,
  * NOT a kernel boundary — the operations are the seam's own (open, rename),
@@ -32,7 +32,7 @@ import { Context } from '@qilin-agent/kylin'
 import { LocalFileSystem } from '@qilin-agent/fs-local'
 import type { Config as LocalConfig } from '@qilin-agent/fs-local'
 import { FsError } from '@qilin-agent/fs'
-import type { FsEditOutcome, FsEditRequest, FsMoveOutcome, FsRemoveOutcome, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin-agent/fs'
+import type { FsDeleteOutcome, FsEditOutcome, FsEditRequest, FsMoveFileOutcome, FsMoveOutcome, FsRemoveOutcome, FsTarget, FsVersion, FsWriteIntent, FsWriteOutcome } from '@qilin-agent/fs'
 import { writableRoots } from '@qilin-agent/sandbox'
 import type { SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
 import type {} from '@qilin-agent/sandbox-policy'
@@ -129,6 +129,72 @@ export class SandboxedFileSystem extends LocalFileSystem {
     sandboxPolicy?: SandboxExecutionPolicy,
   ): Promise<FsEditOutcome> {
     return super.editText(await this.checkedTarget(target, sandboxPolicy), edit, expected, signal)
+  }
+
+  /**
+   * Fence the patch by the per-call policy, then delegate to the inherited
+   * atomic patch. See {@link checkedTarget}.
+   * @param target - the resolved regular file to patch.
+   * @param hunks - ordered hunks from the patch parser.
+   * @param expected - the version guard; omit for an unconditional patch.
+   * @param signal - aborts before atomic publication takes effect.
+   * @param sandboxPolicy - the per-call mode and workspace root; omit to use
+   *   the deployment fallback.
+   * @returns the edit outcome from the inherited backend.
+   */
+  override async patchText(
+    target: FsTarget,
+    hunks: Parameters<LocalFileSystem['patchText']>[1],
+    expected?: { version: FsVersion },
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsEditOutcome> {
+    return super.patchText(await this.checkedTarget(target, sandboxPolicy), hunks, expected, signal)
+  }
+
+  /**
+   * Fence the guarded deletion by the per-call policy, then delegate to the
+   * inherited deletion. See {@link checkedTarget}.
+   * @param target - the resolved file to remove.
+   * @param expected - the version guard; omit for an unconditional removal.
+   * @param signal - aborts before removal.
+   * @param sandboxPolicy - the per-call mode and workspace root; omit to use
+   *   the deployment fallback.
+   * @returns the bounded removed text from the inherited backend.
+   */
+  override async deleteFile(
+    target: FsTarget,
+    expected?: { version: FsVersion },
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsDeleteOutcome> {
+    return super.deleteFile(await this.checkedTarget(target, sandboxPolicy), expected, signal)
+  }
+
+  /**
+   * Fence BOTH ends of the patch move by the per-call policy before either
+   * effect, then delegate to the inherited move. See {@link checkedTarget}.
+   * @param source - the resolved regular source.
+   * @param destination - the resolved destination.
+   * @param options - optional hunks and the source/destination guards.
+   * @param signal - aborts before destination staging.
+   * @param sandboxPolicy - the per-call mode and workspace root; omit to use
+   *   the deployment fallback.
+   * @returns the destination outcome and source-removal status from the inherited backend.
+   */
+  override async moveFile(
+    source: FsTarget,
+    destination: FsTarget,
+    options: Parameters<LocalFileSystem['moveFile']>[2],
+    signal?: AbortSignal,
+    sandboxPolicy?: SandboxExecutionPolicy,
+  ): Promise<FsMoveFileOutcome> {
+    const policy = sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
+    const [checkedSource, checkedDestination] = await Promise.all([
+      this.checkedTarget(source, policy),
+      this.checkedTarget(destination, policy),
+    ])
+    return super.moveFile(checkedSource, checkedDestination, options, signal)
   }
 
   /**

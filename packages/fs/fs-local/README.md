@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use `qilin-fs-local` to read, list, atomically write, edit, remove, move, and create directories on the host filesystem. Relative paths resolve from a configurable base directory, while absolute paths and parent traversal remain unrestricted. Paths and symlinks that reach the same file share one identity. Writes preserve file permissions, and optional version guards reject stale overwrites. Choose this package for direct host access; use `fs-sandbox` for confined mutations.
+Use `qilin-fs-local` to read, list, atomically write, edit, patch, delete a file, move a file's text to a destination, remove, move, and create directories on the host filesystem. Relative paths resolve from a configurable base directory, while absolute paths and parent traversal remain unrestricted. Paths and symlinks that reach the same file share one identity. Writes preserve file permissions, and optional version guards reject stale overwrites. Choose this package for direct host access; use `fs-sandbox` for confined mutations.
 
 ## Table of Contents
 
@@ -50,7 +50,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agen
 
 ### What you can do
 
-Read any regular UTF-8 text file whole or as a stream, read raw bytes up to a cap you choose or in a byte window, and list one directory level in stable name order. Create or replace a file atomically, and apply a literal text edit atomically; both mutations serialize per file, so concurrent writers never interleave. The version guard is optional: omit it for unconditional create-or-overwrite, or supply it to fail when the file changed since you last observed it. `remove` deletes a file, or a directory with its whole contents when `recursive` is true; `move` renames an entry — or replaces an empty destination — inside the host filesystem, and never copies across one; `createDirectory` creates one directory, with its missing parents when `recursive` is true. A directory that still holds entries is refused as `FS_NOT_EMPTY` rather than emptied silently, and a create or a move onto an existing entry is `FS_EXISTS`.
+Read any regular UTF-8 text file whole or as a stream, read raw bytes up to a cap you choose or in a byte window, and list one directory level in stable name order. Create or replace a file atomically, apply a literal text edit atomically, and apply parsed patch hunks atomically; every mutation serializes per file, so concurrent writers never interleave. A patch keeps the file's dominant line-ending style and reports an unmatched hunk as `FS_PATCH_MISMATCH`; `deleteFile` removes one regular file and returns its bounded LF-normalized text, while `moveFile` publishes the source text (optionally patched) at a destination, then removes the source, holding both targets' locks in sorted key order and reporting a retained source instead of losing the published destination. The version guard is optional: omit it for unconditional create-or-overwrite, or supply it to fail when the file changed since you last observed it. `remove` deletes a file, or a directory with its whole contents when `recursive` is true; `move` renames an entry — or replaces an empty destination — inside the host filesystem, and never copies across one; `createDirectory` creates one directory, with its missing parents when `recursive` is true. A directory that still holds entries is refused as `FS_NOT_EMPTY` rather than emptied silently, and a create or a move onto an existing entry is `FS_EXISTS`.
 
 Failures are typed `FsError`s with stable codes — `FS_NOT_FOUND`, `FS_NOT_TEXT` (binary content), `FS_STALE_VERSION` (changed since observation), `FS_EDIT_NOT_FOUND` or `FS_AMBIGUOUS_EDIT` (no unique literal match), and others — so callers branch on the code, never on message text. A missing target on an edit reports `FS_STALE_VERSION` whether or not the version guard is supplied.
 
@@ -77,7 +77,7 @@ The backend builds on three ideas:
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | Service wiring: `LocalFileSystem`, `Config`, per-target mutation lock |
-| [`src/fsio.ts`](src/fsio.ts) | Kylin-free raw I/O: probe, reads, atomic write, literal edit, removal, move, directory creation, line-ending handling |
+| [`src/fsio.ts`](src/fsio.ts) | Kylin-free raw I/O: probe, reads, atomic write, literal edit, single-file removal, move, directory creation, line-ending handling |
 | [`src/win32.ts`](src/win32.ts) | Windows-specific DACL preservation for atomic replacement |
 
 ### Write path
@@ -128,7 +128,7 @@ These limits define when the local backend is a poor fit or needs special operat
 
 - **`config.cwd` is not a sandbox** — it is a resolution default, not containment: absolute paths and `..` escape it. Enforce containment with a stricter `ctx.fs` backend or a permission plugin on the `tools/execute` waterfall.
 - **Version tokens depend on filesystem metadata** — they combine device, inode, size, nanosecond mtime, and nanosecond ctime; a storage layer that cannot update any of those facts for a rewrite can still defeat the stale guard.
-- **Removal and move carry no version guard** — `remove`, `move`, and `createDirectory` act on the target's resolved identity immediately, so a version token never protects them; a path reached through a final symbolic link removes or moves what that link resolves to, and a move that the host rejects (a cross-filesystem rename, for instance) reports `FS_IO_ERROR` instead of copying.
+- **Guarded families report separately.** `patchText`, `deleteFile`, and `moveFile` honor the optional version guard and report `FS_STALE_VERSION` for an absent or changed source; `remove`, `move`, and `createDirectory` carry no version guard — they act on the target's resolved identity immediately, so a version token never protects them; a path reached through a final symbolic link removes or moves what that link resolves to, and a move that the host rejects (a cross-filesystem rename, for instance) reports `FS_IO_ERROR` instead of copying.
 - **`editText` holds the whole file (plus the edited copy) in memory** — streaming exists only on the read path.
 - **A sub-limit overwrite still buffers a contextual basis** — `writeText` may retain up to just below `config.diffBasisMaxBytes` of prior text in addition to the caller-owned replacement; the bound does not cap the returned `after` value or the whole-file presentation fallback.
 - **Binary detection is asymmetric** — reads NUL-sample only the first 8192 bytes while edits scan the whole buffer, so a file with a late NUL reads fine but rejects edits.
