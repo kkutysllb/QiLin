@@ -266,3 +266,19 @@ A domain record or the global singleton changed, emitted once per write strictly
 
 Source: [`packages/storage/storage-domain/src/events.ts`](../../packages/storage/storage-domain/src/events.ts)
 <!-- END GENERATED kylin-surface -->
+
+## Domain versioning
+
+`version` names the current read/write format. `compatibleVersions` lists older versions whose records and global value the owner can decode with its current schemas; only nonnegative integers below `version` are allowed. Without that declaration, reads stay exact-version. Acceptance does not weaken record validation or permit a newer unknown version. Each row's saved fields must determine its meaning unambiguously; a unit stamp cannot distinguish different meanings of identical fields in mixed rows.
+
+Ordinary compatible opens and reads do not restamp or normalize saved values. Whole-unit JSON publishes the current stamp and changed data in one atomic file replacement; SQLite commits its first updated unit stamp and mutation in one transaction; batch deletes always use one transaction. Deleting missing records or an empty batch does not advance the stamp. The stamp identifies an accepted format, not completion of value normalization; readers must accept mixed generations. A backend with a unit-wide stamp rejects an unsupported unit version.
+
+Serialization failure before publication or successful SQLite rollback preserves the previous data and stamp. An I/O failure after JSON replacement, or a failure of SQLite rollback itself, can leave the saved outcome unknown despite rejection. Stop using and close the backend and its domains, then reopen to inspect saved state before deciding whether to retry. The backend READMEs define these failure cases.
+
+JSON's `per-record` layout checks and stamps each document independently; an unsupported document reads as absent. Its existing whole-unit bootstrap is an exception to read-only loading: it copies accepted historical values into current-stamped documents without converting them. An existing declared table directory, even when empty, or a declared global document suppresses bootstrap. SQLite retains unit-wide version checks regardless of the layout request. See the [JSON backend](../../packages/storage/storage-json/README.md) and [SQLite backend](../../packages/storage/storage-sqlite/README.md) for layout and recovery behavior.
+
+For a compatible successor, bump `version`, keep all still-readable stamps in `compatibleVersions`, and extend the same schema's decoding/defaults. Consumers normalize values when rewriting selected records; Storage does not assign application record versions. Verify historical and skipped upgrades, mixed values, reads without writes, failure rollback, restart, other-unit isolation, and unknown-version refusal. Table removal and layout changes require their own retention and upgrade policy; a compatible stamp alone does not define either.
+
+A v2 unit may contain untouched v1 values. A v3 reader accepting stamp 2 must still decode those values; accepting stamp 1 is also necessary for users who skipped v2 entirely. Removing old decoding requires rewriting and validating every affected record, including those already under a current unit stamp. An incompatible change needs an explicit, recoverable upgrade before opening with the new schema; the storage domain has no value-migration runner.
+
+Keep a consistent backup before writing a new format if return to an older reader is required: that reader can refuse the new stamp after the first mutation. Lowering a saved stamp by hand does not reverse value conversion. Domain compatibility does not migrate SQLite's physical schema or JSON envelope formats, and changing a backend route does not transfer stored data. Session-format migrations and SQLite physical-layout versioning have separate owners and do not migrate domain values.

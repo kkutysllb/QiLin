@@ -215,6 +215,12 @@ body {
   --qilin-alias-label-secondary: var(--qilin-static-neutral-bluish-700);
   --qilin-alias-label-shimmer: color-mix(in srgb, var(--qilin-static-neutral-1000) 30%, transparent);
   --qilin-alias-label-tertiary: var(--qilin-static-neutral-bluish-600);
+  --qilin-alias-illustration-background: var(--qilin-static-neutral-bluish-50);
+  --qilin-alias-illustration-backing: var(--qilin-static-neutral-bluish-300);
+  --qilin-alias-illustration-detail: var(--qilin-static-neutral-bluish-300);
+  --qilin-alias-illustration-inset: var(--qilin-alias-illustration-surface);
+  --qilin-alias-illustration-shadow: var(--qilin-alias-illustration-surface);
+  --qilin-alias-illustration-surface: var(--qilin-static-neutral-bluish-100);
   --qilin-alias-link: var(--qilin-static-deepseek-500);
   --qilin-alias-markdown-citation: var(--qilin-static-neutral-bluish-100);
   --qilin-alias-markdown-code-block-banner: var(--qilin-static-neutral-bluish-50);
@@ -319,6 +325,12 @@ body[data-ds-dark-theme] {
   --qilin-alias-label-secondary: var(--qilin-static-neutral-bluish-300);
   --qilin-alias-label-shimmer: color-mix(in srgb, var(--qilin-static-neutral-00) 45%, transparent);
   --qilin-alias-label-tertiary: var(--qilin-static-neutral-bluish-400);
+  --qilin-alias-illustration-background: var(--qilin-static-neutral-bluish-850);
+  --qilin-alias-illustration-backing: var(--qilin-static-neutral-bluish-750);
+  --qilin-alias-illustration-detail: var(--qilin-static-neutral-bluish-600);
+  --qilin-alias-illustration-inset: var(--qilin-alias-illustration-backing);
+  --qilin-alias-illustration-shadow: var(--qilin-alias-illustration-backing);
+  --qilin-alias-illustration-surface: var(--qilin-static-neutral-bluish-700);
   --qilin-alias-link: var(--qilin-static-deepseek-400);
   --qilin-alias-markdown-citation: var(--qilin-static-neutral-bluish-800);
   --qilin-alias-markdown-code-block-banner: var(--qilin-static-neutral-bluish-850);

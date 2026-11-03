@@ -17,4 +17,8 @@
      every other menu card (see ui-theme styles/scrollbar.css). */
   --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
   --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
+  max-width: var(--qilin-anchored-max-width, none);
+  max-height: var(--qilin-anchored-max-height, none);
+  overflow-x: hidden;
+  overflow-y: auto;
 }

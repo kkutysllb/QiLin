@@ -1,6 +1,6 @@
 {
   "name": "@qilin-agent/schedule",
-  "description": "Host-wide durable reminders with shared management and original-Session delivery",
+  "description": "Host-wide durable reminders with shared management and delivery to existing or new Sessions",
   "version": "3.1.8-rc.5",
   "publishConfig": {
     "access": "public"
@@ -56,6 +56,7 @@
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/session-persistence": "workspace:*",
     "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/session-title": "workspace:*",
     "@qilin-agent/storage-domain": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
@@ -86,6 +87,8 @@
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",
-    "@qilin-agent/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/goal": "workspace:*",
+    "@qilin-agent/goal-round-driver": "workspace:*"
   }
 }

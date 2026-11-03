@@ -25,7 +25,7 @@ kind: "package-bundle"
 <a id="use-this-package"></a>
 ## 使用此包
 
-打开 Web 侧栏的插件管理页并启用带闹钟图标的“自动化任务”。此后，活跃的根智能体获得 `schedule_create`、`schedule_list`、`schedule_update` 与 `schedule_delete`，会话头部显示提醒目录，侧栏的自动化任务入口打开任务管理页面、右侧栏承载所选任务的详情，每个符合条件的步骤追加一条时钟读数，包含当前时间、打开请求所带的浏览器时区，以及距上一条模型可见消息的经过时间。此 Bundle 的页面列出时间感知、任务调度与任务界面及其状态。禁用此 Bundle 会恢复随包组合；已存储的任务保留在磁盘上。
+打开 Web 侧栏的插件管理页并启用带闹钟图标的“自动化任务”。此后，活跃的根智能体获得 `schedule_create`、`schedule_list`、`schedule_view` 与 `schedule_edit`，会话头部显示提醒目录，侧栏的自动化任务入口打开任务管理页面、右侧栏承载所选任务的详情，每个符合条件的步骤追加一条时钟读数，包含当前时间、打开请求所带的浏览器时区，以及距上一条模型可见消息的经过时间。此 Bundle 的页面列出时间感知、任务调度与任务界面及其状态。禁用此 Bundle 会恢复随包组合；已存储的任务保留在磁盘上。
 
 -----
 
@@ -76,7 +76,7 @@ kind: "package-bundle"
 
 #### 模型看到的内容
 
-活跃的根智能体获得 `schedule_create`、`schedule_list`、`schedule_update` 与 `schedule_delete`。`time-context` 在每个符合条件的步骤追加一条持久用户消息，携带采样时刻、打开请求所带的浏览器时区，以及距上一条模型可见消息的经过时间。
+活跃的根智能体获得 `schedule_create`、`schedule_list`、`schedule_view` 与 `schedule_edit`。`time-context` 在每个符合条件的步骤追加一条持久用户消息，携带采样时刻、打开请求所带的浏览器时区，以及距上一条模型可见消息的经过时间。
 
 #### Token 影响
 

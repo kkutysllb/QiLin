@@ -12,6 +12,9 @@
       "path": "../../../vendor/cordis"
     },
     {
+      "path": "../../core/system-prompt"
+    },
+    {
       "path": "../../llm/llm"
     },
     {
@@ -22,6 +25,9 @@
     },
     {
       "path": "../schedule"
+    },
+    {
+      "path": "../../preset/agent-presets"
     }
   ]
 }

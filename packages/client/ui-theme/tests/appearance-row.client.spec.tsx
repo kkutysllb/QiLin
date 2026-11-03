@@ -3,7 +3,7 @@
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { SessionListState } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
@@ -17,7 +17,6 @@ import { en } from '../src/client/locales.ts'
 afterEach(cleanup)
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 const useSessionStatus: AppearanceRowComponentProps['useSessionStatus'] = selector => selector(new Map() as SessionStatusSnapshot)
 
@@ -43,7 +42,7 @@ function mount(preference: ThemePreference = 'system', skins: readonly Appearanc
     usePanelInfo,
     useSessionRetainInfo: () => undefined,
     useResource,
-    useRemoteAccess,
+    ...allowAllAccess,
     useStore: bindSnapshotSelector(store),
     actions: store.actions,
     t: makeTranslate(en),

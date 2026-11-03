@@ -64,6 +64,11 @@ class MemoryKvUnit implements KvUnit {
     private readonly onClose: () => void,
   ) {}
 
+  /** Stamp the medium with the descriptor version after this unit's first accepted write. */
+  private stampVersion(): void {
+    this.pool.versions.set(this.descriptor.name, this.descriptor.version)
+  }
+
   private assertOpen(): void {
     if (this.closed) {
       throw new StorageError('closed', `memory unit '${this.descriptor.name}' is closed`)
@@ -88,18 +93,21 @@ class MemoryKvUnit implements KvUnit {
       this.medium.tables.set(table, records)
     }
     records.set(key, value)
+    this.stampVersion()
   }
 
   async deleteRecord(table: string, key: string): Promise<void> {
     this.assertOpen()
     this.pool.consumeInjectedFailure()
     this.medium.tables.get(table)?.delete(key)
+    this.stampVersion()
   }
 
   async setGlobal(value: unknown): Promise<void> {
     this.assertOpen()
     this.pool.consumeInjectedFailure()
     this.medium.global = value
+    this.stampVersion()
   }
 
   async close(): Promise<void> {
@@ -136,7 +144,7 @@ export class MemoryStorageBackend implements StorageBackend {
         const stamped = this.pool.versions.get(descriptor.name)
         if (stamped === undefined) {
           this.pool.versions.set(descriptor.name, descriptor.version)
-        } else if (stamped !== descriptor.version) {
+        } else if (stamped !== descriptor.version && !descriptor.compatibleVersions?.includes(stamped)) {
           throw new StorageError(
             'version-mismatch',
             `memory unit '${descriptor.name}' is stamped v${stamped}, descriptor wants v${descriptor.version}`,

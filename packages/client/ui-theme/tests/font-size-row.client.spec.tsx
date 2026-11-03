@@ -8,7 +8,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { SessionListState } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
-import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
 import type { FontRole, FontSizes } from '../src/theme-settings.ts'
 import { FONT_SIZE_SPECS } from '../src/theme-settings.ts'
 import { FontSizeRow } from '../src/client/FontSizeRow.tsx'
@@ -16,7 +16,6 @@ import type { FontSizeRowComponentProps } from '../src/client/FontSizeRow.tsx'
 import { createFontRowStore } from '../src/client/settings-store.ts'
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(cleanup)
@@ -54,7 +53,7 @@ function mount(role: FontRole = 'text', sizes: FontSizes = { text: 14, code: 11,
   const props: FontSizeRowComponentProps = {
     useSessions: emptySessions(),
     useSessionStatus,
-    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess,
+    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, ...allowAllAccess,
     useWorkspaces: emptyWorkspaces(),
     useStore: bindSnapshotSelector(store),
     actions: store.actions,

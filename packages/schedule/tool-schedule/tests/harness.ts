@@ -1,10 +1,19 @@
 /** Agent-scoped Schedule tool tests reuse the Host Schedule harness and mount the tools under a scope. */
 import type { Context } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
+import { PtcRuntime } from '@qilin-agent/ptc-runtime'
 import { createScope, type Scope } from '@qilin-agent/scope'
 import * as ToolSchedule from '../src/index.ts'
 
-export { agentFor, harness } from '../../schedule/tests/harness.ts'
+export { agentFor, boundTask, harness, seedTasks } from '../../schedule/tests/harness.ts'
+
+/** Supply only the PTC language needed to assemble the real tool SDK. */
+export class PromptRuntime extends PtcRuntime {
+  readonly language = 'typescript'
+  readonly isolation = 'fixture'
+  resolve(): never { throw new Error('Prompt assembly must not resolve a PTC program') }
+  run(): never { throw new Error('Prompt assembly must not execute a PTC program') }
+}
 
 /**
  * Mount the Schedule tools under one exact Agent scope.

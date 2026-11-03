@@ -11,7 +11,7 @@ import type { CSSProperties, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import {
-  IconCheckOutlineRegular, useAnchoredPosition, useDismissOnOutsidePointer,
+  IconCheckOutlineRegular, isMobileDevice, useAnchoredPosition, useDismissOnOutsidePointer,
 } from '@qilin-agent/client-ui-primitives'
 import css from './TaskMenu.module.css'
 
@@ -114,8 +114,9 @@ function isLabel(entry: TaskMenuEntry): entry is TaskMenuLabel {
  * @param props.portal - render the list into document.body, fixed-positioned
  * from the anchor rect (follows scroll and resize while open).
  * @param props.header - owner content pinned above the scrolling rows; a control
- * it marks `data-menu-field` takes the keyboard once the list is placed, which
- * is the frame a portaled list becomes focusable in.
+ * it marks `data-menu-field` takes the keyboard on desktop once the list is placed,
+ * which is the frame a portaled list becomes focusable in. Phones and tablets
+ * require explicit field focus.
  * @param props.className - extra class on the anchor wrapper span.
  * @param props.listClassName - extra class on the dropdown card itself.
  * @returns the anchor wrapper with the conditional list.
@@ -135,9 +136,7 @@ export function TaskMenu({ open, anchor, items = [], selectedId, onSelect, onClo
   const dismiss = useCallback(() => { closeRef.current() }, [])
 
   const position = useAnchoredPosition({
-    // The shared hook owns no alignment option in this tree; the alignEnd
-    // class below carries the end alignment the shared Menu refined in-hook.
-    open: open && portal, anchorRef: rootRef, panelRef: listRef, gap: ANCHOR_GAP, margin: VIEWPORT_MARGIN,
+    open: open && portal, anchorRef: rootRef, panelRef: listRef, align, gap: ANCHOR_GAP, margin: VIEWPORT_MARGIN,
   })
   useDismissOnOutsidePointer(rootRef, open, dismiss, listRef)
 
@@ -177,7 +176,7 @@ export function TaskMenu({ open, anchor, items = [], selectedId, onSelect, onClo
       handedOver.current = false
       return
     }
-    if (handedOver.current) return
+    if (handedOver.current || isMobileDevice()) return
     const list = listRef.current
     /* v8 ignore next -- the list is rendered in the same commit that sets `open`, before this effect runs. */
     if (list === null) return
@@ -197,12 +196,15 @@ export function TaskMenu({ open, anchor, items = [], selectedId, onSelect, onClo
     }
     /* jscpd:ignore-start -- schedule-local copy of the shared ui-primitives Menu; the two owners change independently. */
     const onKeyDown = (e: KeyboardEvent): void => {
+      if (e.defaultPrevented) return
       // Where the keyboard is, computed once: the menu owns it when it holds a
       // row or sits on its anchor region.
       const focused = document.activeElement
       const insideList = listRef.current?.contains(focused) === true
       const anchored = rootRef.current?.contains(focused) === true || insideList
       if (e.key === 'Escape') {
+        e.preventDefault()
+        e.stopPropagation()
         // Closing hands the keyboard back when the menu had it.
         dismiss()
         if (anchored) refocusAnchor()
@@ -273,10 +275,10 @@ export function TaskMenu({ open, anchor, items = [], selectedId, onSelect, onClo
     const onWindowBlur = (): void => {
       if (document.activeElement instanceof HTMLIFrameElement) dismiss()
     }
-    document.addEventListener('keydown', onKeyDown)
+    document.addEventListener('keydown', onKeyDown, true)
     window.addEventListener('blur', onWindowBlur)
     return () => {
-      document.removeEventListener('keydown', onKeyDown)
+      document.removeEventListener('keydown', onKeyDown, true)
       window.removeEventListener('blur', onWindowBlur)
     }
   }, [open, dismiss])

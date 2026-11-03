@@ -23,3 +23,9 @@
 /storage/the-change-event-domain-changed:
   en: 74ce9e3f00fc2e3d
   zh: 5b8eab892d05a636
+/storage/cordis-api/domain-events/domain-changed-emit:
+  en: e3b0c44298fc1c14
+  zh: f25d6a9aba980038
+/storage/domain-versioning:
+  en: 46e9596986ca0855
+  zh: 21ebf2f948bdc8ce

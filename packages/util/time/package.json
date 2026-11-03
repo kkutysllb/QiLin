@@ -1,6 +1,6 @@
 {
   "name": "@qilin-agent/util-time",
-  "description": "Zero-dependency time vocabulary shared by wire boundaries: canonicalClientTimeZone (IANA zone validation and canonicalization only, no formatting)",
+  "description": "Strict instant and IANA zone parsing, millisecond spans, and bounded Cron/RRULE recurrence arithmetic",
   "version": "3.1.8-rc.5",
   "publishConfig": {
     "access": "public"
@@ -14,6 +14,7 @@
     "node": "^22.19.0 || >=24.0.0"
   },
   "type": "module",
+  "sideEffects": false,
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
   "exports": {
@@ -29,6 +30,10 @@
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
+  "dependencies": {
+    "@js-temporal/polyfill": "0.5.1",
+    "rrule": "2.8.1"
+  },
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~"
   },
