@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
+import { pnpmInvocation } from '../../../scripts/pnpm-invocation.ts'
 import { resolveQilinDesktopHome } from '@qilin-agent/home-paths'
 import { DESKTOP_HOST_PROTOCOL_VERSION } from '../src/host-protocol.ts'
 import type { DesktopRelease } from '../src/release.ts'
@@ -50,11 +51,8 @@ async function run(command: string, args: readonly string[], cwd: string, enviro
 }
 
 async function runPackageScript(script: string, cwd: string): Promise<void> {
-  const packageManager = process.env.npm_execpath
-  if (packageManager === undefined || packageManager === '') {
-    throw new Error('desktop development: invoke this launcher through pnpm run dev:desktop or start:desktop')
-  }
-  await run(process.execPath, [packageManager, 'run', script], cwd)
+  const invocation = pnpmInvocation(['run', script])
+  await run(invocation.command, invocation.args, cwd)
 }
 
 async function launchElectron(): Promise<void> {

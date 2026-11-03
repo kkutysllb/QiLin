@@ -205,7 +205,9 @@ export async function preparePrimaryRuntime(options: PreparePrimaryRuntimeOption
         pnpmVersion = options.pnpmArchive.version
         await downloadRuntimeNpmPackage(options.pnpmArchive, join(dependencies, 'pnpm'), paths.downloads)
       } else {
-        const pnpmManifest = createRequire(import.meta.url).resolve('pnpm')
+        // pnpm 12's package declares only bin entries, so the package root resolves
+        // through its manifest rather than a main module.
+        const pnpmManifest = createRequire(import.meta.url).resolve('pnpm/package.json')
         pnpmVersion = (JSON.parse(readFileSync(pnpmManifest, 'utf8')) as { version: string }).version
         await cp(dirname(pnpmManifest), join(dependencies, 'pnpm'), { recursive: true, dereference: true })
       }
