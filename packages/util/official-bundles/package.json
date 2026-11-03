@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/official-bundles",
   "description": "Installation-owned lists of the QiLin bundles the plugin manager offers, hides, orders, marks experimental, or installs on demand",
-  "version": "3.1.8-rc.4",
+  "version": "3.1.8-rc.5",
   "publishConfig": {
     "access": "public"
   },
