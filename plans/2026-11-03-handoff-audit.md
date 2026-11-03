@@ -321,3 +321,9 @@
 - 三个观感问题：命中率面积 brand 色整面铺满（深色下成一大块黑）、柱宽按步距 62% 无上限（单日柱占半幅）、tooltip 单行贴顶。改为：命中率 2px 细线 + 低透明渐变面积；柱宽上限 6.5 单位并在步距内居中；堆叠带反向绘制向上补边实现柱顶圆角、带间无缝；稀疏 x 轴日期（约每 8 根 + 末尾）；tooltip 升级为逐系列卡片（色点 + 右对齐数值 + 命中率行），锚定在选中柱的堆叠顶部。
 - 交互全部保留：图例折叠、hover/键盘左右导航、ARIA、逐日 tooltip。tooltip 的 elevation 阴影不与中性 border 同用（elevation-styles 门禁抓出后改为阴影自带描边）。
 - 复验：`usage` 22 例（新增柱宽上限/居中/折线断言与 tooltip 卡片断言）；`test:gui` 684 文件 10533 例绿；`tsc`、oxlint、build 绿。
+
+## 二十六、通用设置新增语言选择卡（2026-11-03 已完成）
+
+- 语言切换此前只在账户菜单子菜单。locale 插件向 `settings.general.item` 注册「语言」卡片（order 12）：每个已注册语言一枚自命名 chip（中文 / English），选中态经镜像 store（`locale.subscribe` 同步）渲染，写入走唯一偏好入口 `setLocale`（Host 设置持久化不变）；语言包注册的新语言自动出现在卡上。
+- 实现面：`language-row.tsx`（组件 + 镜像 store，chip 样式镜像外观行）、`settings.locale` 文案命名空间（标题随界面语言切换）、slot 注册在 locale apply 内（声明先于 apply）。
+- 复验：locale 45 例（新增语言卡组件 2 例 + apply 注册断言）；`test:gui` 685 文件 10535 例绿；`settings-chrome` 金标刷新后含语言卡（中文 pressed）且回放稳定；oxlint、build 绿。
