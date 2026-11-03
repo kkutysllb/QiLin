@@ -30,6 +30,8 @@ interface AssistantState {
   readonly turn: number
   readonly step: number
   readonly blocks: readonly (AssistantBlock | undefined)[]
+  /** Missing indices are invisible; same-kind appends preserve already-visible blocks. */
+  readonly visibleByIndex: readonly boolean[]
   readonly visibleBlocks: number
   readonly firstVisibleSeq: number | undefined
   readonly firstVisibleTime: number | undefined
@@ -44,6 +46,7 @@ function initialState(turn: number, step: number): AssistantState {
     turn,
     step,
     blocks: [],
+    visibleByIndex: [],
     visibleBlocks: 0,
     firstVisibleSeq: undefined,
     firstVisibleTime: undefined,
@@ -62,12 +65,6 @@ function blockIsVisible(block: AssistantBlock | undefined): boolean {
   if (block === undefined || block.kind === 'tool-call') return false
   if (block.kind === 'text' || block.kind === 'reasoning') return block.text.trim() !== ''
   return true
-}
-
-function countVisibleBlocks(blocks: readonly AssistantBlock[]): number {
-  let count = 0
-  for (const block of blocks) if (blockIsVisible(block)) count++
-  return count
 }
 
 function hasVisibleContent(blocks: readonly AssistantBlock[]): boolean {
@@ -104,30 +101,34 @@ function updateChunk(
   const blocks = [...state.blocks]
   let changedIndex = -1
   let previousVisible = false
+  let nextVisible = false
   switch (chunk.type) {
     case 'block-start':
       changedIndex = chunk.index
-      previousVisible = blockIsVisible(blocks[chunk.index])
+      previousVisible = state.visibleByIndex[chunk.index] === true
       blocks[chunk.index] = emptyAssistantBlock(chunk.blockType)
+      nextVisible = blockIsVisible(blocks[chunk.index])
       break
     case 'text-delta': {
       const previous = blocks[chunk.index]
       changedIndex = chunk.index
-      previousVisible = blockIsVisible(previous)
+      previousVisible = state.visibleByIndex[chunk.index] === true
       blocks[chunk.index] = { kind: 'text', text: (previous?.kind === 'text' ? previous.text : '') + chunk.text }
+      nextVisible = (previous?.kind === 'text' && previousVisible) || chunk.text.trim() !== ''
       break
     }
     case 'reasoning-delta': {
       const previous = blocks[chunk.index]
       changedIndex = chunk.index
-      previousVisible = blockIsVisible(previous)
+      previousVisible = state.visibleByIndex[chunk.index] === true
       blocks[chunk.index] = { kind: 'reasoning', text: (previous?.kind === 'reasoning' ? previous.text : '') + chunk.text }
+      nextVisible = (previous?.kind === 'reasoning' && previousVisible) || chunk.text.trim() !== ''
       break
     }
     case 'tool-call-delta': {
       const previous = blocks[chunk.index]
       changedIndex = chunk.index
-      previousVisible = blockIsVisible(previous)
+      previousVisible = state.visibleByIndex[chunk.index] === true
       // Tool Nodes own streamed arguments; Assistant protocol blocks retain identity until full settlement.
       blocks[chunk.index] = {
         kind: 'tool-call',
@@ -139,8 +140,9 @@ function updateChunk(
     }
     case 'block-end':
       changedIndex = chunk.index
-      previousVisible = blockIsVisible(blocks[chunk.index])
+      previousVisible = state.visibleByIndex[chunk.index] === true
       blocks[chunk.index] = toAssistantBlock(chunk.block)
+      nextVisible = blockIsVisible(blocks[chunk.index])
       break
     case 'usage':
       return { ...state, usage: chunk.usage }
@@ -149,11 +151,18 @@ function updateChunk(
   }
   const visibleBlocks = state.visibleBlocks
     - Number(previousVisible)
-    + Number(blockIsVisible(blocks[changedIndex]))
+    + Number(nextVisible)
+  let visibleByIndex = state.visibleByIndex
+  if (previousVisible !== nextVisible) {
+    const next = [...visibleByIndex]
+    next[changedIndex] = nextVisible
+    visibleByIndex = next
+  }
   const firstToken = isTokenDelta(chunk)
   return {
     ...state,
     blocks,
+    visibleByIndex,
     visibleBlocks,
     hidden: visibleBlocks > 0 ? false : state.hidden,
     ...visibleBlocks > 0 && state.firstVisibleSeq === undefined
@@ -171,10 +180,12 @@ function settleMessage(
   event: SessionEvent<'assistant/message'>,
 ): AssistantState {
   const blocks = toAssistantBlocks(event.data.message.content)
+  const visibleByIndex = blocks.map(blockIsVisible)
   return {
     ...state,
     blocks,
-    visibleBlocks: countVisibleBlocks(blocks),
+    visibleByIndex,
+    visibleBlocks: visibleByIndex.reduce((count, visible) => count + Number(visible), 0),
     hidden: false,
     final: match,
     usage: event.data.usage,

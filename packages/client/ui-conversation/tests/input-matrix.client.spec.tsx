@@ -13,7 +13,7 @@ import type { Context } from '@qilin-agent/kylin'
 import type { SessionSnapshot } from '@qilin-agent/api-session-controller/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import {
-  bindSnapshotSelector, conversationSnapshot, sessionSnapshot,
+  allowAllAccess, bindSnapshotSelector, conversationSnapshot, sessionSnapshot,
 } from '@qilin-agent/client-test-runtime'
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { SessionId } from '@qilin-agent/session/types'
@@ -28,7 +28,6 @@ import { zh } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 // jsdom implements no Range geometry (Lexical's scroll-into-view measures the
 // caret with one once the surface is genuinely contenteditable).
@@ -63,7 +62,7 @@ function mountBar(shell: SessionInputShell, over?: { running?: boolean; disabled
     ),
     useSessionRetainInfo: () => undefined,
     useResource,
-    useRemoteAccess,
+    ...allowAllAccess,
     useWorkspaces: bindSnapshotSelector(createSnapshotStore({
       items: [], archivedSessionIds: [], pinnedSessionIds: [], state: 'idle', phase: 'ready', error: null,
       baselinesReady: true, recentWorkspaceId: undefined,

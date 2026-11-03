@@ -14,23 +14,23 @@ describe('ui-chat Host settings', () => {
     const configuration = await liveConfig(ctx, { Config, apply })
     const { fiber } = configuration
 
-    expect(plainConfig(configuration.fiber.config)).toEqual({ transcriptView: 'detailed', performanceUsage: 'detailed', linkOpening: 'sidebar', collapseTiming: 'completion' })
+    expect(plainConfig(configuration.fiber.effectiveConfig)).toEqual({ transcriptView: 'detailed', performanceUsage: 'detailed', linkOpening: 'sidebar', collapseTiming: 'completion' })
     await configuration.update({ transcriptView: 'normal' })
-    expect(plainConfig(configuration.fiber.config)).toEqual({ transcriptView: 'normal', performanceUsage: 'detailed', linkOpening: 'sidebar', collapseTiming: 'completion' })
+    expect(plainConfig(configuration.fiber.effectiveConfig)).toEqual({ transcriptView: 'normal', performanceUsage: 'detailed', linkOpening: 'sidebar', collapseTiming: 'completion' })
     for (const mode of ['expanded', 'compact', 'standard', 'detailed', 'verbose']) {
       await configuration.update({ transcriptView: mode })
-      expect(plainConfig(configuration.fiber.config)).toMatchObject({ transcriptView: mode })
+      expect(plainConfig(configuration.fiber.effectiveConfig)).toMatchObject({ transcriptView: mode })
     }
     // Missing and unrecognized modes both fall back to Standard without refusing the write.
     for (const mode of ['dense', '', 42, false, {}, null, undefined]) {
       await configuration.update({ transcriptView: mode })
-      expect(plainConfig(configuration.fiber.config)).toMatchObject({ transcriptView: 'detailed' })
+      expect(plainConfig(configuration.fiber.effectiveConfig)).toMatchObject({ transcriptView: 'detailed' })
     }
     await configuration.update({ performanceUsage: 'compact' })
-    expect(plainConfig(configuration.fiber.config)).toMatchObject({ performanceUsage: 'compact' })
+    expect(plainConfig(configuration.fiber.effectiveConfig)).toMatchObject({ performanceUsage: 'compact' })
     await expect(configuration.update({ performanceUsage: 'hidden' })).rejects.toThrow()
     await configuration.update({ linkOpening: 'new-tab' })
-    expect(plainConfig(configuration.fiber.config)).toMatchObject({ linkOpening: 'new-tab' })
+    expect(plainConfig(configuration.fiber.effectiveConfig)).toMatchObject({ linkOpening: 'new-tab' })
     await expect(configuration.update({ linkOpening: 'popup' })).rejects.toThrow()
 
     await fiber.dispose()
@@ -40,27 +40,27 @@ describe('ui-chat Host settings', () => {
     const ctx = new Context()
     const configuration = await liveConfig(ctx, { Config, apply })
     await configuration.update({ transcriptView: 'compact', linkOpening: 'new-tab' })
-    const saved = plainConfig(configuration.fiber.config)
+    const saved = plainConfig(configuration.fiber.effectiveConfig)
     if (typeof saved !== 'object' || saved === null) throw new Error('expected saved configuration object')
     expect(saved).toMatchObject({ transcriptView: 'compact', linkOpening: 'new-tab' })
     await configuration.fiber.dispose()
     const restored = await liveConfig(ctx, { Config, apply }, saved)
-    expect(plainConfig(restored.fiber.config)).toMatchObject({ transcriptView: 'compact', linkOpening: 'new-tab' })
+    expect(plainConfig(restored.fiber.effectiveConfig)).toMatchObject({ transcriptView: 'compact', linkOpening: 'new-tab' })
     await restored.fiber.dispose()
   })
 
   it('validates collapse timing and restores its saved config independently of work details', async () => {
     const ctx = new Context()
     const configuration = await liveConfig(ctx, { Config, apply })
-    expect(plainConfig(configuration.fiber.config)).toMatchObject({ collapseTiming: 'completion' })
+    expect(plainConfig(configuration.fiber.effectiveConfig)).toMatchObject({ collapseTiming: 'completion' })
     await configuration.update({ transcriptView: 'compact', collapseTiming: 'next-input' })
-    const saved = plainConfig(configuration.fiber.config)
+    const saved = plainConfig(configuration.fiber.effectiveConfig)
     if (typeof saved !== 'object' || saved === null) throw new Error('expected saved configuration object')
     expect(saved).toMatchObject({ transcriptView: 'compact', collapseTiming: 'next-input' })
     await expect(configuration.update({ collapseTiming: 'never' })).rejects.toThrow()
     await configuration.fiber.dispose()
     const restored = await liveConfig(ctx, { Config, apply }, saved)
-    expect(plainConfig(restored.fiber.config)).toMatchObject({ transcriptView: 'compact', collapseTiming: 'next-input' })
+    expect(plainConfig(restored.fiber.effectiveConfig)).toMatchObject({ transcriptView: 'compact', collapseTiming: 'next-input' })
     await restored.fiber.dispose()
   })
 

@@ -13,12 +13,12 @@ describe('ui-conversation host', () => {
     const ctx = new Context()
     const configuration = await liveConfig(ctx, { Config, apply })
     const { fiber } = configuration
-    expect(plainConfig(configuration.fiber.config)).toEqual({
+    expect(plainConfig(configuration.fiber.effectiveConfig)).toEqual({
       busyEnter: DEFAULT_BUSY_ENTER_BEHAVIOR,
       contentWidth: DEFAULT_CONTENT_WIDTH,
     })
     await configuration.update({ busyEnter: 'steer', contentWidth: 970 })
-    expect(plainConfig(configuration.fiber.config)).toEqual({ busyEnter: 'steer', contentWidth: 970 })
+    expect(plainConfig(configuration.fiber.effectiveConfig)).toEqual({ busyEnter: 'steer', contentWidth: 970 })
     await expect(configuration.update({ busyEnter: 'invalid' })).rejects.toThrow()
     await expect(configuration.update({ contentWidth: -1 })).rejects.toThrow()
     await fiber.dispose()

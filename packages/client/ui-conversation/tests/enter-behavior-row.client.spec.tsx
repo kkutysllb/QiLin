@@ -2,7 +2,7 @@
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { SessionListState } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
@@ -14,7 +14,6 @@ import { en } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 afterEach(() => {
   cleanup()
@@ -46,7 +45,7 @@ function mount() {
     useSessionStatus: noPendingInteraction(),
     useSessionRetainInfo: () => undefined,
     useResource,
-    useRemoteAccess,
+    ...allowAllAccess,
     useWorkspaces: emptyWorkspaces(),
     useBusyEnter: bindSnapshotSelector(policy.busyEnter),
     setBusyEnter,

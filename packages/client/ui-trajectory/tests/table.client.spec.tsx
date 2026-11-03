@@ -4,7 +4,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { AttachmentId } from '@qilin-agent/attachment'
-import type { ComponentProps } from 'react'
+import { useState, type ComponentProps } from 'react'
 import type { RenderMessageImages } from '@qilin-agent/client-ui-conversation/client'
 import { TrajectoryTable as LocalizedTrajectoryTable } from '../src/client/TrajectoryTable.tsx'
 import { deriveTrajectoryLayout, type TrajectoryTurnModel } from '../src/client/layout.ts'
@@ -122,6 +122,8 @@ const FOLD_PROPS = {
   onToggleTurn: () => {},
   collapsedAssistants: new Set<string>(),
   onToggleAssistant: () => {},
+  collapsedTools: new Set<string>(),
+  onToggleTool: () => {},
 }
 
 describe('TrajectoryTable', () => {
@@ -172,6 +174,8 @@ describe('TrajectoryTable', () => {
         onToggleTurn={() => {}}
         collapsedAssistants={new Set([trajectoryRecordId(assistant)])}
         onToggleAssistant={() => {}}
+        collapsedTools={new Set()}
+        onToggleTool={() => {}}
       />,
     )
 
@@ -1035,13 +1039,13 @@ describe('TrajectoryTable', () => {
     expect(toolTag?.getAttribute('title')).toBeNull()
     expect(toolIcon).toBeTruthy()
 
-    fireEvent.mouseEnter(toolTag as HTMLElement)
+    fireEvent.pointerEnter(toolTag as HTMLElement)
     expect(screen.queryByRole('tooltip')).toBeNull()
-    fireEvent.mouseEnter(toolIcon as HTMLElement)
+    fireEvent.pointerEnter(toolIcon as HTMLElement)
     const tooltip = screen.getByRole('tooltip')
     expect(tooltip.textContent).toBe('TOOL')
     expect(tooltip.getAttribute('data-side')).toBe('right')
-    fireEvent.mouseLeave(toolIcon as HTMLElement)
+    fireEvent.pointerLeave(toolIcon as HTMLElement)
     expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
@@ -1285,5 +1289,163 @@ describe('TrajectoryTable', () => {
 
     expect(screen.getByRole('row', { name: /TOOL/ }).getAttribute('aria-selected')).toBe('false')
     expect(onInspectApplied).not.toHaveBeenCalled()
+  })
+
+  const NESTED_CALL_TURNS: readonly TrajectoryTurnModel[] = [{
+    turn: 1,
+    groups: [{
+      title: 'Step 1',
+      cells: [
+        {
+          index: 1,
+          kind: 'message',
+          text: 'Plan',
+          outputDetail: 'Plan',
+          timeSeconds: 1,
+        },
+        {
+          index: 2,
+          kind: 'tool',
+          text: 'run_code · {"code":"..."}',
+          inputDetail: '{"code":"..."}',
+          callId: 'root',
+          timeSeconds: 0.5,
+        },
+        {
+          index: 3,
+          kind: 'subtool',
+          text: 'bash · {"command":"ls"}',
+          callId: 'nested-first',
+          timeSeconds: 0.1,
+        },
+        {
+          index: 4,
+          kind: 'subtool',
+          text: 'read · {"file":"a"}',
+          callId: 'nested-target',
+          timeSeconds: 0.1,
+        },
+        {
+          index: 5,
+          kind: 'tool',
+          text: 'write · {"file":"b"}',
+          callId: 'sibling',
+          timeSeconds: 0.2,
+        },
+      ],
+    }],
+  }]
+
+  const NESTED_CALLS = NESTED_CALL_TURNS[0]!.groups[0]!.cells
+  const NESTED_ASSISTANT_ID = trajectoryRecordId(NESTED_CALLS[0]!)
+  const NESTED_TOOL_ID = trajectoryRecordId(NESTED_CALLS[1]!)
+
+  function toggled<T>(current: ReadonlySet<T>, id: T): Set<T> {
+    const next = new Set(current)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    return next
+  }
+
+  function NestedCallTable({
+    initialAssistants = [],
+    initialTools = [],
+    initialTurns = [],
+    inspectCallId,
+    onInspectApplied,
+  }: {
+    initialAssistants?: readonly string[]
+    initialTools?: readonly string[]
+    initialTurns?: readonly number[]
+    inspectCallId?: string
+    onInspectApplied?: () => void
+  }) {
+    const [collapsedAssistants, setCollapsedAssistants] = useState(() => new Set(initialAssistants))
+    const [collapsedTools, setCollapsedTools] = useState(() => new Set(initialTools))
+    const [collapsedTurns, setCollapsedTurns] = useState(() => new Set(initialTurns))
+    return (
+      <TrajectoryTable
+        turns={NESTED_CALL_TURNS}
+        collapsedAssistants={collapsedAssistants}
+        onToggleAssistant={(id) => { setCollapsedAssistants(current => toggled(current, id)) }}
+        collapsedTools={collapsedTools}
+        onToggleTool={(id) => { setCollapsedTools(current => toggled(current, id)) }}
+        collapsedTurns={collapsedTurns}
+        onToggleTurn={(turn) => { setCollapsedTurns(current => toggled(current, turn)) }}
+        {...(inspectCallId === undefined ? {} : { inspectCallId })}
+        {...(onInspectApplied === undefined ? {} : { onInspectApplied })}
+      />
+    )
+  }
+
+  it('folds only a tool\'s subcalls and keeps its sibling tool visible', () => {
+    render(<NestedCallTable initialTools={[NESTED_TOOL_ID]} />)
+
+    const summary = screen.getByRole('row', {
+      name: /Collapsed subcalls summary, 2 tool calls · bash, read/,
+    })
+    expect(summary.getAttribute('data-collapsed-summary')).toBe('tool')
+    expect(summary.textContent).toBe('…2 tool calls · bash, read')
+    expect(summary.tabIndex).toBe(0)
+    expect(screen.getByRole('row', { name: /TOOL.*run_code/ })).toBeTruthy()
+    expect(screen.getByRole('row', { name: /TOOL.*write/ })).toBeTruthy()
+    expect(screen.queryByRole('row', { name: /SUBTOOL/ })).toBeNull()
+  })
+
+  it.each(['click', 'Enter', ' '])('expands a folded subcall summary with %j', (activation) => {
+    render(<NestedCallTable initialTools={[NESTED_TOOL_ID]} />)
+    const summary = screen.getByRole('row', { name: /Collapsed subcalls summary/ })
+
+    if (activation === 'click') fireEvent.click(summary)
+    else fireEvent.keyDown(summary, { key: activation })
+
+    expect(screen.getAllByRole('row', { name: /SUBTOOL/ })).toHaveLength(2)
+    expect(screen.queryByRole('row', { name: /Collapsed subcalls summary/ })).toBeNull()
+  })
+
+  it('preserves nested fold state while outer summaries expand', () => {
+    render(
+      <NestedCallTable
+        initialAssistants={[NESTED_ASSISTANT_ID]}
+        initialTools={[NESTED_TOOL_ID]}
+        initialTurns={[1]}
+      />,
+    )
+
+    expect(screen.getByRole('row', { name: /Collapsed turn summary/ })).toBeTruthy()
+    expect(screen.queryByRole('row', { name: /Collapsed assistant summary/ })).toBeNull()
+    expect(screen.queryByRole('row', { name: /Collapsed subcalls summary/ })).toBeNull()
+
+    fireEvent.click(screen.getByRole('row', { name: /Collapsed turn summary/ }))
+    expect(screen.getByRole('row', { name: /Collapsed assistant summary, 4 tool calls/ }))
+      .toBeTruthy()
+    expect(screen.queryByRole('row', { name: /Collapsed subcalls summary/ })).toBeNull()
+
+    fireEvent.click(screen.getByRole('row', { name: /Collapsed assistant summary/ }))
+    expect(screen.getByRole('row', { name: /Collapsed subcalls summary, 2 tool calls/ }))
+      .toBeTruthy()
+    expect(screen.getByRole('row', { name: /TOOL.*write/ })).toBeTruthy()
+    expect(screen.queryByRole('row', { name: /SUBTOOL/ })).toBeNull()
+
+    fireEvent.click(screen.getByRole('row', { name: /Collapsed subcalls summary/ }))
+    expect(screen.getAllByRole('row', { name: /SUBTOOL/ })).toHaveLength(2)
+    expect(screen.queryByRole('row', { name: /Collapsed/ })).toBeNull()
+  })
+
+  it('expands every collapsed parent when inspecting a nested subcall', () => {
+    const onInspectApplied = vi.fn()
+    render(
+      <NestedCallTable
+        initialAssistants={[NESTED_ASSISTANT_ID]}
+        initialTools={[NESTED_TOOL_ID]}
+        inspectCallId="nested-target"
+        onInspectApplied={onInspectApplied}
+      />,
+    )
+
+    expect(onInspectApplied).toHaveBeenCalledOnce()
+    expect(screen.getByRole('row', { name: /SUBTOOL.*read/ }).getAttribute('aria-selected'))
+      .toBe('true')
+    expect(screen.queryByRole('row', { name: /Collapsed/ })).toBeNull()
   })
 })

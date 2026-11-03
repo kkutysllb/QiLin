@@ -8,7 +8,7 @@ import type { SessionListState, SessionSnapshot } from '@qilin-agent/api-session
 import type { WorkspaceSnapshot, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import {
-  bindSnapshotSelector, makeTranslate, RemoteError, sessionSnapshot as sessionFixture,
+  allowAllAccess, bindSnapshotSelector, makeTranslate, RemoteError, sessionSnapshot as sessionFixture,
 } from '@qilin-agent/client-test-runtime'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
@@ -40,7 +40,6 @@ import type { ViewTab } from '../src/client/contract/views.ts'
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 const FactoryViewsTestContext = createContext<ConversationViewsProps | undefined>(undefined)
 
@@ -254,7 +253,7 @@ function mount(
           useConversation={useConversation}
           useSessions={props.useSessions}
           usePanelInfo={props.usePanelInfo}
-          useResource={useResource} useRemoteAccess={useRemoteAccess}
+          useResource={useResource} {...allowAllAccess}
           useSessionStatus={useSessionStatus}
           useSessionRetainInfo={() => undefined}
           useWorkspaces={props.useWorkspaces}
@@ -278,7 +277,7 @@ function mount(
           useChat={useChat}
           useTrajectory={useTrajectory}
           usePanelInfo={props.usePanelInfo}
-          useResource={useResource} useRemoteAccess={useRemoteAccess}
+          useResource={useResource} {...allowAllAccess}
           useSessionStatus={useSessionStatus}
           useSessionRetainInfo={() => undefined}
           useWorkspaces={props.useWorkspaces}
@@ -309,7 +308,7 @@ function mount(
           useTrajectory={useTrajectory}
           useSessions={props.useSessions}
           usePanelInfo={props.usePanelInfo}
-          useResource={useResource} useRemoteAccess={useRemoteAccess}
+          useResource={useResource} {...allowAllAccess}
           useSessionStatus={useSessionStatus}
           useSessionRetainInfo={() => undefined}
           useWorkspaces={props.useWorkspaces}
@@ -332,7 +331,7 @@ function mount(
         <InputBar
           sessionId={SID}
           SessionProvider={({ children }) => children}
-          useResource={useResource} useRemoteAccess={useRemoteAccess}
+          useResource={useResource} {...allowAllAccess}
           useSession={useSession}
           useConversation={useConversation}
           useSessions={props.useSessions}
@@ -395,7 +394,7 @@ function mount(
       useSessions: bindSnapshotSelector(sessions),
       usePanelInfo: selector => selector({ activePanelId: null }),
       useResource,
-      useRemoteAccess,
+      ...allowAllAccess,
       useSessionStatus,
       useSessionRetainInfo: () => undefined,
       useWorkspaces: bindSnapshotSelector(workspaces),
@@ -434,7 +433,7 @@ function mount(
     useSessionStatus,
     useSessionRetainInfo: () => undefined,
     useResource,
-    useRemoteAccess,
+    ...allowAllAccess,
     useWorkspaces: bindSnapshotSelector(workspaces),
     useProjection: (() => undefined),
     useInput,
@@ -971,9 +970,9 @@ describe('View row More menu', () => {
     })
     const tooltipFor = (label: string): string | null => {
       const span = within(b.view.getByRole('tab', { name: label })).getByText(label)
-      fireEvent.mouseEnter(span)
+      fireEvent.pointerEnter(span)
       const tooltip = screen.queryByRole('tooltip', { hidden: true })?.textContent ?? null
-      fireEvent.mouseLeave(span)
+      fireEvent.pointerLeave(span)
       return tooltip
     }
     expect(tooltipFor('Chat')).toBeNull()

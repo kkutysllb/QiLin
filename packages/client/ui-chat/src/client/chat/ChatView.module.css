@@ -221,9 +221,11 @@
   right: 0;
   bottom: 16px;
   left: 0;
-  /* Above the sticky composer (z-index 7); the @/slash menu lifts its seat to
-     9 so this control never covers an open menu. Flex centers the button on
-     the composer's axis, per this fork's centered-anchor variant. */
+  /* Above transcript sticky chrome (CodeBlock banners 6, the pinned compaction
+     header and turn rail 7) and below the composer seat (9, ui-conversation
+     ConversationRoot), so menus the composer opens upward cover this control.
+     At rest the control sits 16px above the input card. Flex centers the button
+     on the composer's axis, per this fork's centered-anchor variant. */
   z-index: 8;
   height: 0;
   display: flex;

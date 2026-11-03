@@ -7,7 +7,7 @@ import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/cl
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { createSnapshotStore } from '@qilin-agent/client-store'
-import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { PerformanceUsageRow, type PerformanceUsageRowProps } from '../src/client/settings/PerformanceUsageRow.tsx'
 import type { PerformanceUsageMode } from '../src/chat-settings.ts'
 import { en } from '../src/client/locale.ts'
@@ -15,7 +15,6 @@ import { en } from '../src/client/locale.ts'
 afterEach(cleanup)
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 function mount(mode: PerformanceUsageMode = 'compact') {
   const source = createSnapshotStore(mode)
@@ -31,7 +30,7 @@ function mount(mode: PerformanceUsageMode = 'compact') {
     })),
     useSessionRetainInfo: () => undefined,
     useResource,
-    useRemoteAccess,
+    ...allowAllAccess,
     usePerformanceUsage: bindSnapshotSelector(source),
     setPerformanceUsage,
     t: makeTranslate(en),

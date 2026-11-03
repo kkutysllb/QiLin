@@ -6,7 +6,7 @@ import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/cl
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { createSnapshotStore } from '@qilin-agent/client-store'
-import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { TranscriptViewRow, type TranscriptViewRowProps } from '../src/client/settings/TranscriptViewRow.tsx'
 import type { TranscriptViewMode } from '../src/chat-settings.ts'
 import type { CollapseTiming } from '../src/client/presentation-policy.ts'
@@ -32,7 +32,6 @@ function noPendingInteraction() {
 
 // The resource hook the resources plugin merges into GlobalStandardProps; this row reads no address.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 function mount(mode: TranscriptViewMode = 'compact', dictionary: typeof en | typeof zh = en) {
   const source = createSnapshotStore(mode)
@@ -46,7 +45,7 @@ function mount(mode: TranscriptViewMode = 'compact', dictionary: typeof en | typ
     useWorkspaces: emptyWorkspaces(),
     useSessionRetainInfo: () => undefined,
     useResource,
-    useRemoteAccess,
+    ...allowAllAccess,
     useTranscriptView: bindSnapshotSelector(source),
     setTranscriptView,
     useCollapseTiming: bindSnapshotSelector(collapseTiming),

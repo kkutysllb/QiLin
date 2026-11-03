@@ -368,20 +368,20 @@ describe('composer stats pills', () => {
     const { source } = makeSource({ nodes: [timedStep()] })
     const view = render(<StatsPills {...props(source)} />)
     const usagePill = view.getAllByRole('button')[1]!
-    fireEvent.mouseEnter(usagePill)
+    fireEvent.pointerEnter(usagePill)
     expect(view.queryByRole('tooltip')?.textContent ?? null).toBe(overflow ? '105 tok · Cache hit 90%' : null)
     // The open dialog carries every figure, so the tooltip yields to it.
     fireEvent.click(usagePill)
-    fireEvent.mouseEnter(usagePill)
+    fireEvent.pointerEnter(usagePill)
     expect(view.queryByRole('tooltip')).toBeNull()
     fireEvent.keyDown(document, { key: 'Escape' })
-    fireEvent.mouseLeave(usagePill)
+    fireEvent.pointerLeave(usagePill)
     view.rerender(<StatsPills {...props(source, { tokenUsage: USAGE }, 'compact')} />)
     const plainPill = view.getByText('Cache hit 90%').parentElement!
-    fireEvent.mouseEnter(plainPill)
+    fireEvent.pointerEnter(plainPill)
     expect(view.queryByRole('tooltip')?.textContent ?? null).toBe(overflow ? 'Cache hit 90%' : null)
     // A tap pins the static reading's tooltip, since no dialog shows it.
-    fireEvent.mouseLeave(plainPill)
+    fireEvent.pointerLeave(plainPill)
     fireEvent.click(plainPill)
     expect(view.queryByRole('tooltip')?.textContent ?? null).toBe(overflow ? 'Cache hit 90%' : null)
   })

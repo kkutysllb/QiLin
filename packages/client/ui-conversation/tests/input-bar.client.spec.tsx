@@ -16,7 +16,7 @@ import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { createPortal } from 'react-dom'
 import { $getRoot, $isTextNode } from 'lexical'
 import {
-  bindSnapshotSelector, conversationSnapshot as conversationFixture, makeTranslate, RemoteError,
+  allowAllAccess, bindSnapshotSelector, conversationSnapshot as conversationFixture, makeTranslate, RemoteError,
   sessionSnapshot as sessionFixture,
 } from '@qilin-agent/client-test-runtime'
 import { createSnapshotStore } from '@qilin-agent/client-store'
@@ -38,7 +38,6 @@ import { en, zh } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 afterEach(cleanup)
 
@@ -182,7 +181,7 @@ function bench(over?: BenchOptions) {
     useSessionStatus: bindSnapshotSelector(createSnapshotStore(new Map())),
     useSessionRetainInfo: () => undefined,
     useResource,
-    useRemoteAccess,
+    ...allowAllAccess,
     useSessions: bindSnapshotSelector(createSnapshotStore<SessionListState>({
       ids: [], byId: {}, phase: 'ready',
       projectionsBySession: {},
@@ -958,11 +957,36 @@ describe('Enter semantics', () => {
 })
 
 describe('running and lock semantics', () => {
+  // The docked seat is the containing block for fixed descendants, so control
+  // tooltips render under the document body rather than inside the composer.
+  it('renders every control tooltip outside the composer subtree', () => {
+    vi.useFakeTimers()
+    try {
+      const { view } = bench({ running: true })
+      const shown: string[] = []
+      for (const control of view.container.querySelectorAll('button')) {
+        fireEvent.pointerEnter(control)
+        act(() => { vi.advanceTimersByTime(500) })
+        const tooltip = view.queryByRole('tooltip')
+        if (tooltip !== null) {
+          shown.push(control.getAttribute('aria-label') ?? '')
+          expect(view.container.contains(tooltip)).toBe(false)
+          expect(document.body.contains(tooltip)).toBe(true)
+        }
+        fireEvent.pointerLeave(control)
+        act(() => { vi.advanceTimersByTime(500) })
+      }
+      expect(shown).toEqual(expect.arrayContaining(['添加文件或调用指令', '停止生成']))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('dismisses the Stop tooltip when an empty composer becomes idle', () => {
     vi.useFakeTimers()
     try {
       const { button, view, session } = bench({ running: true })
-      fireEvent.mouseEnter(button)
+      fireEvent.pointerEnter(button)
       act(() => { vi.advanceTimersByTime(500) })
       expect(view.getByRole('tooltip').textContent).toBe('停止生成')
 

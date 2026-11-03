@@ -444,7 +444,7 @@ export const InputBar = memo(function InputBar({
         />
         <div ref={rowRef} className={css.row}>
           <div className={css.tools} hidden={activity}>
-            <Tooltip label={t('input.commands')} side="top" delayMs={500}>
+            <Tooltip label={t('input.commands')} side="top" delayMs={500} portal>
               <button
                 type="button"
                 className={css.add}
@@ -487,7 +487,7 @@ export const InputBar = memo(function InputBar({
               </div>
             )}
             {interruptible && (
-              <Tooltip label={t('input.stop')} shortcutKeys={stopKeys} side="top" delayMs={500} disabled={stop === undefined}>
+              <Tooltip label={t('input.stop')} shortcutKeys={stopKeys} side="top" delayMs={500} disabled={stop === undefined} portal>
                 <button
                   type="button"
                   className={css.primary}
@@ -502,7 +502,7 @@ export const InputBar = memo(function InputBar({
                 </button>
               </Tooltip>
             )}
-            <Tooltip label={primaryStops ? t('input.stop') : primaryLabel} shortcutKeys={primaryStops ? stopKeys : undefined} side="top" delayMs={500} disabled={primaryDisabled}>
+            <Tooltip label={primaryStops ? t('input.stop') : primaryLabel} shortcutKeys={primaryStops ? stopKeys : undefined} side="top" delayMs={500} disabled={primaryDisabled} portal>
               <button
                 type="button"
                 className={css.primary}

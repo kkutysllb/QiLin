@@ -26,7 +26,7 @@ import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/cl
 import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { KeyedSnapshotSelectorHook, SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
-import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
 import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin-agent/client-ui-conversation/client'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
@@ -73,7 +73,6 @@ function formatRunDuration(ms: number, t: Parameters<typeof durationParts>[1]): 
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
-const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 
 afterEach(() => {
   cleanup()
@@ -458,7 +457,7 @@ function makeHarness(
     useSessions: emptySessions(),
     useSessionRetainInfo: () => undefined,
     useResource,
-    useRemoteAccess,
+    ...allowAllAccess,
     useSessionStatus: bindSnapshotSelector(
       createSnapshotStore<SessionStatusSnapshot>(new Map()),
     ),
