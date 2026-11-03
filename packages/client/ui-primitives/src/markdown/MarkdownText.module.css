@@ -305,10 +305,14 @@
    on hover/focus. An underline at rest reads badly inside the code chip, where
    it collides with monospace descenders and the pill background. */
 .fileMention {
-  margin: 0;
-  padding: 0;
+  /* A mention of a file the agent produced highlights its code chip: the
+     negative margins fill the chip's own padding so the accent pill covers
+     the whole chip rather than nesting inside it. */
+  margin: 0 -5px;
+  padding: 0 5px;
   border: none;
-  background: none;
+  border-radius: 6px;
+  background: var(--qilin-specific-bubble-highlight);
   font: inherit;
   font-weight: 500;
   color: var(--qilin-alias-link);

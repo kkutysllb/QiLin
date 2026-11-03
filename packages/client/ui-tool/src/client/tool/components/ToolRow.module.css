@@ -135,6 +135,18 @@
   text-decoration-color: currentColor;
 }
 
+/* While the agent operates on a file, its path link is highlighted — the same
+   treatment in the standard and coding transcripts — so the file being touched
+   reads at a glance. A settled row returns to the ordinary link affordance. */
+.root[data-state='preparing'] .fileLink,
+.root[data-state='running'] .fileLink {
+  color: var(--qilin-alias-link);
+  background: var(--qilin-specific-bubble-highlight);
+  border-radius: 4px;
+  padding: 0 4px;
+  text-decoration: none;
+}
+
 /* Error row's collapsed summary: the failure's first line in the error color. */
 .errorSummary {
   color: var(--qilin-alias-state-error-primary);
