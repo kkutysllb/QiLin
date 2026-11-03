@@ -9,6 +9,7 @@ import type { LocalizedText } from '@qilin-agent/package-manifest'
 import {
   type LocaleDictOf, type LocaleNamespaceMap, type Translate, type TranslateNS,
 } from '@qilin-agent/client-ui-slots'
+import type { BoundActions } from '@qilin-agent/client-ui-slots'
 // Type-only: the ctx.configForms Context merge and the settings slot types.
 // Cross-plugin collaboration goes through the service, never a value import
 // (client bundle purity gate).
@@ -16,10 +17,12 @@ import type { ConfigForm } from '@qilin-agent/client-ui-settings/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
 import type {} from '@qilin-agent/client-ui-renderer/client'
 import {
-  LOCALE_ID_PATTERN, LOCALE_IDS, LOCALE_PREFERENCE_FIELD, LOCALE_SETTINGS_NAMESPACE,
+  LOCALE_ID_PATTERN, LOCALE_IDS, LOCALE_PREFERENCE_FIELD, LOCALE_ROW_NS, LOCALE_SETTINGS_NAMESPACE,
   type BuiltInLocaleId, type LocaleId, type LocaleSettings,
 } from '../locale-settings.ts'
 import { en, zh, type CommonKey } from '../locales/index.ts'
+import type { LanguageRowKey } from './locales.ts'
+import { LanguageRow, createLanguageRowStore, type LanguageRowInjected } from './language-row.tsx'
 
 export type { CommonKey } from '../locales/index.ts'
 export type { BuiltInLocaleId, LocaleId, LocaleSettings } from '../locale-settings.ts'
@@ -33,6 +36,8 @@ declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Shared cross-feature vocabulary, consulted by the lookup chain after the entry's own namespace misses. */
     common: CommonKey
+    /** The General settings language card's copy. */
+    'settings.locale': LanguageRowKey
   }
 }
 
@@ -533,10 +538,10 @@ function detectBrowserLocale(locales: readonly LocaleDefinition[]): LocaleId | u
 export const inject = ['slots', 'remote', 'configForms']
 
 /**
- * Client plugin body: provide the locale service with base dictionaries and
- * keep `<html lang>` in step with the active locale. The account menu is the
- * surface that switches languages; this plugin owns the preference and its
- * registry, not a settings row.
+ * Client plugin body: provide the locale service with base dictionaries, keep
+ * `<html lang>` in step with the active locale, and register the General
+ * settings language card (mirroring the account menu's language submenu; both
+ * write through {@link LocaleRuntime.setLocale}).
  * @param ctx - client cordis context.
  */
 export function apply(ctx: ClientContext): void {
@@ -554,4 +559,27 @@ export function apply(ctx: ClientContext): void {
   // (browser detection, or a stored preference adopted after activation), so
   // state it once at activation rather than waiting for the first change.
   sync()
+
+  // The General settings language card mirrors the account menu's language
+  // submenu; both write through setLocale, the only preference write entry.
+  const languageStore = createLanguageRowStore()
+  let languageBound: BoundActions<typeof languageStore> | undefined
+  const syncLanguageRow = (): void => {
+    const snapshot = locale.getSnapshot()
+    languageBound?.sync(snapshot.active, snapshot.locales, snapshot.revision)
+  }
+  ctx.effect(() => locale.subscribe(syncLanguageRow), 'locale: settings language card sync')
+  ctx.locale.register(LOCALE_ROW_NS, { zh: { title: '语言' }, en: { title: 'Language' } })
+  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
+    name: 'settings.general.item',
+    id: 'language',
+    order: 12,
+    store: languageStore,
+    locale: LOCALE_ROW_NS,
+    inject: (actions: BoundActions<typeof languageStore>): LanguageRowInjected => {
+      languageBound = actions
+      syncLanguageRow()
+      return { setLocale: (id) => { locale.setLocale(id) } }
+    },
+  }, LanguageRow))
 }

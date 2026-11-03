@@ -25,6 +25,10 @@
   - button "减小字号"
   - text: px
   - button "更多字体设置"
+  - text: 语言
+  - group "语言":
+    - button "中文" [pressed]
+    - button "English"
   - text: 工作步骤展示 选择希望看到多少工具调用细节
   - button "详细"
   - text: 过程收起时机 任务完成后立即收起过程，或保留到下次发送消息时再收起

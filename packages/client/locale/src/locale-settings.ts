@@ -5,6 +5,9 @@ import z from '@qilin-agent/schemastery'
 /** Settings namespace owned by the locale plugin. */
 export const LOCALE_SETTINGS_NAMESPACE = 'locale'
 
+/** Settings namespace carrying the General settings language card's copy. */
+export const LOCALE_ROW_NS = 'settings.locale'
+
 /** Field carrying an explicit locale selection; absence delegates to the browser. */
 export const LOCALE_PREFERENCE_FIELD = 'preference'
 

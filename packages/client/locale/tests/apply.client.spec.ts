@@ -49,8 +49,15 @@ describe('locale apply', () => {
     expect(inject).toEqual(['slots', 'remote', 'configForms'])
   })
 
-  it('provides the service with the base dictionaries and leaves the settings rows to their features', async () => {
+  it('provides the service with base dictionaries and registers the General settings language card', async () => {
+    // The General settings language card rides the same apply: one contribution
+    // at the seat, mirroring the account menu's language submenu. The settings
+    // shell stands in for the declaring root, declared before the plugin applies.
     const before = await bench()
+    before.slots.register(
+      { name: 'root', children: { 'settings.general.item': { kind: 'list', scope: 'root' } } } as never,
+      () => null,
+    )
     await before.ctx.plugin({ inject: [...inject], apply }).await()
     const locale = before.ctx.get('locale') as LocaleRuntime
     // Base dictionaries are registered: the (ns, locale) seats are occupied.
@@ -61,6 +68,9 @@ describe('locale apply', () => {
     locale.setLocale('zh')
     expect(locale.bind('common')('brand.localBuild')).toBe('QiLin')
     expect(locale.getLocale().locales.map(l => l.id)).toEqual(['zh', 'en'])
+    const entry = before.slots.entries('settings.general.item').find(e => e.options.id === 'language')
+    expect(entry?.locale).toBe('settings.locale')
+    expect(entry?.options).toMatchObject({ order: 12 })
   })
 
   it('projects external locale registration and disposal into the registry', async () => {

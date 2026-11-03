@@ -25,6 +25,10 @@
   - button "Decrease font size"
   - text: px
   - button "More font settings"
+  - text: Language
+  - group "Language":
+    - button "中文"
+    - button "English" [pressed]
   - text: Work details Choose how much tool-call detail to show
   - button "Detailed"
   - text: Collapse work details Collapse work details when a task finishes, or keep them until you send the next message
