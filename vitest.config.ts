@@ -231,9 +231,6 @@ export default defineConfig({
         // Generator output is reproduced from source by its generator and is
         // exercised through the modules that import it.
         'packages/*/*/src/*.generated.ts',
-        // The keyless Web assembly lane (vitest.web.config.ts) owns this fixture;
-        // no product or unit path imports it, so the unit gate cannot measure it.
-        'packages/client/connection/src/client/fixture.ts',
         // The built Node entry invokes the independently covered process bootstrap through fd 7.
         'packages/ptc-runtime/ptc-runtime-node/src/process-entry.ts',
         // Dynamic Host/Client composition is covered by its focused lifecycle

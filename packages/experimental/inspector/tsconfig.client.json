@@ -35,7 +35,6 @@
     "src/client/inspection/realm.ts",
     "src/client/plugin.ts",
     "src/shared/bridge/buffer.ts",
-    "src/shared/bridge/codec.ts",
     "src/shared/bridge/control-codec.ts",
     "src/shared/bridge/ids.ts",
     "src/shared/bridge/messages/control.ts",
@@ -59,7 +58,6 @@
     "src/shared/bridge/publisher.ts",
     "src/shared/bridge/query-reader.ts",
     "src/shared/bridge/rpc.ts",
-    "src/shared/bridge/validation.ts",
     "src/shared/bridge/version.ts",
     "src/shared/cdp/capabilities.ts",
     "src/shared/cdp/console.ts",
@@ -84,7 +82,6 @@
     "src/shared/cordis/snapshot.ts",
     "src/shared/dispose.ts",
     "src/shared/identity.ts",
-    "src/shared/index.ts",
     "src/shared/json.ts",
     "src/shared/network/event-source.ts",
     "src/shared/network/observation.ts",
@@ -93,14 +90,30 @@
     "src/shared/web.ts"
   ],
   "references": [
-    { "path": "../../client/ui-renderer" },
-    { "path": "../../client/ui-layout" },
-    { "path": "../../client/shortcuts/tsconfig.client.json" },
-    { "path": "../../client/store" },
-    { "path": "../../client/ui-slots" },
-    { "path": "../../client/ui-primitives" },
-    { "path": "../../client/locale/tsconfig.client.json" },
-    { "path": "../../client/connection/tsconfig.client.json" },
+    {
+      "path": "../../client/ui-renderer"
+    },
+    {
+      "path": "../../client/ui-layout"
+    },
+    {
+      "path": "../../client/shortcuts/tsconfig.client.json"
+    },
+    {
+      "path": "../../client/store"
+    },
+    {
+      "path": "../../client/ui-slots"
+    },
+    {
+      "path": "../../client/ui-primitives"
+    },
+    {
+      "path": "../../client/locale/tsconfig.client.json"
+    },
+    {
+      "path": "../../client/connection/tsconfig.client.json"
+    },
     {
       "path": "../../util/brand"
     },

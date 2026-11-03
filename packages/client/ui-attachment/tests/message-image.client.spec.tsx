@@ -122,7 +122,7 @@ describe('MessageImage', () => {
     const view = render(<MessageImage image={{ attachment }} load={load} variant="single" labels={labels} />)
     const first = await view.findByAltText('history.png')
     fireEvent.error(first)
-    await waitFor(() => expect(load).toHaveBeenCalledTimes(2))
+    await waitFor(() => { expect(load).toHaveBeenCalledTimes(2) })
     // The second failure exhausts the automatic re-read; the retry button
     // takes over instead of looping against permanently broken bytes.
     fireEvent.error(view.getByAltText('history.png'))

@@ -54,7 +54,7 @@ function writeSources(root: string, typedSource: boolean, lib: boolean): void {
 
 function consumerProgram(root: string, imports: readonly string[]): { program: ts.Program; host: ts.CompilerHost } {
   const consumer = join(root, 'packages', 'consumer')
-  writeFileSync(join(consumer, 'src', 'index.ts'), `${imports.map(specifier => `import '${specifier}'\n`).join('')}`)
+  writeFileSync(join(consumer, 'src', 'index.ts'), imports.map(specifier => `import '${specifier}'\n`).join(''))
   const options: ts.CompilerOptions = {
     module: ts.ModuleKind.NodeNext,
     moduleResolution: ts.ModuleResolutionKind.NodeNext,

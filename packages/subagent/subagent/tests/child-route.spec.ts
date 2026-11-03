@@ -114,7 +114,7 @@ describe('Session route policy', () => {
 
   it('rejects a route the recorded allowlist never authorized', () => {
     const parent = parentOn(Session.create(SessionId('bounded'), [policyEvent(ROUTES)]))
-    expect(() => assertChildRouteAuthorized(parent, undefined, { provider: 'zai-coding-cn', model: 'glm-5.3' }))
+    expect(() => { assertChildRouteAuthorized(parent, undefined, { provider: 'zai-coding-cn', model: 'glm-5.3' }) })
       .not.toThrow()
     let thrown: unknown
     try {
@@ -128,7 +128,7 @@ describe('Session route policy', () => {
 
   it('leaves a start without a named route unchecked', () => {
     const parent = parentOn(Session.create(SessionId('bounded'), [policyEvent(ROUTES)]))
-    expect(() => assertChildRouteAuthorized(parent, undefined, { reasoningEffort: ReasoningEffortId('high') }))
+    expect(() => { assertChildRouteAuthorized(parent, undefined, { reasoningEffort: ReasoningEffortId('high') }) })
       .not.toThrow()
   })
 })
@@ -144,9 +144,9 @@ describe('route authorization', () => {
   })
 
   it('rejects malformed or repeated route policies', () => {
-    expect(() => assertAllowedModelRoutes([{ provider: 'a', model: 'b' }, { provider: 'a', model: 'b' }]))
+    expect(() => { assertAllowedModelRoutes([{ provider: 'a', model: 'b' }, { provider: 'a', model: 'b' }]) })
       .toThrow(/repeats route/)
-    expect(() => assertAllowedModelRoutes([{ provider: '', model: 'b' }])).toThrow(/non-empty/)
-    expect(() => assertAllowedModelRoutes('routes')).toThrow(/array of routes/)
+    expect(() => { assertAllowedModelRoutes([{ provider: '', model: 'b' }]) }).toThrow(/non-empty/)
+    expect(() => { assertAllowedModelRoutes('routes') }).toThrow(/array of routes/)
   })
 })

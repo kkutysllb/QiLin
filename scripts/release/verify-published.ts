@@ -132,24 +132,24 @@ class NpmRegistrySnapshot implements RegistrySnapshot {
     private readonly environment: NodeJS.ProcessEnv = process.env,
   ) {}
 
-  async versions(name: string): Promise<readonly string[] | undefined> {
+  versions(name: string): Promise<readonly string[] | undefined> {
     const cached = this.versionCache.get(name)
     if (cached !== undefined) return cached
-    const pending = this.readVersions(name)
+    const pending = Promise.resolve().then(() => this.readVersions(name))
     this.versionCache.set(name, pending)
     return pending
   }
 
-  async sections(name: string, version: string): Promise<PublishedSections | undefined> {
+  sections(name: string, version: string): Promise<PublishedSections | undefined> {
     const key = `${name}@${version}`
     const cached = this.sectionCache.get(key)
     if (cached !== undefined) return cached
-    const pending = this.readSections(name, version)
+    const pending = Promise.resolve().then(() => this.readSections(name, version))
     this.sectionCache.set(key, pending)
     return pending
   }
 
-  private async readVersions(name: string): Promise<readonly string[] | undefined> {
+  private readVersions(name: string): readonly string[] | undefined {
     const result = attemptNpmView([name, 'versions', '--json'], this.registry, this.environment)
     if (isRegistryMiss(result)) return undefined
     if (result.status !== 0) throw new Error(`npm view ${name} versions failed: ${result.stderr.trim()}`)
@@ -162,7 +162,7 @@ class NpmRegistrySnapshot implements RegistrySnapshot {
     return parsed as readonly string[]
   }
 
-  private async readSections(name: string, version: string): Promise<PublishedSections | undefined> {
+  private readSections(name: string, version: string): PublishedSections | undefined {
     const spec = `${name}@${version}`
     const result = attemptNpmView(
       [spec, ...RESOLVED_SECTIONS, 'peerDependenciesMeta', '--json'],

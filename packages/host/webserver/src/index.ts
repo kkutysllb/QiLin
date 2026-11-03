@@ -447,7 +447,7 @@ export class WebServer extends Service {
    */
   registerFallback(handler: WebRoute['handler']): () => void {
     // Same caller-fiber binding as claim().
-    return this.ctx.effect(() => {
+    const dispose = this.ctx.effect(() => {
       const incumbent = this.fallback
       if (incumbent !== undefined && incumbent.owner.fiber.uid !== null) {
         throw new Error(`webserver: fallback already registered (owned by ${incumbent.owner.label})`)
@@ -463,6 +463,7 @@ export class WebServer extends Service {
         if (this.fallback === claim) this.fallback = undefined
       }
     }, 'webServer.registerFallback()')
+    return () => void dispose()
   }
 
   /**
@@ -485,7 +486,7 @@ export class WebServer extends Service {
   ): () => void {
     // The traceable service proxy resolves `this.ctx` to the calling context,
     // so this effect and its cleanup belong to the registering fiber.
-    return this.ctx.effect(() => {
+    const dispose = this.ctx.effect(() => {
       const incumbent = table.get(path)
       // A disposed owner's queued cleanup can no longer reclaim the entry, so
       // a replacement replaces it; the old disposer checks claim identity.
@@ -501,6 +502,7 @@ export class WebServer extends Service {
         if (table.get(path) === claim) table.delete(path)
       }
     }, label)
+    return () => void dispose()
   }
 
   /**

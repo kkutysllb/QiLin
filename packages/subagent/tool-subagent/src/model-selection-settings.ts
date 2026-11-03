@@ -37,7 +37,7 @@ export interface Config {
   /** Initial route list inherited when the user document does not override it. */
   allowedModels: Volatile<AllowedModelRoute[]>
   /** Initial default route inherited when the user document does not override it. */
-  defaultRoute: Volatile<AllowedModelRoute>
+  defaultRoute: Volatile<AllowedModelRoute | undefined>
 }
 
 /** Singleton settings owner read when delegation tools are composed for a Session. */

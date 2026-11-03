@@ -103,6 +103,7 @@ const policies = new WeakMap<Session, readonly AllowedModelRoute[] | undefined>(
 /** Read the first policy event a Session recorded, if any. */
 function ownPolicy(session: Session): readonly AllowedModelRoute[] | undefined {
   for (let index = 0; index <= Number(session.seq); index += 1) {
+    // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
     const event = session.eventAt(SessionSeq(index))
     if (event?.type !== 'subagent/model-selection-policy') continue
     return event.data.allowedModels
@@ -135,7 +136,7 @@ export function childRoutePolicy(
       return policy
     }
     const parentId: SessionId | undefined = session.header.origin === 'subagent'
-      ? (session.header.parentSession as SessionId | undefined)
+      ? session.header.parentSession
       : undefined
     session = parentId === undefined || registry === undefined ? undefined : registry.get(parentId)
   }

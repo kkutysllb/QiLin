@@ -427,7 +427,7 @@ describe('SubagentModelSelectionFields', () => {
   it('disables the default control while a save is running', () => {
     mount({ candidates: [candidate], saving: true })
 
-    expect((screen.getByLabelText(en.subagentModelSelectionDefaultLabel) as HTMLSelectElement).disabled).toBe(true)
+    expect(screen.getByLabelText<HTMLSelectElement>(en.subagentModelSelectionDefaultLabel).disabled).toBe(true)
   })
 })
 

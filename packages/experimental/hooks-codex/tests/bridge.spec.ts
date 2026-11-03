@@ -114,7 +114,7 @@ describe('hooks-codex bridge', () => {
     // Stop ignores its malformed matcher field. Block once with a marker;
     // until the loop guard lands, an always-blocking hook would never finish.
     const marker = join(dir, 'fired')
-    const cont = script(dir, 'cont.sh', `#!/usr/bin/env bash\nif [ -e "${marker}" ]; then exit 0; fi\ntouch "${marker}"\necho "keep going: address the goal" >&2\nexit 2\n`)
+    const cont = script(dir, 'cont.sh', `#!/usr/bin/env bash\nif [ -e "${marker}" ]; then cat > "${join(dir, 'payload.second')}"; exit 0; fi\ntouch "${marker}"\ncat > "${join(dir, 'payload.first')}"\necho "keep going: address the goal" >&2\nexit 2\n`)
     writeHooks(dir, { Stop: [{ matcher: '[', hooks: [{ type: 'command', command: cont }] }] })
 
     const adapter = new MockAdapter([textResponse('first answer'), textResponse('second answer after goal')])
@@ -125,6 +125,10 @@ describe('hooks-codex bridge', () => {
 
     expect(adapter.requests).toHaveLength(2)
     expect(JSON.stringify(adapter.requests[1]!.messages)).toContain('keep going: address the goal')
+    // The first Stop arrives outside a hook-forced continuation; the second
+    // reports stop_hook_active so the hook can avoid looping forever.
+    expect((JSON.parse(readFileSync(join(dir, 'payload.first'), 'utf8')) as Record<string, unknown>).stop_hook_active).toBe(false)
+    expect((JSON.parse(readFileSync(join(dir, 'payload.second'), 'utf8')) as Record<string, unknown>).stop_hook_active).toBe(true)
   }, 15_000) // Two real hook subprocesses and agent steps need startup and teardown headroom under load.
 
   it('turn cancellation aborts and reaps a running UserPromptSubmit hook before idle', async () => {

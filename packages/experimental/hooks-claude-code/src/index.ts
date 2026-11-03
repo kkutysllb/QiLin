@@ -128,6 +128,8 @@ export function apply(ctx: Context, config: Config): void {
   // handle unregisters the agent. Every retained entry relies on that paired
   // end; a producer that can omit it must provide another release edge.
   const subagentChildren = new Map<SubagentRunId, Agent>()
+  /** Consecutive Stop-hook forced continuations per Agent; the CC loop-guard signal. */
+  const forcedStops = new WeakMap<Agent, number>()
   ctx.effect(() => () => detached.drain(), 'hooks-claude-code: drain detached hook runs')
 
   /**
@@ -271,14 +273,20 @@ export function apply(ctx: Context, config: Config): void {
 
   // A blocking Stop hook steers at the stopping boundary, which makes the
   // machine observe pending input and run another step.
-  // TODO(stop-loop-guard): cap consecutive forced continuations; hooks must self-limit meanwhile.
+  // TODO(stop-loop-guard): cap consecutive forced continuations; a Stop hook
+  // receives stop_hook_active and must self-limit meanwhile.
   ctx.on('agent/turn-stopping', async ({ agent, turn, signal }): Promise<void> => {
-    const merged = await runPoint('Stop', '', stopPayload(agent), { agent, turn, signal })
+    const pendingForced = forcedStops.get(agent)
+    const merged = await runPoint('Stop', '', stopPayload(agent, pendingForced !== undefined), { agent, turn, signal })
     if (merged.decision === 'deny') {
-      // A blocking Stop hook forces continuation.
+      // A blocking Stop hook forces continuation; the next Stop payload reports
+      // stop_hook_active so the hook can self-limit.
+      forcedStops.set(agent, (pendingForced ?? 0) + 1)
       const text = merged.reason ?? 'continue: blocked by Stop hook'
       agent.steer(createUserMessage({ content: [{ type: 'text', text }], source: CONTEXT_SOURCE }))
+      return
     }
+    forcedStops.delete(agent)
   })
 
   // SubagentStart may inject child context; SubagentStop only observes. Both
@@ -346,8 +354,8 @@ function preToolPayload(exec: ToolExecution): Record<string, unknown> {
 function postToolPayload(exec: ToolExecution, result: ToolExecutionResult): Record<string, unknown> {
   return { ...base(exec.agent, 'PostToolUse'), tool_name: exec.name, tool_input: exec.arguments, tool_use_id: exec.callId, tool_response: blocksToText(result.content) }
 }
-function stopPayload(agent: Agent): Record<string, unknown> {
-  return { ...base(agent, 'Stop'), stop_hook_active: false }
+function stopPayload(agent: Agent, stopHookActive: boolean): Record<string, unknown> {
+  return { ...base(agent, 'Stop'), stop_hook_active: stopHookActive }
 }
 /**
  * Build a SubagentStart/SubagentStop payload from the CC base (the child's

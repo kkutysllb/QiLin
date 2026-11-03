@@ -208,7 +208,7 @@ export function defineCoverageCases(group: CoverageGroup): void {
     it('a Stop hook that blocks (exit 2) forces the turn to continue (CC dialect)', async () => {
       const d = dir()
       const marker = join(d, 'fired')
-      const s = sh(d, 'stop.sh', `#!/usr/bin/env bash\nif [ -e "${marker}" ]; then exit 0; fi\ntouch "${marker}"\necho "continue please" >&2\nexit 2\n`)
+      const s = sh(d, 'stop.sh', `#!/usr/bin/env bash\nif [ -e "${marker}" ]; then cat > "${join(d, 'payload.second')}"; exit 0; fi\ntouch "${marker}"\ncat > "${join(d, 'payload.first')}"\necho "continue please" >&2\nexit 2\n`)
       const path = hooks(d, { Stop: [{ hooks: [{ type: 'command', command: s }] }] })
       const adapter = new MockAdapter([textResponse('one'), textResponse('two')])
       const ctx = await harness(path, adapter)
@@ -217,6 +217,10 @@ export function defineCoverageCases(group: CoverageGroup): void {
       await waitForIdle(ctx, agent)
       expect(adapter.requests).toHaveLength(2)
       expect(JSON.stringify(adapter.requests[1]!.messages)).toContain('continue please')
+      // The first Stop arrives outside a hook-forced continuation; the second
+      // reports stop_hook_active so the hook can avoid looping forever.
+      expect((JSON.parse(readFileSync(join(d, 'payload.first'), 'utf8')) as Record<string, unknown>).stop_hook_active).toBe(false)
+      expect((JSON.parse(readFileSync(join(d, 'payload.second'), 'utf8')) as Record<string, unknown>).stop_hook_active).toBe(true)
     })
 
     it('a Stop hook that blocks with EMPTY stderr still forces continuation (no reason required)', async () => {

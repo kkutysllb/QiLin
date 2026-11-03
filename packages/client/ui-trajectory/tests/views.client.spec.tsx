@@ -23,6 +23,7 @@ import { EMPTY_CHAT_SNAPSHOT } from '@qilin-agent/client-ui-chat/client'
 import type {
   ChatSnapshot, LegacyConversationSlice,
 } from '@qilin-agent/client-ui-chat/client'
+import type { MessageImageLoader } from '@qilin-agent/client-ui-conversation/client'
 import type {
   SidebarRightTabInfo, SidebarRightTabNavigation,
 } from '@qilin-agent/client-ui-sidebar-right/client'
@@ -45,7 +46,7 @@ import {
 } from '../src/client/trajectory-graph-tab-definition.ts'
 import {
   TrajectoryGraphView,
-  type TrajectoryGraphViewInjected, type TrajectoryGraphViewProps,
+  type TrajectoryGraphViewProps,
 } from '../src/client/TrajectoryGraphView.tsx'
 import type { TrajectoryTurnModel } from '../src/client/layout.ts'
 import { PartialArguments } from '@qilin-agent/util-values'
@@ -767,8 +768,8 @@ describe('trajectory Sidebar tab body', () => {
       .find(candidate => candidate.options.key === TRAJECTORY_GRAPH_ID)
     expect(graphEntry).toBeDefined()
     const GraphView = graphEntry!.component as FC<TrajectoryGraphViewProps>
-    const graphInject = (graphEntry!.inject as unknown as
-      (sessionId: SessionId) => TrajectoryGraphViewInjected)(SID)
+    const graphInjected = (graphEntry!.inject as
+      (sessionId: SessionId) => { loadImage: MessageImageLoader; openLedger: () => void })(SID)
     const firstUrl = 'data:image/png;base64,AAAA'
     const secondUrl = 'data:image/png;base64,BBBBBB'
     let firstPeekUsed = false
@@ -780,14 +781,13 @@ describe('trajectory Sidebar tab body', () => {
       }),
       { peek: vi.fn(() => (!firstPeekUsed && !reloaded ? (firstPeekUsed = true, firstUrl) : undefined)) },
     )
-    render(
-      <GraphView
-        {...(graphInject as unknown as TrajectoryGraphViewProps)}
-        useTrajectory={bindSnapshotSelector(b.trajectoryStore)}
-        t={tZh}
-        {...{ loadImage }}
-      />,
-    )
+    const props: Partial<TrajectoryGraphViewProps> = {
+      useTrajectory: bindSnapshotSelector(b.trajectoryStore),
+      t: tZh,
+      loadImage,
+      openLedger: graphInjected.openLedger,
+    }
+    render(<GraphView {...(props as TrajectoryGraphViewProps)} />)
     // The search jump selects the assistant record; jsdom cannot lay out the
     // canvas nodes, so a canvas click cannot drive selection here.
     const search = screen.getByLabelText('搜索记录')

@@ -68,6 +68,8 @@ const CATALOG_FIXTURE = join(CATALOG_SNAPSHOT_DIR, 'session.v3.jsonl')
 const CATALOG_EXPECTED = join(CATALOG_SNAPSHOT_DIR, 'catalog.expected.md')
 const BASE_PATCH = fileURLToPath(new URL('../../../packages/bundle/base/cordis.patch.yml', import.meta.url))
 const WEB_PATCH = fileURLToPath(new URL('../../../packages/bundle/web-app/cordis.patch.yml', import.meta.url))
+// The same opt-in Schedule bundle a deployment mounts; the shipped Web composition has no Schedule rows.
+const SCHEDULE_BUNDLE = fileURLToPath(new URL('../../../packages/experimental/schedule-bundle', import.meta.url))
 const CATALOG_NOW = Date.parse('2099-08-25T12:00:00.000Z')
 const CATALOG_SESSION_ID = SessionId('schedule-catalog-web-e2e')
 const CATALOG_TITLE = 'Active schedule catalog'
@@ -270,6 +272,7 @@ describe.skipIf(MODE === 'record')('web e2e: conversational reminders', () => {
 
   beforeAll(async () => {
     scaffold = await launchWebScaffold({
+      profile: { packages: [{ dir: SCHEDULE_BUNDLE, enabled: true }] },
       extraOverlayPath: fileURLToPath(new URL('./fixtures/time-context-every-step.patch.yml', import.meta.url)),
     })
     scaffold.ctx.effect(
@@ -708,6 +711,7 @@ describe.skipIf(MODE === 'record')('web e2e: active Schedule catalog', () => {
   beforeAll(async () => {
     const fixture = await readFile(CATALOG_FIXTURE, 'utf8')
     scaffold = await launchWebScaffold({
+      profile: { packages: [{ dir: SCHEDULE_BUNDLE, enabled: true }] },
       extraOverlayPath: fileURLToPath(new URL('./fixtures/time-context-every-step.patch.yml', import.meta.url)),
     })
     await seedSession(scaffold, fixture, CATALOG_SESSION_ID, 'ptc')
@@ -838,17 +842,16 @@ describe.skipIf(MODE === 'record')('web e2e: active Schedule catalog', () => {
       loadOverlayPatches('Schedule catalog shipped roster', BASE_PATCH),
       loadOverlayPatches('Schedule catalog shipped roster', WEB_PATCH),
     ])
-    // The shipped profile enables the capability: none of the three rows
-    // carries a disabling expression, and a deployment opts out through an
-    // overlay instead.
+    // Schedule is an opt-in bundle, not a shipped row: the shipped composition
+    // carries none of the three rows, and this lane mounts the bundle a
+    // deployment mounts instead.
     for (const row of [
       { id: 'ui-schedule', name: '@qilin-agent/client-ui-schedule' },
       { id: 'time-context', name: '@qilin-agent/time-context' },
       { id: 'schedule', name: '@qilin-agent/schedule' },
     ]) {
       const entry = shipped.find(candidate => candidate.id === row.id && candidate.name === row.name)
-      expect(entry, row.id).toBeDefined()
-      expect(entry!.disabled, row.id).toBeUndefined()
+      expect(entry, row.id).toBeUndefined()
     }
 
     await page.getByRole('button', { name: 'Automation tasks', exact: true }).click()

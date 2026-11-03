@@ -883,7 +883,7 @@ describe('hand-declared providers', () => {
 
   it('reports create busy state through onBusyChange until the card closes', async () => {
     let release!: () => void
-    const set = vi.fn(() => new Promise<{ ok: true; value: undefined }>((resolve) => { release = () => resolve(remoteOk(undefined)) }))
+    const set = vi.fn(() => new Promise<{ ok: true; value: undefined }>((resolve) => { release = () => { resolve(remoteOk(undefined)) } }))
     const onBusyChange = vi.fn()
     const { onClose } = mountCard({ onBusyChange }, { set })
 

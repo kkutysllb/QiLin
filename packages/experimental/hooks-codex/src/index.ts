@@ -256,21 +256,32 @@ export function apply(ctx: Context, config: Config): void {
     }
   })
 
+  /** Consecutive Stop-hook forced continuations per Agent; the Codex loop-guard signal. */
+  const forcedStops = new WeakMap<Agent, number>()
+
   // A blocking Stop hook steers at the stopping boundary, which makes the
   // machine observe pending input and run another step.
-  // TODO(stop-loop-guard): Codex supplies `stop_hook_active` so a Stop hook can
-  // avoid continuing the same turn indefinitely. It is always false here, so an
-  // unconditionally blocking hook force-continues every step until it self-limits.
+  // TODO(stop-loop-guard): cap consecutive forced continuations; a Stop hook
+  // receives stop_hook_active and must self-limit meanwhile.
   ctx.on('agent/turn-stopping', async ({ agent, turn, signal }): Promise<void> => {
-    const merged = await runPoint('Stop', '', { ...turnBase(ctx, agent, 'Stop', model), stop_hook_active: false, last_assistant_message: null }, { agent, turn, signal })
+    const pendingForced = forcedStops.get(agent)
+    const merged = await runPoint('Stop', '', {
+      ...turnBase(ctx, agent, 'Stop', model),
+      stop_hook_active: pendingForced !== undefined,
+      last_assistant_message: null,
+    }, { agent, turn, signal })
     /* jscpd:ignore-end */
     if (merged.decision === 'deny') {
       // A blocking Stop hook forces continuation; a block with no reason (exit 2,
       // empty stderr) still forces it — fall back to a generic steering line
-      // rather than letting the turn stop.
+      // rather than letting the turn stop. The next Stop payload reports
+      // stop_hook_active so the hook can self-limit.
+      forcedStops.set(agent, (pendingForced ?? 0) + 1)
       const text = merged.reason ?? 'continue: blocked by Stop hook'
       agent.steer(createUserMessage({ content: [{ type: 'text', text }], source: CONTEXT_SOURCE }))
+      return
     }
+    forcedStops.delete(agent)
   })
 }
 

@@ -1264,8 +1264,8 @@ describe('WebSearchCardController', () => {
     selection: Partial<WebProviderSelection> = { searchProvider: 'deepseek-official', fetchProvider: 'http' },
     apiValue: Partial<WebApiSettings> = {},
   ): void {
-    stubs.web.publish({ status: 'ready', writable: true, value: selection as WebProviderSelection, base: selection, user: {} })
-    stubs.api.publish({ status: 'ready', writable: true, value: apiValue as WebApiSettings, base: apiValue, user: {} })
+    stubs.web.publish({ status: 'ready', writable: true, value: selection, base: selection, user: {} })
+    stubs.api.publish({ status: 'ready', writable: true, value: apiValue, base: apiValue, user: {} })
   }
 
   it('selects both providers from one switch and saves the selection as overrides', async () => {

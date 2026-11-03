@@ -291,7 +291,7 @@ export class HarnessSdkJsonRpcServer {
       }))
       failures.push(...flushes
         .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
-        .map(result => result.reason))
+        .map((result): unknown => result.reason))
     }
     while (this.disposers.length > 0) {
       try {
@@ -312,7 +312,7 @@ export class HarnessSdkJsonRpcServer {
     this.llmFiber = undefined
     failures.push(...teardownResults
       .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
-      .map(result => result.reason))
+      .map((result): unknown => result.reason))
     if (failures.length === 1) throw failures[0]
     if (failures.length > 1) throw new AggregateError(failures, 'SDK server teardown failed')
     return {}
