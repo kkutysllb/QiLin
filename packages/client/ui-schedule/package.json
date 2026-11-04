@@ -57,6 +57,7 @@
   },
   "devDependencies": {
     "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-remote-access": "workspace:*",
     "@qilin-agent/api-session-controller": "workspace:*",
     "@qilin-agent/api-workspace-controller": "workspace:*",
     "@qilin-agent/client-connection": "workspace:*",
@@ -76,6 +77,7 @@
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/schedule": "workspace:*",
     "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/util-time": "workspace:*",
     "@qilin-agent/util-values": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",

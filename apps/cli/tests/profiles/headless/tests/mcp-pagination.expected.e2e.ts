@@ -24,6 +24,9 @@ it('warns when MCP discovery exceeds the SDK page limit and completes the headle
     ],
     tsconfigPath: fileURLToPath(new URL('../../../../../../tsconfig.json', import.meta.url)),
     env: {
+      // The fixture adapter scripts a direct shell call, which the shipped
+      // headless profile's PTC default would reject; pin the native presentation.
+      QILIN_TOOLS_MODE: 'native',
       QILIN_MCP_PAGINATION_FIXTURE: fileURLToPath(new URL('pagination-limit-server.ts', fixtureRoot)),
       QILIN_PERMISSION_MODE: 'danger-full-access',
       QILIN_TELEMETRY_DISABLED: '1',

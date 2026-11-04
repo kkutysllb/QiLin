@@ -1,4 +1,4 @@
-import { mkdtemp, readdir, rm, stat } from 'node:fs/promises'
+import { mkdtemp, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -74,5 +74,16 @@ describe('ReconcileStaging', () => {
     await store.dispose()
     await expect(stat(directory)).rejects.toMatchObject({ code: 'ENOENT' })
     await store.dispose()
+  })
+
+  it('rethrows a staging path that cannot be listed instead of reporting nothing staged', async () => {
+    const { store, directory } = await harness()
+    // A regular file at the staging path fails readdir with ENOTDIR, not ENOENT.
+    await writeFile(directory, 'not a directory')
+    const staged: string[] = []
+    await expect(async () => {
+      for await (const entry of store.records()) staged.push(entry.revision)
+    }).rejects.toMatchObject({ code: 'ENOTDIR' })
+    expect(staged).toEqual([])
   })
 })

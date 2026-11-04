@@ -32,6 +32,28 @@ describe('ImageLightbox', () => {
     opener.remove()
   })
 
+  it('leaves Escape to a portaled menu that owns focus', () => {
+    const onClose = vi.fn()
+    const view = render(<ImageLightbox src="blob:original" alt="原图" labels={labels} onClose={onClose} />)
+    const menu = document.createElement('div')
+    menu.setAttribute('role', 'menu')
+    const item = document.createElement('button')
+    menu.appendChild(item)
+    document.body.appendChild(menu)
+    try {
+      item.focus()
+      fireEvent.keyDown(item, { key: 'Escape' })
+      expect(onClose).not.toHaveBeenCalled()
+      fireEvent.keyDown(item, { key: 'Tab' })
+      // The menu keeps its own Tab handling while it owns focus.
+      expect(document.activeElement).toBe(item)
+    } finally { menu.remove() }
+    // Once focus returns, the lightbox owns Escape again.
+    view.getByRole('button', { name: '关闭原图预览' }).focus()
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(onClose).toHaveBeenCalledOnce()
+  })
+
   it('tolerates a focus owner it cannot restore (no active element at mount)', () => {
     // jsdom always reports body as the fallback active element; stub the
     // element-less state a detached focus can leave.

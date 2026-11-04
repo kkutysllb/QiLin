@@ -4,7 +4,7 @@ import { createUserMessage } from '@qilin-agent/llm'
 import SessionStore, { SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
 import type { Session, SessionSeq as SessionSeqType } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
-import SessionTitleService from '@qilin-agent/session-title'
+import SessionTitleService, { SessionTitleProviderId } from '@qilin-agent/session-title'
 
 const CONFIG = { fallbackMaxWords: 8, fallbackMaxBytes: 64, maxTitleBytes: 256 }
 
@@ -52,6 +52,67 @@ describe('title projection unit', () => {
     const snapshot = ctx.sessionProjections.snapshot(session)
     expect(snapshot.values.title).toBe('Second title')
     expect(snapshot.asOfSeq).toBe(session.seq - 1)
+  })
+
+  it('round-trips a provider source with and without its model', async () => {
+    const { ctx, session } = await harness(true)
+    session.append('user/message', createUserMessage({
+      content: [{ type: 'text', text: 'Title source' }],
+      source: { kind: 'user' },
+    }), { surfaceOp: 'append' })
+    session.append('session/title', {
+      title: 'Provider title',
+      messageSeqs: [SessionSeq(0)],
+      source: {
+        kind: 'provider',
+        provider: SessionTitleProviderId('native-flash'),
+        model: { provider: 'deepseek', model: 'flash' },
+      },
+    })
+    expect(ctx.sessionProjections.checkpoint(session).titleSnapshot).toMatchObject({
+      val: {
+        source: {
+          kind: 'provider',
+          provider: 'native-flash',
+          model: { provider: 'deepseek', model: 'flash' },
+        },
+      },
+    })
+    // A provider source without a model keeps no model key at all.
+    session.append('session/title', {
+      title: 'Provider title without model',
+      messageSeqs: [SessionSeq(0)],
+      source: { kind: 'provider', provider: SessionTitleProviderId('native-flash') },
+    })
+    expect(ctx.sessionProjections.checkpoint(session).titleSnapshot).toMatchObject({
+      val: { source: { kind: 'provider', provider: 'native-flash' } },
+    })
+    const withoutModel = ctx.sessionProjections.checkpoint(session).titleSnapshot as
+      { val?: { source?: Record<string, unknown> } } | undefined
+    expect(withoutModel?.val?.source).not.toHaveProperty('model')
+  })
+
+  it('restores provider title sources with and without a model through the checkpoint view', async () => {
+    const { ctx, session } = await harness(true)
+    const version = ctx.sessionProjections.checkpoint(session).titleSnapshot?.ver
+    expect(version).toBeDefined()
+    const base = { title: 'Provider title', messageSeqs: [SessionSeq(0)], eventSeq: SessionSeq(1), updatedAt: 1 }
+    const withModel = {
+      ...base,
+      source: { kind: 'provider', provider: 'native-flash', model: { provider: 'deepseek', model: 'flash' } },
+    }
+    expect(ctx.sessionProjections.viewCheckpoint({
+      titleSnapshot: { ver: version!, seq: 0, val: withModel },
+    } as never)).toMatchObject({
+      titleSnapshot: { source: { kind: 'provider', provider: 'native-flash', model: { provider: 'deepseek', model: 'flash' } } },
+    })
+    // A provider source without a model restores without a model key.
+    const bare = { ...base, title: 'Bare provider', source: { kind: 'provider', provider: 'native-flash' } }
+    const restored = ctx.sessionProjections.viewCheckpoint({
+      titleSnapshot: { ver: version!, seq: 0, val: bare },
+    } as never)
+    expect(restored.titleSnapshot).toMatchObject({ source: { kind: 'provider', provider: 'native-flash' } })
+    expect(restored.titleSnapshot?.source).not.toHaveProperty('model')
   })
 
   it('folds the rich title snapshot into the cache-facing projection', async () => {

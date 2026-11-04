@@ -766,6 +766,19 @@ describe('producedFileMentions resolver', () => {
     expect(resolver.resolve('notes.md')).toBeUndefined()
     expect(basename('a\\b\\c.txt')).toBe('c.txt')
   })
+
+  it('carries the file gesture bindings onto a resolved mention', () => {
+    const onContextMenu = vi.fn()
+    const resolver = producedFileMentions(['out/report.html'], () => {}, label, [],
+      path => ({ onContextMenu, 'data-path': path }))
+    expect(resolver.resolve('report.html')?.contextMenuProps).toEqual({
+      onContextMenu,
+      'data-path': 'out/report.html',
+    })
+    // Without a binding source the mention carries no gesture props at all.
+    expect(producedFileMentions(['out/report.html'], () => {}, label).resolve('report.html'))
+      .not.toHaveProperty('contextMenuProps')
+  })
 })
 
 

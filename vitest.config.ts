@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { availableParallelism } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { resolvePwshPath } from './packages/shell/pwsh-local/src/resolve.ts'
@@ -164,6 +165,10 @@ const claudeCodeTestingAliases = {
   'claude-code': fileURLToPath(new URL('./packages/experimental/claude-code-mods/tests/support/claude-code.ts', import.meta.url)),
 }
 
+/** Forked workers per project; bounded so timing-sensitive suites keep their
+ * filesystem-watcher, timer, and loopback-listener margins on a loaded host. */
+const unitWorkers = (ceiling: number): number => Math.max(2, Math.min(ceiling, availableParallelism() - 1))
+
 export default defineConfig({
   plugins: [pathsPlugin(), standardDecoratorPlugin()],
   resolve: { alias: claudeCodeTestingAliases },
@@ -172,6 +177,10 @@ export default defineConfig({
       './scripts/test-proxy-environment.ts', './scripts/test-dom-environment.ts', './scripts/test-official-listing-guard.ts',
     ],
     // .tsx: client component specs (jsdom via per-file @vitest-environment pragma).
+    // Coverage instrumentation inflates wall time 2-3x; the global budget keeps
+    // real integrations (pnpm/Git installs, source scans) from tripping the 5s
+    // default, while an actual hang still fails well inside the job timeout.
+    testTimeout: 30_000,
     include: testIncludes,
     exclude: platformUnsupportedTests,
     // One coverage invocation aggregates both projects. Every suite forks for
@@ -183,6 +192,7 @@ export default defineConfig({
         test: {
           name: 'thread-safe',
           execArgv: vitestExecArgv,
+          maxWorkers: unitWorkers(6),
           // Node 24 has aborted in its CJS lexer (v8::ToLocalChecked Empty
           // MaybeLocal in cjs_lexer::Parse) from worker threads on macOS,
           // Linux, and Windows. Forked workers avoid that shared thread path.
@@ -204,6 +214,7 @@ export default defineConfig({
         test: {
           name: 'process-bound',
           execArgv: vitestExecArgv,
+          maxWorkers: unitWorkers(6),
           pool: 'forks',
           setupFiles: [
       './scripts/test-proxy-environment.ts', './scripts/test-dom-environment.ts', './scripts/test-official-listing-guard.ts',

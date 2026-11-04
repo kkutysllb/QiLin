@@ -75,8 +75,10 @@ export class SqliteKvUnit implements KvUnit {
   loadAll(): Promise<{ tables: Record<string, Record<string, unknown>>; global: unknown }> {
     return this.settle(() => {
       const tables: Record<string, Record<string, unknown>> = {}
+      // trim exists exactly when the descriptor declared retention.
+      const retention = this.descriptor.retention
       for (const [name, statements] of this.tables) {
-        statements.trim?.run(this.descriptor.retention?.maxRecords ?? 0)
+        if (retention !== undefined) statements.trim?.run(retention.maxRecords)
         // Null prototype: record keys are arbitrary strings, so '__proto__'
         // must land as an own property instead of mutating the prototype.
         const records: Record<string, unknown> = Object.create(null) as Record<string, unknown>

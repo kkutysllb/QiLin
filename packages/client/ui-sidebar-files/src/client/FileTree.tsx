@@ -298,9 +298,10 @@ export function FileTree(props: {
   readonly onOpen: (path: string) => void
   /** The last row mutation's record, when the drawing shows one above the rows. */
   readonly mutation?: TreeMutationState | undefined
-  readonly onCreate: (directory: string, name: string, kind: EntryKind) => void
-  readonly onRename: (path: string, name: string) => void
-  readonly onDelete: (path: string, kind: EntryKind) => void
+  /** Row mutations. A read-only drawing omits them, and its menus offer none. */
+  readonly onCreate?: ((directory: string, name: string, kind: EntryKind) => void) | undefined
+  readonly onRename?: ((path: string, name: string) => void) | undefined
+  readonly onDelete?: ((path: string, kind: EntryKind) => void) | undefined
   readonly onDismissMutation?: (() => void) | undefined
   /**
    * Context menu handlers for a row's main button, when the drawing hands the
@@ -343,7 +344,8 @@ export function FileTree(props: {
       return
     }
     closeCreate()
-    props.onCreate(directory, name, kind)
+    /* v8 ignore next -- this dialog opens only from a create item, which requires onCreate. */
+    props.onCreate?.(directory, name, kind)
   }
   const commitRename = (path: string, current: string, text: string): void => {
     const name = normalizedEntryName(text)
@@ -354,7 +356,8 @@ export function FileTree(props: {
     setNaming(null)
     setNamingInvalid(false)
     // Renaming to the name it already has is no change to ask the Host for.
-    if (name !== current) props.onRename(path, name)
+    /* v8 ignore next -- the name box renders only from a rename item, which requires onRename. */
+    if (name !== current) props.onRename?.(path, name)
   }
   const cancelRename = (): void => {
     setNaming(null)
@@ -373,21 +376,30 @@ export function FileTree(props: {
     onNameCancel: cancelRename,
     t,
   }
+  // Row mutations belong to the drawing, not the tree: the preview navigator is
+  // read-only, so a missing capability removes its menu items and dialogs.
+  const canCreate = props.onCreate !== undefined
+  const canRename = props.onRename !== undefined
+  const canDelete = props.onDelete !== undefined
   const items: readonly MenuEntry[] = menu === null
     ? []
     : menu.at === 'root'
+      // Only a drawing that can create opens this menu at all (see the tree's
+      // own context-menu handler), so its entries need no second capability check.
       ? [
         { id: 'new-file', label: t('menu.newFile') },
         { id: 'new-folder', label: t('menu.newFolder') },
       ]
       : [
-        ...(menu.kind === 'file' ? [{ id: 'open', label: t('menu.open') }] : [
+        ...(menu.kind === 'file' ? [{ id: 'open', label: t('menu.open') }] : canCreate ? [
           { id: 'new-file', label: t('menu.newFile') },
           { id: 'new-folder', label: t('menu.newFolder') },
-        ]),
-        { type: 'separator', id: 'mutations' },
-        { id: 'rename', label: t('menu.rename') },
-        { id: 'delete', label: t('menu.delete'), danger: true },
+        ] : []),
+        ...canRename || canDelete ? [
+          { type: 'separator', id: 'mutations' } as const,
+          ...canRename ? [{ id: 'rename', label: t('menu.rename') }] : [],
+          ...canDelete ? [{ id: 'delete', label: t('menu.delete'), danger: true }] : [],
+        ] : [],
         { type: 'separator', id: 'copies' },
         { id: 'relative', label: t('menu.copyRelative') },
         { id: 'absolute', label: t('menu.copyAbsolute') },
@@ -434,6 +446,8 @@ export function FileTree(props: {
         // Only the tree's own background: a row opens its own menu and stops
         // the bubble there.
         onContextMenu={(event) => {
+          // A read-only drawing has nothing to offer here, so the gesture stays the platform's.
+          if (!canCreate) return
           event.preventDefault()
           openMenu({ at: 'root' }, event.clientX, event.clientY)
         }}
@@ -500,7 +514,8 @@ export function FileTree(props: {
                 onClick={() => {
                   const target = deleting
                   setDeleting(null)
-                  props.onDelete(target.path, target.kind)
+                  /* v8 ignore next -- deletion starts only from the delete item, which requires onDelete. */
+                  props.onDelete?.(target.path, target.kind)
                 }}
               >
                 {t('delete.confirm')}

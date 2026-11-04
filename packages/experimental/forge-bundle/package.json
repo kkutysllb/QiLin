@@ -32,7 +32,6 @@
     "locale/*.json",
     "lib/index.js",
     "cordis.patch.yml",
-    "docs",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",

@@ -477,3 +477,32 @@ it.each([undefined, 'win32', 'linux', 'darwin'])('renders the sidebar opener eve
   fireEvent.click(newSession!)
   expect(startSession).toHaveBeenCalledOnce()
 })
+
+it('hands focus to the opener when a menu outside the column owns it', () => {
+  const shell = mountShell()
+  const column = shell.view.container.firstElementChild as HTMLElement
+  // A collapsed column whose last focus owner controls a popup rendered outside
+  // it (the shared row menu portals there): its focus handoff still runs.
+  const control = document.createElement('button')
+  control.setAttribute('aria-controls', 'row-menu')
+  column.appendChild(control)
+  const popup = document.createElement('div')
+  popup.id = 'row-menu'
+  const item = document.createElement('button')
+  popup.appendChild(item)
+  document.body.appendChild(popup)
+  try {
+    control.focus()
+    expect(document.activeElement).toBe(control)
+    item.focus()
+    expect(document.activeElement).toBe(item)
+    shell.rerender({ collapsed: true })
+    // The controlled popup contains the focus, so the collapse is not abandoned:
+    // the rail toggle takes focus back.
+    expect(document.activeElement).not.toBe(item)
+    expect(document.activeElement?.getAttribute('aria-label')).toBe(en['toggle.open'])
+  } finally {
+    popup.remove()
+    control.remove()
+  }
+})

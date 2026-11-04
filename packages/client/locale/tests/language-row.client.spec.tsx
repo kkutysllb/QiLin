@@ -39,4 +39,15 @@ describe('LanguageRow', () => {
     fireEvent.click(screen.getByRole('button', { name: 'English' }))
     expect(setLocale).toHaveBeenCalledWith('en')
   })
+
+  it('syncs only a revision that advances, so a stale publication cannot reset the card', () => {
+    const store = createLanguageRowStore().create()
+    store.actions.sync('zh', locales, 2)
+    expect(store.getSnapshot()).toMatchObject({ active: 'zh', revision: 2 })
+    store.actions.sync('en', locales, 2)
+    store.actions.sync('en', locales, 1)
+    expect(store.getSnapshot()).toMatchObject({ active: 'zh', revision: 2 })
+    store.actions.sync('en', locales, 3)
+    expect(store.getSnapshot()).toMatchObject({ active: 'en', revision: 3 })
+  })
 })

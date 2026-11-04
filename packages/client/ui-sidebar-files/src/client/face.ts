@@ -227,8 +227,8 @@ export function navigatorFace(
   return (sessionId: SessionId, actions: BoundActions<ReturnType<typeof createFilesStore>>): FilesNavigatorInjected => {
     /** Per pane, per absolute path: the listing generation a settlement must match; the latest request wins. */
     const generations = new Map<PaneId, Map<string, number>>()
-    /** Per pane, how many live drawings hold its tree. */
-    const holders = new Map<PaneId, number>()
+    /** Per pane, how many live drawings hold its tree: one counter shared by its attachments. */
+    const holders = new Map<PaneId, { count: number }>()
     const nextGeneration = (paneId: PaneId, path: string): number => {
       const byPath = generations.get(paneId) ?? new Map<string, number>()
       generations.set(paneId, byPath)
@@ -251,13 +251,15 @@ export function navigatorFace(
     return {
       attach(paneId, signal) {
         if (signal.aborted) return
-        holders.set(paneId, (holders.get(paneId) ?? 0) + 1)
+        // The counter object, not the map entry, is what this attachment owns:
+        // another drawing's abort cannot take this one's count away, so the
+        // listener needs no missing-entry default.
+        const holder = holders.get(paneId) ?? { count: 0 }
+        holders.set(paneId, holder)
+        holder.count += 1
         signal.addEventListener('abort', () => {
-          const held = (holders.get(paneId) ?? 1) - 1
-          if (held > 0) {
-            holders.set(paneId, held)
-            return
-          }
+          holder.count -= 1
+          if (holder.count > 0) return
           holders.delete(paneId)
           generations.delete(paneId)
           actions.navigatorForget(paneId)

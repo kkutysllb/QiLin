@@ -117,6 +117,9 @@ describe('parent-owned cold child catalog snapshot', () => {
       binArgs: [configPath, task],
       tsconfigPath,
       env: {
+        // The replay script calls tools directly; the shipped headless default
+        // (PTC) exposes only run_code, so pin the native presentation.
+        QILIN_TOOLS_MODE: 'native',
         QILIN_SNAPSHOT_FILE: replayOverride,
         QILIN_SNAPSHOT_OVERRIDE: replayOverride,
       },

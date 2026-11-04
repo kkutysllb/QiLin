@@ -728,6 +728,10 @@ describe('mountForgePanel changes view', () => {
       expect(focus).toHaveBeenCalledTimes(2)
       insertQuote.mockReturnValueOnce(false)
       expect(view.addReviewToInput(selection)).toBe(false)
+      // A fork whose conversation input has not adopted the quote contract
+      // degrades the action to unavailable rather than writing a draft.
+      resolve.mockReturnValueOnce({ state: { getSnapshot: () => ({ draft }) }, focus } as never)
+      expect(view.addReviewToInput(selection)).toBe(false)
       expect(focus).toHaveBeenCalledTimes(2)
       expect(send).not.toHaveBeenCalled()
       const request: ForgeReviewRequest = { kind: 'review', headSha: 'a', event: 'comment', body: 'Summary', comments: [] }

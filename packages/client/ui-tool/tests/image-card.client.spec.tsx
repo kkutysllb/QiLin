@@ -293,7 +293,7 @@ describe('ReadImageRow keyed toolview', () => {
     sessionId: SID, useSessions: bindSnapshotSelector(list()),
     useContextMenu: menuHook, resolveFilePath,
     t,
-  } as unknown as Parameters<typeof ReadImageRow>[0])
+  } as Parameters<typeof ReadImageRow>[0])
 
   const toggleRow = (view: { container: HTMLElement }) => {
     fireEvent.click(view.container.querySelector('[data-expandable]')!)

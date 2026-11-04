@@ -49,7 +49,7 @@ Profile integration drivers use the repository-only `tests/fixtures/production-p
 
 ### Driving a fixture turn
 
-`runFixtureTurn(ctx, options)` drives one task through exactly one configured root agent: it waits for the task to reach the durable inbox, forwards canonical events to your observer, flushes the session, and returns the final assistant text plus accumulated usage. Example-local drivers keep configuration, rendering, and assertion ownership.
+`runFixtureTurn(ctx, options)` drives one task through exactly one configured root agent: it waits for the task to reach the durable inbox, forwards canonical events to your observer, joins background child settlement the way the shipped headless runner does (each queued settlement notice drives its own parent turn), flushes the session, and returns the final assistant text plus accumulated usage. Example-local drivers keep configuration, rendering, and assertion ownership.
 
 ### Source or built mode
 
@@ -73,7 +73,7 @@ This section explains the design of the harness; the observable behavior is full
 
 ### Design
 
-The harness is built on one separation: the smoke runs in a child process under an isolated world, and the test process only observes and asserts. `runLoaderSmoke` creates a temporary cwd (or reuses a caller-provided one), prepares world state there, spawns the resolved bin with isolated QILIN homes (`QILIN_HOME`, `QILIN_AGENTS_HOME` under that cwd), closes stdin immediately, and awaits a clean exit within the deadline before inspecting on every outcome and removing only a cwd it created. `runFixtureTurn` stays in-process: it looks up the composition's single root agent, follows the task from its durable inbox receipt through whole-agent idle, sums per-step usage, and flushes the session before returning.
+The harness is built on one separation: the smoke runs in a child process under an isolated world, and the test process only observes and asserts. `runLoaderSmoke` creates a temporary cwd (or reuses a caller-provided one), prepares world state there, spawns the resolved bin with isolated QILIN homes (`QILIN_HOME`, `QILIN_AGENTS_HOME` under that cwd), closes stdin immediately, and awaits a clean exit within the deadline before inspecting on every outcome and removing only a cwd it created. `runFixtureTurn` stays in-process: it looks up the composition's single root agent, follows the task from its durable inbox receipt through whole-agent idle, then joins queued settlement notices by flushing them and awaiting the notice-driven turns, sums per-step usage, and flushes the session before returning.
 
 ### Source map
 

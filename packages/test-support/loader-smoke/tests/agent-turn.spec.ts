@@ -3,37 +3,70 @@ import type { SessionEvent } from '@qilin-agent/session'
 import { describe, expect, it, vi } from 'vitest'
 import { runFixtureTurn } from '../src/agent-turn.ts'
 
-type Listener = (session: unknown, event: SessionEvent) => void
+type Listener = (...args: unknown[]) => void
 
 const event = (value: object): SessionEvent => value as unknown as SessionEvent
 
-function turnHarness(): {
+/** One settlement flush report, as the assembled subagent service returns it. */
+interface FlushReport {
+  readonly woke: boolean
+  readonly queued: number
+  readonly unread: number
+  readonly stopped?: 'deadline' | 'cancelled'
+}
+
+/** The settlement-join face a fixture composition may expose on `ctx.subagents`. */
+interface SettlementFake {
+  readonly awaitStopped: ReturnType<typeof vi.fn<(childId: string) => Promise<void>>>
+  readonly flushSettlementNotices: ReturnType<typeof vi.fn<(parent: unknown, options: { deadlineMs: number }) => Promise<FlushReport>>>
+}
+
+function settlementFake(): SettlementFake {
+  return {
+    awaitStopped: vi.fn(async () => {}),
+    flushSettlementNotices: vi.fn(async () => ({ woke: false, queued: 0, unread: 0 })),
+  }
+}
+
+function turnHarness(options: { settlement?: SettlementFake } = {}): {
   readonly ctx: Context
   readonly session: { readonly id: string }
   readonly foreignSession: object
+  readonly agent: { status: string }
   readonly emit: (session: unknown, value: object) => void
+  readonly emitSubagentStart: (info: { readonly id: unknown }) => void
   readonly setFollowup: (callback: (message: { readonly id: unknown }) => void) => void
   readonly whenIdle: ReturnType<typeof vi.fn>
   readonly disposeListener: ReturnType<typeof vi.fn>
+  readonly disposeSubagentStart: ReturnType<typeof vi.fn>
   readonly flush: ReturnType<typeof vi.fn>
 } {
   const session = { id: 'fixture-session' }
   const foreignSession = {}
-  let listener: Listener | undefined
+  const listeners = new Map<string, Listener[]>()
   let followup = (_message: { readonly id: unknown }): void => {}
   const whenIdle = vi.fn(async () => {})
   const disposeListener = vi.fn()
+  const disposeSubagentStart = vi.fn()
   const flush = vi.fn(async () => {})
   const agent = {
     session,
     whenIdle,
+    status: 'idle',
     followup: vi.fn((message: { readonly id: unknown }) => { followup(message) }),
   }
+  const emitEvent = (name: string, ...args: unknown[]): void => {
+    for (const listener of listeners.get(name) ?? []) listener(...args)
+  }
   const ctx = {
-    get: (name: string) => name === 'agents' ? { roots: () => [agent] } : undefined,
-    on: (_name: string, callback: Listener) => {
-      listener = callback
-      return disposeListener
+    get: (name: string) => {
+      if (name === 'agents') return { roots: () => [agent] }
+      if (name === 'subagents') return options.settlement
+      return undefined
+    },
+    on: (name: string, callback: Listener) => {
+      listeners.set(name, [...listeners.get(name) ?? [], callback])
+      return name === 'subagent/start' ? disposeSubagentStart : disposeListener
     },
     sessions: { flush },
   } as unknown as Context
@@ -41,10 +74,13 @@ function turnHarness(): {
     ctx,
     session,
     foreignSession,
-    emit: (target, value) => { listener?.(target, event(value)) },
+    agent,
+    emit: (target, value) => { emitEvent('session/event', target, event(value)) },
+    emitSubagentStart: (info) => { emitEvent('subagent/start', info) },
     setFollowup: (callback) => { followup = callback },
     whenIdle,
     disposeListener,
+    disposeSubagentStart,
     flush,
   }
 }
@@ -200,5 +236,119 @@ describe('runFixtureTurn', () => {
     await expect(runFixtureTurn(harness.ctx, { task: 'fail' })).rejects.toThrow('turn failed')
     expect(harness.disposeListener).toHaveBeenCalledOnce()
     expect(harness.flush).not.toHaveBeenCalled()
+  })
+})
+
+describe('runFixtureTurn settlement join', () => {
+  /** Deliver the task receipt so the run owns a real interval before settling. */
+  const deliverTask = (harness: ReturnType<typeof turnHarness>): void => {
+    harness.setFollowup((message) => {
+      harness.emit(harness.session, {
+        type: 'agent/inbox/spliced', seq: 0, time: 0, data: { inserted: [message] },
+      })
+    })
+  }
+
+  it('skips the join without a subagent service and disposes only the event listener', async () => {
+    const harness = turnHarness()
+    deliverTask(harness)
+
+    await expect(runFixtureTurn(harness.ctx, { task: 'no settlement service' })).resolves.toMatchObject({
+      type: 'result', sessionId: 'fixture-session', output: '',
+    })
+    expect(harness.disposeListener).toHaveBeenCalledOnce()
+    expect(harness.disposeSubagentStart).not.toHaveBeenCalled()
+    expect(harness.whenIdle).toHaveBeenCalledTimes(2)
+    expect(harness.flush).toHaveBeenCalledWith(harness.session)
+  })
+
+  it('awaits stopped children and drains the notice wake to quiescence', async () => {
+    const settlement = settlementFake()
+    settlement.flushSettlementNotices
+      .mockResolvedValueOnce({ woke: true, queued: 1, unread: 0 })
+      .mockResolvedValueOnce({ woke: false, queued: 0, unread: 0 })
+    const harness = turnHarness({ settlement })
+    deliverTask(harness)
+    harness.setFollowup((message) => {
+      harness.emitSubagentStart({ id: 'child-1' })
+      harness.emit(harness.session, {
+        type: 'agent/inbox/spliced', seq: 0, time: 0, data: { inserted: [message] },
+      })
+    })
+
+    await expect(runFixtureTurn(harness.ctx, { task: 'settle child' })).resolves.toMatchObject({ type: 'result' })
+    expect(settlement.awaitStopped).toHaveBeenCalledWith('child-1')
+    expect(settlement.flushSettlementNotices).toHaveBeenCalledTimes(2)
+    // Initial idle, the task turn, and the notice-driven wake.
+    expect(harness.whenIdle).toHaveBeenCalledTimes(3)
+    expect(harness.disposeListener).toHaveBeenCalledOnce()
+    expect(harness.disposeSubagentStart).toHaveBeenCalledOnce()
+  })
+
+  it('continues the join when a child never publishes settlement', async () => {
+    const settlement = settlementFake()
+    settlement.awaitStopped.mockRejectedValueOnce(new Error('child never settled'))
+    settlement.flushSettlementNotices.mockResolvedValueOnce({ woke: false, queued: 0, unread: 0, stopped: 'deadline' })
+    const harness = turnHarness({ settlement })
+    deliverTask(harness)
+    harness.setFollowup((message) => {
+      harness.emitSubagentStart({ id: 'child-gone' })
+      harness.emit(harness.session, {
+        type: 'agent/inbox/spliced', seq: 0, time: 0, data: { inserted: [message] },
+      })
+    })
+
+    await expect(runFixtureTurn(harness.ctx, { task: 'unsettled child' })).resolves.toMatchObject({ type: 'result' })
+    expect(settlement.awaitStopped).toHaveBeenCalledWith('child-gone')
+    expect(settlement.flushSettlementNotices).toHaveBeenCalledOnce()
+    expect(harness.whenIdle).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps joining a quiescent non-idle parent, then returns on an unread queue', async () => {
+    const settlement = settlementFake()
+    settlement.flushSettlementNotices
+      .mockResolvedValueOnce({ woke: false, queued: 0, unread: 0 })
+      .mockResolvedValueOnce({ woke: false, queued: 0, unread: 2 })
+    const harness = turnHarness({ settlement })
+    harness.agent.status = 'running'
+    deliverTask(harness)
+
+    await expect(runFixtureTurn(harness.ctx, { task: 'unread notices' })).resolves.toMatchObject({ type: 'result' })
+    expect(settlement.flushSettlementNotices).toHaveBeenCalledTimes(2)
+    expect(harness.whenIdle).toHaveBeenCalledTimes(2)
+  })
+
+  it('stops the join once the settlement deadline is exhausted between passes', async () => {
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(0)
+      const settlement = settlementFake()
+      settlement.flushSettlementNotices.mockImplementationOnce(async () => {
+        // The pass consumed the whole join budget; the next iteration must not flush.
+        vi.setSystemTime(11_000)
+        return { woke: true, queued: 1, unread: 0 }
+      })
+      const harness = turnHarness({ settlement })
+      deliverTask(harness)
+
+      await expect(runFixtureTurn(harness.ctx, { task: 'deadline bound' })).resolves.toMatchObject({ type: 'result' })
+      expect(settlement.flushSettlementNotices).toHaveBeenCalledOnce()
+      expect(harness.whenIdle).toHaveBeenCalledTimes(3)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('stops after the turn bound and drains the final wake', async () => {
+    const settlement = settlementFake()
+    settlement.flushSettlementNotices.mockResolvedValue({ woke: true, queued: 1, unread: 0 })
+    const harness = turnHarness({ settlement })
+    harness.agent.status = 'running'
+    deliverTask(harness)
+
+    await expect(runFixtureTurn(harness.ctx, { task: 'turn bound' })).resolves.toMatchObject({ type: 'result' })
+    // Eight bound turns, each awaiting its wake, then one final idle drain.
+    expect(settlement.flushSettlementNotices).toHaveBeenCalledTimes(8)
+    expect(harness.whenIdle).toHaveBeenCalledTimes(2 + 8 + 1)
   })
 })

@@ -3,7 +3,9 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 import { defineConfig } from 'vitest/config'
 import { standardDecoratorPlugin, vitestExecArgv } from './vitest.shared.ts'
 
-const DEFAULT_SNAPSHOT_MAX_CONCURRENCY = 5
+// Replay compares settlement-timing transcripts; parallel subprocesses shift notice
+// delivery between runs, so scenarios replay one at a time.
+const DEFAULT_SNAPSHOT_MAX_CONCURRENCY = 1
 
 function positiveIntFromEnv(name: string, fallback: number): number {
   const raw = process.env[name]

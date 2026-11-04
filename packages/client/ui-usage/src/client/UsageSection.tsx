@@ -115,6 +115,10 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
   }
   const activeDay = days.find(entry => entry.day === active)
   // Sparse day labels: about every eighth bar, plus the last day of the range.
+  // days always covers the month: usageByDay() enumerates every local day from
+  // monthStart(now) to now inclusive, and localDays() yields at least the month's
+  // first day for every clock (month, year, DST, and leap boundaries included).
+  /* v8 ignore next -- the range is monthStart(now)..now, which can never be empty */
   const stepPercent = days.length === 0 ? 0 : 100 / days.length
   const labelStep = Math.max(1, Math.ceil(days.length / 8))
   const xLabels = days

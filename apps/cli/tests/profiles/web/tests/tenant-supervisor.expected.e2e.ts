@@ -260,13 +260,14 @@ it('serves one isolated runtime per account and reclaims an idle one', { timeout
     // Held in a const so the polls below keep the narrowed origin.
     const base = hub.base
 
-    // 1. The deployment draws no interface of its own. The bare address hands
-    //    the browser to an account's runtime, which serves the application's
-    //    own landing page, sign-in document, and registration.
+    // 1. The deployment draws no page of its own: the product's first-run
+    //    runtime answers the bare address, naming no account.
     const index = await fetch(base, { redirect: 'manual' })
-    expect(index.status).toBe(302)
-    expect(index.headers.get('location')).toBe('/t/alice/')
-    expect(await index.text()).toBe('')
+    expect(index.status).toBe(200)
+    const landing = await index.text()
+    expect(landing).toContain('<html')
+    expect(landing).not.toContain('alice')
+    expect(landing).not.toContain('bob')
 
     // A wrong password is refused by the application behind the address, which
     // mints no session for it and reveals neither which accounts exist nor
@@ -315,15 +316,16 @@ it('serves one isolated runtime per account and reclaims an idle one', { timeout
     expect(await sessionIdsUnder(join(home, 'tenants', alice.id, 'sessions'))).toContain(aliceSession.sessionId)
     expect(await sessionIdsUnder(join(home, 'tenants', bob.id, 'sessions'))).toEqual([])
 
-    // 5. The hub's status read reports origins and never the launch token.
-    const running = await hubStatus(base)
+    // 5. The hub's status read reports origins and never the launch token. The
+    //    first-run runtime that answers the deployment doors is not an account.
+    const running = (await hubStatus(base)).filter(tenant => tenant.username !== null)
     expect(running.map(tenant => [tenant.username, tenant.state])).toEqual([['alice', 'running'], ['bob', 'running']])
     expect(JSON.stringify(running)).not.toContain('token=')
 
     // 6. The idle window reclaims both runtimes, and the account's data survives:
     // signing in again starts a runtime of its own over the same tenant directory.
     await expect.poll(
-      async () => (await hubStatus(base)).map(tenant => tenant.state),
+      async () => (await hubStatus(base)).filter(tenant => tenant.username !== null).map(tenant => tenant.state),
       { timeout: 30_000, interval: 250 },
     ).toEqual(['stopped', 'stopped'])
     await signedInBrowser(base, 'alice', ALICE_PASSWORD)
@@ -370,11 +372,15 @@ it('bounds how many runtimes live at once and backs off a runtime that cannot st
     const base = boundedHub.base
     expect(await hubStatusDocument(base)).toMatchObject({ maxTenants: 1, alive: 0 })
 
-    // 2. Signing a second account in past the cap reclaims the least recently used one.
-    await signedInBrowser(base, 'alice', ALICE_PASSWORD)
+    // 2. Entering a second account past the cap reclaims the least recently used
+    //    one. Each account is entered through its own path and signed in at its
+    //    own runtime, so the deployment's door runtime takes no slot here.
+    await enterAccount(base, 'alice')
     const aliceOrigin = await runtimeOrigin(base, 'alice')
-    await signedInBrowser(base, 'bob', BOB_PASSWORD)
+    await login(aliceOrigin, 'alice', ALICE_PASSWORD)
+    await enterAccount(base, 'bob')
     const bobOrigin = await runtimeOrigin(base, 'bob')
+    await login(bobOrigin, 'bob', BOB_PASSWORD)
     lastOrigin = bobOrigin
     expect(aliceOrigin).not.toBe(bobOrigin)
     expect(boundedHub.output()).toMatch(/reclaiming/u)
@@ -382,8 +388,8 @@ it('bounds how many runtimes live at once and backs off a runtime that cannot st
     expect(capped.alive).toBe(1)
     expect(capped.tenants.map(tenant => [tenant.username, tenant.state])).toEqual([['alice', 'stopped'], ['bob', 'running']])
 
-    // 3. Signing alice in again reclaims bob, so the bound holds whichever way it moves.
-    await signedInBrowser(base, 'alice', ALICE_PASSWORD)
+    // 3. Entering alice again reclaims bob, so the bound holds whichever way it moves.
+    await enterAccount(base, 'alice')
     const aliceAgain = await runtimeOrigin(base, 'alice')
     lastOrigin = aliceAgain
     expect(aliceAgain).not.toBe(aliceOrigin)
@@ -462,8 +468,8 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     expect(landing.status).toBe(200)
     expect(await landing.text()).not.toContain('type="password"')
     const signin = await fetch(base, { redirect: 'manual' })
-    expect(signin.status).toBe(302)
-    expect(signin.headers.get('location')).toBe('/t/alice/')
+    expect(signin.status).toBe(200)
+    expect(await signin.text()).toContain('<html')
     // The application's own sign-in document is what the account path serves.
     const signInDocument = await fetch(`${base}t/alice/login`, { redirect: 'manual' })
     expect(signInDocument.status).toBe(200)
@@ -582,7 +588,10 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     //    spread across the idle window keep the runtime alive...
     const until = Date.now() + IDLE_MILLISECONDS + 3000
     while (Date.now() < until) {
-      const status = await fetch(`${base}api/auth/status`, { headers: { cookie: authenticated } })
+      // A document request the deployment routes by the signed-in session: the
+      // deployment doors belong to the first-run runtime and never touch the
+      // account runtime.
+      const status = await fetch(`${base}workspace`, { headers: { cookie: authenticated }, redirect: 'manual' })
       expect(status.status).toBe(200)
       await new Promise(resolve => setTimeout(resolve, 1200))
     }
@@ -591,7 +600,7 @@ it('serves one browser through the hub origin by routing cookie', { timeout: 240
     // ... and stop counting the moment the browser does, for every runtime the
     // scenario touched: alice's and the one the confused selector started.
     await expect.poll(
-      async () => (await hubStatus(base)).map(tenant => [tenant.username, tenant.state]),
+      async () => (await hubStatus(base)).filter(tenant => tenant.username !== null).map(tenant => [tenant.username, tenant.state]),
       { timeout: 30_000, interval: 250 },
     ).toEqual([['alice', 'stopped'], ['bob', 'stopped']])
 
@@ -635,7 +644,8 @@ it('runs two accounts at once through the product profile', { timeout: 240_000 }
     const kkutys = await signedInBrowser(base, 'kkutys', BOB_PASSWORD)
 
     // Both runtimes are alive at the same time; neither replaced the other.
-    const status = await hubStatus(base)
+    // The first-run runtime that answers the deployment doors is not an account.
+    const status = (await hubStatus(base)).filter(tenant => tenant.username !== null)
     expect(status.map(tenant => [tenant.username, tenant.state]))
       .toEqual([['linbid', 'running'], ['kkutys', 'running']])
 
@@ -717,12 +727,12 @@ it('gives every account its own origin so one browser can hold two accounts', { 
     hub = await startHub(root, home, { perAccountPorts: true })
     const base = hub.base
 
-    // The deployment's own address is an index, not an application: it hands
-    // the browser to an account, and that account lives on an origin of its
-    // own, so its cookies cannot be shared with any other account.
+    // The deployment's own address is the product's landing, naming no account;
+    // an account path hands the browser to an origin of that account's own, so
+    // its cookies cannot be shared with any other account.
     const index = await fetch(base, { redirect: 'manual' })
-    expect(index.status).toBe(302)
-    expect(index.headers.get('location')).toBe('/t/alice/')
+    expect(index.status).toBe(200)
+    expect(await index.text()).toContain('<html')
     const aliceHandoff = await fetch(`${base}t/alice/`, { redirect: 'manual' })
     expect(aliceHandoff.status).toBe(303)
     const bobHandoff = await fetch(`${base}t/bob/`, { redirect: 'manual' })
@@ -794,9 +804,11 @@ it('initializes a deployment that has no accounts yet through the product own fo
     // 4. From then on the deployment routes to that account's own runtime, and
     //    the first-run runtime is one directory beside it rather than a stray
     //    copy of the deployment's state.
+    // The bare address keeps answering with the product's landing; the account
+    // path is what reaches the account's own runtime.
     const routed = await fetch(base, { redirect: 'manual' })
-    expect(routed.status).toBe(302)
-    expect(routed.headers.get('location')).toBe(`/t/${FIRST_RUN}/`)
+    expect(routed.status).toBe(200)
+    expect(await routed.text()).toContain('<html')
     const served = await fetch(`${base}t/${FIRST_RUN}/`)
     expect(served.status).toBe(200)
     expect(await served.text()).toContain('<html')
@@ -828,9 +840,8 @@ it('initializes a deployment that has no accounts yet through the product own fo
       headers: { cookie: 'qilin_tenant=11111111-1111-1111-1111-111111111111' },
       redirect: 'manual',
     })
-    expect(retired.status).toBe(302)
-    expect(retired.headers.get('location')).toBe(`/t/${FIRST_RUN}/`)
-    expect(retired.headers.getSetCookie().some(cookie => cookie.startsWith('qilin_tenant=;'))).toBe(true)
+    expect(retired.status).toBe(200)
+    expect(await retired.text()).toContain('<html')
   } catch (error) {
     const evidence = hub === undefined ? '' : `\n${hub.output().slice(-4000)}`
     throw new Error(`${error instanceof Error ? error.message : String(error)}${evidence}`, { cause: error })

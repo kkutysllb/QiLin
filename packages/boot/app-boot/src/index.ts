@@ -434,6 +434,11 @@ async function recompose(
     })
     if (introduced.length > 0) throw new Error(activationDiagnostic(binName, introduced, false).trimEnd())
     for (const [index, result] of results.entries()) {
+      // The diagnostic above already reports every entry that went inactive in
+      // this generation, and a dropped fiber's teardown rejection is consumed by
+      // the allSettled drain before publishing. This throw is reachable only
+      // when neither holds.
+      /* v8 ignore next -- introduced failures and the pre-publish allSettled drain both precede this arm */
       if (result.status === 'rejected' && !previousFibers[index]?.failed) throw result.reason
     }
     ctx.emit('app-boot/config-reload')

@@ -190,4 +190,47 @@ describe('openResource with a destination', () => {
     expect(h.layout().expanded).toBe(false)
     expect(h.layout().tabs[docked]).toBeDefined()
   })
+
+  it('focuses the floating occurrence it already has instead of opening a second', () => {
+    const h = harness()
+    h.controller.openResource(A, { destination: 'float' })
+    const a = h.only('a.txt')
+    expect(h.host(a)).toBe('float')
+    // The same content asked for the same host is one tab, refocused.
+    h.controller.openResource(A, { destination: 'float' })
+    expect(h.copies('a.txt')).toHaveLength(1)
+    expect(h.host(h.only('a.txt'))).toBe('float')
+    expect(h.layout().tabs[a]).toBeDefined()
+  })
+
+  it('ignores a hide request for a tab the on-screen surface does not hold', () => {
+    const h = harness()
+    h.controller.openResource(A, { destination: 'sidebar' })
+    const a = h.only('a.txt')
+    const expanded = h.layout().expanded
+    // A tab closed by an earlier gesture is not a tab this one collapses the column for.
+    h.controller.hide('tab-gone' as TabId)
+    expect(h.layout().expanded).toBe(expanded)
+    expect(h.layout().tabs[a]).toBeDefined()
+    // A docked tab whose column is already collapsed stays where it is.
+    h.controller.hide(a)
+    expect(h.layout().expanded).toBe(false)
+    h.controller.hide(a)
+    expect(h.layout().expanded).toBe(false)
+    expect(h.layout().tabs[a]).toBeDefined()
+  })
+
+  it('reads the clicked pane\'s closeable tabs for the tab menu', () => {
+    const h = harness()
+    for (const address of [A, B, C]) h.controller.openResource(address, { destination: 'sidebar' })
+    const [a, b, c] = [h.only('a.txt'), h.only('b.txt'), h.only('c.txt')]
+    const paneId = findTabPane(h.layout(), b).id
+    // Every closeable tab but the anchor, and the ones to its right in display order.
+    expect(h.controller.menuTabs(SESSION, paneId, b)).toEqual({ all: [a, c], right: [c], close: true })
+    expect(h.controller.menuTabs(SESSION, paneId, c)).toEqual({ all: [a, b], right: [], close: true })
+    // An anchor that left the pane, a pane the Session does not have, and a Session with no surface.
+    expect(h.controller.menuTabs(SESSION, paneId, 'tab-gone' as TabId)).toEqual({ all: [], right: [], close: false })
+    expect(h.controller.menuTabs(SESSION, 'pane-gone' as never, a)).toEqual({ all: [], right: [], close: false })
+    expect(h.controller.menuTabs('s-none' as SessionId, paneId, a)).toEqual({ all: [], right: [], close: false })
+  })
 })

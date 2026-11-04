@@ -48,6 +48,14 @@ const headlessReasoningExpected = join(goldensDir, 'headless-profile', 'reasonin
 const headlessFailureExpected = join(goldensDir, 'headless-profile', 'stderr.expected.txt')
 const refreshing = process.env.QILIN_SNAPSHOT === 'refresh'
 
+/**
+ * These transcripts were recorded with the native tool presentation. The
+ * shipped headless profile now defaults to PTC, where only `run_code` is
+ * directly callable and a fixture adapter's direct `bash` or subagent call is
+ * rejected before reaching the tool.
+ */
+const nativeTools = { QILIN_TOOLS_MODE: 'native' } as const
+
 interface JsonObject {
   [key: string]: unknown
 }
@@ -83,6 +91,20 @@ async function expectHeadlessStream(normalized: string, expectedPath: string): P
 }
 
 /** Serve one deterministic DeepSeek-compatible response while retaining its request body. */
+/**
+ * Whether one recorded request is the session-title call. Its system prompt
+ * names titles, which stays stable across output-token ceiling changes.
+ * @param request - one recorded JSON request body.
+ */
+function isTitleRequest(request: JsonObject): boolean {
+  const TITLE = 'Create a concise title'
+  if (typeof request.system === 'string' && request.system.startsWith(TITLE)) return true
+  // The OpenAI-compatible face carries the system prompt as the first message.
+  const messages = Array.isArray(request.messages) ? request.messages as JsonObject[] : []
+  return messages.some(message => message.role === 'system'
+    && typeof message.content === 'string' && message.content.startsWith(TITLE))
+}
+
 async function deepseekDefaultsServer(options: { waitForTitleRequest?: boolean; protocol?: 'messages' } = {}): Promise<DeepSeekDefaultsServer> {
   const requests: JsonObject[] = []
   const paths: string[] = []
@@ -98,7 +120,8 @@ async function deepseekDefaultsServer(options: { waitForTitleRequest?: boolean; 
       const write = (): void => {
         // One-shot teardown may cancel background title work after the main response.
         if (keepAlives-- > 0
-          || (options.waitForTitleRequest === true && !requests.some(request => request.max_tokens === 64))) {
+          || (options.waitForTitleRequest === true
+            && !requests.some(request => isTitleRequest(request) || request.max_tokens === 64))) {
           response.write(': keep-alive\n\n')
           timer = setTimeout(write, 60)
           return
@@ -244,6 +267,7 @@ describe('headless stream-json snapshots', () => {
       binArgs: ['headless', '--patch', headlessOverlayPath, task],
       tsconfigPath,
       env: {
+        ...nativeTools,
         QILIN_PERMISSION_MODE: 'danger-full-access',
         QILIN_TELEMETRY_DISABLED: '1',
         NODE_OPTIONS: [process.env.NODE_OPTIONS, '--disable-warning=ExperimentalWarning'].filter(Boolean).join(' '),
@@ -280,6 +304,7 @@ describe('headless stream-json snapshots', () => {
       ],
       tsconfigPath,
       env: {
+        ...nativeTools,
         QILIN_PERMISSION_MODE: 'danger-full-access',
         QILIN_TELEMETRY_DISABLED: '1',
         NODE_OPTIONS: [process.env.NODE_OPTIONS, '--disable-warning=ExperimentalWarning'].filter(Boolean).join(' '),
@@ -328,6 +353,7 @@ describe('headless stream-json snapshots', () => {
     const firstTask = 'Record the first wake of the resume proof.'
     const secondTask = 'Continue from the first wake of the resume proof.'
     const env = {
+      ...nativeTools,
       QILIN_PERMISSION_MODE: 'danger-full-access',
       QILIN_TELEMETRY_DISABLED: '1',
       NODE_OPTIONS: [process.env.NODE_OPTIONS, '--disable-warning=ExperimentalWarning'].filter(Boolean).join(' '),
@@ -412,6 +438,7 @@ describe('headless stream-json snapshots', () => {
       ],
       tsconfigPath,
       env: {
+        ...nativeTools,
         QILIN_PERMISSION_MODE: 'danger-full-access',
         QILIN_TELEMETRY_DISABLED: '1',
         NODE_OPTIONS: [process.env.NODE_OPTIONS, '--disable-warning=ExperimentalWarning'].filter(Boolean).join(' '),
@@ -606,7 +633,7 @@ describe('headless stream-json snapshots', () => {
       expect(server.requests).toHaveLength(2)
       expect(server.paths).toEqual(['/v1/messages', '/v1/messages'])
       const agentRequest = server.requests.find(request => request.max_tokens === 256_000)
-      const titleRequest = server.requests.find(request => request.max_tokens === 64)
+      const titleRequest = server.requests.find(isTitleRequest)
       expect(agentRequest?.output_config).toEqual({ effort: 'low' })
       expect(titleRequest).toBeDefined()
       const header = (parseJsonl(result.stdout)
@@ -621,7 +648,7 @@ describe('headless stream-json snapshots', () => {
       expect(header?.config).toMatchInlineSnapshot(`
         {
           "maxTokens": 256000,
-          "model": "deepseek-flash",
+          "model": "deepseek-v4-flash",
           "provider": "deepseek-official",
           "reasoningEffort": "low",
         }
@@ -696,7 +723,7 @@ describe('headless stream-json snapshots', () => {
       expect(result.stderr).toBe('')
       expect(server.requests).toHaveLength(2)
       const agentRequest = server.requests.find(request => request.max_tokens === 1024)
-      const titleRequest = server.requests.find(request => request.max_tokens === 64)
+      const titleRequest = server.requests.find(isTitleRequest)
       expect(agentRequest).not.toHaveProperty('max_completion_tokens')
       expect(titleRequest).toBeDefined()
       const header = (parseJsonl(result.stdout)
@@ -740,6 +767,7 @@ describe('headless stream-json snapshots', () => {
       tsconfigPath,
       processTimeoutMs: 60_000,
       env: {
+        ...nativeTools,
         QILIN_SNAPSHOT: 'team',
         NODE_OPTIONS: [process.env.NODE_OPTIONS, '--disable-warning=ExperimentalWarning'].filter(Boolean).join(' '),
       },
@@ -807,13 +835,26 @@ describe('headless stream-json snapshots', () => {
         })
         const identityReminders = logs.flatMap((log) => {
           if (log === parent || log === workflowChild) return []
-          const initial = parseJsonl(log.content).find(row => row.type === 'user/message'
+          const records = parseJsonl(log.content)
+          const initial = records.find(row => row.type === 'user/message'
             && ((row.data as JsonObject).source as JsonObject).kind === 'user')
           if (initial === undefined) throw new Error('Teammate Session has no initial task')
           const content = (initial.data as JsonObject).content as JsonObject[]
-          expect(content).toHaveLength(2)
-          const identity = content[0]!.text
-          if (typeof identity !== 'string') throw new Error('Teammate initial task has no identity text')
+          // The initial task is the spawn prompt alone: teammate identity is a
+          // required system-prompt context section, never an inbox block.
+          expect(content).toHaveLength(1)
+          const task = content[0]?.text
+          if (typeof task !== 'string') throw new Error('Teammate initial task has no text block')
+          const identity = records.flatMap((row) => {
+            if (row.type !== 'user/message') return []
+            const data = row.data as JsonObject
+            const source = data.source as JsonObject | undefined
+            if (source?.kind !== 'runtime-context' || source.form !== 'snapshot') return []
+            const sections = source.sections as JsonObject[] | undefined
+            const section = sections?.find(candidate => candidate.name === 'team:identity')
+            return typeof section?.text === 'string' ? [section.text] : []
+          })[0]
+          if (identity === undefined) throw new Error('Teammate Session has no team:identity context')
           return [identity.trimEnd()]
         }).sort()
         projection = {
@@ -854,17 +895,21 @@ describe('headless stream-json snapshots', () => {
           "researcher",
         ],
         "checkedRoster": true,
-        "deliveredMessages": 2,
+        "deliveredMessages": 0,
         "identityReminders": [
-          "<system-reminder>
-      You are teammate "implementer".
-      </system-reminder>",
-          "<system-reminder>
-      You are teammate "researcher".
-      </system-reminder>",
+          "You are teammate "implementer".
+      Your Team Lead is named "lead".
+      To message your Team Lead, use send_message({ target: "lead", message: "..." }).
+      Use list_agents({}) to find your teammates and their names.
+      To message another teammate, use send_message({ target: "<teammate name>", message: "..." }).",
+          "You are teammate "researcher".
+      Your Team Lead is named "lead".
+      To message your Team Lead, use send_message({ target: "lead", message: "..." }).
+      Use list_agents({}) to find your teammates and their names.
+      To message another teammate, use send_message({ target: "<teammate name>", message: "..." }).",
         ],
         "memberEdges": 4,
-        "queuedMessages": 2,
+        "queuedMessages": 0,
         "sessions": 4,
         "steerEvidence": {
           "completedAfterMessage": true,
@@ -903,6 +948,7 @@ describe('headless stream-json snapshots', () => {
       binArgs: [goalConfigPath, prompt],
       tsconfigPath,
       env: {
+        ...nativeTools,
         QILIN_SNAPSHOT: 'replay',
         QILIN_SNAPSHOT_FILE: join(goalScenarioDir, 'session.jsonl'),
         QILIN_SNAPSHOT_OVERRIDE: join(goalScenarioDir, 'replay.override.json'),
@@ -925,8 +971,9 @@ describe('headless stream-json snapshots', () => {
         })
         const probeData = probeResult?.data as JsonObject | undefined
         const probeMessage = probeData?.message as JsonObject | undefined
-        const probeContent = probeMessage?.content as JsonObject[] | undefined
-        expect(probeContent?.[0]?.isError).toBe(true)
+        // A refused turn-level tool result carries `isError` on the message;
+        // its content blocks are plain text.
+        expect(probeMessage?.isError).toBe(true)
         expect((probeData?.error as JsonObject | undefined)?.code).toBe('GOAL_NOT_FOUND')
         const goalChanges = records.filter(record => record.type === 'goal/change')
         expect(goalChanges).toHaveLength(1)
@@ -964,6 +1011,7 @@ describe('headless stream-json snapshots', () => {
       binArgs: [settlementConfigPath, task],
       tsconfigPath,
       env: {
+        ...nativeTools,
         // The override fully supplies the parent script; the child fixture
         // remains separate so replay binds it to the fresh child Session.
         QILIN_SNAPSHOT_FILE: parentReplay,

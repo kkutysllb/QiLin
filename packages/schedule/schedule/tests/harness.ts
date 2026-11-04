@@ -77,6 +77,8 @@ export async function harness(options: {
   direct?: true
   sessionController?: false
   config?: Config
+  /** Fixture trap: reject one table access with the returned reason before it reaches storage. */
+  tableAccess?: (table: string) => { throw: unknown } | undefined
 } = {}) {
   const ctx = new Context()
   options.onContext?.(ctx)
@@ -91,6 +93,27 @@ export async function harness(options: {
   ctx.effect(() => ctx.storage.backend.register('fixture', backend))
   ctx.effect(() => async () => { await backend.close() })
   const facility = new DomainFacility(ctx, { backend: 'fixture' })
+  if (options.tableAccess !== undefined) {
+    // A table access that never reaches storage is a caller-side failure, not a
+    // storage rejection; the fixture fails it on the opened domain instance.
+    const open = facility.open.bind(facility)
+    const wrapped = new WeakSet<object>()
+    facility.open = async (descriptor: Parameters<typeof open>[0]) => {
+      const domain = await open(descriptor)
+      if (wrapped.has(domain)) return domain
+      wrapped.add(domain)
+      const table = domain.table.bind(domain)
+      Object.defineProperty(domain, 'table', {
+        configurable: true,
+        value: (name: string) => {
+          const failure = options.tableAccess?.(name)
+          if (failure !== undefined) throw failure.throw
+          return table(name)
+        },
+      })
+      return domain
+    }
+  }
   ctx.effect(() => {
     const unmount = ctx.storage.mount('domain', facility)
     ctx.provide('storageDomain', facility)

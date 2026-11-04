@@ -176,7 +176,9 @@ describe('workflow runtime outcomes', () => {
       const { parent: delegatedParent, ...request } = delegation.request
       expect(delegatedParent).toBe(parent)
       expect({ ...delegation, request }).toEqual({
-        provider: 'stub', label: 'host-test child 1', delivery: 'caller',
+        // A workflow child answers exactly one agent() call, so it declares the
+        // one-shot lifecycle instead of a resumable conversation.
+        provider: 'stub', label: 'host-test child 1', mode: 'one-shot', delivery: 'caller',
         request: {
           cwd: ctx.workingDirectory.get(parent.session),
           prompt: [{ type: 'text', text: 'answer' }], outputSchema: schema, agentOptions: { model: 'selected' },

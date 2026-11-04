@@ -324,7 +324,12 @@ function SidebarPanel(panel: PanelProps & { width: number; panelRef: RefObject<H
   useLayoutEffect(() => {
     if (flash === undefined || flash.serial === played.current) return undefined
     played.current = flash.serial
-    return panel.active ? flashPane(panelRef.current, flash) : undefined
+    // A reveal is only requested for a Session whose surface is mounted, so the
+    // panel is on screen when its request arrives; this guard keeps a request
+    // that raced a hide from glowing a pane nobody can see.
+    /* v8 ignore next -- a reveal requires the mounted surface a hide removes. */
+    if (!panel.active) return undefined
+    return flashPane(panelRef.current, flash)
   }, [flash, panel.active, panelRef])
   return (
     <div

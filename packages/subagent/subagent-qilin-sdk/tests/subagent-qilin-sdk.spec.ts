@@ -610,11 +610,12 @@ describe('dsh-subagent-qilin-sdk provider', () => {
 
   it('uses a fixed unknown category for an untyped SDK exception', async () => {
     const rawMessage = 'unknown SDK failure at /private/path SECRET_TOKEN'
+    /* oxlint-disable-next-line typescript/unbound-method -- captured to call it through Reflect.apply, which keeps the receiver */
     const originalRequest = HarnessClient.prototype.request
     const spy = vi.spyOn(HarnessClient.prototype, 'request')
       .mockImplementation(async function (this: HarnessClient, method: string, params?: object, timeoutMs?: number) {
         if (method === 'session/query') throw new Error(rawMessage)
-        return originalRequest.call(this, method, params, timeoutMs)
+        return Reflect.apply(originalRequest, this, [method, params, timeoutMs])
       })
     try {
       const ctx = await setup()

@@ -30,6 +30,7 @@ import { spawn } from 'node:child_process'
 import { resolve } from 'node:path'
 import { LOOPBACK_HOSTS, TENANT_VARIABLE } from './tenant-runtime.ts'
 import { runTenantsServe } from './tenants.ts'
+import { createLaunchEnvironmentSnapshot, launchedThroughSsh } from '@qilin-agent/launch-environment'
 
 /** The profiles whose boot is a deployment of the product surface. */
 export const ENTRY_PROFILES: readonly string[] = ['qilin', 'web']
@@ -390,8 +391,10 @@ export async function runWebEntry(invocation: WebEntryInvocation): Promise<numbe
     appArguments: options.appArguments,
     ...options.tls === undefined ? {} : { tls: options.tls },
     // The deployment opens the address it serves, exactly as a single runtime
-    // opens the address it serves; --no-open is the operator declining it.
+    // opens the address it serves; --no-open is the operator declining it, and a
+    // remote shell has no browser the operator is sitting in front of.
     ...invocation.args.includes('--no-open')
+      || launchedThroughSsh(createLaunchEnvironmentSnapshot([{ source: 'process', values: process.env as Record<string, string> }]))
       ? {}
       : {
         onListening: (url: string) => {

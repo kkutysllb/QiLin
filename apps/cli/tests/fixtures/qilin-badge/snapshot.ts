@@ -7,13 +7,14 @@ import type {} from '@qilin-agent/skill'
 import type {} from '@qilin-agent/tools'
 import { unsupportedInbox } from '@qilin-agent/agent-loop-testkit'
 
-const overlayPath = process.argv[2]
-if (overlayPath === undefined) throw new Error('qilin-badge snapshot requires an overlay path')
+const overlayPaths = process.argv.slice(2)
+if (overlayPaths.length === 0) throw new Error('qilin-badge snapshot requires at least one overlay path')
 const rootConfigPath = fileURLToPath(new URL('../../../../../packages/bundle/base/tests/fixtures/root.cordis.yml', import.meta.url))
 const basePatchPath = fileURLToPath(new URL('../../../../../packages/bundle/base/cordis.patch.yml', import.meta.url))
 const ctx = await boot('qilin-badge-snapshot', rootConfigPath, [
   ...loadOverlayPatches('qilin-badge-snapshot', basePatchPath),
-  ...loadOverlayPatches('qilin-badge-snapshot', overlayPath),
+  // The badge ships as its own opt-in bundle, whose patch inserts the skill row.
+  ...overlayPaths.flatMap(path => loadOverlayPatches('qilin-badge-snapshot', path)),
 ])
 
 try {

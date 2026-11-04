@@ -235,6 +235,41 @@ describe('usage settings section', () => {
     expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeNull()
   })
 
+  it.skipIf(daysThisMonth() === 1)('reads a quiet day whose bar draws no band', async () => {
+    answerWith({
+      accountId: 'account-1',
+      records: [record(100, 10, 300)],
+      total: { sessions: 1, turns: 1, inputTokens: 100, outputTokens: 10, cacheReadTokens: 300, cacheWriteTokens: 0, cacheHitRate: 0.75 },
+    })
+    const { container } = render(<UsageSection {...props()} />)
+    await screen.findByRole('heading', { name: en.title })
+    // The first day of the month carried no tokens, so its bar has no band and
+    // the tooltip falls back to the chart baseline instead of a stacked top.
+    const first = container.querySelector('g')
+    expect(first).not.toBeNull()
+    fireEvent.mouseOver(first as Element)
+    expect(screen.getByText(/^\d{4}-\d{2}-01$/u)).toBeTruthy()
+  })
+
+  it('falls back to the chart baseline when every series is folded out', async () => {
+    answerWith({
+      accountId: 'account-1',
+      records: [record(100, 10, 300)],
+      total: { sessions: 1, turns: 1, inputTokens: 100, outputTokens: 10, cacheReadTokens: 300, cacheWriteTokens: 0, cacheHitRate: 0.75 },
+    })
+    const { container } = render(<UsageSection {...props()} />)
+    await screen.findByRole('heading', { name: en.title })
+    for (const legend of [en['metric.input'], en['metric.output'], en['metric.cacheRead'], en['metric.hitRate']]) {
+      fireEvent.click(screen.getByRole('button', { name: legend }))
+    }
+    // With no visible series a bar keeps no band, so the readout anchors at the
+    // baseline instead of a stacked top.
+    const bars = container.querySelectorAll('g')
+    expect(bars.length).toBeGreaterThan(0)
+    fireEvent.mouseOver(bars[bars.length - 1] as Element)
+    expect(screen.getByText(/^\d{4}-\d{2}-\d{2}$/u)).toBeTruthy()
+  })
+
   it('reports nothing for a read its own unmount aborted', async () => {
     const gate = Promise.withResolvers<Response>()
     vi.stubGlobal('fetch', vi.fn(() => gate.promise))

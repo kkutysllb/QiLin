@@ -14,6 +14,8 @@ export default defineConfig({
     ],
     testTimeout: 120_000,
     hookTimeout: 30_000,
-    maxWorkers: Math.min(5, availableParallelism()),
+    // One worker: every case boots the shipped tree and owns a loopback port, so
+    // parallel servers make port, bind-failure, and browser-handoff fixtures collide.
+    maxWorkers: 1,
   },
 })

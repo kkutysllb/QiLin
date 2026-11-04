@@ -303,6 +303,9 @@ it.each(['github:acme/connected', 'https://github.com/acme/connected.git', 'git+
     // isolated from the real network while still taking the HTTPS-first path.
     expect(requests.length).toBeGreaterThan(0)
   },
+  // Real Git, pnpm, and a loopback proxy: the instrumented coverage lane needs
+  // more wall time than the default five second budget on a shared host.
+  90_000,
 )
 
 it.each(['missing package', 'invalid manifest', 'not a bundle', 'missing patch', 'invalid patch'])(

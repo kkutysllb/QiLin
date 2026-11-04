@@ -816,6 +816,99 @@ describe('slot-owned useTabInfo', () => {
     expect(document.querySelector('[data-dockkit-tab-menu]')).toBeNull()
   })
 
+  /**
+   * Open three tabs, right-click the one named by index, and resolve its close family.
+   * @param anchor - position of the clicked tab among the opened ones.
+   * @returns the mounted seat, the opened tabs, and the resolution.
+   */
+  async function tabMenu(anchor: number) {
+    const h = await mountSeat()
+    const tabs = [h.open('a.txt'), h.open('b.txt'), h.open('c.txt')]
+    const chips = [...h.view.container.querySelectorAll('[data-dockkit-tab]')]
+    fireEvent.contextMenu(chips.find(chip => chip.getAttribute('data-dockkit-tab') === tabs[anchor]!.id) as Element)
+    const target = h.runtime.ctx.contextMenus.active.getSnapshot()
+    if (target?.kind !== 'tab') throw new Error('expected the shared menu to capture a tab')
+    const resolution = h.runtime.ctx.contextMenus.resolve(target)
+    await resolution.ready
+    return { h, tabs, resolution }
+  }
+
+  it('closes every other tab but the anchor, and removes nothing once they are gone', async () => {
+    const { h, tabs: [a, b, c], resolution } = await tabMenu(1)
+    expect(resolution.source.getSnapshot().map(action => action.id)).toEqual([
+      'sidebar.close/close', 'sidebar.close/others', 'sidebar.close/right',
+    ])
+    // Every other tab is still there when the anchor's action runs.
+    act(() => { resolution.select('sidebar.close/others') })
+    expect(h.layout().tabs[a!.id]).toBeUndefined()
+    expect(h.layout().tabs[c!.id]).toBeUndefined()
+    expect(h.layout().tabs[b!.id]).toBeDefined()
+    // The menu stays open holding the ids it resolved: selecting again finds each
+    // captured tab already gone and removes nothing.
+    act(() => { resolution.select('sidebar.close/others') })
+    expect(h.layout().tabs[b!.id]).toBeDefined()
+    resolution.dispose()
+  })
+
+  it('closes the tabs to its right, and removes nothing when the capture is stale', async () => {
+    const { h, tabs: [a, b, c], resolution } = await tabMenu(0)
+    act(() => { resolution.select('sidebar.close/right') })
+    expect(h.layout().tabs[b!.id]).toBeUndefined()
+    expect(h.layout().tabs[c!.id]).toBeUndefined()
+    expect(h.layout().tabs[a!.id]).toBeDefined()
+    // Selecting the captured action again removes nothing: its tabs are gone.
+    act(() => { resolution.select('sidebar.close/right') })
+    act(() => { resolution.select('sidebar.close/others') })
+    expect(h.layout().tabs[a!.id]).toBeDefined()
+    resolution.dispose()
+  })
+
+  it('removes nothing when the tabs its capture names left before the action ran', async () => {
+    const { h, tabs: [a, b, c], resolution } = await tabMenu(1)
+    // Another surface closed both neighbours after this menu resolved: "others"
+    // finds every captured tab gone and removes nothing.
+    act(() => { h.controller.closeIn(SESSION, a!.id) })
+    act(() => { h.controller.closeIn(SESSION, c!.id) })
+    act(() => { resolution.select('sidebar.close/others') })
+    expect(h.layout().tabs[b!.id]).toBeDefined()
+    resolution.dispose()
+  })
+
+  it('leaves the sole guide in place when its captured close action runs', async () => {
+    const h = await mountSeat()
+    // The first expansion seeds the guide; opening content beside it makes it closable.
+    act(() => { h.controller.toggleExpanded() })
+    const text = h.open('a.txt')
+    const guide = Object.values(h.layout().tabs).find(tab => tab.kind === 'guide')
+    if (guide === undefined) throw new Error('expected the seeded guide')
+    expect(Object.keys(h.layout().tabs)).toHaveLength(2)
+    const chips = [...h.view.container.querySelectorAll('[data-dockkit-tab]')]
+    fireEvent.contextMenu(chips.find(chip => chip.getAttribute('data-dockkit-tab') === guide.id) as Element)
+    const target = h.runtime.ctx.contextMenus.active.getSnapshot()
+    if (target?.kind !== 'tab') throw new Error('expected the shared menu to capture a tab')
+    const resolution = h.runtime.ctx.contextMenus.resolve(target)
+    await resolution.ready
+    // Beside a neighbour the guide may close, so the action resolves enabled.
+    expect(resolution.source.getSnapshot().find(action => action.id === 'sidebar.close/close')?.disabled).toBe(false)
+    act(() => { h.controller.closeIn(SESSION, text.id) })
+    // Now the guide stands alone, and the captured action must leave it in place.
+    act(() => { resolution.select('sidebar.close/close') })
+    expect(h.layout().tabs[guide.id]).toBeDefined()
+    resolution.dispose()
+  })
+
+  it('closes the anchor itself only while another tab can take its place', async () => {
+    const { h, tabs: [a, b], resolution } = await tabMenu(0)
+    act(() => { resolution.select('sidebar.close/close') })
+    expect(h.layout().tabs[a!.id]).toBeUndefined()
+    expect(h.layout().tabs[b!.id]).toBeDefined()
+    // The anchor is gone, so the same captured selection is a no-op now.
+    act(() => { resolution.select('sidebar.close/close') })
+    expect(h.layout().tabs[b!.id]).toBeDefined()
+    resolution.dispose()
+  })
+
+
   it('keeps the current binding in the disabled split tooltip when it changes or is cleared', async () => {
     const h = await mountSeat()
     const split: ShortcutCatalogEntry = {

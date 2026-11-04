@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, readdir, rename, rm, utimes, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, readdir, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
@@ -251,6 +251,48 @@ describe('json backend specifics', () => {
 describe('per-record layout', () => {
   const descriptor = { name: 'recs', version: 2, layout: 'per-record' as const, tables: ['t'], hasGlobal: true }
   const recordPath = (root: string, key: string): string => join(root, 'recs', 't', `${key}.json`)
+
+  it('reads every document when the retention budget is not exceeded', async () => {
+    const root = await freshRoot()
+    const backend = new JsonStorageBackend(root)
+    const unit = await backend.kv.open({ ...descriptor, retention: { maxRecords: 5 } })
+    await unit.putRecord('t', 'a', { n: 1 })
+    await unit.putRecord('t', 'b', { n: 2 })
+    await unit.close()
+    // Retention runs on the cold read, so the budget check needs a reopen.
+    const reopened = await backend.kv.open({ ...descriptor, retention: { maxRecords: 5 } })
+    expect((await reopened.loadAll()).tables['t']).toEqual({ a: { n: 1 }, b: { n: 2 } })
+    await backend.close()
+  })
+
+  it('skips a document that vanished before it is stamped and breaks write-time ties by name', async () => {
+    const root = await freshRoot()
+    const backend = new JsonStorageBackend(root)
+    const unit = await backend.kv.open(descriptor)
+    for (const key of ['a', 'b']) await unit.putRecord('t', key, { key })
+    await unit.close()
+    // Equal write times force the name tiebreaker; a dangling document is
+    // neither statable nor ours to keep, so the stamping pass skips it.
+    await utimes(recordPath(root, 'a'), new Date(5_000), new Date(5_000))
+    await utimes(recordPath(root, 'b'), new Date(5_000), new Date(5_000))
+    await symlink(join(root, 'missing.json'), join(root, 'recs', 't', 'zzz.json'))
+    const retained = await backend.kv.open({ ...descriptor, retention: { maxRecords: 1 } })
+    // Descending name order breaks the tie, so the single kept row is 'b'.
+    expect(await retained.loadAll()).toEqual({ tables: { t: { b: { key: 'b' } } }, global: null })
+    expect((await readdir(join(root, 'recs', 't'))).sort()).toEqual(['b.json', 'zzz.json'])
+    await backend.close()
+  })
+
+  it('reports one rejection for a failed write while the tracking branch swallows it', async () => {
+    const root = await freshRoot()
+    const backend = new JsonStorageBackend(root)
+    const unit = await backend.kv.open(descriptor)
+    // A directory occupies the document path, so the atomic commit cannot land.
+    await mkdir(recordPath(root, 'x'), { recursive: true })
+    await expect(unit.putRecord('t', 'x', { n: 1 })).rejects.toBeInstanceOf(Error)
+    // The failed write left the in-flight set, so close() drains without it.
+    await backend.close()
+  })
 
   it('stores one version-stamped document per record and defers materialization', async () => {
     const root = await freshRoot()

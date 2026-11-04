@@ -117,9 +117,8 @@ export function FileNavigator({
               current={shownPath === undefined ? undefined : shownPath.startsWith('/') ? shownPath : joinEntryPath(tree.root, shownPath)}
               onToggle={(path) => { toggle(paneId, path, tree.levels[path] !== undefined, signal) }}
               onOpen={(path) => { onOpen(fileAddressFor(sessionId, tree.root, path)) }}
-              onCreate={() => {}}
-              onRename={() => {}}
-              onDelete={() => {}}
+              // The navigator is read-only: row gestures go to the shared menu,
+              // and the tree must not offer mutations it cannot perform.
               rowTriggerProps={rowTriggerProps}
               t={t}
             />

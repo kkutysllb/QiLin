@@ -82,6 +82,30 @@ describe.skipIf(process.platform === 'win32')('SSH helper runtime', () => {
     } finally { await test.close() }
   })
 
+  it('carries move hunks and both independent version guards into the operation', async () => {
+    const test = await helper()
+    try {
+      await writeFile(`${test.root}/a.txt`, 'old\n')
+      const source = await test.client.request('fs.resolve', { path: 'a.txt' }, targetSchema)
+      const destination = await test.client.request('fs.resolve', { path: 'b.txt' }, targetSchema)
+      const hunks = [{ lineNumber: 1, oldLines: ['old'], newLines: ['new'], isEndOfFile: false }]
+      // A move patch carries its own hunks plus guards for both ends; a stale
+      // source version rejects before anything is written.
+      await expect(test.client.request('fs.move', {
+        source,
+        destination,
+        options: {
+          hunks,
+          expectedSource: { version: 'stale' },
+          expectedDestination: { kind: 'replaceIfVersion', version: 'stale' },
+        },
+        policy: policy(test.root),
+      }, moveResultSchema)).rejects.toThrow()
+      // The guard rejected before either end of the move was written.
+      await expect(test.client.request('fs.stat', { target: destination }, z.null())).resolves.toBeNull()
+    } finally { await test.close() }
+  })
+
   it('returns metadata, byte ranges and canonical symlink observations', async () => {
     const test = await helper()
     try {

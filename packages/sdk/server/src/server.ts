@@ -503,9 +503,9 @@ export class HarnessSdkJsonRpcServer {
       ...(this.llmFiber === undefined ? [] : [Promise.resolve().then(() => this.llmFiber?.dispose())]),
     ])
     this.llmFiber = undefined
-    failures.push(...teardownResults
-      .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
-      .map(result => result.reason as unknown))
+    for (const result of teardownResults) {
+      if (result.status === 'rejected') failures.push(result.reason)
+    }
     if (failures.length === 1) throw failures[0]
     if (failures.length > 1) throw new AggregateError(failures, 'SDK server teardown failed')
     return {}

@@ -1840,6 +1840,49 @@ describe('PluginManagerPage', () => {
     })
     expect(screen.getByText(en.installFailureGeneric)).toBeTruthy()
     expect(screen.queryByText(en.installFailedEnabling)).toBeNull()
+    // An enable-stage run that never recorded the enabled marker keeps the
+    // generic sentence: the step alone does not prove enablement ran.
+    set({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'dsh-x', phase: 'failed', subject, detailsOpen: true,
+        failure: { reason: '', kind: 'unknown', stage: 'enable' },
+      },
+    })
+    expect(screen.getByText(en.installFailureGeneric)).toBeTruthy()
+    expect(screen.queryByText(en.installFailedEnabling)).toBeNull()
+    // With no failure code the enablement sentence follows a non-empty reason.
+    set({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'dsh-x', phase: 'failed', subject, detailsOpen: true,
+        failure: { reason: 'boom', stage: 'enable', enabled: true },
+      },
+    })
+    expect(screen.getByText(en.installFailedEnabling)).toBeTruthy()
+    // The enabled marker alone, without an enable stage, still reads generic.
+    set({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'dsh-x', phase: 'failed', subject, detailsOpen: true,
+        failure: { reason: '', kind: 'unknown', enabled: true },
+      },
+    })
+    expect(screen.getByText(en.installFailureGeneric)).toBeTruthy()
+    // An explicit false marker keeps the generic sentence even on the enable step.
+    set({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'dsh-x', phase: 'failed', subject, detailsOpen: true,
+        failure: { reason: '', kind: 'unknown', stage: 'enable', enabled: false },
+      },
+    })
+    expect(screen.getByText(en.installFailureGeneric)).toBeTruthy()
+    // Without a kind, code, or reason to name, the enable step is the only fact
+    // left, so the sentence names enablement.
+    set({
+      install: {
+        ...IDLE_INSTALL, open: true, spec: 'dsh-x', phase: 'failed', subject, detailsOpen: true,
+        failure: { reason: '', stage: 'enable', enabled: true },
+      },
+    })
+    expect(screen.getByText(en.installFailedEnabling)).toBeTruthy()
   })
 
   it.each(['network', 'timeout'] as const)('shows GitHub recovery only after a %s failure and returns to package input', (kind) => {

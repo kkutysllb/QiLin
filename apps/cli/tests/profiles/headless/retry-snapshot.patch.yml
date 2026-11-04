@@ -8,13 +8,11 @@
 - id: llm-deepseek
   disabled: true
 
+# The runner is disabled, so its launcher identity never reaches agent-loop;
+# the fixture below creates the stored root agent after the backend is ready.
 - id: agent-loop
   config:
-    agents:
-      - id: main
-        provider: deepseek-official
-        model: deepseek-v4-flash
-        cwd: !!js process.cwd()
+    agents: []
 
 - id: session-persistence-jsonl
   config:
@@ -22,5 +20,8 @@
     compression: none
 
 - insert:
+    - id: fresh-agent
+      name: './tests/fixtures/fresh-agent.ts'
+
     - id: retry-snapshot-backend
       name: './tests/fixtures/retry-snapshot-backend.mjs'

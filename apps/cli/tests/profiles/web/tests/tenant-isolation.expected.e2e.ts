@@ -52,6 +52,15 @@ async function readTenantStorage(world: TenantWorld, tenant: string, file: strin
   return await readFile(join(world.tenantDir(tenant), 'storages', file), 'utf8').catch(() => '')
 }
 
+/** Every installed profile patch document inside one tenant's harness home, concatenated. */
+async function tenantProfilePatches(world: TenantWorld, tenant: string): Promise<string> {
+  const profiles = join(world.tenantDir(tenant), 'profiles')
+  const names = await readdir(profiles).catch(() => [] as string[])
+  const patches = await Promise.all(names.map(async name =>
+    await readFile(join(profiles, name, 'cordis.patch.yml'), 'utf8').catch(() => '')))
+  return patches.join('\n')
+}
+
 /** Whether one forwarded `api-session/added` frame carries a Session identity. */
 function addedSession(event: ForwardedEvent, sessionId: string): boolean {
   if (event.event !== 'api-session/added') return false
@@ -93,9 +102,13 @@ it('keeps sessions, tasks, workspaces, plugins, and model settings with their te
 
     // 2. Tasks are private: the seeded reminder is read by its own tenant only, so
     // the other runtime proves it never scans that tenant's task domain.
-    const aliceTasks = await alice.rpc<{ id: string; sessionId: string }[]>('schedule/catalog', {})
+    const aliceTasks: { id: string; target: { kind: string; sessionId?: string } }[] = await alice.rpc<{ id: string; target: { kind: string; sessionId?: string } }[]>('schedule/catalog', {})
     const bobTasks = await bob.rpc<{ id: string }[]>('schedule/catalog', {})
-    expect(aliceTasks).toEqual([expect.objectContaining({ id: SEEDED_TASK_ID, sessionId: SEEDED_TASK_SESSION })])
+    // The catalog maps the stored row to its delivery target; a version-1 row still reads (storage.compatibleVersions).
+    expect(aliceTasks).toHaveLength(1)
+    expect(aliceTasks[0]).toMatchObject({
+      id: SEEDED_TASK_ID, target: { kind: 'session', sessionId: SEEDED_TASK_SESSION },
+    })
     expect(bobTasks).toEqual([])
 
     // 3. Workspaces are private: the owner may delete its own workspace; the other
@@ -125,8 +138,10 @@ it('keeps sessions, tasks, workspaces, plugins, and model settings with their te
     // The other account never carries the value the first one wrote. A default
     // it reports on its own is its own document, not inheritance.
     expect(bobSettings.namespaces.find(entry => entry.ns === 'ui-theme')?.value.fontSize).not.toBe(16)
-    expect(await readFile(join(world.tenantDir(ALICE), 'settings.yaml'), 'utf8')).toContain('fontSize')
-    expect(await readFile(join(world.tenantDir(BOB), 'settings.yaml'), 'utf8').catch(() => '')).not.toContain('fontSize')
+    // Settings persist into the profile patch document of the writing account; the
+    // retired home-level `settings.yaml` is neither written nor left behind.
+    expect(await tenantProfilePatches(world, ALICE)).toContain('fontSize')
+    expect(await tenantProfilePatches(world, BOB)).not.toContain('fontSize')
 
     // 5. Plugins are per account too: each runtime booted its own profile
     // directory inside its own home, and the deployment home holds neither a
@@ -134,9 +149,9 @@ it('keeps sessions, tasks, workspaces, plugins, and model settings with their te
     for (const tenant of [ALICE, BOB]) {
       expect(await readdir(world.tenantDir(tenant))).toContain('profiles')
     }
-    // Only the account that configured something holds a settings document;
-    // the other home carries its own credentials and profile, not that value.
-    expect(await readdir(world.tenantDir(ALICE))).toContain('settings.yaml')
+    // No account keeps the retired home-level settings document; the value lives
+    // only in the profile patch of the account that configured it.
+    expect(await readdir(world.tenantDir(ALICE))).not.toContain('settings.yaml')
     expect(await readdir(world.tenantDir(BOB))).not.toContain('settings.yaml')
     const deploymentEntries = await readdir(world.home)
     expect(deploymentEntries).not.toContain('profiles')

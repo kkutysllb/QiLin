@@ -27,12 +27,22 @@ function hasTaskAction(messages, action) {
     }))
 }
 
+/**
+ * Latest tool output text. A tool result is either an inline `tool-result`
+ * content block or the runtime's dedicated `tool` role message whose text
+ * blocks carry the rendered output.
+ */
 function latestToolText(messages) {
-  const message = messages.findLast(candidate => candidate.content.some(block => block.type === 'tool-result'))
+  const message = messages.findLast(candidate => candidate.role === 'tool'
+    || candidate.content.some(block => block.type === 'tool-result'))
   if (message === undefined) return ''
-  return message.content.flatMap(block => block.type === 'tool-result'
+  const inline = message.content.flatMap(block => block.type === 'tool-result'
     ? block.content.filter(item => item.type === 'text').map(item => item.text)
-    : []).join('\n')
+    : [])
+  const rendered = message.role === 'tool'
+    ? message.content.filter(block => block.type === 'text').map(block => block.text)
+    : []
+  return [...inline, ...rendered].join('\n')
 }
 
 function toolChunks(specs) {
@@ -189,11 +199,13 @@ class TeamFixtureAdapter extends LlmAdapter {
     if (identity !== 'TEAM_WORKFLOW_CHILD' && (!tools.includes('spawn_teammate') || !tools.includes('workflow'))) {
       throw new Error('Team profile is missing teammate or workflow tools')
     }
+    // A teammate's first user message is the spawn prompt, so the marker the
+    // test's own spawn call prefixes identifies the scripted role.
     const chunks = identity === 'TEAM_WORKFLOW_CHILD'
       ? textChunks('Fresh workflow child complete.')
-      : identity === '<system-reminder>\nYou are teammate "researcher".\n</system-reminder>'
+      : identity?.startsWith('RESEARCHER_MARK') === true
       ? researcher(options.messages)
-      : identity === '<system-reminder>\nYou are teammate "implementer".\n</system-reminder>'
+      : identity?.startsWith('IMPLEMENTER_MARK') === true
         ? implementer(options.messages)
         : lead(options.messages)
     for (const chunk of chunks) {

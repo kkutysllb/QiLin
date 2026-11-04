@@ -48,6 +48,7 @@ function usePathClipped(
   useLayoutEffect(() => {
     const outer = box.current
     const inner = text.current
+    /* v8 ignore next -- defensive: both spans render unconditionally, and refs attach before layout effects. */
     if (outer === null || inner === null) return undefined
     const apply = (): void => {
       if (inner.offsetWidth > outer.clientWidth) outer.dataset.textpreviewPathClipped = ''

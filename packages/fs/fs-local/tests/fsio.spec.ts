@@ -910,6 +910,14 @@ describe('writeFileAtomic — temp-file safety', () => {
     await expect(stat(file)).rejects.toMatchObject({ code: 'ENOENT' })
   })
 
+  it('reports a parent directory that cannot be created', async () => {
+    const blocker = join(dir, 'blocker')
+    await writeFile(blocker, 'a file where a directory must be')
+    await expect(writeFileAtomic(join(blocker, 'a.txt'), 'hello', undefined, undefined))
+      .rejects.toMatchObject({ code: 'FS_IO_ERROR' })
+    expect(await readFile(blocker, 'utf8')).toBe('a file where a directory must be')
+  })
+
   it('creates parent directories as needed', async () => {
     const file = join(dir, 'nested', 'deep', 'a.txt')
     await writeFileAtomic(file, 'hi', undefined, undefined)

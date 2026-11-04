@@ -135,6 +135,26 @@ it('refreshes an Include through the queue and skips registered exact paths', as
   expect(refresh).toHaveBeenCalledOnce()
 })
 
+it('reports a rejected Include refresh and keeps the running tree', async () => {
+  const { ctx, dir } = await fixture()
+  const moduleWatcher = watchers.at(-1)!
+  const file = join(dir, 'nested.yml')
+  writeFileSync(file, '[]\n')
+  const imported = vi.spyOn(ctx.loader, 'import').mockResolvedValue(Include)
+  onTestFinished(() => { imported.mockRestore() })
+  const id = await ctx.loader.create({ name: 'include', config: { path: pathToFileURL(file).href } })
+  await ctx.loader.await()
+  const include = ctx.loader.resolve(id).subtree as Include
+  const failure = new Error('refresh rejected')
+  const refresh = vi.spyOn(include, 'refresh').mockRejectedValueOnce(failure)
+  const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => undefined)
+  moduleWatcher.emit('change', file)
+  // A rejected refresh reports unsaved runtime changes; Include keeps its tree.
+  await vi.waitFor(() => { expect(warn).toHaveBeenCalledWith(failure) })
+  expect(refresh).toHaveBeenCalledOnce()
+  expect(ctx.loader.resolve(id).subtree).toBe(include)
+})
+
 it('queues cached module replacements behind configuration mutations and recovers after failure', async () => {
   const { ctx, dir, hmr } = await fixture()
   const file = join(dir, 'source.mjs')

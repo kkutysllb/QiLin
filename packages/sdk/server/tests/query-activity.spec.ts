@@ -250,6 +250,15 @@ describe('SDK query activity completion', () => {
     expect(h.notices.filter(item => item.method === 'session.query.completed')).toEqual([])
   })
 
+  it('completes a native command that returns no text with an empty final response', async () => {
+    const h = await setup()
+    h.register(() => ({ kind: 'success' }))
+    // A state-only command may settle without text; the completion notice then
+    // carries an empty final response rather than omitting the field.
+    await h.run('/plan')
+    expect(await h.completed).toMatchObject({ finalResponse: '', finishReason: 'completed' })
+  })
+
   it('lets clear return while the original goal run waits for its current reply', async () => {
     const model = new GatedModel([textResponse('current reply')])
     const h = await setup(model, true)

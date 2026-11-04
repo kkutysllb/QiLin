@@ -475,6 +475,11 @@ export class GoalService extends TypertRemoteService {
   /** Read the current durable projection maintained by the registry. */
   private state(session: Session): GoalProjection | null {
     const state = this.ctx.sessionProjections.stateOf(session, 'goal')
+    // apply() registers the goal projection before this service exists, so a
+    // mounted service always answers for the Session it is asked about; a
+    // disposed fiber removes the service before its projection, and every
+    // public entry proves liveness through assertLive() first.
+    /* v8 ignore next -- no public entry reaches a mounted service without a registered goal projection */
     if (state === undefined) throw new Error('goal projection is not registered')
     if (state.failure !== null) throw new Error(state.failure)
     return state.current

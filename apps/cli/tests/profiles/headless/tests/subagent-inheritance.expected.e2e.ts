@@ -104,6 +104,9 @@ describe('parent-only override inheritance snapshot', () => {
       binArgs: [configPath, task],
       tsconfigPath,
       env: {
+        // The replay script calls tools directly; the shipped headless default
+        // (PTC) exposes only run_code, so pin the native presentation.
+        QILIN_TOOLS_MODE: 'native',
         // The primary fixture path must exist for llm-replay's config guard;
         // the override sidecar fully replaces the derived parent script.
         QILIN_SNAPSHOT_FILE: replayOverride,
@@ -132,11 +135,37 @@ describe('parent-only override inheritance snapshot', () => {
         const childRecords = child.trimEnd().split('\n').map(
           line => JSON.parse(line) as Record<string, unknown>,
         )
-        expect(childRecords[1]).toMatchObject({
+        // The child log opens with its delegation descriptor, followed by the
+        // inherited mode and approval rows; locate the fence facts by type so a
+        // prelude record cannot hide a missing inheritance row.
+        expect(childRecords[1]).toMatchObject({ type: 'subagent/descriptor', seq: SessionSeq(0) })
+        const inheritedMode = childRecords.find(record => record.type === 'sandbox/mode')
+        expect(inheritedMode).toMatchObject({
           type: 'sandbox/mode',
-          seq: SessionSeq(0),
           data: { mode: 'read-only', source: 'delegation' },
         })
+
+        // The settlement notice reaches the parent only after its spawning turn
+        // ends, and that notice-driven turn must be a normal completed turn: a
+        // script exhaustion here would pin a replay error as expected behavior.
+        const parentRecords = parent.trimEnd().split('\n').map(
+          line => JSON.parse(line) as Record<string, unknown>,
+        )
+        const turnReasons = parentRecords.flatMap(record => record.type === 'turn/end'
+          ? [(record.data as { reason?: { kind?: string } } | undefined)?.reason?.kind]
+          : [])
+        expect(turnReasons).toEqual(['completed', 'completed', 'completed'])
+        const settlementNotices = parentRecords.flatMap((record) => {
+          if (record.type !== 'agent/inbox/spliced') return []
+          const inserted: unknown = (record.data as { inserted?: unknown } | undefined)?.inserted
+          if (!Array.isArray(inserted)) return []
+          return (inserted as unknown[]).filter((message: unknown) => {
+            if (typeof message !== 'object' || message === null) return false
+            const source = (message as { source?: { kind?: string } }).source
+            return source?.kind === 'subagent-settled'
+          })
+        })
+        expect(settlementNotices).toHaveLength(1)
 
         const runtimeContexts = (content: string): string[] => content.trimEnd().split('\n').flatMap((line) => {
           const record = JSON.parse(line) as {
@@ -176,7 +205,7 @@ describe('parent-only override inheritance snapshot', () => {
     expect(records.at(-1)).toMatchObject({
       type: 'result',
       sessionId,
-      output: 'The delegated child was denied by the sandbox. PARENT_DONE',
+      output: 'The confined child reported CHILD_DENIED and no file was written. PARENT_DONE',
     })
   }, LOADER_SMOKE_TEST_TIMEOUT_MS)
 })

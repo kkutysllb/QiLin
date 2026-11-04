@@ -62,7 +62,9 @@ return { prose, verdict: judged.verdict, confidence: judged.confidence }`,
     expect(parent.session.snapshotEvents()
       .filter(event => event.type === 'subagent/catalog')
       .map(event => ({ id: event.data.childId, mode: event.data.mode })))
-      .toEqual(childIds.map(id => ({ id, mode: 'continuable' })))
+      // Workflow children are one-shot: the script owns each child's answer and
+      // disposes it, so no follow-up message ever addresses it.
+      .toEqual(childIds.map(id => ({ id, mode: 'one-shot' })))
     // Both children were disposed to quiescence — no live child agents remain.
     expect(childIds.length).toBe(2)
     for (const childId of childIds) {

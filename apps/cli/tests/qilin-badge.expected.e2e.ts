@@ -6,6 +6,8 @@ const configPath = fileURLToPath(new URL('./fixtures/qilin-badge/cordis.yml', im
 const defaultConfigPath = fileURLToPath(new URL('./fixtures/qilin-badge/default.cordis.yml', import.meta.url))
 const tsconfigPath = fileURLToPath(new URL('../../../tsconfig.json', import.meta.url))
 const badgeAssetsPath = fileURLToPath(new URL('../../../packages/experimental/skill-badge/assets/', import.meta.url))
+/** The opt-in bundle that inserts the skill row; the base composition ships none. */
+const badgeBundlePatch = fileURLToPath(new URL('../../../packages/experimental/badge-skill-bundle/cordis.patch.yml', import.meta.url))
 
 describe('qilin badge assembled snapshot', () => {
   it('advertises and loads the opt-in bundled skill through the shipped app', async () => {
@@ -23,6 +25,7 @@ describe('qilin badge assembled snapshot', () => {
       binScript,
       libBinScript: binScript,
       configPath,
+      binArgs: [configPath, badgeBundlePatch],
       tsconfigPath,
     })
     const disabledSnapshot = JSON.parse(disabled.stdout) as unknown

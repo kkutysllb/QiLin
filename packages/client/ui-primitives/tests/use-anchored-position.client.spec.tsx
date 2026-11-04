@@ -11,7 +11,7 @@
  */
 import { useRef } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render } from '@testing-library/react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import { useAnchoredPosition } from '../src/useAnchoredPosition.ts'
 
 afterEach(() => {
@@ -227,6 +227,95 @@ describe('useAnchoredPosition', () => {
     } finally {
       anchorRect.mockRestore()
     }
+  })
+
+  /** Host whose refs never resolve to committed elements. */
+  function UncommittedRefs(): ReturnType<typeof useAnchoredPosition> {
+    const anchorRef = useRef<HTMLButtonElement | null>(null)
+    const panelRef = useRef<HTMLDivElement | null>(null)
+    return useAnchoredPosition({ open: true, anchorRef, panelRef, gap: 4, margin: 12 })
+  }
+
+  /** Host whose anchor belongs to a document with no window. */
+  function DetachedDocumentHost(): ReturnType<typeof useAnchoredPosition> {
+    const detached = document.implementation.createHTMLDocument('detached')
+    const anchorRef = useRef<HTMLButtonElement | null>(detached.createElement('button'))
+    const panelRef = useRef<HTMLDivElement | null>(detached.createElement('div'))
+    return useAnchoredPosition({ open: true, anchorRef, panelRef, gap: 4, margin: 12 })
+  }
+
+  function placedHost(Component: () => ReturnType<typeof useAnchoredPosition>) {
+    function Wrapper() {
+      const position = Component()
+      return <div data-testid="holder" style={position ?? { visibility: 'hidden' }} />
+    }
+    return render(<Wrapper />)
+  }
+
+  const FULL_RECT = { left: 100, right: 300, top: 10, bottom: 30, width: 200, height: 20, x: 100, y: 10, toJSON: () => ({}) } as DOMRect
+
+  describe('useAnchoredPosition early exits', () => {
+    it('waits for an uncommitted element instead of placing against null', () => {
+      placedHost(UncommittedRefs)
+      expect(screen.getByTestId('holder').style.visibility).toBe('hidden')
+    })
+
+    it('waits for an element whose document has no view', () => {
+      placedHost(DetachedDocumentHost)
+      expect(screen.getByTestId('holder').style.visibility).toBe('hidden')
+    })
+
+    it('offsets a placement by the visual viewport origin where the engine reports one', () => {
+      const anchorRect = vi.spyOn(HTMLButtonElement.prototype, 'getBoundingClientRect').mockReturnValue(FULL_RECT)
+      vi.stubGlobal('innerWidth', 1000)
+      vi.stubGlobal('innerHeight', 800)
+      vi.stubGlobal('CSS', { supports: () => true })
+      vi.stubGlobal('visualViewport', {
+        offsetLeft: 1000, offsetTop: 500, width: 500, height: 400,
+        addEventListener: vi.fn(), removeEventListener: vi.fn(),
+      })
+      try {
+        const { getByTestId } = render(<Host open />)
+        // WebKit rects use the visual origin; viewport-fixed CSS uses the layout origin.
+        expect(getByTestId('panel').style.left).toBe('1100px')
+        // The visible viewport, not the layout viewport, caps the panel.
+        expect(getByTestId('panel').style.getPropertyValue('--qilin-anchored-max-width')).toBe('476px')
+      } finally {
+        anchorRect.mockRestore()
+      }
+    })
+
+    it('ignores a delivered event and a frame that arrive after cleanup', () => {
+      const frames: FrameRequestCallback[] = []
+      vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => { frames.push(callback); return frames.length })
+      vi.stubGlobal('cancelAnimationFrame', () => {})
+      const add = vi.spyOn(window, 'addEventListener')
+      const ui = render(<Host open />)
+      const update = add.mock.calls.find(([type]) => type === 'scroll')?.[1] as (() => void) | undefined
+      const frame = frames.at(-1)
+      ui.unmount()
+      expect(() => { update?.() }).not.toThrow()
+      expect(() => { frame?.(0) }).not.toThrow()
+      add.mockRestore()
+    })
+
+    it('re-places a panel whose anchor moved without a scroll or resize', () => {
+      const frames: FrameRequestCallback[] = []
+      vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => { frames.push(callback); return frames.length })
+      vi.stubGlobal('cancelAnimationFrame', () => {})
+      vi.stubGlobal('innerWidth', 1000)
+      vi.stubGlobal('innerHeight', 800)
+      const anchorRect = vi.spyOn(HTMLButtonElement.prototype, 'getBoundingClientRect').mockReturnValue(FULL_RECT)
+      try {
+        const { getByTestId } = render(<Host open />)
+        expect(getByTestId('panel').style.left).toBe('100px')
+        anchorRect.mockReturnValue(Object.assign({}, FULL_RECT, { left: 140, right: 340, x: 140 }))
+        act(() => { frames.at(-1)?.(0) })
+        expect(getByTestId('panel').style.left).toBe('140px')
+      } finally {
+        anchorRect.mockRestore()
+      }
+    })
   })
 
   it('attaches no listeners while the element is closed', () => {

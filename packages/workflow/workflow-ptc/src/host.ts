@@ -203,6 +203,10 @@ export class PtcWorkflowRun implements WorkflowRun {
     const run = await this.subagents.startActivation({
       provider: this.provider,
       label: `${this.meta.name} child ${callId}`,
+      // A workflow child answers exactly one `agent()` call and is disposed in
+      // that call's `finally`; no follow-up ever addresses it, so its descriptor
+      // is one-shot rather than a resumable conversation.
+      mode: 'one-shot',
       delivery: 'caller',
       signal: this.controller.signal,
       request: {

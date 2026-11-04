@@ -116,11 +116,15 @@ describe('PluginInventoryGateway', () => {
     } as never)
 
     const snapshot = await inventory.list()
-    expect(snapshot.entries).toMatchObject([
-      { moduleName: 'cordis:active', meta },
-      { moduleName: 'cordis:unlabelled' },
-    ])
-    expect(snapshot.entries[1]?.meta).toBeUndefined()
+    // Entry position is not addressable: EntryTree.store keys entries by random
+    // hex ids, and all-digit ids iterate as integer keys rather than in insertion
+    // order. Select by module name so the case asserts metadata attachment only.
+    const labelled = snapshot.entries.find(entry => entry.moduleName === 'cordis:active')
+    const unlabelled = snapshot.entries.find(entry => entry.moduleName === 'cordis:unlabelled')
+    expect(snapshot.entries).toHaveLength(2)
+    expect(labelled).toMatchObject({ moduleName: 'cordis:active', meta })
+    expect(unlabelled).toMatchObject({ moduleName: 'cordis:unlabelled' })
+    expect(unlabelled?.meta).toBeUndefined()
     expect(snapshot.agentPresets?.[0]?.rows).toMatchObject([
       { moduleName: 'cordis:active', meta },
       { moduleName: 'cordis:unlabelled' },

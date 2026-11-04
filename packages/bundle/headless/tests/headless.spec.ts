@@ -1224,6 +1224,31 @@ describe('headless runner settlement convergence', () => {
     ])
   })
 
+  it('finishes a task turn that is still running when a settlement bound fires', async () => {
+    // The turn lands on a later macrotask, as a real model request does, so it is
+    // still open when the settlement join gives up.
+    const script: Script = {
+      async afterPrompt(session, message) {
+        await new Promise<void>((resolve) => { setTimeout(resolve, 5) })
+        appendTurn(session, 1, message, 'answer after the bound', true)
+      },
+    }
+    const flushSettlementNotices = vi.fn(async () => ({ woke: false, queued: 0, unread: 0, stopped: 'deadline' as const }))
+    const test = await bench(script, { subagents: { flushSettlementNotices } })
+    const warnings: string[] = []
+    const logged = vi.spyOn(test.ctx.logger, 'warn').mockImplementation((message: string) => { warnings.push(message) })
+    try {
+      // Summarizing without the awaited `turn/end` would report no outcome at all.
+      expect(await test.run()).toMatchObject({ code: 0, out: 'answer after the bound\n' })
+    } finally {
+      logged.mockRestore()
+      await test.ctx.fiber.dispose()
+    }
+    expect(warnings).toEqual([
+      'headless runner: 0 background subagent settlement notice(s) stayed unread after the deadline bound',
+    ])
+  })
+
   it('reports a notice queue it cannot wake', async () => {
     const flushSettlementNotices = vi.fn(async () => ({ woke: false, queued: 0, unread: 1 }))
     const warnings = await logOf({ subagents: { flushSettlementNotices } })

@@ -6,10 +6,14 @@
 import { randomUUID } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { SessionId } from '@qilin-agent/session'
 import type { DailyScheduleRecord, ScheduleCatalogEntry, ScheduleTask } from '@qilin-agent/schedule'
 import { expect, it } from 'vitest'
 import { withDefaultWeb, webGet, webRequest } from './default-web-process.ts'
+
+/** The shipped Web composition carries no Schedule rows; the opt-in bundle mounts the task store and its Remotes. */
+const SCHEDULE_BUNDLE_PATCH = fileURLToPath(new URL('../../../../../../packages/experimental/schedule-bundle/cordis.patch.yml', import.meta.url))
 
 const id = 'retained-remote-task' as DailyScheduleRecord['id']
 const sessionId = 'unloaded-owner' as SessionId
@@ -98,7 +102,7 @@ it('edits an existing task through built Remote bindings and keeps its identity 
     expect(await rpc('schedule/edit', { request: { id: 'missing-task', action: 'delete' } }))
       .toEqual({ ok: true, value: { id: 'missing-task', code: 'schedule_not_found' } })
     expect(await readStore(root)).toEqual(persisted)
-  }, { prepare: root => seed(root) })
+  }, { patches: [SCHEDULE_BUNDLE_PATCH], prepare: root => seed(root) })
 
   await withDefaultWeb(test, async ({ root, url }) => {
     const rpc = await connect(url, test.signal)
@@ -118,7 +122,7 @@ it('edits an existing task through built Remote bindings and keeps its identity 
     expect(stored).not.toHaveProperty('sessionId')
     expect(stored).toMatchObject({ target: { kind: 'session', sessionId }, lastDelivery: receipt })
     expect(await rpc('schedule/history', historyRequest)).toEqual(expectedHistory)
-  }, { prepare: root => seed(root, persisted) })
+  }, { patches: [SCHEDULE_BUNDLE_PATCH], prepare: root => seed(root, persisted) })
 })
 
 it('creates and idempotently adopts the explicit Session id bound to existing task data without touching its task files', async (test) => {
@@ -136,7 +140,7 @@ it('creates and idempotently adopts the explicit Session id bound to existing ta
     expect(await rpc('schedule/history', historyRequest)).toEqual(expectedHistory)
     expect(await readStore(root)).toEqual(retained)
     expect(await readFile(sourcePath(root), 'utf8')).toBe(source)
-  }, { prepare: root => seed(root) })
+  }, { patches: [SCHEDULE_BUNDLE_PATCH], prepare: root => seed(root) })
 })
 
 /** Read test-owned output without normalizing away the fields asserted below. */

@@ -189,6 +189,25 @@ it('replaces observed actions and callbacks, cancels older preparation, and rele
   expect(detach).toHaveBeenCalledOnce()
 })
 
+it('replaces a synchronous provider\'s published ids when the observed source changes', async () => {
+  const input = createSnapshotStore(0), run = vi.fn(), registry = new MenuRegistry(vi.fn())
+  // A synchronous provider publishes ids without a clear() in between, so the
+  // replaced ids must be withdrawn from the selectable callbacks explicitly.
+  registry.register({ id: 'live', target: 'extension', order: 0, observe: () => [input],
+    resolve: () => [{ id: input.getSnapshot() === 0 ? 'first' : 'second', label: 'L', run }] })
+  const menu = registry.resolve(target)
+  try {
+    await menu.ready
+    expect(menu.source.getSnapshot().map(item => item.id)).toEqual(['live/first'])
+    input.set(1)
+    expect(menu.source.getSnapshot().map(item => item.id)).toEqual(['live/second'])
+    menu.select('live/first')
+    expect(run).not.toHaveBeenCalled()
+    menu.select('live/second')
+    expect(run).toHaveBeenCalledOnce()
+  } finally { menu.dispose(); registry.dispose() }
+})
+
 it('withdraws invalid reactive updates and contains observation failure without retaining stale callbacks', () => {
   const input = createSnapshotStore(false), failed = vi.fn(), run = vi.fn()
   const registry = new MenuRegistry(failed)

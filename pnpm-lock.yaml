@@ -5193,6 +5193,9 @@ importers:
 
   packages/client/ui-schedule:
     devDependencies:
+      '@qilin-agent/api-remote-access':
+        specifier: workspace:*
+        version: link:../../api/remote-access
       '@qilin-agent/api-remotes':
         specifier: workspace:*
         version: link:../../api/remotes
@@ -5253,6 +5256,9 @@ importers:
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
+      '@qilin-agent/util-time':
+        specifier: workspace:*
+        version: link:../../util/time
       '@qilin-agent/util-values':
         specifier: workspace:*
         version: link:../../util/values

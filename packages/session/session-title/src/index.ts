@@ -544,6 +544,10 @@ export class SessionTitleService extends Service {
           }
         }
         await this.drain(registration.active)
+        // One provider at a time: register() throws while a registration exists,
+        // and only this one-shot effect disposer clears the field, so the field
+        // still names this registration whenever the disposer runs.
+        /* v8 ignore next -- the single-registration invariant keeps the field identical here */
         if (this.registration === registration) this.registration = undefined
       }
     }.bind(this), 'sessionTitle.register()')

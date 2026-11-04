@@ -714,6 +714,51 @@ describe('ui-session apply', () => {
       .toBe(bench.retainInfo(sessionId('s1')))
   })
 
+  it('offers the Session access source when the remote-access client is present', () => {
+    const ctx = new Context()
+    const bench = createSessionsBench(ctx)
+    const slots = { provideRoot: vi.fn(), installScope: vi.fn() }
+    ctx.provide('sessions', bench.sessions)
+    ctx.provide('slots', slots as never)
+    const source = vi.fn(() => createSnapshotStore({ allowed: true }))
+    ctx.provide('remoteAccess', { source, whenResourceAccess: vi.fn() } as never)
+    const provide = vi.spyOn(UiSession.prototype, 'provide')
+
+    try {
+      apply(ctx)
+      const root = slots.provideRoot.mock.calls[0]![0] as RootStandardSourceContribution
+      const sessionAccess = root.keyedHooks?.sessionAccess as
+        ((id: string, action: unknown) => unknown) | undefined
+      expect(sessionAccess?.(sessionId('s1') as string, 'subscribe')).toBeDefined()
+      expect(source).toHaveBeenCalledWith('session', sessionId('s1'), 'subscribe')
+      // A non-string action (an unknown caller shape) answers no access source.
+      expect(sessionAccess?.('s1', { action: 'subscribe' })).toBeUndefined()
+
+      // The per-Session contribution resolves the same action against its binding.
+      const descriptor = provide.mock.calls[0]![0] as {
+        keyedHooks: readonly string[]
+        resolve: (binding: SessionBinding) => { keyedHooks: { access: (action: unknown) => unknown } }
+      }
+      expect(descriptor.keyedHooks).toEqual(['access'])
+      const resolved = descriptor.resolve(bench.binding(sessionId('s1')))
+      expect(resolved.keyedHooks.access('subscribe')).toBeDefined()
+      expect(source).toHaveBeenCalledWith('session', sessionId('s1'), 'subscribe')
+    } finally { provide.mockRestore() }
+  })
+
+  it('delegates whenAccess to the remote-access resource guard', () => {
+    const ctx = new Context()
+    const bench = createSessionsBench(ctx)
+    const service = new UiSession(ctx, bench.sessions)
+    const dispose = vi.fn()
+    const whenResourceAccess = vi.fn(() => dispose)
+    ctx.provide('remoteAccess', { source: vi.fn(), whenResourceAccess } as never)
+
+    const callback = () => () => {}
+    expect(service.whenAccess(sessionId('s1'), 'subscribe' as never, callback)).toBe(dispose)
+    expect(whenResourceAccess).toHaveBeenCalledWith('session', sessionId('s1'), 'subscribe', callback)
+  })
+
   it('keeps the Host loader half inert', () => {
     expect(() => { nodeApply() }).not.toThrow()
   })

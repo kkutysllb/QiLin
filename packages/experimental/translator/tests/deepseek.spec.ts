@@ -212,6 +212,27 @@ describe('native Flash translation', () => {
     expect(b.session?.snapshotEvents()).toEqual([])
   })
 
+  it('aborts a translation whose native provider is withdrawn during preparation', async () => {
+    const b = await paidFixture(cleanups)
+    const entry = [...b.ctx.loader.entries()].find(e => e.options.id === 'official-custom-id')!
+    const original = b.ctx.llm.prepareCall.bind(b.ctx.llm)
+    const entered = Promise.withResolvers<undefined>(), release = Promise.withResolvers<undefined>()
+    vi.spyOn(b.ctx.llm, 'prepareCall').mockImplementation(async (...args) => {
+      entered.resolve(undefined)
+      await release.promise
+      return original(...args)
+    })
+    const pending = b.translate('deepseek-official')
+    const rejected = expect(pending).rejects.toMatchObject({ code: 'TRANSLATION_UNAVAILABLE' })
+    await entered.promise
+    // Withdrawing the owning fiber while preparation is in flight reaches the
+    // dispatcher's status watcher, which aborts before any network work.
+    await entry.fiber!.dispose()
+    release.resolve(undefined)
+    await rejected
+    expect(b.requests).toEqual([])
+  })
+
   it.each(['removed', 'replaced'])('rejects an audit Session %s during paid admission before dispatch', async (kind) => {
     const b = await paidFixture(cleanups, { withSession: false })
     const sessionId = SessionId('transient-audit-session')

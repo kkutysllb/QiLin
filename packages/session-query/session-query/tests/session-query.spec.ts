@@ -629,6 +629,13 @@ describe('session-query exact reads', () => {
     expect(TestPersistence.listCalls).toBe(1)
     expect(TestPersistence.readCalls).toEqual([])
 
+    // A cached row that recorded a cleared title answers with the session alone.
+    cached = { asOfSeq: SessionSeq(1), values: { titleSnapshot: null } }
+    const [cleared] = await ctx.sessionQuery.readTitleSnapshots([persisted.id])
+    expect(cleared).toMatchObject({ status: 'fulfilled', value: { session: persisted } })
+    if (cleared?.status !== 'fulfilled') throw new Error('expected a fulfilled title observation')
+    expect(cleared.value).not.toHaveProperty('title')
+
     // A cache without the row still folds the exact log.
     cached = undefined
     await ctx.sessionQuery.readTitleSnapshots([persisted.id])

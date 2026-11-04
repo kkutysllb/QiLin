@@ -20,23 +20,27 @@
  */
 
 import { spawnSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import {
   DEFAULT_PROFILE_BUNDLES,
   doctorPluginPackage,
   EngineNameCollisionError,
+  evaluatePluginCompatibility,
   initProfile,
+  pluginCompatibilityWarning,
   PROFILE_TEMPLATES,
   readProfileCompatibility,
   readProfileManifest,
   readProfilePluginRows,
+  readProfileVersionExemptions,
   reconcileProfileBundles,
   resolveBundleDir,
   resolveProfileDir,
   setProfileVersionExemption,
 } from '@qilin-agent/app-boot'
+import { parseInstallSpec } from '@qilin-agent/plugin-manager'
 import { withFileLock } from '@qilin-agent/atomic-write'
 import { INSTALL_ANCHOR } from './profile-boot.ts'
 
@@ -195,6 +199,36 @@ function anchorPathSpec(argument: string, cwd: string): string {
 }
 
 /**
+ * Refuse the packages this invocation names that the running runtime version
+ * rejects, before pnpm can install them. A local directory spec's manifest sits
+ * on disk, so its requirements are read without a fetch; a registry, git, or
+ * tarball spec needs the installation itself, so the startup check reports it.
+ * @param forwarded - pnpm arguments with relative path specs anchored.
+ * @param dir - profile directory holding the exact-version exemptions.
+ * @returns the diagnostics for refused packages, empty when every named path spec is compatible.
+ */
+function refusedPathSpecs(forwarded: readonly string[], dir: string): string[] {
+  const exemptions = readProfileVersionExemptions(dir)
+  const warnings: string[] = []
+  for (const argument of forwarded) {
+    try {
+      const parsed = parseInstallSpec(argument)
+      if (parsed.kind !== 'path') continue
+      const filename = join(parsed.path, 'package.json')
+      const manifest = existsSync(filename) ? JSON.parse(readFileSync(filename, 'utf8')) as object : undefined
+      if (manifest === undefined) continue
+      const issue = evaluatePluginCompatibility(manifest, exemptions)
+      if (issue !== undefined && !issue.exempted) warnings.push(pluginCompatibilityWarning(issue))
+    } catch (error) {
+      // A spec whose manifest cannot be read or validated is left to pnpm and the
+      // startup check, which reports what the lookup could not prove.
+      void error
+    }
+  }
+  return warnings
+}
+
+/**
  * Run one `qilin plugin` invocation: report or list, grant or revoke one
  * exact-version exemption, or forward to pnpm and reconcile.
  * @param profile - the profile name.
@@ -225,9 +259,15 @@ export async function runPlugin(profile: string, args: readonly string[]): Promi
   // rewrite would discard.
   for (const warning of readProfileCompatibility(dir).warnings) process.stderr.write(`${NAME}: warning: ${warning}\n`)
   const before = readProfileManifest(NAME, dir)
+  const forwarded = args.map(argument => anchorPathSpec(argument, process.cwd()))
+  const refused = refusedPathSpecs(forwarded, dir)
+  if (refused.length > 0) {
+    process.stderr.write(`\n${NAME}: installation rejected: ${refused.join('\n')}\n${NAME}: nothing was installed.\n`)
+    return 1
+  }
   // Windows resolves pnpm through its .cmd shim, which spawn() refuses
   // without a shell since the CVE-2024-27980 hardening.
-  const result = spawnSync('pnpm', args.map(argument => anchorPathSpec(argument, process.cwd())), {
+  const result = spawnSync('pnpm', forwarded, {
     cwd: dir,
     stdio: 'inherit',
     shell: process.platform === 'win32',

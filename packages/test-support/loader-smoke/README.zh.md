@@ -49,7 +49,7 @@ Profile 集成 driver 使用仅限仓库内部的 `tests/fixtures/production-pro
 
 ### 驱动 fixture 轮次
 
-`runFixtureTurn(ctx, options)` 让一项任务通过恰好一个已配置的根 agent：它等待任务进入持久收件箱，把规范事件转发给你的观察器，刷写会话，并返回最终 assistant 文本与累计用量。示例本地的 driver 继续负责配置、渲染与断言。
+`runFixtureTurn(ctx, options)` 让一项任务通过恰好一个已配置的根 agent：它等待任务进入持久收件箱，把规范事件转发给你的观察器，按出厂 headless runner 的方式加入后台子代理结算（每条排队的结算通知都会驱动它自己的父 turn），刷写会话，并返回最终 assistant 文本与累计用量。示例本地的 driver 继续负责配置、渲染与断言。
 
 ### 源模式或构建模式
 
@@ -73,7 +73,7 @@ Profile 集成 driver 使用仅限仓库内部的 `tests/fixtures/production-pro
 
 ### 设计
 
-harness 建立在一个分离之上：冒烟测试在隔离世界中的子进程里运行，测试进程只观察与断言。`runLoaderSmoke` 创建临时 cwd（或复用调用方提供的 cwd）、在那里准备世界状态、以隔离的 QILIN 主目录（该 cwd 下的 `QILIN_HOME`、`QILIN_AGENTS_HOME`）spawn 解析出的可执行文件、立即关闭 stdin，并在截止时间内等待干净退出，然后在每种结果下都执行检查，且只删除自己创建的 cwd。`runFixtureTurn` 留在进程内运行：它查找组合中的唯一根 agent，从持久收件箱收到任务起持续跟踪，直至整个 agent 完全停稳；随后汇总每步用量，并在返回前刷写会话。
+harness 建立在一个分离之上：冒烟测试在隔离世界中的子进程里运行，测试进程只观察与断言。`runLoaderSmoke` 创建临时 cwd（或复用调用方提供的 cwd）、在那里准备世界状态、以隔离的 QILIN 主目录（该 cwd 下的 `QILIN_HOME`、`QILIN_AGENTS_HOME`）spawn 解析出的可执行文件、立即关闭 stdin，并在截止时间内等待干净退出，然后在每种结果下都执行检查，且只删除自己创建的 cwd。`runFixtureTurn` 留在进程内运行：它查找组合中的唯一根 agent，从持久收件箱收到任务起持续跟踪，直至整个 agent 完全停稳；随后通过刷写并等待通知驱动的 turn 来加入排队的结算通知，汇总每步用量，并在返回前刷写会话。
 
 ### 源码地图
 

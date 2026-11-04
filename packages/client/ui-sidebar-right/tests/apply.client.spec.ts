@@ -332,6 +332,15 @@ describe('ui-sidebar-right apply', () => {
     expect(slots.subscribe('sidebar.right.tab.guide.actions', listener)).toBeTypeOf('function')
   })
 
+  it('hands the shared tab menu the retained views its rows render under', async () => {
+    const { seat, injectedOf } = await boot()
+    const injected = injectedOf(seat('contextMenu.content')) as { hooks: { views: { getSnapshot(): unknown } } }
+    // The rows read the seat's own retained-view source; the popup supplies the
+    // Session provider, so this inject face carries only the observable.
+    expect(Object.keys(injected)).toEqual(['hooks'])
+    expect(injected.hooks.views.getSnapshot()).toEqual(expect.any(Array))
+  })
+
   it('takes every registration and both faces back when disposed, aborting the open records, so a reload registers again', async () => {
     const { ctx, registered, dictionaries, current, fiber, seat, injectedOf } = await boot()
     const injected = injectedOf(seat('rightbar.session')) as SidebarRightInjected

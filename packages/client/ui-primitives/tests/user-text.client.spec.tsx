@@ -123,6 +123,24 @@ describe('projectUserText', () => {
     expect(command.container.querySelector('button')).toBeNull()
   })
 
+  it('binds the reference object menu onto each chip the caller can open', () => {
+    type Reference = { readonly kind: 'file' | 'folder' | 'session' | 'skill' | 'command' | undefined; readonly label: string }
+    const contextMenuProps = vi.fn((reference: Reference) => ({
+      'data-ref-menu': reference.kind ?? 'none',
+      onContextMenu: vi.fn(),
+    }))
+    const view = render(<div>{projectUserText(
+      '@src/a.ts @dir/ /review', [], ['review'], 'skill',
+      { openFile: vi.fn(), openSkill: vi.fn(), contextMenuProps },
+    )}</div>)
+    // Every decorated reference chip carries the captured kind and label, so the
+    // object menu is addressed by what the chip actually shows.
+    const chips = [...view.container.querySelectorAll('[data-ref-menu]')]
+    expect(chips.map(chip => chip.getAttribute('data-ref-menu'))).toEqual(['file', 'folder', 'skill'])
+    expect(contextMenuProps.mock.calls.map(([reference]) => reference.label)).toEqual(['@src/a.ts', '@dir/', '/review'])
+    expect(contextMenuProps.mock.calls[0]?.[0]).toMatchObject({ kind: 'file' })
+  })
+
   it('preserves text-selection gestures and keyboard activation', () => {
     const openFile = vi.fn()
     const view = render(<div>{projectUserText('@notes.md', [], [], 'skill', { openFile, openSkill: vi.fn() })}</div>)

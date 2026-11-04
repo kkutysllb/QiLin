@@ -371,6 +371,8 @@ function settlementBounds(config: Config): SettlementBounds {
  * opening turns. Two bounds stop it: wall-clock time and the closure-turn count.
  * A remainder is reported with its unread notice count instead of exiting
  * silently, and the notices themselves stay durable in the parent's inbox.
+ * Every bound stops only the background join: the task's own turn is joined
+ * either way, so the caller always folds a completed interval into an outcome.
  * @param ctx - plugin context carrying the optional subagent service and logger.
  * @param agent - the one-shot task's exact parent Agent.
  * @param childRuns - durable ids of the child runs this task published, in publication order.
@@ -430,6 +432,11 @@ async function settleBackgroundWork(
       'headless runner: ' + String(last.unread) + ' background subagent settlement notice(s) stayed unread '
       + 'after the ' + bound + ' bound',
     )
+    // The settlement join bounds background work, never the task's own turn. A
+    // turn still running when that bound fires must finish first: summarizing
+    // without its `turn/end` reads a cut transcript, so the run reports no
+    // outcome and a later teardown records the turn as aborted.
+    await agent.whenIdle()
     return
   }
   if (childRuns.length === 0) return

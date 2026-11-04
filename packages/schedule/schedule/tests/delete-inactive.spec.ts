@@ -248,6 +248,98 @@ it('reports unknown-state and keeps every row when the backend cannot establish 
   expect(pool.media.get('schedule')?.tables.get('tasks')?.size).toBe(2)
 })
 
+it('labels a table access that never reaches storage', async () => {
+  const pool = new MemoryMediaPool()
+  // The removal first enumerates the tasks table and then opens it to delete, so
+  // the trap fires on that second access inside removeRows.
+  let failing = false, accesses = 0
+  const test = await harness({
+    pool,
+    tableAccess: table => (failing && table === 'tasks' && ++accesses === 2 ? { throw: 'plain table failure' } : undefined),
+    beforeService: async (_ctx, facility) => {
+      const domain = await facility.open(scheduleDomain)
+      await domain.table('tasks').put(ScheduleId('ended-a'), endedRow(SessionId('table-a'), 'ended-a', 'Table first'))
+      await domain.close()
+    },
+  })
+  tests.push(test)
+  failing = true
+  // A caller-side failure is not a storage rejection: it is wrapped with the
+  // operation label so the reason names both.
+  const failure = await test.service.deleteInactive().then(() => undefined, (error: unknown) => error)
+  expect(failure).toBeInstanceOf(Error)
+  expect((failure as Error).message).toContain('plain table failure')
+  expect((failure as Error).message).toContain('schedule ended-task removal failed')
+
+  // A plain Error already names its own failure, so it surfaces unchanged
+  // instead of gaining a second operation prefix.
+  const second = new MemoryMediaPool()
+  let secondAccesses = 0, secondFailing = false
+  const errorTest = await harness({
+    pool: second,
+    tableAccess: table => (secondFailing && table === 'tasks' && ++secondAccesses === 2
+      ? { throw: new Error('plain table error') }
+      : undefined),
+    beforeService: async (_ctx, facility) => {
+      const domain = await facility.open(scheduleDomain)
+      await domain.table('tasks').put(ScheduleId('ended-b'), endedRow(SessionId('table-b'), 'ended-b', 'Table second'))
+      await domain.close()
+    },
+  })
+  tests.push(errorTest)
+  secondFailing = true
+  const direct = await errorTest.service.deleteInactive().then(() => undefined, (error: unknown) => error)
+  expect(direct).toBeInstanceOf(Error)
+  expect((direct as Error).message).toBe('plain table error')
+})
+
+it('labels a non-Error rejection reason and a StorageError cause', async () => {
+  const pool = new MemoryMediaPool()
+  const backend = gatedScheduleBackend(pool, {
+    deleteRecord: async (table) => {
+      if (table !== 'tasks') return
+      throw 'plain string failure'
+    },
+  })
+  const test = await harness({
+    pool,
+    backend,
+    beforeService: async (_ctx, facility) => {
+      const domain = await facility.open(scheduleDomain)
+      await domain.table('tasks').put(ScheduleId('ended-a'), endedRow(SessionId('string-a'), 'ended-a', 'String first'))
+      await domain.close()
+    },
+  })
+  tests.push(test)
+  const { service } = test
+  // A reason with no Error at all still surfaces as a labeled Error.
+  const failure = await service.deleteInactive().then(() => undefined, (error: unknown) => error)
+  expect(failure).toBeInstanceOf(Error)
+  expect((failure as Error).message).toContain('plain string failure')
+
+  const caused = new MemoryMediaPool()
+  const causedTest = await harness({
+    pool: caused,
+    backend: gatedScheduleBackend(caused, {
+      deleteRecord: async (table) => {
+        if (table !== 'tasks') return
+        throw new StorageError('malformed-medium', 'outer failure', { cause: new Error('inner cause') })
+      },
+    }),
+    beforeService: async (_ctx, facility) => {
+      const domain = await facility.open(scheduleDomain)
+      await domain.table('tasks').put(ScheduleId('ended-b'), endedRow(SessionId('cause-b'), 'ended-b', 'Cause second'))
+      await domain.close()
+    },
+  })
+  tests.push(causedTest)
+  // A StorageError keeps its code and reports the operation label with the
+  // backend's own message.
+  const wrapped = await causedTest.service.deleteInactive().then(() => undefined, (error: unknown) => error)
+  expect(wrapped).toMatchObject({ name: 'StorageError', code: 'unknown-state' })
+  expect((wrapped as Error).message).toContain('outer failure')
+})
+
 it('reports a rejection reason that carries no Error as a labeled Error', async () => {
   const pool = new MemoryMediaPool()
   let attempts = 0

@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MarkdownText } from './markdown-test-components.tsx'
+import { MarkdownDelegateProvider, type MarkdownMenuTarget } from '../src/markdown/MarkdownDelegate.tsx'
 import type { MarkdownPathImages } from '../src/markdown/MarkdownText.tsx'
 
 afterEach(cleanup)
@@ -20,6 +21,27 @@ describe('MarkdownText local-path images', () => {
     const { container } = render(<MarkdownText text={LOCAL_IMAGE} />)
     expect(container.querySelector('img')).toBeNull()
     expect(screen.getByText('diagram')).toBeTruthy()
+  })
+
+  it('hands every rendered image to the delegate trigger bindings with its file path', () => {
+    const onContextMenu = vi.fn()
+    const getTriggerProps = vi.fn((_target: MarkdownMenuTarget) => ({ onContextMenu, tabIndex: 0 }))
+    const pathImages: MarkdownPathImages = { resolve: mapping }
+    const { container } = render(
+      <MarkdownDelegateProvider getTriggerProps={getTriggerProps}>
+        <MarkdownText
+          text={'![remote](https://example.com/a.png) ![local](/tmp/graph.png)'}
+          pathImages={pathImages}
+        />
+      </MarkdownDelegateProvider>,
+    )
+    const images = [...container.querySelectorAll('img')]
+    expect(images).toHaveLength(2)
+    // Both images carry the delegate's bindings; only a destination that names a
+    // local file adds a path to the captured target.
+    expect(images.map(image => image.getAttribute('tabindex'))).toEqual(['0', '0'])
+    expect(getTriggerProps.mock.calls.map(([target]) => 'path' in target ? target.path : undefined))
+      .toEqual([undefined, '/tmp/graph.png'])
   })
 
   it('rewrites a local image path through the vocabulary', () => {

@@ -151,6 +151,12 @@ export class QueryActivity {
   private finish(finishReason: string, finalResponse: string): void {
     if (this.closed) return
     try {
+      // Every activity belongs to slash-command input, and commands.execute()
+      // appends command/run before it invokes the handler, so this activity's
+      // session listener has already captured a command id by anything that can
+      // reach finish(); accept() also sets it. No await separates activity
+      // creation from that append, so the absent-id arm is defensive only.
+      /* v8 ignore next -- a created activity always receives command/run before any terminal path */
       if (this.commandId !== undefined) this.transport.notify('session.query.completed', {
         sessionId: this.agent.session.id, commandId: this.commandId, finishReason, finalResponse,
       })

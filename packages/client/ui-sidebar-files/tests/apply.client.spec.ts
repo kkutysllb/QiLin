@@ -133,6 +133,21 @@ describe('ui-sidebar-files apply', () => {
     expect(write).toHaveBeenCalledWith('s-1', 'a.ts', 'text', { baseVersion: 'v1' }, signal)
   })
 
+  it('hands every drawing of one store the same navigator face, and the toggle its write', async () => {
+    const { factories } = await boot()
+    const instance = (factories[0]?.store as { create(): { actions: object } }).create()
+    const navigatorOf = factories[0]?.inject as (sessionId: string, actions: object) => Record<string, unknown>
+    // The bookkeeping and the refcounted forget must survive the Factory's per-render calls.
+    const first = navigatorOf('s-1', instance.actions)
+    expect(navigatorOf('s-1', instance.actions)).toBe(first)
+    expect(Object.keys(first).sort()).toEqual(['attach', 'load', 'scrolled', 'shown', 'start', 'toggle'])
+    // A second store is a second navigator: panes of different sessions never share it.
+    expect(navigatorOf('s-1', (factories[0]?.store as { create(): { actions: object } }).create().actions)).not.toBe(first)
+    // The header control writes through the very face the tree reads.
+    const toggleOf = factories[1]?.inject as (sessionId: string, actions: object) => { shown: unknown }
+    expect(toggleOf('s-1', instance.actions)).toEqual({ shown: first.shown })
+  })
+
   it('takes every registration back when the plugin is disposed', async () => {
     const { tabs, registered, dictionaries, fiber } = await boot()
     await fiber.dispose()

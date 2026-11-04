@@ -885,4 +885,70 @@ describe('SessionProjectionCache retention', () => {
     expect(await storedRecord(root, SessionId('older'))).toBeUndefined()
     expect(await storedRecord(root, SessionId('newer'))).toBeDefined()
   })
+
+  it('deletes a record whose every unit overruns maxRecordBytes instead of storing an empty shell', async () => {
+    const { ctx, root } = await harness({
+      config: { writeEveryEvents: 100, writeIntervalMs: 60_000, maxRecordBytes: 8 },
+    })
+    const id = SessionId('all-oversized')
+    const session = ctx.sessions.create(id)
+    await ctx.sessionProjectionCache.write(session)
+    // Every unit (even the bare title row) exceeds the budget, so the write
+    // path deletes the record instead of occupying a table slot with nothing:
+    // an empty stored shell would still parse as a record here.
+    expect(await storedRecord(root, id)).toBeUndefined()
+    expect(ctx.sessionProjectionCache.cachedSnapshot(session.header)).toBeUndefined()
+    // A deleted row is only a lost shortcut; the session still folds from its log.
+    expect(ctx.sessionProjectionCache.coldSnapshot(session.header, SessionLogOffset(0), []).values)
+      .toEqual({ 'cache-test/marks': { marks: [] } })
+  })
+
+  it('deletes an oversized stored record during startup maintenance', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'qilin-projcache-'))
+    roots.push(root)
+    await seedRecord(root, 'oversized-all', {
+      'cache-test/marks': { ver: 1, seq: -1, val: { marks: ['kept'] } },
+      title: { ver: 1, seq: -1, val: 'stored' },
+    })
+    await harness({
+      root,
+      config: { writeEveryEvents: 100, writeIntervalMs: 60_000, maxRecordBytes: 8 },
+    })
+    // Startup maintenance drops a record that cannot keep a single unit.
+    expect(await storedRecord(root, SessionId('oversized-all'))).toBeUndefined()
+  })
+
+  it('keeps every row when the record fits maxRecordBytes', async () => {
+    const { ctx, root } = await harness({
+      config: { writeEveryEvents: 100, writeIntervalMs: 60_000, maxRecordBytes: 4_096 },
+    })
+    const id = SessionId('fits-budget')
+    const written = whenWritten(ctx, id)
+    const session = ctx.sessions.create(id)
+    mark(session, ['fits'])
+    await written
+    // Under the budget no row is dropped, so the stored record keeps the unit.
+    expect(Object.keys((await storedRows(root, id)) ?? {})).toEqual(['cache-test/marks'])
+  })
+
+  it('evicts the oldest stored record once a write exceeds maxRecords', async () => {
+    const { ctx, root } = await harness({
+      config: { writeEveryEvents: 100, writeIntervalMs: 60_000, maxRecords: 2 },
+    })
+    const first = SessionId('evict-1')
+    const second = SessionId('evict-2')
+    const third = SessionId('evict-3')
+    for (const id of [first, second, third]) {
+      const written = whenWritten(ctx, id)
+      ctx.sessions.create(id)
+      await written
+    }
+    // The third creation overflows the cap; the eviction pass orders by the
+    // stored identity's createdAt, so the first-created record goes first.
+    await vi.waitFor(async () => {
+      expect(await storedRecord(root, first)).toBeUndefined()
+    }, { timeout: 5_000 })
+    expect(await storedRecord(root, second)).toBeDefined()
+    expect(await storedRecord(root, third)).toBeDefined()
+  })
 })

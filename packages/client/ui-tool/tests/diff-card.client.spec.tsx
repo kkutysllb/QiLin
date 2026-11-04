@@ -231,7 +231,7 @@ describe('FileMutationRow diff card', () => {
     sessionId: SID, useSessions: bindSnapshotSelector(list()),
     useContextMenu: menuHook, resolveFilePath,
     t,
-  } as unknown as FileMutationRowProps)
+  } as FileMutationRowProps)
 
   /** The whole summary row is the expand toggle (ToolRow's unified interaction). */
   const toggleRow = (view: { container: HTMLElement }) => {

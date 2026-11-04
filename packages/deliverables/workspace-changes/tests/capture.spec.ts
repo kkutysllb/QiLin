@@ -1,7 +1,14 @@
 /** Whole-file captures and the mutation paths that trigger them. */
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+// The real parser answers every case; one test replaces a single call to pin how
+// an unexpected parser failure travels out of the capture.
+vi.mock('@qilin-agent/fs-patch', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@qilin-agent/fs-patch')>()
+  return { ...actual, parsePatch: vi.fn(actual.parsePatch) }
+})
+import { parsePatch } from '@qilin-agent/fs-patch'
 import { captureFile, mutationPaths, sameCapture } from '../src/capture.ts'
 import { scratchDir } from './support.ts'
 
@@ -63,6 +70,13 @@ describe('mutationPaths', () => {
     ) })).toEqual(['added.txt', 'source.txt', 'moved.txt', 'nested/target.txt', 'gone.txt'])
     // A malformed patch changes nothing, so it captures nothing.
     expect(mutationPaths('apply_patch', { input: 'invalid' })).toEqual([])
+  })
+
+  it('propagates an unexpected parser failure instead of reporting no paths', () => {
+    vi.mocked(parsePatch).mockImplementationOnce(() => { throw new TypeError('parser invariant broken') })
+    // Only a syntax error is the tool's own report; anything else is a bug that
+    // must surface rather than silently shrinking the change set.
+    expect(() => mutationPaths('apply_patch', { input: '*** Begin Patch\n*** End Patch' })).toThrow(TypeError)
   })
 
   it('yields nothing for reads, unknown tools, and incomplete arguments', () => {
