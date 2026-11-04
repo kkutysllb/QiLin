@@ -153,7 +153,9 @@ describe('HMR exact config paths', () => {
       })
       mkdirSync(dir)
       writeFileSync(filename, 'created')
-      await eventually(() => observed.includes('created'), 'HMR did not observe config creation under a new parent')
+      // The wait is longer than the default because traversal starts under heavier
+      // parallel-suite disk load; the test's own timeout still bounds the case.
+      await eventually(() => observed.includes('created'), 'HMR did not observe config creation under a new parent', 15_000)
     } finally {
       await ctx.fiber.dispose()
     }

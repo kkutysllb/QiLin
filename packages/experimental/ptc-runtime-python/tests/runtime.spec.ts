@@ -588,9 +588,10 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
 
   it('rejects run() after disposal, and unregisters ctx.ptcRuntime', async () => {
     const { ctx, fiber, runtime } = await setup()
+    const spec = runtime.resolve({ program: 'return 1', bindings: [] })
     await fiber.dispose()
-    await expect(runtime.run(runtime.resolve({ program: 'return 1', bindings: [] })))
-      .rejects.toThrow(/after disposal/)
+    await expect(runtime.run(spec)).rejects.toThrow(/after disposal/)
+    expect(() => runtime.resolve({ program: 'return 1', bindings: [] })).toThrow(/after disposal/)
     expect(ctx.get('ptcRuntime')).toBeUndefined()
   })
 

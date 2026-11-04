@@ -215,6 +215,11 @@ function revisedTask(
   })
 }
 
+/** Text of an unknown rejection reason, whether or not it is an Error. */
+function messageOf(value: unknown): string {
+  return value instanceof Error ? value.message : String(value)
+}
+
 /**
  * Shared management service; reads and management writes never activate a Session, and only delivery creates or
  * resumes one.
@@ -222,12 +227,7 @@ function revisedTask(
  * `sessionPersistence` supplies header-only target validation and the `session/flush`
  * listener that acknowledges durable inbox delivery through `ctx.sessions.flush()`.
  */
-export /** Text of an unknown rejection reason, whether or not it is an Error. */
-function messageOf(value: unknown): string {
-  return value instanceof Error ? value.message : String(value)
-}
-
-class ScheduleService extends TypertRemoteService {
+export class ScheduleService extends TypertRemoteService {
   static inject = ['agents', 'sessions', 'storageDomain', 'sessionPersistence']
 
   static Config: z<Config> = z.object({

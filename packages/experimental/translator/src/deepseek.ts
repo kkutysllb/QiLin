@@ -60,7 +60,7 @@ function nativeOwner(ctx: Context, provider: PaidTranslationProvider): NativeOwn
   if (directory === undefined || directory.settingsPath.length !== 0) return undefined
   const entry = [...loader.entries()].find(row => row.options.id === directory.settingsNs && row.options.name === OWNER_PACKAGES[provider])
   if (entry?.fiber?.state !== FiberState.ACTIVE) return undefined
-  return { llm, fiber: entry.fiber, provider, config: entry.fiber.config as OfficialNativeConfig }
+  return { llm, fiber: entry.fiber, provider, config: entry.fiber.effectiveConfig as OfficialNativeConfig }
 }
 
 function unchanged(ctx: Context, provider: PaidTranslationProvider, previous: EligibleOwner): NativeOwner | undefined {

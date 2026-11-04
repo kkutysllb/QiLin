@@ -1048,6 +1048,7 @@ export class PythonPtcRuntime extends PtcRuntime {
    * @throws When a requested override is unsupported or cwd is relative.
    */
   resolve(request: PtcRunRequest): PtcRunSpec {
+    if (this.disposed) throw new Error('qilin-ptc-runtime-python: resolve() after disposal')
     if (request.timeoutMs !== undefined) throw new Error('qilin-ptc-runtime-python: per-call timeout is unsupported')
     const sandboxPolicy = request.sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
     const cwd = request.cwd ?? sandboxPolicy.workspaceRoot
