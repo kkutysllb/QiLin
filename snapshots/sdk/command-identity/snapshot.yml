@@ -1,0 +1,7 @@
+version: 1
+scenario: command-identity
+profile: sdk
+composition: sdk-default
+recording: live
+header:
+  class: sdk-command

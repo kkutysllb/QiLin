@@ -1,0 +1,9 @@
+# Rename the native permission command and shadow its old name for one SDK Session.
+
+- insert:
+    - id: command-identity-fixture
+      name: './runtime.mjs'
+    - id: command-identity-capture
+      name: './capture-requests.mjs'
+      config:
+        path: !!js qilinHomePath('command-identity-requests.jsonl')
