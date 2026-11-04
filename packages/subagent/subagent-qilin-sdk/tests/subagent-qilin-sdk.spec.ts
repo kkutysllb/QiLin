@@ -610,8 +610,12 @@ describe('dsh-subagent-qilin-sdk provider', () => {
 
   it('uses a fixed unknown category for an untyped SDK exception', async () => {
     const rawMessage = 'unknown SDK failure at /private/path SECRET_TOKEN'
-    const spy = vi.spyOn(HarnessClient.prototype, 'prompt')
-      .mockRejectedValue(new Error(rawMessage))
+    const originalRequest = HarnessClient.prototype.request
+    const spy = vi.spyOn(HarnessClient.prototype, 'request')
+      .mockImplementation(async function (this: HarnessClient, method: string, ...rest: never[]) {
+        if (method === 'session/query') throw new Error(rawMessage)
+        return originalRequest.call(this, method, ...rest)
+      })
     try {
       const ctx = await setup()
       const run = await startExternalActivation(ctx, 'dsh-sdk', request())

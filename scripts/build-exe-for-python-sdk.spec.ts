@@ -44,7 +44,7 @@ describe('Python runtime executable builder CLI', () => {
     expect(cliManifest.devDependencies).toHaveProperty('@qilin-agent/subprocess-local')
     expect(runtimeManifest.dependencies).toHaveProperty('@qilin-agent/subprocess-local')
     expect(bootstrap).toContain("import('@qilin-agent/cli/lib/bin.js')")
-    expect(bootstrap).toContain('await runCli()')
+    expect(bootstrap).toContain('await runCli({ packageManager })')
     expect(bootstrap).toContain("import('@qilin-agent/subprocess-local/runner')")
     expect(bootstrap).toContain('await runSelectedSubprocessRunner(selection)')
   })

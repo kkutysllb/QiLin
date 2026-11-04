@@ -300,6 +300,7 @@ vi.mock('electron', () => ({
   },
   Menu: { setApplicationMenu: harness.menu.setApplicationMenu, buildFromTemplate: harness.menu },
   session: { defaultSession: {
+    on: vi.fn(),
     setPermissionCheckHandler: vi.fn(), setPermissionRequestHandler: vi.fn(), webRequest: { onBeforeSendHeaders: harness.socketHeaders },
     cookies: { get: vi.fn(async () => [{ name: accountSessionCookieName(), value: 'test-session', expirationDate: Math.floor(Date.now() / 1000) + 3600 }]), set: vi.fn(async () => undefined), remove: vi.fn(async () => undefined) },
   } },

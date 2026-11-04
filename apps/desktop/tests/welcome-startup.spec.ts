@@ -92,6 +92,7 @@ vi.mock('electron', () => ({
   net: { fetch: vi.fn() },
   nativeTheme: state.nativeTheme,
   session: { defaultSession: {
+    on: vi.fn(),
     setPermissionCheckHandler: vi.fn(), setPermissionRequestHandler: vi.fn(), webRequest: { onBeforeSendHeaders: vi.fn() },
     cookies: { get: vi.fn(async () => []), set: vi.fn(async () => undefined), remove: vi.fn(async () => undefined) },
   } },

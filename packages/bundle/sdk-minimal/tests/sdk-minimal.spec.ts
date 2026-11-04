@@ -36,6 +36,8 @@ describe('qilin-sdk-minimal bundle', () => {
       ['filesystem', '@qilin-agent/fs-local'],
       ['attachment-local', '@qilin-agent/attachment-local'],
       ['tool-fs', '@qilin-agent/tool-fs'],
+      ['working-directory', '@qilin-agent/working-directory'],
+      ['tool-working-directory', '@qilin-agent/tool-working-directory'],
       ['session-projection', '@qilin-agent/session-projection'],
       ['token-meter', '@qilin-agent/token-meter'],
       ['compaction-basic', '@qilin-agent/compaction-basic'],
