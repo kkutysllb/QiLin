@@ -1,0 +1,7 @@
+# Capture the permission-switch model inputs before adapter execution.
+
+- insert:
+    - id: permission-request-capture
+      name: './capture-requests.mjs'
+      config:
+        path: !!js qilinHomePath('permission-requests.jsonl')

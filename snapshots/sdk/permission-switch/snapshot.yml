@@ -1,0 +1,8 @@
+version: 1
+scenario: permission-switch
+profile: sdk
+composition: sdk-default
+recording: live
+header:
+  class: sdk-command
+  pin: true
