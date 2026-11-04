@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/brand": "workspace:*",
     "@qilin-agent/experimental-forge": "workspace:*",
     "@qilin-agent/subprocess": "workspace:*"
   }

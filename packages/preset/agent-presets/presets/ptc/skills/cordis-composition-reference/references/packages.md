@@ -106,7 +106,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/client-ui-sidebar-browser` | no | Sandboxed Web browser tabs for the right Sidebar |
 | `@qilin-agent/client-ui-sidebar-documentpreview` | yes | Extensible document previews for Sidebar files: Office, Markdown, highlighted code, images, PDF, HTML, and plain text |
 | `@qilin-agent/client-ui-sidebar-files` | no | Workspace file tree tab type for the right Sidebar: lazy directory listing over the workspaceFiles Remote namespace, opening files into the Sidebar |
-| `@qilin-agent/client-ui-sidebar-git` | no | Source-control tab type for the right Sidebar: repository status, staging, commits, branches, and push/pull over the workspaceGit Remote namespace |
 | `@qilin-agent/client-ui-sidebar-plans` | no | Task-plan tab type for the right Sidebar: scans the session workspace's convention plan documents and opens one as a file resource |
 | `@qilin-agent/client-ui-sidebar-right` | no | Right Sidebar: the docking surface's session-bound state, its panel and header expand control, and the navigation service over it |
 | `@qilin-agent/client-ui-sidebar-tasks` | no | Subagent topology and background-job tab type for the right Sidebar: this Session's direct-child catalog, the descendant totals its summary lineage records, and its live job list |

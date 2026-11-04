@@ -32,6 +32,7 @@
     "locale/*.json",
     "lib/index.js",
     "cordis.patch.yml",
+    "docs",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
@@ -40,6 +41,7 @@
     "@qilin-agent/experimental-forge": "workspace:*",
     "@qilin-agent/experimental-forge-github": "workspace:*",
     "@qilin-agent/experimental-forge-session": "workspace:*",
+    "@qilin-agent/experimental-tool-worktree": "workspace:*",
     "@qilin-agent/experimental-worktree": "workspace:*"
   },
   "peerDependencies": {
