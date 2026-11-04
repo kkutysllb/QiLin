@@ -13,7 +13,7 @@ import type { Context } from '@qilin-agent/kylin'
 import type { SessionSnapshot } from '@qilin-agent/api-session-controller/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import {
-  allowAllAccess, bindSnapshotSelector, conversationSnapshot, sessionSnapshot,
+  allowAllAccess, bindSnapshotSelector, contextMenuHook, conversationSnapshot, sessionSnapshot,
 } from '@qilin-agent/client-test-runtime'
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { SessionId } from '@qilin-agent/session/types'
@@ -61,6 +61,7 @@ function mountBar(shell: SessionInputShell, over?: { running?: boolean; disabled
       createSnapshotStore<SessionStatusSnapshot>(new Map()),
     ),
     useSessionRetainInfo: () => undefined,
+    useContextMenu: contextMenuHook(),
     useResource,
     ...allowAllAccess,
     useWorkspaces: bindSnapshotSelector(createSnapshotStore({

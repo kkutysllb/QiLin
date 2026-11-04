@@ -48,8 +48,9 @@ kind: "package-group"
 | [`ui-sidebar-browser/`](ui-sidebar-browser/README.zh.md) | 在右侧 Sidebar tab 中浏览 sandboxed HTTP(S) 页面，包括 loopback 服务 | — |
 | [`resources/`](resources/README.zh.md) | 统一资源模型：`useResource` 会话标准钩子背后的协议提供方 | `ctx.resources` |
 | [`ui-sidebar-files/`](ui-sidebar-files/README.zh.md) | 右侧 Sidebar 的工作区文件树 tab 类型 | — |
-| [`ui-sidebar-git/`](ui-sidebar-git/README.zh.md) | 右侧 Sidebar 的 Git 面板 tab 类型：状态、暂存、提交、分支与 GitHub PR | — |
 | [`ui-workspace/`](ui-workspace/README.zh.md) | 提供工作区选择与创建界面 | — |
+| [`ui-context-menu/`](ui-context-menu/README.zh.md) | 类型化、可由插件扩展的右键菜单，携带捕获目标与共享呈现 | `ctx.contextMenus` |
+| [`ui-file-actions/`](ui-file-actions/README.zh.md) | Web 与桌面的原文件另存与图片剪贴板操作 | `ctx.fileActions` |
 | [`ui-conversation/`](ui-conversation/README.zh.md) | 展示当前对话及其输入界面 | — |
 | [`ui-chat/`](ui-chat/README.zh.md) | 投影并渲染 Chat 对话 target | — |
 | [`shortcuts/`](shortcuts/README.zh.md) | 应用键盘命令注册表与物理按键路由 | — |

@@ -294,6 +294,7 @@ describe('DockSurface', () => {
     const buttons = screen.getAllByRole('button', { name: TEST_LABELS.splitPane })
     expect(buttons).toHaveLength(2)
     expect(buttons.every(button => !button.hasAttribute('disabled'))).toBe(true)
+    expect(buttons.every(button => button.hasAttribute('data-dockkit-split-control'))).toBe(true)
     fireEvent.click(buttons[0]!)
     expect(intents.splitPane).toHaveBeenCalledExactlyOnceWith(dockPaneIds(state)[0])
   })
@@ -794,9 +795,44 @@ describe('DockSurface', () => {
     // A press on the nested control must not reach the chip's gesture handler;
     // if it did, the pointer would be captured and this click would never land.
     fireEvent.pointerDown(close)
+    // Keys on the nested control stay that control's: the chip's own
+    // activation handler must not claim them.
+    expect(fireEvent.keyDown(close, { key: 'Enter' })).toBe(true)
+    expect(fireEvent.keyDown(close, { key: ' ' })).toBe(true)
     fireEvent.click(close)
     expect(intents.closeTab).toHaveBeenCalledTimes(1)
     expect(intents.focusTab).not.toHaveBeenCalled()
+  })
+
+  it('hands the chip gesture to an embedder-owned popup and draws none of its own', () => {
+    const controller = seededController()
+    const props: DockSurfaceProps = {
+      state: controller.getSnapshot().state,
+      canSplit: true,
+      intents: spyIntents(),
+      labels: TEST_LABELS,
+      renderTab: () => null,
+    }
+    const triggerCalls = vi.fn()
+    const getTabTriggerProps: NonNullable<DockSurfaceProps['getTabTriggerProps']> = (tab, paneId, handlers) => {
+      triggerCalls(tab, paneId, handlers)
+      return {
+        onContextMenu: (event) => { event.preventDefault() },
+        onKeyDown: handlers?.onKeyDown,
+        tabIndex: handlers?.tabIndex,
+      }
+    }
+    const view = render(<DockSurface {...props} getTabTriggerProps={getTabTriggerProps} />)
+    const chip = view.getAllByRole('tab')[0]!
+    // oxlint-disable-next-line typescript/no-unsafe-assignment -- vitest expect.any matchers intentionally return any
+    const expectedTab = expect.objectContaining({ title: expect.any(String) })
+    // oxlint-disable-next-line typescript/no-unsafe-assignment -- vitest expect.any matchers intentionally return any
+    const expectedPane = expect.any(String)
+    // oxlint-disable-next-line typescript/no-unsafe-assignment -- vitest expect.any matchers intentionally return any
+    const expectedHandlers = expect.objectContaining({ tabIndex: expect.any(Number) })
+    expect(triggerCalls).toHaveBeenCalledWith(expectedTab, expectedPane, expectedHandlers)
+    fireEvent.contextMenu(chip)
+    expect(screen.queryByRole('menu')).toBeNull()
   })
 
   it('opens the context menu on a secondary press, offering close and closing after acting', () => {

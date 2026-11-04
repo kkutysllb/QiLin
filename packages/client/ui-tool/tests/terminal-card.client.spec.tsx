@@ -16,6 +16,7 @@ import {
 } from '../src/client/tool/models/terminal-card-model.ts'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
 import { BashRow } from '../src/client/tool/toolviews/bash-sample.tsx'
+import { getFileTriggerProps } from './tool-fixtures.client.ts'
 import { en, zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
 import { PartialArguments } from '@qilin-agent/util-values'
 
@@ -364,6 +365,7 @@ describe('chat row terminal body', () => {
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
     useDisclosure,
     callId: 'c1', toolName: 'bash', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), t,
+    getFileTriggerProps,
   })
 
   /** The whole summary row is the expand toggle (ToolRow's unified interaction). */
@@ -587,7 +589,7 @@ describe('BashRow terminal card', () => {
     const inspect = vi.fn()
     const parent = parentCallId === undefined ? {} : { parentCallId }
     const renderRow = (block: StartedToolCall | ToolResultNode) => {
-      const props = { ...rowProps(block), toolName: name, inspect }
+      const props = { ...rowProps(block), toolName: name, inspect, getFileTriggerProps }
       return name === 'bash' ? <BashRow {...props} /> : <GenericToolCard {...props} />
     }
     const view = render(renderRow(running({ name, argsRaw, ...parent })))
@@ -636,7 +638,7 @@ describe('BashRow terminal card', () => {
   ] as const)('keeps %s launch failures on the original generic body (interrupted: %s)', (name, interrupted) => {
     const argsRaw = shellArgs({ run_in_background: true })
     const renderRow = (block: StartedToolCall | ToolResultNode) => {
-      const props = { ...rowProps(block), toolName: name }
+      const props = { ...rowProps(block), toolName: name, getFileTriggerProps }
       return name === 'bash' ? <BashRow {...props} /> : <GenericToolCard {...props} />
     }
     const view = render(renderRow(running({ name, argsRaw })))

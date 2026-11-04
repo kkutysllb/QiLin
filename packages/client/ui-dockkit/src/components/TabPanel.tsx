@@ -23,7 +23,7 @@
  * their width and their place at the strip's end.
  */
 import { Fragment, useLayoutEffect, useRef, useState } from 'react'
-import type { ReactNode, RefObject } from 'react'
+import type { KeyboardEvent, ReactNode, RefObject } from 'react'
 import clsx from 'clsx'
 import { IconCloseFillRegular, IconPlusOutlineRegular, Tooltip } from '@qilin-agent/client-ui-primitives'
 import type { DockZone, LayoutState, PaneNode, TabId, TabRecord } from '../contract/types.ts'
@@ -276,6 +276,20 @@ export function TabStrip({ state, pane, callbacks }: TabPanelProps): ReactNode {
           // A pane's lone unclosable chip is a label, not a choice: there is
           // no other tab to select against and nothing to do to it.
           const quiet = !closable && pane.tabs.length === 1
+          const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+            // Keys on the chip's nested close control are that control's.
+            if (event.target !== event.currentTarget) return
+            const next = chipToFocus(event.key, pane.tabs, tabId)
+            if (next !== undefined) {
+              event.preventDefault()
+              focusChip(next)
+              return
+            }
+            if (selects(event.key)) {
+              event.preventDefault()
+              activate(tabId)
+            }
+          }
           return (
             <Fragment key={tabId}>
               {(index > 0 || stripIndex === index) && (
@@ -327,24 +341,13 @@ export function TabStrip({ state, pane, callbacks }: TabPanelProps): ReactNode {
                   event.stopPropagation()
                   activate(tabId)
                 }}
-                onKeyDown={(event) => {
-                  // Keys on the chip's nested close control are that control's.
-                  if (event.target !== event.currentTarget) return
-                  const next = chipToFocus(event.key, pane.tabs, tabId)
-                  if (next !== undefined) {
-                    event.preventDefault()
-                    focusChip(next)
-                    return
-                  }
-                  if (selects(event.key)) {
-                    event.preventDefault()
-                    activate(tabId)
-                  }
-                }}
-                onContextMenu={(event) => {
-                  event.preventDefault()
-                  const anchor = event.currentTarget
-                  setMenu(current => current?.tabId === tabId ? undefined : { tabId, anchor })
+                {...callbacks.getTabTriggerProps?.(tab, pane.id, { onKeyDown, tabIndex: selected ? 0 : -1 }) ?? {
+                  onKeyDown,
+                  onContextMenu: (event) => {
+                    event.preventDefault(); event.stopPropagation()
+                    const anchor = event.currentTarget
+                    setMenu(current => current?.tabId === tabId ? undefined : { tabId, anchor })
+                  },
                 }}
               >
                 {callbacks.renderTabIcon !== undefined && (
@@ -414,6 +417,7 @@ export function TabStrip({ state, pane, callbacks }: TabPanelProps): ReactNode {
             title={block === undefined ? undefined : splitBlockedTitle(callbacks.labels, block)}
             disabled={block !== undefined}
             data-dockkit-split-button={pane.id}
+            data-dockkit-split-control
             data-dockkit-split-blocked={block}
             onClick={(event) => {
               event.stopPropagation()

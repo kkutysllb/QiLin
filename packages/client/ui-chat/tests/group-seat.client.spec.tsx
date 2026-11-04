@@ -180,7 +180,6 @@ function makeSeat(options: SeatOptions = {}) {
     forkAt: () => {},
     loadImage: () => Promise.reject(new Error('unused')),
     renderMessageImages: () => null,
-    fileMentions: () => undefined,
     t: makeTranslate(zh, commonZh),
   }
   return {

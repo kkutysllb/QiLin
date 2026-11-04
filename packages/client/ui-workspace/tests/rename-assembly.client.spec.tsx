@@ -17,7 +17,7 @@ import type { ISession } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceId } from '@qilin-agent/api-workspace-controller/client'
 import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
-import { RemoteError, SlotTestRuntime, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
+import { RemoteError, SlotTestRuntime, contextMenuHook, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { apply, inject } from '@qilin-agent/client-ui-workspace/client'
 
@@ -34,6 +34,13 @@ beforeEach(() => { localStorage.clear() })
 async function createRuntime(): Promise<SlotTestRuntime> {
   const runtime = await SlotTestRuntime.create()
   runtime.ctx.provide('layout', { selectPanel: vi.fn() })
+  // The shared menu owns the popup; this composition never opens it.
+  runtime.ctx.provide('contextMenus', {
+    active: { getSnapshot: () => null, subscribe: () => () => {} },
+    register: vi.fn(() => () => {}), open: vi.fn(), close: vi.fn(), resolve: vi.fn(), notify: vi.fn(),
+  } as never)
+  runtime.ctx.slots.provideRoot({ props: { useContextMenu: contextMenuHook() } })
+
   runtime.releaseWorkspaceSource()
   // The rename flow never picks a directory; the namespace only has to be there
   // for ui-workspace's inject to settle.

@@ -3,9 +3,10 @@
  * all data and callbacks arrive via props. Hover swaps (folder->chevron,
  * time->ellipsis, action buttons) are CSS-only, and a session row's clipped
  * title marquees programmatically while the row is hovered, fading both
- * clipping edges from the depth of its travel. Row ... menus are
- * visual-only except workspace Rename/Delete and session Rename/Fork/Archive; the
- * session and workspace hover cards are suppressed while a menu is open.
+ * clipping edges from the depth of its travel. Row ... menus cover workspace
+ * Rename/Delete and session Rename/Fork/Archive; a right-click on the row
+ * captures the same object for the shared context menu. The session and
+ * workspace hover cards are suppressed while a menu is open.
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { PointerEvent, RefObject } from 'react'
@@ -18,14 +19,27 @@ import {
   StateDot, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type { StateDotState } from '@qilin-agent/client-ui-primitives'
+import type { ContextMenuTriggerProps } from '@qilin-agent/client-ui-context-menu/client'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import { abbreviateHomePath } from '@qilin-agent/util-workspace-path'
+import type { WorkspaceId } from '@qilin-agent/api-workspace-controller/client'
 import type { WorkspaceBrowserProps } from '../contract/slots.ts'
 import type { GroupNode, SearchResultNode, SessionNode } from '../tree.ts'
 import css from './Rows.module.css'
 
 /** The standard locale seat, prop-passed from the browser root. */
 type RowTranslate = WorkspaceBrowserProps['t']
+
+/**
+ * Shared-menu gesture bindings the browser resolves for one row. The rows own
+ * no menu state: the menu plugin captures the target and renders the actions.
+ */
+export interface RowMenus {
+  /** Bind one Session row's captured identity. */
+  session: (sessionId: SessionNode['id'], displayTitle: string) => ContextMenuTriggerProps
+  /** Bind one Workspace header's captured identity and directory. */
+  workspace: (workspaceId: WorkspaceId, path: string | undefined, displayTitle: string) => ContextMenuTriggerProps
+}
 
 /** Row display title: blank rows show the localized New Session label. */
 function displayTitle(node: SessionNode, t: RowTranslate): string {
@@ -205,13 +219,15 @@ function rowHalf(e: { clientY: number; currentTarget: HTMLElement }): 'before' |
  * @param props.t - the browser root's locale seat.
  * @returns the row element.
  */
-export function ProjectRowItem({ group, containsCurrentDescendant = false, onToggle, onCreate, actions, drag, home, t }: {
+export function ProjectRowItem({ group, containsCurrentDescendant = false, onToggle, onCreate, actions, drag, home, menu, t }: {
   group: GroupNode
   containsCurrentDescendant?: boolean
   onToggle: () => void
   onCreate: () => void
   /** Real-Workspace actions; absent for the ungrouped bucket (no menu shown). */
   actions?: { rename: () => void; delete: () => void } | undefined
+  /** Shared-menu gesture bindings for a real Workspace header. */
+  menu?: RowMenus['workspace'] | undefined
   /** Present only for real Workspace rows in the grouped view. */
   drag?: WorkspaceRowDragProps | undefined
   /** Host account home; POSIX home-rooted hover paths display as `~`. */
@@ -227,6 +243,9 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
     { id: 'rename', label: t('rename'), icon: <IconEditOutlineRegular /> },
     { id: 'delete', label: t('delete.workspace'), icon: <IconTrashOutlineRegular />, danger: true },
   ]
+  // A right-click anywhere on the header captures the same Workspace the
+  // ellipsis menu acts on; the ungrouped bucket has no Workspace to bind.
+  const menuProps = row.workspaceId === undefined ? undefined : menu?.(row.workspaceId, row.cwd, label)
   const ownRow = (
     <div
       className={clsx(css.projectRow, menuOpen && css.menuOpen)}
@@ -234,8 +253,11 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
       data-row-key={`workspace:${row.key}`}
       aria-expanded={row.expanded}
       tabIndex={0}
+      {...menuProps}
       onClick={onToggle}
       onKeyDown={(event) => {
+        menuProps?.onKeyDown?.(event)
+        if (event.defaultPrevented) return
         if (event.target !== event.currentTarget || !['Enter', ' '].includes(event.key)) return
         event.preventDefault()
         onToggle()
@@ -491,7 +513,7 @@ export function SearchResultItem({ result, currentId, onOpen, t }: {
  * @returns the session row.
  */
 export function SessionNodeItem({
-  node, currentId, now, onOpen, onRename, onFork, onArchive, onCopyId, onPin, onUnpin, onReveal, drag, renderSlot, t,
+  node, currentId, now, onOpen, onRename, onFork, onArchive, onCopyId, onPin, onUnpin, onReveal, drag, renderSlot, menu, t,
 }: {
   node: SessionNode
   currentId: string | undefined
@@ -515,9 +537,12 @@ export function SessionNodeItem({
   drag?: RowDragProps | undefined
   /** Child-seat renderer for the row's leading decoration and hover-card section. */
   renderSlot: SessionRowRenderSlots
+  /** Shared-menu gesture bindings; blank rows capture nothing. */
+  menu?: RowMenus['session'] | undefined
   t: RowTranslate
 }) {
   const row = node
+  const menuProps = row.blank ? undefined : menu?.(node.id, row.title)
   const title = displayTitle(node, t)
   const selected = node.id === currentId
   const statuses = sessionStatuses(node, t)
@@ -561,6 +586,7 @@ export function SessionNodeItem({
       role="treeitem"
       data-row-key={`session:${node.id}`}
       aria-selected={selected}
+      {...menuProps}
       onClick={() => { onOpen(node.id) }}
       onPointerEnter={marquee.enter}
       onPointerLeave={marquee.leave}

@@ -41,7 +41,8 @@
         "@qilin-agent/client-ui-session",
         "@qilin-agent/client-ui-sidebar-right",
         "@qilin-agent/client-ui-settings",
-        "@qilin-agent/client-ui-workspace"
+        "@qilin-agent/client-ui-workspace",
+        "@qilin-agent/client-ui-context-menu"
       ],
       "platform": "web"
     }
@@ -93,6 +94,7 @@
     "@types/react-dom": "~18.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "@qilin-agent/client-ui-context-menu": "workspace:*",
     "@qilin-agent/client-ui-input-trigger": "workspace:*",
     "@qilin-agent/util-values": "workspace:*",
     "@qilin-agent/brand": "workspace:*",

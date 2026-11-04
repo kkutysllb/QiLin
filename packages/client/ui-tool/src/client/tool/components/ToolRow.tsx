@@ -4,6 +4,7 @@ import {
   CodeBlock, DiffBlock, DisclosureRow, FileTypeIcon, IconInspectOutlineRegular, ReadBlock, SearchBlock, StateDot,
   TerminalBlock, WebBlock, TextShimmer, diffTotals,
 } from '@qilin-agent/client-ui-primitives'
+import type { ContextMenuTriggerProps } from '@qilin-agent/client-ui-context-menu/client'
 import type { PropsRenderSlots, TranslateNS } from '@qilin-agent/client-ui-slots'
 import type { OpenFileOptions, UseDisclosure } from '@qilin-agent/client-ui-chat/client'
 import type { MessageImageLoader } from '@qilin-agent/client-ui-conversation/client'
@@ -86,6 +87,12 @@ export interface ToolRowProps {
   /** Open the path (already cwd-resolved), landing on `filePathLine` when given. */
   onOpenFile?: ((path: string, options?: OpenFileOptions) => void) | undefined
   /**
+   * File gesture bindings supplied by the owning tool view. They capture the
+   * call's path as the shared menu's file target, so the row keeps only the
+   * open gesture itself.
+   */
+  fileContextMenuProps?: ContextMenuTriggerProps | undefined
+  /**
    * Jump to this call in the trajectory view: a hover-revealed Inspect pill
    * over the expanded body. Absent = no affordance.
    */
@@ -139,6 +146,7 @@ export function ToolRow({
   filePath,
   filePathLine,
   onOpenFile,
+  fileContextMenuProps,
   inspect,
   useDisclosure,
 }: ToolRowProps) {
@@ -239,8 +247,12 @@ export function ToolRow({
               <button
                 type="button"
                 className={css.fileLink}
+                {...fileContextMenuProps}
                 onClick={openFile}
-                onKeyDown={fileLinkKeyDown}
+                onKeyDown={(event) => {
+                  fileLinkKeyDown(event)
+                  fileContextMenuProps?.onKeyDown?.(event)
+                }}
               >
                 <TextShimmer>{summaryText}</TextShimmer>
               </button>

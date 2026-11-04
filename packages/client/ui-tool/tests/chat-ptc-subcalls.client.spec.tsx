@@ -7,7 +7,7 @@ import type {
   ChatSnapshot, StartedToolCall, ToolCallBlock, ToolResultNode,
 } from '@qilin-agent/client-ui-chat/client'
 import type { SessionId } from '@qilin-agent/session/types'
-import { SlotTestRuntime, stubConfigForm } from '@qilin-agent/client-test-runtime'
+import { SlotTestRuntime, contextMenuHook, stubConfigForm } from '@qilin-agent/client-test-runtime'
 import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin-agent/client-ui-conversation/client'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
@@ -98,6 +98,9 @@ const ROOT_CHILDREN = {
  */
 async function bench(snapshot: ChatSnapshot) {
   const runtime = await SlotTestRuntime.create()
+  // Menu gestures are a renderer-wide seat: the real composition supplies one
+  // the way the menu plugin does, without mounting its Web overlay.
+  runtime.ctx.slots.provideRoot({ props: { useContextMenu: contextMenuHook() } })
   runtimes.push(runtime)
   const ctx = runtime.ctx
   const chat = createSnapshotStore(snapshot)

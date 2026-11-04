@@ -13,6 +13,7 @@ import {
 } from '../src/client/tool/models/tool-call-model.ts'
 import { ToolRow } from '../src/client/tool/components/ToolRow.tsx'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
+import { getFileTriggerProps } from './tool-fixtures.client.ts'
 import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
 import { PartialArguments } from '@qilin-agent/util-values'
 
@@ -553,7 +554,7 @@ describe('ToolRow', () => {
 describe('GenericToolCard', () => {
   const props = (toolName: string, block: StartedToolCall | ToolResultNode): GenericToolCardProps => ({
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
-    useDisclosure,
+    useDisclosure, getFileTriggerProps,
     callId: 'c1', toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), t,
   })
 

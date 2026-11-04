@@ -54,6 +54,7 @@
     "@qilin-agent/client-ui-trajectory": "workspace:*",
     "@qilin-agent/client-ui-renderer": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-context-menu": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

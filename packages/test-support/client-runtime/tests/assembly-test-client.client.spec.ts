@@ -19,7 +19,7 @@ const PARALLEL_PROBE = '@qilin-agent/client-test-parallel-probe'
 /** Declared by ui-sidebar, whose SlotMap merge is outside this package's compilation face. */
 const SIDEBAR_SETTINGS = 'sidebar.settings' as never
 const BRAND = '@qilin-agent/client-ui-approval'
-const globals = globalThis as { EventSource?: unknown; ResizeObserver?: unknown }
+const globals = globalThis as { EventSource?: unknown; ResizeObserver?: unknown; matchMedia?: typeof window.matchMedia }
 /** The whole roster's first boot pays the cold module transform of every plugin package. */
 const COLD_BOOT_TIMEOUT_MS = 60_000
 
@@ -32,6 +32,9 @@ async function started(plan: AssemblyPlan, options?: TestClientOptions): Promise
 
 describe('TestClient (jsdom)', () => {
   it('boots the whole web-app roster, connects, mounts, and disposes with nothing unmatched', async () => {
+    // Exercise the media-query stand-in independently of the suite's browser defaults.
+    vi.stubGlobal('matchMedia', undefined)
+    onTestFinished(() => { vi.unstubAllGlobals() })
     const mock = RemoteMock.create().load(remoteDefaultResponses)
     const client = await TestClient.start({ roster: webApp }, mock, { mount: true })
     expect(client.connection.state.getSnapshot()).toBe('connected')
@@ -42,10 +45,18 @@ describe('TestClient (jsdom)', () => {
     expect('__QILIN_TRANSPORT__' in globalThis).toBe(false)
     expect(globals.EventSource).toBeDefined()
     expect(globals.ResizeObserver).toBeDefined()
+    const query = globals.matchMedia!('(pointer: coarse)')
+    expect(query.media).toBe('(pointer: coarse)')
+    expect(query.matches).toBe(false)
+    // oxlint-disable-next-line typescript/no-deprecated -- The stand-in retains the legacy MediaQueryList methods.
+    query.addListener(null)
+    // oxlint-disable-next-line typescript/no-deprecated -- The stand-in retains the legacy MediaQueryList methods.
+    query.removeListener(null)
     await client.dispose()
     expect(document.body.contains(container)).toBe(false)
     expect('__QILIN_TRANSPORT__' in globalThis).toBe(false)
     expect(globals.EventSource).toBeUndefined()
+    expect(globals.matchMedia).toBeUndefined()
     // The jsdom setup file installs its own ResizeObserver for every spec, so
     // this boot finds one in place and must leave it there.
     expect(globals.ResizeObserver).toBeDefined()

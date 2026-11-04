@@ -16,7 +16,7 @@ import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { createPortal } from 'react-dom'
 import { $getRoot, $isTextNode } from 'lexical'
 import {
-  allowAllAccess, bindSnapshotSelector, conversationSnapshot as conversationFixture, makeTranslate, RemoteError,
+  allowAllAccess, bindSnapshotSelector, contextMenuHook, conversationSnapshot as conversationFixture, makeTranslate, RemoteError,
   sessionSnapshot as sessionFixture,
 } from '@qilin-agent/client-test-runtime'
 import { createSnapshotStore } from '@qilin-agent/client-store'
@@ -180,6 +180,7 @@ function bench(over?: BenchOptions) {
     useConversation: bindSnapshotSelector(createSnapshotStore(conversationFixture())),
     useSessionStatus: bindSnapshotSelector(createSnapshotStore(new Map())),
     useSessionRetainInfo: () => undefined,
+    useContextMenu: contextMenuHook(),
     useResource,
     ...allowAllAccess,
     useSessions: bindSnapshotSelector(createSnapshotStore<SessionListState>({

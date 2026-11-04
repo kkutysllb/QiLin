@@ -62,11 +62,12 @@ export function DeliverablesTail(props: PropsRuntime<'conversation.chat.turnTail
  * @returns the closing turn's file rows.
  */
 export function Deliverables({
-  matched, openFile, t, sessionId, useSessions, openPresented, openChangesReview, usePresentedOpen, usePresentedHost,
+  matched, openFile, t, sessionId, useSessions, useContextMenu, openPresented, openChangesReview, usePresentedOpen, usePresentedHost,
   useChangesSummary, reloadPresentedHost, loadChangesSummary,
 }: Pick<TurnTailOwnerProps, 'openFile'> & {
   matched: DeliverablesMatch
-} & PropsLocale<typeof NS> & Pick<SessionStandardProps, 'sessionId'> & Pick<GlobalStandardProps, 'useSessions'> & InjectFace<DeliverablesInjected>) {
+} & PropsLocale<typeof NS> & Pick<SessionStandardProps, 'sessionId'> & Pick<GlobalStandardProps, 'useSessions' | 'useContextMenu'> & InjectFace<DeliverablesInjected>) {
+  const { getTriggerProps } = useContextMenu()
   const [expanded, setExpanded] = useState(false)
   const cwd = useSessions(state => state.byId[sessionId]?.cwd)
   const states = usePresentedOpen(value => value)
@@ -103,6 +104,7 @@ export function Deliverables({
           phase={states[presentedFileUrl(sessionId, file.seq, file.index)]}
           host={host === 'error' ? null : host} t={t}
           onPreview={() => { openFile(file.path) }}
+          contextMenuProps={getTriggerProps({ kind: 'file', value: { sessionId, path: file.path } })}
           onAction={(action) => { void openPresented(sessionId, file.seq, file.index, action) }} />)}
       </div>
       {collapsible && <button type="button" className={css.toggle}

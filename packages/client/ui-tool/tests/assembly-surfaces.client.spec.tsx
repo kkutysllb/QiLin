@@ -13,7 +13,7 @@ import {
   apply as applyChat, inject as injectChat, type ToolResultNode,
 } from '@qilin-agent/client-ui-chat/client'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
-import { SlotTestRuntime, usePinnedBrowserLanguages, stubConfigForm } from '@qilin-agent/client-test-runtime'
+import { SlotTestRuntime, contextMenuHook, usePinnedBrowserLanguages, stubConfigForm } from '@qilin-agent/client-test-runtime'
 import { apply as applyConversation, inject as injectConversation } from '@qilin-agent/client-ui-conversation/client'
 import { apply as applyTool, inject as injectTool } from '../src/client/apply.ts'
 import { PartialArguments } from '@qilin-agent/util-values'
@@ -78,6 +78,9 @@ const LAYOUT_CHILDREN = {
 
 async function bench(nodes: ToolResultNode[]) {
   const runtime = await SlotTestRuntime.create()
+  // Menu gestures are a renderer-wide seat: the real composition supplies one
+  // the way the menu plugin does, without mounting its Web overlay.
+  runtime.ctx.slots.provideRoot({ props: { useContextMenu: contextMenuHook() } })
   runtime.remote.provideNamespaces({
     session: {
       openWorkspacePath: vi.fn(async () => ({ ok: true, value: { opened: true } })),

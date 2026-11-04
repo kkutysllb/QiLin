@@ -36,8 +36,9 @@ import { derivePresentationPolicy, type CollapseTiming } from '../src/client/pre
 import { CHAT_FLOW_INJECT, CHAT_NODE_INJECT } from '../src/client/apply.ts'
 import { ChatView } from '../src/client/chat/ChatView.tsx'
 import { ChatFlow } from '../src/client/chat/ChatFlow.tsx'
+import { contextMenuHook } from '@qilin-agent/client-test-runtime'
 import { zh } from '../src/client/locale.ts'
-import { AssistantNodeView } from '../src/client/chat/AssistantNodeView.tsx'
+import { AssistantNodeView, type AssistantNodeInjected } from '../src/client/chat/AssistantNodeView.tsx'
 import { CommandNodeView, ManualCompactionNodeView } from '../src/client/chat/CommandNodeView.tsx'
 import {
   CompactionNodeView, ContextMessageNodeView, RetryNodeView, TurnErrorNodeView,
@@ -288,7 +289,7 @@ function HarnessChatFlow({ standard, owner, hookContext, renderSlot }: {
 }
 
 function HarnessChatNode({ standard, owner, hookContext, usePerformanceUsage, toolOwners, fallback }: {
-  readonly standard: ChatViewSlotProps
+  readonly standard: ChatViewSlotProps & Pick<AssistantNodeInjected, 'fileMentions'>
   readonly owner: RoutedChatNodeOwner
   readonly hookContext: ChatNodeHookContext
   readonly usePerformanceUsage: React.ComponentProps<typeof TurnTailNodeView>['usePerformanceUsage']
@@ -443,7 +444,7 @@ function makeHarness(
   // SessionProvider seat arrives with the session-scope child declaration;
   // ChatView never invokes it (pass-through stub).
   const SessionProviderStub: ChatViewSlotProps['SessionProvider'] = ({ children }) => <>{children}</>
-  const props: ChatViewSlotProps = {
+  const props: ChatViewSlotProps & Pick<AssistantNodeInjected, 'fileMentions'> = {
     usePanelInfo: selector => selector({ activePanelId: null }),
     sessionId: SID,
     useSession: bindSnapshotSelector(session.source),
@@ -495,8 +496,10 @@ function makeHarness(
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
     chatScroll,
     forkAt,
-    // Absent-service default; mention tests override with a real resolver.
+    // Harness-only: the assistant renderer's registered inject face reads it.
     fileMentions: () => undefined,
+    resolveFilePath: vi.fn((path: string) => path),
+    useContextMenu: contextMenuHook(),
     t,
   }
   const set = (next: HarnessUpdate): void => {

@@ -748,6 +748,24 @@ const IconDownloadOutlineArtwork = ({ size = 16, className, strokeWidth }: Weigh
   </svg>
 )
 
+const IconSaveOutlineArtwork = ({ size = 16, className, strokeWidth }: WeightedIconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={strokeWidth}>
+    <path d="M2.5 3.5C2.5 2.94772 2.94772 2.5 3.5 2.5H10.7929L13.5 5.20711V12.5C13.5 13.0523 13.0523 13.5 12.5 13.5H3.5C2.94772 13.5 2.5 13.0523 2.5 12.5V3.5Z" stroke="currentColor" />
+    <path d="M5 2.5V5.5H10.5V2.5" stroke="currentColor" />
+    <path d="M5 13.5V9H11V13.5" stroke="currentColor" />
+  </svg>
+)
+
+/** Regular one-pixel IconSaveOutline artwork. */
+export const IconSaveOutlineRegular = (props: IconProps) => (
+  <IconSaveOutlineArtwork {...props} strokeWidth={ICON_REGULAR_STROKE} />
+)
+
+/** Medium IconSaveOutline artwork with a 1.3px stroke. */
+export const IconSaveOutlineMedium = (props: IconProps) => (
+  <IconSaveOutlineArtwork {...props} strokeWidth={ICON_MEDIUM_STROKE} />
+)
+
 /** Regular one-pixel IconDownloadOutline artwork. */
 export const IconDownloadOutlineRegular = (props: IconProps) => (
   <IconDownloadOutlineArtwork {...props} strokeWidth={ICON_REGULAR_STROKE} />

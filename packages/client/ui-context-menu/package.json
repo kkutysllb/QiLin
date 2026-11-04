@@ -1,0 +1,76 @@
+{
+  "name": "@qilin-agent/client-ui-context-menu",
+  "description": "Typed, plugin-extensible context menus with captured targets and shared Web presentation",
+  "version": "3.1.8-rc.5",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/client/ui-context-menu"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "qilin": {
+    "client": {
+      "inject": [
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-layout",
+        "@qilin-agent/client-shortcuts"
+      ],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "files": [
+    "locale/*.json",
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-shortcuts": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-dockkit": "workspace:*",
+    "@qilin-agent/client-ui-layout": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/schemastery": "workspace:~",
+    "@qilin-agent/session": "workspace:*",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "~18.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

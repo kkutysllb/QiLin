@@ -8,7 +8,7 @@ import type {
 import type { InboxState } from '@qilin-agent/agent/types'
 import type { PendingSubmission } from '@qilin-agent/api-session-controller/client'
 import {
-  Button, IconChevronDownOutlineRegular, MarkdownDelegateProvider, Modal,
+  Button, IconChevronDownOutlineRegular, MarkdownDelegateProvider, Modal, type MarkdownMenuTarget,
 } from '@qilin-agent/client-ui-primitives'
 import { isAtOrOutside } from '../contract/group-tree.ts'
 import type { ChatFlowHookContext, ChatViewSlotProps, OpenFileOptions } from '../contract/slots.ts'
@@ -67,9 +67,21 @@ const MOTION_TAIL_MS = 800
 export function ChatView({
   useSession, useChat, useConversation, useSessions, renderSlot,
   sessionId, openFile, openSkill, openExternalLink, loadOlder, loadThrough, loadImage,
-  openTrajectory, chatScroll, forkAt, fileMentions, editUserMessage,
+  openTrajectory, chatScroll, forkAt, editUserMessage, resolveFilePath, useContextMenu,
   usePresentation, useProjection, t,
 }: ChatViewSlotProps) {
+  const { getTriggerProps } = useContextMenu()
+  const getMarkdownTriggerProps = useCallback((target: MarkdownMenuTarget) => getTriggerProps(() => {
+    switch (target.kind) {
+      case 'file': return { kind: 'file' as const, value: { sessionId, path: resolveFilePath(target.path),
+        ...(target.line === undefined ? {} : { line: target.line }) } }
+      case 'url': return { kind: 'url' as const, value: { sessionId, url: target.url } }
+      case 'image': return { kind: 'image' as const, value: { sessionId, url: target.url,
+        ...(target.name === undefined ? {} : { name: target.name }),
+        ...(target.mediaType === undefined ? {} : { mediaType: target.mediaType }),
+        ...(target.path === undefined ? {} : { path: resolveFilePath(target.path) }) } }
+    }
+  }), [getTriggerProps, resolveFilePath, sessionId])
   const order = useChat(s => s.order)
   const groupedEntries = useConversation(snapshot => snapshot.views.grouped('chat')?.entries)
   const entries = useMemo<readonly RenderEntry[]>(() => groupedEntries
@@ -228,10 +240,11 @@ export function ChatView({
                 </button>
               </div>
             )}
-            <MarkdownDelegateProvider openExternalLink={openExternalLink} openFile={requestOpenFile} fileImages={fileImages}>
+            <MarkdownDelegateProvider getTriggerProps={getMarkdownTriggerProps}
+              openExternalLink={openExternalLink} openFile={requestOpenFile} fileImages={fileImages}>
               {renderSlot('conversation.chat.flow', {
                 entries, pendingInputs, lastInputTurn, deferCollapse,
-                cwd, openFile: requestOpenFile, openSkill, inspectCall, forkAt, loadImage, fileMentions, editUserMessage,
+                cwd, openFile: requestOpenFile, openSkill, inspectCall, forkAt, loadImage, editUserMessage,
               }, { hookContext: flowContext })}
             </MarkdownDelegateProvider>
             {/* No pending placeholders: questions (ui-user-questions) and approvals

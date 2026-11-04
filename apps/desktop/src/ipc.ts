@@ -1,10 +1,13 @@
 /** Typed preload operations exposed only by the Electron shell. */
 
 import type { DesktopKeyboardApi, DesktopShortcutsApi } from '@qilin-agent/client-shortcuts/protocol'
+import type { DesktopFileActions } from '@qilin-agent/client-ui-file-actions/types'
 import type { IpcMainInvokeEvent } from 'electron'
 
 /** IPC channel names kept private to the desktop application bundle. */
 export const DESKTOP_IPC = {
+  fileSave: 'qilin-desktop:file-save',
+  clipboardImageRead: 'qilin-desktop:clipboard-image-read',
   shortcutsInput: 'qilin-desktop:shortcuts-input',
   shortcutsCloseWindow: 'qilin-desktop:shortcuts-close-window',
   shortcutsGet: 'qilin-desktop:shortcuts-get',
@@ -69,6 +72,7 @@ export interface DesktopUpdatePresentation {
 
 /** Product documents cannot supply update versions, package URLs, or installation authorization. */
 export interface QilinDesktopProductApi {
+  readonly fileActions: DesktopFileActions
   readonly protocolVersion: 1
   readonly keyboard: DesktopKeyboardApi
   readonly shortcuts: DesktopShortcutsApi

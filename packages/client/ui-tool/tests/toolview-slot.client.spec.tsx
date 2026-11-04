@@ -10,7 +10,7 @@ import {
   apply as applyChat, inject as injectChat, type ToolResultNode,
 } from '@qilin-agent/client-ui-chat/client'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
-import { SlotTestRuntime, stubConfigForm } from '@qilin-agent/client-test-runtime'
+import { SlotTestRuntime, contextMenuHook, stubConfigForm } from '@qilin-agent/client-test-runtime'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { apply as applyConversation, inject as injectConversation } from '@qilin-agent/client-ui-conversation/client'
 import { apply as applyTool, inject as injectTool } from '@qilin-agent/client-ui-tool/client'
@@ -71,6 +71,9 @@ const LAYOUT_CHILDREN = {
  */
 async function bench(nodes: ToolResultNode[]) {
   const runtime = await SlotTestRuntime.create()
+  // Menu gestures are a renderer-wide seat: the real composition supplies one
+  // the way the menu plugin does, without mounting its Web overlay.
+  runtime.ctx.slots.provideRoot({ props: { useContextMenu: contextMenuHook() } })
   const openWorkspacePath = vi.fn(async () => ({ ok: true, value: { opened: true } }))
   runtime.remote.provideNamespaces({ session: { openWorkspacePath } })
   runtime.ctx.provide('configForms', { developerTools: { enabled: createSnapshotStore(true) }, get: () => stubConfigForm().scope } as never)
@@ -289,6 +292,9 @@ describe('keyed toolview hole through the real machinery', () => {
 describe('registrant declaration injection', () => {
   it('runs a registrant before ui-tool and waits on the actual toolview declaration', async () => {
     const runtime = await SlotTestRuntime.create()
+    // Menu gestures are a renderer-wide seat: the real composition supplies one
+    // the way the menu plugin does, without mounting its Web overlay.
+    runtime.ctx.slots.provideRoot({ props: { useContextMenu: contextMenuHook() } })
     runtime.remote.provideNamespaces({
       session: {
         openWorkspacePath: vi.fn(async () => ({ ok: true, value: { opened: true } })),

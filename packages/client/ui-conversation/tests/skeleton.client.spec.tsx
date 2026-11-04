@@ -8,7 +8,7 @@ import type { SessionListState, SessionSnapshot } from '@qilin-agent/api-session
 import type { WorkspaceSnapshot, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import {
-  allowAllAccess, bindSnapshotSelector, makeTranslate, RemoteError, sessionSnapshot as sessionFixture,
+  allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate, RemoteError, sessionSnapshot as sessionFixture,
 } from '@qilin-agent/client-test-runtime'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
@@ -40,6 +40,7 @@ import type { ViewTab } from '../src/client/contract/views.ts'
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useContextMenu = contextMenuHook()
 
 const FactoryViewsTestContext = createContext<ConversationViewsProps | undefined>(undefined)
 
@@ -253,7 +254,7 @@ function mount(
           useConversation={useConversation}
           useSessions={props.useSessions}
           usePanelInfo={props.usePanelInfo}
-          useResource={useResource} {...allowAllAccess}
+          useResource={useResource} {...allowAllAccess} useContextMenu={useContextMenu}
           useSessionStatus={useSessionStatus}
           useSessionRetainInfo={() => undefined}
           useWorkspaces={props.useWorkspaces}
@@ -277,7 +278,7 @@ function mount(
           useChat={useChat}
           useTrajectory={useTrajectory}
           usePanelInfo={props.usePanelInfo}
-          useResource={useResource} {...allowAllAccess}
+          useResource={useResource} {...allowAllAccess} useContextMenu={useContextMenu}
           useSessionStatus={useSessionStatus}
           useSessionRetainInfo={() => undefined}
           useWorkspaces={props.useWorkspaces}
@@ -308,7 +309,7 @@ function mount(
           useTrajectory={useTrajectory}
           useSessions={props.useSessions}
           usePanelInfo={props.usePanelInfo}
-          useResource={useResource} {...allowAllAccess}
+          useResource={useResource} {...allowAllAccess} useContextMenu={useContextMenu}
           useSessionStatus={useSessionStatus}
           useSessionRetainInfo={() => undefined}
           useWorkspaces={props.useWorkspaces}
@@ -331,7 +332,7 @@ function mount(
         <InputBar
           sessionId={SID}
           SessionProvider={({ children }) => children}
-          useResource={useResource} {...allowAllAccess}
+          useResource={useResource} {...allowAllAccess} useContextMenu={useContextMenu}
           useSession={useSession}
           useConversation={useConversation}
           useSessions={props.useSessions}
@@ -394,6 +395,7 @@ function mount(
       useSessions: bindSnapshotSelector(sessions),
       usePanelInfo: selector => selector({ activePanelId: null }),
       useResource,
+      useContextMenu,
       ...allowAllAccess,
       useSessionStatus,
       useSessionRetainInfo: () => undefined,
@@ -433,6 +435,7 @@ function mount(
     useSessionStatus,
     useSessionRetainInfo: () => undefined,
     useResource,
+    useContextMenu,
     ...allowAllAccess,
     useWorkspaces: bindSnapshotSelector(workspaces),
     useProjection: (() => undefined),

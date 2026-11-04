@@ -7,7 +7,7 @@ import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/cl
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { createSnapshotStore } from '@qilin-agent/client-store'
-import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { PerformanceUsageRow, type PerformanceUsageRowProps } from '../src/client/settings/PerformanceUsageRow.tsx'
 import type { PerformanceUsageMode } from '../src/chat-settings.ts'
 import { en } from '../src/client/locale.ts'
@@ -29,6 +29,7 @@ function mount(mode: PerformanceUsageMode = 'compact') {
       items: [], archivedSessionIds: [], pinnedSessionIds: [], state: 'idle', phase: 'ready', error: null,
     })),
     useSessionRetainInfo: () => undefined,
+    useContextMenu: contextMenuHook(),
     useResource,
     ...allowAllAccess,
     usePerformanceUsage: bindSnapshotSelector(source),

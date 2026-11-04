@@ -7,8 +7,9 @@ import type { StartedToolCall, ToolResultNode } from '@qilin-agent/client-ui-cha
 import type { ToolCallOwnerProps } from '@qilin-agent/client-ui-tool/client'
 import { IconGlobeOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import { webCardModel } from '../src/client/tool/models/web-card-model.ts'
-import { GenericToolCard } from '../src/client/tool/toolviews/GenericToolCard.tsx'
+import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
 import { WebRow, webToolview } from '../src/client/tool/toolviews/web-row.tsx'
+import { getFileTriggerProps } from './tool-fixtures.client.ts'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
@@ -136,8 +137,12 @@ describe('webCardModel', () => {
 })
 
 describe('chat row web body', () => {
-  const ownerProps = (block: StartedToolCall | ToolResultNode, toolName: string): ToolCallOwnerProps => ({
+  const ownerProps = (
+    block: StartedToolCall | ToolResultNode,
+    toolName: string,
+  ): ToolCallOwnerProps & Pick<GenericToolCardProps, 'getFileTriggerProps'> => ({
     useDisclosure, callId: block.callId, toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
+    getFileTriggerProps,
   })
   // WebRow reads only toolName/block off the full runtime share plus the locale
   // seat; the standard kit is unused, so the cast supplies the owner slice and

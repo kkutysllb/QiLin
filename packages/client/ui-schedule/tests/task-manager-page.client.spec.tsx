@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { act, cleanup, fireEvent, isInaccessible, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { allowAllAccess, bindSnapshotSelector, makeTranslate, RemoteError } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate, RemoteError } from '@qilin-agent/client-test-runtime'
 import type { RemoteResult } from '@qilin-agent/api-remotes/client'
 import type { SessionListState } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
@@ -166,6 +166,7 @@ function mount(
     useSessionStatus: select => select(new Map()),
     useSessionRetainInfo: () => undefined,
     useResource: () => { throw new Error('The task manager does not load document resources') },
+    useContextMenu: contextMenuHook(),
     ...allowAllAccess,
     useSessionAccess: () => true,
     onDelete: vi.fn<TaskManagerPageProps['onDelete']>(async () => 'deleted'),
@@ -1737,6 +1738,7 @@ describe('Task manager details', () => {
       useSessions={unread}
       useWorkspaces={unread}
       useResource={unread}
+      useContextMenu={unread}
       useSessionAccess={unread}
       useSessionStatus={unread}
       useSessionRetainInfo={unread}

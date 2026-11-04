@@ -15,6 +15,7 @@ import type {
 } from '@qilin-agent/client-ui-slots'
 import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { MarkdownFileMentions, MarkdownLabels } from '@qilin-agent/client-ui-primitives'
+import type { ContextMenuTriggerProps } from '@qilin-agent/client-ui-context-menu/client'
 import type {} from '@qilin-agent/client-ui-layout/client'
 import type { createChatStore } from '../stores.ts'
 import type { ChatPresentationPolicy } from '../presentation-policy.ts'
@@ -67,9 +68,12 @@ export interface ChatFileMentions {
    * Resolve prose links for one closing Turn.
    * @param owner - closing-Turn identity and file opener.
    * @param sessionId - viewed Session, including when history is inherited from a fork.
+   * @param getFileTriggerProps - ordinary gesture binding for a resolved file path.
    * @returns link resolver when available.
    */
-  forClosing(owner: TurnTailOwnerProps, sessionId: SessionId): MarkdownFileMentions | undefined
+  forClosing(
+    owner: TurnTailOwnerProps, sessionId: SessionId, getFileTriggerProps?: (path: string) => ContextMenuTriggerProps,
+  ): MarkdownFileMentions | undefined
 }
 
 declare module '@qilin-agent/kylin' {
@@ -161,7 +165,6 @@ export interface ChatNodeOwnerProps {
   /** Session-authorized image loader for the attachment presentation slot. */
   loadImage: MessageImageLoader
   renderMessageImages: RenderMessageImages
-  fileMentions: (owner: TurnTailOwnerProps) => MarkdownFileMentions | undefined
   /** Turn-process state when this Node belongs to a projected Turn. */
   turnProcess?: TurnProcessOwnerProps | undefined
 }
@@ -273,7 +276,8 @@ export interface ChatViewInjected {
    * @param text - the user message's plain text.
    */
   editUserMessage?: ((text: string) => void) | undefined
-  fileMentions: (owner: TurnTailOwnerProps) => MarkdownFileMentions | undefined
+  /** Resolve a reference against this Session and its current path base when the gesture begins. */
+  resolveFilePath: (path: string) => string
 }
 
 /** Existing Session-owned node sources shared by the view and its flow renderer. */
@@ -281,7 +285,7 @@ export type ChatFlowDataInjected = Pick<ChatViewInjected, 'hooks' | 'keyedHooks'
 
 /** Ordered rows and reconciled local echoes rendered inside one Chat viewport. */
 export interface ChatFlowOwnerProps extends Pick<ChatNodeOwnerProps,
-  'cwd' | 'openSkill' | 'openFile' | 'inspectCall' | 'forkAt' | 'editUserMessage' | 'loadImage' | 'fileMentions'> {
+  'cwd' | 'openSkill' | 'openFile' | 'inspectCall' | 'forkAt' | 'editUserMessage' | 'loadImage'> {
   readonly entries: readonly RenderEntry[]
   readonly pendingInputs: readonly (PendingSubmission | InboxState['next-step'][number])[]
   readonly lastInputTurn: number | undefined

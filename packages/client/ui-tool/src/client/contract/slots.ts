@@ -10,6 +10,7 @@ import type {
 import type { MessageImageLoader, MessageImageSource } from '@qilin-agent/client-ui-conversation/client'
 import type { AskUserQuestionAnswerItem, AskUserQuestionItem } from '@qilin-agent/user-questions/types'
 import type {} from '@qilin-agent/client-locale/client'
+import type { ToolFileInjected } from '../tool/file-menu.ts'
 
 declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
@@ -154,4 +155,4 @@ export type ToolHostInfoInjected = {
 export type ToolTreeProps = PropsRuntime<'conversation.chat.node', 'tool-call'>
   & PropsRenderSlots<'tool.call.toolview'>
   & PropsLocale<'conversation'>
-  & InjectFace<ToolHostInfoInjected>
+  & InjectFace<ToolHostInfoInjected & ToolFileInjected>

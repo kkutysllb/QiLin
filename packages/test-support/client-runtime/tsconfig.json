@@ -83,6 +83,9 @@
     },
     {
       "path": "../../client/hmr"
+    },
+    {
+      "path": "../../client/ui-context-menu"
     }
   ]
 }

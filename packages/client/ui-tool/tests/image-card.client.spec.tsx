@@ -26,6 +26,7 @@ import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import type { MessageImageLoader } from '@qilin-agent/client-ui-conversation/client'
 import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
 import { PartialArguments } from '@qilin-agent/util-values'
+import { menuHook, resolveFilePath } from './tool-fixtures.client.ts'
 import type { ToolImagesOwnerProps, ToolTreeProps } from '../src/client/contract/slots.ts'
 import { imageCardModel } from '../src/client/tool/models/image-card-model.ts'
 import { ReadImageRow, readImageToolview } from '../src/client/tool/toolviews/read-image-row.tsx'
@@ -290,6 +291,7 @@ describe('ReadImageRow keyed toolview', () => {
   ): Parameters<typeof ReadImageRow>[0] => ({
     useDisclosure, callId: 'c1', toolName: 'read_image', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), renderSlot, loadImage: loader,
     sessionId: SID, useSessions: bindSnapshotSelector(list()),
+    useContextMenu: menuHook, resolveFilePath,
     t,
   } as unknown as Parameters<typeof ReadImageRow>[0])
 
@@ -387,8 +389,10 @@ describe('ReadImageRow keyed toolview', () => {
       name: 'tool.call.toolview',
       key: 'read_image',
       locale: 'conversation',
+      // oxlint-disable-next-line typescript/no-unsafe-assignment -- expect.any matcher intentionally returns any
+      inject: expect.any(Function),
       children: { 'tool.call.images': { kind: 'single', scope: 'session' } },
     }])
-    expect(readImageToolview.inject).toEqual(['slots'])
+    expect(readImageToolview.inject).toEqual(['slots', 'sessions'])
   })
 })

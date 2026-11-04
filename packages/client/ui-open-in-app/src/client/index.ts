@@ -20,6 +20,8 @@ import type {} from '@qilin-agent/api-remotes/client'
 import type {} from '@qilin-agent/api-session-controller/remote'
 import { OPEN_IN_APP_ICON_PREFIX_ROUTE } from '@qilin-agent/host-open-in-app/shared'
 import type {} from '@qilin-agent/client-ui-sidebar-files/client'
+import type {} from '@qilin-agent/client-ui-context-menu/client'
+import { CONTEXT_MENU_ICONS, ContextMenuApplicationIcon, registerContextMenus } from './context-menus.tsx'
 import { OpenInAppController } from './controller.ts'
 import { OpenInAppAction, type OpenInAppActionInjected } from './OpenInAppAction.tsx'
 import { OpenInAppPathController } from './open-path.ts'
@@ -37,8 +39,10 @@ export type { OpenInAppActionInjected, OpenInAppActionProps } from './OpenInAppA
 export type { OpenPathActionProps, OpenPathEmptyActionProps, OpenPathInjected } from './OpenPathAction.tsx'
 export type { OpenInAppPathAction, OpenInAppPathFailure, OpenInAppPathRemote } from './open-path.ts'
 
-/** Required services: sessions, layout selection, the slot registry, copy, the Remote face, and shortcuts. */
-export const inject = ['sessions', 'slots', 'locale', 'layout', 'shortcuts', 'remote', 'remote.session']
+/** Required services: Sessions, layout selection, Slots, copy, the Remote face, shortcuts, and shared menus. */
+export const inject = [
+  'contextMenus', 'sessions', 'slots', 'locale', 'layout', 'shortcuts', 'remote', 'remote.session',
+]
 
 /**
  * Client plugin body: register the dictionaries, the header split button, and
@@ -96,6 +100,14 @@ export function apply(ctx: ClientContext): void {
       } }
     },
   }), 'open-in-app: workspace command')
+  // The shared menu draws every contributed action through one icon slot.
+  ctx.slots.inject('contextMenu.icon', function* () {
+    for (const [key, Icon] of Object.entries(CONTEXT_MENU_ICONS)) {
+      yield ctx.slots.register({ name: 'contextMenu.icon', key }, Icon)
+    }
+    yield ctx.slots.register({ name: 'contextMenu.icon', key: 'open-in-app.application' }, ContextMenuApplicationIcon)
+  })
+  registerContextMenus(ctx, paths, t, controller)
   ctx.slots.inject('conversation.session.header.utilities', () => ctx.slots.register({
     name: 'conversation.session.header.utilities',
     id: 'open-in-app',

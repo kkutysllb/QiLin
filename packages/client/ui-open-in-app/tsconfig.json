@@ -27,6 +27,9 @@
       "path": "../store"
     },
     {
+      "path": "../ui-context-menu"
+    },
+    {
       "path": "../ui-conversation"
     },
     {
@@ -52,6 +55,9 @@
     },
     {
       "path": "../ui-layout"
+    },
+    {
+      "path": "../../util/workspace-path"
     }
   ]
 }

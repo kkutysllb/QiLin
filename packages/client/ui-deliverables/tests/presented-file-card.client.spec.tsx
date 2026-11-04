@@ -2,7 +2,8 @@
 /** Explicit file actions preserve their destination, availability, and independent failure state. */
 import { cleanup, fireEvent, render } from '@testing-library/react'
 import { afterEach, expect, it, vi } from 'vitest'
-import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { contextMenuHook, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { SessionId } from '@qilin-agent/session/types'
 import { PresentedFileCard } from '../src/client/PresentedFileCard.tsx'
 import { en, zh } from '../src/client/locales.ts'
 
@@ -13,6 +14,7 @@ const props = () => ({
   host: { name: 'remote-desktop', available: true, fileManager: 'finder' as const },
   phase: undefined,
   onPreview: vi.fn(),
+  contextMenuProps: contextMenuHook()().getTriggerProps({ kind: 'file', value: { sessionId: SessionId('card'), path: 'out/report.pdf' } }),
   onAction: vi.fn(),
   t: makeTranslate(en),
 })

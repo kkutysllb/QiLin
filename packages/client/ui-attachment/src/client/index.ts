@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-context-menu/client'
 /** Browser attachment plugin: fills conversation's composer and image slots. */
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/client-ui-chat/client'

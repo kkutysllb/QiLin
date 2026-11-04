@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { ScheduleId, ScheduleCatalogEntry, ScheduleRecord } from '@qilin-agent/schedule/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { SessionListState } from '@qilin-agent/api-session-controller/client'
@@ -68,6 +68,7 @@ function mount(rows: readonly ScheduleCatalogEntry[] = [task], overrides: Partia
     useWorkspaces: select => select(workspaces), usePanelInfo: select => select({ activePanelId: null }),
     useSessionStatus: select => select(new Map()), useSessionRetainInfo: () => undefined,
     useResource: () => { throw new Error('Task editor loads no document resources') },
+    useContextMenu: contextMenuHook(),
     onNewTask: vi.fn(), onClearEnded: vi.fn(async () => {}),
     onCreateTask: vi.fn<TaskManagerPageProps['onCreateTask']>(async () => ({ created: task })),
     onDelete: vi.fn<TaskManagerPageProps['onDelete']>(async () => 'deleted'), onRetry: vi.fn(async () => {}), onOpenSession: vi.fn(),

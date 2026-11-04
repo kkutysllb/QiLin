@@ -2,7 +2,7 @@
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, createEvent, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-controller/client'
 import type {
   WorkspaceId, WorkspaceSnapshot, WorkspaceView,
@@ -130,6 +130,11 @@ function mount(overrides: Partial<WorkspaceBrowserProps> = {}) {
     useHostInfo: selector => selector({ home: undefined, isLoopback: true }),
     useWorkspaceShortcuts: bindSnapshotSelector(shortcutStore),
     useShortcuts: bindSnapshotSelector({ getSnapshot: () => noShortcuts, subscribe: () => () => {} }),
+    useContextMenu: contextMenuHook(),
+    useSessionRenameRequest: bindSnapshotSelector({ getSnapshot: () => null, subscribe: () => () => {} }),
+    useWorkspaceActionRequest: bindSnapshotSelector({ getSnapshot: () => null, subscribe: () => () => {} }),
+    settleSessionRename: vi.fn(),
+    settleWorkspaceAction: vi.fn(),
     requestSearch: shortcutChannel.requestSearch,
     requestAddWorkspace: shortcutChannel.requestAddWorkspace,
     closeAddWorkspace: shortcutChannel.closeAddWorkspace,

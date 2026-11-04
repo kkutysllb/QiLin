@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { makeTranslate, RemoteError, sessionSnapshot } from '@qilin-agent/client-test-runtime'
+import { contextMenuHook, makeTranslate, RemoteError, sessionSnapshot } from '@qilin-agent/client-test-runtime'
 import type {
   SessionListState, SessionSummary, SessionSnapshot,
 } from '@qilin-agent/api-session-controller/client'
@@ -86,6 +86,7 @@ function props(
   }
   const unused = (): never => { throw new Error('Subagent header fixture does not provide this slot source or action') }
   const standard = {
+    useContextMenu: contextMenuHook(),
     usePanelInfo: unused,
     useSessionRetainInfo: unused,
     useWorkspaces: unused,

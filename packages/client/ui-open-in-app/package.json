@@ -48,6 +48,7 @@
         "@qilin-agent/client-ui-renderer",
         "@qilin-agent/client-ui-session",
         "@qilin-agent/client-ui-sidebar-documentpreview",
+        "@qilin-agent/client-ui-context-menu",
         "@qilin-agent/api-remotes",
         "@qilin-agent/api-session-controller"
       ],
@@ -64,6 +65,7 @@
     "@qilin-agent/client-shortcuts": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-context-menu": "workspace:*",
     "@qilin-agent/client-ui-conversation": "workspace:*",
     "@qilin-agent/client-ui-layout": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",
@@ -72,6 +74,7 @@
     "@qilin-agent/client-ui-sidebar-documentpreview": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
     "@qilin-agent/host-open-in-app": "workspace:*",
+    "@qilin-agent/util-workspace-path": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/session": "workspace:*",
     "@types/react": "~18.3.1",

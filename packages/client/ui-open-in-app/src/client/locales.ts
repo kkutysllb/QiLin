@@ -39,6 +39,17 @@ const PRODUCT_NAMES = {
 
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
+  'menu.openInApp': '用 {app} 打开',
+  'menu.finder': '在访达中显示',
+  'menu.reveal': '在文件夹显示',
+  'menu.defaultApp': '使用默认应用打开',
+  'menu.external': '外部浏览器打开',
+  'menu.copyLink': '复制链接地址',
+  'menu.copyPath': '复制文件路径',
+  'menu.copyDirectoryPath': '复制文件夹路径',
+  'menu.copied': '已复制',
+  'menu.copyFailed': '无法复制，请检查内容是否可用后重试',
+
   'open.title': '在 {app} 中打开工作目录',
   'open.tooltip': '在本地打开',
   'open.error': '打开失败',
@@ -63,6 +74,17 @@ export const zh = {
 
 /** English dictionary, key-identical to the Chinese source of truth. */
 export const en: Record<OpenInAppKey, string> = {
+  'menu.openInApp': 'Open in {app}',
+  'menu.finder': 'Show in Finder',
+  'menu.reveal': 'Show in folder',
+  'menu.defaultApp': 'Open in default application',
+  'menu.external': 'Open in external browser',
+  'menu.copyLink': 'Copy link address',
+  'menu.copyPath': 'Copy file path',
+  'menu.copyDirectoryPath': 'Copy folder path',
+  'menu.copied': 'Copied',
+  'menu.copyFailed': 'Could not copy. Check that the content is available, then retry.',
+
   'open.title': 'Open workspace in {app}',
   'open.tooltip': 'Open locally',
   'open.error': 'Failed to open',

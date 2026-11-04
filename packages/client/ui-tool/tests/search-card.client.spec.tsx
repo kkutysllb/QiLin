@@ -12,6 +12,7 @@ import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
 import { PartialArguments } from '@qilin-agent/util-values'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
 import { SearchRow, searchToolview } from '../src/client/tool/toolviews/search-row.tsx'
+import { getFileTriggerProps } from './tool-fixtures.client.ts'
 
 type SearchRowProps = Parameters<typeof SearchRow>[0]
 
@@ -191,6 +192,7 @@ describe('chat row search body (GenericToolCard fallback)', () => {
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
     useDisclosure,
     callId: 'c1', toolName, ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), t,
+    getFileTriggerProps,
   })
   /** The whole summary row is the expand toggle (ToolRow's unified interaction). */
   const toggleRow = (view: { container: HTMLElement }) => {

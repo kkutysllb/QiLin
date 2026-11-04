@@ -256,20 +256,17 @@ describe('Chat inject API', () => {
     await b.runtime.dispose()
   })
 
-  it('owns image loading, scroll memory, and optional closing-file mentions', async () => {
+  it('owns image loading, scroll memory, and gesture-time file path resolution', async () => {
     const b = await bench()
     const { injected } = b.chatViewApi(b.rootReference)
-    const owner = {} as never
 
     expect(injected.keyedHooks.chatNode('missing')).toBeDefined()
     expect(injected.keyedHooks.chatNodeProcess('missing')).toBeDefined()
 
-    expect(injected.fileMentions(owner)).toBeUndefined()
-    const mentions = { resolve: vi.fn() } as never
-    const forClosing = vi.fn(() => mentions)
-    b.runtime.ctx.provide('chatFileMentions', { forClosing } as never)
-    expect(injected.fileMentions(owner)).toBe(mentions)
-    expect(forClosing).toHaveBeenCalledWith(owner, ROOT)
+    // Relative references resolve against the Session's live directory; the
+    // working-directory projection wins over the summary's original cwd.
+    expect(injected.resolveFilePath('docs/a.md')).toBe('/proj/docs/a.md')
+    expect(injected.resolveFilePath('/elsewhere/a.md')).toBe('/elsewhere/a.md')
 
     expect(injected.chatScroll.read()).toBeNull()
     const position = { anchorKey: 'node-1', anchorTop: 4, scrollTop: 12 }

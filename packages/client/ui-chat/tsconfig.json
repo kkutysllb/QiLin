@@ -85,6 +85,9 @@
       "path": "../ui-primitives"
     },
     {
+      "path": "../ui-context-menu"
+    },
+    {
       "path": "../ui-renderer"
     },
     {

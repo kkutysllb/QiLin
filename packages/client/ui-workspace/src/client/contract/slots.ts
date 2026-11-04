@@ -35,6 +35,26 @@ import type { createWorkspaceViewStore } from '../stores.ts'
 import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
 import type { WorkspaceShortcutState } from '../shortcuts.ts'
 
+declare module '@qilin-agent/client-ui-context-menu/client' {
+  interface ContextMenuTargetMap {
+    /** Registered Workspace header; path and title belong to the clicked row. */
+    workspace: { readonly workspaceId: WorkspaceId; readonly path: string; readonly displayTitle: string }
+  }
+}
+
+/** One menu request for the browser-owned Session rename dialog. */
+export type SessionRenameRequest = {
+  readonly sessionId: SessionId
+  readonly currentTitle: string
+}
+
+/** One menu request for the browser-owned Workspace rename or delete dialog. */
+export type WorkspaceActionRequest = {
+  readonly action: 'rename' | 'delete'
+  readonly workspaceId: WorkspaceId
+  readonly currentTitle: string
+}
+
 /**
  * Owner share of the directory-flow holes: the complete conversation between
  * the trigger surface and the picking interaction. The occupant reads `open`
@@ -127,6 +147,10 @@ export type WorkspaceBrowserInjected = {
     workspaceShortcuts: HostObservable<WorkspaceShortcutState>
     /** Effective command catalog for row shortcut hints. */
     shortcuts: HostObservable<readonly ShortcutCatalogEntry[]>
+    /** Session rename requested by the shared context menu. */
+    sessionRenameRequest: HostObservable<SessionRenameRequest | null>
+    /** Workspace rename or delete requested by the shared context menu. */
+    workspaceActionRequest: HostObservable<WorkspaceActionRequest | null>
   }
   /** Open the browser search and focus its input. */
   requestSearch: () => void
@@ -187,6 +211,10 @@ export type WorkspaceBrowserInjected = {
   createWorkspace: (input: { path: string }) => Promise<WorkspaceView>
   /** Copy the complete Session id and report acceptance or failure through the keyed notice. */
   copySessionId: (sessionId: SessionId) => Promise<void>
+  /** Consume a menu-originated Session rename request once its dialog is open. */
+  settleSessionRename: () => void
+  /** Consume a menu-originated Workspace action request once its dialog is open. */
+  settleWorkspaceAction: () => void
 }
 
 /** One transient Workspace notice rendered by the overlay toast entry. */

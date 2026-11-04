@@ -3,7 +3,8 @@ import { ImageGallery } from '../MessageImage.tsx'
 import { messageImageLabels } from './labels.ts'
 
 /** Historical message-image slot entry. */
-export function MessageImages({ images, loadImage, align, compact = false, thumbnail = false, t }: MessageImagesProps) {
+export function MessageImages({ images, loadImage, align, compact = false, thumbnail = false, t, useContextMenu }: MessageImagesProps) {
+  const { getTriggerProps } = useContextMenu()
   return (
     <ImageGallery
       images={images}
@@ -12,6 +13,7 @@ export function MessageImages({ images, loadImage, align, compact = false, thumb
       compact={compact}
       thumbnail={thumbnail}
       labels={messageImageLabels(t)}
+      getTriggerProps={getTriggerProps}
     />
   )
 }

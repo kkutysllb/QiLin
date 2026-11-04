@@ -11,7 +11,7 @@ import type { GlobalStandardProps, StoredEntry } from '@qilin-agent/client-ui-sl
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createElement, type ComponentProps, type FC } from 'react'
-import { allowAllAccess, bindSnapshotSelector, SlotTestRuntime, stubConfigForm } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, SlotTestRuntime, stubConfigForm } from '@qilin-agent/client-test-runtime'
 import {
   EMPTY_CONVERSATION_SNAPSHOT, UiConversation,
 } from '@qilin-agent/client-ui-conversation/client'
@@ -260,7 +260,7 @@ function standaloneProps(
     sessionId: SID,
     useChat: bindSnapshotSelector(createSnapshotStore(EMPTY_CHAT_SNAPSHOT)),
     useSessions: emptySessions(),
-    usePanelInfo, useResource, ...allowAllAccess,
+    usePanelInfo, useResource, useContextMenu: contextMenuHook(), ...allowAllAccess,
     useSessionStatus: bindSnapshotSelector(
       createSnapshotStore<SessionStatusSnapshot>(new Map()),
     ),
@@ -418,7 +418,7 @@ function mount(
     useChat,
     useConversation,
     useSessions,
-    usePanelInfo, useResource, ...allowAllAccess,
+    usePanelInfo, useResource, useContextMenu: contextMenuHook(), ...allowAllAccess,
     useSessionStatus,
     useSessionRetainInfo: () => undefined,
     useWorkspaces,

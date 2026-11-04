@@ -8,7 +8,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { SessionListState } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
-import { allowAllAccess, bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook } from '@qilin-agent/client-test-runtime'
 import type { FontRole, FontSizes } from '../src/theme-settings.ts'
 import { FONT_SIZE_SPECS } from '../src/theme-settings.ts'
 import { FontSizeRow } from '../src/client/FontSizeRow.tsx'
@@ -53,7 +53,7 @@ function mount(role: FontRole = 'text', sizes: FontSizes = { text: 14, code: 11,
   const props: FontSizeRowComponentProps = {
     useSessions: emptySessions(),
     useSessionStatus,
-    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, ...allowAllAccess,
+    usePanelInfo, useSessionRetainInfo: () => undefined, useContextMenu: contextMenuHook(), useResource, ...allowAllAccess,
     useWorkspaces: emptyWorkspaces(),
     useStore: bindSnapshotSelector(store),
     actions: store.actions,

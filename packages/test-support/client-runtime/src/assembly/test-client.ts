@@ -67,10 +67,15 @@ const DEFAULT_CONNECT_TIMEOUT_MS = 5_000
 
 /**
  * Browser globals jsdom lacks that roster plugins touch at apply or mount:
- * client-hmr opens an `EventSource`, layout components observe element size.
- * Inert stand-ins, installed only where the global is absent.
+ * client-hmr opens an `EventSource`, layout components observe element size and
+ * media queries. Inert stand-ins, installed only where the global is absent.
  */
 const JSDOM_SHIMS: Readonly<Record<string, unknown>> = {
+  matchMedia: (media: string): MediaQueryList => Object.assign(new EventTarget(), {
+    media, matches: false, onchange: null,
+    addListener() {},
+    removeListener() {},
+  }),
   EventSource: class {
     addEventListener(): void {}
     close(): void {}

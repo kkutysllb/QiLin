@@ -1,5 +1,7 @@
 /** Shared Chat-slice and Session-event fixtures for Tool row tests. */
 import type { SessionLiveEventEntry } from '@qilin-agent/api-session-controller/client'
+import type { ContextMenuTriggerProps } from '@qilin-agent/client-ui-context-menu/client'
+import { contextMenuHook } from '@qilin-agent/client-test-runtime'
 import { SessionSeq } from '@qilin-agent/session/types'
 import { isJsonValue, type JsonValue } from '@qilin-agent/util-values'
 import type {
@@ -10,6 +12,15 @@ function jsonFixture(value: unknown): JsonValue {
   if (!isJsonValue(value)) throw new Error('tool event fixture must be lossless JSON')
   return value as JsonValue
 }
+
+/** Menu hook the render site provides; a test that opens no menu needs no stub. */
+export const menuHook = contextMenuHook()
+
+/** Session path resolver every Tool view registration injects. */
+export const resolveFilePath = (path: string): string => path
+
+/** File gesture bindings the call tree hands a row; a direct render captures the path and opens nothing. */
+export const getFileTriggerProps = (_path: string): ContextMenuTriggerProps => ({})
 
 /** Build the canonical Chat slice consumed by Tool rows and details tests. */
 export function toolChatSnapshot(

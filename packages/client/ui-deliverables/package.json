@@ -38,7 +38,8 @@
         "@qilin-agent/client-ui-conversation",
         "@qilin-agent/client-ui-renderer",
         "@qilin-agent/client-ui-sidebar-right",
-        "@qilin-agent/client-ui-tool"
+        "@qilin-agent/client-ui-tool",
+        "@qilin-agent/client-ui-context-menu"
       ],
       "platform": "web"
     }
@@ -67,6 +68,7 @@
     "@qilin-agent/kylin": "workspace:~",
     "react": "^18.2.0",
     "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-context-menu": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/session-query": "workspace:*",

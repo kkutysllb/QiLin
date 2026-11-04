@@ -12,7 +12,10 @@ import type { Context } from '@qilin-agent/kylin'
 import type { RemoteHostFacts } from '@qilin-agent/api-remotes/client'
 import type { ISessions } from '@qilin-agent/api-session-controller/client'
 import type { IWorkspaces, WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
-import { writeClipboard } from '@qilin-agent/client-ui-primitives'
+import {
+  IconArchiveOutlineRegular, IconBranchOutlineRegular, IconCopyOutlineRegular, IconEditOutlineRegular,
+  IconPinFillRegular, IconPinOutlineRegular, IconTrashOutlineRegular, writeClipboard,
+} from '@qilin-agent/client-ui-primitives'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { HostObservable, SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
 // Type-only: pulls the Controller service merges.
@@ -26,8 +29,11 @@ import type {} from '@qilin-agent/client-ui-layout/client'
 // Type-only: pulls the Session root standard-hook merge.
 import type {} from '@qilin-agent/client-ui-session/client'
 import type {
-  RowToast, RowToastInjected, RowToastState, WorkspaceBrowserInjected, WorkspacePickerInjected,
+  RowToast, RowToastInjected, RowToastState, SessionRenameRequest, WorkspaceActionRequest,
+  WorkspaceBrowserInjected, WorkspacePickerInjected,
 } from './contract/slots.ts'
+import type {} from '@qilin-agent/client-ui-context-menu/client'
+import { registerWorkspaceMenus } from './context-menus.tsx'
 import { createWorkspaceShortcutControls, installWorkspaceShortcuts } from './shortcuts.ts'
 import { UiWorkspaceService } from './navigation.ts'
 import { createWorkspaceViewStore } from './stores.ts'
@@ -75,6 +81,7 @@ const NS = 'workspace'
  * declaration through `slots.inject()` instead of assuming order.
  */
 export const inject = [
+  'contextMenus',
   'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker',
   'layout', 'shortcuts',
 ]
@@ -95,6 +102,10 @@ export function apply(ctx: Context): void {
   const viewInstance = viewHandle.create()
   const viewStore: typeof viewHandle = { ...viewHandle, create: () => viewInstance }
   const rowToast = createSnapshotStore<RowToastState | null>(null)
+  // Menu-originated dialog requests cross from the apply world into the
+  // browser component, which owns the dialogs and settles each request.
+  const sessionRenameRequest = createSnapshotStore<SessionRenameRequest | null>(null)
+  const workspaceActionRequest = createSnapshotStore<WorkspaceActionRequest | null>(null)
   let toastSeq = 0
   const notify = (toast: RowToast): void => { rowToast.set({ ...toast, seq: ++toastSeq }) }
   const uiWorkspace = new UiWorkspaceService(
@@ -165,12 +176,39 @@ export function apply(ctx: Context): void {
       const copied = await writeClipboard(sessionId)
       notify({ kind: copied ? 'sessionIdCopied' : 'sessionIdCopyFailed' })
     },
+    settleSessionRename: () => { sessionRenameRequest.set(null) },
+    settleWorkspaceAction: () => { workspaceActionRequest.set(null) },
     hooks: {
       directoryFlow: browserFlowSource, hostInfo, workspaceShortcuts: shortcutControls.state,
       shortcuts: ctx.shortcuts.catalog,
+      sessionRenameRequest, workspaceActionRequest,
     },
   })
   installWorkspaceShortcuts(ctx, uiWorkspace, shortcutControls, (sessionId) => { void uiWorkspace.archiveSession(sessionId) })
+  ctx.slots.inject('contextMenu.icon', function* () {
+    for (const [key, Icon] of Object.entries({
+      'workspace.rename': IconEditOutlineRegular, 'workspace.delete': IconTrashOutlineRegular,
+      'workspace.pin': IconPinOutlineRegular, 'workspace.unpin': IconPinFillRegular,
+      'workspace.archive': IconArchiveOutlineRegular, 'workspace.fork': IconBranchOutlineRegular,
+      'workspace.copy': IconCopyOutlineRegular,
+    })) yield ctx.slots.register({ name: 'contextMenu.icon', key }, Icon)
+  })
+  registerWorkspaceMenus(ctx, {
+    pin: (sessionId) => { void uiWorkspace.pinSession(sessionId) },
+    unpin: (sessionId) => { void uiWorkspace.unpinSession(sessionId) },
+    requestSessionRename: (sessionId, currentTitle) => {
+      sessionRenameRequest.set({ sessionId, currentTitle })
+    },
+    fork: (sessionId) => { browserInjected().forkSession(sessionId) },
+    copySessionId: (sessionId) => { void browserInjected().copySessionId(sessionId) },
+    archive: (sessionId) => { void browserInjected().archiveSession(sessionId) },
+    requestWorkspaceAction: (workspaceId, displayTitle, action) => {
+      // Menu actions are re-checked here: the stored title is what the dialog edits.
+      const workspace = workspaces.list.getSnapshot().items.find(row => row.workspaceId === workspaceId)
+      if (workspace === undefined) return
+      workspaceActionRequest.set({ action, workspaceId, currentTitle: displayTitle })
+    },
+  })
   registerToasts(ctx)
   const rowToastInjected = (): Pick<RowToastInjected, 'hooks' | 'dismissToast'> => ({
     hooks: { toast: rowToast },

@@ -28,6 +28,12 @@
     },
     {
       "path": "../../packages/api/product-analytics/tsconfig.host.json"
+    },
+    {
+      "path": "../../packages/util/file-drag"
+    },
+    {
+      "path": "../../packages/client/ui-file-actions"
     }
   ],
   "exclude": [

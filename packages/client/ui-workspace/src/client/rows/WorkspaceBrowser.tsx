@@ -26,7 +26,7 @@ import {
   deriveFlat, deriveGroups, deriveSearchResults, orderByRecency, owningGroupKey, owningParentFolder,
   pinCurrentBlank, reconcileManualOrder, UNGROUPED_KEY, visibleSessionIds,
 } from '../tree.ts'
-import { ProjectRowItem, SearchResultItem, SessionNodeItem } from './Rows.tsx'
+import { ProjectRowItem, type RowMenus, SearchResultItem, SessionNodeItem } from './Rows.tsx'
 import { FLAT_SESSION_ORDER_KEY, type SessionGroupBy } from '../stores.ts'
 import { WorkspacePickFlow } from '../WorkspacePicker.tsx'
 import css from './WorkspaceBrowser.module.css'
@@ -239,6 +239,8 @@ type SessionTreeProps = Pick<
   onSessionRename: (sessionId: SessionNode['id'], currentTitle: string) => void
   /** Archive a session (row menu action; the row disappears on the state echo). */
   onSessionArchive: (sessionId: SessionNode['id']) => void
+  /** Shared-menu gesture bindings for every row this tree renders. */
+  menu: RowMenus
   /** One Session chosen from search that must be exposed and scrolled into view. */
   revealSessionId?: SessionId | undefined
   /** Acknowledge that the chosen Session row has been revealed. */
@@ -258,7 +260,7 @@ function SessionTree({
   onRenameRequest, onDeleteRequest, onSessionRename, onSessionArchive,
   insertWorkspaceBefore,
   nestWorkspaces, groupExpansion, setGroupExpanded,
-  setSessionOrder, home, t, renderSlot,
+  setSessionOrder, home, t, renderSlot, menu,
   revealSessionId, onSessionRevealed, animationResetKey,
 }: SessionTreeProps) {
   const panelActive = usePanelInfo(info => info.activePanelId !== null)
@@ -539,6 +541,7 @@ function SessionTree({
             }
           }}
           drag={workspaceDragProps}
+          menu={menu.workspace}
           actions={group.workspaceId === undefined
             ? undefined
             : {
@@ -602,6 +605,7 @@ function SessionTree({
                 : undefined}
               drag={dragProps}
               renderSlot={renderSlot}
+              menu={menu.session}
               t={t}
             />
           )
@@ -660,7 +664,7 @@ function FlatList({
   list, sessionIds, pinnedSessionIds, useSessionStatus, open, forkSession, copySessionId, onSessionRename, onSessionArchive,
   onSessionPin, onSessionUnpin,
   usePanelInfo, setSessionOrder, workspaceReady, animationResetKey,
-  revealSessionId, onSessionRevealed, t, renderSlot,
+  revealSessionId, onSessionRevealed, t, renderSlot, menu,
 }: Pick<
   SessionTreeProps,
   | 'workspaceReady'
@@ -679,6 +683,7 @@ function FlatList({
   | 'onSessionRevealed'
   | 't'
   | 'renderSlot'
+  | 'menu'
 > & {
   list: SessionListState
   sessionIds: readonly SessionId[]
@@ -769,6 +774,7 @@ function FlatList({
                   dropCommitted.current = false
                 },
               }}
+              menu={menu.session}
               t={t}
             />
           )
@@ -902,6 +908,11 @@ export function WorkspaceBrowser({
   useHostInfo,
   useWorkspaceShortcuts,
   useShortcuts,
+  useContextMenu,
+  useSessionRenameRequest,
+  useWorkspaceActionRequest,
+  settleSessionRename,
+  settleWorkspaceAction,
   renderSlot,
   t,
 }: WorkspaceBrowserProps) {
@@ -1291,6 +1302,40 @@ export function WorkspaceBrowser({
     })
   }
 
+  // Right-click captures the same objects the ellipsis menus act on; the
+  // shared menu renders the actions contributed to ctx.contextMenus.
+  const { getTriggerProps } = useContextMenu()
+  const menus: RowMenus = {
+    session: (sessionId, displayTitle) => getTriggerProps({ kind: 'session', value: { sessionId, displayTitle } }),
+    workspace: (workspaceId, path, displayTitle) => getTriggerProps({
+      kind: 'workspace', value: { workspaceId, path: path ?? '', displayTitle },
+    }),
+  }
+
+  // Menu-originated requests open the browser-owned dialogs and settle at once,
+  // so the same gesture repeated opens the same dialog again.
+  const pendingSessionRename = useSessionRenameRequest(request => request)
+  useEffect(() => {
+    if (pendingSessionRename === null) return
+    setSessionRenameTarget({ sessionId: pendingSessionRename.sessionId, currentTitle: pendingSessionRename.currentTitle })
+    setSessionRenameDraft(pendingSessionRename.currentTitle)
+    setSessionRenameError(null)
+    settleSessionRename()
+  }, [pendingSessionRename, settleSessionRename])
+  const pendingWorkspaceAction = useWorkspaceActionRequest(request => request)
+  useEffect(() => {
+    if (pendingWorkspaceAction === null) return
+    if (pendingWorkspaceAction.action === 'rename') {
+      setRenameTarget({ workspaceId: pendingWorkspaceAction.workspaceId, currentTitle: pendingWorkspaceAction.currentTitle })
+      setRenameDraft(pendingWorkspaceAction.currentTitle)
+      setRenameError(null)
+    } else {
+      setDeleteTarget({ workspaceId: pendingWorkspaceAction.workspaceId, title: pendingWorkspaceAction.currentTitle })
+      setDeleteError(null)
+    }
+    settleWorkspaceAction()
+  }, [pendingWorkspaceAction, settleWorkspaceAction])
+
   return (
     <div className={clsx(css.root, !wide && css.rail)}>
       <div className={css.sectionHeader}>
@@ -1443,6 +1488,7 @@ export function WorkspaceBrowser({
                 revealSessionId={revealSessionId}
                 onSessionRevealed={acknowledgeSessionReveal}
                 renderSlot={renderSlot}
+                menu={menus}
                 t={t}
               />
             )
@@ -1454,6 +1500,7 @@ export function WorkspaceBrowser({
                 useSessionStatus={useSessionStatus}
                 copySessionId={copySessionId}
                 renderSlot={renderSlot}
+                menu={menus}
                 onSessionRename={onSessionRename}
                 onSessionArchive={onSessionArchive}
                 onSessionPin={onSessionPin}

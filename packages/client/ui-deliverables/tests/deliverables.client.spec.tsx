@@ -33,6 +33,7 @@ import {
   basename, changesForClosing, deliverablesDefinition, presentedForClosing, producedFileMentions, producedForClosing,
   selectProducedFiles, type DeliverablesTurnData,
 } from '../src/client/turn-deliverables.ts'
+import { contextMenuHook } from '@qilin-agent/client-test-runtime'
 import { apply, inject } from '../src/client/index.ts'
 import { en, zh } from '../src/client/locales.ts'
 import { SessionId } from '@qilin-agent/session/types'
@@ -41,7 +42,10 @@ import type { SessionEvent } from '@qilin-agent/session/types'
 function openProps(controller = new PresentedOpenController(), summaries = new ChangesSummaryStore()) {
   controller.host.set({ name: 'desktop', available: true, fileManager: 'finder' })
   const sessions: SessionListState = { ids: [], byId: {}, phase: 'ready', projectionsBySession: {} }
+  const openMenu = vi.fn()
   return {
+    openMenu,
+    useContextMenu: contextMenuHook(openMenu),
     useSessions: <T,>(select: (state: SessionListState) => T): T => select(sessions),
     reloadPresentedHost: vi.fn(() => controller.loadHost()),
     useChangesSummary: <T,>(select: (state: ReturnType<typeof summaries.state.getSnapshot>) => T): T =>

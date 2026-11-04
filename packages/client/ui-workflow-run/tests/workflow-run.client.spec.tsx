@@ -19,7 +19,7 @@ import type {
 import type { SessionEvent, SessionId } from '@qilin-agent/session/types'
 import { apply as applyLocale, inject as localeInject } from '@qilin-agent/client-locale/client'
 import {
-  allowAllAccess, chatSnapshot as emptyChatSnapshot, conversationSnapshot, makeTranslate, sessionSnapshot,
+  allowAllAccess, chatSnapshot as emptyChatSnapshot, contextMenuHook, conversationSnapshot, makeTranslate, sessionSnapshot,
   stubConfigForm, TestSessions, workspaceSnapshot,
 } from '@qilin-agent/client-test-runtime'
 import {
@@ -339,7 +339,7 @@ function panelProps(data: WorkflowRunChatData, sessions = listState(), openSessi
     useGroupAction: () => { throw new Error('unused') },
     sessionId: PARENT_ID,
     useSessions: selector => selector(sessions),
-    usePanelInfo, useResource, ...allowAllAccess,
+    usePanelInfo, useResource, useContextMenu: contextMenuHook(), ...allowAllAccess,
     useSessionStatus: selector => selector(panelAttention),
     useSessionRetainInfo: () => undefined,
     useSession: selector => selector(panelSession),
@@ -366,7 +366,6 @@ function panelProps(data: WorkflowRunChatData, sessions = listState(), openSessi
     forkAt: () => {},
     loadImage: () => Promise.reject(new Error('not used')),
     renderMessageImages: () => null,
-    fileMentions: () => undefined,
     openSession,
     t: makeTranslate(zh),
   }

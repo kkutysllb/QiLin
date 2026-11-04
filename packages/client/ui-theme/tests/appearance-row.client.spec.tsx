@@ -3,7 +3,7 @@
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { SessionListState } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
@@ -41,6 +41,7 @@ function mount(preference: ThemePreference = 'system', skins: readonly Appearanc
     useSessionStatus,
     usePanelInfo,
     useSessionRetainInfo: () => undefined,
+    useContextMenu: contextMenuHook(),
     useResource,
     ...allowAllAccess,
     useStore: bindSnapshotSelector(store),

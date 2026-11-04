@@ -24,6 +24,9 @@
       "path": "../ui-slots"
     },
     {
+      "path": "../ui-context-menu"
+    },
+    {
       "path": "../ui-primitives"
     },
     {

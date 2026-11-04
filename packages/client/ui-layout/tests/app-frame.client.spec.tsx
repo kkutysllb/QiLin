@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 /** Frame interactions with a real store and explicitly driven browser measurements. */
 import type { GlobalStandardProps, RenderOpts } from '@qilin-agent/client-ui-slots'
-import { allowAllAccess, bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook } from '@qilin-agent/client-test-runtime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, render } from '@testing-library/react'
 import { AppFrame } from '../src/client/AppFrame.tsx'
@@ -12,6 +12,7 @@ import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/cl
 import type { SessionId } from '@qilin-agent/session/types'
 
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined })) as GlobalStandardProps['useResource']
+const useContextMenu = contextMenuHook()
 let selectedSession: SessionId | undefined
 let selectedSessionTitle: string | undefined
 let workspacesReady = true
@@ -97,7 +98,7 @@ function mountFrame(windowWidth = frameWidth) {
       usePanelInfo={usePanelInfo}
       useSessionStatus={useSessionStatus}
       useSessionRetainInfo={() => undefined}
-      useResource={useResource} {...allowAllAccess}
+      useResource={useResource} {...allowAllAccess} useContextMenu={useContextMenu}
       useWorkspaces={sel => sel(workspaceState)}
       t={key => key === 'brand.localBuild' ? 'QILIN Local Build' : key}
     />

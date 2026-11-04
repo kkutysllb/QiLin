@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { allowAllAccess, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, contextMenuHook, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { SessionSnapshot } from '@qilin-agent/api-session-controller/client'
 import type { ScheduleRecord, ScheduleCatalogEntry } from '@qilin-agent/schedule/client'
 import { ScheduleId } from '@qilin-agent/schedule'
@@ -160,6 +160,7 @@ function props(
     useSessionRetainInfo: unread,
     useWorkspaces: unread,
     useResource: unread,
+    useContextMenu: contextMenuHook(),
     useSessionAccess: unread,
     useCatalog,
     onDelete: vi.fn(async () => 'deleted' as const),

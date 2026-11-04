@@ -6,7 +6,7 @@ import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/cl
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { createSnapshotStore } from '@qilin-agent/client-store'
-import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { TranscriptViewRow, type TranscriptViewRowProps } from '../src/client/settings/TranscriptViewRow.tsx'
 import type { TranscriptViewMode } from '../src/chat-settings.ts'
 import type { CollapseTiming } from '../src/client/presentation-policy.ts'
@@ -44,6 +44,7 @@ function mount(mode: TranscriptViewMode = 'compact', dictionary: typeof en | typ
     useSessionStatus: noPendingInteraction(),
     useWorkspaces: emptyWorkspaces(),
     useSessionRetainInfo: () => undefined,
+    useContextMenu: contextMenuHook(),
     useResource,
     ...allowAllAccess,
     useTranscriptView: bindSnapshotSelector(source),

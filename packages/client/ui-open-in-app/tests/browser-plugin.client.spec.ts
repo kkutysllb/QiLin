@@ -42,6 +42,7 @@ async function bench(over: {
   ctx: Context
   fiber: ReturnType<Context['plugin']>
   commands: RegisteredCommand[]
+  menus: unknown[]
 }> {
   const ctx = new Context()
   await ctx.plugin(SlotRegistry).await()
@@ -74,6 +75,7 @@ async function bench(over: {
     panelInfo: { getSnapshot: () => ({ activePanelId: over.activePanelId ?? null }) },
   } as never)
   const commands: RegisteredCommand[] = []
+  const menus: unknown[] = []
   ctx.provide('shortcuts', {
     register: (command: RegisteredCommand) => { commands.push(command); return () => {} },
     catalog: { getSnapshot: () => [] },
@@ -82,10 +84,16 @@ async function bench(over: {
   // Session Remote; the bench supplies the namespace each call reaches.
   ctx.provide('remote', { session: sessionRemote } as never)
   ctx.provide('remote.session', sessionRemote as never)
+  // The shared menu owns the popup; the bench records what this plugin contributes.
+  ctx.provide('contextMenus', {
+    active: { getSnapshot: () => null, subscribe: () => () => {} },
+    register: (contribution: unknown) => { menus.push(contribution); return () => { menus.splice(menus.indexOf(contribution), 1) } },
+    open: vi.fn(), close: vi.fn(), resolve: vi.fn(), notify: vi.fn(),
+  } as never)
   ctx.provide('locale', new LocaleRuntime(ctx))
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
-  return { ctx, fiber, commands }
+  return { ctx, fiber, commands, menus }
 }
 
 function headerEntryIds(ctx: Context): (string | undefined)[] {
@@ -108,7 +116,59 @@ const sessionRemote = {
 
 describe('open-in-app browser half', () => {
   it('declares the services it binds', () => {
-    expect(inject).toEqual(['sessions', 'slots', 'locale', 'layout', 'shortcuts', 'remote', 'remote.session'])
+    expect(inject).toEqual([
+      'contextMenus', 'sessions', 'slots', 'locale', 'layout', 'shortcuts', 'remote', 'remote.session',
+    ])
+  })
+
+  it('contributes the shared file, directory, URL, and Session actions, and teardown withdraws them', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ apps: ['finder'] }), { status: 200 })))
+    const { fiber, menus } = await bench({ sessions: [{ cwd: '/w/dir', mainView: 1 }] })
+    expect(menus.map(menu => (menu as { id: string }).id).sort()).toEqual([
+      'open-in-app.directory', 'open-in-app.file', 'open-in-app.session', 'open-in-app.url',
+    ])
+    await fiber.dispose()
+    expect(menus).toEqual([])
+  })
+
+  it('offers native reveal, default-application open, and path copy for a captured file', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ apps: ['finder'] }), { status: 200 })))
+    const writeText = vi.fn(async () => undefined)
+    vi.stubGlobal('navigator', { clipboard: { writeText }, language: 'en-US', languages: ['en-US'] })
+    const { ctx, menus } = await bench({ sessions: [{ cwd: '/w/dir', mainView: 1 }] })
+    const file = menus.find(menu => (menu as { id: string }).id === 'open-in-app.file') as {
+      resolve: (
+        target: { sessionId: string; path: string },
+        signal: AbortSignal,
+      ) => Promise<{ id: string; label: string; disabled?: boolean; run?: () => Promise<void> }[]>
+    }
+    const actions = await file.resolve({ sessionId: 's-0', path: 'notes.md' }, new AbortController().signal)
+    // The bench Host registers no file handlers, so only reveal and copy are runnable.
+    expect(actions.map(action => action.id)).toEqual(['reveal', 'open', 'copyPath'])
+    expect(actions[1]?.disabled).toBe(true)
+    expect(actions[1]?.label).toBe(ctx.locale.bind(NS)('menu.defaultApp'))
+    await actions[0]?.run?.()
+    expect(sessionRemote.openWorkspacePath).toHaveBeenLastCalledWith({ path: '/w/dir/notes.md', action: 'reveal' })
+    await actions[2]?.run?.()
+    expect(writeText).toHaveBeenCalledWith('/w/dir/notes.md')
+  })
+
+  it('offers the external browser and link copy for a captured URL', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ apps: [] }), { status: 200 })))
+    const writeText = vi.fn(async () => undefined)
+    vi.stubGlobal('navigator', { clipboard: { writeText }, language: 'en-US', languages: ['en-US'] })
+    const open = vi.fn()
+    vi.stubGlobal('window', { open })
+    const { menus } = await bench()
+    const url = menus.find(menu => (menu as { id: string }).id === 'open-in-app.url') as {
+      resolve: (target: { sessionId: string; url: string }) => { id: string; run?: () => Promise<void> }[]
+    }
+    const actions = url.resolve({ sessionId: 's-0', url: 'https://example.test/a' })
+    expect(actions.map(action => action.id)).toEqual(['external', 'copy'])
+    await actions[0]?.run?.()
+    expect(open).toHaveBeenCalledWith('https://example.test/a', '_blank', 'noopener,noreferrer')
+    await actions[1]?.run?.()
+    expect(writeText).toHaveBeenCalledWith('https://example.test/a')
   })
 
   it('registers the header split button, and fiber teardown removes it (HMR safety)', async () => {

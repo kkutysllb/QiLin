@@ -10,6 +10,7 @@ import type { StartedToolCall, ToolResultNode } from '@qilin-agent/client-ui-cha
 import type { SessionId } from '@qilin-agent/session/types'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
+import { getFileTriggerProps } from './tool-fixtures.client.ts'
 import { ToolRow } from '../src/client/tool/components/ToolRow.tsx'
 import { BashRow } from '../src/client/tool/toolviews/bash-sample.tsx'
 import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
@@ -62,6 +63,7 @@ describe('Tool presentation tails', () => {
     const props: GenericToolCardProps = {
       loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
       useDisclosure, callId: 'c5', toolName: 'todo_write', phase: 'result', block: settled, openFile: vi.fn(), t,
+      getFileTriggerProps,
     }
     const view = render(<GenericToolCard {...props} />)
     expect(view.container.querySelector('[data-variant="others"] svg')).not.toBeNull()

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ImageAttachmentRef } from '@qilin-agent/attachment'
 import { IconLoadingOutlineRegular, IconRefreshOutlineRegular, ImageLightbox } from '@qilin-agent/client-ui-primitives'
 import type { ImageLightboxLabels } from '@qilin-agent/client-ui-primitives'
+import type { ContextMenuBindings } from '@qilin-agent/client-ui-context-menu/client'
 import css from './MessageImage.module.css'
 
 /** Loads a session-authorized durable image URL and may expose a cached URL synchronously. */
@@ -79,13 +80,15 @@ function dimensionsOf(image: MessageImageSpec): { readonly width: number; readon
  * @param props.load - session-authorized URL loader for the durable arm.
  * @param props.variant - lone image, cropped gallery tile, or uncropped list thumbnail.
  * @param props.labels - resolved strings (tooltip, loading, retry, lightbox).
+ * @param props.getTriggerProps - ordinary gesture binding for the original image.
  * @returns the bounded thumbnail button, or the retry control on failure.
  */
-export function MessageImage({ image, load, variant, labels }: {
+export function MessageImage({ image, load, variant, labels, getTriggerProps }: {
   image: MessageImageSpec
   load: ImageLoader
   variant: 'single' | 'tile' | 'thumbnail'
   labels: MessageImageLabels
+  getTriggerProps: ContextMenuBindings['getTriggerProps']
 }) {
   const preview = 'preview' in image ? image.preview : undefined
   const attachment = 'attachment' in image ? image.attachment : undefined
@@ -132,6 +135,9 @@ export function MessageImage({ image, load, variant, labels }: {
   const src = preview?.url ?? loaded
   const label = ('attachment' in image ? image.label : undefined)
     ?? preview?.name ?? attachment?.name ?? labels.image
+  const contextMenuProps = getTriggerProps(src === null ? undefined : { kind: 'image', value: {
+    url: src, name: label, ...(attachment === undefined ? {} : { mediaType: attachment.mediaType }),
+  } })
   const loadingThumbnail = variant === 'thumbnail' && src === null
   if (error) return (
     <button
@@ -157,6 +163,7 @@ export function MessageImage({ image, load, variant, labels }: {
         title={loadingThumbnail ? labels.loading : labels.open}
         aria-label={loadingThumbnail ? labels.loading : labels.openNamed(label)}
         aria-busy={loadingThumbnail || undefined}
+        {...contextMenuProps}
         onClick={() => { if (src !== null) setOpen(true) }}
       >
         {src === null
@@ -179,20 +186,22 @@ export function MessageImage({ image, load, variant, labels }: {
             />
           )}
       </button>
-      {open && src !== null && <ImageLightbox src={src} alt={label} labels={labels.lightbox} onClose={close} />}
+      {open && src !== null && <ImageLightbox src={src} alt={label} labels={labels.lightbox} onClose={close}
+        contextMenuProps={contextMenuProps} />}
     </>
   )
 }
 
 /** Wrapping image group shared by user and assistant history: a lone image
  * renders large unless its owner requests compact tiles or contained list thumbnails. */
-export function ImageGallery({ images, load, align, compact = false, thumbnail = false, labels }: {
+export function ImageGallery({ images, load, align, compact = false, thumbnail = false, labels, getTriggerProps }: {
   images: readonly MessageImageSpec[]
   load: ImageLoader
   align: 'start' | 'end'
   compact?: boolean
   thumbnail?: boolean
   labels: MessageImageLabels
+  getTriggerProps: ContextMenuBindings['getTriggerProps']
 }) {
   if (images.length === 0) return null
   const variant = thumbnail ? 'thumbnail' : compact || images.length > 1 ? 'tile' : 'single'
@@ -205,6 +214,7 @@ export function ImageGallery({ images, load, align, compact = false, thumbnail =
           load={load}
           variant={variant}
           labels={labels}
+          getTriggerProps={getTriggerProps}
         />
       ))}
     </div>

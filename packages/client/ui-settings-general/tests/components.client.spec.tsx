@@ -2,7 +2,7 @@
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { allowAllAccess, bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, RemoteError } from '@qilin-agent/client-test-runtime'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { GeneralSectionComponentProps } from '../src/client/GeneralSection.tsx'
 import { GeneralSection } from '../src/client/GeneralSection.tsx'
@@ -40,7 +40,8 @@ const noAttention: AttentionSnapshot = new Map()
 const useSessionStatus: HeaderContentProps['useSessionStatus'] = selector => selector(noAttention)
 const kit = {
   useSessions: unusedHook, useSessionStatus,
-  usePanelInfo, useSessionRetainInfo: () => undefined, useResource, ...allowAllAccess, useWorkspaces: unusedHook,
+  usePanelInfo, useSessionRetainInfo: () => undefined, useContextMenu: contextMenuHook(),
+  useResource, ...allowAllAccess, useWorkspaces: unusedHook,
 }
 
 describe('chrome content', () => {

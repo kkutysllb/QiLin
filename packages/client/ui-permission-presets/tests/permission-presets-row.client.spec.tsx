@@ -2,7 +2,7 @@
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { allowAllAccess, bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, RemoteError } from '@qilin-agent/client-test-runtime'
 import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
 import type { PermissionCatalog } from '@qilin-agent/permission-presets/client'
 import { PermissionRow, type PermissionRowProps } from '../src/client/PermissionRow.tsx'
@@ -78,7 +78,7 @@ const useSessionStatus: PermissionRowProps['useSessionStatus'] = selector => sel
 const runtime = {
   useSessions: (() => { throw new Error('unused') }) as never,
   useSessionStatus,
-  usePanelInfo, useSessionRetainInfo: () => undefined, useResource, ...allowAllAccess,
+  usePanelInfo, useSessionRetainInfo: () => undefined, useContextMenu: contextMenuHook(), useResource, ...allowAllAccess,
   useWorkspaces: (() => { throw new Error('unused') }) as never,
 }
 

@@ -10,7 +10,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, screen } from '@testing-library/react'
 import type { WorkspaceId } from '@qilin-agent/api-workspace-controller/client'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
-import { SlotTestRuntime, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
+import { SlotTestRuntime, contextMenuHook, usePinnedBrowserLanguages } from '@qilin-agent/client-test-runtime'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { apply, inject } from '@qilin-agent/client-ui-workspace/client'
 
@@ -29,6 +29,13 @@ function SidebarFrame({ renderSlot }: FrameProps) {
 async function bench() {
   const runtime = await SlotTestRuntime.create()
   runtime.ctx.provide('layout', { selectPanel: vi.fn() })
+  // The shared menu owns the popup; this composition never opens it.
+  runtime.ctx.provide('contextMenus', {
+    active: { getSnapshot: () => null, subscribe: () => () => {} },
+    register: vi.fn(() => () => {}), open: vi.fn(), close: vi.fn(), resolve: vi.fn(), notify: vi.fn(),
+  } as never)
+  runtime.ctx.slots.provideRoot({ props: { useContextMenu: contextMenuHook() } })
+
   runtime.releaseWorkspaceSource()
   const directoryPicker = {}
   // An empty roster keeps the new-task preset chip out of these flows; the

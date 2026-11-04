@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import Schema from '@qilin-agent/schemastery'
 import type { SettingsNamespaceView } from '@qilin-agent/api-remotes/client'
 import type { JsonValue } from '@qilin-agent/util-values'
-import { allowAllAccess, bindSnapshotSelector, RemoteError } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, bindSnapshotSelector, contextMenuHook, RemoteError } from '@qilin-agent/client-test-runtime'
 import { DeepSeekOnboardingDialog } from '../src/client/DeepSeekOnboardingDialog.tsx'
 import type { DeepSeekOnboardingDialogProps } from '../src/client/DeepSeekOnboardingDialog.tsx'
 import { SettingsDescribeMirror } from '@qilin-agent/client-ui-settings/src/client/settings-mirror.ts'
@@ -149,7 +149,7 @@ function harness(options: {
     openSection,
     useSessions: unusedHook,
     useSessionStatus,
-    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, ...allowAllAccess,
+    usePanelInfo, useSessionRetainInfo: () => undefined, useContextMenu: contextMenuHook(), useResource, ...allowAllAccess,
     useWorkspaces: unusedHook,
     controller,
     useModels: bindSnapshotSelector(controller.store),

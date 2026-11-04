@@ -7,7 +7,7 @@ import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import type {
   ChangeResult, PluginEntryId, PluginInstallRequestId, PluginUpdateResult, PluginVersion, RegistryAttempt,
 } from '@qilin-agent/api-remotes/client'
-import { bindSnapshotSelector, stubConfigForm } from '@qilin-agent/client-test-runtime'
+import { bindSnapshotSelector, contextMenuHook, stubConfigForm } from '@qilin-agent/client-test-runtime'
 import type { ConfigForm, ConfigFormSnapshot, SettingsMirrorSnapshot } from '@qilin-agent/client-ui-settings/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { MenuItemButton } from '@qilin-agent/client-ui-primitives'
@@ -159,6 +159,7 @@ function renderTab(
     useSessionStatus: unusedStandardHook,
     useSessionRetainInfo: unusedStandardHook,
     useResource: unusedStandardHook,
+    useContextMenu: contextMenuHook(),
     useRemoteAccess: unusedStandardHook,
     useSessionAccess: unusedStandardHook,
   }

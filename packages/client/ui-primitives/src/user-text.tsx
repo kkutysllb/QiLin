@@ -22,7 +22,7 @@
  * references and credentials stay literal excerpt text. Disabled, the same
  * characters stay plain, so a caller that offers no quotes loses nothing.
  */
-import type { ReactNode } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 import clsx from 'clsx'
 import { QuotePreview } from './QuotePreview.tsx'
 import type { QuotePreviewLabels } from './QuotePreview.tsx'
@@ -89,6 +89,14 @@ export interface UserTextReferences {
   openFile: (path: string) => void
   /** Open the source of a skill loaded for this message. */
   openSkill: (name: string) => void
+  /**
+   * Gesture bindings for one reference chip's object menu; absent leaves the
+   * chip's native behavior and adds no menu trigger.
+   */
+  contextMenuProps?: (reference: {
+    readonly kind: 'file' | 'folder' | 'session' | 'skill' | 'command' | undefined
+    readonly label: string
+  }) => Pick<HTMLAttributes<HTMLElement>, 'onContextMenu' | 'onKeyDown' | 'tabIndex'> | undefined
 }
 
 /** Accessible names of the control that reveals one masked credential. */
@@ -242,13 +250,15 @@ export function projectUserText(
           ? () => { references.openSkill(label.slice(1)) }
           : undefined
     const className = clsx(css.refChip, referenceKind === undefined && css.slashChip)
+    const menuProps = references?.contextMenuProps?.({ kind: referenceKind ?? slashKind, label })
     parts.push(open === undefined
-      ? <span key={tokenStart} className={className} data-ref-chip={referenceKind ?? slashKind} title={label}>
+      ? <span key={tokenStart} {...menuProps} className={className} data-ref-chip={referenceKind ?? slashKind} title={label}>
         {contents}
       </span>
       : <button
         key={tokenStart}
         type="button"
+        {...menuProps}
         className={clsx(className, markdownCss.fileMention)}
         data-ref-chip={referenceKind ?? slashKind}
         title={label}

@@ -95,6 +95,13 @@ async function bench() {
     observeFixedInput: vi.fn(() => () => {}),
     catalog: { getSnapshot: () => [], subscribe },
   } as never)
+  // The shared menu owns the popup; this bench records contributions instead.
+  const menus: unknown[] = []
+  ctx.provide('contextMenus', {
+    active: { getSnapshot: () => null, subscribe },
+    register: (contribution: unknown) => { menus.push(contribution); return () => { menus.splice(menus.indexOf(contribution), 1) } },
+    open: vi.fn(), close: vi.fn(), resolve: vi.fn(), notify: vi.fn(),
+  } as never)
   const locale = new LocaleRuntime(ctx)
   // These specs assert the shipped Chinese copy. There is no jsdom `window`
   // in this lane, so browser-language detection never runs and the locale
@@ -103,7 +110,7 @@ async function bench() {
   ctx.provide('locale', locale)
   return {
     ctx, slots: ctx.get('slots') as SlotRegistry, locale, create, rename,
-    retain, using, selectPanel, search, renameSession, binding, fork, pickDirectory, registerShortcut,
+    retain, using, selectPanel, search, renameSession, binding, fork, pickDirectory, registerShortcut, menus,
   }
 }
 
@@ -122,7 +129,7 @@ describe('ui-workspace apply', () => {
 
   it('declares the services it drives', () => {
     expect(inject).toEqual([
-      'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker',
+      'contextMenus', 'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker',
       'layout', 'shortcuts',
     ])
   })
@@ -143,6 +150,33 @@ describe('ui-workspace apply', () => {
     await Promise.resolve()
     expect(after.slots.entries('conversation.hero.workspace')[0]!.component).toBe(WorkspacePicker)
     // expect(after.slots.entries('conversation.empty.workspace')[0]!.component).toBe(WorkspacePicker)
+  })
+
+
+  it('contributes the Session and Workspace actions to the shared menu, and teardown withdraws them', async () => {
+    const b = await bench()
+    declare(b.slots, 'sidebar.workspaces')
+    const fiber = b.ctx.plugin({ inject: [...inject], apply })
+    await fiber.await()
+    const ids = b.menus.map(menu => (menu as { id: string }).id).sort()
+    expect(ids).toEqual([
+      'workspace.header.delete', 'workspace.header.rename',
+      'workspace.session.archive', 'workspace.session.fork', 'workspace.session.id',
+      'workspace.session.pin', 'workspace.session.rename',
+    ])
+    // A Session action runs through the same callbacks the row menus use.
+    const rename = b.menus.find(menu => (menu as { id: string }).id === 'workspace.session.rename') as {
+      resolve: (target: { sessionId: string; displayTitle: string }) => { id: string; run?: () => void }[]
+    }
+    const browser = (b.slots.entries('sidebar.workspaces')[0]!.inject as () => WorkspaceBrowserInjected)()
+    const [action] = rename.resolve({ sessionId: 'session', displayTitle: 'Title' })
+    expect(action?.id).toBe('rename')
+    action?.run?.()
+    expect(browser.hooks.sessionRenameRequest.getSnapshot()).toEqual({ sessionId: 'session', currentTitle: 'Title' })
+    browser.settleSessionRename()
+    expect(browser.hooks.sessionRenameRequest.getSnapshot()).toBeNull()
+    await fiber.dispose()
+    expect(b.menus).toEqual([])
   })
 
   it('routes browser actions and picker creation to the services', async () => {

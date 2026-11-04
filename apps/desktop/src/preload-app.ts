@@ -1,6 +1,7 @@
 /** Origin-scoped boot, native directory selection, host paths of picked files, and update presentation with native confirmation actions. */
 
 import type { DesktopShortcutInput, ShortcutConfigSnapshot, ShortcutSaveResult } from '@qilin-agent/client-shortcuts/protocol'
+import type { FileSaveResult } from '@qilin-agent/client-ui-file-actions/types'
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { DESKTOP_IPC, SCHEME, type QilinDesktopProductApi, type DesktopUpdatePresentation } from './ipc.ts'
 import { PLATFORM_IPC } from './platform-ipc.ts'
@@ -11,6 +12,11 @@ import { syncWindowsAppearance } from './preload-windows.ts'
 function createProductApi(): QilinDesktopProductApi {
   return {
     protocolVersion: 1,
+    fileActions: {
+      save: request => ipcRenderer.invoke(DESKTOP_IPC.fileSave, request) as Promise<FileSaveResult>,
+      readClipboardImage: url => ipcRenderer.invoke(DESKTOP_IPC.clipboardImageRead, url) as
+        Promise<{ bytes: Uint8Array; mediaType: string }>,
+    },
     deviceInfo: () => ipcRenderer.invoke(DESKTOP_IPC.deviceInfo) as Promise<string>,
     keyboard: {
       closeWindow: revision => ipcRenderer.invoke(DESKTOP_IPC.shortcutsCloseWindow, revision) as Promise<void>,

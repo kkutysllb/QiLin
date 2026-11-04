@@ -8,12 +8,14 @@
 import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
+import { contextMenuHook } from '@qilin-agent/client-test-runtime'
 import type { SidebarRootComponentProps, SidebarSectionOwnerProps } from '../src/client/contract/slots.ts'
 import { SidebarRoot } from '../src/client/SidebarRoot.tsx'
 import { en } from '../src/client/locales.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const useContextMenu = contextMenuHook()
 const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const useSessionAccess: GlobalStandardProps['useSessionAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
@@ -47,6 +49,7 @@ function mountColumn(): { column: HTMLElement; quiet: () => boolean } {
       usePanels={selector => selector([])} useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useShortcuts={selector => selector([])}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useSessionAccess={useSessionAccess} useWorkspaces={neverHook}
+      useContextMenu={useContextMenu}
       startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
       renderSlot={((_key: string, owner: SidebarSectionOwnerProps) =>
         <div data-testid="region" data-wide={owner.wide} />) as SidebarRootComponentProps['renderSlot']}

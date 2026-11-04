@@ -10,6 +10,7 @@ import type {
 } from '../src/client/contract/slots.ts'
 import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
 import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
+import { contextMenuHook } from '@qilin-agent/client-test-runtime'
 import { HeaderLeadingControls, type HeaderLeadingControlsProps } from '../src/client/HeaderLeadingControls.tsx'
 import { SidebarRoot } from '../src/client/SidebarRoot.tsx'
 import { en } from '../src/client/locales.ts'
@@ -17,6 +18,7 @@ import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
 
 // Every fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const useContextMenu = contextMenuHook()
 const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const useSessionAccess: GlobalStandardProps['useSessionAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
@@ -92,6 +94,7 @@ function mountShell({
       usePanels={selector => selector(panels)} useShortcuts={selector => selector(shortcuts)}
       useEntryPins={selector => selector([])} useEntryActions={selector => selector(entryActions)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useSessionAccess={useSessionAccess} useWorkspaces={neverHook}
+      useContextMenu={useContextMenu}
       startSession={startSession} toggleSidebar={toggleSidebar} t={t}
       renderSlot={((
         key: string,
@@ -229,6 +232,7 @@ describe('SidebarRoot shell', () => {
       usePanels={selector => selector([])} useShortcuts={selector => selector([])}
       useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useSessionAccess={useSessionAccess} useWorkspaces={neverHook}
+      useContextMenu={useContextMenu}
       startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
       renderSlot={((_key: string, _owner: unknown, options?: { fallback?: ReactNode }) =>
         options?.fallback ?? null) as SidebarRootComponentProps['renderSlot']}
@@ -256,6 +260,7 @@ describe('SidebarRoot shell', () => {
       usePanels={selector => selector([])} useShortcuts={selector => selector([])}
       useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useSessionAccess={useSessionAccess} useWorkspaces={neverHook}
+      useContextMenu={useContextMenu}
       startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
       renderSlot={((_key: string, _owner: unknown, options?: { fallback?: ReactNode }) =>
         options?.fallback ?? null) as SidebarRootComponentProps['renderSlot']}
@@ -273,6 +278,7 @@ describe('SidebarRoot shell', () => {
       usePanels={selector => selector([])} useShortcuts={selector => selector([])}
       useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useSessionAccess={useSessionAccess} useWorkspaces={neverHook}
+      useContextMenu={useContextMenu}
       startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
       renderSlot={((_key: string, _owner: unknown, options?: { fallback?: ReactNode }) =>
         options?.fallback ?? null) as SidebarRootComponentProps['renderSlot']}
@@ -324,6 +330,7 @@ describe('SidebarRoot shell', () => {
       usePanels={selector => selector([])} useShortcuts={selector => selector([])}
       useEntryPins={selector => selector([])} useEntryActions={selector => selector(false)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useSessionAccess={useSessionAccess} useWorkspaces={neverHook}
+      useContextMenu={useContextMenu}
       startSession={vi.fn()} toggleSidebar={vi.fn()} t={t}
       renderSlot={((key: string) => key === 'sidebar.toggle.badge'
         ? <Tooltip label="Update — V1.2.3"><span data-testid="badge" /></Tooltip>

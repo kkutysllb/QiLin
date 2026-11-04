@@ -54,6 +54,10 @@ kind: "package-reference"
 
 `dropZones="horizontal"` 提供左右两个半区提示；预算或宽度不允许再拆时，正文整格接收移动。提示是一张内缩 8px 的虚线卡片，显示该落区的图形和 `labels.dropZone[zone]`；预览层覆盖全部 tab 正文，指针所在的卡片取强调色，另一张保持安静的轮廓。`minPaneFraction` 控制预览的最小比例，`planResizeSplit` 接受相同最小值以约束提交；Sidebar使用0.2并在自己的store限制两格。通用引擎仍保留原有树与其它分割方向。 `hideSplitWhenBlocked` 在分栏被阻止时（窗格预算已满或格太窄）直接隐藏分栏控件而不是渲染禁用态，默认值为 false。
 
+分栏控件通过 `data-dockkit-split-control` 提供宿主样式入口，不依赖具体元素标签。
+
+自行掌管弹窗的嵌入方传入 `getTabTriggerProps`：套件把 chip 自己的键盘处理器交给该函数，并不再绘制自己的弹窗。`tabMenuOpen` 把嵌入方弹窗的状态带回 tab 条。
+
 tab 的 `kind` 是不透明字符串。种子 tab 是工厂（`DockControllerOptions`），因此新格里放什么由嵌入方决定，与本包无关。内容身份是二元组（`kind`、`contentId`）：`findContentTab(state, contentId, kind?)` 在任意位置找到展示它的 tab，`findPaneContentTab(state, paneId, contentId, kind?)` 在一个格内找；`planOpenContent` 会聚焦该 tab 而非再开一个，除非被告知 `revealIfOpened: false`；显式的 `index` 把新 tab 放到 tab 条的某个位置而非末尾。
 
 `DockLayout` 在同一棵稳定内容树上渲染同一套手势：每个 tab 在选中变化、跨格移动与浮窗期间始终占同一个格位，因此已连接的嵌入式文档不会因布局变化而被重新挂载。它接受一个停靠格或左右两个格，由 CSS Grid 决定宽度；`keepMounted(tab)` 保留已访问正文，`active` 控制所属 Session 是否在屏。浮窗渲染在同一棵树里，因此这种布局无需另外挂载 `FloatLayer`。

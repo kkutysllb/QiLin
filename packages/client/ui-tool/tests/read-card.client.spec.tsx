@@ -12,6 +12,7 @@ import type { SessionListState } from '@qilin-agent/api-session-controller/clien
 import type { SessionId } from '@qilin-agent/session/types'
 import { CHAT_READ_MAX_LINES, readCallLine, readCardModel } from '../src/client/tool/models/read-card-model.ts'
 import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
+import { getFileTriggerProps, menuHook, resolveFilePath } from './tool-fixtures.client.ts'
 import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
 import { PartialArguments } from '@qilin-agent/util-values'
 import { ReadRow, readToolview } from '../src/client/tool/toolviews/read-row.tsx'
@@ -174,7 +175,7 @@ describe('readCallLine', () => {
 describe('GenericToolCard read body', () => {
   const ownerProps = (block: StartedToolCall | ToolResultNode): GenericToolCardProps => ({
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
-    useDisclosure,
+    useDisclosure, getFileTriggerProps,
     callId: 'c1', toolName: 'read', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(), t,
   })
 
@@ -197,7 +198,7 @@ describe('GenericToolCard read body', () => {
 
   it('a non-read tool renders the bare row with no read card', () => {
     const view = render(<GenericToolCard {...({
-      useDisclosure, callId: 'c1', toolName: 'echo', phase: 'result' as const, block: settled({
+      useDisclosure, getFileTriggerProps, callId: 'c1', toolName: 'echo', phase: 'result' as const, block: settled({
         call: { name: 'echo', argsRaw: '{"text":"x"}' }, meta: undefined,
       }), openFile: vi.fn(), loadImage: vi.fn(() => Promise.reject(new Error('not used'))), t,
     })} />)
@@ -222,6 +223,7 @@ describe('ReadRow keyed toolview', () => {
   const rowProps = (block: StartedToolCall | ToolResultNode): Parameters<typeof ReadRow>[0] => ({
     useDisclosure, callId: 'c1', toolName: 'read', ...('kind' in block ? { phase: 'result' as const, block } : { phase: 'start' as const, block }), openFile: vi.fn(),
     sessionId: SID, useSessions: bindSnapshotSelector(list()),
+    useContextMenu: menuHook, resolveFilePath,
     t,
   } as unknown as Parameters<typeof ReadRow>[0])
 
@@ -288,8 +290,12 @@ describe('ReadRow keyed toolview', () => {
       register: (options: { name: unknown; key?: unknown }) => { registered.push(options); return () => undefined },
     } } as unknown as Context
     readToolview.apply(ctx)
-    // The row composes ToolRow, so it declares its locale namespace at the seat.
-    expect(registered).toEqual([{ name: 'tool.call.toolview', key: 'read', locale: 'conversation' }])
-    expect(readToolview.inject).toEqual(['slots'])
+    // The row composes ToolRow, so it declares its locale namespace at the seat,
+    // and its own path resolver so a file gesture lands on the recorded Session.
+    expect(registered).toEqual([
+      // oxlint-disable-next-line typescript/no-unsafe-assignment -- expect.any matcher intentionally returns any
+      { name: 'tool.call.toolview', key: 'read', locale: 'conversation', inject: expect.any(Function) },
+    ])
+    expect(readToolview.inject).toEqual(['slots', 'sessions'])
   })
 })

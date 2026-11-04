@@ -119,7 +119,6 @@ function makeFlow() {
     forkAt: () => {},
     editUserMessage: () => {},
     loadImage: () => Promise.reject(new Error('unused')),
-    fileMentions: () => undefined,
   }
   return { props, chat, presentationSource, groupKey: 'group:1' as GroupKey }
 }

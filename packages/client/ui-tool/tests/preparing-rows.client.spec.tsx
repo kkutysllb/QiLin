@@ -3,11 +3,13 @@ import { useDisclosure } from '@qilin-agent/client-ui-chat/src/client/chat/use-d
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@testing-library/react'
 import type { StartedToolCall, ToolResultNode } from '@qilin-agent/client-ui-chat/client'
-import { makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, makeTranslate, sessionSnapshot } from '@qilin-agent/client-test-runtime'
+import type { SessionId } from '@qilin-agent/session/types'
 import { en } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
 import { en as common } from '@qilin-agent/client-locale/src/locales/en.ts'
 import { PartialArguments } from '@qilin-agent/util-values'
-import { GenericToolCard } from '../src/client/tool/toolviews/GenericToolCard.tsx'
+import { GenericToolCard, type GenericToolCardProps } from '../src/client/tool/toolviews/GenericToolCard.tsx'
+import { getFileTriggerProps, menuHook, resolveFilePath } from './tool-fixtures.client.ts'
 import { FileMutationRow } from '../src/client/tool/toolviews/file-mutation-row.tsx'
 import { ReadRow } from '../src/client/tool/toolviews/read-row.tsx'
 import { ReadImageRow } from '../src/client/tool/toolviews/read-image-row.tsx'
@@ -21,16 +23,35 @@ import { toolRowModel } from '../src/client/tool/models/tool-call-model.ts'
 
 afterEach(cleanup)
 
+/** Every argument-free row's seats: the three row shares plus the generic card's locale and file gestures. */
 type Props = Parameters<typeof TodoRow>[0] & Parameters<typeof ReadImageRow>[0] & Parameters<typeof AskQuestionRow>[0]
+  & GenericToolCardProps
+
+const SESSION_ID = 's1' as SessionId
+const SESSION = sessionSnapshot(SESSION_ID)
+
+/** A row here reads no framework source outside the seats below; binding one is a fixture bug, so it fails loud. */
+const unused = (): never => { throw new Error('argument-free row fixture binds no such framework source') }
 
 function preparation(name: string, args = new PartialArguments()): Extract<Props, { phase: 'preparing' }> {
   return {
     phase: 'preparing', callId: 'call', toolName: name,
     block: { phase: 'preparing', args, callId: 'call', name, turn: 1, step: 1, time: 1, subCalls: [] },
-    t: makeTranslate(en, common), useDisclosure, openFile: vi.fn(), loadImage: vi.fn(),
-    useTodoHistory: vi.fn(), useSession: vi.fn(() => false), renderSlot: vi.fn(() => null),
+    t: makeTranslate(en, common), useDisclosure, openFile: vi.fn(),
+    loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
+    useContextMenu: menuHook, resolveFilePath, getFileTriggerProps,
+    useTodoHistory: vi.fn(), useSession: selector => selector(SESSION), renderSlot: vi.fn(() => null),
+    SessionProvider: ({ children }) => <>{children}</>,
     useProjection: vi.fn(() => undefined), revealPanel: vi.fn(() => false), reviewPanel: vi.fn(() => false),
-  } as Extract<Props, { phase: 'preparing' }>
+    sessionId: SESSION_ID, ...allowAllAccess,
+    useChat: unused, useConversation: unused, useInput: unused, useTrajectory: unused,
+    useSessions: unused, useSessionStatus: unused, useSessionRetainInfo: unused,
+    useWorkspaces: unused, usePanelInfo: unused, useResource: unused,
+    inputActions: {
+      captureInsertion: unused, insertText: unused, setDraft: unused, persistDraft: () => {},
+      addAttachments: unused, removeAttachment: unused, pruneAttachments: unused, submit: unused,
+    },
+  }
 }
 
 describe('argument-free tool preparation', () => {

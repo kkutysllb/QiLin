@@ -4,6 +4,7 @@ import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
 import { AttachmentId } from '@qilin-agent/attachment'
+import { contextMenuHook } from '@qilin-agent/client-test-runtime'
 import { EMPTY_CHAT_SNAPSHOT, type MessageImagesProps } from '@qilin-agent/client-ui-chat/client'
 import { EMPTY_CONVERSATION_SNAPSHOT } from '@qilin-agent/client-ui-conversation/client'
 import { ImageGallery, MessageImage } from '../src/MessageImage.tsx'
@@ -16,6 +17,9 @@ const useRemoteAccess: GlobalStandardProps['useRemoteAccess'] = () => true
 const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(cleanup)
+
+/** Component fixtures never open a real menu; an unexpected activation throws. */
+const { getTriggerProps } = contextMenuHook()()
 
 const labels: MessageImageLabels = {
   image: '图片',
@@ -57,7 +61,7 @@ describe('MessageImage', () => {
     const load = Object.assign(vi.fn(() => new Promise<string>(() => {})), {
       peek: vi.fn(() => 'blob:seeded'),
     })
-    const view = render(<MessageImage image={{ attachment }} load={load} variant="single" labels={labels} />)
+    const view = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={load} variant="single" labels={labels} />)
     expect(view.queryByText('图片加载中…')).toBeNull()
     expect((view.getByAltText('history.png') as HTMLImageElement).src).toContain('blob:seeded')
     expect(load).toHaveBeenCalledWith(attachment)
@@ -65,7 +69,7 @@ describe('MessageImage', () => {
 
   it('loads a session-authorized URL, bounds the thumbnail, and clicks into the original', async () => {
     const load = vi.fn().mockResolvedValue('blob:history')
-    const view = render(<MessageImage image={{ attachment }} load={load} variant="single" labels={labels} />)
+    const view = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={load} variant="single" labels={labels} />)
     const frame = view.getByRole('button', { name: 'history.png，点击查看原图' })
     expect(frame.getAttribute('style')).toContain('width: 240px')
     expect(frame.getAttribute('style')).toContain('height: 120px')
@@ -80,7 +84,7 @@ describe('MessageImage', () => {
 
   it('ignores a click while the thumbnail is still loading', () => {
     const load = vi.fn(() => new Promise<string>(() => {}))
-    const view = render(<MessageImage image={{ attachment }} load={load} variant="single" labels={labels} />)
+    const view = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={load} variant="single" labels={labels} />)
     const frame = view.getByRole('button', { name: 'history.png，点击查看原图' })
     expect(view.getByText('图片加载中…')).toBeTruthy()
     fireEvent.click(frame)
@@ -90,7 +94,7 @@ describe('MessageImage', () => {
   it('falls back to the image label for an unnamed attachment', async () => {
     const { name: _named, ...unnamed } = attachment
     const load = vi.fn().mockResolvedValue('blob:unnamed')
-    const view = render(<MessageImage image={{ attachment: unnamed }} load={load} variant="single" labels={labels} />)
+    const view = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment: unnamed }} load={load} variant="single" labels={labels} />)
     await waitFor(() => { expect(view.getByAltText('图片')).toBeTruthy() })
     expect(view.getByRole('button', { name: '图片，点击查看原图' })).toBeTruthy()
   })
@@ -101,7 +105,7 @@ describe('MessageImage', () => {
       call += 1
       return Promise.resolve(call === 1 ? 'blob:first' : 'blob:second')
     })
-    const view = render(<MessageImage image={{ attachment }} load={load} variant="single" labels={labels} />)
+    const view = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={load} variant="single" labels={labels} />)
     const first = await view.findByAltText('history.png')
     expect((first as HTMLImageElement).src).toContain('blob:first')
     // The cache evicted the blob behind the mounted element: the browser fires
@@ -119,7 +123,7 @@ describe('MessageImage', () => {
       call += 1
       return Promise.resolve(`blob:broken-${String(call)}`)
     })
-    const view = render(<MessageImage image={{ attachment }} load={load} variant="single" labels={labels} />)
+    const view = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={load} variant="single" labels={labels} />)
     const first = await view.findByAltText('history.png')
     fireEvent.error(first)
     await waitFor(() => { expect(load).toHaveBeenCalledTimes(2) })
@@ -134,7 +138,7 @@ describe('MessageImage', () => {
       .mockRejectedValueOnce(new Error('offline'))
       .mockRejectedValueOnce(new Error('still offline'))
       .mockResolvedValueOnce('blob:retry')
-    const view = render(<MessageImage image={{ attachment }} load={load} variant="single" labels={labels} />)
+    const view = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={load} variant="single" labels={labels} />)
     const retry = await view.findByRole('button', { name: '图片加载失败，点击重试' })
     fireEvent.click(retry)
     const retryAgain = await view.findByRole('button', { name: '图片加载失败，点击重试' })
@@ -146,7 +150,7 @@ describe('MessageImage', () => {
   it('clamps extreme aspect ratios and anchors the crop toward the informative edge', async () => {
     const load = vi.fn().mockResolvedValue('blob:ratio')
     const tall = render(
-      <MessageImage image={{ attachment: { ...attachment, width: 100, height: 2000 } }} load={load} variant="single" labels={labels} />,
+      <MessageImage getTriggerProps={getTriggerProps} image={{ attachment: { ...attachment, width: 100, height: 2000 } }} load={load} variant="single" labels={labels} />,
     )
     const tallFrame = tall.getByRole('button', { name: 'history.png，点击查看原图' })
     expect(tallFrame.getAttribute('style')).toContain('width: 60px')
@@ -155,7 +159,7 @@ describe('MessageImage', () => {
     expect(tall.getByAltText('history.png').style.objectPosition).toBe('center top')
     tall.unmount()
     const wide = render(
-      <MessageImage image={{ attachment: { ...attachment, width: 4000, height: 100 } }} load={load} variant="single" labels={labels} />,
+      <MessageImage getTriggerProps={getTriggerProps} image={{ attachment: { ...attachment, width: 4000, height: 100 } }} load={load} variant="single" labels={labels} />,
     )
     const wideFrame = wide.getByRole('button', { name: 'history.png，点击查看原图' })
     expect(wideFrame.getAttribute('style')).toContain('width: 240px')
@@ -164,7 +168,7 @@ describe('MessageImage', () => {
     expect(wide.getByAltText('history.png').style.objectPosition).toBe('left center')
     wide.unmount()
     const small = render(
-      <MessageImage image={{ attachment: { ...attachment, width: 100, height: 100 } }} load={load} variant="single" labels={labels} />,
+      <MessageImage getTriggerProps={getTriggerProps} image={{ attachment: { ...attachment, width: 100, height: 100 } }} load={load} variant="single" labels={labels} />,
     )
     const smallFrame = small.getByRole('button', { name: 'history.png，点击查看原图' })
     expect(smallFrame.getAttribute('style')).toContain('width: 100px')
@@ -173,7 +177,7 @@ describe('MessageImage', () => {
 
   it('renders a tile at the fixed square without inline sizing', () => {
     const load = vi.fn(() => new Promise<string>(() => {}))
-    const view = render(<MessageImage image={{ attachment }} load={load} variant="tile" labels={labels} />)
+    const view = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={load} variant="tile" labels={labels} />)
     const frame = view.getByRole('button', { name: 'history.png，点击查看原图' })
     expect(frame.getAttribute('data-variant')).toBe('tile')
     expect(frame.getAttribute('style')).toBeNull()
@@ -181,7 +185,9 @@ describe('MessageImage', () => {
 
   it.each(['tile', 'thumbnail'] as const)('keeps the %s variant on the failed-load retry control', async (variant) => {
     const load = vi.fn().mockRejectedValue(new Error('offline'))
-    const view = render(<MessageImage image={{ attachment }} load={load} variant={variant} labels={labels} />)
+    const view = render(
+      <MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={load} variant={variant} labels={labels} />,
+    )
     const retry = await view.findByRole('button', { name: '图片加载失败，点击重试' })
     expect(retry.getAttribute('data-variant')).toBe(variant)
   })
@@ -192,7 +198,7 @@ describe('MessageImage', () => {
   ] as const)('labels thumbnail status icons and retries a failed read in %s', async (_locale, statusLabels) => {
     const pending = Promise.withResolvers<string>()
     const load = vi.fn().mockReturnValueOnce(pending.promise).mockResolvedValue('blob:retry')
-    const view = render(<MessageImage image={{ attachment }} load={load} variant="thumbnail" labels={statusLabels} />)
+    const view = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={load} variant="thumbnail" labels={statusLabels} />)
     const loading = view.getByRole('button', { name: statusLabels.loading })
     expect(loading.getAttribute('title')).toBe(statusLabels.loading)
     expect(loading.getAttribute('aria-busy')).toBe('true')
@@ -216,7 +222,7 @@ describe('MessageImage', () => {
   it('uses the owner display name for an unnamed thumbnail and its original-image viewer', async () => {
     const { name: _name, ...unnamed } = attachment
     const load = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValue('blob:thumbnail')
-    const view = render(<ImageGallery images={[{ attachment: unnamed, label: 'Image 2' }]} load={load} align="start" thumbnail labels={labels} />)
+    const view = render(<ImageGallery getTriggerProps={getTriggerProps} images={[{ attachment: unnamed, label: 'Image 2' }]} load={load} align="start" thumbnail labels={labels} />)
     fireEvent.click(await view.findByRole('button', { name: labels.loadFailed }))
     const image = await view.findByAltText('Image 2')
     expect(image.closest('button')?.getAttribute('data-variant')).toBe('thumbnail')
@@ -234,13 +240,13 @@ describe('MessageImage', () => {
   it('ignores a load settling after unmount', async () => {
     let resolve: ((url: string) => void) | undefined
     const load = vi.fn(() => new Promise<string>((r) => { resolve = r }))
-    const view = render(<MessageImage image={{ attachment }} load={load} variant="single" labels={labels} />)
+    const view = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={load} variant="single" labels={labels} />)
     view.unmount()
     resolve?.('blob:late')
     await Promise.resolve()
     let reject: ((error: Error) => void) | undefined
     const failing = vi.fn(() => new Promise<string>((_r, rej) => { reject = rej }))
-    const second = render(<MessageImage image={{ attachment }} load={failing} variant="single" labels={labels} />)
+    const second = render(<MessageImage getTriggerProps={getTriggerProps} image={{ attachment }} load={failing} variant="single" labels={labels} />)
     second.unmount()
     reject?.(new Error('late failure'))
     await Promise.resolve()
@@ -252,6 +258,7 @@ describe('MessageImage preview arm', () => {
     const load = vi.fn()
     const view = render(
       <MessageImage
+        getTriggerProps={getTriggerProps}
         image={{ preview: { url: 'blob:echo', name: 'echo.png', width: 640, height: 320 } }}
         load={load}
         variant="single"
@@ -269,7 +276,7 @@ describe('MessageImage preview arm', () => {
   it('sizes an unprobed lone preview as a square crop and falls back to the image label', () => {
     const load = vi.fn()
     const view = render(
-      <MessageImage image={{ preview: { url: 'blob:unprobed' } }} load={load} variant="single" labels={labels} />,
+      <MessageImage getTriggerProps={getTriggerProps} image={{ preview: { url: 'blob:unprobed' } }} load={load} variant="single" labels={labels} />,
     )
     const img = view.getByAltText('图片') as HTMLImageElement
     const frame = img.closest('button') as HTMLButtonElement
@@ -279,7 +286,7 @@ describe('MessageImage preview arm', () => {
 
   it('opens the lightbox from a preview thumbnail', () => {
     const view = render(
-      <MessageImage image={{ preview: { url: 'blob:box' } }} load={vi.fn(async () => '')} variant="tile" labels={labels} />,
+      <MessageImage getTriggerProps={getTriggerProps} image={{ preview: { url: 'blob:box' } }} load={vi.fn(async () => '')} variant="tile" labels={labels} />,
     )
     fireEvent.click(view.getByRole('button', { name: '图片，点击查看原图' }))
     expect(view.getByRole('dialog', { name: '原图预览' })).toBeTruthy()
@@ -289,10 +296,11 @@ describe('MessageImage preview arm', () => {
 describe('ImageGallery', () => {
   it('renders nothing without images and an aligned wrapping group with them', async () => {
     const load = vi.fn().mockResolvedValue('blob:gallery')
-    const empty = render(<ImageGallery images={[]} load={load} align="start" labels={labels} />)
+    const empty = render(<ImageGallery getTriggerProps={getTriggerProps} images={[]} load={load} align="start" labels={labels} />)
     expect(empty.container.firstChild).toBeNull()
     const view = render(
       <ImageGallery
+        getTriggerProps={getTriggerProps}
         images={[{ attachment }, { preview: { url: 'blob:echo', name: 'echo.png' } }, { attachment }]}
         load={load}
         align="end"
@@ -306,16 +314,16 @@ describe('ImageGallery', () => {
 
   it('renders a lone image large and compact or grouped images as square tiles', () => {
     const load = vi.fn(() => new Promise<string>(() => {}))
-    const lone = render(<ImageGallery images={[{ attachment }]} load={load} align="start" labels={labels} />)
+    const lone = render(<ImageGallery getTriggerProps={getTriggerProps} images={[{ attachment }]} load={load} align="start" labels={labels} />)
     expect(lone.container.querySelectorAll('[data-variant="single"]')).toHaveLength(1)
     lone.unmount()
     const compact = render(
-      <ImageGallery images={[{ attachment }]} load={load} align="end" compact labels={labels} />,
+      <ImageGallery getTriggerProps={getTriggerProps} images={[{ attachment }]} load={load} align="end" compact labels={labels} />,
     )
     expect(compact.container.querySelectorAll('[data-variant="tile"]')).toHaveLength(1)
     compact.unmount()
     const several = render(
-      <ImageGallery images={[{ attachment }, { attachment }, { attachment }]} load={load} align="end" labels={labels} />,
+      <ImageGallery getTriggerProps={getTriggerProps} images={[{ attachment }, { attachment }, { attachment }]} load={load} align="end" labels={labels} />,
     )
     expect(several.container.querySelectorAll('[data-variant="tile"]')).toHaveLength(3)
   })
@@ -354,6 +362,7 @@ describe('ImageGallery', () => {
       useSession,
       useSessions,
       usePanelInfo, useSessionRetainInfo: () => undefined, useResource, useRemoteAccess,
+      useContextMenu: () => ({ getTriggerProps }),
       useSessionAccess: () => true, useAccess: () => true,
       useSessionStatus,
       useWorkspaces,
@@ -382,4 +391,21 @@ describe('ImageGallery', () => {
     expect(view.getByRole('button', { name: 'history.png，点击查看原图' })).toBeTruthy()
     expect(view.container.querySelector('[data-align="end"]')).not.toBeNull()
   })
+})
+
+it('opens image menus from the thumbnail and the lightbox with the original source', async () => {
+  const openImageMenu = vi.fn()
+  const view = render(<MessageImage
+    getTriggerProps={contextMenuHook(openImageMenu)().getTriggerProps}
+    image={{ attachment }} load={vi.fn(async () => 'blob:original')} variant="single" labels={labels} />)
+  const image = await view.findByAltText('history.png')
+  fireEvent.contextMenu(image, { clientX: 18, clientY: 29 })
+  expect(openImageMenu).toHaveBeenLastCalledWith({
+    kind: 'image', value: { url: 'blob:original', name: 'history.png', mediaType: attachment.mediaType },
+  }, { x: 18, y: 29 })
+  fireEvent.click(image)
+  fireEvent.contextMenu(view.getByRole('dialog').querySelector('img')!, { clientX: 31, clientY: 42 })
+  expect(openImageMenu).toHaveBeenLastCalledWith({
+    kind: 'image', value: { url: 'blob:original', name: 'history.png', mediaType: attachment.mediaType },
+  }, { x: 31, y: 42 })
 })

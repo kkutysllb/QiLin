@@ -24,11 +24,12 @@ import type {} from '@qilin-agent/client-ui-settings/client'
 import type {} from '@qilin-agent/client-ui-workspace/client'
 import type {
   ChatFlowDataInjected, ChatFlowInjected, ChatNodeInjected, ChatScrollPosition, ChatViewInjected,
-  TurnTailOwnerProps, UseGroupAction,
+  UseGroupAction,
 } from './contract/slots.ts'
 import type { ChatSnapshot } from './contract/snapshot.ts'
 import { EMPTY_CHAT_SNAPSHOT } from './contract/snapshot.ts'
 import { ApprovalCommand } from './chat/ApprovalCommand.tsx'
+import { sessionFilePath } from './file-path.ts'
 import { ChatFlow } from './chat/ChatFlow.tsx'
 import { ChatView } from './chat/ChatView.tsx'
 import { useFlowHidden, useMotionHidden } from './chat/flow-motion.ts'
@@ -209,7 +210,7 @@ export function apply(ctx: Context): void {
         const session = binding.session
         return {
           ...nodeSources(binding),
-          fileMentions: (owner: TurnTailOwnerProps) => ctx.get('chatFileMentions')?.forClosing(owner, sessionId),
+          resolveFilePath: sessionFilePath(ctx, sessionId),
           // A tool card's inspect action opens the Sidebar's ledger tab,
           // addressed to that call through the navigation parameters.
           openTrajectory: (callId) => {

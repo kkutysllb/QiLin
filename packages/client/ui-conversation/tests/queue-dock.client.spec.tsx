@@ -17,7 +17,7 @@ import type { SessionId } from '@qilin-agent/session/types'
 import type { SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import {
-  bindSnapshotSelector, conversationSnapshot, makeTranslate,
+  bindSnapshotSelector, contextMenuHook, conversationSnapshot, makeTranslate,
 } from '@qilin-agent/client-test-runtime'
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
@@ -102,6 +102,7 @@ function kitFor(snapshot: SessionSnapshot, injected: Partial<QueueDockInjected> 
   return {
     sessionId: SID,
     t,
+    useContextMenu: contextMenuHook(),
     usePanelInfo,
     useSessions: (() => { throw new Error('unused') }) as unknown as SnapshotSelectorHook<SessionListState>,
     useSessionRetainInfo: () => undefined,

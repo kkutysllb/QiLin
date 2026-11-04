@@ -6,6 +6,7 @@ import {
   IconChevronDownOutlineMedium, IconFolderOpenOutlineRegular,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
+import type { ContextMenuTriggerProps } from '@qilin-agent/client-ui-context-menu/client'
 import type { PresentedAction, PresentedHost } from '../presented.ts'
 import type { PresentedOpenPhase } from './present-open.ts'
 import { basename, type PresentedPath } from './turn-deliverables.ts'
@@ -22,12 +23,13 @@ function cardDescription(description: string | undefined, fallback: string): str
  * @param props - durable file metadata, Sidebar preview, Host capabilities, gesture status, and localized copy.
  * @returns the file card and its anchored action menu.
  */
-export function PresentedFileCard({ file, cwd, phase, host, onPreview, onAction, t }: {
+export function PresentedFileCard({ file, cwd, phase, host, onPreview, contextMenuProps, onAction, t }: {
   file: PresentedPath
   cwd: string | undefined
   phase: PresentedOpenPhase | undefined
   host: PresentedHost | null
   onPreview: () => void
+  contextMenuProps: ContextMenuTriggerProps
   onAction: (action: PresentedAction) => void
 } & PropsLocale<typeof NS>) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -50,7 +52,8 @@ export function PresentedFileCard({ file, cwd, phase, host, onPreview, onAction,
         : reveal === 'directory' && phase === 'revealError' ? 'presented.directoryError' : `presented.${phase}`)
   return <div className={css.file} data-presented-file>
     <button type="button" className={css.cardPreview} title={resolveWorkspacePath(cwd, file.path)}
-      aria-label={t('presented.previewCard', { name: file.path })} onClick={onPreview} />
+      aria-label={t('presented.previewCard', { name: file.path })} onClick={onPreview}
+      {...contextMenuProps} />
     <span className={css.fileIcon}><FileTypeIcon path={file.path} size={20} /></span>
     <div className={css.fileBody}>
       <div className={css.details}>

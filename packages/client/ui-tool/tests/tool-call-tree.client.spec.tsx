@@ -11,6 +11,7 @@ import type { ToolCallOwnerProps, ToolTreeProps } from '../src/client/contract/s
 import { ToolCallTree } from '../src/client/tool/ToolCallTree.tsx'
 import { zh } from '@qilin-agent/client-ui-conversation/src/client/locales.ts'
 import { PartialArguments } from '@qilin-agent/util-values'
+import { menuHook, resolveFilePath } from './tool-fixtures.client.ts'
 
 afterEach(cleanup)
 
@@ -47,6 +48,9 @@ function props(
       data: { root: block },
     },
     useDisclosure,
+    useContextMenu: menuHook,
+    sessionId: 's1' as ToolTreeProps['sessionId'],
+    resolveFilePath,
     useTurnData: () => undefined,
     openFile: vi.fn(),
     openSkill: vi.fn(),
@@ -54,7 +58,6 @@ function props(
     inspectCall: vi.fn(),
     forkAt: vi.fn(),
     loadImage: vi.fn(() => Promise.reject(new Error('not used'))),
-    fileMentions: vi.fn(),
     useHostInfo: ((selector: (info: { home: string | undefined }) => unknown) => selector({ home })) as ToolTreeProps['useHostInfo'],
     t,
   }

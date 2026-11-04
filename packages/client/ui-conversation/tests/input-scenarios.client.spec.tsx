@@ -26,7 +26,7 @@ import type {
   CommandClaim, PickOutcome, SubmitAttachment, SubmitOutcome,
 } from '../src/client/contract/input.ts'
 import {
-  allowAllAccess, bindSnapshotSelector, conversationSnapshot, makeTranslate, sessionSnapshot, SlotTestRuntime,
+  allowAllAccess, bindSnapshotSelector, contextMenuHook, conversationSnapshot, makeTranslate, sessionSnapshot, SlotTestRuntime,
 } from '@qilin-agent/client-test-runtime'
 import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
 import type { SessionId } from '@qilin-agent/session/types'
@@ -163,6 +163,7 @@ async function scopedBench(register?: (inputTriggers: InputTriggerService) => vo
       createSnapshotStore<SessionStatusSnapshot>(new Map()),
     ),
     useSessionRetainInfo: () => undefined,
+    useContextMenu: contextMenuHook(),
     useResource,
     ...allowAllAccess,
     useWorkspaces: bindSnapshotSelector(createSnapshotStore({

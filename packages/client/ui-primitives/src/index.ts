@@ -130,5 +130,7 @@ export * from './icons/index.tsx'
 export { ImageLightbox } from './ImageLightbox.tsx'
 export type { ImageLightboxLabels } from './ImageLightbox.tsx'
 export { MenuGroup, observeStickyMenuGroups } from './MenuGroup.tsx'
-export { MenuSurface } from './MenuSurface.tsx'
+export { MenuSurface, MENU_TRANSITION_MS } from './MenuSurface.tsx'
 export { isMobileDevice } from './focus.ts'
+
+export type { MarkdownMenuTarget } from './markdown/MarkdownDelegate.tsx'

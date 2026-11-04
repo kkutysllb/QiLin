@@ -3,7 +3,7 @@ import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useEffect, useState, type ReactNode } from 'react'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
-import { allowAllAccess, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { allowAllAccess, contextMenuHook, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { SessionListState } from '@qilin-agent/api-session-controller/client'
 import { SessionId } from '@qilin-agent/session/types'
 import type { SettingsRootComponentProps } from '../src/client/shell-contract.ts'
@@ -116,7 +116,7 @@ function mount({
     actions: shell.actions,
     useSessions: select => select(sessions),
     useSessionStatus,
-    usePanelInfo, useSessionRetainInfo: () => undefined, useResource, ...allowAllAccess,
+    usePanelInfo, useSessionRetainInfo: () => undefined, useContextMenu: contextMenuHook(), useResource, ...allowAllAccess,
     useWorkspaces: unusedHook,
     wide,
     reconnect,

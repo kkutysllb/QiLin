@@ -48,8 +48,9 @@ The kernel packages boot and serve the page; the UI feature packages present it.
 | [`ui-sidebar-browser/`](ui-sidebar-browser/README.md) | Browses sandboxed HTTP(S) pages, including loopback services, in right-Sidebar tabs | — |
 | [`resources/`](resources/README.md) | Unified resource model: protocol providers behind the `useResource` session standard hook | `ctx.resources` |
 | [`ui-sidebar-files/`](ui-sidebar-files/README.md) | Right-Sidebar workspace file tree tab type | — |
-| [`ui-sidebar-git/`](ui-sidebar-git/README.md) | Right-Sidebar Git panel tab type: status, staging, commit, branches, and GitHub PRs | — |
 | [`ui-workspace/`](ui-workspace/README.md) | Provides workspace selection and creation surfaces | — |
+| [`ui-context-menu/`](ui-context-menu/README.md) | Typed, plugin-extensible context menus with captured targets and shared presentation | `ctx.contextMenus` |
+| [`ui-file-actions/`](ui-file-actions/README.md) | Original-file saving and image clipboard actions for Web and Desktop | `ctx.fileActions` |
 | [`ui-conversation/`](ui-conversation/README.md) | Presents the active conversation and its input surface | — |
 | [`ui-chat/`](ui-chat/README.md) | Projects and renders the Chat conversation target | — |
 | [`shortcuts/`](shortcuts/README.md) | Application keyboard command registry and physical-key routing | — |

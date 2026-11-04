@@ -58,6 +58,7 @@ export {
 export type {
   FixtureSnapshot, SessionBehaviorOverrides, SessionFixture, SessionFixtureSnapshot, Stabilizer,
 } from './fixtures.ts'
+export { contextMenuHook } from './context-menu.ts'
 export { makeTranslate } from './translate.ts'
 export { allowAllAccess, StaticRemoteAccess } from './access.ts'
 export type { AccessStandardProps } from './access.ts'
