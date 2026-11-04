@@ -14732,6 +14732,9 @@ importers:
       '@qilin-agent/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
+      '@qilin-agent/storage':
+        specifier: workspace:*
+        version: link:../storage
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -14739,9 +14742,6 @@ importers:
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
-      '@qilin-agent/storage':
-        specifier: workspace:*
-        version: link:../storage
 
   packages/storage/storage-json:
     dependencies:

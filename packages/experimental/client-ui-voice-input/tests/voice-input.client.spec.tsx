@@ -47,7 +47,7 @@ function stop(): void { fireEvent.click(screen.getByRole('button', { name: zh.st
 
 it('clicks to record, shows measured audio, and stops to insert without sending or a popup', async () => {
   const b = fixture()
-  fireEvent.mouseEnter(screen.getByRole('button', { name: zh.start }).parentElement!)
+  fireEvent.pointerEnter(screen.getByRole('button', { name: zh.start }).parentElement!)
   expect(screen.getByRole('tooltip').textContent).toBe('听写')
   fireEvent.mouseDown(screen.getByRole('button', { name: zh.start }))
   await start()

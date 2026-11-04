@@ -30,11 +30,11 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin-agent/storage": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
   "dependencies": {
     "@qilin-agent/schemastery": "workspace:~",
+    "@qilin-agent/storage": "workspace:*",
     "zod": "^4.4.3"
   },
   "devDependencies": {

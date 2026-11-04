@@ -6,6 +6,7 @@ import { Context, Service } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
 import { createUserMessage } from '@qilin-agent/llm'
 import { RemoteError, TypertRemoteService, Remote } from '@qilin-agent/typert-protocol'
+import { StorageError } from '@qilin-agent/storage'
 import type { Domain } from '@qilin-agent/storage-domain'
 import { delegationDepthOf } from '@qilin-agent/subagent'
 import { SessionId as toSessionId, type SessionId } from '@qilin-agent/session'
@@ -221,7 +222,12 @@ function revisedTask(
  * `sessionPersistence` supplies header-only target validation and the `session/flush`
  * listener that acknowledges durable inbox delivery through `ctx.sessions.flush()`.
  */
-export class ScheduleService extends TypertRemoteService {
+export /** Text of an unknown rejection reason, whether or not it is an Error. */
+function messageOf(value: unknown): string {
+  return value instanceof Error ? value.message : String(value)
+}
+
+class ScheduleService extends TypertRemoteService {
   static inject = ['agents', 'sessions', 'storageDomain', 'sessionPersistence']
 
   static Config: z<Config> = z.object({
@@ -777,19 +783,19 @@ export class ScheduleService extends TypertRemoteService {
    */
   private async removeRows(ids: readonly ScheduleRecord['id'][], label: string, rearm: boolean): Promise<number> {
     if (ids.length === 0) return 0
-    let removed = 0
+    let removed: number
     try {
-      const tasks = (await this.getDomain()).table('tasks')
-      for (const id of ids) {
-        // Rows enumerated in this slot are present unless an earlier iteration of
-        // this same call removed them, so the count reports rows this call removed.
-        if (await tasks.delete(id)) removed += 1
-      }
+      // Rows enumerated in this slot are present, so a non-empty batch always
+      // removed rows; the domain reports how many it actually deleted.
+      removed = await (await this.getDomain()).table('tasks').deleteMany(ids)
     } catch (error: unknown) {
       // A rejection does not establish which rows landed. Announce the change so
       // observers re-read instead of trusting their stale catalog.
       this.emitChanged()
-      throw error instanceof Error ? error : new Error(`${label}: ${String(error)}`)
+      const reason = messageOf(error instanceof StorageError ? error.cause ?? error : error)
+      throw error instanceof StorageError
+        ? new StorageError(error.code, `${label}: ${reason}`, { cause: error })
+        : error instanceof Error ? error : new Error(`${label}: ${reason}`)
     }
     this.emitChanged()
     if (rearm) this.runtime?.requestDrive()

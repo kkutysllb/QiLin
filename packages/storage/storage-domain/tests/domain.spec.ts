@@ -290,6 +290,38 @@ describe('KvTable writes', () => {
     await expect(table.delete('a')).resolves.toBe(false)
   })
 
+  it('deleteMany removes present keys once and reports the count', async () => {
+    const { facility, changes } = await harness()
+    const domain = await facility.open(spec)
+    const table = domain.table('items')
+    await table.put('a', { label: 'a', count: 1 })
+    await table.put('b', { label: 'b', count: 2 })
+    await expect(table.deleteMany([])).resolves.toBe(0)
+    await expect(table.deleteMany(['a', 'a', 'missing', 'b'])).resolves.toBe(2)
+    // One tombstone per removed key, in the order the keys were present.
+    expect(changes.slice(-2)).toEqual([
+      { domain: 'demo', table: 'items', key: 'a', operation: 'deleted' },
+      { domain: 'demo', table: 'items', key: 'b', operation: 'deleted' },
+    ])
+    await expect(table.deleteMany(['a'])).resolves.toBe(0)
+    await domain.global.set({ theme: 'dark' })
+  })
+
+  it('deleteMany reports unknown-state when a backend removal rejects part-way', async () => {
+    const pool = new MemoryMediaPool()
+    const { facility } = await harness({ pool })
+    const domain = await facility.open(spec)
+    const table = domain.table('items')
+    await table.put('a', { label: 'a', count: 1 })
+    await table.put('b', { label: 'b', count: 2 })
+    pool.failNextWrites = 1
+    await expect(table.deleteMany(['a', 'b'])).rejects.toMatchObject({ code: 'unknown-state' })
+    // Nothing is promised about the mix of the batch: memory keeps every record it
+    // had not yet removed, and a later read describes that state, not the medium.
+    expect(table.get('a')).toEqual({ label: 'a', count: 1 })
+    expect(table.get('b')).toEqual({ label: 'b', count: 2 })
+  })
+
   it('emits domain/changed per durable write, in order, with tombstones and global marker', async () => {
     const { facility, changes } = await harness()
     const domain = await facility.open(spec)

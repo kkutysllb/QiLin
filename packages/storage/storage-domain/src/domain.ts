@@ -10,6 +10,7 @@
  */
 
 import type { Context } from '@qilin-agent/kylin'
+import { StorageError } from '@qilin-agent/storage'
 import type { KvUnit } from '@qilin-agent/storage'
 import { DomainError } from './error.ts'
 import type { DomainSpec, DomainGlobalSpec, TableKeyOf, TableValueOf } from './spec.ts'
@@ -78,6 +79,19 @@ export interface KvTable<K extends string, V> {
    * absent (no write and no event in that case).
    */
   delete(key: K): Promise<boolean>
+
+  /**
+   * Delete several records as one queue-slot unit.
+   *
+   * The keys are deduplicated and only those present at the call's chain slot are
+   * removed. A backend failure part-way through leaves an unknowable mix of the
+   * batch durable, so the rejection is a `StorageError` with code
+   * `unknown-state` and memory keeps every record it had not yet removed: the
+   * domain cannot promise which rows were written.
+   * @param keys - Record keys; duplicates are harmless.
+   * @returns the number of keys that existed and were removed.
+   */
+  deleteMany(keys: readonly K[]): Promise<number>
 
   /**
    * Atomic read-modify-write on the domain's write chain: `fn` sees the
@@ -326,6 +340,37 @@ class KvTableImpl<K extends string, V> implements KvTable<K, V> {
         operation: 'deleted',
       })
       return true
+    })
+  }
+
+  deleteMany(keys: readonly K[]): Promise<number> {
+    return this.host.enqueue(async () => {
+      // Presence and every backend write happen at this job's chain slot, so an
+      // earlier queued put of a key is observed before it is deleted.
+      const present = [...new Set(keys)].filter(key => this.records.has(key))
+      if (present.length === 0) return 0
+      for (const [index, key] of present.entries()) {
+        try {
+          await this.host.unit.deleteRecord(this.tableName, key)
+        } catch (error: unknown) {
+          // Rows before this one are already durable and this one may be too:
+          // a later read could see any subset, so the domain reports the state
+          // as unknown instead of naming a definite failure.
+          throw new StorageError(
+            'unknown-state',
+            `domain '${this.host.domainName}' table '${this.tableName}' deleteMany failed after ${String(index)} of ${String(present.length)} records`,
+            { cause: error },
+          )
+        }
+        this.records.delete(key)
+        this.host.emitChanged({
+          domain: this.host.domainName,
+          table: this.tableName,
+          key,
+          operation: 'deleted',
+        })
+      }
+      return present.length
     })
   }
 
