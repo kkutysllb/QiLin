@@ -12,6 +12,8 @@
  */
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/api-remotes/client'
+// The `file` resource registration (`useResource<'file'>` metadata) this type consumes.
+import type {} from '@qilin-agent/api-workspace-files/client'
 import type {} from '@qilin-agent/client-locale/client'
 import type {} from '@qilin-agent/client-resources/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
@@ -20,7 +22,6 @@ import type {} from '@qilin-agent/client-ui-conversation/client'
 import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import type {} from '@qilin-agent/api-gateway/client'
 import type {} from '@qilin-agent/api-workspace-files/remote'
-import type { WorkspaceFileParams } from '@qilin-agent/api-workspace-files/client'
 import { TextPreview } from './TextPreview.tsx'
 import type { TextPreviewInjected } from './TextPreview.tsx'
 import { TextTitle } from './TextTitle.tsx'
@@ -63,12 +64,6 @@ declare module '@qilin-agent/kylin' {
 /** This package's copy namespace. */
 const NS = 'sidebarDocumentPreview'
 
-declare module '@qilin-agent/client-ui-sidebar-right/client' {
-  interface SidebarRightResourceParamsMap {
-    /** File line navigation supported by the text preview. */
-    file: WorkspaceFileParams
-  }
-}
 
 declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {

@@ -169,3 +169,32 @@
   min-width: 0;
   overflow: hidden;
 }
+/* A reveal of a tab already on screen marks its pane: two alternating animations,
+   so a repeat on the same pane restarts the glow instead of being ignored. */
+[data-sidebar-right-flash='even'] {
+  animation: sidebarRightFlashEven 900ms ease-out;
+}
+
+[data-sidebar-right-flash='odd'] {
+  animation: sidebarRightFlashOdd 900ms ease-out;
+}
+
+@keyframes sidebarRightFlashEven {
+  from {
+    box-shadow: inset 0 0 0 2px var(--qilin-color-border-accent);
+  }
+
+  to {
+    box-shadow: inset 0 0 0 2px transparent;
+  }
+}
+
+@keyframes sidebarRightFlashOdd {
+  from {
+    box-shadow: inset 0 0 0 2px var(--qilin-color-border-accent);
+  }
+
+  to {
+    box-shadow: inset 0 0 0 2px transparent;
+  }
+}

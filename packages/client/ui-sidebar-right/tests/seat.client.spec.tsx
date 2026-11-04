@@ -12,11 +12,12 @@ import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
 import type { PaneId, SplitId, TabId } from '@qilin-agent/client-ui-dockkit'
 import { dockPaneIds, getPane } from '@qilin-agent/client-ui-dockkit'
 import type { SessionId } from '@qilin-agent/session/types'
+import { apply as applyMenus, inject as injectMenus } from '@qilin-agent/client-ui-context-menu/client'
 import { apply, inject } from '../src/client/index.ts'
 import { intentsFor } from '../src/client/shell/SidebarRight.tsx'
 import { registerSidebarShortcuts } from '../src/client/shortcuts.ts'
 import { ShortcutRegistry } from '@qilin-agent/client-shortcuts/src/client/registry.ts'
-import type { SidebarRightTabInfo, SidebarRightTabMenuOwnerProps } from '../src/client/contract/slots.ts'
+import type { SidebarRightTabInfo } from '../src/client/contract/slots.ts'
 import type { createSidebarRightStore } from '../src/client/stores.ts'
 
 declare module '../src/client/contract/params.ts' {
@@ -90,9 +91,15 @@ async function mountSeat(viewportWidth = 1440, canShow = true, entryCount = 0, o
     'sidebar-right.test.opener': { kind: 'single', scope: 'session' },
     'rightbar': { kind: 'single', scope: 'root' },
     'conversation.session.header.corner': { kind: 'single', scope: 'session' },
+    // The shared popup renders existing per-type rows under its tab content;
+    // this spec registers one to prove the seat keeps their owner props.
+    'sidebar.right.tab.menu.item': { kind: 'list', scope: 'session' },
   })
   await runtime.sessions.add({ id: SESSION })
   let reference = runtime.sessions.retainFor(runtime.ctx, SESSION, { source: 'mainView' })
+  // The seat hands every tab gesture to the shared context menu, so the real
+  // menu plugin supplies the hook and the service the seats inject.
+  await runtime.mount({ inject: [...injectMenus], apply: applyMenus })
   const feature = await runtime.mount({ inject: [...inject], apply })
   // The frame mounts the Conversation column before the right column, so a
   // Conversation component's mount effect runs before the seat's. The opener
@@ -404,8 +411,11 @@ describe('RightbarSeat presentation', () => {
       const before = h.layout()
       act(() => { h.controller.close(initial.id) })
       expect(h.layout()).toBe(before)
+      // The sole docked guide stays; the shared menu still opens on its chip,
+      // and its close family is disabled rather than hidden.
       fireEvent.contextMenu(element(h.view.container, '[data-dockkit-tab]'))
-      expect(document.querySelector('[data-dockkit-tab-menu] [role^="menuitem"]')).toBeNull()
+      const target = h.runtime.ctx.contextMenus.active.getSnapshot()
+      expect(target?.kind).toBe('tab')
       expect(h.view.container.querySelector('[data-dockkit-add-tab]')).toBeNull()
       return
     }
@@ -779,19 +789,30 @@ describe('slot-owned useTabInfo', () => {
     expect(h.view.container.querySelector('[data-tab-body]')).not.toBeNull()
   })
 
-  it('renders unavailable kinds and keeps menu tab/dismiss arguments', async () => {
+  it('renders unavailable kinds and hands the chip gesture to the shared tab menu', async () => {
     const h = await mountSeat()
-    let menu: SidebarRightTabMenuOwnerProps | undefined
     await act(async () => {
       h.runtime.slots.register({ name: 'sidebar.right.tab.menu.item', id: 'test' },
-        (props: PropsRuntime<'sidebar.right.tab.menu.item'>) => { menu = props; return null })
+        (_props: PropsRuntime<'sidebar.right.tab.menu.item'>) => null)
       h.actions.openContent(SESSION, { kind: 'missing', contentId: 'missing://content', title: 'Missing' }, () => {})
     })
     expect(h.view.container.querySelector('[data-sidebar-right-unavailable]')).not.toBeNull()
     const chip = element(h.view.container, '[data-dockkit-tab]')
     fireEvent.contextMenu(chip)
-    expect(menu?.tab.id).toBe(chip.getAttribute('data-dockkit-tab'))
-    act(() => { menu?.dismiss() })
+    const target = h.runtime.ctx.contextMenus.active.getSnapshot()
+    if (target?.kind !== 'tab') throw new Error('expected the shared menu to capture a tab')
+    expect(target.value.tab.id).toBe(chip.getAttribute('data-dockkit-tab'))
+    expect(target.value.sessionId).toBe(SESSION)
+    // This package contributes the close family for that target; the tab that
+    // cannot close still resolves the action, disabled.
+    const resolution = h.runtime.ctx.contextMenus.resolve(target)
+    await resolution.ready
+    const ids = resolution.source.getSnapshot().map(action => [action.id, action.disabled])
+    expect(ids).toContainEqual(['sidebar.close/close', false])
+    expect(ids).toContainEqual(['sidebar.close/others', true])
+    expect(ids.map(([id]) => id)).not.toContain('sidebar.close/right')
+    resolution.dispose()
+    act(() => { h.runtime.ctx.contextMenus.close() })
     expect(document.querySelector('[data-dockkit-tab-menu]')).toBeNull()
   })
 

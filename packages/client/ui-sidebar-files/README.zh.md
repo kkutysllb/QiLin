@@ -53,6 +53,8 @@ kind: "package-reference"
 
 同一个菜单也承载树的改动（`file-mutations.ts`）：目录提供在其中新建文件或文件夹，每一行都提供就地重命名与删除，右键树的空白背景则在工作区根新建。重命名把那行换成名称输入框——Enter 提交、Escape 放弃、处于输入法组字中的 Enter 留给输入法；新建与删除走对话框，因为一个名字、以及一次会连同目录内容一起的删除，都需要一个答复。名称是单个路径段：首尾空白被去掉，空白、点段、或带分隔符的任何输入都就地拒绝。新建经 `workspaceFiles.write`（不带 `baseVersion`）写入空文件，或经 `createDirectory` 建目录；重命名经 `move` 移动该条目，目标已存在会被拒绝；删除经 `remove`，目录带 `recursive`。每次手势的结果落进该 tab 的改动记录，由行上方的提示条报告——`workspace-file/*` 码用树自己的话，其余用传输层的消息——点关闭即清空。成功后会重新列出该条目所在的目录，打开它的 tab 也随之跟进：地址指向被移动路径的 tab 会在原位置按新地址重新打开，位于被删除路径之上或之下的 tab 会被关闭，因此不会留下指向不存在路径的 tab。宿主对三者都拒绝末端符号链接，提示条如实说明而不隐藏。
 
+同一棵树就是本包的导航器外观。`sidebar.files.navigator` 在该窗格所显示的预览旁画出该窗格的树，`sidebar.files.navigator.toggle` 从该预览的标题行显示或隐藏它；两者都是 Session 作用域的 Factory，由 `ui-sidebar-right` 经其预览框架渲染。导航器的树按窗格而不是按 tab 存键，所以在同一窗格里切换预览时它原样重绘，最后一个绘制者离开时才忘记它。它的行把右键手势交给共享上下文菜单（`@qilin-agent/client-ui-context-menu` 的 `getTriggerProps`），目标为 `file` 与 `directory`，而不是打开上面的弹层；`files` 页与编辑器仍用那个承载本包改动的弹层。
+
 标题行下方是文件名搜索（`FileSearch.tsx`）：一个输入框，文本停稳后向 `workspaceFiles` 的 `searchNames` Remote 询问根之下 basename 包含它的文件，不区分大小写。查询存在时匹配结果占据正文——让树回来的是清空的输入框，而不是空结果——点击匹配走树行同一套会话作用域地址打开。输入框文本与最近一次回答都住在该 tab 的 store 桶里，重挂载的正文连同两者一起回来；输入即丢弃上一个回答，因为它描述的是输入框已不再持有的查询。
 
 <a id="the-editor"></a>

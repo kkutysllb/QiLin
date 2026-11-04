@@ -25,7 +25,7 @@
  */
 import type { ClientRemote, RemoteResult } from '@qilin-agent/api-remotes/client'
 import type { BoundActions } from '@qilin-agent/client-store'
-import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { PaneId, TabId } from '@qilin-agent/client-ui-dockkit'
 import type { WorkspaceFileNameSearch } from '@qilin-agent/api-workspace-files/types'
 import type { SessionId } from '@qilin-agent/session/types'
 import { joinEntryPath, parentDirectoryOf } from './file-mutations.ts'
@@ -166,6 +166,121 @@ export interface FilesInjected {
    * @param signal - the tab record's lifetime.
    */
   readonly removeEntry: (tabId: TabId, path: string, kind: EntryKind, root: string, signal: AbortSignal) => void
+}
+
+/**
+ * The navigator's injected face, as a preview pane's navigator receives it.
+ * Every method names the pane it draws; a pane's tree outlives the tab that
+ * first showed it, because the navigator is the pane's, not the tab's.
+ */
+export interface FilesNavigatorInjected {
+  /**
+   * Keep one pane's navigator alive while this viewer draws it.
+   * @param paneId - the pane being drawn.
+   * @param signal - the drawing record's lifetime; the last holder's end forgets the pane's tree.
+   */
+  readonly attach: (paneId: PaneId, signal: AbortSignal) => void
+  /**
+   * Seed one pane's navigator at its workspace root and list the root.
+   * @param paneId - the pane being drawn.
+   * @param root - absolute path of the workspace root.
+   * @param signal - the drawing record's lifetime.
+   */
+  readonly start: (paneId: PaneId, root: string, signal: AbortSignal) => void
+  /**
+   * List one directory into a pane's navigator.
+   * @param paneId - the pane being drawn.
+   * @param path - absolute directory path.
+   * @param signal - the drawing record's lifetime.
+   */
+  readonly load: (paneId: PaneId, path: string, signal: AbortSignal) => void
+  /**
+   * Open or collapse one directory of a pane's navigator, listing it the first time it opens.
+   * @param paneId - the pane being drawn.
+   * @param path - absolute directory path.
+   * @param loaded - whether this level already has state.
+   * @param signal - the drawing record's lifetime.
+   */
+  readonly toggle: (paneId: PaneId, path: string, loaded: boolean, signal: AbortSignal) => void
+  /**
+   * Show or hide one pane's navigator.
+   * @param paneId - the pane being drawn.
+   * @param open - whether the navigator is shown.
+   */
+  readonly shown: (paneId: PaneId, open: boolean) => void
+  /**
+   * Record where one pane's navigator body is scrolled to.
+   * @param paneId - the pane being drawn.
+   * @param scrollTop - the body's scroll offset, in px.
+   */
+  readonly scrolled: (paneId: PaneId, scrollTop: number) => void
+}
+
+/**
+ * Bind the navigator's face to one directory listing.
+ * @param list - the bound `workspaceFiles.list` call.
+ * @returns the Slot `inject` factory: session and bound actions in, face out.
+ */
+export function navigatorFace(
+  list: ListWorkspaceDirectory,
+): (sessionId: SessionId, actions: BoundActions<ReturnType<typeof createFilesStore>>) => FilesNavigatorInjected {
+  return (sessionId: SessionId, actions: BoundActions<ReturnType<typeof createFilesStore>>): FilesNavigatorInjected => {
+    /** Per pane, per absolute path: the listing generation a settlement must match; the latest request wins. */
+    const generations = new Map<PaneId, Map<string, number>>()
+    /** Per pane, how many live drawings hold its tree. */
+    const holders = new Map<PaneId, number>()
+    const nextGeneration = (paneId: PaneId, path: string): number => {
+      const byPath = generations.get(paneId) ?? new Map<string, number>()
+      generations.set(paneId, byPath)
+      const generation = (byPath.get(path) ?? 0) + 1
+      byPath.set(path, generation)
+      return generation
+    }
+    const load = (paneId: PaneId, path: string, signal: AbortSignal): void => {
+      if (signal.aborted) return
+      const generation = nextGeneration(paneId, path)
+      actions.navigatorLoading(paneId, path)
+      void list(sessionId, path, signal).then((result) => {
+        // A newer listing of this level was asked for since, or the pane's
+        // record is gone and its bookkeeping with it: nothing left to write.
+        if (generations.get(paneId)?.get(path) !== generation) return
+        if (result.ok) actions.navigatorLoaded(paneId, path, result.value)
+        else actions.navigatorFailed(paneId, path, result.error)
+      })
+    }
+    return {
+      attach(paneId, signal) {
+        if (signal.aborted) return
+        holders.set(paneId, (holders.get(paneId) ?? 0) + 1)
+        signal.addEventListener('abort', () => {
+          const held = (holders.get(paneId) ?? 1) - 1
+          if (held > 0) {
+            holders.set(paneId, held)
+            return
+          }
+          holders.delete(paneId)
+          generations.delete(paneId)
+          actions.navigatorForget(paneId)
+        }, { once: true })
+      },
+      start(paneId, root, signal) {
+        if (signal.aborted) return
+        actions.navigatorStart(paneId, root)
+        load(paneId, root, signal)
+      },
+      load,
+      toggle(paneId, path, loaded, signal) {
+        actions.navigatorToggled(paneId, path)
+        if (!loaded) load(paneId, path, signal)
+      },
+      shown(paneId, open) {
+        actions.navigatorShown(paneId, open)
+      },
+      scrolled(paneId, scrollTop) {
+        actions.navigatorScrolled(paneId, scrollTop)
+      },
+    }
+  }
 }
 
 /**

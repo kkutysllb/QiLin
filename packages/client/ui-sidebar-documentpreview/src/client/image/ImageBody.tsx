@@ -1,5 +1,6 @@
 /** Complete image bytes rendered in a shared zoom viewport. */
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react'
+import type { ContextMenuTriggerProps } from '@qilin-agent/client-ui-context-menu/client'
 import type { PropsLocale, PropsStore } from '@qilin-agent/client-ui-slots'
 import { pathPartsOf } from '@qilin-agent/util-workspace-path'
 import type { DocumentPreviewProps } from '../document/contract.ts'
@@ -54,6 +55,7 @@ export function imageMediaType(path: string): ImageMediaType | undefined {
  * @returns a rounded image fitted or scaled at its intrinsic aspect ratio.
  */
 export function ImageBody(props: ImageBodyProps): ReactNode {
+  const { getTriggerProps } = props.useContextMenu()
   const { content, resourceAddress, t } = props
   const { tab } = props.useTabInfo()
   const preference = props.useStore(state => state.byTab[tab.id] ?? DEFAULT_ZOOM)
@@ -93,13 +95,20 @@ export function ImageBody(props: ImageBodyProps): ReactNode {
     controls: t('zoomControls'), menu: t('zoomMenu'), out: t('zoomOut'), into: t('zoomIn'),
     fitWidth: t('zoomFitWidth'), value: percent => t('zoomValue', { percent }),
   }
+  // The image hands its own gesture to the shared context menu; the captured
+  // target keeps the Session, the Host path, and the rendered bytes' URL.
+  const contextMenuProps = getTriggerProps({
+    kind: 'image',
+    value: { sessionId: props.sessionId, path, url: source.url, mediaType },
+  })
   return <LoadedImage key={source.url} url={source.url} name={name} preference={preference}
-    onPreference={setPreference} labels={labels} signal={tab.signal}
+    onPreference={setPreference} labels={labels} signal={tab.signal} contextMenuProps={contextMenuProps}
     scrollportRef={props.scrollportRef} t={t} />
 }
 
 /** SVG stays in the browser's static image mode because its bytes only reach an img Blob URL. */
-function LoadedImage({ url, name, preference, onPreference, labels, signal, scrollportRef, t }: {
+function LoadedImage({ url, name, preference, onPreference, labels, signal, scrollportRef, contextMenuProps, t }: {
+  readonly contextMenuProps: ContextMenuTriggerProps
   readonly url: string
   readonly name: string
   readonly preference: ZoomPreference
@@ -119,6 +128,7 @@ function LoadedImage({ url, name, preference, onPreference, labels, signal, scro
       <div className={`${css.surface} ${zoomSurfaceClass}`} data-document-zoom-surface
         style={{ '--document-zoom-width': `${width ?? 0}px` } as CSSProperties} hidden={state !== 'ready'}>
         <img
+          {...contextMenuProps}
           className={css.image}
           src={url}
           alt={t('preview', { name })}

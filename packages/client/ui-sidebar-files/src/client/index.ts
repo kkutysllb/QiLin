@@ -28,11 +28,13 @@ import type {} from '@qilin-agent/client-ui-session/client'
 import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import { FILES_ID, filesDefinition } from './definition.tsx'
 import { FILE_ID, fileDefinition } from './file-definition.ts'
-import { createList, createSearch, filesFace } from './face.ts'
+import { createList, createSearch, filesFace, navigatorFace } from './face.ts'
+import { FileNavigator } from './FileNavigator.tsx'
+import { NavigatorToggle } from './NavigatorToggle.tsx'
 import { createMutations, createTabReconcile } from './file-mutations.ts'
 import { fileEditFace } from './file-face.ts'
 import { filePreviewFace } from './file-preview.ts'
-import type { FilesInjected } from './face.ts'
+import type { FilesInjected, FilesNavigatorInjected } from './face.ts'
 import type { FileEditorInjected, WriteWorkspaceFile } from './file-face.ts'
 import type { FilePreviewInjected } from './file-preview.ts'
 import { createReadWhole } from './file-pages.ts'
@@ -60,7 +62,12 @@ declare module '@qilin-agent/client-ui-slots' {
 
 export type { SidebarFilesKey } from './locales.ts'
 export type { DirLevel, FileEditState, FilesState, FilesTabState, LevelState } from './store.ts'
-export type { FilesInjected, ListWorkspaceDirectory, SearchWorkspaceFileNames, WorkspaceFilesTreeRemote } from './face.ts'
+export type {
+  FilesInjected, FilesNavigatorInjected, ListWorkspaceDirectory, SearchWorkspaceFileNames, WorkspaceFilesTreeRemote,
+} from './face.ts'
+export type { FileNavigatorInput } from './FileNavigator.tsx'
+export type { NavigatorToggleInput } from './NavigatorToggle.tsx'
+export type { TreeState } from './FileTree.tsx'
 export type { FilePreviewInjected } from './file-preview.ts'
 export type { FilesBodyProps } from './FilesBody.tsx'
 
@@ -131,12 +138,37 @@ export function apply(ctx: ClientContext): void {
     createWriteFile(ctx.remote),
   )
   const previewFace = filePreviewFace(ctx.sidebarRight)
+  // One navigator face per store instance: its listing bookkeeping and its
+  // refcounted forget must survive the Factory's per-render calls.
+  const navigator = navigatorFace(createList(ctx.remote))
+  const navigatorFaces = new WeakMap<object, FilesNavigatorInjected>()
+  const navigatorOf = (sessionId: SessionId, actions: BoundActions<ReturnType<typeof createFilesStore>>): FilesNavigatorInjected => {
+    const held = navigatorFaces.get(actions)
+    if (held !== undefined) return held
+    const face = navigator(sessionId, actions)
+    navigatorFaces.set(actions, face)
+    return face
+  }
   const workbenchFace = (sessionId: SessionId, actions: BoundActions<ReturnType<typeof createFilesStore>>):
     FilesInjected & FileEditorInjected & FilePreviewInjected => ({
     ...treeFace(sessionId, actions),
     ...editFace(sessionId, actions),
     ...previewFace(),
   })
+  // The reusable navigator: ui-sidebar-right renders it beside every preview it
+  // hosts, and the toggle at that preview's header end shows or hides it.
+  ctx.effect(() => ctx.slots.registerFactory({
+    name: 'sidebar.files.navigator', scope: 'session', locale: NS, store, inject: navigatorOf,
+  }, FileNavigator), 'ui-sidebar-files: navigator factory')
+  ctx.effect(() => ctx.slots.registerFactory({
+    name: 'sidebar.files.navigator.toggle',
+    scope: 'session',
+    locale: NS,
+    store,
+    inject: (sessionId: SessionId, actions: BoundActions<ReturnType<typeof createFilesStore>>) => ({
+      shown: navigatorOf(sessionId, actions).shown,
+    }),
+  }, NavigatorToggle), 'ui-sidebar-files: navigator toggle factory')
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
     {
       name: 'sidebar.right.pane.tab', key: FILES_ID, locale: NS, store, inject: treeFace,

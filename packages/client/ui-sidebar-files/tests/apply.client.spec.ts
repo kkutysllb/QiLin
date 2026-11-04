@@ -18,6 +18,8 @@ import { FilesBody } from '../src/client/FilesBody.tsx'
 import { FilesTitle } from '../src/client/FilesTitle.tsx'
 import { FileBody } from '../src/client/FileBody.tsx'
 import { FileTitle } from '../src/client/FileTitle.tsx'
+import { FileNavigator } from '../src/client/FileNavigator.tsx'
+import { NavigatorToggle } from '../src/client/NavigatorToggle.tsx'
 import { en, zh } from '../src/client/locales.ts'
 
 interface Recorded {
@@ -33,12 +35,18 @@ async function boot() {
   const ctx = new Context()
   const tabs = new SidebarRightTabRegistry(ctx)
   const registered: Recorded[] = []
+  const factories: Recorded[] = []
   const slots = {
     inject: vi.fn((_name: string, register: () => () => void) => register()),
     register: vi.fn((options: Omit<Recorded, 'component'>, component: unknown) => {
       const entry: Recorded = { ...options, component }
       registered.push(entry)
       return () => { registered.splice(registered.indexOf(entry), 1) }
+    }),
+    registerFactory: vi.fn((options: Omit<Recorded, 'component'>, component: unknown) => {
+      const entry: Recorded = { ...options, component }
+      factories.push(entry)
+      return () => { factories.splice(factories.indexOf(entry), 1) }
     }),
   }
   const dictionaries = new Map<string, unknown>()
@@ -60,7 +68,7 @@ async function boot() {
   ctx.provide('remote.workspaceFiles', workspaceFiles as never)
   const fiber = ctx.plugin({ inject: [...inject], apply })
   await fiber.await()
-  return { tabs, registered, dictionaries, fiber }
+  return { tabs, registered, factories, dictionaries, fiber }
 }
 
 describe('ui-sidebar-files apply', () => {
@@ -69,7 +77,7 @@ describe('ui-sidebar-files apply', () => {
   })
 
   it('registers the type, its dictionaries, and the body and title seats under the type\'s id', async () => {
-    const { tabs, registered, dictionaries } = await boot()
+    const { tabs, registered, factories, dictionaries } = await boot()
     const definition = tabs.get(FILES_KIND)
     expect(definition?.id).toBe(FILES_ID)
     expect(definition?.priority).toBe('builtin')
@@ -79,6 +87,12 @@ describe('ui-sidebar-files apply', () => {
     expect(dictionaries.get('sidebarFiles')).toEqual({ zh, en })
     // The seat key is the implementation's id, not the kind: an extension may
     // take the kind over, and the seat must still find this body.
+    // The two Factories ui-sidebar-right renders beside a preview: the pane's
+    // reusable tree and the header control that shows or hides it.
+    expect(factories.map(entry => [entry.name, entry.key, entry.locale, entry.component])).toEqual([
+      ['sidebar.files.navigator', undefined, 'sidebarFiles', FileNavigator],
+      ['sidebar.files.navigator.toggle', undefined, 'sidebarFiles', NavigatorToggle],
+    ])
     expect(registered.map(entry => [entry.name, entry.key, entry.locale, entry.component])).toEqual([
       ['sidebar.right.pane.tab', FILES_ID, 'sidebarFiles', FilesBody],
       ['sidebar.right.pane.tab.title', FILES_ID, undefined, FilesTitle],

@@ -20,7 +20,10 @@
  * guide registers through those stages unmodified, exactly as a type shipped
  * from another package does — `ui-sidebar-documentpreview` is the live proof.
  */
+import type { ShortcutCommandId } from '@qilin-agent/client-shortcuts/client'
 import type {} from '@qilin-agent/client-shortcuts/client'
+import type {} from '@qilin-agent/client-ui-context-menu/client'
+import { IconCloseOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import { observeSidebarFocus } from './focus.ts'
 import { registerSidebarShortcuts } from './shortcuts.ts'
 import type { Context as ClientContext } from '@qilin-agent/kylin'
@@ -37,6 +40,7 @@ import { GuideTitle } from './tabs/guide/GuideTitle.tsx'
 import { ExpandButton } from './shell/ExpandButton.tsx'
 import { RightbarSeat, type SidebarRightInjected } from './shell/SidebarRight.tsx'
 import { closeWithPaneFocus, openWithPaneFocus } from './shell/close-focus.ts'
+import { TabMenuContent } from './shell/TabMenuContent.tsx'
 import { RightbarRoot, type RightbarRootInjected } from './shell/RightbarRoot.tsx'
 import { SidebarSessionViews } from './session-views.ts'
 import { createSidebarRightController, type SidebarRightController } from './service.ts'
@@ -56,7 +60,7 @@ export type { ExpandButtonProps } from './shell/ExpandButton.tsx'
 export type { SidebarRightState, SurfaceState } from './stores.ts'
 export type {
   ISidebarRight, SidebarRightOpenResourceOptions, SidebarRightOpenTabOptions,
-  SidebarRightPlacement, SidebarRightCloseHandler, SurfaceActions,
+  SidebarRightPlacement, SidebarRightCloseHandler, SidebarRightFlash, SurfaceActions,
 } from './service.ts'
 export type {
   SidebarRightGuideBox, SidebarRightGuideEntry, SidebarRightTabClaim, SidebarRightTabDefinition,
@@ -65,7 +69,7 @@ export type {
 export type {
   SidebarRightTabInfo, SidebarRightTabInjected, UseSidebarRightTabInfo, SidebarRightTabActions,
   SidebarRightTabMenuOwnerProps, SidebarRightTabNavigation, SidebarRightTabOpenResourceOptions,
-  SidebarRightTabPlacement, SidebarRightGuideActionEntry, SidebarRightGuideActionsOwnerProps,
+  SidebarRightTabPlacement, SidebarRightDestination, SidebarRightGuideActionEntry, SidebarRightGuideActionsOwnerProps,
   SidebarRightGuideEntryOwnerProps,
 } from './contract/slots.ts'
 export type {
@@ -83,7 +87,7 @@ export type { SidebarRightOpenTab } from './tab-inventory.ts'
 const NS = 'sidebarRight'
 
 /** Required browser services: the slot registry, the frame's panel actions, copy, and the resource model. */
-export const inject = ['slots', 'layout', 'locale', 'resources', 'sessions', 'uiSession', 'shortcuts']
+export const inject = ['contextMenus', 'slots', 'layout', 'locale', 'resources', 'sessions', 'uiSession', 'shortcuts']
 
 declare module '@qilin-agent/kylin' {
   interface Context {
@@ -162,6 +166,46 @@ export function apply(ctx: ClientContext): void {
     void disposeRegistry()
   }, 'ui-sidebar-right: service faces')
 
+  // A tab's menu is the shared context menu's, keyed by the clicked tab: this
+  // package contributes the close family, and existing per-type rows keep their
+  // own seat under the popup's content for the same target.
+  ctx.effect(() => ctx.slots.inject('contextMenu.icon', () => ctx.slots.register({
+    name: 'contextMenu.icon', key: 'sidebar.close',
+  }, IconCloseOutlineRegular)), 'ui-sidebar-right: menu icon')
+  ctx.effect(() => ctx.contextMenus.register({
+    id: 'sidebar.close', target: 'tab', order: 100,
+    resolve: ({ sessionId, paneId, tab }) => {
+      const tabId = tab.id
+      const tabs = controller.menuTabs(sessionId, paneId, tabId)
+      if (!tabs.close && tabs.all.length === 0) return []
+      const closeMany = (ids: readonly TabId[]): void => {
+        for (const id of ids) {
+          // A close the previous one already invalidated — a pane that merged
+          // away — is not a tab this gesture can still remove.
+          if (controller.menuTabs(sessionId, paneId, tabId).all.includes(id)) controller.closeIn(sessionId, id)
+        }
+      }
+      return [
+        {
+          id: 'close',
+          commandId: 'page.close' as ShortcutCommandId,
+          icon: { key: 'sidebar.close' },
+          label: t('menu.close'),
+          disabled: !tabs.close,
+          run: () => { if (controller.menuTabs(sessionId, paneId, tabId).close) controller.closeIn(sessionId, tabId) },
+        },
+        { id: 'others', label: t('menu.closeOthers'), disabled: tabs.all.length === 0, run: () => { closeMany(tabs.all) } },
+        ...tabs.right.length === 0 ? [] : [{ id: 'right', label: t('menu.closeRight'), run: () => { closeMany(tabs.right) } }],
+      ]
+    },
+  }), 'ui-sidebar-right: menu actions')
+  ctx.effect(() => ctx.slots.inject('contextMenu.content', () => ctx.slots.register({
+    name: 'contextMenu.content',
+    key: 'tab',
+    children: { 'sidebar.right.tab.menu.item': { kind: 'list', scope: 'session' } },
+    inject: () => ({ hooks: { views: views.source } }),
+  }, TabMenuContent)), 'ui-sidebar-right: menu extensions')
+
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-sidebar-right: dictionaries')
   ctx.effect(() => registerSidebarShortcuts(ctx.shortcuts, controller, t, () => {
     void ctx.shortcuts.closeWindow().catch((error: unknown) => { console.error('Window close failed', error) })
@@ -188,7 +232,7 @@ export function apply(ctx: ClientContext): void {
         } }
       },
     }
-    const injected: Omit<SidebarRightInjected, 'keyedHooks' | 'occurrence' | 'closeTab' | 'measureRoom'> = {
+    const injected: Omit<SidebarRightInjected, 'keyedHooks' | 'occurrence' | 'closeTab' | 'measureRoom' | 'hooks'> = {
       syncPresentation({ shown, track, fullscreen }) {
         if (shown) layout.openRightbar(track, fullscreen)
         else layout.closeRightbar()
@@ -197,11 +241,8 @@ export function apply(ctx: ClientContext): void {
       splitPane: (paneId) => { controller.split(paneId) },
       toggleFullscreen: () => { const target = controller.commandTarget(); if (target !== undefined) controller.toggleFullscreen(target) },
       openTab: (kind, options) => { controller.openTab(kind, options) },
-      hooks: {
-        shortcuts: ctx.shortcuts.catalog,
-        tabTypes: { subscribe: listener => tabs.subscribe(listener), getSnapshot: () => tabs.entries() },
-      },
     }
+    const tabTypes = { subscribe: (listener: () => void) => tabs.subscribe(listener), getSnapshot: () => tabs.entries() }
 
     const disposeTypes = [tabs.register(guideDefinition(t))]
     const disposeSeat = ctx.slots.inject('rightbar', function* () {
@@ -221,11 +262,16 @@ export function apply(ctx: ClientContext): void {
         children: {
           'sidebar.right.pane.tab': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
           'sidebar.right.pane.tab.title': { kind: 'keyed', scope: 'session', inject: { hooks: { tabInfo: tabInfoFactory } } },
-          'sidebar.right.tab.menu.item': { kind: 'list', scope: 'session' },
         },
         store,
         inject: (sessionId): SidebarRightInjected => ({
           ...injected,
+          hooks: {
+            contextMenuTarget: ctx.contextMenus.active,
+            shortcuts: ctx.shortcuts.catalog,
+            tabTypes,
+            flash: controller.flashOf(sessionId),
+          },
           measureRoom: (canSplitPane) => { measure(sessionId, canSplitPane) },
           closeTab: (tabId) => {
             try { controller.closeIn(sessionId, tabId) }

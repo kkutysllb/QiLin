@@ -34,6 +34,7 @@
         "@qilin-agent/api-gateway",
         "@qilin-agent/api-workspace-files",
         "@qilin-agent/client-resources",
+        "@qilin-agent/client-ui-context-menu",
         "@qilin-agent/client-ui-sidebar-right",
         "@qilin-agent/client-ui-session",
         "@qilin-agent/client-ui-conversation",
@@ -53,6 +54,7 @@
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin-agent/client-ui-sidebar-files": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/api-gateway": "workspace:*",
     "@qilin-agent/api-remotes": "workspace:*",
@@ -62,6 +64,7 @@
     "@qilin-agent/client-resources": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-context-menu": "workspace:*",
     "@qilin-agent/client-ui-dockkit": "workspace:*",
     "@qilin-agent/client-ui-conversation": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",

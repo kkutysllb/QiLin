@@ -124,6 +124,10 @@ Office 注册、加载、缓存和字体提示位于 `src/client/office/`。Offi
 <a id="navigation"></a>
 ## 导航
 
+每个预览状态——不支持、加载中与内容——都经同一个 `PreviewFrame.tsx` 渲染：可选横幅、带本类型控件与文件交付的路径标题行、以及下方的内容行。该框架还把工作区导航器（`sidebar.files.navigator`）放在内容旁，把它的开关（`sidebar.files.navigator.toggle`）放在标题行末尾，位置固定，因此预览在状态之间移动时这些座席保留自己的 DOM、焦点与滚动位置。标题行路径、内容正文与图片预览各自经 `useContextMenu` 绑定自己的上下文菜单目标。
+
+阅读位置会跨刷新保留：内容重建时正文回到记住的偏移，且只向下移动到它；记住的偏移超出已加载页时继续读取下一页。内容一时变短只把滚动钳住而不覆盖记住的偏移，内容恢复后位置随之回来。
+
 `ctx.sidebarRight.openResource(address, { params: { line } })` 通过 `file` 参数携带 1 起算的源码行号。在 `text-pages` 模式下，owner 顺序加载到该行或 EOF。纯文本与代码渲染器提供源码行锚点；Markdown 不提供。所选渲染器没有锚点时，导航保持待处理；用户切换到纯文本或代码后执行。代码导航直接滚动内部源码视口。字节模式渲染器不消费源码行导航。每个完成的导航 revision 只响应一次。不带 `revealIfOpened: false` 打开同一文件时聚焦已有 tab，并送达新 revision。
 
 <a id="model-experience"></a>

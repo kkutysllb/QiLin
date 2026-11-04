@@ -85,7 +85,7 @@ function harness(cwd: string | null) {
     // A page tab's address is the shell's to mint; the body never reads it.
     useTabInfo: () => ({
       sidebar: { expanded: true, fullscreen: false },
-      panel: { id: 'pane-1' },
+      panel: { id: 'pane-1', isFloating: false },
       tab: {
         id: TAB, kind: 'files', contentId: 'files', title: zh['type.label'], visible: true,
         navigation: { address: 'files', params: undefined, revision: 1 },

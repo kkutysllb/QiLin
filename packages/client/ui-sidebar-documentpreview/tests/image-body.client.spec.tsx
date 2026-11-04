@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 /** Image Blob ownership, media types, pane-contained rendering, and failure states. */
 import { useSyncExternalStore } from 'react'
+import { contextMenuHook } from '@qilin-agent/client-test-runtime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { SessionId } from '@qilin-agent/session/types'
@@ -53,6 +54,7 @@ function props(path = 'asset.png', data: Uint8Array<ArrayBuffer> = new Uint8Arra
     actions: instance.actions,
     retainTab: vi.fn(),
     scrollportRef: vi.fn(),
+    useContextMenu: contextMenuHook(),
     t: (key, params) => {
       const value = translations.get(key) ?? key
       return params === undefined ? value : Object.entries(params)

@@ -19,7 +19,7 @@ import type { IconProps } from '@qilin-agent/client-ui-primitives'
 import { GuideBody } from '../src/client/tabs/guide/GuideBody.tsx'
 import type { GuideBodyProps } from '../src/client/tabs/guide/GuideBody.tsx'
 import type { SidebarRightGuideBox } from '../src/client/tab-registry.ts'
-import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
+import { bindSnapshotSelector, contextMenuHook, makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { SidebarRightGuideActionsOwnerProps } from '../src/client/contract/slots.ts'
 import { en } from '../src/client/locales.ts'
 import css from '../src/client/tabs/guide/GuideBody.module.css'
@@ -33,6 +33,7 @@ const standard: GlobalStandardProps & SessionStandardProps = {
   useInput: unused, useChat: unused, useTrajectory: unused,
   usePanelInfo: unused, useSessions: unused, useSessionStatus: unused,
   useSessionRetainInfo: unused, useResource: unused, useRemoteAccess: unused, useWorkspaces: unused,
+  useContextMenu: contextMenuHook(),
   useSessionAccess: unused, useAccess: unused,
   inputActions: { captureInsertion: unused, insertText: unused, setDraft: unused,
     persistDraft: () => {},
@@ -73,7 +74,7 @@ function mountGuide(entries: readonly SidebarRightGuideBox[], custom?: (key: str
   const props: GuideBodyProps = {
     ...standard, SessionProvider: ({ children }) => children,
     useShortcuts: <T,>(selector: (entries: readonly ShortcutCatalogEntry[]) => T): T => selector(shortcuts),
-    useTabInfo: () => ({ sidebar: { expanded: true, fullscreen: false }, panel: { id: 'pane-guide' as PaneId },
+    useTabInfo: () => ({ sidebar: { expanded: true, fullscreen: false }, panel: { id: 'pane-guide' as PaneId, isFloating: false },
       tab: { ...TAB, visible: true, signal: new AbortController().signal,
         navigation: { address: TAB.contentId, params: undefined, revision: 0 },
         actions: { bindCommands: vi.fn(() => vi.fn()), openResource: vi.fn(), openTab, close: vi.fn() } } }),

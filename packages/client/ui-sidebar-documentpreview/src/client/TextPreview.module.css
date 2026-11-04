@@ -76,6 +76,15 @@
   border-bottom: 1px solid var(--qilin-alias-border-l1);
 }
 
+/* The row under the header: the preview's content and, when the pane shows it,
+   the workspace navigator beside that content. */
+.content {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+}
+
 .body {
   /* Lines are positioned against the scroller, so a line's offset is its scroll target. */
   position: relative;

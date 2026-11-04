@@ -24,6 +24,9 @@
       "path": "../store"
     },
     {
+      "path": "../ui-context-menu"
+    },
+    {
       "path": "../ui-dockkit"
     },
     {
@@ -31,9 +34,6 @@
     },
     {
       "path": "../ui-session"
-    },
-    {
-      "path": "../ui-sidebar-documentpreview/tsconfig.client.json"
     },
     {
       "path": "../ui-sidebar-right"

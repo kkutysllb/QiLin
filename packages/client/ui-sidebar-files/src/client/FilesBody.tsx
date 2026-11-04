@@ -190,6 +190,7 @@ export function FilesBody({
                 onCreate={(directory, name, kind) => { createEntry(tab.id, directory, name, kind, signal) }}
                 onRename={(path, name) => { renameEntry(tab.id, path, name, state.root, signal) }}
                 onDelete={(path, kind) => { removeEntry(tab.id, path, kind, state.root, signal) }}
+                mutation={state.mutation}
                 onDismissMutation={() => { actions.mutationCleared(tab.id) }}
                 t={t}
               />

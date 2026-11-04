@@ -13,7 +13,7 @@
  */
 import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
 import type { RemoteFailure } from '@qilin-agent/api-remotes/client'
-import type { TabId } from '@qilin-agent/client-ui-dockkit'
+import type { PaneId, TabId } from '@qilin-agent/client-ui-dockkit'
 import type { WorkspaceDirectoryEntry, WorkspaceFileNameMatch } from '@qilin-agent/api-workspace-files/types'
 
 /**
@@ -131,11 +131,60 @@ export interface FileEditState {
   answered: number
 }
 
-/** Every tab's tree, keyed by tab id. */
+/**
+ * One pane's navigator tree: the levels it listed and what is open. A preview
+ * pane keeps its own tree beside the file it shows, independent of the
+ * `files` page's tab bucket, so switching previews redraws it unchanged.
+ */
+export interface NavigatorTree {
+  /** Absolute path of the workspace root this tree is rooted at. */
+  root: string
+  /** Level state by absolute directory path; a path absent here was never asked for. */
+  levels: Record<string, LevelState>
+  /** Expanded absolute directory paths, root included. */
+  expanded: string[]
+  /** The body's scroll offset in px, so a remounted navigator comes back where the reader was. */
+  scrollTop: number
+}
+
+/** One pane's navigator: whether it shows, and the tree it lists once shown. */
+export interface NavigatorPaneState {
+  /** Whether a preview pane's navigator is shown; `undefined`, hidden, until the pane's first choice. */
+  open: boolean | undefined
+  /** The tree, listed once the navigator is first shown. */
+  tree: NavigatorTree | undefined
+}
+
+/** Every tab's tree and editor, and every pane's navigator, keyed by their owner. */
 export interface FilesState {
   byTab: Record<TabId, FilesTabState>
   /** The `file` editor's buckets; the `files` page never seeds one. */
   edits: Record<TabId, FileEditState>
+  /** Preview navigators, keyed by pane id. */
+  navigators: Record<PaneId, NavigatorPaneState>
+}
+
+/**
+ * One pane's navigator bucket, created by its first write.
+ * @param state - the draft.
+ * @param paneId - the pane being written.
+ * @returns the pane's navigator record.
+ */
+function navigatorOf(state: FilesState, paneId: PaneId): NavigatorPaneState {
+  state.navigators[paneId] ??= { open: undefined, tree: undefined }
+  return state.navigators[paneId]
+}
+
+/**
+ * One pane's navigator tree, which every writer after `navigatorStart` relies on.
+ * @param state - the draft.
+ * @param paneId - the pane being written.
+ * @returns the pane's tree.
+ */
+function navigatorTree(state: FilesState, paneId: PaneId): NavigatorTree {
+  const tree = state.navigators[paneId]?.tree
+  if (tree === undefined) throw new Error(`ui-sidebar-files: no navigator tree for pane "${paneId}"`)
+  return tree
 }
 
 /**
@@ -217,6 +266,14 @@ type FilesActions = {
   editWrap: (draft: FilesState, tabId: TabId, wrap: boolean) => void
   editAnswered: (draft: FilesState, tabId: TabId, revision: number) => void
   editForget: (draft: FilesState, tabId: TabId) => void
+  navigatorStart: (draft: FilesState, paneId: PaneId, root: string) => void
+  navigatorLoading: (draft: FilesState, paneId: PaneId, path: string) => void
+  navigatorLoaded: (draft: FilesState, paneId: PaneId, path: string, level: DirLevel) => void
+  navigatorFailed: (draft: FilesState, paneId: PaneId, path: string, failure: RemoteFailure) => void
+  navigatorToggled: (draft: FilesState, paneId: PaneId, path: string) => void
+  navigatorShown: (draft: FilesState, paneId: PaneId, open: boolean) => void
+  navigatorScrolled: (draft: FilesState, paneId: PaneId, scrollTop: number) => void
+  navigatorForget: (draft: FilesState, paneId: PaneId) => void
 }
 
 /** Whether a settled save failure is the disk-hasmoved refusal. */
@@ -234,7 +291,7 @@ function isStale(failure: RemoteFailure): boolean {
  */
 export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> {
   return defineStore({
-    init: (): FilesState => ({ byTab: {}, edits: {} }),
+    init: (): FilesState => ({ byTab: {}, edits: {}, navigators: {} }),
     actions: {
       /**
        * Seed one tab's tree at its workspace root, with the root expanded.
@@ -396,6 +453,82 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
        */
       forget: (d, tabId: TabId) => {
         d.byTab = Object.fromEntries(Object.entries(d.byTab).filter(([id]) => id !== tabId))
+      },
+      /**
+       * Seed one pane's navigator tree at its workspace root, with the root expanded.
+       * @param d - draft state.
+       * @param paneId - the pane being drawn.
+       * @param root - absolute path of the workspace root.
+       */
+      navigatorStart: (d, paneId: PaneId, root: string) => {
+        navigatorOf(d, paneId).tree = { root, levels: {}, expanded: [root], scrollTop: 0 }
+      },
+      /**
+       * Mark one directory of a pane's navigator as being listed.
+       * @param d - draft state.
+       * @param paneId - the pane being drawn.
+       * @param path - absolute directory path.
+       */
+      navigatorLoading: (d, paneId: PaneId, path: string) => {
+        navigatorTree(d, paneId).levels[path] = { kind: 'loading' }
+      },
+      /**
+       * Record one directory's contents in a pane's navigator.
+       * @param d - draft state.
+       * @param paneId - the pane being drawn.
+       * @param path - absolute directory path.
+       * @param level - the listing to show under it.
+       */
+      navigatorLoaded: (d, paneId: PaneId, path: string, level: DirLevel) => {
+        navigatorTree(d, paneId).levels[path] = { kind: 'ready', level }
+      },
+      /**
+       * Record why a directory of a pane's navigator could not be listed.
+       * @param d - draft state.
+       * @param paneId - the pane being drawn.
+       * @param path - absolute directory path.
+       * @param failure - the settled Remote failure.
+       */
+      navigatorFailed: (d, paneId: PaneId, path: string, failure: RemoteFailure) => {
+        navigatorTree(d, paneId).levels[path] = { kind: 'failed', failure }
+      },
+      /**
+       * Open a collapsed directory of a pane's navigator, or collapse an open one.
+       * @param d - draft state.
+       * @param paneId - the pane being drawn.
+       * @param path - absolute directory path.
+       */
+      navigatorToggled: (d, paneId: PaneId, path: string) => {
+        const tree = navigatorTree(d, paneId)
+        const at = tree.expanded.indexOf(path)
+        if (at >= 0) tree.expanded.splice(at, 1)
+        else tree.expanded.push(path)
+      },
+      /**
+       * Show or hide one pane's navigator; the choice is the pane's, not the tab's.
+       * @param d - draft state.
+       * @param paneId - the pane being drawn.
+       * @param open - whether the navigator is shown.
+       */
+      navigatorShown: (d, paneId: PaneId, open: boolean) => {
+        navigatorOf(d, paneId).open = open
+      },
+      /**
+       * Record where one pane's navigator body is scrolled to.
+       * @param d - draft state.
+       * @param paneId - the pane being drawn.
+       * @param scrollTop - the body's scroll offset, in px.
+       */
+      navigatorScrolled: (d, paneId: PaneId, scrollTop: number) => {
+        navigatorTree(d, paneId).scrollTop = scrollTop
+      },
+      /**
+       * Forget one pane's navigator and tree, for a pane that went away.
+       * @param d - draft state.
+       * @param paneId - the pane whose records go.
+       */
+      navigatorForget: (d, paneId: PaneId) => {
+        d.navigators = Object.fromEntries(Object.entries(d.navigators).filter(([id]) => id !== paneId))
       },
       /**
        * Start one tab's editor at a fresh read, dropping any draft and conflict.

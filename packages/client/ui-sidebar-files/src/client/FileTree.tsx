@@ -82,9 +82,16 @@ export function copyTextOf(root: string, path: string, form: 'relative' | 'absol
   return path.startsWith(`${root}/`) ? path.slice(root.length + 1) : path
 }
 
-/** What every level shares: the tab's tree, its gestures, and the row being renamed. */
+/** The tree's data as any drawing of it reads: the root, its levels, and what is open. */
+export type TreeState = Pick<FilesTabState, 'root' | 'levels' | 'expanded'>
+
+/** What every level shares: the tree, its gestures, and the row being renamed. */
 interface TreeContext {
-  readonly state: FilesTabState
+  readonly state: TreeState
+  /** Context menu handlers for one row's main button, when the drawing delegates them. */
+  readonly rowTriggerProps: ((path: string, kind: EntryKind) => Record<string, unknown> | undefined) | undefined
+  /** The file marked as the current one, when the drawing names one. */
+  readonly current: string | undefined
   readonly onToggle: (path: string) => void
   readonly onOpen: (path: string) => void
   readonly onMenu: (path: string, kind: EntryKind, x: number, y: number) => void
@@ -155,6 +162,7 @@ function NameBox({ initial, invalid, label, onCommit, onCancel }: {
 function Entry({ parent, entry, tree }: { parent: string; entry: WorkspaceDirectoryEntry; tree: TreeContext }): ReactNode {
   const path = joinEntryPath(parent, entry.name)
   const kind: EntryKind = entry.type === 'directory' ? 'directory' : 'file'
+  const trigger = tree.rowTriggerProps?.(path, kind)
   const menu = (event: MouseEvent<HTMLButtonElement>): void => {
     event.preventDefault()
     // The tree's own background menu must not follow a row's.
@@ -183,7 +191,8 @@ function Entry({ parent, entry, tree }: { parent: string; entry: WorkspaceDirect
           className={css.row}
           aria-expanded={expanded}
           onClick={() => { tree.onToggle(path) }}
-          onContextMenu={menu}
+          {...trigger ?? {}}
+          onContextMenu={trigger === undefined ? menu : (trigger['onContextMenu'] as typeof menu)}
         >
           {expanded ? <IconFolderOpenRegular className={css.icon} /> : <IconFolderCloseRegular className={css.icon} />}
           <span className={css.name}>{entry.name}</span>
@@ -196,7 +205,14 @@ function Entry({ parent, entry, tree }: { parent: string; entry: WorkspaceDirect
   if (entry.type === 'file') {
     return (
       <li className={css.item} data-files-entry="file" data-files-path={path}>
-        <button type="button" className={css.row} onClick={() => { tree.onOpen(path) }} onContextMenu={menu}>
+        <button
+          type="button"
+          className={clsx(css.row, tree.current === path && css.current)}
+          aria-current={tree.current === path || undefined}
+          onClick={() => { tree.onOpen(path) }}
+          {...trigger ?? {}}
+          onContextMenu={trigger === undefined ? menu : (trigger['onContextMenu'] as typeof menu)}
+        >
           <FileTypeIcon kind={classifyFileType(entry.name)} size={16} className={css.fileIcon} />
           <span className={css.name}>{entry.name}</span>
           {entry.symlink === true && <LinkMark t={tree.t} />}
@@ -277,13 +293,22 @@ type MenuTarget =
  * @returns the root level's rows, with the menu and both dialogs in portals.
  */
 export function FileTree(props: {
-  readonly state: FilesTabState
+  readonly state: TreeState
   readonly onToggle: (path: string) => void
   readonly onOpen: (path: string) => void
+  /** The last row mutation's record, when the drawing shows one above the rows. */
+  readonly mutation?: TreeMutationState | undefined
   readonly onCreate: (directory: string, name: string, kind: EntryKind) => void
   readonly onRename: (path: string, name: string) => void
   readonly onDelete: (path: string, kind: EntryKind) => void
-  readonly onDismissMutation: () => void
+  readonly onDismissMutation?: (() => void) | undefined
+  /**
+   * Context menu handlers for a row's main button, when the drawing hands the
+   * gesture to the shared menu instead of this tree's own popup.
+   */
+  readonly rowTriggerProps?: ((path: string, kind: EntryKind) => Record<string, unknown> | undefined) | undefined
+  /** The file marked as current, when the drawing names one. */
+  readonly current?: string | undefined
   readonly t: TranslateNS<'sidebarFiles'>
 }): ReactNode {
   const [menu, setMenu] = useState<MenuTarget | null>(null)
@@ -337,6 +362,8 @@ export function FileTree(props: {
   }
   const tree: TreeContext = {
     state: props.state,
+    rowTriggerProps: props.rowTriggerProps,
+    current: props.current,
     onToggle: props.onToggle,
     onOpen: props.onOpen,
     onMenu: (path, kind, x, y) => { openMenu({ at: 'row', path, kind }, x, y) },
@@ -412,7 +439,8 @@ export function FileTree(props: {
         }}
       >
         <ul className={css.level}>
-          <MutationStrip mutation={props.state.mutation} t={t} onDismiss={props.onDismissMutation} />
+          {props.mutation !== undefined && props.onDismissMutation !== undefined
+            && <MutationStrip mutation={props.mutation} t={t} onDismiss={props.onDismissMutation} />}
           <Level path={props.state.root} tree={tree} />
         </ul>
       </div>

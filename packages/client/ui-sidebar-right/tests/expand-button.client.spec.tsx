@@ -10,6 +10,7 @@ import { useSyncExternalStore } from 'react'
 import type { GlobalStandardProps, SessionStandardProps } from '@qilin-agent/client-ui-slots'
 import type { ShortcutCatalogEntry } from '@qilin-agent/client-shortcuts/client'
 import type { SessionId } from '@qilin-agent/session/types'
+import { contextMenuHook } from '@qilin-agent/client-test-runtime'
 import { ExpandButton } from '../src/client/shell/ExpandButton.tsx'
 import type { ExpandButtonProps } from '../src/client/shell/ExpandButton.tsx'
 import { createSidebarRightStore } from '../src/client/stores.ts'
@@ -21,6 +22,7 @@ const standard: GlobalStandardProps & SessionStandardProps = {
   useInput: unused, useChat: unused, useTrajectory: unused,
   usePanelInfo: unused, useSessions: unused, useSessionStatus: unused,
   useSessionRetainInfo: unused, useResource: unused, useRemoteAccess: unused, useWorkspaces: unused,
+  useContextMenu: contextMenuHook(),
   useSessionAccess: unused, useAccess: unused,
   inputActions: { captureInsertion: unused, insertText: unused, setDraft: unused,
     persistDraft: () => {},

@@ -23,9 +23,6 @@ import {
   IconBrowseOutlineRegular, IconCheckOutlineRegular, IconPanelLeftOutlineRegular, IconRefreshOutlineRegular,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
-// The `file` entry of `SidebarRightResourceParamsMap`, which types the line
-// navigation read below (the same type-only edge ui-chat declares).
-import type {} from '@qilin-agent/client-ui-sidebar-documentpreview/client'
 import { fileAddressFor } from '@qilin-agent/util-workspace-path'
 import { FileTree } from './FileTree.tsx'
 import { fileFailureLine } from './file-failure.ts'
@@ -300,6 +297,7 @@ export function FileBody({
                 onCreate={(directory, name, kind) => { createEntry(tab.id, directory, name, kind, signal) }}
                 onRename={(path, name) => { renameEntry(tab.id, path, name, root, signal) }}
                 onDelete={(path, kind) => { removeEntry(tab.id, path, kind, root, signal) }}
+                mutation={state.mutation}
                 onDismissMutation={() => { actions.mutationCleared(tab.id) }}
                 t={t}
               />

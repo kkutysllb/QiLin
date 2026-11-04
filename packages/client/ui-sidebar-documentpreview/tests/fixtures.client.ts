@@ -15,6 +15,7 @@ import type { UseSidebarRightTabInfo } from '@qilin-agent/client-ui-sidebar-righ
 import type { Mock } from 'vitest'
 import { act } from '@testing-library/react'
 import { createElement, useSyncExternalStore } from 'react'
+import { contextMenuHook } from '@qilin-agent/client-test-runtime'
 import type { ReactNode } from 'react'
 import type { RemoteFailure, RemoteResult } from '@qilin-agent/api-remotes/client'
 import type { ResourceSnapshot } from '@qilin-agent/client-resources/client'
@@ -171,7 +172,7 @@ export function harness(
   const props = (navigation: { params?: unknown; revision: number } = { revision: 1 }) => ({
     useTabInfo: () => ({
       sidebar: { expanded: true, fullscreen: false },
-      panel: { id: 'pane-1' },
+      panel: { id: 'pane-1', isFloating: false },
       tab: {
         id: tabId, kind: 'text', contentId: address, title, visible: true,
         navigation: { address, params: navigation.params, revision: navigation.revision },
@@ -190,6 +191,8 @@ export function harness(
     addResource: face.addResource, setResources: face.setResources,
     useDocumentPreviews: () => definitions,
     renderSlot,
+    renderFactorySlot: () => null,
+    useContextMenu: contextMenuHook(),
     t,
     insertSelection,
   }) as TextPreviewProps

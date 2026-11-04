@@ -11,6 +11,7 @@
     "src/css-modules.d.ts"
   ],
   "references": [
+    { "path": "../ui-sidebar-files" },
     {
       "path": "../../api/gateway/tsconfig.client.json"
     },
@@ -31,6 +32,9 @@
     },
     {
       "path": "../store"
+    },
+    {
+      "path": "../ui-context-menu"
     },
     {
       "path": "../ui-dockkit"

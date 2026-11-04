@@ -124,6 +124,10 @@ The shared `documentFileBytes()` helper decodes ordinary file and converted PDF 
 <a id="navigation"></a>
 ## Navigation
 
+Every preview state — unsupported, loading, and content — renders through one `PreviewFrame.tsx`: an optional banner, the path header with this type's controls and the file handoff, and the content row beneath. The frame also seats the workspace navigator (`sidebar.files.navigator`) beside the content and its toggle (`sidebar.files.navigator.toggle`) at the header's end, at fixed positions, so those seats keep their DOM, focus, and scroll position while the preview moves between states. The header path, the content body, and an image preview each bind their own context menu target through `useContextMenu`.
+
+Reading position survives a refresh: the body restores to the remembered offset whenever content rebuilds, only ever moves down to it, and reads the next page when the remembered offset lies past the pages already loaded. Content that is briefly shorter clamps the scroll without overwriting the remembered offset, so the position comes back once the content does.
+
 `ctx.sidebarRight.openResource(address, { params: { line } })` carries a 1-based source line through the `file` parameters. In `text-pages` mode, the owner loads sequential pages until that line or EOF. Plain-text and code renderers expose source-line anchors; Markdown does not. A navigation remains pending while its selected renderer has no anchor and runs if the user switches to plain text or code. Code navigation scrolls the inner source viewport directly. Byte-mode renderers do not consume source-line navigation. Each completed navigation revision is answered once. Opening the same file without `revealIfOpened: false` focuses its existing tab and delivers a new revision.
 
 <a id="model-experience"></a>

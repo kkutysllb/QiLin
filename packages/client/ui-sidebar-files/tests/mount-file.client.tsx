@@ -105,7 +105,7 @@ function harness(cwd: string | null, initialParams: Record<string, unknown> | un
     // The tab's address is its whole file identity, as the registry claimed it.
     useTabInfo: () => ({
       sidebar: { expanded: true, fullscreen: false },
-      panel: { id: 'pane-1' },
+      panel: { id: 'pane-1', isFloating: false },
       tab: {
         id: TAB, kind: 'file', contentId: ADDRESS, title: 'a.ts', visible: true,
         navigation,

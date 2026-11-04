@@ -10,6 +10,7 @@ import type { ClientRemote } from '@qilin-agent/api-gateway/client'
 import { absoluteFileAddress, sessionFileAddress } from '@qilin-agent/util-workspace-path'
 import { apply as resourcesApply, inject as resourcesInject } from '@qilin-agent/client-resources/src/client/index.ts'
 import { apply as sidebarApply, inject as sidebarInject } from '@qilin-agent/client-ui-sidebar-right/src/client/index.ts'
+import { apply as menusApply, inject as menusInject } from '@qilin-agent/client-ui-context-menu/client'
 import { apply, inject } from '../src/client/index.ts'
 import type { DocumentPreviewProps } from '../src/client/document/contract.ts'
 import type { DocumentLoadMode } from '../src/client/document/registry.ts'
@@ -76,6 +77,9 @@ async function boot() {
       if (!signal.aborted) yield { ok: true as const, value: { absolutePath: '/host/notes', version: 'v1', bytes: 18 } }
     },
   }))
+  // The Sidebar's tab menus live in the shared context menu, so its service and
+  // root hook must exist before the Sidebar's seats mount.
+  await rt.mount({ inject: [...menusInject], apply: menusApply })
   await rt.mount({ inject: [...sidebarInject], apply: sidebarApply })
   // The viewer hands a selection to the conversation assembly by Session id.
   // This seat spec composes no such assembly, so the one member it reads is

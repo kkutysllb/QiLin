@@ -32,7 +32,7 @@ const OWNER: DocumentBodyOwner = {
 /** The framework's tab reader; the video body never reads it. */
 const TAB_INFO: SidebarRightTabInfo = {
   sidebar: { expanded: true, fullscreen: false },
-  panel: { id: 'pane-video' as PaneId },
+  panel: { id: 'pane-video' as PaneId, isFloating: false },
   tab: {
     id: 'tab-video' as TabId, kind: 'document', contentId: 'document', title: 'demo.mp4', visible: true,
     navigation: { address: FILE, params: undefined, revision: 0 },

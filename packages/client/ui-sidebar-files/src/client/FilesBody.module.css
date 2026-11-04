@@ -124,6 +124,13 @@
   background: var(--qilin-alias-interactive-bg-hover);
 }
 
+/* The file a preview beside this tree shows: the row stays readable, marked
+   rather than selected, because the preview is the selection. */
+.current {
+  background: var(--qilin-alias-interactive-bg-hover);
+  box-shadow: inset 2px 0 0 var(--qilin-color-border-accent);
+}
+
 /* The folder glyph rides the tertiary ink, as the workspace tree's does (ui-workspace Rows `.slot`). */
 .icon {
   flex: 0 0 auto;
@@ -170,6 +177,16 @@
 
 .other:hover {
   background: transparent;
+}
+
+/* A preview's navigator: the tree column beside the file it belongs to. It
+   takes one fixed column of the pane's content row and scrolls on its own. */
+.navigator {
+  display: flex;
+  flex: 0 0 260px;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--qilin-alias-border-l3);
 }
 
 .note {

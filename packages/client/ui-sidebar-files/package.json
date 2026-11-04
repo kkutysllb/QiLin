@@ -32,6 +32,7 @@
     "client": {
       "inject": [
         "@qilin-agent/api-workspace-files",
+        "@qilin-agent/client-ui-context-menu",
         "@qilin-agent/client-ui-sidebar-right",
         "@qilin-agent/client-ui-session",
         "@qilin-agent/api-remotes"
@@ -73,6 +74,7 @@
     "@qilin-agent/client-locale": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-context-menu": "workspace:*",
     "@qilin-agent/client-ui-dockkit": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",
     "@qilin-agent/client-ui-renderer": "workspace:*",

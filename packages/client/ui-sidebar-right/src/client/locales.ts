@@ -43,6 +43,9 @@ export const zh = {
   'tab.guide.title': '开始',
   'tab.guide.more': '更多工具',
   'tab.unavailable': '这类内容还没有可用的查看方式。',
+  'menu.close': '关闭',
+  'menu.closeOthers': '关闭其他',
+  'menu.closeRight': '关闭右侧标签页',
 } satisfies Record<string, string>
 
 /** Right-Sidebar dictionary key union. */
@@ -85,4 +88,7 @@ export const en = {
   'tab.guide.title': 'Start',
   'tab.guide.more': 'More tools',
   'tab.unavailable': 'Nothing here can view this kind of content yet.',
+  'menu.close': 'Close',
+  'menu.closeOthers': 'Close others',
+  'menu.closeRight': 'Close tabs to the right',
 } satisfies Record<SidebarRightKey, string>

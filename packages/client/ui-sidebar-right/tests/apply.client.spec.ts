@@ -68,6 +68,10 @@ async function boot(shortcuts: Partial<Shortcuts> = {}) {
       return () => { dictionaries.delete(ns) }
     }),
   }
+  const menus = {
+    active: createSnapshotStore<unknown>(null),
+    register: vi.fn(() => () => {}),
+  }
   const layout = {
     openRightbar: vi.fn(), closeRightbar: vi.fn(),
     panelInfo: createSnapshotStore<{ activePanelId: string | null }>({ activePanelId: null }),
@@ -78,6 +82,7 @@ async function boot(shortcuts: Partial<Shortcuts> = {}) {
   ctx.provide('locale', locale as never)
   ctx.provide('shortcuts', { runtime: 'web', register: () => () => {},
     catalog: { getSnapshot: () => SHORTCUT_CATALOG, subscribe: () => () => {} }, ...shortcuts } as never)
+  ctx.provide('contextMenus', menus as never)
   ctx.provide('layout', layout as never)
   ctx.provide('resources', resources as never)
   ctx.provide('sessions', { retain: vi.fn(() => ({ ready: Promise.resolve(), release: vi.fn() })) } as never)
@@ -93,7 +98,7 @@ async function boot(shortcuts: Partial<Shortcuts> = {}) {
     if (entry.inject === undefined) throw new Error(`expected ${entry.name} to inject`)
     return entry.inject(SESSION)
   }
-  return { ctx, slots, registered, dictionaries, layout, current, resources, fiber, seat, injectedOf }
+  return { ctx, slots, registered, dictionaries, layout, menus, current, resources, fiber, seat, injectedOf }
 }
 
 describe('ui-sidebar-right apply', () => {
@@ -137,17 +142,21 @@ describe('ui-sidebar-right apply', () => {
     // The guide body binds the dictionary for its More card; the chip title draws
     // no product copy.
     expect(registered.map(entry => [entry.name, entry.key, entry.locale, entry.component])).toEqual([
+      ['contextMenu.icon', 'sidebar.close', undefined, expect.any(Function)],
+      ['contextMenu.content', 'tab', undefined, expect.any(Function)],
       ['rightbar', undefined, undefined, RightbarRoot],
       ['rightbar.session', undefined, 'sidebarRight', RightbarSeat],
       ['conversation.session.header.corner', undefined, 'sidebarRight', ExpandButton],
       ['sidebar.right.pane.tab', GUIDE_ID, 'sidebarRight', GuideBody],
       ['sidebar.right.pane.tab.title', GUIDE_ID, undefined, GuideTitle],
     ])
-    // The panel declares the pane-tab seats; the
-    // guide declares its chain child.
+    // The panel declares the pane-tab seats; per-type menu rows live under the
+    // shared context menu's content for a tab target, and the guide declares
+    // its chain child.
     expect(Object.keys(seat('rightbar.session').children as object)).toEqual([
-      'sidebar.right.pane.tab', 'sidebar.right.pane.tab.title', 'sidebar.right.tab.menu.item',
+      'sidebar.right.pane.tab', 'sidebar.right.pane.tab.title',
     ])
+    expect(Object.keys(seat('contextMenu.content').children as object)).toEqual(['sidebar.right.tab.menu.item'])
     expect(seat('sidebar.right.pane.tab').children).toMatchObject({ 'sidebar.right.tab.guide': { kind: 'chain', scope: 'session' } })
     // Both seats read one store: the button only needs to know whether the panel is expanded.
     expect(seat('rightbar.session').store).toBeDefined()
@@ -346,6 +355,6 @@ describe('ui-sidebar-right apply', () => {
     expect(dictionaries.size).toBe(0)
     await ctx.plugin({ inject: [...inject], apply }).await()
     expect(ctx.sidebarRightTabs.get('guide')?.id).toBe(GUIDE_ID)
-    expect(registered).toHaveLength(5)
+    expect(registered).toHaveLength(7)
   })
 })

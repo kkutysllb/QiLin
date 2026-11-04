@@ -566,6 +566,19 @@ describe('TextPreview — navigation and view', () => {
     expect(body(second.container).scrollTop).toBe(300)
   })
 
+  it('keeps the remembered offset when shorter content clamps the body', async () => {
+    const h = harness({ 1: page(1, ['a', 'b', 'c'], true) })
+    const view = render(<TextPreview {...h.props()} />)
+    await settle()
+    fireEvent.scroll(body(view.container), { target: { scrollTop: 300 } })
+    expect(h.instance.getSnapshot().byTab[TAB_ID]?.scrollTop).toBe(300)
+    // A refresh that leaves the content briefly shorter pins the body to its
+    // end; that clamp is layout, not the reader, so the offset survives it.
+    body(view.container).scrollTop = 0
+    fireEvent.scroll(body(view.container), { target: { scrollTop: 0 } })
+    expect(h.instance.getSnapshot().byTab[TAB_ID]?.scrollTop).toBe(300)
+  })
+
   it('jumps again for a new navigation to the same tab', async () => {
     const h = harness({ 1: page(1, ['a', 'b', 'c'], true) })
     const view = render(<TextPreview {...h.props({ params: { line: 3 }, revision: 1 })} />)

@@ -131,6 +131,13 @@ export interface SidebarRightTabNavigation {
   readonly revision: number
 }
 
+/**
+ * The host a resource open settles in: `'sidebar'` is the default docked pane
+ * and expands the column; `'float'` is a floating panel and leaves the column
+ * as it is.
+ */
+export type SidebarRightDestination = 'sidebar' | 'float'
+
 /** Where an open from a tab lands. Without any of these it lands in the pane holding the tab at call time. */
 export interface SidebarRightTabPlacement {
   /** Land a new tab in this pane instead. */
@@ -149,6 +156,13 @@ export type SidebarRightTabOpenResourceOptions = SidebarRightTabPlacement & {
   readonly kind?: string
   /** The resource's navigation parameters, typed by resource type; delivered as `navigation.params`. */
   readonly params?: SidebarRightResourceParams
+  /**
+   * Settle the resource in this host instead, matched by Session, claimed kind,
+   * and content id; every placement field above is then ignored and no tab
+   * closes. A copy already in the host is revealed; otherwise one copy from the
+   * other host moves there, keeping its tab id; otherwise a new tab opens there.
+   */
+  readonly destination?: SidebarRightDestination
 }
 
 /** Page-owned operations registered for a mounted tab body. */
@@ -188,7 +202,11 @@ export interface SidebarRightTabInfo {
     /** Presentation selected by manual mode or viewport width; preserved while collapsed. */
     readonly fullscreen: boolean
   }
-  readonly panel: { readonly id: PaneId }
+  readonly panel: {
+    readonly id: PaneId
+    /** Whether this pane is hosted in a floating panel rather than the docked sidebar. */
+    readonly isFloating: boolean
+  }
   readonly tab: TabRecord & {
     /** Effective refresh binding for this page's controls. */
     readonly refreshShortcut?: ShortcutCatalogEntry | undefined
