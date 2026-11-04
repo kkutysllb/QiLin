@@ -816,6 +816,9 @@ importers:
       '@qilin-agent/client-shortcuts':
         specifier: workspace:*
         version: link:../../packages/client/shortcuts
+      '@qilin-agent/client-ui-file-actions':
+        specifier: workspace:*
+        version: link:../../packages/client/ui-file-actions
       '@qilin-agent/client-ui-primitives':
         specifier: workspace:*
         version: link:../../packages/client/ui-primitives
@@ -837,6 +840,9 @@ importers:
       '@qilin-agent/node-addon-system':
         specifier: workspace:~
         version: link:../../native/system/packages/entry
+      '@qilin-agent/util-file-drag':
+        specifier: workspace:*
+        version: link:../../packages/util/file-drag
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
@@ -2751,6 +2757,9 @@ importers:
       '@qilin-agent/client-ui-commands':
         specifier: workspace:*
         version: link:../../client/ui-commands
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../../client/ui-context-menu
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../../client/ui-conversation
@@ -2769,6 +2778,9 @@ importers:
       '@qilin-agent/client-ui-entry-customization':
         specifier: workspace:*
         version: link:../../client/ui-entry-customization
+      '@qilin-agent/client-ui-file-actions':
+        specifier: workspace:*
+        version: link:../../client/ui-file-actions
       '@qilin-agent/client-ui-goal':
         specifier: workspace:*
         version: link:../../client/ui-goal
@@ -3512,6 +3524,9 @@ importers:
       '@qilin-agent/client-ui-chat':
         specifier: workspace:*
         version: link:../ui-chat
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../ui-context-menu
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
@@ -3621,6 +3636,9 @@ importers:
       '@qilin-agent/client-ui-approval':
         specifier: workspace:*
         version: link:../ui-approval
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../ui-context-menu
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
@@ -3777,6 +3795,63 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.3.1
+
+  packages/client/ui-context-menu:
+    devDependencies:
+      '@qilin-agent/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@qilin-agent/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin-agent/client-shortcuts':
+        specifier: workspace:*
+        version: link:../shortcuts
+      '@qilin-agent/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-dockkit':
+        specifier: workspace:*
+        version: link:../ui-dockkit
+      '@qilin-agent/client-ui-layout':
+        specifier: workspace:*
+        version: link:../ui-layout
+      '@qilin-agent/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@testing-library/react':
+        specifier: ^16.1.0
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ~18.3.0
+        version: 18.3.7(@types/react@18.3.31)
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
 
   packages/client/ui-conversation:
     dependencies:
@@ -3998,6 +4073,9 @@ importers:
       '@qilin-agent/client-ui-chat':
         specifier: workspace:*
         version: link:../ui-chat
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../ui-context-menu
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
@@ -4211,6 +4289,57 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
+
+  packages/client/ui-file-actions:
+    devDependencies:
+      '@qilin-agent/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
+      '@qilin-agent/api-session-controller':
+        specifier: workspace:*
+        version: link:../../api/session-controller
+      '@qilin-agent/api-workspace-files':
+        specifier: workspace:*
+        version: link:../../api/workspace-files
+      '@qilin-agent/client-locale':
+        specifier: workspace:*
+        version: link:../locale
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../ui-context-menu
+      '@qilin-agent/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../ui-primitives
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/util-file-drag':
+        specifier: workspace:*
+        version: link:../../util/file-drag
+      '@qilin-agent/util-workspace-path':
+        specifier: workspace:*
+        version: link:../../util/workspace-path
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      mime:
+        specifier: ^4.1.1
+        version: 4.1.2
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
 
   packages/client/ui-goal:
     devDependencies:
@@ -4565,6 +4694,9 @@ importers:
       '@qilin-agent/client-test-runtime':
         specifier: workspace:*
         version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../ui-context-menu
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
@@ -4598,6 +4730,9 @@ importers:
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
+      '@qilin-agent/util-workspace-path':
+        specifier: workspace:*
+        version: link:../../util/workspace-path
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -5710,6 +5845,9 @@ importers:
       '@qilin-agent/client-test-runtime':
         specifier: workspace:*
         version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../ui-context-menu
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
@@ -5728,6 +5866,9 @@ importers:
       '@qilin-agent/client-ui-settings':
         specifier: workspace:*
         version: link:../ui-settings
+      '@qilin-agent/client-ui-sidebar-files':
+        specifier: workspace:*
+        version: link:../ui-sidebar-files
       '@qilin-agent/client-ui-sidebar-right':
         specifier: workspace:*
         version: link:../ui-sidebar-right
@@ -5869,6 +6010,9 @@ importers:
       '@qilin-agent/client-test-runtime':
         specifier: workspace:*
         version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../ui-context-menu
       '@qilin-agent/client-ui-dockkit':
         specifier: workspace:*
         version: link:../ui-dockkit
@@ -5899,66 +6043,6 @@ importers:
       '@qilin-agent/util-workspace-path':
         specifier: workspace:*
         version: link:../../util/workspace-path
-      '@testing-library/react':
-        specifier: ^16.1.0
-        version: 16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/react':
-        specifier: ~18.3.1
-        version: 18.3.31
-      '@types/react-dom':
-        specifier: ~18.3.0
-        version: 18.3.7(@types/react@18.3.31)
-      clsx:
-        specifier: ^2.0.0
-        version: 2.1.1
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
-
-  packages/client/ui-sidebar-git:
-    devDependencies:
-      '@qilin-agent/api-remotes':
-        specifier: workspace:*
-        version: link:../../api/remotes
-      '@qilin-agent/api-workspace-git':
-        specifier: workspace:*
-        version: link:../../api/workspace-git
-      '@qilin-agent/client-locale':
-        specifier: workspace:*
-        version: link:../locale
-      '@qilin-agent/client-store':
-        specifier: workspace:*
-        version: link:../store
-      '@qilin-agent/client-test-runtime':
-        specifier: workspace:*
-        version: link:../../test-support/client-runtime
-      '@qilin-agent/client-ui-dockkit':
-        specifier: workspace:*
-        version: link:../ui-dockkit
-      '@qilin-agent/client-ui-primitives':
-        specifier: workspace:*
-        version: link:../ui-primitives
-      '@qilin-agent/client-ui-renderer':
-        specifier: workspace:*
-        version: link:../ui-renderer
-      '@qilin-agent/client-ui-session':
-        specifier: workspace:*
-        version: link:../ui-session
-      '@qilin-agent/client-ui-sidebar-right':
-        specifier: workspace:*
-        version: link:../ui-sidebar-right
-      '@qilin-agent/client-ui-slots':
-        specifier: workspace:*
-        version: link:../ui-slots
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
       '@testing-library/react':
         specifier: ^16.1.0
         version: 16.3.2(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6064,6 +6148,9 @@ importers:
       '@qilin-agent/client-test-runtime':
         specifier: workspace:*
         version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../ui-context-menu
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
@@ -6590,6 +6677,9 @@ importers:
       '@qilin-agent/client-ui-chat':
         specifier: workspace:*
         version: link:../ui-chat
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../ui-context-menu
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
@@ -6932,6 +7022,9 @@ importers:
       '@qilin-agent/client-test-runtime':
         specifier: workspace:*
         version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../ui-context-menu
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../ui-conversation
@@ -9273,6 +9366,9 @@ importers:
       '@qilin-agent/experimental-forge-session':
         specifier: workspace:*
         version: link:../forge-session
+      '@qilin-agent/experimental-tool-worktree':
+        specifier: workspace:*
+        version: link:../tool-worktree
       '@qilin-agent/experimental-worktree':
         specifier: workspace:*
         version: link:../worktree
@@ -9296,6 +9392,9 @@ importers:
         specifier: ^4.4.3
         version: 4.4.3
     devDependencies:
+      '@qilin-agent/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
       '@qilin-agent/experimental-forge':
         specifier: workspace:*
         version: link:../forge
@@ -15308,6 +15407,9 @@ importers:
       '@qilin-agent/client-ui-commands':
         specifier: workspace:*
         version: link:../../client/ui-commands
+      '@qilin-agent/client-ui-context-menu':
+        specifier: workspace:*
+        version: link:../../client/ui-context-menu
       '@qilin-agent/client-ui-conversation':
         specifier: workspace:*
         version: link:../../client/ui-conversation

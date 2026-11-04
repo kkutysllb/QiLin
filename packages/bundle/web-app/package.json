@@ -68,6 +68,8 @@
     "@qilin-agent/client-ui-attachment": "workspace:*",
     "@qilin-agent/client-ui-chat": "workspace:*",
     "@qilin-agent/client-ui-commands": "workspace:*",
+    "@qilin-agent/client-ui-context-menu": "workspace:*",
+    "@qilin-agent/client-ui-file-actions": "workspace:*",
     "@qilin-agent/client-ui-conversation": "workspace:*",
     "@qilin-agent/client-ui-deepseek-model-label-1017": "workspace:*",
     "@qilin-agent/client-ui-deliverables": "workspace:*",

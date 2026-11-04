@@ -74,6 +74,11 @@
         iconTimeoutMs: 10000
         launchWatchMs: 1000
 
+    - id: ui-context-menu
+      name: '@qilin-agent/client-ui-context-menu'
+    - id: ui-file-actions
+      name: '@qilin-agent/client-ui-file-actions'
+
     - id: ui-open-in-app
       name: '@qilin-agent/client-ui-open-in-app'
 

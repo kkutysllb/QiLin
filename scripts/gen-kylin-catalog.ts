@@ -174,6 +174,8 @@ export const SERVICE_PAGE: Record<string, string> = {
  * to a model as `cordis_runtime_inspect what:"client"`).
  */
 export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
+  contextMenus: 'packages/client/ui-context-menu/README.md',
+  fileActions: 'packages/client/ui-file-actions/README.md',
   userQuestionPanels: 'client-side slot-contract accessor (UserQuestionPanels) — packages/client/ui-tool/README.md owns the API',
   productAnalytics: 'client-face analytics intake (declared beside its Host collection half) — packages/api/product-analytics/README.md owns the API',
   invocation: 'not a service: per-call accessor (RemoteInvocation | undefined) the Gateway derives for each Remote call — packages/api/gateway/README.md owns the contract',
@@ -338,6 +340,10 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   ForgeActionFailure: 'forge.md',
   ForgeFailure: 'forge.md',
   ForgeProvider: 'forge.md',
+  ChangeRequestSnapshot: 'forge.md',
+  ForgeLineComment: 'forge.md',
+  ForgeReviewRequest: 'forge.md',
+  ForgeReviewResult: 'forge.md',
   ForgeReadiness: 'forge.md',
   MergeRequest: 'forge.md',
   SessionChangeRequest: 'forge.md',
