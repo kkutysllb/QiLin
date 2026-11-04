@@ -55,7 +55,7 @@ const definition = {
 
 ### 注册与读取
 
-`register(definition)` 安装单元；具有相同 key 和 `stateVersion` 的注册方共享其 cell，版本不兼容、摘要归属不同或 `stateVersion` 非法时会 throw。注册是挂在调用方 fiber 上的 effect，因此最后一个注册方卸载后会把该 key 从实时驱动、恢复与客户端快照中移除，而检查点行会保留到该 key 重新注册、新单元重折日志为止。载体用 `snapshot(session, keys)` 对客户端可见单元读取一致的同步切面——`{ asOfSeq, values }`，其中 `asOfSeq` 是所有值共同反映到的最后一个事件的 seq——并用 `onChanged(listener)` 订阅逐变更通知。只有被选中的单元会被计算，因此带 key 子集的读取既不折叠也不推进其余单元；`summaryKeys()` 返回 Session 摘要携带的稳定集合，由未声明 `wire.summary: false` 的已注册客户端可见 key 派生。`stateOf(session, key)` 读取一个单元的实时只读 host 状态。`cachedSnapshot(session, keys)` 已弃用：它只返回其他读取已计算过的 cell，且可能缺少 key，因此不能据此决定行为。
+`register(definition)` 安装单元；具有相同 key 和 `stateVersion` 的注册方共享其 cell，版本不兼容、摘要归属不同或 `stateVersion` 非法时会 throw。注册是挂在调用方 fiber 上的 effect，因此最后一个注册方卸载后会把该 key 从实时驱动、恢复与客户端快照中移除，而检查点行会保留到该 key 重新注册、新单元重折日志为止。载体用 `snapshot(session, keys)` 对客户端可见单元读取一致的同步切面——`{ asOfSeq, values }`，其中 `asOfSeq` 是所有值共同反映到的最后一个事件的 seq——并用 `onChanged(listener)` 订阅逐单元变更通知，或用 `onEventChanged(listener)` 订阅逐已提交事件的变更帧——一次调用列出该事件改变的全部客户端可见单元。只有被选中的单元会被计算，因此带 key 子集的读取既不折叠也不推进其余单元；`summaryKeys()` 返回 Session 摘要携带的稳定集合，由未声明 `wire.summary: false` 的已注册客户端可见 key 派生。`stateOf(session, key)` 读取一个单元的实时只读 host 状态。`cachedSnapshot(session, keys)` 已弃用：它只返回其他读取已计算过的 cell，且可能缺少 key，因此不能据此决定行为。
 
 ```text
 const dispose = ctx.sessionProjections.register(definition)
@@ -91,7 +91,7 @@ const { asOfSeq, values } = ctx.sessionProjections.snapshot(session)
 
 ### 驱动与检查点流程
 
-一个已提交事件按注册顺序驱动每个已注册单元；原始 view 通过 `Object.is` 判定为变化的客户端可见单元会以经 schema 校验的视图与致因 seq 通知变更流。live drive 保留前后两个原始 view；snapshot 与冷读仍是彼此独立的完整读取。`checkpoint(session)` 为持久缓存返回每个单元一份独立的 `(key → {ver, seq, val})` 行；`restoreFloor` 把尾部读取锚定在最低可用水位之前一个事件处，使缩短的日志可被检出；`restore` 把持久行在存储后缀上重新折叠，丢弃任何 `ver` 不匹配或声称越过存储末尾的行。
+一个已提交事件按注册顺序驱动每个已注册单元；原始 view 通过 `Object.is` 判定为变化的客户端可见单元会以经 schema 校验的视图与致因 seq 通知每个 `onChanged` 监听器。所有单元驱动完成后，每个 `onEventChanged` 监听器收到一次调用，按注册顺序列出该事件改变的全部客户端可见单元（每项 `{ key, val }`，`val` 为经 schema 校验的视图）及致因 seq；未改变任何客户端可见视图的事件不产生事件级调用。驱动过程中若某个单元或 `onChanged` 监听器抛出，事件级监听器仍会收到抛出前已收集的变更，随后错误继续传播到 Session 的监听器隔离层。live drive 保留前后两个原始 view；snapshot 与冷读仍是彼此独立的完整读取。`checkpoint(session)` 为持久缓存返回每个单元一份独立的 `(key → {ver, seq, val})` 行；`restoreFloor` 把尾部读取锚定在最低可用水位之前一个事件处，使缩短的日志可被检出；`restore` 把持久行在存储后缀上重新折叠，丢弃任何 `ver` 不匹配或声称越过存储末尾的行。
 
 </details>
 

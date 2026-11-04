@@ -5,11 +5,11 @@ import { Deque } from '@qilin-agent/deque'
 import type {
   Session, SessionId,
 } from '@qilin-agent/session'
-import type { JsonValue } from '@qilin-agent/util-values'
 import type {
   SessionControlBaseline,
   SessionControlFrame,
   SessionProjectionBaseline,
+  SessionProjectionUpdate,
   SessionProjectionValues,
 } from './types.ts'
 
@@ -19,13 +19,13 @@ export class SessionControlController {
 
   /** @param ctx - Host context carrying live Agent, projection, and jobs services. */
   constructor(private readonly ctx: Context) {
-    ctx.sessionProjections.onChanged((session, key, value, seq) => {
+    ctx.sessionProjections.onEventChanged((session, changes, seq) => {
       this.broadcast({
         type: 'projection',
         sessionId: session.id,
-        key,
-        value: value as JsonValue,
         seq,
+        // Every projection definition validates its value before change publication.
+        changes: changes as SessionProjectionUpdate['changes'],
       })
     })
     ctx.effect(() => () => {
