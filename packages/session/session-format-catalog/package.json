@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/session-format-catalog",
   "description": "Build-static first-party Session format codec and migration catalog",
-  "version": "3.1.8-rc.5",
+  "version": "3.1.8-rc.6",
   "publishConfig": {
     "access": "public"
   },

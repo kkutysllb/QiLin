@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/client-ui-shortcuts",
   "description": "Keyboard shortcut reference, recording, and local preference editing",
-  "version": "3.1.8-rc.5",
+  "version": "3.1.8-rc.6",
   "publishConfig": {
     "access": "public"
   },
