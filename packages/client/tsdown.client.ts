@@ -66,7 +66,7 @@ function styleInjectionModule(
  * Everything else under @qilin-agent/* is either a module-table entry
  * (external) or a leak the purity gate rejects.
  */
-export const INLINE_SAFE = /^(?:@qilin-agent\/(?:client-schema-form|dsh-compat|file-reference|session|llm|tools|brand|deque|official-bundles|output-retention|typert-protocol|util-crypto|util-values|util-workspace-path)(?:\/|$)|@qilin-agent\/token-meter\/client$|@qilin-agent\/host-open-in-app\/shared$|@qilin-agent\/plugin-manager\/registry$|@qilin-agent\/agent-presets\/display$|@qilin-agent\/spill-policy\/notice$)/
+export const INLINE_SAFE = /^(?:@qilin-agent\/(?:client-schema-form|dsh-compat|file-reference|session|llm|tools|brand|deque|official-bundles|output-retention|typert-protocol|util-crypto|util-file-drag|util-time|util-values|util-workspace-path)(?:\/|$)|@qilin-agent\/token-meter\/client$|@qilin-agent\/host-open-in-app\/shared$|@qilin-agent\/plugin-manager\/registry$|@qilin-agent\/agent-presets\/display$|@qilin-agent\/api-workspace-controller\/default-workspace$|@qilin-agent\/spill-policy\/notice$)/
 
 /**
  * Vendored framework libraries: rescoped into @qilin-agent, so the gate below

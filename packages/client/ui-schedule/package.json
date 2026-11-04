@@ -33,11 +33,7 @@
         "@qilin-agent/client-ui-tool",
         "@qilin-agent/client-ui-workspace"
       ],
-      "platform": "web",
-      "external": [
-        "@qilin-agent/util-time",
-        "@qilin-agent/api-workspace-controller/default-workspace"
-      ]
+      "platform": "web"
     }
   },
   "scripts": {

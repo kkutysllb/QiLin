@@ -40,10 +40,7 @@
         "@qilin-agent/api-workspace-files",
         "@qilin-agent/api-session-controller"
       ],
-      "platform": "web",
-      "external": [
-        "@qilin-agent/util-file-drag"
-      ]
+      "platform": "web"
     }
   },
   "files": [
