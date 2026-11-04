@@ -1,13 +1,21 @@
-- name: '@qilin-agent/llm'
-- name: '@qilin-agent/session'
-- name: '@qilin-agent/session-projection'
-- name: '@qilin-agent/system-prompt'
-- name: '@qilin-agent/tools'
-- name: '@qilin-agent/agent'
-- name: '@qilin-agent/agent-loop'
+- id: llm
+  name: '@qilin-agent/llm'
+- id: session
+  name: '@qilin-agent/session'
+- id: session-projection
+  name: '@qilin-agent/session-projection'
+- id: system-prompt
+  name: '@qilin-agent/system-prompt'
+- id: tools
+  name: '@qilin-agent/tools'
+- id: agent
+  name: '@qilin-agent/agent'
+- id: agent-loop
+  name: '@qilin-agent/agent-loop'
   config:
     agents: []
-- name: '@qilin-agent/credentials-local'
+- id: credentials-local
+  name: '@qilin-agent/credentials-local'
   config:
     path: {{credentials}}
     watch: false
