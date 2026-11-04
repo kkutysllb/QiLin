@@ -3,5 +3,7 @@ scenario: advanced-toolchain
 profile: headless
 composition: advanced
 recording: authored
+replay:
+  override: true
 header:
   class: advanced

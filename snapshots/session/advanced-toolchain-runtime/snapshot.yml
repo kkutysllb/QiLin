@@ -3,6 +3,8 @@ scenario: advanced-toolchain-runtime
 profile: headless
 composition: advanced
 recording: authored
+replay:
+  override: true
 header:
   class: advanced
   systemPromptSource: cordis-inspect-jsdoc

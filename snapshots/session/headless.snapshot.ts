@@ -1107,10 +1107,12 @@ describe('headless recorded-session snapshots', () => {
       let fixtureFiles = sessionFixtureNames(await readdir(scenario.dir))
       const replaying = mode !== 'record'
       const compositionPatch = join(composition.dir, replaying ? 'cordis.snapshot.yml' : 'cordis.yml')
+      const scenarioPatch = join(scenario.dir, 'runtime.cordis.yml')
       const patchSources = [
         join(baseComposition.dir, 'cordis.yml'),
         ...composition === baseComposition && !replaying ? [] : [compositionPatch],
         join(baseComposition.dir, 'model.cordis.yml'),
+        ...existsSync(scenarioPatch) ? [scenarioPatch] : [],
       ]
       const patchRoot = '.snapshot-patches'
       const patches = patchSources.map((source, index) => source.endsWith('.snapshot.yml')
