@@ -103,7 +103,7 @@ describe('TurnProcessNodeView states', () => {
     if (control === null) throw new Error('running control did not render')
     expect(control.hasAttribute('data-turn-running')).toBe(true)
     expect(control.disabled).toBe(true)
-    expect(control.textContent).toBe('QiLin...')
+    expect(control.textContent).toBe('Kylin...')
     expect(turnProcessAlwaysOpen(view.node)).toBe(true)
   })
 

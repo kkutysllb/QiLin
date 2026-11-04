@@ -139,7 +139,7 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
               <span
                 class="fallbackBrandName"
               >
-                QiLin
+                QiLin Super Agent
               </span>
             </div>
             <span
@@ -388,7 +388,7 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
               <span
                 class="fallbackBrandName"
               >
-                QiLin
+                QiLin Super Agent
               </span>
             </div>
             <span
@@ -528,7 +528,7 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
               <span
                 class="fallbackBrandName"
               >
-                QiLin
+                QiLin Super Agent
               </span>
             </div>
             <span

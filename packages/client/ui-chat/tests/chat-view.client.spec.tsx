@@ -2968,11 +2968,11 @@ describe('ChatView', () => {
     const running = view.container.querySelector<HTMLElement>('[data-chat-running]')
     if (running === null) throw new Error('the running indicator is missing')
     const status = within(running).getByRole('status')
-    expect(status.textContent).toBe('QiLin...')
+    expect(status.textContent).toBe('Kylin...')
     expect(status.getAttribute('aria-live')).toBe('polite')
     const content = running.lastElementChild
     expect(content).not.toBe(status)
-    expect(content?.textContent).toMatch(/^QiLin，用时 2分\d{1,2}秒\.\.\.$/)
+    expect(content?.textContent).toMatch(/^Kylin，用时 2分\d{1,2}秒\.\.\.$/)
     // Steering entering the inbox neither resets nor blanks the anchored clock.
     act(() => {
       h.setSession({ testInbox: { 'next-turn': [], 'next-step': [{
@@ -2982,8 +2982,8 @@ describe('ChatView', () => {
         role: 'user', source: { kind: 'user' },
       }] } })
     })
-    expect(running.lastElementChild?.textContent).toMatch(/^QiLin，用时 2分\d{1,2}秒\.\.\.$/)
-    expect(within(running).getByRole('status').textContent).toBe('QiLin...')
+    expect(running.lastElementChild?.textContent).toMatch(/^Kylin，用时 2分\d{1,2}秒\.\.\.$/)
+    expect(within(running).getByRole('status').textContent).toBe('Kylin...')
   })
 
   it('a Turn whose start fell outside the window anchors the clock on its earliest loaded step', () => {
@@ -3006,7 +3006,7 @@ describe('ChatView', () => {
     })
     const view = render(<h.ChatView {...h.props} />)
     expect(view.container.querySelector('[data-chat-running] > :last-child')?.textContent)
-      .toMatch(/^QiLin，用时 \d+秒\.\.\.$/)
+      .toMatch(/^Kylin，用时 \d+秒\.\.\.$/)
   })
 
   it('the clock drops back to the plain label once the latest Turn closes', () => {
@@ -3017,9 +3017,9 @@ describe('ChatView', () => {
     )
     const view = render(<h.ChatView {...h.props} />)
     expect(view.container.querySelector('[data-chat-running] > :last-child')?.textContent)
-      .toMatch(/^QiLin，用时 \d+秒\.\.\.$/)
+      .toMatch(/^Kylin，用时 \d+秒\.\.\.$/)
     act(() => { h.setChat({ turnEnds: new Map([[1, 3]]) }) })
-    expect(view.container.querySelector('[data-chat-running] > :last-child')?.textContent).toBe('QiLin...')
+    expect(view.container.querySelector('[data-chat-running] > :last-child')?.textContent).toBe('Kylin...')
   })
 
   it('hands each ordered root call to the keyed business-node slot', () => {

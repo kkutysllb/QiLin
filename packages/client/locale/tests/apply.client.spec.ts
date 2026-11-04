@@ -66,7 +66,7 @@ describe('locale apply', () => {
     // The lane has no jsdom `window`, so detection never runs and a fresh
     // service opens on FALLBACK_LOCALE (en); read the zh side explicitly.
     locale.setLocale('zh')
-    expect(locale.bind('common')('brand.localBuild')).toBe('QiLin')
+    expect(locale.bind('common')('brand.localBuild')).toBe('QiLin Super Agent')
     expect(locale.getLocale().locales.map(l => l.id)).toEqual(['zh', 'en'])
     const entry = before.slots.entries('settings.general.item').find(e => e.options.id === 'language')
     expect(entry?.locale).toBe('settings.locale')
