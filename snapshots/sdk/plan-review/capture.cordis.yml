@@ -1,0 +1,7 @@
+# Capture the plan-review model inputs before adapter execution.
+
+- insert:
+    - id: plan-request-capture
+      name: '../manual-compact/capture-requests.mjs'
+      config:
+        path: !!js qilinHomePath('plan-requests.jsonl')

@@ -1,0 +1,12 @@
+version: 1
+scenario: plan-review
+profile: sdk
+composition: sdk-default
+recording: authored
+replay:
+  override: true
+header:
+  class: sdk-plan-review
+  pin: true
+  changes: 4
+  promptChanges: 4

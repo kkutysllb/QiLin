@@ -1,0 +1,7 @@
+# Capture the isolated scenario model inputs.
+
+- insert:
+    - id: goal-request-capture
+      name: '../manual-compact/capture-requests.mjs'
+      config:
+        path: !!js qilinHomePath('goal-requests.jsonl')

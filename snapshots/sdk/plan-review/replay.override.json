@@ -1,0 +1,355 @@
+[
+  {
+    "kind": "chunks",
+    "chunks": [
+      {
+        "type": "block-start",
+        "index": 0,
+        "blockType": "text"
+      },
+      {
+        "type": "text-delta",
+        "index": 0,
+        "text": "SDK_PLAN_INITIAL"
+      },
+      {
+        "type": "block-end",
+        "index": 0,
+        "block": {
+          "type": "text",
+          "text": "SDK_PLAN_INITIAL"
+        }
+      },
+      {
+        "type": "usage",
+        "usage": {
+          "inputTokens": 10000,
+          "outputTokens": 32,
+          "totalTokens": 10032
+        }
+      },
+      {
+        "type": "finish",
+        "reason": {
+          "kind": "stop"
+        },
+        "replayState": {
+          "response": {
+            "kind": "deepseek-messages",
+            "version": 1,
+            "model": "deepseek-v4-flash"
+          },
+          "blocks": [
+            {
+              "type": "text"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "kind": "chunks",
+    "chunks": [
+      {
+        "type": "block-start",
+        "index": 0,
+        "blockType": "tool-call"
+      },
+      {
+        "type": "tool-call-delta",
+        "index": 0,
+        "id": "commands-tool-1",
+        "name": "exit_plan_mode",
+        "argumentsDelta": ""
+      },
+      {
+        "type": "tool-call-delta",
+        "index": 0,
+        "id": "commands-tool-1",
+        "argumentsDelta": "{\"plan\": \"# Implement the change\\n\\n- Inspect existing code.\\n- Make the smallest change.\\n- Run focused tests.\"}"
+      },
+      {
+        "type": "block-end",
+        "index": 0,
+        "block": {
+          "type": "tool-call",
+          "id": "commands-tool-1",
+          "name": "exit_plan_mode",
+          "arguments": "{\"plan\": \"# Implement the change\\n\\n- Inspect existing code.\\n- Make the smallest change.\\n- Run focused tests.\"}"
+        }
+      },
+      {
+        "type": "usage",
+        "usage": {
+          "inputTokens": 10000,
+          "outputTokens": 32,
+          "totalTokens": 10032
+        }
+      },
+      {
+        "type": "finish",
+        "reason": {
+          "kind": "tool-calls"
+        },
+        "replayState": {
+          "response": {
+            "kind": "deepseek-messages",
+            "version": 1,
+            "model": "deepseek-v4-flash"
+          },
+          "blocks": [
+            {
+              "type": "tool-call"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "kind": "chunks",
+    "chunks": [
+      {
+        "type": "block-start",
+        "index": 0,
+        "blockType": "tool-call"
+      },
+      {
+        "type": "tool-call-delta",
+        "index": 0,
+        "id": "commands-tool-2",
+        "name": "exit_plan_mode",
+        "argumentsDelta": ""
+      },
+      {
+        "type": "tool-call-delta",
+        "index": 0,
+        "id": "commands-tool-2",
+        "argumentsDelta": "{\"plan\": \"# Revised plan\\n\\n- Include a rollback procedure.\"}"
+      },
+      {
+        "type": "block-end",
+        "index": 0,
+        "block": {
+          "type": "tool-call",
+          "id": "commands-tool-2",
+          "name": "exit_plan_mode",
+          "arguments": "{\"plan\": \"# Revised plan\\n\\n- Include a rollback procedure.\"}"
+        }
+      },
+      {
+        "type": "usage",
+        "usage": {
+          "inputTokens": 10000,
+          "outputTokens": 32,
+          "totalTokens": 10032
+        }
+      },
+      {
+        "type": "finish",
+        "reason": {
+          "kind": "tool-calls"
+        },
+        "replayState": {
+          "response": {
+            "kind": "deepseek-messages",
+            "version": 1,
+            "model": "deepseek-v4-flash"
+          },
+          "blocks": [
+            {
+              "type": "tool-call"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "kind": "chunks",
+    "chunks": [
+      {
+        "type": "block-start",
+        "index": 0,
+        "blockType": "text"
+      },
+      {
+        "type": "text-delta",
+        "index": 0,
+        "text": "SDK_PLAN_APPROVED"
+      },
+      {
+        "type": "block-end",
+        "index": 0,
+        "block": {
+          "type": "text",
+          "text": "SDK_PLAN_APPROVED"
+        }
+      },
+      {
+        "type": "usage",
+        "usage": {
+          "inputTokens": 10000,
+          "outputTokens": 32,
+          "totalTokens": 10032
+        }
+      },
+      {
+        "type": "finish",
+        "reason": {
+          "kind": "stop"
+        },
+        "replayState": {
+          "response": {
+            "kind": "deepseek-messages",
+            "version": 1,
+            "model": "deepseek-v4-flash"
+          },
+          "blocks": [
+            {
+              "type": "text"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "kind": "chunks",
+    "chunks": [
+      {
+        "type": "block-start",
+        "index": 0,
+        "blockType": "tool-call"
+      },
+      {
+        "type": "tool-call-delta",
+        "index": 0,
+        "id": "commands-tool-4",
+        "name": "exit_plan_mode",
+        "argumentsDelta": ""
+      },
+      {
+        "type": "tool-call-delta",
+        "index": 0,
+        "id": "commands-tool-4",
+        "argumentsDelta": "{\"plan\": \"# Implement the change\\n\\n- Inspect existing code.\\n- Make the smallest change.\\n- Run focused tests.\"}"
+      },
+      {
+        "type": "block-end",
+        "index": 0,
+        "block": {
+          "type": "tool-call",
+          "id": "commands-tool-4",
+          "name": "exit_plan_mode",
+          "arguments": "{\"plan\": \"# Implement the change\\n\\n- Inspect existing code.\\n- Make the smallest change.\\n- Run focused tests.\"}"
+        }
+      },
+      {
+        "type": "usage",
+        "usage": {
+          "inputTokens": 10000,
+          "outputTokens": 32,
+          "totalTokens": 10032
+        }
+      },
+      {
+        "type": "finish",
+        "reason": {
+          "kind": "tool-calls"
+        },
+        "replayState": {
+          "response": {
+            "kind": "deepseek-messages",
+            "version": 1,
+            "model": "deepseek-v4-flash"
+          },
+          "blocks": [
+            {
+              "type": "tool-call"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "kind": "chunks",
+    "chunks": [
+      {
+        "type": "block-start",
+        "index": 0,
+        "blockType": "text"
+      },
+      {
+        "type": "text-delta",
+        "index": 0,
+        "text": "The user dismissed the plan review; acknowledging and stopping the plan round."
+      },
+      {
+        "type": "block-end",
+        "index": 0,
+        "block": {
+          "type": "text",
+          "text": "The user dismissed the plan review; acknowledging and stopping the plan round."
+        }
+      },
+      {
+        "type": "finish",
+        "reason": {
+          "kind": "stop"
+        }
+      }
+    ]
+  },
+  {
+    "kind": "chunks",
+    "chunks": [
+      {
+        "type": "block-start",
+        "index": 0,
+        "blockType": "text"
+      },
+      {
+        "type": "text-delta",
+        "index": 0,
+        "text": "SDK_PLAN_OK"
+      },
+      {
+        "type": "block-end",
+        "index": 0,
+        "block": {
+          "type": "text",
+          "text": "SDK_PLAN_OK"
+        }
+      },
+      {
+        "type": "usage",
+        "usage": {
+          "inputTokens": 10000,
+          "outputTokens": 32,
+          "totalTokens": 10032
+        }
+      },
+      {
+        "type": "finish",
+        "reason": {
+          "kind": "stop"
+        },
+        "replayState": {
+          "response": {
+            "kind": "deepseek-messages",
+            "version": 1,
+            "model": "deepseek-v4-flash"
+          },
+          "blocks": [
+            {
+              "type": "text"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]
