@@ -1,0 +1,16 @@
+# Capture the isolated scenario model inputs beside an image-capable replay route.
+
+- id: llm-replay
+  config:
+    providers:
+      - id: snapshot-command-images
+        name: DeepSeek
+        models:
+          - id: deepseek-flash
+            inputModalities: [text, image]
+
+- insert:
+    - id: command-attachment-request-capture
+      name: '../manual-compact/capture-requests.mjs'
+      config:
+        path: !!js qilinHomePath('command-attachment-requests.jsonl')

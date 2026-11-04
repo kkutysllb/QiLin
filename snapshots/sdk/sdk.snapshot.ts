@@ -1299,16 +1299,20 @@ describe('TypeScript SDK snapshots over the jsonrpc runtime', () => {
         expect(events.filter(event => event.type === 'sandbox/mode').map(event => event.data.mode)).toEqual(['workspace-write'])
         expect(events.filter(event => event.type === 'approval/policy').map(event => event.data.policy)).toEqual(['ask'])
         expect(events.filter(event => event.type === 'turn/start')).toHaveLength(4)
-        expect(events.filter(event => event.type === 'step/start')).toHaveLength(6)
-        expect(modelRequests).toHaveLength(6)
+        // QiLin's plan-mode rethrows a dismissed review instead of concluding the
+        // turn, so the dismissal spends one more request than upstream records.
+        expect(events.filter(event => event.type === 'step/start')).toHaveLength(7)
+        expect(modelRequests).toHaveLength(7)
         const active = modelRequests.map((request) => {
           const messages = request.messages as JsonObject[]
           const system = messages.filter(message => message.role === 'system').at(-1)
           return JSON.stringify(system).includes('You are in plan mode.')
         })
-        expect(active).toEqual([false, true, true, false, true, false])
+        expect(active).toEqual([false, true, true, false, true, true, false])
+        // QiLin registers exit_plan_mode for the whole Session rather than only
+        // while plan mode is active.
         expect(modelRequests.map(request => (request.tools as JsonObject[]).some(tool => tool.name === 'exit_plan_mode')))
-          .toEqual([false, true, true, true, true, true])
+          .toEqual([true, true, true, true, true, true, true])
         const toolResults = events.filter(event => event.type === 'tool/result')
         expect(toolResults).toHaveLength(3)
         expect(JSON.stringify(toolResults[0]?.data)).toContain('Add rollback.')

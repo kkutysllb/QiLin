@@ -1,0 +1,7 @@
+# Capture the manual-compaction model requests before adapter execution.
+
+- insert:
+    - id: compact-request-capture
+      name: './capture-requests.mjs'
+      config:
+        path: !!js qilinHomePath('compact-requests.jsonl')
