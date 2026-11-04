@@ -238,11 +238,11 @@ describe('SidebarRoot shell', () => {
         options?.fallback ?? null) as SidebarRootComponentProps['renderSlot']}
     />)
 
-    expect(screen.getByText('QiLin Super Agent')).toBeTruthy()
+    expect(screen.getByText('QiLin Agent')).toBeTruthy()
     // The badge shows the version; the commit and dirty suffixes ride its tooltip.
     const badge = screen.getByText('1.2.3-rc.4')
     expect(badge.getAttribute('title')).toBe('1.2.3-rc.4-0123456-dirty')
-    expect(badge.parentElement?.textContent).toBe('QiLin Super Agent1.2.3-rc.4')
+    expect(badge.parentElement?.textContent).toBe('QiLin Agent1.2.3-rc.4')
     expect(container.querySelector('svg')).not.toBeNull()
   })
 
@@ -266,7 +266,7 @@ describe('SidebarRoot shell', () => {
         options?.fallback ?? null) as SidebarRootComponentProps['renderSlot']}
     />)
 
-    expect(screen.getByText('QiLin Super Agent')).toBeTruthy()
+    expect(screen.getByText('QiLin Agent')).toBeTruthy()
     expect(screen.getByText(version).getAttribute('title')).toBe(detail)
   })
 
@@ -284,7 +284,7 @@ describe('SidebarRoot shell', () => {
         options?.fallback ?? null) as SidebarRootComponentProps['renderSlot']}
     />)
 
-    expect(screen.getByText('QiLin Super Agent')).toBeTruthy()
+    expect(screen.getByText('QiLin Agent')).toBeTruthy()
   })
 
   it('hands the region its wide flag and clamps expandSidebar to the collapsed state', () => {

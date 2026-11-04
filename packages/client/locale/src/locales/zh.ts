@@ -28,7 +28,7 @@ export const zh = {
   'collapse': '收起',
   'expand': '展开',
   'back': '返回',
-  'brand.localBuild': 'QiLin Super Agent',
+  'brand.localBuild': 'QiLin Agent',
   'brand.desktop': '桌面',
   'unknown': '未知',
   'none': '无',

@@ -80,7 +80,7 @@ it('boots the built plugin graph and renders a fixture session end to end', asyn
     const badge = screen.getByText(version)
     expect(badge.getAttribute('title')).toBe(buildDetail)
     if (badge.parentElement === null) throw new Error('the build version must sit inside the brand badge')
-    expect(badge.parentElement.textContent).toBe('QiLin Super Agent' + version)
+    expect(badge.parentElement.textContent).toBe('QiLin Agent' + version)
   }
   // The compact layout dropped group session counts; the fixture workspace
   // group row renders immediately with its sessions beneath it.

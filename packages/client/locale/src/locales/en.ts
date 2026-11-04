@@ -30,7 +30,7 @@ export const en = {
   'collapse': 'Collapse',
   'expand': 'Expand',
   'back': 'Back',
-  'brand.localBuild': 'QiLin Super Agent',
+  'brand.localBuild': 'QiLin Agent',
   'brand.desktop': 'Desktop',
   'unknown': 'Unknown',
   'none': 'None',
