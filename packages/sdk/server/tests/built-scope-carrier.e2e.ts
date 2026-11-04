@@ -3,7 +3,7 @@
  * `qilin-sdk-jsonrpc-server`. The carrier registry is module-local, so both bundles must
  * externalize `qilin-scope`; source-mode tests cannot expose an accidentally
  * inlined second registry. This test runs the real `lib/index.js` bundles in a
- * plain Node subprocess, disposes the child before settlement, and requires the
+ * plain Node subprocess, settles a child with an unavailable model, and requires the
  * SDK completion notification to retain the delegating parent.
  */
 
@@ -22,7 +22,6 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { mountWorkingDirectoryFixture } from '../../../subagent/subagent/tests/working-directory-fixture.ts'
 
 const load = (path) => import(pathToFileURL(resolve(path)).href);
 const [
@@ -48,7 +47,6 @@ const ctx = new Context();
 try {
   await mountAgentLoopTestDependencies(ctx, { workingDirectory: true });
   await ctx.plugin(AgentLoop, { agents: [] });
-  await mountWorkingDirectoryFixture(ctx)
   await ctx.plugin(SubagentRuntime);
   await ctx.plugin(JsonlSessionPersistence, { root: storageRoot });
   await new Promise((ready) => setTimeout(ready, 50));
@@ -63,35 +61,22 @@ try {
     meta: { cwd: storageRoot },
     agentOptions: { model: "test" },
   });
-  const child = await parent.agent.ctx.agents.create({
-    sessionId: SessionId("built-child"),
-    meta: { cwd: storageRoot, parentSession: SessionId("built-parent") },
-    agentOptions: { model: "test" },
-    parentAgent: parent.agent,
-  });
-  const result = Promise.withResolvers();
   const unregister = ctx.subagents.registerProvider({
     name: "built-local",
-    capabilities: { agentOptions: false, outputSchema: false, depthLimit: false, toolFilter: false, persona: false },
+    capabilities: { agentOptions: false, agentPreset: false, outputSchema: false, depthLimit: false },
     inheritsParentContext: false,
-    start() {
-      return Promise.resolve({
-        id: child.agent.id,
-        localAgent: child.agent,
-        result: result.promise,
-        dispose() { return Promise.resolve(); },
-      });
-    },
+    prepareContinuable() { return Promise.resolve({}); },
   });
-  const run = await ctx.subagents.start("built-local", {
-    parent: parent.agent,
-    prompt: [],
+  const run = await ctx.subagents.startActivation({
+    provider: "built-local",
+    childId: SessionId("built-child"),
+    label: "built scope carrier",
+    delivery: "caller",
+    request: { parent: parent.agent, prompt: [{ type: "text", text: "Use the unavailable test model." }] },
     signal: new AbortController().signal,
   });
-  await child.dispose();
-  result.resolve({ output: [], stopReason: "completed" });
   await run.result;
-  await Promise.resolve();
+  await run.dispose();
 
   console.log(JSON.stringify(notifications.filter(({ method }) => method === "subagent.finished")));
   await run.dispose();
@@ -121,8 +106,8 @@ describe.skipIf(!existsSync(jsonrpcBundle))('qilin-sdk-jsonrpc-server BUILT scop
         agentId: 'built-child',
         parentSessionId: 'built-parent',
         childSessionId: 'built-child',
-        status: 'ok',
-        stopReason: 'completed',
+        status: 'error',
+        stopReason: 'error',
       },
     }])
   })

@@ -9,29 +9,35 @@
   en: 2518c7e7142a83a6
   zh: 545d4928b779b606
 /qilin-agent-sdk-client/summary:
-  en: 296fd5fa9e2d56ca
-  zh: 89f81af039e90708
+  en: 70401f813a4ec462
+  zh: adc796652c0001be
 /qilin-agent-sdk-client/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-sdk-client/use-this-package:
-  en: 316b142489dd050f
-  zh: 2b37ae57b2a52b5e
+  en: d1fb034253df8f93
+  zh: 15d4268fc08bab24
 /qilin-agent-sdk-client/use-this-package/running-agent-turns-with-deepseekharness:
-  en: 01c58dddd7e62de2
-  zh: 6dbd46e244f3f135
+  en: 1a36c54463e17340
+  zh: ad67f9cbccc56def
+/qilin-agent-sdk-client/use-this-package/run-text-and-native-commands:
+  en: bde754f330ab5705
+  zh: 458e4ba89e64f7ad
 /qilin-agent-sdk-client/use-this-package/lower-level-control-with-harnessclient:
-  en: eb8d1958801816b6
-  zh: 1a6087e2dd1a9347
+  en: 28d1a81527e0854d
+  zh: 921c660a4d55fc9d
+/qilin-agent-sdk-client/use-this-package/native-user-questions:
+  en: f5b9d6a7363bd9e5
+  zh: f53b3786d22a729d
 /qilin-agent-sdk-client/understand-the-implementation:
   en: 8773f50c51da85f0
   zh: 4649ebc69357deb0
 /qilin-agent-sdk-client/understand-the-implementation/design-concept:
-  en: 109a9c832204693c
-  zh: 6af985fe4abe57e2
+  en: 83c5e9664dd07ec9
+  zh: 09af294568e2f9e0
 /qilin-agent-sdk-client/understand-the-implementation/source-map:
-  en: a3c7978a80f5aba3
-  zh: fdc4dfdafd2eccfa
+  en: ee896439a5c07ca3
+  zh: 1b18751fe2db250e
 /qilin-agent-sdk-client/understand-the-implementation/owned-activity-flow:
   en: 94a42babac5f1c7d
   zh: df9e42ed02f7d002
@@ -48,8 +54,8 @@
   en: 7abe0be104a791e7
   zh: 445311f78b1069ca
 /qilin-agent-sdk-client/known-limitations-and-deferred-work:
-  en: 7b24f3cd40fd7971
-  zh: bdb0f7c37f1658da
+  en: 271f07e1f61c4eb7
+  zh: 984fa1e6ee4b389f
 /qilin-agent-sdk-client/known-limitations-and-deferred-work/dev-note:
   en: 6177a56f053936a4
   zh: 0f4b20228c2d15da

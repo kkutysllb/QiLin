@@ -38,6 +38,7 @@
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin-agent/experimental-translator": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/sdk-protocol": "workspace:*",
     "@qilin-agent/session": "workspace:*",

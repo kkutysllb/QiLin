@@ -33,25 +33,43 @@ Wire one JSON-RPC 2.0 message per `\n`-terminated line over byte streams you own
 
 ### The SDK methods
 
-Both wire ends share one method set: five client-to-server requests and four server-to-client notifications.
+Both wire ends share one method set: eight client-to-server requests, two opt-in server-to-client requests, and six server-to-client notifications.
 
 | Direction | Method | Payload types |
 |---|---|---|
 | client→server | `initialize` | `InitializeParams` → `InitializeResult` |
 | client→server | `session/prompt` | `SessionPromptParams` → `SessionPromptResult` (durable enqueue receipt) |
+| client→server | `session/query` | `SessionQueryParams` → `SessionQueryResult` (receipt or settled command) |
+| client→server | `session/resume` | `SessionResumeParams` → `{}` |
+| client→server | `session/wait` | `SessionWaitParams` → `{}` |
 | client→server | `session/working-directory/get` | `SessionWorkingDirectoryParams` → `SessionWorkingDirectoryResult` |
 | client→server | `session/working-directory/set` | `SessionWorkingDirectorySetParams` → `SessionWorkingDirectoryResult` |
 | client→server | `shutdown` | no params → `{}` |
+| server→client | `approval/request` | `ApprovalRequestParams` → `ApprovalRequestResult` |
+| server→client | `user-question/ask` | `SdkUserQuestionRequest` → `SdkUserQuestionResult` |
+| server→client | `user-question.cancelled` | `SdkUserQuestionCancelled` |
 | server→client | `session.event` | `SessionEventNotification` (every session in the runtime, unfiltered) |
 | server→client | `session.status` | `SessionStatusNotification` (whole-agent `running`/`idle` transition) |
+| server→client | `session.query.completed` | `{ sessionId, commandId, finalResponse, finishReason }` |
 | server→client | `subagent.started` | `SubagentStartedNotification` |
 | server→client | `subagent.finished` | `SubagentFinishedNotification` (in-process runs only) |
 
 `HarnessSdkRequestMap` and `HarnessSdkNotificationMap` index these shapes by method name; the package root exports them together with the transport.
 
+`session/query` accepts `{ sessionId, contentBlocks }` using `SdkPromptContentBlock[]`. Both SDKs normalize string input into one text block and send content-block arrays through this same entry. Ordinary input is queued in block order and returns `{ kind: "prompt", messageId }`; a supported command settles into `{ kind: "command", execution }`. A recognized command requires one complete text block with only encoded images beside it, and other combinations reject before execution or enqueue. Empty arrays and arrays holding only blank text are rejected; image-only input is allowed. A prompt receipt is not a model result, and command completion needs neither an inbox receipt nor an idle notification. Recognition and the supported command set belong to the [JSON-RPC serving plugin](../server/README.md).
+
+Command lifecycle notifications precede the `session/query` response. A command query ends high-level observation with `session.query.completed` for the same `commandId`, after the model activity it starts; goal creation and resume also wait for goal termination and the closing reply. State-only commands need no model turn, so their completion can precede the response. SDKs consume this receipt internally and return a `RunResult`; forwarders must preserve order, and shutdown cancels unfinished observation.
+
+`SessionWaitParams` waits for an existing SDK-owned session and its progressing managed descendants, returning `{}` once the root stays idle. Waiting never creates a session, and unknown ids or a live Agent failure without a newer committed terminal are rejected.
+
+<a id="native-user-questions"></a>
+### Native user questions
+
+An answering host opts in twice: `InitializeParams.capabilities.userQuestions` enables `user-question/ask` with `{ requestId, sessionId, questions }`, and `InitializeParams.approvalRequests` enables `approval/request` with `{ sessionId, toolName, callId?, reason? }`. The host answers every question id exactly once, or returns `{ cancelled: true }` alone to dismiss the questions; a dismissal maps to native `ASK_CANCELLED` and never means approval. Approval answers only `allowed-once`, `rejected`, or `cancelled`, and a grant never persists beyond its operation. `user-question.cancelled` identifies a request that stopped waiting, and late answers are ignored.
+
 ### Payload semantics
 
-`SessionPromptResult.messageId` identifies the queued user message; it does not identify a later assistant message, turn ending, or prompt result. `SdkPromptContentBlock` accepts ordinary durable content plus `SdkEncodedImageBlock { type: "image", data, mimeType }`; the server converts encoded images to durable references before enqueue. `InitializeParams.reasoningEffort` is an optional non-empty adapter-owned identifier for the selected provider/model route; omission preserves that model's default. `InitializeParams.maxTokens` is an optional positive safe integer that caps each conversation-model output for SDK-created agents and their in-process descendants; omission lets the selected adapter's exact-model default apply. The server resolves the exact route during initialization and rejects `session/prompt` until that handshake succeeds, so a missing adapter, unavailable model, or unsupported effort cannot fall back to constructor defaults. `SubagentFinishedNotification.lastAssistantMessage` carries the child's last non-empty assistant message, or its accumulated assistant text when no such message exists; the field is absent when the child produced neither. `serverInfo.name` stays the wire-stable `deepseek-harness-sdk-runtime`. Notification payloads depend on `SessionEvent` (`qilin-session`), `ContentBlock` (`qilin-llm`), and `SubagentStopReason` (`qilin-subagent`), so the session vocabulary is part of the wire contract.
+`SessionPromptResult.messageId` identifies the queued user message; it does not identify a later assistant message, turn ending, or prompt result. `SdkPromptContentBlock` accepts ordinary durable content plus `SdkEncodedImageBlock { type: "image", data, mimeType, name? }`; the server converts encoded images to durable references before enqueue, and `name` is display metadata never interpreted as a path. `InitializeParams.reasoningEffort` is an optional non-empty adapter-owned identifier for the selected provider/model route; omission preserves that model's default. `InitializeParams.maxTokens` is an optional positive safe integer that caps each conversation-model output for SDK-created agents and their in-process descendants; omission lets the selected adapter's exact-model default apply. The server resolves the exact route during initialization and rejects `session/prompt` until that handshake succeeds, so a missing adapter, unavailable model, or unsupported effort cannot fall back to constructor defaults. `SubagentFinishedNotification.lastAssistantMessage` carries the child's last non-empty assistant message, or its accumulated assistant text when no such message exists; the field is absent when the child produced neither. `serverInfo.name` stays the wire-stable `deepseek-harness-sdk-runtime`. Notification payloads depend on `SessionEvent` (`qilin-session`), `ContentBlock` (`qilin-llm`), and `SubagentStopReason` (`qilin-subagent`), so the session vocabulary is part of the wire contract.
 
 -----
 
@@ -113,7 +131,7 @@ These limits define what the protocol does not cover or promise. They are curren
 
 - **No protocol-version negotiation** — the handshake carries only `serverInfo.version` (`0.0.1`, unvalidated by clients); pre-release stance, no compatibility promise.
 - **No cancel or session-close methods** — a client abandons a turn by closing the runtime process; see the [JSON-RPC serving plugin](../server/README.md).
-- **Server→client requests are a dead capability** — the transport supports them, but the server never sends one; the Python SDK's responder surface exists for future approval flows.
+- **Server→client requests need an explicit opt-in** — the runtime sends `approval/request` and `user-question/ask` only after `initialize` enables them; without the opt-in, in-process answerers stay in control.
 
 <a id="dev-note"></a>
 ### Dev Note

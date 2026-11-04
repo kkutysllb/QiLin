@@ -6,26 +6,38 @@
  */
 
 import type { Context } from '@qilin-agent/kylin'
+import { AsyncLocalStorage } from 'node:async_hooks'
 import { resolve } from 'node:path'
+import { QueryActivity } from './query-activity.ts'
+import { SdkUserQuestionBridge } from './user-questions.ts'
+import { queryCommand } from './query-input.ts'
+import { queryCommandImages, queryContent } from './query-content.ts'
 import { brandString } from '@qilin-agent/brand'
 import type { Agent, AgentHandle } from '@qilin-agent/agent'
 import { admitEncodedImages, type EncodedImageAttachment, type ImageAttachmentRef } from '@qilin-agent/attachment'
 import { createUserMessage, ReasoningEffortId, type ContentBlock, type LlmRuntime } from '@qilin-agent/llm'
 import { carrierKeyOf, type Scoped } from '@qilin-agent/scope'
-import type { SessionId } from '@qilin-agent/session'
+import type { SessionId, SessionLogOffset } from '@qilin-agent/session'
 import type {} from '@qilin-agent/working-directory'
+import type {} from '@qilin-agent/user-approval'
+
+import type {} from '@qilin-agent/schedule'
 import type SubagentRuntime from '@qilin-agent/subagent'
 import type { SubagentRunEndInfo } from '@qilin-agent/subagent'
 import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 import type {
+  ApprovalRequestParams,
+  CommandExecution,
   InitializeParams,
   InitializeResult,
   JsonRpcTransportPeer,
   SessionEventNotification,
+  SessionQueryParams,
+  SessionQueryResult,
   SessionPromptParams,
   SessionPromptResult,
   SessionResumeParams,
-  SessionResumeResult,
+  SessionWaitParams,
   SessionWorkingDirectoryParams,
   SessionWorkingDirectorySetParams,
   SessionWorkingDirectoryResult,
@@ -34,8 +46,13 @@ import type {
   SubagentStartedNotification,
 } from '@qilin-agent/sdk-protocol'
 
+/** Wall-clock budget for reading the settlement notices an owned parent still owes at shutdown. */
+const SETTLEMENT_FLUSH_DEADLINE_MS = 10_000
+
 interface SessionRecord {
   handle: AgentHandle
+  /** Latest live failure not superseded by a subsequently committed terminal. */
+  failure: { readonly error: unknown; readonly atOffset: SessionLogOffset } | undefined
 }
 
 function encodedImage(block: SessionPromptParams['contentBlocks'][number]): block is SdkEncodedImageBlock {
@@ -50,15 +67,13 @@ async function durablePromptContent(ctx: Context, blocks: SessionPromptParams['c
   const refs = await admitEncodedImages(attachments, images.map((image): EncodedImageAttachment => ({
     data: image.data,
     mediaType: image.mimeType,
+    ...image.name === undefined ? {} : { name: image.name },
   })))
   let next = 0
   return blocks.map(block => encodedImage(block)
     ? { type: 'image', attachment: refs[next++] as ImageAttachmentRef }
     : block)
 }
-
-/** Wall-clock budget for reading the settlement notices an owned parent still owes at shutdown. */
-const SETTLEMENT_FLUSH_DEADLINE_MS = 10_000
 
 /** Recover the delegating parent from the service-owned scoped carrier. */
 function subagentParentOf(carrier: Scoped<SubagentRuntime>): Agent {
@@ -90,27 +105,92 @@ export class HarnessSdkJsonRpcServer {
   private llmFiber: { dispose(): Promise<void> } | undefined
   private readonly sessions = new Map<string, SessionRecord>()
   private readonly sessionCreations = new Map<string, Promise<SessionRecord>>()
+  private readonly commandTasks = new Set<Promise<CommandExecution | undefined>>()
+  private readonly queryInvocation = new AsyncLocalStorage<QueryActivity>()
+  private readonly queryActivities = new Set<QueryActivity>()
+  private readonly goalLifetime: { dispose(): Promise<void> }
   private readonly disposers: (() => void)[] = []
   private shutdownTask: Promise<Record<string, never>> | undefined
   private shuttingDown = false
   private initialized = false
+  private approvalRequests = false
+  private readonly lifetime = new AbortController()
+  private readonly userQuestions: SdkUserQuestionBridge
+  private readonly initialization = Promise.withResolvers<void>()
+  /** Restored by a reminder and available for the client's first resume. */
+  private readonly scheduledSessions = new Map<string, Promise<SessionRecord>>()
 
   constructor(
     private readonly ctx: Context,
     private readonly transport: JsonRpcTransportPeer,
     private readonly options: HarnessSdkJsonRpcServerOptions = {},
   ) {
+    this.goalLifetime = ctx.inject(['goals'], (goalCtx) => {
+      goalCtx.effect(() => () => {
+        for (const activity of this.queryActivities) activity.goalUnavailable()
+      })
+    })
+    this.disposers.push(ctx.on('approval/request', async (request, next) => {
+      if (!this.approvalRequests || !this.ownsAgent(request.agent)) return next()
+      const params: ApprovalRequestParams = {
+        sessionId: request.agent.session.id,
+        toolName: request.toolName,
+        ...(request.callId === undefined ? {} : { callId: request.callId }),
+        ...(request.reason === undefined ? {} : { reason: request.reason }),
+      }
+      const signal = request.signal === undefined
+        ? this.lifetime.signal
+        : AbortSignal.any([request.signal, this.lifetime.signal])
+      const result = await this.transport.request('approval/request', params, signal)
+      if (result === null || typeof result !== 'object' || !('outcome' in result)
+        || (result.outcome !== 'allowed-once' && result.outcome !== 'rejected' && result.outcome !== 'cancelled')) {
+        throw new TypeError('approval/request response requires an allowed-once, rejected, or cancelled outcome')
+      }
+      return result.outcome
+    }))
     const serverOptions = this.options
+    this.userQuestions = new SdkUserQuestionBridge(ctx, transport, agent =>
+      this.sessions.get(agent.session.id)?.handle.agent === agent)
+    this.disposers.push(ctx.on('schedule/resolve-agent', async (sessionId) => {
+      // Startup delivery must wait for the SDK model route and output limit.
+      await this.initialization.promise
+      if (this.shuttingDown) throw new Error('SDK server is shutting down')
+      const existing = this.sessions.get(sessionId)
+      const pending = this.sessionCreations.get(sessionId)
+      if (existing !== undefined) {
+        this.assertLiveAgent(existing, sessionId)
+        return existing.handle.agent
+      }
+      if (pending !== undefined) return (await pending).handle.agent
+      const restoration = this.openSession(sessionId, true)
+      this.scheduledSessions.set(sessionId, restoration)
+      try {
+        return (await restoration).handle.agent
+      } catch (error) {
+        this.scheduledSessions.delete(sessionId)
+        throw error
+      }
+    }))
     this.disposers.push(ctx.on('session/event', (session, event) => {
+      const record = this.sessions.get(session.id)
+      if (event.type === 'turn/end' && record?.handle.agent.session === session
+        && record.failure !== undefined && event.seq >= record.failure.atOffset) {
+        record.failure = undefined
+      }
       const payload: SessionEventNotification = { sessionId: String(session.id), event }
       this.transport.notify('session.event', payload)
+    }))
+    this.disposers.push(ctx.on('agent/error', ({ agent, error }) => {
+      const record = this.sessions.get(agent.session.id)
+      if (record?.handle.agent !== agent) return
+      record.failure = { error, atOffset: agent.session.seq }
     }))
     this.disposers.push(ctx.on('agent/status', ({ agent, status }) => {
       this.transport.notify('session.status', { sessionId: String(agent.session.id), status })
     }))
     this.disposers.push(ctx.on('session/created', (session) => {
       const parentSession = session.header.parentSession
-      if (parentSession === undefined) return
+      if (session.header.origin !== 'subagent' || parentSession === undefined) return
       const payload: SubagentStartedNotification = {
         parentSessionId: String(parentSession),
         childSessionId: String(session.id),
@@ -144,6 +224,9 @@ export class HarnessSdkJsonRpcServer {
    * @returns server identity for the handshake.
    */
   async initialize(params: InitializeParams): Promise<InitializeResult> {
+    if (params.approvalRequests !== undefined && typeof params.approvalRequests !== 'boolean') {
+      throw new TypeError('initialize approvalRequests must be a boolean')
+    }
     if (params.reasoningEffort !== undefined
       && (typeof params.reasoningEffort !== 'string' || params.reasoningEffort.length === 0)) {
       throw new TypeError('initialize reasoningEffort must be a non-empty string')
@@ -175,7 +258,10 @@ export class HarnessSdkJsonRpcServer {
     this.model = model
     this.reasoningEffort = reasoningEffort
     this.maxTokens = params.maxTokens
+    this.approvalRequests = params.approvalRequests === true
+    this.userQuestions.enabled = params.capabilities?.userQuestions === true
     this.initialized = true
+    this.initialization.resolve()
     return { serverInfo: { name: 'deepseek-harness-sdk-runtime', version: '0.0.1' } }
   }
 
@@ -187,11 +273,13 @@ export class HarnessSdkJsonRpcServer {
   async prompt(params: SessionPromptParams): Promise<SessionPromptResult> {
     if (!this.initialized) throw new Error('SDK server is not initialized')
     const rec = await this.getOrCreateSession(params.sessionId)
+    this.lifetime.signal.throwIfAborted()
     // An agent-loop-only reload disposes the loop's agents while this record
     // survives; a retained agent accepts followup() silently, so validate the
     // record against the live registry before delivery.
     this.assertLiveAgent(rec, params.sessionId)
     const content = await durablePromptContent(this.ctx, params.contentBlocks)
+    this.lifetime.signal.throwIfAborted()
     // Attachment admission crosses an async boundary where shutdown or an
     // agent-loop reload may detach the retained handle.
     this.assertLiveAgent(rec, params.sessionId)
@@ -204,21 +292,125 @@ export class HarnessSdkJsonRpcServer {
   }
 
   /**
+   * Dispatch text as a Desktop-style input; native commands own Session state changes.
+   * @param params - ordered content blocks and receiving Session.
+   * @returns a prompt receipt or native command acknowledgment; command activity completes by notification.
+   * @throws on runtime failure; a recognized command failure never falls back to a prompt.
+   */
+  async query(params: SessionQueryParams): Promise<SessionQueryResult> {
+    if (!this.initialized) throw new Error('SDK server is not initialized')
+    if (this.shuttingDown) throw new Error('SDK server is shutting down')
+    const text = params.contentBlocks.find(block => block.type === 'text')
+    if (text?.text.trim().startsWith('/')) {
+      const commands = this.ctx.get('commands')
+      if (commands !== undefined) {
+        const rec = await this.getOrCreateSession(params.sessionId)
+        this.lifetime.signal.throwIfAborted()
+        this.assertLiveAgent(rec, params.sessionId)
+        const line = queryCommand(text.text, commands.list(rec.handle.agent))
+        if (line !== undefined) {
+          const images = queryCommandImages(params.contentBlocks, text)
+          const activity: QueryActivity = new QueryActivity(this.ctx, rec.handle.agent, this.transport,
+            () => this.queryInvocation.getStore() === activity, this.lifetime.signal,
+            (current) => { this.queryActivities.delete(current) })
+          this.queryActivities.add(activity)
+          try {
+            const task = this.queryInvocation.run(activity, () => commands.execute(rec.handle.agent, line, images.map(image => ({
+              type: 'image', data: image.data, mediaType: image.mimeType,
+              ...image.name === undefined ? {} : { name: image.name },
+            })), this.lifetime.signal))
+            this.commandTasks.add(task)
+            try {
+              const execution = await task
+              if (execution === undefined) throw new Error('The selected command is unavailable in this SDK profile')
+              activity.accept(execution)
+              return { kind: 'command', execution }
+            } finally {
+              this.commandTasks.delete(task)
+            }
+          } catch (error) {
+            activity.close()
+            throw error
+          }
+        }
+      }
+    }
+    const receipt = await this.prompt({
+      sessionId: params.sessionId,
+      contentBlocks: params.contentBlocks,
+    })
+    return { kind: 'prompt', ...receipt }
+  }
+
+  /**
    * Restore a persisted session and repair its interrupted final turn without sending input.
    * Uses the initialized model route while preserving the stored session identity and directory.
    * Rejects missing, unreadable, or already owned sessions; never creates a replacement.
    * @param params - persisted session identity in the configured persistence store.
-   * @returns the restored identity after the Agent is ready for prompts.
+   * @returns an empty result after the Agent is ready for prompts.
    */
-  async resume(params: SessionResumeParams): Promise<SessionResumeResult> {
+  async resume(params: SessionResumeParams): Promise<Record<string, never>> {
     if (!this.initialized) throw new Error('SDK server is not initialized')
     if (this.shuttingDown) throw new Error('SDK server is shutting down')
     const sessionId = params.sessionId
+    const restoration = this.scheduledSessions.get(sessionId)
+    if (restoration !== undefined) {
+      this.scheduledSessions.delete(sessionId)
+      const record = await restoration
+      this.assertLiveAgent(record, sessionId)
+      return {}
+    }
     if (this.sessions.has(sessionId) || this.sessionCreations.has(sessionId)) {
       throw new Error(`SDK session is already open or opening: ${sessionId}`)
     }
     await this.openSession(sessionId, true)
-    return { sessionId }
+    return {}
+  }
+
+  /**
+   * Wait for an existing owned Agent and its managed descendants to finish.
+   * The response follows all Session notifications emitted during the wait.
+   * Rejects a live Agent failure that has no subsequent durable terminal.
+   * @param params - the SDK-owned session to observe without creating one.
+   * @returns an empty result after the root stays idle across the descendant check.
+   */
+  async wait(params: SessionWaitParams): Promise<Record<string, never>> {
+    if (!this.initialized) throw new Error('SDK server is not initialized')
+    const rec = this.sessions.get(params.sessionId)
+    if (rec === undefined) throw new Error(`unknown SDK session: ${params.sessionId}`)
+    const agent = rec.handle.agent
+    const subagents = this.ctx.get('subagents')
+    while (true) {
+      this.assertLiveAgent(rec, params.sessionId)
+      await agent.whenIdle()
+      const idleSeq = agent.session.seq
+      const children = await subagents?.waitForChildren(agent)
+      this.assertLiveAgent(rec, params.sessionId)
+      if (!children && agent.status === 'idle' && agent.session.seq === idleSeq) {
+        if (rec.failure !== undefined) throw rec.failure.error
+        return {}
+      }
+    }
+  }
+
+  private ownsAgent(agent: Agent): boolean {
+    const agents = this.ctx.agents
+    if (agents.get(agent.id) !== agent) return false
+    const liveAgents = agents.list()
+    const ancestors = new Set([agent])
+    for (const current of ancestors) {
+      if (this.sessions.get(current.session.id)?.handle.agent === current) return true
+      for (const parent of liveAgents) {
+        if (agents.isOwnedBy(current.id, parent)) ancestors.add(parent)
+      }
+    }
+    return false
+  }
+
+  private assertLiveAgent(rec: SessionRecord, sessionId: string): void {
+    if (this.ctx.agents.get(rec.handle.agent.id) !== rec.handle.agent) {
+      throw new Error(`session agent was disposed outside the server: ${sessionId}`)
+    }
   }
 
   /**
@@ -248,12 +440,6 @@ export class HarnessSdkJsonRpcServer {
     return rec.handle.agent
   }
 
-  private assertLiveAgent(rec: SessionRecord, sessionId: string): void {
-    if (this.ctx.agents.get(rec.handle.agent.id) !== rec.handle.agent) {
-      throw new Error(`session agent was disposed outside the server: ${sessionId}`)
-    }
-  }
-
   /**
    * Dispose server-owned agents, adapter, and subscriptions to quiescence.
    * Managed descendants drain before the root Agent handles and adapter are released.
@@ -267,9 +453,15 @@ export class HarnessSdkJsonRpcServer {
 
   private async performShutdown(): Promise<Record<string, never>> {
     this.shuttingDown = true
+    this.lifetime.abort(new Error('SDK server is shutting down'))
+    this.userQuestions.close()
+    this.initialization.resolve()
     const pendingCreations = [...this.sessionCreations.values()]
     await Promise.allSettled(pendingCreations)
+    await Promise.allSettled([...this.commandTasks])
+    this.queryInvocation.disable()
     this.sessionCreations.clear()
+    this.scheduledSessions.clear()
     const records = [...this.sessions.values()]
     this.sessions.clear()
     const failures: unknown[] = []
@@ -306,13 +498,14 @@ export class HarnessSdkJsonRpcServer {
       failures.push(error)
     }
     const teardownResults = await Promise.allSettled([
+      this.goalLifetime.dispose(),
       ...records.map(rec => Promise.resolve().then(() => rec.handle.dispose())),
       ...(this.llmFiber === undefined ? [] : [Promise.resolve().then(() => this.llmFiber?.dispose())]),
     ])
     this.llmFiber = undefined
     failures.push(...teardownResults
       .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
-      .map((result): unknown => result.reason))
+      .map(result => result.reason as unknown))
     if (failures.length === 1) throw failures[0]
     if (failures.length > 1) throw new AggregateError(failures, 'SDK server teardown failed')
     return {}
@@ -331,12 +524,26 @@ export class HarnessSdkJsonRpcServer {
         return this.initialize(params as unknown as InitializeParams)
       case 'session/prompt':
         return this.prompt(params as unknown as SessionPromptParams)
+      case 'session/query': {
+        if (typeof params?.sessionId !== 'string' || params.sessionId.length === 0
+          || Object.keys(params).some(key => key !== 'sessionId' && key !== 'contentBlocks')) {
+          throw new TypeError('session/query requires only a non-empty sessionId and contentBlocks')
+        }
+        return this.query({
+          sessionId: brandString<SessionId>(params.sessionId), contentBlocks: queryContent(params.contentBlocks),
+        })
+      }
       case 'session/resume': {
         const sessionId = params?.sessionId
         if (typeof sessionId !== 'string' || sessionId.length === 0) {
           throw new TypeError('session/resume requires a non-empty sessionId string')
         }
         return this.resume({ sessionId })
+      }
+      case 'session/wait': {
+        const sessionId = params?.sessionId
+        if (typeof sessionId !== 'string') throw new TypeError('session/wait requires a sessionId string')
+        return this.wait({ sessionId })
       }
       case 'session/working-directory/get':
       case 'session/working-directory/set': {
@@ -358,6 +565,7 @@ export class HarnessSdkJsonRpcServer {
 
   private async getOrCreateSession(sessionId: string): Promise<SessionRecord> {
     if (this.shuttingDown) throw new Error('SDK server is shutting down')
+    this.scheduledSessions.delete(sessionId)
     const existing = this.sessions.get(sessionId)
     if (existing) return existing
     const pending = this.sessionCreations.get(sessionId)
@@ -386,6 +594,8 @@ export class HarnessSdkJsonRpcServer {
       ...this.reasoningEffort === undefined ? {} : { reasoningEffort: this.reasoningEffort },
       ...this.maxTokens === undefined ? {} : { maxTokens: this.maxTokens },
     }
+    // The agent loop restores a persisted reasoning effort for this exact route
+    // when the initialized selection omits one, so resuming passes only the route.
     const handle = await (resume ? this.ctx.agents.resume({
       resumeSessionId: brandString<SessionId>(sessionId),
       agentOptions,
@@ -394,7 +604,7 @@ export class HarnessSdkJsonRpcServer {
       meta: { cwd: this.cwd },
       agentOptions,
     }))
-    const rec: SessionRecord = { handle }
+    const rec: SessionRecord = { handle, failure: undefined }
     this.sessions.set(sessionId, rec)
     return rec
   }

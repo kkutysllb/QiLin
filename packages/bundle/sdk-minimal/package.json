@@ -68,7 +68,9 @@
     "@qilin-agent/tool-pwsh-persistent": "workspace:*",
     "@qilin-agent/token-meter": "workspace:*",
     "@qilin-agent/tool-fs": "workspace:*",
-    "@qilin-agent/tools": "workspace:*"
+    "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/tool-working-directory": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*"
   },
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~"

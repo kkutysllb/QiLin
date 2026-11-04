@@ -8,6 +8,7 @@ import { zstdDecompress } from 'node:zlib'
 import { resolveExampleLaunch } from '@qilin-agent/loader-smoke'
 import { execa } from 'execa'
 import { describe, expect, it } from 'vitest'
+import { messagesResponse } from './fixtures/messages-response.ts'
 
 const repoRoot = fileURLToPath(new URL('../../../../../', import.meta.url))
 const launch = resolveExampleLaunch({
@@ -15,17 +16,6 @@ const launch = resolveExampleLaunch({
   mode: 'lib',
 })
 const decompress = promisify(zstdDecompress)
-
-/** Frame one text or tool response from the local Messages endpoint. */
-function messagesResponse(content: Record<string, unknown>, stopReason: 'end_turn' | 'max_tokens' | 'tool_use'): string {
-  return [
-    { type: 'message_start', message: { id: 'sdk-smoke-response', model: 'deepseek-v4-pro', usage: { input_tokens: 3, output_tokens: 0 } } },
-    { type: 'content_block_start', index: 0, content_block: content },
-    { type: 'content_block_stop', index: 0 },
-    { type: 'message_delta', delta: { stop_reason: stopReason }, usage: { output_tokens: 1 } },
-    { type: 'message_stop' },
-  ].map(event => `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`).join('')
-}
 
 function waitForLine(
   lines: string[],
@@ -65,8 +55,19 @@ describe('Python SDK qilin profile keyless smoke', () => {
     { label: 'reports max-token turns with mapping enabled through env', envValue: 'true', editorEnabled: false },
     { label: 'reports max-token turns with mapping disabled through env', envValue: 'false', editorEnabled: false },
     { label: 'allows an explicit patch to enable str_replace_editor', envValue: undefined, editorEnabled: true },
-  ])('$label', async ({ envValue, editorEnabled }) => {
+    { label: 'allows an explicit patch to enable apply_patch', envValue: undefined, editorEnabled: false, patchEnabled: true },
+    // The shipped sdk profile mounts no observation policy: an edit of a file the model never read lands on disk.
+    { label: 'edits a file the model never read through the shipped profile', envValue: undefined, editorEnabled: false, unreadEdit: true },
+  ])('$label', async (scenario) => {
+    const { envValue, editorEnabled } = scenario
+    const unreadEdit = 'unreadEdit' in scenario && scenario.unreadEdit
+    const patchEnabled = 'patchEnabled' in scenario && scenario.patchEnabled
+
     const root = await mkdtemp(join(tmpdir(), 'qilin-python-sdk-runtime-smoke-'))
+    const unreadFile = join(root, 'notes.txt')
+    if (unreadEdit) await writeFile(unreadFile, 'alpha\n')
+    const fsPatch = join(root, 'fs.patch.yml')
+    if (patchEnabled) await writeFile(fsPatch, '- {id: tool-fs, config: {applyPatch: true}}\n')
     const editorPatch = join(root, 'editor.patch.yml')
     if (editorEnabled) await writeFile(editorPatch, [
       '- insert:',
@@ -82,7 +83,14 @@ describe('Python SDK qilin profile keyless smoke', () => {
       request.on('end', () => {
         modelRequests.push(JSON.parse(body) as Record<string, unknown>)
         response.writeHead(200, { 'content-type': 'text/event-stream' })
-        response.end(messagesResponse({ type: 'text', text: 'done' }, 'max_tokens'))
+        if (unreadEdit && modelRequests.length === 1) {
+          response.end(messagesResponse({
+            type: 'tool_use', id: 'unread-edit', name: 'edit',
+            input: { file_path: 'notes.txt', old_string: 'alpha', new_string: 'beta' },
+          }, 'tool_use'))
+          return
+        }
+        response.end(messagesResponse({ type: 'text', text: 'done' }, unreadEdit ? 'end_turn' : 'max_tokens'))
       })
     })
     await new Promise<void>(resolve => modelServer.listen(0, '127.0.0.1', resolve))
@@ -95,6 +103,7 @@ describe('Python SDK qilin profile keyless smoke', () => {
       '--profile',
       'sdk',
       ...(editorEnabled ? ['--patch', editorPatch] : []),
+      ...(patchEnabled ? ['--patch', fsPatch] : []),
     ], {
       cwd: repoRoot,
       env: {
@@ -166,16 +175,21 @@ describe('Python SDK qilin profile keyless smoke', () => {
           sessionId: 'main',
           event: {
             type: 'turn/end',
-            data: { reason: { kind: 'max-tokens' } },
+            data: { reason: { kind: unreadEdit ? 'completed' : 'max-tokens' } },
           },
         },
       })
+      if (unreadEdit) {
+        expect(modelRequests).toHaveLength(2)
+        expect(await readFile(unreadFile, 'utf8')).toBe('beta\n')
+      }
       expect(modelRequests[0]?.tools).toEqual(expect.any(Array))
       const tools = modelRequests[0]?.tools as { name?: string }[]
       const toolNames = tools.map(tool => tool.name)
       expect(modelRequests[0]?.output_config).toEqual({ effort: 'max' })
       expect(modelRequests[0]?.max_tokens).toBe(1234)
       expect(toolNames).toEqual(expect.arrayContaining(['read', 'write', 'edit', 'web_fetch', 'web_search']))
+      expect(toolNames.includes('apply_patch')).toBe(patchEnabled)
       expect(toolNames.includes('str_replace_editor')).toBe(editorEnabled)
       expect(toolNames).not.toContain('list_subagent_models')
 
@@ -301,7 +315,9 @@ describe('Python SDK qilin profile keyless smoke', () => {
       const tools = modelRequests[0]?.tools as { name?: string }[]
       expect(tools.map(tool => tool.name)).toEqual([
         process.platform === 'win32' ? 'pwsh' : 'bash',
+        'read_image',
         ...(editorEnabled ? ['str_replace_editor'] : []),
+        'working_directory',
       ])
       expect(modelRequests).toHaveLength(editorEnabled ? 3 : 1)
       if (editorEnabled) {

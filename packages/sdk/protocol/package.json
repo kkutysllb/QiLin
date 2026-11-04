@@ -29,15 +29,19 @@
   ],
   "license": "MIT",
   "peerDependencies": {
+    "@qilin-agent/commands": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/user-questions": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin-agent/commands": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
+    "@qilin-agent/user-questions": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   }
 }

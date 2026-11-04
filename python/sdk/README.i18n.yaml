@@ -9,11 +9,20 @@
   en: 4ec036b67b8d59e8
   zh: 030ba303c1e9d76c
 /qilin-python-sdk/start-a-runtime:
-  en: 2a5a019a54c0e83a
-  zh: eda91d713ffb30d1
+  en: f42c0a1050a2d3cd
+  zh: 1831eff90d333ee0
+/qilin-python-sdk/run-text-and-commands:
+  en: 3ad2174d29702b48
+  zh: 5d984b8a84b35e5d
+/qilin-python-sdk/client-approvals:
+  en: 1d18c09832dd4a42
+  zh: 6e7260b650a1f987
 /qilin-python-sdk/customize-plugins:
-  en: 2661784591256d04
-  zh: 07e85f434b0a1d03
+  en: 53d3323bbe08282b
+  zh: 7d32d35adca71150
+/qilin-python-sdk/native-user-questions:
+  en: 979ad00fe498b2be
+  zh: 4b656bd268292a13
 /qilin-python-sdk/results-and-notifications:
-  en: b610842c378bdaff
-  zh: 2858d9841e8a6d81
+  en: 3a006251317a7d96
+  zh: 9a6265735637acd5

@@ -21,11 +21,14 @@
   en: be53c71505c0d1b4
   zh: 6210dee577715539
 /qilin-agent-sdk-protocol/use-this-package/the-sdk-methods:
-  en: 934c525b888aae2d
-  zh: 7de76c7bb454f6ce
+  en: 943cae1a80d72e8b
+  zh: 197b7e51c8478a4a
+/qilin-agent-sdk-protocol/use-this-package/native-user-questions:
+  en: 10f73715ed00a5a4
+  zh: 57ab7297e5693daa
 /qilin-agent-sdk-protocol/use-this-package/payload-semantics:
-  en: fa82ada64a1d3345
-  zh: 76ad788db1ced3d2
+  en: f4b2e344c57e8214
+  zh: 89315f230a4fce3f
 /qilin-agent-sdk-protocol/understand-the-implementation:
   en: a11b136d8296deda
   zh: 85081da5be53c9e1
@@ -48,8 +51,8 @@
   en: ca75c51c89c2c9b0
   zh: 696d26adaf4eda6d
 /qilin-agent-sdk-protocol/known-limitations-and-deferred-work:
-  en: 8ca38c93694b3f6e
-  zh: 2f3e29180d6fdd9d
+  en: b150177f655f2f93
+  zh: e8cf60a6833cfd28
 /qilin-agent-sdk-protocol/known-limitations-and-deferred-work/dev-note:
   en: 951fa06249790ac1
   zh: da66e7f53df3ab00

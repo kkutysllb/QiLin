@@ -33,25 +33,43 @@ kind: "package-library"
 
 ### SDK 方法
 
-两个协议端共享同一套方法：五个客户端到服务端请求与四个服务端到客户端通知。
+两个协议端共享同一套方法：八个客户端到服务端请求、两个需显式启用的服务端到客户端请求，以及六个服务端到客户端通知。
 
 | 方向 | 方法 | 载荷类型 |
 |---|---|---|
 | client→server | `initialize` | `InitializeParams` → `InitializeResult` |
 | client→server | `session/prompt` | `SessionPromptParams` → `SessionPromptResult`（持久入队回执） |
+| client→server | `session/query` | `SessionQueryParams` → `SessionQueryResult`（回执或已结算命令） |
+| client→server | `session/resume` | `SessionResumeParams` → `{}` |
+| client→server | `session/wait` | `SessionWaitParams` → `{}` |
 | 客户端→服务端 | `session/working-directory/get` | `SessionWorkingDirectoryParams` → `SessionWorkingDirectoryResult` |
 | 客户端→服务端 | `session/working-directory/set` | `SessionWorkingDirectorySetParams` → `SessionWorkingDirectoryResult` |
 | client→server | `shutdown` | 无参数 → `{}` |
+| server→client | `approval/request` | `ApprovalRequestParams` → `ApprovalRequestResult` |
+| server→client | `user-question/ask` | `SdkUserQuestionRequest` → `SdkUserQuestionResult` |
+| server→client | `user-question.cancelled` | `SdkUserQuestionCancelled` |
 | server→client | `session.event` | `SessionEventNotification`（运行时内每个会话，不过滤） |
 | server→client | `session.status` | `SessionStatusNotification`（整个 agent（智能体）的 `running`/`idle` 转换） |
+| server→client | `session.query.completed` | `{ sessionId, commandId, finalResponse, finishReason }` |
 | server→client | `subagent.started` | `SubagentStartedNotification` |
 | server→client | `subagent.finished` | `SubagentFinishedNotification`（仅进程内运行） |
 
 `HarnessSdkRequestMap` 与 `HarnessSdkNotificationMap` 按方法名索引这些结构；包根与传输一起导出它们。
 
+`session/query` 接受 `{ sessionId, contentBlocks }`，其中 `contentBlocks` 使用 `SdkPromptContentBlock[]`。两个 SDK 都把字符串输入规范化为一个文本块，并通过同一入口发送内容块数组。普通输入按内容块顺序排队并返回 `{ kind: "prompt", messageId }`；受支持的命令结算后返回 `{ kind: "command", execution }`。已识别的命令要求一个完整文本块，其余块只能是编码图片；其他组合会在执行或入队前被拒绝。空数组与只含空白文本的数组会被拒绝；允许仅图片输入。提示词回执不是模型结果，命令完成也不需要 inbox 回执或 idle 通知。识别规则与受支持命令集归 [JSON-RPC 服务插件](../server/README.zh.md) 所有。
+
+命令生命周期通知先于 `session/query` 的响应到达。命令查询以同一 `commandId` 的 `session.query.completed` 通知结束高层观察，并等待该命令启动的模型活动；目标创建与恢复还会等待目标终止和收尾回复。状态类命令无需模型轮次，其完成通知可以先于响应到达。SDK 在内部消费该回执并返回 `RunResult`；转发方必须保持顺序，关闭会取消尚未结束的观察。
+
+`SessionWaitParams` 等待已有的 SDK 会话及其仍在推进的受管理后代，在根会话保持空闲后返回 `{}`。等待不会创建会话；未知 id，以及没有更新终止记录在案的 Agent 运行时失败，都会被拒绝。
+
+<a id="native-user-questions"></a>
+### 原生用户问答
+
+提供回答能力的宿主需要两次显式启用：`InitializeParams.capabilities.userQuestions` 启用 `user-question/ask`（载荷 `{ requestId, sessionId, questions }`），`InitializeParams.approvalRequests` 启用 `approval/request`（载荷 `{ sessionId, toolName, callId?, reason? }`）。宿主对每个问题 id 恰好回答一次，或用只含 `{ cancelled: true }` 的对象关闭提问；关闭映射为原生 `ASK_CANCELLED`，绝不表示批准。审批只回答 `allowed-once`、`rejected` 或 `cancelled`，授权不超出本次操作。`user-question.cancelled` 标识已停止等待的请求，晚到的回答会被忽略。
+
 ### 载荷语义
 
-`SessionPromptResult.messageId` 标识已排队的用户消息；它不标识后续的助手消息、轮次结束或提示词结果。`SdkPromptContentBlock` 接受普通持久内容以及 `SdkEncodedImageBlock { type: "image", data, mimeType }`；服务器在入队前把编码图像转换为持久引用。`InitializeParams.reasoningEffort` 是所选提供方／模型路由可选的非空适配器自有标识符；省略时保留该模型的默认值。`InitializeParams.maxTokens` 是可选的正安全整数，用于限制 SDK 创建的 agent 及其进程内后代的每次对话模型输出；省略时应用所选适配器的确切模型默认值。服务器会在初始化期间解析确切路由，并在握手成功前拒绝 `session/prompt`，因此缺少适配器、模型不可用或推理强度不受支持时，不会回退到构造期默认值。`SubagentFinishedNotification.lastAssistantMessage` 携带子 agent 最后一条非空 assistant 消息；若不存在这类消息，则携带其累积的 assistant 文本；子 agent 两种输出均未产生时，该字段缺省。`serverInfo.name` 的协议值固定为 `deepseek-harness-sdk-runtime`。通知载荷依赖 `SessionEvent`（`qilin-session`）、`ContentBlock`（`qilin-llm`）与 `SubagentStopReason`（`qilin-subagent`），因此会话词汇是协议格式约定的一部分。
+`SessionPromptResult.messageId` 标识已排队的用户消息；它不标识后续的助手消息、轮次结束或提示词结果。`SdkPromptContentBlock` 接受普通持久内容以及 `SdkEncodedImageBlock { type: "image", data, mimeType, name? }`；服务器在入队前把编码图像转换为持久引用，`name` 只是展示元数据，绝不当作路径解释。`InitializeParams.reasoningEffort` 是所选提供方／模型路由可选的非空适配器自有标识符；省略时保留该模型的默认值。`InitializeParams.maxTokens` 是可选的正安全整数，用于限制 SDK 创建的 agent 及其进程内后代的每次对话模型输出；省略时应用所选适配器的确切模型默认值。服务器会在初始化期间解析确切路由，并在握手成功前拒绝 `session/prompt`，因此缺少适配器、模型不可用或推理强度不受支持时，不会回退到构造期默认值。`SubagentFinishedNotification.lastAssistantMessage` 携带子 agent 最后一条非空 assistant 消息；若不存在这类消息，则携带其累积的 assistant 文本；子 agent 两种输出均未产生时，该字段缺省。`serverInfo.name` 的协议值固定为 `deepseek-harness-sdk-runtime`。通知载荷依赖 `SessionEvent`（`qilin-session`）、`ContentBlock`（`qilin-llm`）与 `SubagentStopReason`（`qilin-subagent`），因此会话词汇是协议格式约定的一部分。
 
 -----
 
@@ -113,7 +131,7 @@ kind: "package-library"
 
 - **无协议版本协商**——握手只携带 `serverInfo.version`（`0.0.1`，客户端不校验）；处于预发布阶段，无兼容承诺。
 - **无取消与会话关闭方法**——客户端放弃轮次的方式是关闭运行时进程；见 [JSON-RPC 服务插件](../server/README.zh.md)。
-- **server→client 请求是未使用的能力**——传输层支持，但服务器从不发送；Python SDK 的应答接口为未来审批流程预留。
+- **server→client 请求需要显式启用**——只有在 `initialize` 启用后，运行时才会发送 `approval/request` 与 `user-question/ask`；未启用时仍由进程内回答方处理。
 
 <a id="dev-note"></a>
 ### 开发备注

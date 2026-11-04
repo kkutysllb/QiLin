@@ -51,6 +51,12 @@
 
     # Shared projection registry: sandbox-policy and terminal-bash fold
     # sandbox-mode state through its units and require it as a hard injection.
+    - id: working-directory
+      name: '@qilin-agent/working-directory'
+
+    - id: tool-working-directory
+      name: '@qilin-agent/tool-working-directory'
+
     - id: session-projection
       name: '@qilin-agent/session-projection'
 

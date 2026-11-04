@@ -9,14 +9,14 @@
   en: aed4f38161d5f9cf
   zh: 09d54d1178b9c7f0
 /qilin-agent-sdk-jsonrpc-server/summary:
-  en: 7f208ce19df98b52
-  zh: 2d2c4cbd84df0c6d
+  en: 3a5c8667fb0905c6
+  zh: 7caa25e8b30a1440
 /qilin-agent-sdk-jsonrpc-server/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-sdk-jsonrpc-server/use-this-package:
-  en: ab5b719668e746f2
-  zh: 971c2fdaa9e7d351
+  en: 3ae5e5b356093d9f
+  zh: 0f1de26880c639e1
 /qilin-agent-sdk-jsonrpc-server/use-this-package/wiring:
   en: 47a33e9397e36e15
   zh: e6d173820f9ea6e5
@@ -27,8 +27,11 @@
   en: 784b68b5a498f2d5
   zh: 2c3c5a1490845179
 /qilin-agent-sdk-jsonrpc-server/use-this-package/what-sdk-clients-can-do:
-  en: 2b1b52a7467c557e
-  zh: 31f58d32469f9d50
+  en: 3e657fa4c9586454
+  zh: 26d572f91e124cc5
+/qilin-agent-sdk-jsonrpc-server/use-this-package/native-user-questions:
+  en: ffda120c0157e6e8
+  zh: 1f471e9d9f303473
 /qilin-agent-sdk-jsonrpc-server/use-this-package/shutdown-and-exit:
   en: 08c3858f53090f39
   zh: dfae960e11515b06
@@ -36,11 +39,11 @@
   en: eca39e7027d67d8f
   zh: dd3f494276322857
 /qilin-agent-sdk-jsonrpc-server/understand-the-implementation/design-concept:
-  en: fa2f6aeca4cf5b42
-  zh: db50b3591b0f6c07
+  en: 5c9977fc9612adfb
+  zh: 8704e3d569c036e7
 /qilin-agent-sdk-jsonrpc-server/understand-the-implementation/source-map:
-  en: 9ef78eca4d95d97c
-  zh: 45ff05f4d6c1cd0b
+  en: 232eba24223ec383
+  zh: 7d68a979e65bffd9
 /qilin-agent-sdk-jsonrpc-server/understand-the-implementation/request-flow:
   en: 2658804b2f90b135
   zh: 085aa00c8f0bbbcd
@@ -57,14 +60,62 @@
   en: 04d1b73cd8e06dfe
   zh: cd67fbbfdf39f776
 /qilin-agent-sdk-jsonrpc-server/model-experience/sdk-user-message/what-the-model-sees:
-  en: 2b5a80ec4b4df11e
-  zh: e459fe77cc14d9b8
+  en: 04c09df4f7053490
+  zh: 236f0f0b97892821
 /qilin-agent-sdk-jsonrpc-server/model-experience/sdk-user-message/token-effect:
   en: 372ed851986b76d2
   zh: 075b94a565275368
 /qilin-agent-sdk-jsonrpc-server/model-experience/sdk-user-message/kv-cache-effect:
   en: f5d5f97a153f7c70
   zh: f681f89596f500f5
+/qilin-agent-sdk-jsonrpc-server/model-experience/manual-compaction:
+  en: fa59bcc530a2f385
+  zh: 4b17b38c0b30e85f
+/qilin-agent-sdk-jsonrpc-server/model-experience/manual-compaction/what-the-model-sees:
+  en: 22c99333f28f7a31
+  zh: 84b29f6874fd9841
+/qilin-agent-sdk-jsonrpc-server/model-experience/manual-compaction/token-effect:
+  en: 8f0d7b5a80cc1240
+  zh: 2c28370ab2ff5556
+/qilin-agent-sdk-jsonrpc-server/model-experience/manual-compaction/kv-cache-effect:
+  en: 6575950aede7f71e
+  zh: bfbfbba8b10fc448
+/qilin-agent-sdk-jsonrpc-server/model-experience/session-permission-changes:
+  en: 9a6bbed77944026e
+  zh: 0cf9e179dddeeeb5
+/qilin-agent-sdk-jsonrpc-server/model-experience/session-permission-changes/what-the-model-sees:
+  en: 5398c85ef840d15e
+  zh: c18980b4440fb87a
+/qilin-agent-sdk-jsonrpc-server/model-experience/session-permission-changes/token-effect:
+  en: 6fd7b795a324c0e9
+  zh: e13a949d27e91e4d
+/qilin-agent-sdk-jsonrpc-server/model-experience/session-permission-changes/kv-cache-effect:
+  en: a6c8c78f7e558ed1
+  zh: 410aef8f5f230d67
+/qilin-agent-sdk-jsonrpc-server/model-experience/plan-commands:
+  en: 6714c05c148b2a6e
+  zh: e85929c987561499
+/qilin-agent-sdk-jsonrpc-server/model-experience/plan-commands/what-the-model-sees:
+  en: 91be02270915f0ab
+  zh: ecb9a8e631c253ad
+/qilin-agent-sdk-jsonrpc-server/model-experience/plan-commands/token-effect:
+  en: 915597a108a3e579
+  zh: 22f818fa1e6a5e1c
+/qilin-agent-sdk-jsonrpc-server/model-experience/plan-commands/kv-cache-effect:
+  en: 1403de19597c9bfd
+  zh: a3d41798c45577cb
+/qilin-agent-sdk-jsonrpc-server/model-experience/goal-commands:
+  en: 00f1a91f6d15e4a0
+  zh: cad13107ea16b3de
+/qilin-agent-sdk-jsonrpc-server/model-experience/goal-commands/what-the-model-sees:
+  en: 905e2c22158a88cc
+  zh: 545ff349004596d6
+/qilin-agent-sdk-jsonrpc-server/model-experience/goal-commands/token-effect:
+  en: 7a4c40ba3c812bca
+  zh: 8ba8e1c5e1a1c58d
+/qilin-agent-sdk-jsonrpc-server/model-experience/goal-commands/kv-cache-effect:
+  en: f4edb02fb1124718
+  zh: 0f70aae68553eb5a
 /qilin-agent-sdk-jsonrpc-server/known-limitations-and-deferred-work:
   en: a6d0b12d02961572
   zh: 92822e033db55980
