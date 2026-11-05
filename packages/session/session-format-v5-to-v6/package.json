@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/session-format-v5-to-v6",
   "description": "Session V5 to V6 format edge for the retired development fixture message source",
-  "version": "3.1.8",
+  "version": "3.1.9",
   "publishConfig": {
     "access": "public"
   },
