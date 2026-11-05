@@ -252,6 +252,7 @@ body {
   --qilin-specific-bubble: var(--qilin-static-deepseek-50);
   --qilin-specific-input-major: var(--qilin-static-neutral-bluish-00);
   --qilin-specific-login-input: var(--qilin-static-neutral-bluish-50);
+  --qilin-menu-surface-fill: rgba(252, 253, 254, 0.7);
   --qilin-specific-menu: var(--qilin-alias-bg-layer-3);
   --qilin-specific-selector: var(--qilin-static-neutral-bluish-60);
   --qilin-specific-sidebar-fill: var(--qilin-static-neutral-bluish-50);
@@ -362,6 +363,7 @@ body[data-ds-dark-theme] {
   --qilin-specific-bubble: var(--qilin-static-neutral-bluish-850);
   --qilin-specific-input-major: var(--qilin-static-neutral-bluish-850);
   --qilin-specific-login-input: var(--qilin-static-neutral-bluish-900);
+  --qilin-menu-surface-fill: rgba(48, 49, 54, 0.64);
   --qilin-specific-menu: var(--qilin-alias-bg-layer-3);
   --qilin-specific-selector: var(--qilin-static-neutral-bluish-800);
   --qilin-specific-sidebar-fill: var(--qilin-static-neutral-bluish-900);

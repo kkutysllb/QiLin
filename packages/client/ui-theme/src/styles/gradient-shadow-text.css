@@ -17,6 +17,9 @@ body {
   --qilin-elevation-stroke-color: var(--qilin-alias-border-l4);
   /* blur filter */
   --qilin-mask-blur: blur(2px);
+  /* Menu glass: the shared menu material blurs the page behind its translucent
+     fill, which design-platform.css declares per scheme. */
+  --qilin-menu-backdrop-filter: blur(40px) saturate(150%);
 }
 
 /* 派生 elevation 值逐元素声明而非从 body 继承：继承传下来的是在 body 上就
