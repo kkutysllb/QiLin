@@ -73,12 +73,14 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/client-ui-brand` | no | QiLin brand occupants for the Web client's sidebar and conversation-hero brand slots: the 麒麟 seal mark |
 | `@qilin-agent/client-ui-chat` | no | Chat Conversation target, node definitions, renderers, and details surface |
 | `@qilin-agent/client-ui-commands` | no | Client command surface: global directory cache, '/' source, three command UI kinds, popupSelect registry |
+| `@qilin-agent/client-ui-context-menu` | no | Typed, plugin-extensible context menus with captured targets and shared Web presentation |
 | `@qilin-agent/client-ui-conversation` | no | Target-neutral Conversation assembly, shell, composer, queue, and view navigation |
 | `@qilin-agent/client-ui-deepseek-model-label-1017` | no | Temporary 1017 release badge for official DeepSeek Flash model labels |
 | `@qilin-agent/client-ui-deliverables` | no | Changed-files card with per-file comparison tabs, delivery cards, and clickable final-response file references for Web |
 | `@qilin-agent/client-ui-directory-picker-browse` | no | In-app directory browsing surface: the workspace directory-flow owner rendering the host's listing and creation primitives |
 | `@qilin-agent/client-ui-directory-picker-native` | no | Native directory-picker surface: the renderless workspace directory-flow occupant driving the local Desktop or Host OS chooser |
 | `@qilin-agent/client-ui-entry-customization` | no | Customize plugin entries in the left sidebar, conversation views, and right sidebar, and quickly create new plugins. |
+| `@qilin-agent/client-ui-file-actions` | no | Original-file saving and image clipboard actions for Web and Desktop |
 | `@qilin-agent/client-ui-goal` | no | Session goal surface: GoalBar docked above the composer, read from the goal session projection |
 | `@qilin-agent/client-ui-input-trigger` | no | Input trigger pipeline: '/' and '@' detection, candidate menu, pick routing to registered sources |
 | `@qilin-agent/client-ui-jobs` | no | Session-header background-job list with on-demand streaming record panels |
@@ -360,8 +362,8 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 
 | Package | Config | Description |
 |---|---|---|
-| `@qilin-agent/schedule` | yes | Host-wide durable reminders with shared management and original-Session delivery |
-| `@qilin-agent/tool-schedule` | no | Model-facing reminder management tools (schedule_create, schedule_list, schedule_update, schedule_delete) over the Host ctx.schedule service |
+| `@qilin-agent/schedule` | yes | Host-wide durable reminders with shared management and delivery to existing or new Sessions |
+| `@qilin-agent/tool-schedule` | no | Model-facing scheduled task tools (schedule_create, schedule_list, schedule_view, schedule_edit) over the Host ctx.schedule service |
 
 ## sdk
 
