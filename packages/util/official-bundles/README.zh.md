@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-`@qilin-agent/official-bundles` 持有 QiLin 安装方按名字持有的每一份 bundle 名单：插件页隐藏的内建 profile 层、主列表与「更多」列表排序的可选 bundle、标记为实验性的 bundle，以及按需安装的公开发布包。宿主从这些名单准入 bundle，插件页从同一份名单渲染，因此在名单里加一个包名会同时到达两侧，而不会在宿主名单与客户端副本之间漂移。本模块只持有普通字符串与集合，不含注册表、服务或运行时状态。
+`@qilin-agent/official-bundles` 持有 QiLin 安装方按名字持有的每一份 bundle 名单：插件页隐藏的内建 profile 层、主列表与「更多」列表排序的可选 bundle、标记为实验性的 bundle、不再随发行版分发的名字，以及按需安装的公开发布包。宿主从这些名单准入 bundle，插件页从同一份名单渲染，因此在名单里加一个包名会同时到达两侧，而不会在宿主名单与客户端副本之间漂移。本模块只持有普通字符串与集合，不含注册表、服务或运行时状态。
 
 ## 目录
 
@@ -32,6 +32,10 @@ kind: "package-reference"
 
 `isExperimentalBundle(name)` 依据 `EXPERIMENTAL_BUNDLES` 作答，因此徽标跟随准入结果而不是包名前缀：仅以 `experimental-` 开头的包不会被标记。`isHiddenBundle(name)` 与 `isOnDemandBundle(name)` 在同一批名单上回答另外两个问题。
 
+### 退役不再随发行版分发的 bundle
+
+`RETIRED_BUNDLES` 列出产品不再随发行版分发的 bundle。仍选中其名字的 profile 照常启动：[`@qilin-agent/app-boot`](../../boot/app-boot/README.zh.md#profiles) 在加载 profile 时把该名字从 `qilin.profile.bundles` 移除并报告这次移除，而不是因为一个无处安装的 bundle 启动失败。该集合不影响插件页位置：退役名字不出现在任何提供列表中。
+
 ### 准入一个按需安装的发布包
 
 `ON_DEMAND_BUNDLES` 列出插件页按需安装的公开发布包；其中任何包都不随发行版一起分发。`@qilin-agent/app-boot` 里生成的离线目录为每个准入名字携带一条元数据，其新鲜度检查会拒绝与这份名单不一致的目录。QiLin 不提供按需提供方后端时该名单为空，此时所有消费方都不提供任何条目，也不展示按需入口。
@@ -44,13 +48,13 @@ kind: "package-reference"
 <details>
 <summary>实现内部——点击展开</summary>
 
-本模块是一张数据表加三个查询：两个 `ReadonlySet` 与三个 `readonly string[]`，包外无任何导入。两个名单用有序数组是因为位置按下标排序；三个成员判断读集合。测试断言消费方依赖的不变量：每个可选名字在两个有序名单中只出现一次、每个可选名字要么实验性要么按需、任何隐藏层都不出现在可选名单里。
+本模块是一张数据表加三个查询：三个 `ReadonlySet`（含退役名单）与三个 `readonly string[]`，包外无任何导入。两个名单用有序数组是因为位置按下标排序；三个成员判断读集合。测试断言消费方依赖的不变量：每个可选名字在两个有序名单中只出现一次、每个可选名字要么实验性、要么是主列表内建条目、要么按需、任何隐藏层都不出现在可选名单里、退役名字不出现在任何名单里。
 
 ### 源码地图
 
 | 文件 | 作用 |
 |---|---|
-| [`src/bundles.ts`](src/bundles.ts) | 名单：隐藏层、主列表与「更多」列表选项、实验性准入与按需准入 |
+| [`src/bundles.ts`](src/bundles.ts) | 名单：隐藏层、主列表与「更多」列表选项、实验性准入、退役名字与按需准入 |
 | [`src/placement.ts`](src/placement.ts) | 基于这些名单的三个成员判断 |
 | [`src/index.ts`](src/index.ts) | 包导出 |
 

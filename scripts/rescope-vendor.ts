@@ -149,11 +149,6 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   { file: 'packages/extensions/tool-kylin/src/providers.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-kylin/src/client/index.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-kylin/src/client/inventory.ts', upstream: ['cordis'] },
-  // `cordis/tree` is an Inspector observation topic, not a package subpath.
-  { file: 'packages/experimental/inspector/src/shared/bridge/messages/cordis.ts', upstream: ['cordis'] },
-  { file: 'packages/experimental/inspector/tests/cordis-query.host.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/experimental/inspector/tests/cordis-tree.host.spec.ts', upstream: ['cordis'] },
-  { file: 'packages/experimental/inspector/tests/plugin.client.spec.ts', upstream: ['cordis'] },
   { file: 'scripts/gen-kylin-catalog.ts', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-kylin/src/client/CordisActionRow.tsx', upstream: ['cordis'] },
   { file: 'packages/extensions/ui-kylin/src/client/CordisDefineRow.tsx', upstream: ['cordis'] },

@@ -10,7 +10,7 @@ The Official group shipped the Developer tools optional bundle (`@qilin-agent/ex
 
 ## Decision
 
-The Owner removed the bundle from the product (2026-10-12). `experimental-inspector-profile` left `OPTIONAL_BUNDLES` and the apps/cli runtime closure; all three packages are deleted with the `ctx.inspector` service, the session-inspector client page, and the vendored DevTools frontend. This supersedes the Inspector parts of [shipping experimental capabilities as optional bundles](../architecture/2026-09-21-experimental-capabilities-as-optional-bundles.md).
+The Owner removed the bundle from the product (2026-10-12). `experimental-inspector-profile` left `OPTIONAL_BUNDLES` and the apps/cli runtime closure; all three packages are deleted with the `ctx.inspector` service, the session-inspector client page, and the vendored DevTools frontend. The per-turn statistics View (`experimental-client-ui-stats`), reachable only through the same bundle, is deleted with them. This supersedes the Inspector parts of [shipping experimental capabilities as optional bundles](../architecture/2026-09-21-experimental-capabilities-as-optional-bundles.md).
 
 ## Alternatives considered
 
@@ -20,6 +20,6 @@ The Owner removed the bundle from the product (2026-10-12). `experimental-inspec
 
 ## Consequences
 
-**Bought:** the plugin page no longer lists Developer tools, `qilin plugin add` no longer resolves it, and no release carries the session raw-log browsing or chat-group navigation surface. `OPTIONAL_BUNDLES` carries eleven entries.
+**Bought:** the plugin page no longer lists Developer tools, `qilin plugin add` no longer resolves it, and no release carries the session raw-log browsing, chat-group navigation, or statistics View surface. `OPTIONAL_BUNDLES` carries eleven entries. A profile that still lists the retired bundle name boots: the loader drops the name from `qilin.profile.bundles`, writes the cleaned manifest back, and reports the removal once from [`RETIRED_BUNDLES`](../../../../packages/util/official-bundles/README.md).
 
 **Cost:** restoring the capability requires restoring the deleted packages from history and re-adding the catalog, tsconfig, and docs wiring.

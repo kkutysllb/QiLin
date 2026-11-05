@@ -49,9 +49,6 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
 const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/client/ui-entry-customization': { kind: 'none', reason: 'Controls browser launchers and prepares a reviewable Creator draft without submitting model input.' },
   'packages/telemetry/otel': { kind: 'none', reason: 'The service delivers caller-selected records without changing model context.' },
-  'packages/experimental/inspector': { kind: 'none', reason: 'Developer diagnostics transport; it observes runtime activity without changing model requests.' },
-  'packages/experimental/inspector-profile': { kind: 'none', reason: 'Mounts the two developer inspection plugins; neither contributes model context.' },
-  'packages/experimental/session-inspector': { kind: 'none', reason: 'Reads committed Session records for the inspector tab without touching requests.' },
   'packages/settings/config-editor': { kind: 'indirect', reason: 'Persisted configuration values reach models through the plugins that read them; the editor itself owns no model-visible output.' },
   'packages/experimental/plugin-market-bundle': { kind: 'indirect', reason: 'With the bundle on, the Creator preset gains the read-only plugin_market tool; the bundle itself adds no prompts.' },
   'packages/experimental/client-ui-forge': { kind: 'indirect', reason: 'A Session that starts in a worktree receives the directory notice through the working-directory service, and Create change request sends a user message; the panel itself adds no prompt or tool.' },
@@ -66,7 +63,6 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/experimental/api-speech-to-text': { kind: 'none', reason: 'Transports audio and preparation state; ordinary user submission owns model-visible text.' },
   'packages/experimental/speech-to-text-sensevoice': { kind: 'none', reason: 'Local recognition returns transient text without modifying model context.' },
   'packages/experimental/client-ui-voice-input': { kind: 'none', reason: 'Inserts reviewable text into the unsent draft without submitting to the Agent.' },
-  'packages/experimental/client-ui-stats': { kind: 'none', reason: 'The panel reads Session events and renders them in the browser; it registers no tool, prompt section, or model input.' },
   'packages/experimental/client-ui-claude-code-mods': { kind: 'none', reason: 'The band renders Host-held drawing state and forwards button presses; no prompt, tool schema, or Session event carries it.' },
   'packages/experimental/voice-input-bundle': { kind: 'none', reason: 'Composes dictation and preparation plugins without adding any model-facing contribution.' },
   'packages/experimental/worktree': { kind: 'indirect', reason: 'The worktree tool renders creation results; the working-directory service owns model-visible directory context.' },

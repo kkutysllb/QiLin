@@ -681,11 +681,12 @@ describe('PluginManagerPage', () => {
       '@qilin-agent/experimental-agent-team-profile', 'dsh-better-sidebar', 'dsh-broken', 'dsh-protected', '@acme/dsh-tool', 'dsh-selected',
     ])
     expect(cards.map(card => card.getAttribute('data-plugin-status'))).toEqual(['disabled', 'running', 'problem', 'running', 'disabled', 'problem'])
-    // Group titles have no counts; the official bundle retains its experimental marker.
+    // Group titles have no counts; a promoted bundle carries no experimental marker.
     expect(screen.getByRole('heading', { name: en.bundlesTitle })).toBeTruthy()
+    // The More link alone renders the experimental grid once a promoted bundle is the only main-list entry.
     expect(screen.getByRole('heading', { name: en.extensionsTitle })).toBeTruthy()
     expect(document.querySelector('[data-plugin-count]')).toBeNull()
-    expect(screen.getAllByText(en.statusBeta)).toHaveLength(1)
+    expect(screen.queryAllByText(en.statusBeta)).toHaveLength(0)
     expect(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', '@acme/dsh-tool') })).toHaveProperty('disabled', false)
     expect(screen.getByText('A sidebar.')).toBeTruthy()
     expect(screen.getAllByText(en.statusProblem)).toHaveLength(2)
@@ -741,21 +742,21 @@ describe('PluginManagerPage', () => {
     expect(actions.uninstall).toHaveBeenCalledExactlyOnceWith('dsh-retired')
   })
 
-  it('opens an official bundle\'s page with its beta tag and no uninstall, and switches it on', () => {
+  it('opens a promoted official bundle\'s page without the beta tag and switches it on', () => {
     const title = 'Agent Teams'
     const { actions } = renderTab({
       packages: [pkg({ name: '@qilin-agent/experimental-agent-team-profile', meta: { title }, installed: false, optional: true, removable: false, enabled: false })],
     })
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', title) }))
     const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
-    expect(within(detail).getByText(en.statusBeta)).toBeTruthy()
+    expect(within(detail).queryByText(en.statusBeta)).toBeNull()
     expect(within(detail).queryByRole('button', { name: en.uninstallLabel.replace('{name}', title) })).toBeNull()
     fireEvent.click(within(detail).getByRole('switch', { name: en.enableToggle.replace('{name}', title) }))
     expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@qilin-agent/experimental-agent-team-profile', true)
   })
 
   it.each([
-    ['@qilin-agent/experimental-agent-team-profile', true],
+    ['@qilin-agent/experimental-agent-team-profile', false],
     ['@qilin-agent/experimental-auto-review', true],
     ['@qilin-agent/experimental-fixture-input', false],
     ['@acme/dsh-local-tools', false],
@@ -1046,19 +1047,23 @@ describe('PluginManagerPage', () => {
       expect(document.querySelector('[data-plugin-group="more"]')).toBeNull()
       expect([...document.querySelectorAll('[data-plugin-group]')].map(group => group.getAttribute('data-plugin-group')))
         .toEqual(['basic', 'extensions', 'bundles'])
-      expect(within(basic).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-item'))).toEqual(['bash'])
+      expect(within(basic).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-item')).filter(Boolean)).toEqual(['bash'])
+      // A main-list bundle outside EXPERIMENTAL_BUNDLES joins the built-in group and carries no badge.
+      expect(within(basic).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')).filter(Boolean))
+        .toEqual([team, '@acme/new-official'])
+      expect(within(basic).queryByText(en.statusBeta)).toBeNull()
       expect(within(extensions).getByRole('heading', { name: en.extensionsTitle })).toBeTruthy()
       expect(within(extensions).getByRole('button', { name: en.moreAction }).textContent).toBe(en.moreAction)
-      expect(within(extensions).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')))
-        .toEqual(['@qilin-agent/experimental-agent-team-profile', '@acme/new-official'])
-      // Every experimental card carries the group's badge, and the More entry trails the grid as a light item.
-      expect(within(extensions).getAllByText(en.statusBeta)).toHaveLength(2)
+      // No experimental main-list bundle is selected, so the More entry trails an empty grid.
+      expect(within(extensions).queryAllByRole('listitem')).toHaveLength(0)
+      expect(within(extensions).queryAllByText(en.statusBeta)).toHaveLength(0)
       const extensionList = within(extensions).getByRole('list')
       expect(extensionList.lastElementChild?.getAttribute('role')).toBe('presentation')
       expect(within(extensions).getByRole('button', { name: en.moreAction }).closest('li')).toBe(extensionList.lastElementChild)
       // A card's switch belongs to the card end: it toggles without opening the page.
-      const firstExtension = within(extensions).getAllByRole('listitem')[0] as HTMLElement
-      fireEvent.click(within(firstExtension).getByRole('switch'))
+      const promotedCard = within(basic).getAllByRole('listitem')
+        .find(card => card.getAttribute('data-plugin-package') === team) as HTMLElement
+      fireEvent.click(within(promotedCard).getByRole('switch'))
       expect(document.querySelector('[data-plugin-detail]')).toBeNull()
       expect(document.querySelector('[data-plugin-group="extensions"]')).not.toBeNull()
       expect(document.querySelector('[data-plugin-count]')).toBeNull()
@@ -1114,11 +1119,13 @@ describe('PluginManagerPage', () => {
       const second = '@qilin-agent/experimental-cot-translation-bundle'
       const entry = (name: string, enabled: boolean): PackageView => pkg({ name, official: true, enabled })
       const b = renderTab({ packages: [entry(second, true), entry(team, true), entry(first, false)] })
-      const cards = (group: 'extensions' | 'more'): (string | null)[] => {
+      const cards = (group: 'basic' | 'extensions' | 'more'): (string | null)[] => {
         const list = document.querySelector(`[data-plugin-group="${group}"]`) as HTMLElement
-        return within(list).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package'))
+        return within(list).queryAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')).filter(Boolean)
       }
-      expect(cards('extensions')).toEqual([team, second])
+      // The promoted bundle sits in the built-in group; the Experimental grid holds only badged bundles.
+      expect(cards('basic')).toEqual([team])
+      expect(cards('extensions')).toEqual([second])
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
       expect(cards('more')).toEqual([team, first, second])
       fireEvent.click(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', first) }))
@@ -1126,11 +1133,13 @@ describe('PluginManagerPage', () => {
       b.set({ packages: [entry(second, true), entry(team, true), entry(first, true)] })
       expect(cards('more')).toEqual([team, first, second])
       fireEvent.click(screen.getByRole('button', { name: en.backToList }))
-      expect(cards('extensions')).toEqual([team, first, second])
+      expect(cards('basic')).toEqual([team])
+      expect(cards('extensions')).toEqual([first, second])
       fireEvent.click(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', first) }))
       expect(b.actions.setEnabled).toHaveBeenCalledWith(first, false)
       b.set({ packages: [entry(second, true), entry(team, true), entry(first, false)] })
-      expect(cards('extensions')).toEqual([team, second])
+      expect(cards('basic')).toEqual([team])
+      expect(cards('extensions')).toEqual([second])
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
       expect(cards('more')).toEqual([team, first, second])
     })

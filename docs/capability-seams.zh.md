@@ -21,8 +21,6 @@ flowchart LR
   svc_configEditor["ctx.configEditor<br/>Profile configuration edits"]
   pkg_settings["settings"]
   pkg_agent_default_model["agent-default-model"]
-  pkg_experimental_inspector["experimental-inspector"]
-  svc_inspector["ctx.inspector<br/>Cross-realm runtime inspection"]
   pkg_experimental_claude_code_mods["experimental-claude-code-mods"]
   svc_claudeCodeMods["ctx.claudeCodeMods<br/>Claude Code mod bridge"]
   pkg_experimental_client_ui_claude_code_mods["experimental-client-ui-claude-code-mods"]
@@ -353,7 +351,6 @@ flowchart LR
   pkg_experimental_forge --> svc_forge
   pkg_experimental_forge_github --> svc_forge
   pkg_experimental_forge_session --> svc_forgeSession
-  pkg_experimental_inspector --> svc_inspector
   pkg_experimental_ptc_runtime_python --> svc_ptcRuntime
   pkg_experimental_speech_to_text --> svc_speechToText
   pkg_experimental_speech_to_text_sensevoice --> svc_speechToText
@@ -618,7 +615,6 @@ flowchart LR
 | `ctx.hmr` | `core` | [`hmr`](../packages/boot/hmr) | - | [`app-boot`](../packages/boot/app-boot) | - | 负责模块和精确配置监听；应用修改共用其队列，自动重载等待应用文件锁。 |
 | `ctx.themeBoot` | `seam` | `ui-theme` | `ui-theme` | `ui-theme-brand` | - | 把各皮肤的启动底色从品牌包带到首屏绘制前的 shell。 |
 | `ctx.configEditor` | `core` | [`config-editor`](../packages/settings/config-editor) | - | [`settings`](../packages/settings/settings), [`agent-default-model`](../packages/core/agent-default-model) | - | 在应用文件锁与 HMR 队列下持久化 profile 配置补丁，然后协调 Loader 条目。 |
-| `ctx.inspector` | `core` | [`experimental-inspector`](../packages/experimental/inspector) | - | - | - | 拥有 Worker 承载的 CDP 目标，以及与传输无关的 Host/Client 观察和 Cordis 树查询 API。 |
 | `ctx.claudeCodeMods` | `seam` | [`experimental-claude-code-mods`](../packages/experimental/claude-code-mods) | - | [`experimental-client-ui-claude-code-mods`](../packages/experimental/client-ui-claude-code-mods) | - | 按加载顺序运行已加载的模组并绘制提示词上方的横幅，触发其可用的事件，并通过组合服务响应其 `$` 调用。 |
 | `ctx.pluginMarket` | `core` | [`plugin-market`](../packages/boot/plugin-market) | - | [`client-ui-plugin-market`](../packages/client/ui-plugin-market), [`plugin-market`](../packages/boot/plugin-market) | - | 获取并校验用户配置的索引源；安装通过插件管理器完成。 |
 | `ctx.pluginManager` | `core` | [`plugin-manager`](../packages/boot/plugin-manager) | - | [`plugin-manager`](../packages/boot/plugin-manager), `ui-settings-plugin-inventory` | - | 与 CLI 共享 profile 包操作，并向 Web 和 Agent 调用方分别报告持久状态与运行状态。 |

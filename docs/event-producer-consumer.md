@@ -84,7 +84,7 @@ This matrix shows which packages dispatch each harness-owned event and which pac
 | `tools/ptc-dispatch-log` | `waterfall` | [`packages/core/tools/src/index.ts:194`](../packages/core/tools/src/index.ts) | [`tools`](../packages/core/tools) (`waterfall`) | [`spill-policy`](../packages/spill/spill-policy) |
 | `tools/result` | `emit` | [`packages/core/tools/src/index.ts:202`](../packages/core/tools/src/index.ts) | [`tools`](../packages/core/tools) (`events.dispatch`) | [`agent-instructions`](../packages/context/agent-instructions), `claude-code-mods`, `forge-session`, [`subagent`](../packages/subagent/subagent), [`tool-present`](../packages/deliverables/tool-present) |
 | `user-questions/request` | `waterfall` | [`packages/interaction/user-questions/src/types.ts:157`](../packages/interaction/user-questions/src/types.ts) | [`user-questions`](../packages/interaction/user-questions) (`waterfall`) | `remotes`, `server` |
-| `webserver/index-inject` | `emit` | [`packages/host/webserver/src/index.ts:39`](../packages/host/webserver/src/index.ts) | `webserver` (`emit`) | `connection`, `inspector`, `modules`, `remote-access`, `shortcuts`, `ui-sidebar-documentpreview`, `ui-theme` |
+| `webserver/index-inject` | `emit` | [`packages/host/webserver/src/index.ts:39`](../packages/host/webserver/src/index.ts) | `webserver` (`emit`) | `connection`, `modules`, `remote-access`, `shortcuts`, `ui-sidebar-documentpreview`, `ui-theme` |
 | `workflow/agent-end` | `emit` | [`packages/workflow/workflow/src/index.ts:79`](../packages/workflow/workflow/src/index.ts) | [`workflow`](../packages/workflow/workflow) (`events.dispatch`) | [`tool-workflow`](../packages/workflow/tool-workflow) |
 | `workflow/agent-start` | `emit` | [`packages/workflow/workflow/src/index.ts:68`](../packages/workflow/workflow/src/index.ts) | [`workflow`](../packages/workflow/workflow) (`events.dispatch`) | [`tool-workflow`](../packages/workflow/tool-workflow) |
 | `workflow/end` | `emit` | [`packages/workflow/workflow/src/index.ts:89`](../packages/workflow/workflow/src/index.ts) | [`workflow`](../packages/workflow/workflow) (`events.dispatch`) | - |
@@ -103,9 +103,9 @@ This matrix shows which packages dispatch each harness-owned event and which pac
 | `connection/reset` | `gateway` (`emit`) | `ui-plugin-manager`, `ui-plugin-market`, `ui-settings`, `ui-sidebar-documentpreview`, `ui-workspace` |
 | `internal/config` | - | [`llm-pi-ai`](../packages/llm/llm-pi-ai) |
 | `internal/dispatch` | - | [`terminal-bash`](../packages/terminal/terminal-bash) |
-| `internal/plugin` | - | `computer-use-cua-driver-native`, `inspector`, `loader`, [`lsp-stdio`](../packages/lsp/lsp-stdio), [`mcp-client`](../packages/mcp/mcp-client), `modules` |
+| `internal/plugin` | - | `computer-use-cua-driver-native`, `loader`, [`lsp-stdio`](../packages/lsp/lsp-stdio), [`mcp-client`](../packages/mcp/mcp-client), `modules` |
 | `internal/service` | - | `client-ui-forge`, `gateway` |
-| `internal/status` | - | [`agent`](../packages/core/agent), `inspector`, `translator`, [`web`](../packages/web/web) |
+| `internal/status` | - | [`agent`](../packages/core/agent), `translator`, [`web`](../packages/web/web) |
 | `loader/volatile-update` | - | `cua`, [`llm-deepseek`](../packages/llm/llm-deepseek), [`llm-deepseek-api-key`](../packages/llm/llm-deepseek-api-key), [`llm-pi-ai`](../packages/llm/llm-pi-ai), [`plugin-market`](../packages/boot/plugin-market), `speech-to-text` |
 | `locale/change` | `locale` (`emit`) | `ui-input-trigger` |
 | `slash/input-begin-command` | - | `ui-conversation` |

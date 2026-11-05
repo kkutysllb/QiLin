@@ -10,7 +10,7 @@ Official 分组随产品交付「开发者工具」可选组合包（`@qilin-age
 
 ## 决策
 
-所有者已于 2026-10-12 将该组合包移出产品。`experimental-inspector-profile` 退出 `OPTIONAL_BUNDLES` 与 apps/cli 运行时闭包；三个包连同 `ctx.inspector` 服务、会话检查器客户端页面与内嵌的 DevTools 前端一并删除。此决定部分取代[以可选组合包交付实验能力](../architecture/2026-09-21-experimental-capabilities-as-optional-bundles.zh.md)中的 Inspector 部分。
+所有者已于 2026-10-12 将该组合包移出产品。`experimental-inspector-profile` 退出 `OPTIONAL_BUNDLES` 与 apps/cli 运行时闭包；三个包连同 `ctx.inspector` 服务、会话检查器客户端页面与内嵌的 DevTools 前端一并删除。只能经同一组合包到达的每轮统计视图（`experimental-client-ui-stats`）也随之一并删除。此决定部分取代[以可选组合包交付实验能力](../architecture/2026-09-21-experimental-capabilities-as-optional-bundles.zh.md)中的 Inspector 部分。
 
 ## 已考虑的替代方案
 
@@ -20,6 +20,6 @@ Official 分组随产品交付「开发者工具」可选组合包（`@qilin-age
 
 ## 后果
 
-**所得：** 插件页不再列出开发者工具，`qilin plugin add` 无法再解析它，任何发布都不再携带会话原始日志浏览与聊天分组导航面。`OPTIONAL_BUNDLES` 收录十一项。
+**所得：** 插件页不再列出开发者工具，`qilin plugin add` 无法再解析它，任何发布都不再携带会话原始日志浏览、聊天分组导航与统计视图面。`OPTIONAL_BUNDLES` 收录十一项。仍选中退役组合包名字的 profile 会正常启动：加载时把该名字从 `qilin.profile.bundles` 移除、写回清理后的 manifest，并依据 [`RETIRED_BUNDLES`](../../../../packages/util/official-bundles/README.zh.md) 报告一次这次移除。
 
 **代价：** 恢复该能力需要从历史找回被删的包，并重建目录、tsconfig 与文档接线。

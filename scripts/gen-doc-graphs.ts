@@ -140,13 +140,6 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Persists profile config patches under the application file lock and HMR queue, then reconciles Loader entries.',
   },
   {
-    key: 'inspector',
-    pkg: 'experimental-inspector',
-    title: 'Cross-realm runtime inspection',
-    mode: 'core',
-    note: 'Owns the Worker-hosted CDP target and the transport-independent Host and Client observation and Cordis-tree query API.',
-  },
-  {
     key: 'claudeCodeMods',
     pkg: 'experimental-claude-code-mods',
     title: 'Claude Code mod bridge',

@@ -45,7 +45,6 @@ export default defineConfig({
     include: ['packages/*/*/tests/**/*.e2e.ts', 'apps/cli/tests/**/*.e2e.ts'],
     exclude: [
       '**/*.expected.e2e.ts',
-      'packages/experimental/inspector/tests/client-browser.e2e.ts',
     ],
     // Real model calls: generous timeouts, and retries for transient flakes
     // (the shared internal key hits concurrency quotas). No coverage — the

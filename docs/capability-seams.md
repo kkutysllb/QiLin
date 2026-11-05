@@ -19,8 +19,6 @@ flowchart LR
   svc_configEditor["ctx.configEditor<br/>Profile configuration edits"]
   pkg_settings["settings"]
   pkg_agent_default_model["agent-default-model"]
-  pkg_experimental_inspector["experimental-inspector"]
-  svc_inspector["ctx.inspector<br/>Cross-realm runtime inspection"]
   pkg_experimental_claude_code_mods["experimental-claude-code-mods"]
   svc_claudeCodeMods["ctx.claudeCodeMods<br/>Claude Code mod bridge"]
   pkg_experimental_client_ui_claude_code_mods["experimental-client-ui-claude-code-mods"]
@@ -351,7 +349,6 @@ flowchart LR
   pkg_experimental_forge --> svc_forge
   pkg_experimental_forge_github --> svc_forge
   pkg_experimental_forge_session --> svc_forgeSession
-  pkg_experimental_inspector --> svc_inspector
   pkg_experimental_ptc_runtime_python --> svc_ptcRuntime
   pkg_experimental_speech_to_text --> svc_speechToText
   pkg_experimental_speech_to_text_sensevoice --> svc_speechToText
@@ -616,7 +613,6 @@ flowchart LR
 | `ctx.hmr` | `core` | [`hmr`](../packages/boot/hmr) | - | [`app-boot`](../packages/boot/app-boot) | - | Owns module and exact configuration watchers; application mutations share its queue and automatic reloads await the application file lock. |
 | `ctx.themeBoot` | `seam` | `ui-theme` | `ui-theme` | `ui-theme-brand` | - | Carries per-skin boot backgrounds from brand packages to the shell before first paint. |
 | `ctx.configEditor` | `core` | [`config-editor`](../packages/settings/config-editor) | - | [`settings`](../packages/settings/settings), [`agent-default-model`](../packages/core/agent-default-model) | - | Persists profile config patches under the application file lock and HMR queue, then reconciles Loader entries. |
-| `ctx.inspector` | `core` | [`experimental-inspector`](../packages/experimental/inspector) | - | - | - | Owns the Worker-hosted CDP target and the transport-independent Host and Client observation and Cordis-tree query API. |
 | `ctx.claudeCodeMods` | `seam` | [`experimental-claude-code-mods`](../packages/experimental/claude-code-mods) | - | [`experimental-client-ui-claude-code-mods`](../packages/experimental/client-ui-claude-code-mods) | - | Runs each loaded mod in load order above the prompt band, raising the harness events it serves and serving its `$` calls through composed services. |
 | `ctx.pluginMarket` | `core` | [`plugin-market`](../packages/boot/plugin-market) | - | [`client-ui-plugin-market`](../packages/client/ui-plugin-market), [`plugin-market`](../packages/boot/plugin-market) | - | Fetches and validates the index sources the user configures; installation goes through the plugin manager. |
 | `ctx.pluginManager` | `core` | [`plugin-manager`](../packages/boot/plugin-manager) | - | [`plugin-manager`](../packages/boot/plugin-manager) | - | Shares profile package operations with the CLI and reports persisted and running state to Web and agent callers. |

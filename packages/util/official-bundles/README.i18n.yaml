@@ -9,8 +9,8 @@
   en: c25cc9149021ea11
   zh: c985645a95df9a1f
 /qilin-agent-official-bundles/summary:
-  en: 91bc654e9b003c20
-  zh: bd5ffbc84058cfff
+  en: 3c132b5e254318f1
+  zh: 75995bc72faa5c25
 /qilin-agent-official-bundles/table-of-contents:
   en: 80b31a934611cb4a
   zh: 05f3f7f9cb2fd881
@@ -23,15 +23,18 @@
 /qilin-agent-official-bundles/use-this-package/ask-whether-a-bundle-is-experimental-hidden-or-on-demand:
   en: 57ece1f6bde44c70
   zh: 1a47799abf149155
+/qilin-agent-official-bundles/use-this-package/retire-a-bundle-the-installation-stopped-shipping:
+  en: 4fafc4ecdb34f745
+  zh: c1f31d002ec4c452
 /qilin-agent-official-bundles/use-this-package/admit-a-release-for-on-demand-installation:
   en: 2e380b69535fe05b
   zh: fcaab27fd8a35de5
 /qilin-agent-official-bundles/understand-the-implementation:
-  en: 29a907b6741af35c
-  zh: a5057b029c8a6468
+  en: f73779e988c15a97
+  zh: eb254dd7da9fac56
 /qilin-agent-official-bundles/understand-the-implementation/source-map:
-  en: bb97a53e24e725b6
-  zh: d800e9b229f5ee4a
+  en: 90825915bc30f7e8
+  zh: 56c678e99173d799
 /qilin-agent-official-bundles/further-exploration:
   en: 918d6fbd76d42c86
   zh: fb30ef390f5e8f36

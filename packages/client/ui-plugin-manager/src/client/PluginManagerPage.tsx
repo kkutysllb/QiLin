@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
-import { EXTENSION_BUNDLES, HIDDEN_BUNDLES, MORE_BUNDLES } from '@qilin-agent/official-bundles'
+import { EXTENSION_BUNDLES, HIDDEN_BUNDLES, isExperimentalBundle, MORE_BUNDLES } from '@qilin-agent/official-bundles'
 import { createPortal } from 'react-dom'
 import type { PluginInstallFailureKind, Registry } from '@qilin-agent/api-remotes/client'
 import {
@@ -1586,7 +1586,10 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   // to the main list without moving it among its neighbours there.
   const ordered = orderOptionalBundles(official)
   const pinned = new Set(official.filter(pinnedToMainList).map(pkg => pkg.name))
-  const extensions = ordered.filter(pkg => pinned.has(pkg.name))
+  // A main-list bundle the catalogue no longer marks Experimental joins the
+  // built-in group: promotion is a deletion from EXPERIMENTAL_BUNDLES, not a rename.
+  const extensions = ordered.filter(pkg => pinned.has(pkg.name) && isExperimentalBundle(pkg.name))
+  const promoted = ordered.filter(pkg => pinned.has(pkg.name) && !isExperimentalBundle(pkg.name))
   const more = ordered
   const loaded = state.status === 'ready' || state.status === 'error'
   const refreshing = state.refreshStatus === 'refreshing'
@@ -1822,7 +1825,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
                   </section>
                 ) : (
                   <>
-                    {renderGroup('basic', t('basicTitle'), basicCards)}
+                    {renderGroup('basic', t('basicTitle'), [...basicCards, ...promoted.map(pkg => packageCard(pkg))])}
                     {renderGroup('extensions', t('extensionsTitle'), extensions.map(pkg => packageCard(pkg, t('statusBeta'))))}
                     {renderGroup('bundles', t('bundlesTitle'), mine.map(pkg => packageCard(pkg)))}
                   </>

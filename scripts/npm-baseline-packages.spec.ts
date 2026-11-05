@@ -61,10 +61,10 @@ describe('npm baseline package discovery', () => {
 
   it('retains experimental packages when the configured denylist is empty', () => {
     const manifests = [
-      'packages/experimental/inspector/package.json',
+      'packages/experimental/prototype/package.json',
       'packages/experimental/new-prototype/package.json',
     ]
-    expect(discoverNpmBaselineManifests(fixture(manifests), [])).toEqual(manifests)
+    expect(discoverNpmBaselineManifests(fixture(manifests), [])).toEqual([...manifests].sort())
   })
 
   it('leaves an empty package set for the baseline caller to reject', () => {

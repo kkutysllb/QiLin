@@ -63,7 +63,6 @@ describe('release families', () => {
       '@qilin-agent/experimental-client-ui-claude-code-mods',
       '@qilin-agent/experimental-client-ui-cot-translation',
       '@qilin-agent/experimental-client-ui-forge',
-      '@qilin-agent/experimental-client-ui-stats',
       '@qilin-agent/experimental-client-ui-voice-input',
       '@qilin-agent/experimental-computer-use-cua-driver-mcp',
       '@qilin-agent/experimental-computer-use-cua-driver-native',
@@ -77,13 +76,10 @@ describe('release families', () => {
       '@qilin-agent/experimental-hook-protocol',
       '@qilin-agent/experimental-hooks-claude-code',
       '@qilin-agent/experimental-hooks-codex',
-      '@qilin-agent/experimental-inspector-profile',
-      '@qilin-agent/experimental-inspector',
       '@qilin-agent/experimental-plugin-market-bundle',
       '@qilin-agent/experimental-ptc-runtime-python',
       '@qilin-agent/experimental-ralph-bundle',
       '@qilin-agent/experimental-schedule-bundle',
-      '@qilin-agent/experimental-session-inspector',
       '@qilin-agent/experimental-session-search',
       '@qilin-agent/experimental-session-title-all-prompts-llm',
       '@qilin-agent/experimental-session-titles-bundle',
@@ -150,8 +146,8 @@ describe('release families', () => {
       version: '0.0.1',
       publishConfig: { access: 'public' },
     }))
-    write(join(root, 'packages/experimental/inspector/package.json'), JSON.stringify({
-      name: '@qilin-agent/experimental-inspector',
+    write(join(root, 'packages/experimental/private-prototype/package.json'), JSON.stringify({
+      name: '@qilin-agent/experimental-private-prototype',
       version: '0.0.1',
       private: true,
     }))

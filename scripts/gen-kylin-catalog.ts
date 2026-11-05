@@ -81,7 +81,6 @@ export const SERVICE_PAGE: Record<string, string> = {
   browserUse: 'browser-use.md',
   computerUse: 'computer-use.md',
   claudeCodeMods: 'claude-code-mods.md',
-  inspector: 'inspector.md',
   commands: 'commands.md',
   compaction: 'compaction.md',
   cordisInspect: 'extensions.md',

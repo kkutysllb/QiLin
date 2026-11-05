@@ -197,7 +197,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-client-ui-claude-code-mods` | no | Web band above the prompt for Claude Code mods: draws each session's mod tree and sends button presses back to the bridge |
 | `@qilin-agent/experimental-client-ui-cot-translation` | yes | Optional machine translation of expanded reasoning, preserving original Session text |
 | `@qilin-agent/experimental-client-ui-forge` | yes | Sidebar panel for a Session's change requests, with a worktree option for new Sessions and its Host Remote |
-| `@qilin-agent/experimental-client-ui-stats` | no | Per-turn and per-step context, timing, cache, and tool-cost table contributed as an experimental conversation View |
 | `@qilin-agent/experimental-client-ui-voice-input` | no | Record speech and insert editable text into the conversation draft |
 | `@qilin-agent/experimental-computer-use-cua-driver-mcp` | yes | Experimental computer use through an installed Cua Driver MCP executable |
 | `@qilin-agent/experimental-computer-use-cua-driver-native` | no | Experimental computer-use provider embedding the Cua Driver native npm SDK |
@@ -207,9 +206,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-forge-session` | yes | Binds change requests to the Session that created, pushed, or tracked them |
 | `@qilin-agent/experimental-hooks-claude-code` | yes | Bridge plugin: run a Claude Code hooks.json / settings hook config on the QiLin interception seams |
 | `@qilin-agent/experimental-hooks-codex` | yes | Bridge plugin: run a Codex hooks.json hook config on the QiLin interception seams |
-| `@qilin-agent/experimental-inspector` | yes | Experimental cross-realm CDP hub for Host debugging and Client Runtime inspection |
 | `@qilin-agent/experimental-ptc-runtime-python` | yes | CPython subprocess implementation of the QiLin PTC execution seam |
-| `@qilin-agent/experimental-session-inspector` | no | Experimental virtualized Session log and live Chat group/node inspectors |
 | `@qilin-agent/experimental-session-title-all-prompts-llm` | yes | All-user-messages LLM provider plugin for QiLin session titles |
 | `@qilin-agent/experimental-skill-badge` | no | Bundled qilin badge skill provider for QiLin |
 | `@qilin-agent/experimental-speech-to-text` | yes | Experimental speech recognition with independently selectable providers |

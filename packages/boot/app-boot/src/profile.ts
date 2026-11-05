@@ -36,6 +36,7 @@ import { applyEntryPatches, type PatchOptions } from '@qilin-agent/kylin-plugin-
 import { resolveQilinHome } from '@qilin-agent/home-paths'
 import { bundlePatchFilesOf, bundlePatchOf, dshCompatAliasOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
 import { evaluatePluginCompatibility, pluginCompatibilityWarning } from './plugin-compatibility.ts'
+import { RETIRED_BUNDLES } from './official-bundle-packages.ts'
 import { readProfileVersionExemptions } from './profile-compatibility.ts'
 import type { QilinManifest, QilinPackageManifest } from '@qilin-agent/package-manifest'
 import { resolve as resolvePackage, type Package as ResolvePackageManifest } from 'resolve.exports'
@@ -365,7 +366,6 @@ export const OPTIONAL_BUNDLES: readonly string[] = [
   '@qilin-agent/experimental-voice-input-bundle',
   '@qilin-agent/experimental-auto-review',
   '@qilin-agent/experimental-schedule-bundle',
-  '@qilin-agent/experimental-inspector-profile',
   '@qilin-agent/experimental-tool-worktree',
   '@qilin-agent/experimental-session-search',
   '@qilin-agent/experimental-session-titles-bundle',
@@ -1129,25 +1129,31 @@ function normalizeShippedProfile(name: string, dir: string, manifest: ProfileMan
 }
 
 /**
- * Remove names an installation-owned tuple of this profile once seeded and the
- * shipped template no longer carries, unless the profile owns the package (a
+ * Drop the bundle names this installation no longer loads. A name an
+ * installation-owned tuple of this profile once seeded goes when the shipped
+ * template stopped carrying it, unless the profile owns the package (a
  * `dependencies` entry) or records a presentation choice for it (an `audiences`
- * entry). {@link loadProfileDirectory} applies this to every loader, not only
- * {@link loadProfile}; the manifest is written only when a name was dropped.
+ * entry). A name in {@link RETIRED_BUNDLES} goes regardless: no release ships it,
+ * so resolving it would fail startup. {@link loadProfileDirectory} applies this to
+ * every loader, not only {@link loadProfile}; the manifest is written only when a
+ * name was dropped.
+ * @param dir - absolute profile directory.
+ * @param manifest - the profile manifest as saved.
+ * @returns the manifest to compose, and the names dropped because the installation
+ * no longer ships them (a dropped seed the profile made its own is not reported).
  */
-function dropRetiredProfileBundles(dir: string, manifest: ProfileManifest): ProfileManifest {
+function dropRetiredProfileBundles(dir: string, manifest: ProfileManifest): { manifest: ProfileManifest; retired: readonly string[] } {
+  const bundles = profileDeclarationOf(manifest)?.profile?.bundles
+  if (bundles === undefined) return { manifest, retired: [] }
   const installationOwned = INSTALLATION_OWNED_PROFILE_TUPLES[basename(dir)]
   const template = PROFILE_TEMPLATES[basename(dir)]
-  const bundles = profileDeclarationOf(manifest)?.profile?.bundles
-  if (installationOwned === undefined || bundles === undefined) return manifest
-  const retired = installationOwned.filter(name => !template?.bundles.includes(name))
-  /* v8 ignore next -- every recorded tuple names a layer its current template retires, so the filter is never empty */
-  if (retired.length === 0) return manifest
+  const seeded = installationOwned?.filter(name => !template?.bundles.includes(name)) ?? []
   const dependencies = new Set(Object.keys(manifest.dependencies ?? {}))
   const audiences = manifest.qilin?.profile?.audiences ?? {}
-  const kept = bundles.filter(entry =>
-    !retired.includes(entry) || dependencies.has(entry) || Object.hasOwn(audiences, entry))
-  if (kept.length === bundles.length) return manifest
+  const retired = bundles.filter(entry => RETIRED_BUNDLES.has(entry))
+  const kept = bundles.filter(entry => !RETIRED_BUNDLES.has(entry)
+    && (!seeded.includes(entry) || dependencies.has(entry) || Object.hasOwn(audiences, entry)))
+  if (kept.length === bundles.length) return { manifest, retired: [] }
   const normalized: ProfileManifest = {
     ...manifest,
     qilin: {
@@ -1159,7 +1165,7 @@ function dropRetiredProfileBundles(dir: string, manifest: ProfileManifest): Prof
     },
   }
   writeProfileManifest(dir, normalized)
-  return normalized
+  return { manifest: normalized, retired }
 }
 /**
  * Resolve a package's root directory from one anchor without depending on the
@@ -1413,7 +1419,12 @@ export function loadProfileDirectory(
   installAnchor: string,
   options: { userLayer?: boolean; tolerateSkippedBundles?: boolean } = {},
 ): Profile {
-  const manifest = dropRetiredProfileBundles(dir, readProfileManifest(binName, dir))
+  const dropped = dropRetiredProfileBundles(dir, readProfileManifest(binName, dir))
+  const manifest = dropped.manifest
+  for (const packageName of dropped.retired) {
+    process.stderr.write(binName + ': warning: dropped retired profile bundle ' + JSON.stringify(packageName)
+      + ' from qilin.profile.bundles; this installation no longer ships it\n')
+  }
   const bundles = profileDeclarationOf(manifest)?.profile?.bundles ?? []
   const exemptions = bundles.length === 0 ? {} : readProfileVersionExemptions(dir)
   const layers: ProfileLayer[] = []

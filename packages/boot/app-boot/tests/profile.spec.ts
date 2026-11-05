@@ -744,6 +744,32 @@ describe('loadProfile', () => {
     })
   })
 
+  it('drops a bundle the installation no longer ships, cleans the profile, and warns', () => {
+    const anchor = stageInstallation({ '@qilin-agent/base': { patch: '[]\n' } })
+    const home = tmp()
+    const dir = resolveProfileDir('web', home)
+    initProfile(dir, ['@qilin-agent/base', '@qilin-agent/experimental-inspector-profile'])
+    // A dependency on the removed package does not keep the layer: no release resolves it.
+    const manifest = readProfileManifest('t', dir)
+    writeProfileManifest(dir, { ...manifest, dependencies: { '@qilin-agent/experimental-inspector-profile': '1.0.0' } })
+    const written: string[] = []
+    const write = process.stderr.write.bind(process.stderr)
+    process.stderr.write = (chunk: string | Uint8Array): boolean => { written.push(String(chunk)); return true }
+    try {
+      const profile = loadProfileDirectory('t', dir, anchor)
+      expect(profile.layers.map(layer => layer.packageName)).toEqual(['@qilin-agent/base'])
+    } finally {
+      process.stderr.write = write
+    }
+    expect(readProfileManifest('t', dir)).toMatchObject({
+      dependencies: { '@qilin-agent/experimental-inspector-profile': '1.0.0' },
+      qilin: { profile: { bundles: ['@qilin-agent/base'] } },
+    })
+    expect(written.join('')).toContain(
+      'dropped retired profile bundle "@qilin-agent/experimental-inspector-profile" from qilin.profile.bundles',
+    )
+  })
+
   it('keeps a retired layer the plugin channel gave the profile', () => {
     const anchor = stageInstallation({
       '@qilin-agent/base': { patch: '[]\n' },

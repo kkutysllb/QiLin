@@ -136,7 +136,6 @@
     "apps/web/tests/goal-multi-turn-actions.e2e.ts",
     "apps/web/tests/agent-team-panel.e2e.ts",
     "apps/web/tests/sidebar-right.e2e.ts",
-    "apps/web/tests/session-inspector.e2e.ts",
     "apps/web/tests/sidebar-terminal.e2e.ts",
     "apps/web/tests/chat-scroll-fixture.ts",
     "apps/web/tests/chat-scroll-contract.e2e.ts",
@@ -152,7 +151,6 @@
     "apps/cli/tests/**/*.ts",
     "benchmarks/**/*.ts",
     "packages/*/*/tests/**/*.ts",
-    "packages/experimental/inspector/scripts/**/*.ts",
     "packages/experimental/claude-code-mods/examples/*/index.ts",
     // Client-face entries pulled into this program by host-side specs and e2e fixtures
     // (apps/web and the settings pages). Listing them satisfies the
@@ -253,8 +251,6 @@
     { "path": "./packages/experimental/browser-use-runtime" },
     { "path": "./packages/experimental/browser-use-playwright-mcp" },
     { "path": "./packages/experimental/browser-use-chrome-devtools-mcp" },
-    { "path": "./packages/experimental/inspector-profile" },
-    { "path": "./packages/experimental/inspector/tsconfig.host.json" },
     { "path": "./packages/experimental/browser-use-stagehand-native" },
     { "path": "./packages/api/terminal-controller/tsconfig.host.json" },
     { "path": "./packages/computer-use/computer-use" },

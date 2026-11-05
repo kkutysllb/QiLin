@@ -168,9 +168,6 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   '@qilin-agent/client-ui-theme': ['lib/styles'],
   // The physical-key protocol is a public entry usable without the browser service.
   '@qilin-agent/client-shortcuts': ['lib/protocol.js'],
-  // The embedded DevTools build ships as static assets the Worker serves; the
-  // published list follows the manifest file order.
-  '@qilin-agent/experimental-inspector': ['lib/client.*.js', 'lib/worker.js', 'lib/devtools/**'],
   // The CPython side ships as source .py files, published as-is rather than built.
   '@qilin-agent/experimental-ptc-runtime-python': ['py/**/*.py'],
   // The local recognizer reads its revision-pinned model catalog from this

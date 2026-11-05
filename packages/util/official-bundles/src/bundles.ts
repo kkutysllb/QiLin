@@ -25,9 +25,9 @@ export const HIDDEN_BUNDLES: ReadonlySet<string> = new Set([
  */
 export const EXTENSION_BUNDLES: readonly string[] = [
   '@qilin-agent/experimental-agent-team-profile',
+  '@qilin-agent/experimental-schedule-bundle',
   '@qilin-agent/experimental-voice-input-bundle',
   '@qilin-agent/experimental-auto-review',
-  '@qilin-agent/experimental-inspector-profile',
 ]
 
 /**
@@ -46,25 +46,31 @@ export const MORE_BUNDLES: readonly string[] = [
 ]
 
 /**
- * Official bundles the Plugins page marks with the Experimental badge. Every
- * offered option belongs here, including the retired entry a profile may still
- * carry, so the badge never depends on a package name prefix.
+ * Official bundles the Plugins page marks with the Experimental badge. A bundle
+ * outside this set renders without the badge and belongs to the built-in plugin
+ * group, so promotion is one deletion here rather than a rename of the packages.
  */
 export const EXPERIMENTAL_BUNDLES: ReadonlySet<string> = new Set([
-  '@qilin-agent/experimental-agent-team-profile',
   '@qilin-agent/experimental-auto-review',
   '@qilin-agent/experimental-badge-skill-bundle',
   '@qilin-agent/experimental-cot-translation-bundle',
   '@qilin-agent/experimental-forge-bundle',
-  '@qilin-agent/experimental-inspector-profile',
   '@qilin-agent/experimental-plugin-market-bundle',
   '@qilin-agent/experimental-ralph-bundle',
-  '@qilin-agent/experimental-schedule-bundle',
   '@qilin-agent/experimental-session-search',
   '@qilin-agent/experimental-session-titles-bundle',
   '@qilin-agent/experimental-terminal-bundle',
   '@qilin-agent/experimental-tool-worktree',
   '@qilin-agent/experimental-voice-input-bundle',
+])
+
+/**
+ * Bundles the product no longer ships. A profile that still selects one keeps
+ * booting: app-boot drops the name from `qilin.profile.bundles` while loading the
+ * profile and reports the removal, instead of failing on a bundle nothing installs.
+ */
+export const RETIRED_BUNDLES: ReadonlySet<string> = new Set([
+  '@qilin-agent/experimental-inspector-profile',
 ])
 
 /**

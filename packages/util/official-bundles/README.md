@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`@qilin-agent/official-bundles` holds one copy of every bundle list the QiLin installation owns by name: the built-in profile layers the Plugins page hides, the optional bundles its main and More lists rank, the bundles it marks Experimental, and the public releases it offers for on-demand installation. The Host admits a bundle from these lists and the Plugins page renders from them, so a bundle name added here reaches both faces instead of drifting between a Host list and a client copy. The module holds plain strings and sets with no registry, service, or runtime state.
+`@qilin-agent/official-bundles` holds one copy of every bundle list the QiLin installation owns by name: the built-in profile layers the Plugins page hides, the optional bundles its main and More lists rank, the bundles it marks Experimental, the names it no longer ships, and the public releases it offers for on-demand installation. The Host admits a bundle from these lists and the Plugins page renders from them, so a bundle name added here reaches both faces instead of drifting between a Host list and a client copy. The module holds plain strings and sets with no registry, service, or runtime state.
 
 ## Table of Contents
 
@@ -32,6 +32,10 @@ English | [中文](README.zh.md)
 
 `isExperimentalBundle(name)` answers from `EXPERIMENTAL_BUNDLES`, so the badge follows admission instead of a package-name prefix: a package that merely starts with `experimental-` is not marked. `isHiddenBundle(name)` and `isOnDemandBundle(name)` answer the other two questions over the same lists.
 
+### Retire a bundle the installation stopped shipping
+
+`RETIRED_BUNDLES` names bundles the product no longer ships. A profile that still lists one keeps booting: [`@qilin-agent/app-boot`](../../boot/app-boot/README.md#profiles) drops the name from `qilin.profile.bundles` while loading the profile and reports the removal, instead of failing on a bundle nothing installs. The set carries no placement behavior: a retired name appears in no offered list.
+
 ### Admit a release for on-demand installation
 
 `ON_DEMAND_BUNDLES` names the public releases the Plugins page installs on demand; nothing named there ships inside the distribution. The generated offline catalog in `@qilin-agent/app-boot` carries one metadata entry per admitted name, and its freshness check rejects a catalog that disagrees with this list. The list is empty while QiLin ships no on-demand provider backend, and every consumer then offers nothing and shows no on-demand affordance.
@@ -44,13 +48,13 @@ English | [中文](README.zh.md)
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The module is a data table plus three lookups: two `ReadonlySet` instances and three `readonly string[]` lists, with no import outside the package. The two lists are ordered arrays because placement ranks by index; the membership questions read sets. Tests assert the invariants a consumer relies on: each offered name appears once across the two ordered lists, every offered name is Experimental or on demand, and no hidden layer appears in an offered list.
+The module is a data table plus three lookups: three `ReadonlySet` instances (including the retired names) and three `readonly string[]` lists, with no import outside the package. The two lists are ordered arrays because placement ranks by index; the membership questions read sets. Tests assert the invariants a consumer relies on: each offered name appears once across the two ordered lists, every offered name is Experimental, a built-in main-list entry, or on demand, no hidden layer appears in an offered list, and a retired name appears in none of them.
 
 ### Source map
 
 | File | Role |
 |---|---|
-| [`src/bundles.ts`](src/bundles.ts) | The lists: hidden layers, main-list and More-list options, Experimental admission, and on-demand admission |
+| [`src/bundles.ts`](src/bundles.ts) | The lists: hidden layers, main-list and More-list options, Experimental admission, retired names, and on-demand admission |
 | [`src/placement.ts`](src/placement.ts) | The three membership questions over those lists |
 | [`src/index.ts`](src/index.ts) | Package exports |
 

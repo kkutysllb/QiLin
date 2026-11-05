@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The experimental group contains prototype capabilities whose contracts can change and carry no support promise. All current packages publish under their `@qilin-agent/experimental-*` names, including the opt-in Agent Teams composition, Auto review, Cua Driver providers, browser-use backends, cross-realm Inspector, CPython PTC backend, and browser-worker preview libraries. Released products outside this group must not depend on experimental packages. The qilin installation ships the Agent Teams, voice input, Auto review, and Schedule packages as optional bundles switched on from the Web sidebar's Plugins page; the other packages are libraries or explicit compositions.
+The experimental group contains prototype capabilities whose contracts can change and carry no support promise. All current packages publish under their `@qilin-agent/experimental-*` names, including the opt-in Agent Teams composition, Auto review, Cua Driver providers, browser-use backends, CPython PTC backend, and browser-worker preview libraries. Released products outside this group must not depend on experimental packages. The qilin installation ships the Agent Teams, voice input, Auto review, and Schedule packages as optional bundles switched on from the Web sidebar's Plugins page; the other packages are libraries or explicit compositions.
 
 ## Table of Contents
 
@@ -28,7 +28,6 @@ The experimental group contains prototype capabilities whose contracts can chang
 | [`speech-to-text-sensevoice`](speech-to-text-sensevoice/README.md) | Managed local SenseVoice inference | — |
 | [`api-speech-to-text`](api-speech-to-text/README.md) | Authenticated transient transcription Remote | `ctx.speechController` |
 | [`client-ui-voice-input`](client-ui-voice-input/README.md) | Microphone capture and guarded draft insertion | — |
-| [`client-ui-stats`](client-ui-stats/README.md) | Per-turn and per-step context, cache, and tool-cost statistics as a conversation View | — |
 | [`voice-input-bundle`](voice-input-bundle/README.md) | Default-disabled optional voice input composition | — |
 | [`agent-team-profile`](agent-team-profile/README.md) | Published opt-in profile layer for Agent Teams | — |
 | [`agent-team`](agent-team/README.md) | Named teammates with durable messages and a shared task board | `ctx.agentTeams` |
@@ -39,7 +38,6 @@ The experimental group contains prototype capabilities whose contracts can chang
 | [`auto-review`](auto-review/README.md) | Explicit Web layer for same-model review before each native or PTC inner tool call | — |
 | [`claude-code-mods`](claude-code-mods/README.md) | Run Claude Code mods as plugins: their hook chains on harness extension points and a band above the prompt | `ctx.claudeCodeMods` |
 | [`client-ui-claude-code-mods`](client-ui-claude-code-mods/README.md) | The Web band that draws a mod's tree above the prompt and sends button clicks back | — |
-| [`inspector`](inspector/README.md) | Cross-realm CDP hub for Host debugging, Client Runtime inspection, network capture, and Kylin trees | `ctx.inspector` |
 | [`ptc-runtime-python`](ptc-runtime-python/README.md) | CPython subprocess backend for the PTC execution seam | `ctx.ptcRuntime` |
 | [`computer-use-cua-driver-mcp`](computer-use-cua-driver-mcp/README.md) | Use an installed Cua Driver through MCP | `ctx.computerUse` |
 | [`computer-use-cua-driver-native`](computer-use-cua-driver-native/README.md) | Embed the Cua Driver native npm runtime | `ctx.computerUse` |

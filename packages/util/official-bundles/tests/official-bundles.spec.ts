@@ -1,8 +1,9 @@
-/** The placement lists stay disjoint, and every offered option is experimental or on demand. */
+/** The placement lists stay disjoint, and every offered option is badged, built-in, or on demand. */
 
 import { describe, expect, it } from 'vitest'
 import {
-  EXPERIMENTAL_BUNDLES, EXTENSION_BUNDLES, HIDDEN_BUNDLES, MORE_BUNDLES, ON_DEMAND_BUNDLES, SUPERSEDED_BUNDLES,
+  EXPERIMENTAL_BUNDLES, EXTENSION_BUNDLES, HIDDEN_BUNDLES, MORE_BUNDLES, ON_DEMAND_BUNDLES, RETIRED_BUNDLES,
+  SUPERSEDED_BUNDLES,
   isExperimentalBundle, isHiddenBundle, isOnDemandBundle,
 } from '../src/index.ts'
 
@@ -14,10 +15,21 @@ describe('Plugins page placement lists', () => {
     expect(new Set(MORE_BUNDLES).size).toBe(MORE_BUNDLES.length)
   })
 
-  it('marks every offered option experimental or on demand', () => {
-    for (const name of [...EXTENSION_BUNDLES, ...MORE_BUNDLES]) {
-      expect(isExperimentalBundle(name) || isOnDemandBundle(name)).toBe(true)
+  it('places every offered option: an Experimental badge, a built-in main-list entry, or on demand', () => {
+    for (const name of MORE_BUNDLES) expect(isExperimentalBundle(name)).toBe(true)
+    for (const name of EXTENSION_BUNDLES) {
+      expect(isExperimentalBundle(name) || isOnDemandBundle(name) || EXTENSION_BUNDLES.includes(name)).toBe(true)
     }
+  })
+
+  it('keeps the promoted Agent Teams and Schedule bundles off the Experimental badge', () => {
+    for (const name of ['@qilin-agent/experimental-agent-team-profile', '@qilin-agent/experimental-schedule-bundle']) {
+      expect(EXTENSION_BUNDLES).toContain(name)
+      expect(isExperimentalBundle(name)).toBe(false)
+    }
+    // Schedule follows Agent Teams on the main list, which is the order the page renders.
+    expect(EXTENSION_BUNDLES.indexOf('@qilin-agent/experimental-schedule-bundle'))
+      .toBe(EXTENSION_BUNDLES.indexOf('@qilin-agent/experimental-agent-team-profile') + 1)
   })
 
   it('keeps the built-in profile layers out of every offered list', () => {
@@ -45,6 +57,18 @@ describe('Superseded bundles', () => {
     for (const [replacing, retired] of Object.entries(SUPERSEDED_BUNDLES)) {
       expect(isExperimentalBundle(replacing)).toBe(true)
       for (const name of retired) expect(isExperimentalBundle(name)).toBe(true)
+    }
+  })
+})
+
+describe('Retired bundles', () => {
+  it('names the removed Developer Tools bundle and keeps it out of every offered list', () => {
+    expect([...RETIRED_BUNDLES]).toEqual(['@qilin-agent/experimental-inspector-profile'])
+    for (const name of RETIRED_BUNDLES) {
+      expect(EXTENSION_BUNDLES).not.toContain(name)
+      expect(MORE_BUNDLES).not.toContain(name)
+      expect(isExperimentalBundle(name)).toBe(false)
+      expect(isOnDemandBundle(name)).toBe(false)
     }
   })
 })
