@@ -389,18 +389,7 @@ export class AgentLoop extends Service implements AgentFactory {
       const meta = cwd === undefined ? {} : { cwd }
       if (resumeSessionId === undefined || resumeSessionId === '') {
         const configuredId = sessionId ?? brandString<SessionId>(`${id}-session-${randomUUID()}`)
-        const persistence = sessionId === undefined ? undefined : ctx.get('sessionPersistence')
-        if (persistence === undefined) {
-          const startup = this.create(configuredId, options, meta).then(() => undefined, (error: unknown) => {
-            this.reportConfiguredStartupFailure(id, 'restore', configuredId, error)
-          })
-          this.ownership.trackStartup(startup)
-        } else {
-          const startup = this.restoreOrCreateConfigured(ctx, persistence, configuredId, options, meta).catch((error: unknown) => {
-            this.reportConfiguredStartupFailure(id, 'restore', configuredId, error)
-          })
-          this.ownership.trackStartup(startup)
-        }
+        this.ownership.trackStartup(this.startConfiguredAgent(ctx, id, sessionId, configuredId, options, meta))
         continue
       }
       ctx.effect(() => {
@@ -414,6 +403,66 @@ export class AgentLoop extends Service implements AgentFactory {
         })
         return fiber.dispose
       }, `agentLoop.resume(${id})`)
+    }
+  }
+
+  /**
+   * Start one declarative agent once the session-persistence backend is usable.
+   *
+   * Loader mounts sibling entries concurrently, so this runs while the backend's
+   * provider fiber can still be loading; resolving the backend inside the start
+   * keeps the configured restore/create decision on the real backend.
+   * @param ownerCtx - context that owns the session and its registration.
+   * @param configId - configured agent id used by startup diagnostics.
+   * @param sessionId - exact configured identity, or undefined for a generated id.
+   * @param configuredId - identity the agent is created under when nothing is stored.
+   * @param options - loop options for the configured agent.
+   * @param meta - session header fields (working directory) for the configured agent.
+   * @returns a promise settled when startup finished or was reported as failed.
+   */
+  private async startConfiguredAgent(
+    ownerCtx: Context,
+    configId: string,
+    sessionId: SessionId | undefined,
+    configuredId: SessionId,
+    options: AgentOptions,
+    meta: Pick<SessionHeader, 'cwd'>,
+  ): Promise<void> {
+    try {
+      const persistence = await this.sessionPersistenceWhenReady()
+      if (sessionId !== undefined && persistence !== undefined) {
+        await this.restoreOrCreateConfigured(ownerCtx, persistence, configuredId, options, meta)
+        return
+      }
+      await this.create(configuredId, options, meta)
+    } catch (error: unknown) {
+      this.reportConfiguredStartupFailure(configId, 'restore', configuredId, error)
+    }
+  }
+
+  /**
+   * Resolve the session-persistence backend, waiting out a provider that is
+   * mounted but still activating.
+   *
+   * A strict read is empty for both "no backend" and "backend not active yet".
+   * The non-strict probe tells them apart, so a concurrent mount only waits for
+   * a backend that exists and a composition without one keeps creating
+   * in-memory sessions.
+   * @returns the active backend, or undefined when the composition has none.
+   */
+  private async sessionPersistenceWhenReady(): Promise<SessionPersistence | undefined> {
+    const ctx = this.runtime.ctx
+    const active = ctx.get('sessionPersistence')
+    if (active !== undefined) return active
+    if (ctx.reflect.get('sessionPersistence', false) === undefined) return undefined
+    const ready = Promise.withResolvers<SessionPersistence>()
+    const fiber = ctx.inject(['sessionPersistence'], (childCtx: Context) => {
+      ready.resolve(childCtx.sessionPersistence)
+    })
+    try {
+      return await ready.promise
+    } finally {
+      await fiber.dispose()
     }
   }
 
@@ -701,7 +750,7 @@ export class AgentLoop extends Service implements AgentFactory {
    * @returns the owned handle and stored cursor, or `undefined` without a backend.
    */
   private async createStoredSession(session: Session, signal?: AbortSignal): Promise<StoredSession | undefined> {
-    const persistence = this.runtime.ctx.get('sessionPersistence')
+    const persistence = await this.sessionPersistenceWhenReady()
     if (persistence === undefined) return undefined
     const handle = await persistence.create(session.header, {
       inheritedEventCount: session.inheritedEventCount,

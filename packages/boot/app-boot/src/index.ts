@@ -290,7 +290,25 @@ export function loadLayeredEnv(
   ])
 }
 
-const bootstrapIncludes = new WeakMap<Context, Entry>()
+/** Pinned id of the root Include row `mountRootInclude` creates. */
+const ROOT_INCLUDE_ID = 'include'
+
+/**
+ * The root Include row of a booted tree.
+ *
+ * The Loader is the authority for it: the module that boots a tree and the
+ * module a Loader-imported plugin runs in need not be the same instance (a
+ * source launch beside built plugin packages), so a module-level registry
+ * would answer for only one of them.
+ * @param ctx - booted root context.
+ * @returns the root Include entry, or undefined when the tree has none.
+ */
+function rootIncludeOf(ctx: Context): Entry | undefined {
+  const loader = ctx.get('loader')
+  if (loader === undefined) return undefined
+  // The root row is created before any plugin row, so the first match is it.
+  return [...loader.entries()].find(row => row.options.id === ROOT_INCLUDE_ID)
+}
 
 // The include's YAML dialect (`!!js` scalars become expression nodes the
 // Loader interpolates against each entry's injection-ready context), imported
@@ -363,7 +381,7 @@ async function recompose(
   // The rows stopped first, which a failure before the generation applies puts back.
   let stopped: StoppedRow[] = []
   try {
-    const entry = bootstrapIncludes.get(ctx)
+    const entry = rootIncludeOf(ctx)
     if (entry === undefined) throw new Error(`${binName}: profile reload requires the root Include entry`)
     // Reading the prior state imports nothing, so plugin code does not run before the next generation publishes.
     const previousFailures = (await inactiveEntries(ctx, false)).map((failure): RecordedFailure => ({
@@ -817,16 +835,14 @@ export async function mountRootInclude(
     ...prepared.length > 0 ? { patches: prepared } : {},
   }
   const rootInclude: EntryOptions = {
-    id: 'include',
+    id: ROOT_INCLUDE_ID,
     name: 'cordis:include',
     config: includeConfig,
   }
   const includeId = await ctx.loader.create(rootInclude)
   const loader = ctx.get('loader')
   if (loader === undefined) return undefined
-  const entry = loader.resolve(includeId)
-  bootstrapIncludes.set(ctx, entry)
-  return entry
+  return loader.resolve(includeId)
 }
 
 /**
@@ -1178,7 +1194,8 @@ export async function auditStartupEntries(
   warn: (line: string) => void = line => void process.stderr.write(line),
 ): Promise<void> {
   const failures = await inactiveEntries(ctx)
-  const required = new Set(failures.filter(({ entry }) => entry === bootstrapIncludes.get(ctx)
+  const rootInclude = rootIncludeOf(ctx)
+  const required = new Set(failures.filter(({ entry }) => entry === rootInclude
     || requiredStartupEntryIds.has(entry.options.id)).map(({ entry }) => entry))
   if (required.size > 0) {
     throw new StartupError(startupDiagnostic(binName, failures, required), failures.map(({ entry, outcome }) => ({

@@ -122,6 +122,7 @@ createInterface({ input: process.stdin }).on('line', (line) => {
       if (text === 'with-child') {
         notify('subagent.started', { parentSessionId: sessionId, childSessionId: 'child' })
         event('child', 'assistant/message', { message: { content: [{ type: 'text', text: 'child answer' }] } })
+        notify('session.status', { sessionId: 'child', status: 'idle' })
         event('unrelated', 'assistant/message', { message: { content: [{ type: 'text', text: 'unrelated answer' }] } })
       }
       event(sessionId, 'assistant/message', { message: { content: [{ type: 'text', text: `reply:${text}` }] } })
@@ -135,6 +136,11 @@ createInterface({ input: process.stdin }).on('line', (line) => {
       finish()
       respond({ kind: 'prompt', messageId })
     }
+  } else if (frame.method === 'session/wait') {
+    // A joined child settles after the root idle edge; its notification is
+    // delivered before this response, as the Server orders them.
+    event('child', 'assistant/message', { message: { content: [{ type: 'text', text: 'child settled' }] } })
+    respond({})
   } else if (frame.method === 'test/state') {
     respond({ queries, methods, waitingPrompts: promptFinishes.size, waitingCommands: commandFinishes.size })
   } else if (frame.method === 'test/release') {

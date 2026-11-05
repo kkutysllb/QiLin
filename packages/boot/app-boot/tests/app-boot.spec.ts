@@ -421,18 +421,20 @@ describe('installFailLoud', () => {
     installFailLoud(NAME, proc)
     const error = new Error('assembled activation failure')
     const warn = vi.fn()
+    const loader = {
+      entries: () => ['broken-a', 'broken-b'].map(name => ({
+        options: { id: name, name },
+        fiber: {
+          state: 3,
+          inject: {},
+          ctx: { get: () => undefined },
+          await: async () => { throw error },
+        },
+      })),
+    }
     const audit = auditStartupEntries({
-      loader: {
-        entries: () => ['broken-a', 'broken-b'].map(name => ({
-          options: { id: name, name },
-          fiber: {
-            state: 3,
-            inject: {},
-            ctx: { get: () => undefined },
-            await: async () => { throw error },
-          },
-        })),
-      },
+      loader,
+      get: (name: string) => name === 'loader' ? loader : undefined,
     } as unknown as Context, NAME, warn)
     await Promise.resolve()
     await Promise.resolve()
@@ -527,9 +529,13 @@ describe('auditStartupEntries', () => {
     parent?: { tree: { import(name: string): Promise<unknown> } }
   }
 
-  const ctxWith = (entries: FakeEntry[]): Context => ({
-    loader: { entries: () => entries.values() },
-  }) as unknown as Context
+  const ctxWith = (entries: FakeEntry[]): Context => {
+    const loader = { entries: () => entries.values() }
+    return {
+      loader,
+      get: (name: string) => name === 'loader' ? loader : undefined,
+    } as unknown as Context
+  }
 
   const fiber = (
     state: number,

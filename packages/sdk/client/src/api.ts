@@ -40,7 +40,7 @@ export class DeepSeekHarness implements AsyncDisposable {
     // relative value would double-resolve (e.g. `worker` → `worker/worker`).
     this.cwd = resolve(options.cwd ?? options.processCwd ?? process.cwd())
     this.provider = options.provider ?? 'deepseek-official'
-    this.model = options.model ?? 'deepseek-v4-flash'
+    this.model = options.model ?? 'deepseek-flash'
     this.reasoningEffort = options.reasoningEffort
     this.maxTokens = options.maxTokens
     this.approvalRequests = options.approvalRequests
@@ -287,12 +287,24 @@ export class HarnessSession {
         }
       }
       const activity = new RunActivity(this.id, { messageId: response.messageId })
+      let delegated = false
       while (true) {
         const notification = await subscription.next()
+        if (notification.method === 'subagent.started') delegated = true
         if (!activity.record(notification, options?.onNotification)) continue
-        if (notification.method === 'session.status'
-          && notification.params.sessionId === this.id
-          && notification.params.status === 'idle') break
+        if (notification.method !== 'session.status') continue
+        if (notification.params.sessionId !== this.id) continue
+        if (notification.params.status !== 'idle') continue
+        if (delegated) {
+          // A root idle edge does not end the run while delegated children are
+          // still working: the Server joins the Session tree, and its response
+          // follows every notification emitted during the wait.
+          await client.request('session/wait', { sessionId: this.id })
+          for (let queued = subscription.tryNext(); queued !== undefined; queued = subscription.tryNext()) {
+            activity.record(queued, options?.onNotification)
+          }
+        }
+        break
       }
       return activity.result()
     } finally {
