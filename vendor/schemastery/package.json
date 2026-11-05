@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/schemastery",
   "description": "Type driven schema validator",
-  "version": "3.18.6-alpha.2",
+  "version": "3.18.7",
   "publishConfig": {
     "access": "public"
   },
