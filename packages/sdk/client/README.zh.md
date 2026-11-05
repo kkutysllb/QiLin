@@ -68,7 +68,7 @@ await using harness = new DeepSeekHarness({
   qilinHome: '/absolute/path/to/qilin-home',
   patches: ['./automation.cordis.yml'],
   provider: 'deepseek-official',
-  model: 'deepseek-v4-flash',
+  model: 'deepseek-flash',
   reasoningEffort: ReasoningEffortId('max'),
   maxTokens: 49_152,
 })

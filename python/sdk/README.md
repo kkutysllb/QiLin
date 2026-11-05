@@ -39,7 +39,7 @@ with DeepSeekHarness(
     qilin_home="/absolute/path/to/isolated-qilin-home",
     cwd="/absolute/path/to/workspace",
     provider="deepseek-official",
-    model="deepseek-v4-flash",
+    model="deepseek-flash",
     reasoning_effort="max",
     max_tokens=49_152,
 ) as harness:
@@ -91,7 +91,7 @@ from deepseek_harness import ApprovalRequestParams, HarnessClient, HarnessConfig
 
 with HarnessClient(HarnessConfig(qilin_home="/absolute/path/to/qilin-home")) as client:
     client.initialize(cwd="/absolute/path/to/workspace", provider="deepseek-official",
-                      model="deepseek-v4-flash", approval_requests=True)
+                      model="deepseek-flash", approval_requests=True)
     client.session_prompt("main", [{"type": "text", "text": "Run the operation requiring approval."}])
     request = client.next_request()
     if request.method == "approval/request":

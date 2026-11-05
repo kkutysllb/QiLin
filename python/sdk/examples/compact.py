@@ -24,7 +24,7 @@ def main() -> None:
     parser.add_argument("--workspace", type=Path, default=Path.cwd())
     parser.add_argument("--session-id")
     parser.add_argument("--provider", default="deepseek-official")
-    parser.add_argument("--model", default=os.environ.get("QILIN_MODEL", "deepseek-v4-flash"))
+    parser.add_argument("--model", default=os.environ.get("QILIN_MODEL", "deepseek-flash"))
     parser.add_argument("--max-tokens", type=int)
     args = parser.parse_args()
 

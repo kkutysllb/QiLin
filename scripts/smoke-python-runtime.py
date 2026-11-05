@@ -972,7 +972,7 @@ def smoke_sdk_live() -> None:
         )
         with DeepSeekHarness(
             provider="deepseek-official",
-            model="deepseek-v4-flash",
+            model="deepseek-flash",
             cwd=str(root),
             qilin_home=str(qilin_home),
             env={

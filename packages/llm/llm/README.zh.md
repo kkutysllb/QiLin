@@ -49,7 +49,7 @@ kind: "package-reference"
 ```text
 for await (const chunk of ctx.llm.stream({
   provider: 'deepseek-official',
-  model: 'deepseek-v4-flash',
+  model: 'deepseek-flash',
   messages: [{ role: 'user', content: [{ type: 'text', text: 'Hello' }] }],
 })) {
   // chunks: block-start, text-delta, ..., usage, finish

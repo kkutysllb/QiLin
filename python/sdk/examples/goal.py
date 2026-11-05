@@ -34,7 +34,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--qilin-home", required=True, type=Path)
     parser.add_argument("--workspace", type=Path, default=Path.cwd())
-    parser.add_argument("--model", default=os.environ.get("QILIN_MODEL", "deepseek-v4-flash"))
+    parser.add_argument("--model", default=os.environ.get("QILIN_MODEL", "deepseek-flash"))
     parser.add_argument("--timeout-seconds", type=float, default=300)
     parser.add_argument("objective", help="Objective for the native /goal command")
     args = parser.parse_args()
