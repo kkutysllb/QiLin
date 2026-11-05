@@ -424,6 +424,9 @@ importers:
       '@qilin-agent/experimental-cot-translation-bundle':
         specifier: workspace:*
         version: link:../../packages/experimental/cot-translation-bundle
+      '@qilin-agent/experimental-forge-bundle':
+        specifier: workspace:*
+        version: link:../../packages/experimental/forge-bundle
       '@qilin-agent/experimental-inspector-profile':
         specifier: workspace:*
         version: link:../../packages/experimental/inspector-profile
