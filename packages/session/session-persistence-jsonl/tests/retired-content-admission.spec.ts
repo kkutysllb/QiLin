@@ -1,6 +1,6 @@
 /** Interpreted retired content must fail before migration publication or recoverable native-tail suppression. */
 import { Context } from '@qilin-agent/kylin'
-import { SessionId } from '@qilin-agent/session'
+import { SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
 import { SessionFormatUnsupportedError, SessionPersistenceCorruptionError } from '@qilin-agent/session-persistence'
 import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
@@ -16,7 +16,7 @@ const modes = (['none', 'zstd'] as const).flatMap(compression =>
   (['read', 'write'] as const).map(access => ({ compression, access })))
 
 describe.each(modes)('retired content in JSONL ($compression, $access)', ({ compression, access }) => {
-  async function stored(version: 3 | 4 | 5, opaque: boolean, corruptPrefix: boolean) {
+  async function stored(version: 3 | 4 | 5 | typeof SESSION_FORMAT_VERSION, opaque: boolean, corruptPrefix: boolean) {
     const root = await mkdtemp(join(tmpdir(), 'qilin-retired-content-'))
     const ctx = new Context()
     onTestFinished(async () => {
@@ -37,7 +37,11 @@ describe.each(modes)('retired content in JSONL ($compression, $access)', ({ comp
     return { ctx, path, bytes, event }
   }
 
-  it.each([{ version: 3, corruptPrefix: false }, { version: 4, corruptPrefix: false }, { version: 5, corruptPrefix: true }] as const)
+  it.each([
+    { version: 3, corruptPrefix: false },
+    { version: 4, corruptPrefix: false },
+    { version: SESSION_FORMAT_VERSION, corruptPrefix: true },
+  ] as const)
   ('refuses V$version content with corruptPrefix=$corruptPrefix and preserves the only generation', async ({ version, corruptPrefix }) => {
     const { ctx, path, bytes } = await stored(version, false, corruptPrefix)
     const opened = ctx.sessionPersistence.open(id, access).then(async (handle) => { await handle.close() })

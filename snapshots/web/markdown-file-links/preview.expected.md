@@ -2,4 +2,5 @@
 - button "Open in the editor"
 - button "Line wrap" [pressed]
 - button "Read the file again"
+- button "Show file tree"
 - text: other file

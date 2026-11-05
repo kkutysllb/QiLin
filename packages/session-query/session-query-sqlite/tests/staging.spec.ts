@@ -2,7 +2,7 @@ import { mkdtemp, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
+import { SESSION_FORMAT_VERSION, SessionId, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
 import { SessionPersistenceRevision } from '@qilin-agent/session-persistence'
 import { ReconcileStaging, reconcileStagingPath } from '../src/staging.ts'
 
@@ -21,7 +21,7 @@ async function harness(): Promise<{ store: ReconcileStaging; directory: string }
 
 function record(revision: string): Parameters<ReconcileStaging['append']>[0] {
   return {
-    header: { version: 5, id: SessionId('staged'), createdAt: 1, isSeeded: false },
+    header: { version: SESSION_FORMAT_VERSION, id: SessionId('staged'), createdAt: 1, isSeeded: false },
     inheritedEventCount: SessionLogOffset(0),
     revision: SessionPersistenceRevision(revision),
     documents: [{

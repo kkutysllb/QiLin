@@ -19,7 +19,7 @@ The [format references](persistence-changes/historical-formats/README.md) cover 
 
 | Root | Kind | SHA-256 | Resolved type |
 |---|---|---|---|
-| `SessionHeader` | header | `bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff` | [`SessionHeader`](#persistence-type-sha256-bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff) |
+| `SessionHeader` | header | `d4a8d69cf67a077443a1b4ee1712a4954b9f12c884d9a3cf588b7d4fc6d681a6` | [`SessionHeader`](#persistence-type-sha256-d4a8d69cf67a077443a1b4ee1712a4954b9f12c884d9a3cf588b7d4fc6d681a6) |
 | `JsonlHeaderLine` | header | `44330f7e3cda60fa8c4343730044a31e83605d29b256835b60aadf4c1bda66e3` | [`HeaderLine`](#persistence-type-sha256-44330f7e3cda60fa8c4343730044a31e83605d29b256835b60aadf4c1bda66e3) |
 | `SessionEventEnvelope` | envelope | `6bd1fd7d981e2438db01a76dd08fd21f6fe1062cc435b54f9c12a5044def9dba` | [`union (3 variants)`](#persistence-type-sha256-6bd1fd7d981e2438db01a76dd08fd21f6fe1062cc435b54f9c12a5044def9dba) |
 | `event:agent-preset/selected` | event | `c9abeb1be878617b6c35dc0403ad78c6f946d5681e65258b2309c739a9a929c2` | [`{ type: "agent-preset/selected" }`](#persistence-type-sha256-c9abeb1be878617b6c35dc0403ad78c6f946d5681e65258b2309c739a9a929c2) |
@@ -3062,13 +3062,13 @@ SHA-256: `8608f66f4f346a01567d95482e3208ac748fb9f5eed6795a69908617af81f9d4`
 
 `2`
 
-<a id="persistence-type-sha256-6f0af99e830291214f7ebcdee59c0f054a8738d108c3981a8fe5930b74bd5e5f"></a>
+<a id="persistence-type-sha256-154c9a81eb8c9c6eca37c17414811d4df204b3c2a845e01dd35b8fadedc1d832"></a>
 
-### `5`
+### `6`
 
-SHA-256: `6f0af99e830291214f7ebcdee59c0f054a8738d108c3981a8fe5930b74bd5e5f`
+SHA-256: `154c9a81eb8c9c6eca37c17414811d4df204b3c2a845e01dd35b8fadedc1d832`
 
-`5`
+`6`
 
 <a id="persistence-type-sha256-e70f9485efd1afe768f2ebf9e578293a65f27a0f74dea61ddd7fa7456e4e94a6"></a>
 
@@ -4635,7 +4635,7 @@ Sources: [`packages/schedule/schedule/src/types.ts:206`](../packages/schedule/sc
 | `operation` | required | `"delete"` |
 | `version` | required | `1` |
 
-<a id="persistence-type-sha256-bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff"></a>
+<a id="persistence-type-sha256-d4a8d69cf67a077443a1b4ee1712a4954b9f12c884d9a3cf588b7d4fc6d681a6"></a>
 
 <a id="persistence-type-packagescoresessionsrctypestssessionheader"></a>
 
@@ -4643,7 +4643,7 @@ Sources: [`packages/schedule/schedule/src/types.ts:206`](../packages/schedule/sc
 
 ### `SessionHeader`
 
-SHA-256: `bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff`
+SHA-256: `d4a8d69cf67a077443a1b4ee1712a4954b9f12c884d9a3cf588b7d4fc6d681a6`
 
 Sources: [`packages/core/session/src/types.ts:95`](../packages/core/session/src/types.ts)
 
@@ -4657,7 +4657,7 @@ Sources: [`packages/core/session/src/types.ts:95`](../packages/core/session/src/
 | `isSeeded` | required | `boolean` |
 | `origin` | optional | `"subagent"` |
 | `parentSession` | optional | `string` |
-| `version` | required | `5` |
+| `version` | required | `6` |
 
 <a id="persistence-type-sha256-6116fb04799f9188c4ba6b2468ccb411174be0317e6bee94deedefca65d45eb4"></a>
 

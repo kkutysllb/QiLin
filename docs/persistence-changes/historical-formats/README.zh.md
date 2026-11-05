@@ -33,7 +33,8 @@ description: "查找从 V0 到工作区写入器版本的每个 Session 格式�
 | 2 | `qilin-v0.1.3-alpha.2` | [V2](v2.zh.md) | [JSON](v2.schema.json) | 56 / 435 |
 | 3 | PR #4320 | [V3](v3.zh.md) | [JSON](v3.schema.json) | 60 / 467 |
 | 4 | `qilin-v3.1.4-rc.1` | [V4](v4.zh.md) | [JSON](v4.schema.json) | 63 / 606 |
-| 5 | 当前工作树 | [当前目录](../../persistence-catalog.zh.md) | [JSON](../../persistence-schema.json) | 65 / 616 |
+| 5 | `qilin-v3.1.8-rc.6` | [V5](v5.zh.md) | [JSON](v5.schema.json) | 65 / 615 |
+| 6 | 当前工作树 | [当前目录](../../persistence-catalog.zh.md) | [JSON](../../persistence-schema.json) | 65 / 616 |
 
 <!-- persistence-format-index:end -->
 

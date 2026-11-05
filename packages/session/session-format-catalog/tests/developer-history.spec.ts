@@ -6,7 +6,7 @@ import { Session, SessionId, SessionLogOffset , SESSION_FORMAT_VERSION } from '@
 import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
 import { buildForkSeed } from '@qilin-agent/session/fork'
 import { createSessionFormatCatalog } from '@qilin-agent/session-format'
-import { restoreReleasedV5Artifact } from '@qilin-agent/session-format-v4-to-v5'
+import { restoreReleasedV6Artifact } from '@qilin-agent/session-format-v5-to-v6'
 import { sessionFormatCatalogOptions } from '../src/generated.ts'
 import type { SessionFormatEvent } from '@qilin-agent/session-format'
 import { sessionFormatCatalog } from '../src/index.ts'
@@ -65,7 +65,7 @@ describe('developer tool history', () => {
     if (!knowsDeveloper) known.delete('developer/message')
     const catalog = createSessionFormatCatalog({
       ...sessionFormatCatalogOptions,
-      restoreCurrent: candidate => restoreReleasedV5Artifact(candidate, known),
+      restoreCurrent: candidate => restoreReleasedV6Artifact(candidate, known),
     })
     const reader = catalog.createRestore(sessionFormatCatalog.encodeCurrentHeader(header, 0), { recovery: 'strict', validation: 'current' })
     for (const event of events) reader.decodeRow(event)

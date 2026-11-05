@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { execa } from 'execa'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { removeFixtureSafely } from './test-fixture-cleanup.ts'
 
 const repository = resolve(import.meta.dirname, '..')
@@ -39,11 +40,11 @@ describe('one-time V4 migration command', () => {
     expect(result.stdout).toContain('~/.qilin/sessions')
   })
 
-  it('refuses a corpus under the current V5 writer, converting nothing', async () => {
+  it(`refuses a corpus under the current V${SESSION_FORMAT_VERSION} writer, converting nothing`, async () => {
     const result = await run('--sessions-dir', temporaryRoot())
     expect(result.exitCode).not.toBe(0)
     expect(result.stdout).toContain('requires a V4 Session writer')
-    expect(result.stdout).toContain('5 !== 4')
+    expect(result.stdout).toContain(`${SESSION_FORMAT_VERSION} !== 4`)
     expect(result.stdout).toContain('converted=0')
   })
 

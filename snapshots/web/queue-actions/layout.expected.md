@@ -8,9 +8,9 @@
 - button "Continuing goal {{clock}}":
   - text: Continuing goal
   - time: {{clock}}
-- button "QiLin..." [disabled] [expanded]
+- button "QiLin Super Agent..." [disabled] [expanded]
 - paragraph: partial
-- status: QiLin...
+- status: QiLin Super Agent...
 - text: Working for {{duration}}...
 - region "To-dos":
   - button "To-dos 1 completed · 1 in progress"

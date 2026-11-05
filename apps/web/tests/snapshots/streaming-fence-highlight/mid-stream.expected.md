@@ -6,11 +6,11 @@
 - text: Stream one TypeScript fence for the highlighting snapshot. {{clock}}
 - button "Copy"
 - button "Edit this message and resend"
-- button "QiLin..." [disabled] [expanded]
+- button "QiLin Super Agent..." [disabled] [expanded]
 - text: ts
 - button "Copy"
 - code: "const first: number = 1 const second = \"two\" let tail"
-- status: QiLin...
+- status: QiLin Super Agent...
 - text: Working for {{duration}}...
 - textbox "Message or run a task, / commands, @ files or sessions"
 - button "Add files or run commands"

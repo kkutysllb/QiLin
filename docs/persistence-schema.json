@@ -4,7 +4,7 @@
     {
       "key": "SessionHeader",
       "kind": "header",
-      "digest": "bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff",
+      "digest": "d4a8d69cf67a077443a1b4ee1712a4954b9f12c884d9a3cf588b7d4fc6d681a6",
       "schema": {
         "root": 0,
         "nodes": [
@@ -77,7 +77,7 @@
           },
           {
             "kind": "literal",
-            "value": 5
+            "value": 6
           }
         ]
       }
@@ -22856,6 +22856,11 @@
       ]
     },
     {
+      "digest": "154c9a81eb8c9c6eca37c17414811d4df204b3c2a845e01dd35b8fadedc1d832",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "154d6c6e9c3bdbeb174f6b3f1ebe95c403b75d11e163aa2236864040635d3cfc",
       "names": [],
       "sources": []
@@ -24170,11 +24175,6 @@
       "sources": []
     },
     {
-      "digest": "6f0af99e830291214f7ebcdee59c0f054a8738d108c3981a8fe5930b74bd5e5f",
-      "names": [],
-      "sources": []
-    },
-    {
       "digest": "6f6d574b2e21e6beeb9c4b19e4d5cc043c5c890400a9f13117efaeaaf70f7e7c",
       "names": [],
       "sources": [
@@ -25380,15 +25380,6 @@
       "sources": []
     },
     {
-      "digest": "bb80ce8b5ddb821676b3f2dce0f6abd94d4770595cdb35b407b45caecc24eeff",
-      "names": [
-        "packages/core/session/src/types.ts#SessionHeader"
-      ],
-      "sources": [
-        "packages/core/session/src/types.ts:95"
-      ]
-    },
-    {
       "digest": "bbbe33185c1af681c34bb2e922d77f430b393d35e3be1d6b2abc23bf3401b50d",
       "names": [
         "packages/interaction/commands/src/types.ts#CommandSource"
@@ -25703,6 +25694,15 @@
       "digest": "d3afee665eb7faa47f124b0367cc512c0844d54f4a533a9e887542e3ac62d7fd",
       "names": [],
       "sources": []
+    },
+    {
+      "digest": "d4a8d69cf67a077443a1b4ee1712a4954b9f12c884d9a3cf588b7d4fc6d681a6",
+      "names": [
+        "packages/core/session/src/types.ts#SessionHeader"
+      ],
+      "sources": [
+        "packages/core/session/src/types.ts:95"
+      ]
     },
     {
       "digest": "d4be0bc098bff2e0a6f0628cad3c8b41b8f559d75efb501a7de4b5c786f357a7",

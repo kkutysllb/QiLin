@@ -13203,6 +13203,9 @@ importers:
       '@qilin-agent/session-format-v4-to-v5':
         specifier: workspace:*
         version: link:../session-format-v4-to-v5
+      '@qilin-agent/session-format-v5-to-v6':
+        specifier: workspace:*
+        version: link:../session-format-v5-to-v6
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~
@@ -13289,6 +13292,22 @@ importers:
       '@qilin-agent/session-format-v3-to-v4':
         specifier: workspace:*
         version: link:../session-format-v3-to-v4
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
+  packages/session/session-format-v5-to-v6:
+    dependencies:
+      '@qilin-agent/session-format':
+        specifier: workspace:*
+        version: link:../session-format
+      '@qilin-agent/session-format-v3-to-v4':
+        specifier: workspace:*
+        version: link:../session-format-v3-to-v4
+      '@qilin-agent/session-format-v4-to-v5':
+        specifier: workspace:*
+        version: link:../session-format-v4-to-v5
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~

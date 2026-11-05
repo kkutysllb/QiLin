@@ -1,0 +1,10 @@
+version: 1
+scenario: v5-adjacent-migration
+profile: headless
+composition: default
+recording: authored
+sessionFormat:
+  version: 5
+  coverage: [adjacent-migration]
+header:
+  class: default

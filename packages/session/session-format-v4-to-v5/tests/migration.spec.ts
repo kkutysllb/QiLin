@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { SessionFormatEventCollector } from '@qilin-agent/session-format'
 import type { SessionFormatEvent, SessionFormatEventRun, SessionFormatHeader } from '@qilin-agent/session-format'
 import { sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
@@ -128,8 +129,8 @@ describe('V4 to V5 stage', () => {
   })
 })
 
-describe('V4 to V5 strict restoration through the assembled catalog', () => {
-  it('publishes folded headers and rewritten selections at v5 from direct V4 input', () => {
+describe('V4 strict restoration through the assembled catalog', () => {
+  it('publishes folded headers and rewritten selections at the current generation from direct V4 input', () => {
     const rows: SessionFormatEvent[] = [
       selected(0, 'standard'),
       selected(1, 'cordis'),
@@ -137,14 +138,14 @@ describe('V4 to V5 strict restoration through the assembled catalog', () => {
       { ...fact, seq: 3, time: 5 },
     ]
     const restored = restore(rows, { ...header, agentPreset: 'cordis' })
-    expect(restored.header).toEqual({ ...header, version: 5, agentPreset: 'ptc' })
+    expect(restored.header).toEqual({ ...header, version: SESSION_FORMAT_VERSION, agentPreset: 'ptc' })
     expect(restored.events.filter(event => event.type === 'agent-preset/selected')
       .map(event => (event.data as { agentPreset: string }).agentPreset))
       .toEqual(['standard', 'ptc', 'my-preset'])
     expect(restored.inheritedEventCount).toBe(0)
   })
 
-  it('keeps seeded multi-hop restoration exact through V5', () => {
+  it('keeps seeded multi-hop restoration exact through the current generation', () => {
     const seeded = { ...header, isSeeded: true }
     const rows: SessionFormatEvent[] = [
       selected(0, 'minimal'),
@@ -152,14 +153,14 @@ describe('V4 to V5 strict restoration through the assembled catalog', () => {
       { ...fact, seq: 2 },
     ]
     const restored = restore(rows, seeded)
-    expect(restored.header).toEqual({ ...seeded, version: 5 })
+    expect(restored.header).toEqual({ ...seeded, version: SESSION_FORMAT_VERSION })
     expect((restored.events[0]!.data as { agentPreset: string }).agentPreset).toBe('ptc')
     expect(restored.inheritedEventCount).toBe(1)
   })
 
-  it('refuses unknown non-ignorable V5 event types', () => {
+  it('refuses unknown non-ignorable current event types', () => {
     const unknown = { type: 'session/unknown-future', seq: 0, time: 1, data: {} } as unknown as SessionFormatEvent
-    expect(() => restore([unknown], header)).toThrow('format v5 contains unknown event type')
+    expect(() => restore([unknown], header)).toThrow(`format v${String(SESSION_FORMAT_VERSION)} contains unknown event type`)
   })
 })
 

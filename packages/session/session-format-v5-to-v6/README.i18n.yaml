@@ -1,0 +1,64 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/session/session-format-v5-to-v6/README.md
+/:
+  en: 129617276e0ca6cc
+  zh: 663b65d579775eab
+/qilin-agent-session-format-v5-to-v6:
+  en: 3555ab2a4f750291
+  zh: c58ccdfc9c6d4376
+/qilin-agent-session-format-v5-to-v6/summary:
+  en: a3a33497a68b90a9
+  zh: ee7232d0520e264f
+/qilin-agent-session-format-v5-to-v6/table-of-contents:
+  en: 88698f4abd13b546
+  zh: f2e903446f0fff70
+/qilin-agent-session-format-v5-to-v6/use-this-package:
+  en: cfc1956835706714
+  zh: 74c49ef0d8d6f626
+/qilin-agent-session-format-v5-to-v6/use-this-package/when-to-use-it:
+  en: 883c76041bfcc87a
+  zh: fab52f04e2bcb728
+/qilin-agent-session-format-v5-to-v6/use-this-package/entry-point:
+  en: b1b3717480e955c7
+  zh: 020fadef07ce595d
+/qilin-agent-session-format-v5-to-v6/v5-to-v6-specification:
+  en: f60dc69b02571173
+  zh: 14f49d4cd44f2fe5
+/qilin-agent-session-format-v5-to-v6/v5-to-v6-specification/header:
+  en: b1a7653a2ae72f87
+  zh: 523af7289778c442
+/qilin-agent-session-format-v5-to-v6/v5-to-v6-specification/events-and-inheritance:
+  en: 57295189da23386e
+  zh: 2bf08303caa9ff7a
+/qilin-agent-session-format-v5-to-v6/native-v6-admission:
+  en: d8761a16302732e0
+  zh: d4a0b63cbdfc6b1e
+/qilin-agent-session-format-v5-to-v6/understand-the-implementation:
+  en: 0085852abfb0ad00
+  zh: c9203c467d3a1539
+/qilin-agent-session-format-v5-to-v6/further-exploration:
+  en: e209e51a0ef85603
+  zh: c467a81600cdc121
+/qilin-agent-session-format-v5-to-v6/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-session-format-v5-to-v6/model-experience/historical-restoration:
+  en: e63dd8ef6de7cf7c
+  zh: 70bc0bb5f5ecf869
+/qilin-agent-session-format-v5-to-v6/model-experience/historical-restoration/what-the-model-sees:
+  en: 58d54decc0df395f
+  zh: 29ea12bf355081d5
+/qilin-agent-session-format-v5-to-v6/model-experience/historical-restoration/token-effect:
+  en: a886dc52d6f6fc2b
+  zh: 9e9d7091c5a56d65
+/qilin-agent-session-format-v5-to-v6/model-experience/historical-restoration/kv-cache-effect:
+  en: fcea15adc4372533
+  zh: fac4a4733fc4a073
+/qilin-agent-session-format-v5-to-v6/known-limitations-and-deferred-work:
+  en: 3b6cdf195ada0724
+  zh: d514c9e95743d2b6
+/qilin-agent-session-format-v5-to-v6/known-limitations-and-deferred-work/dev-note:
+  en: 0a1253c6f7b5e8b9
+  zh: 9f56528562c7c914
