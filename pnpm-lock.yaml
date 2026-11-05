@@ -16426,6 +16426,9 @@ importers:
       '@qilin-agent/workflow':
         specifier: workspace:*
         version: link:../workflow
+      '@qilin-agent/working-directory':
+        specifier: workspace:*
+        version: link:../../session/working-directory
 
   packages/workspace/workspace:
     dependencies:

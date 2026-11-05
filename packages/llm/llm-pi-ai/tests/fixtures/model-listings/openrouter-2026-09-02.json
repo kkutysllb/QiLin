@@ -157,8 +157,8 @@
       }
     },
     {
-      "id": "deepseek/deepseek-v4-flash",
-      "canonical_slug": "deepseek/deepseek-v4-flash-20260423",
+      "id": "deepseek/deepseek-flash",
+      "canonical_slug": "deepseek/deepseek-flash-20260423",
       "hugging_face_id": "deepseek-ai/DeepSeek-V4-Flash",
       "name": "DeepSeek: DeepSeek V4 Flash 0423",
       "created": 1777000666,
@@ -215,7 +215,7 @@
       "knowledge_cutoff": null,
       "expiration_date": null,
       "links": {
-        "details": "/api/v1/models/deepseek/deepseek-v4-flash-20260423/endpoints"
+        "details": "/api/v1/models/deepseek/deepseek-flash-20260423/endpoints"
       },
       "benchmarks": {
         "design_arena": [

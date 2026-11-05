@@ -25,7 +25,7 @@ export async function apply(ctx: Context): Promise<void> {
   const handle = await ctx.agents.create({
     sessionId: 'main-session' as SessionId,
     meta: { cwd: process.cwd() },
-    agentOptions: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+    agentOptions: { provider: 'deepseek-official', model: 'deepseek-flash' },
   })
   ctx.effect(() => () => handle.dispose(), 'fresh-agent.handle')
 }

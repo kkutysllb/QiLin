@@ -73,7 +73,7 @@ async function seedReadOnlyParent(root: string, cwd: string): Promise<void> {
         header: {
           config: {
             provider: 'deepseek-official',
-            model: 'deepseek-v4-flash',
+            model: 'deepseek-flash',
             reasoningEffort: ReasoningEffortId('low'),
           },
         },

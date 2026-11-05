@@ -25,12 +25,18 @@
     toolName: subagent
     maxDepth: 'provider-managed'
 
+# The delegation scenarios call the subagent tool by name; the headless
+# default collapses the wire list to run_code.
+- id: tools
+  config:
+    mode: native
+
 - insert:
     - id: mock-llm
       name: './mock-delegating-llm.ts'
 
     - id: subagent-acp
-      name: '@deepseek-ai/dsh-subagent-acp'
+      name: '@qilin-agent/subagent-acp'
       config:
         providerName: acp
         command: !!js process.execPath

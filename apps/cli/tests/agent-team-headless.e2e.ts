@@ -58,6 +58,10 @@ describe('qilin run with Agent Teams enabled', () => {
         tsconfigPath,
         env: {
           QILIN_HOME: home,
+          // The headless bundle defaults to the PTC presentation, where only
+          // `run_code` is directly callable; the fixture adapter calls the
+          // teammate, workflow, and task tools by their own names.
+          QILIN_TOOLS_MODE: 'native',
           QILIN_AGENTS_HOME: join(cwd, '.agents'),
           QILIN_TELEMETRY_DISABLED: '1',
           DEEPSEEK_API_KEY: '',
@@ -103,8 +107,19 @@ describe('qilin run with Agent Teams enabled', () => {
       expect(root).toBeDefined()
       const eventTypes = root!.map(record => record.type)
       expect(eventTypes.filter(type => type === 'team/member')).toHaveLength(4)
-      expect(eventTypes).toContain('team/message/queued')
-      expect(eventTypes).toContain('team/message/delivered')
+      // Peer mail is durable in the recipient Session as a `team-message` user
+      // message; the historical mailbox enqueue/acknowledgement event pair is
+      // retired in favor of the target Agent inbox.
+      const peerMail = root!.filter(record => record.type === 'user/message'
+        && (record.data as { source?: { kind?: string } }).source?.kind === 'team-message')
+      expect(peerMail).toHaveLength(1)
+      expect(peerMail[0]?.data).toMatchObject({
+        source: { kind: 'team-message', senderName: 'implementer' },
+        content: [
+          expect.objectContaining({ type: 'text' }),
+          { type: 'text', text: 'Implementation complete and verified.' },
+        ],
+      })
       const taskEvents = root!.filter(record => record.type === 'team/task')
       expect(taskEvents.filter((record) => {
         const data = record.data as { task?: { status?: string } } | undefined

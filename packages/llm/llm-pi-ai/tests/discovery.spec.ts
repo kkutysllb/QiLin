@@ -148,7 +148,7 @@ describe('draft-provider model discovery', () => {
       body: JSON.stringify({
         models: {
           'lobechat-deepseek-chat': {
-            id: 'deepseek/deepseek-v4-flash',
+            id: 'deepseek/deepseek-flash',
             name: 'DeepSeek V4 Flash',
             limit: { context: 1_048_576, output: 384_000 },
           },
@@ -507,7 +507,7 @@ const RECORDED_LISTINGS = [
       { id: 'anthropic/claude-fable-5.1', name: 'Anthropic: Claude Fable 5.1', contextWindow: 1_000_000, maxTokens: 128_000 },
       // The router's own aggregate route reports no completion cap.
       { id: 'openrouter/auto-beta', name: 'Auto Router (Beta)', contextWindow: 2_000_000 },
-      { id: 'deepseek/deepseek-v4-flash', name: 'DeepSeek: DeepSeek V4 Flash 0423', contextWindow: 1_048_576, maxTokens: 384_000 },
+      { id: 'deepseek/deepseek-flash', name: 'DeepSeek: DeepSeek V4 Flash 0423', contextWindow: 1_048_576, maxTokens: 384_000 },
     ],
   },
   {
@@ -525,7 +525,7 @@ const RECORDED_LISTINGS = [
     file: 'deepseek-2026-09-02.json',
     api: 'openai-completions',
     models: [
-      { id: 'deepseek-v4-flash', name: 'deepseek-v4-flash' },
+      { id: 'deepseek-flash', name: 'deepseek-flash' },
       { id: 'deepseek-v4-pro', name: 'deepseek-v4-pro' },
       { id: 'deepseek-v4-flash-vision-exp', name: 'deepseek-v4-flash-vision-exp' },
     ],

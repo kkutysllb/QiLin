@@ -22,12 +22,18 @@
 - id: tool-subagent
   disabled: true
 
+# The delegation scenarios call the subagent tool by name; the headless
+# default collapses the wire list to run_code.
+- id: tools
+  config:
+    mode: native
+
 - insert:
     - id: mock-llm
       name: './mock-delegating-llm.ts'
 
     - id: subagent-model-selection-settings
-      name: '@deepseek-ai/dsh-tool-subagent/model-selection-settings'
+      name: '@qilin-agent/tool-subagent/model-selection-settings'
       config:
         enabled: true
         allowedModels:
@@ -37,7 +43,7 @@
     - id: test-tool-subagent
       name: './scoped-tool-subagent.ts'
       config:
-        provider: dsh-sdk
+        provider: qilin-sdk
         toolName: subagent
         agentOptions:
           maxTokens: 777
@@ -47,9 +53,10 @@
     - id: subagent-dsh-sdk
       name: '@qilin-agent/subagent-qilin-sdk'
       config:
+        qilinBin: !!js process.env.QILIN_TEST_CLI_BIN
         profile: sdk
         patches: !!js JSON.parse(process.env.DSH_TEST_CHILD_PATCHES ?? '[]')
-        dshHome: !!js process.env.DSH_TEST_CHILD_HOME
+        qilinHome: !!js process.env.DSH_TEST_CHILD_HOME
         provider: mock
         model: mock-routed
         env:

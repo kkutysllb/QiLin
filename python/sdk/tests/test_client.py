@@ -166,7 +166,7 @@ for line in sys.stdin:
 
     with DeepSeekHarness(
         approval_requests=True,
-        model="deepseek-v4-flash",
+        model="deepseek-flash",
         reasoning_effort="max",
         max_tokens=4096,
         cwd=str(tmp_path),
@@ -215,7 +215,7 @@ for line in sys.stdin:
         "approvalRequests": True,
         "cwd": str(tmp_path),
         "provider": "deepseek-official",
-        "model": "deepseek-v4-flash",
+        "model": "deepseek-flash",
         "reasoningEffort": "max",
         "maxTokens": 4096,
     }

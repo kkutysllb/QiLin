@@ -25,6 +25,9 @@ describe('headless-agent keyless smoke', () => {
       configPath,
       binArgs: [configPath, 'prove the tool path'],
       tsconfigPath,
+      // The smoke asserts the production shell tool on the wire, which the
+      // headless profile's PTC default collapses into run_code.
+      env: { QILIN_TOOLS_MODE: 'native' },
       processTimeoutMs: PRODUCTION_PROFILE_PROCESS_TIMEOUT_MS,
       inspect: async (cwd) => {
         const sessionsDir = join(cwd, '.sessions')

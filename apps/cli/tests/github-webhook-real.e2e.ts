@@ -4,7 +4,7 @@ import type { ChildProcess } from 'node:child_process'
 import { spawn } from 'node:child_process'
 import { createHmac, randomUUID } from 'node:crypto'
 import { existsSync } from 'node:fs'
-import { mkdir, mkdtemp, realpath, rm } from 'node:fs/promises'
+import { mkdir, mkdtemp, realpath, rm, symlink, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:net'
 import type { AddressInfo } from 'node:net'
 import { tmpdir } from 'node:os'
@@ -358,6 +358,30 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('GitHub webhook through the real 
     const workspacePath = join(root, 'workspace')
     await mkdir(workspacePath)
     const canonicalWorkspacePath = await realpath(workspacePath)
+    // These probes carry the launch-token device cookie, which a deployment
+    // serves with the account gate off; a fresh home enables the gate and
+    // answers that cookie with a session refusal. The harness home's patch
+    // layer turns it off, the composition the CLI auth scenario uses.
+    await mkdir(join(root, '.qilin'), { recursive: true })
+    await writeFile(join(root, '.qilin', 'cordis.patch.yml'), [
+      '- id: accounts',
+      '  config:',
+      '    enabled: false',
+      '',
+    ].join('\n'))
+    // The overlay composes two experimental plugins. The application keeps them
+    // out of its runtime dependency closure, so the profile publishes them the
+    // way `qilin plugin add` would; otherwise the overlay's bare names do not
+    // resolve from the profile directory at boot.
+    const profileModules = join(root, '.qilin', 'profiles', 'web', 'node_modules', '@qilin-agent')
+    await mkdir(profileModules, { recursive: true })
+    for (const name of ['webhook', 'webhook-github']) {
+      await symlink(
+        join(REPO_ROOT, 'packages', 'experimental', name),
+        join(profileModules, `experimental-${name}`),
+        'dir',
+      )
+    }
     const webhookPort = await freePort()
     const child = spawn(process.execPath, [
       BUILT_BIN,
@@ -377,6 +401,10 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('GitHub webhook through the real 
         QILIN_GITHUB_WEBHOOK_SECRET: SECRET,
         QILIN_HOME: join(root, '.qilin'),
         QILIN_TELEMETRY_DISABLED: '1',
+        // The overlay's fixed-port webhook listener belongs to one account's
+        // runtime, so the spawned process must be that runtime rather than
+        // the deployment entry that serves accounts.
+        QILIN_TENANT: '1',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     })

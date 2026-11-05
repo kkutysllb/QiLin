@@ -342,7 +342,7 @@ describe('SubagentLimitsFields', () => {
 
 describe('SubagentModelSelectionFields', () => {
   const candidate: SubagentModelCandidate = {
-    key: 'deepseek-official\0deepseek-v4-flash', provider: 'deepseek-official', model: 'deepseek-v4-flash',
+    key: 'deepseek-official\0deepseek-flash', provider: 'deepseek-official', model: 'deepseek-flash',
     providerName: 'DeepSeek', modelName: 'DeepSeek-V4-Flash', available: true, selected: false,
   }
   const unavailable: SubagentModelCandidate = {

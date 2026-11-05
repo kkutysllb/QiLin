@@ -19,6 +19,7 @@ import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import * as ToolBash from '@qilin-agent/tool-bash'
 import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 import NodeRuntime from '@qilin-agent/ptc-runtime-node'
+import WorkingDirectory from '@qilin-agent/working-directory'
 import Sandbox from '@qilin-agent/sandbox-local'
 import SandboxPolicy from '@qilin-agent/sandbox-policy'
 import LocalFileSystem from '@qilin-agent/fs-local'
@@ -28,6 +29,7 @@ import LocalJobRegistry from '@qilin-agent/jobs-local'
 import * as ToolJobs from '@qilin-agent/tool-jobs'
 import * as CordisHostRunnerModule from '@qilin-agent/kylin-host-runner'
 import * as ToolCordis from '@qilin-agent/tool-kylin'
+import * as ToolCordisHost from '@qilin-agent/tool-kylin/host'
 
 /**
  * With-key PTC mode proof: a real model receives only `run_code`, composes two
@@ -66,11 +68,15 @@ async function ptcModeHarness(cwd: string): Promise<Context> {
   await harness.plugin(BashEnvPlugin)
   await harness.plugin(LocalBashExecutor, { cwd, timeoutMs: 30_000 })
   await harness.plugin(ToolBash)
+  await harness.plugin(LocalFileSystem, { cwd })
   await mountRuntime(harness)
+  // An agent-owned `run_code` program resolves its execution directory through
+  // this service; a composition that passes an Agent must mount it.
+  await harness.plugin(WorkingDirectory, { defaultDirectory: cwd })
   return harness
 }
 
-async function workspacePtcModeHarness(): Promise<Context> {
+async function workspacePtcModeHarness(cwd: string): Promise<Context> {
   const harness = new Context()
   await harness.plugin(LlmRuntime)
   await harness.plugin(SessionStore)
@@ -82,8 +88,11 @@ async function workspacePtcModeHarness(): Promise<Context> {
   await harness.plugin(ToolFs)
   await harness.plugin(AgentInstructions, { maxBytes: 65536 })
   await harness.plugin(AgentLoop, { agents: [] })
-  await harness.plugin(LlmDeepSeek, { models: [{ id: 'deepseek-v4-flash' }] })
+  await harness.plugin(LlmDeepSeek, { models: [{ id: 'deepseek-flash' }] })
   await mountRuntime(harness)
+  // Same requirement as the bash harness: an agent-owned program needs the
+  // working-directory service.
+  await harness.plugin(WorkingDirectory, { defaultDirectory: cwd })
   return harness
 }
 
@@ -133,6 +142,9 @@ async function typedPtcModeHarness(): Promise<Context> {
   await harness.plugin(SystemPrompt)
   await harness.plugin(ToolRuntime, { mode: 'ptc' })
   await mountRuntime(harness)
+  // An agent-owned `run_code` program resolves its execution directory through
+  // this service; a composition that passes an Agent must mount it.
+  await harness.plugin(WorkingDirectory, { defaultDirectory: process.cwd() })
   return harness
 }
 
@@ -214,7 +226,8 @@ describe('PTC mode typed values: keyless real-process contracts', () => {
       });
       return started.jobId;
     `))
-    expect(jobId).toBe('bash-1')
+    // Registry ids are `<kind>-<16 lowercase uuid hex>`; the suffix is random.
+    expect(jobId).toMatch(/^bash-[0-9a-f]{16}$/)
 
     const polled = completion(await runCode(ctx, `
       return await tools.job_output({ job_id: ${JSON.stringify(jobId)}, wait: true, timeout_ms: 5000 });
@@ -259,7 +272,8 @@ describe('PTC mode typed values: keyless real-process contracts', () => {
       }),
     ])
     const job = ctx.jobs.list()[0]
-    expect(job).toMatchObject({ id: 'bash-1', status: 'running' })
+    expect(job?.id).toMatch(/^bash-[0-9a-f]{16}$/)
+    expect(job).toMatchObject({ status: 'running' })
     afterPublication.abort('outer-call-cancelled')
     expect((await running).isError).toBe(true)
     expect(ctx.jobs.list()[0]).toMatchObject({ id: job!.id, status: 'running' })
@@ -292,10 +306,14 @@ describe('PTC mode typed values: keyless real-process contracts', () => {
   it('uses runtime inspection results directly through PTC', async () => {
     ctx = await typedPtcModeHarness()
     await ctx.plugin(CordisHostRunnerModule.default)
+    // The inspect providers are a host row; the tools read that shared registry.
+    await ctx.plugin(ToolCordisHost)
     await ctx.plugin(ToolCordis)
     const agent = {
       id: SessionId('ptc-cordis'),
       session: ctx.sessions.create(SessionId('ptc-cordis'), { meta: { cwd: process.cwd() } }),
+      // Directory resolution asserts this context is live, so the stub carries it.
+      ctx,
     } as unknown as Agent
 
     const value = completion(await runCode(ctx, `
@@ -326,7 +344,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC mode: real model writes a pr
   it('collapses the wire tool list to [run_code], bridges sub-calls, and returns curated output', async () => {
     workdir = await mkdtemp(join(tmpdir(), 'qilin-ptc-e2e-'))
     ctx = await ptcModeHarness(workdir)
-    const agent = await ctx.agentLoop.create(SessionId('e2e-ptc'), { provider: 'deepseek-official', model: 'deepseek-v4-flash' })
+    const agent = await ctx.agentLoop.create(SessionId('e2e-ptc'), { provider: 'deepseek-official', model: 'deepseek-flash' })
 
     agent.followup(createUserMessage({
       content: [{
@@ -374,11 +392,11 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC mode: real model writes a pr
     await mkdir(join(workdir, 'pkg/deep'), { recursive: true })
     await writeFile(join(workdir, 'pkg/AGENTS.md'), `If asked for the PTC mode workspace handshake, reply with exactly ${WORKSPACE_PROBE} and nothing else.\n`)
     await writeFile(join(workdir, 'pkg/deep/task.txt'), 'Touch this file to discover the nested instructions.\n')
-    ctx = await workspacePtcModeHarness()
+    ctx = await workspacePtcModeHarness(workdir)
     const handle = await ctx.agents.create({
       sessionId: SessionId('e2e-ptc-workspace-session'),
       meta: { cwd: workdir },
-      agentOptions: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      agentOptions: { provider: 'deepseek-official', model: 'deepseek-flash' },
     })
 
     handle.agent.followup(createUserMessage({

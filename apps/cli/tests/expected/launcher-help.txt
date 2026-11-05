@@ -1,8 +1,9 @@
 Usage: qilin [--profile] <name> [options] [app-args...]
        qilin plugin --profile <name> <pnpm-args...>
+       qilin web [options]
 
-qilin: boot a QiLin profile — an ordered stack of plugin-bundle patch
-layers under your own overrides.
+qilin: boot the QiLin product surface, or any profile — an ordered stack of
+plugin-bundle patch layers under your own overrides.
 
 Arguments:
   args                           arguments for the booted profile's app (see:
@@ -20,11 +21,27 @@ Options:
                                  or --patch overlays and exit
 
 Examples:
-  qilin web                                   boot the web profile (same as: qilin --profile web)
+  qilin                                       boot the QiLin product surface, then serve it
+  qilin --no-open                             the same, without opening a browser
+  qilin web                                   boot the unbranded web surface (same as: qilin --profile web)
   qilin rescue --from-default-profile web
                                             create rescue from the shipped web template, then boot it
   qilin headless "run the tests"              answer one task, print the result, and exit
   qilin tui --patch ./extra.yml               boot a custom profile with one extra overlay
   qilin tui --resume <session>                arguments after the launcher flags reach the app
   qilin web --help                            the web app's own flags and help
+  qilin plugin list                           list the product profile's plugin layers
+  qilin plugin doctor <package|directory>     report one plugin's DSH-era compatibility
+  qilin plugin add <package>                  install a plugin into the product profile
   qilin plugin --profile tui add <package>    install a plugin into the tui profile
+  qilin plugin version-exemptions             list the profile's exact-version exemptions
+  qilin plugin allow-version <pkg@ver> --qilin-version <exact> --accept-risk
+                                              allow one rejected plugin/runtime pair
+  qilin plugin revoke-version <pkg@ver> --qilin-version <exact>
+                                              withdraw one exemption
+  qilin web --port 0                          serve the deployment; each account gets its own runtime
+  qilin tenants accounts                      list this home's accounts and their tenant directories
+  qilin tenants add alice                     create an account, prompting for its password
+  echo "$PASSWORD" | qilin tenants passwd alice --password-stdin
+                                              replace a password and retire its sessions
+  qilin tenants remove alice                  retire an account, keeping its Sessions on disk

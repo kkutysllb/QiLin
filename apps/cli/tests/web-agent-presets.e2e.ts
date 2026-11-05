@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { existsSync } from 'node:fs'
 import { mkdir, mkdtemp, readFile, stat, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
@@ -70,6 +71,13 @@ async function bootWeb(
   extra: PatchOptions[] = [],
   profilePackages: readonly string[] = [],
   profileBundles?: readonly string[],
+  /**
+   * Preset the launch names as the composition default, or null to keep the
+   * shipped bundle's own value. A launcher overlay shadows the settings
+   * document, so a test that stores the default must leave this key to the
+   * profile layers the settings editor can legitimately override.
+   */
+  compositionDefaultPreset: string | null = 'ptc',
 ): Promise<Context> {
   const storageRoot = join(dirname(settingsFile), 'storages')
   const overrides: PatchOptions[] = [
@@ -132,10 +140,13 @@ async function bootWeb(
     ] },
     // Pin the roster away from the developer's machine: `includeUserRoot`
     // false keeps `~/.qilin/.agent-presets` from changing a test's outcome.
-    // `default` here is the COMPOSITION default — the base layer the settings
-    // document overrides. No `roots` entry: the plugin bundles the shipped
-    // presets itself and prepends their root.
-    { id: 'agent-presets', config: { default: 'ptc', includeUserRoot: false } },
+    // `default` here is the COMPOSITION default. A launch overlay replaces the
+    // row's whole config, so a test whose stored settings must take effect
+    // passes null and leaves this row to its profile layer.
+    ...compositionDefaultPreset === null ? [] : [{
+      id: 'agent-presets',
+      config: { default: compositionDefaultPreset, includeUserRoot: false },
+    }],
     ...extra,
   ]
   const home = dirname(settingsFile)
@@ -173,10 +184,15 @@ async function bootWeb(
     profile = loadProfile('qilin-test', 'spec', INSTALL_ANCHOR, home, { userLayer: false })
     bundlePatches = profile.layers.flatMap(layer => layer.patches)
   }
+  // The launcher composes the profile's own patch document between the bundle
+  // layers and the invocation overlays. A document seeded before boot is
+  // therefore part of the composition the settings editor reads back.
+  const profileDocument = join(profileDir, 'cordis.patch.yml')
+  const documentPatches = existsSync(profileDocument) ? loadOverlayPatches('qilin-test', profileDocument) : []
   const resolution = await createRuntimeResolution({ installAnchor: INSTALL_ANCHOR, home, profile })
   const rootConfig = join(profileDir, 'cordis.yml')
   await writeFile(rootConfig, '[]\n')
-  return await boot('qilin-test', rootConfig, [...bundlePatches, ...overrides], async (bootCtx) => {
+  return await boot('qilin-test', rootConfig, [...bundlePatches, ...documentPatches, ...overrides], async (bootCtx) => {
     bootCtx.provide('profileContext', { name: 'spec', dir: profileDir, patchPath: profile.patchPath,
       installAnchor: INSTALL_ANCHOR, home, cwd: home,
       startedBundles: profileBundles ?? ['@qilin-agent/base', '@qilin-agent/web-app'],
@@ -308,7 +324,7 @@ describe('the shipped Web composition', () => {
     })
     await ctx.settings.update(SUBAGENT_MODEL_SELECTION_SETTINGS_NAMESPACE, {
       enabled: true,
-      allowedModels: [{ provider: 'deepseek-official', model: 'deepseek-v4-flash' }],
+      allowedModels: [{ provider: 'deepseek-official', model: 'deepseek-flash' }],
     })
     const enabled = await ctx.agents.create({
       sessionId: SessionId('preset-model-selection-enabled'),
@@ -786,35 +802,67 @@ describe('authoring a preset on the shipped composition', () => {
  * hand-built context; this proves it through the shipped `cordis.yml` — that
  * the roster and the settings provider are actually wired to each other, and
  * that the id the setting names is the one a session composes from.
+ *
+ * It boots its own deployment because the shared lane pins `ptc` as a launch
+ * overlay: an overlay replaces the row's whole config and keeps shadowing it,
+ * so the editor refuses a write it cannot make effective. This deployment
+ * starts the row in the profile document the editor rewrites, keeping the
+ * shipped bundle's `standard` as the composed default.
  */
 describe('the default preset as a user setting', () => {
+  let defaultCtx: Context
+
+  beforeAll(async () => {
+    const settingsFile = join(await mkdtemp(join(tmpdir(), 'qilin-preset-default-setting-')), 'settings.yaml')
+    await writeFile(settingsFile, '{}\n')
+    // The lane's own preset root and the closed user root belong to this
+    // composition, so they arrive in the profile document rather than as launch
+    // overlays: the document is what the settings editor rewrites.
+    const profileDir = join(dirname(settingsFile), 'profiles', 'spec')
+    await mkdir(profileDir, { recursive: true })
+    await writeFile(join(profileDir, 'cordis.patch.yml'), [
+      '- id: agent-presets',
+      '  config:',
+      '    default: standard',
+      '    includeUserRoot: false',
+      '    roots:',
+      `      - path: ${JSON.stringify(laneRoot)}`,
+      '        trust: user',
+      '',
+    ].join('\n'))
+    defaultCtx = await bootWeb(settingsFile, [], [], undefined, null)
+  }, 120_000)
+
+  afterAll(async () => {
+    await defaultCtx.fiber.dispose()
+  })
+
   it('composes an unnamed session from the stored default, not the composed one', async () => {
-    expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
-    expect(ctx.agentPresets.defaultId).toBe('ptc')
+    expect((await defaultCtx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
+    expect(defaultCtx.agentPresets.defaultId).toBe('standard')
 
-    await ctx.settings.update(SETTINGS_NAMESPACE, { default: LEAN_ID })
+    await defaultCtx.settings.update(SETTINGS_NAMESPACE, { default: LEAN_ID })
     try {
-      expect(ctx.agentPresets.defaultId).toBe(LEAN_ID)
+      expect(defaultCtx.agentPresets.defaultId).toBe(LEAN_ID)
 
-      const handle = await ctx.agents.create({
+      const handle = await defaultCtx.agents.create({
         sessionId: SessionId('preset-user-default'),
-        setup: agentCtx => ctx.agentPresets.mount(agentCtx).then(() => undefined),
+        setup: agentCtx => defaultCtx.agentPresets.mount(agentCtx).then(() => undefined),
       })
       try {
         // `mount()` with no id resolves the effective default. One tool, not
         // the shipped catalog: the setting decided the composition.
-        expect(toolNames(ctx, handle.agent)).toEqual(LEAN_TOOLS)
+        expect(toolNames(defaultCtx, handle.agent)).toEqual(LEAN_TOOLS)
       } finally {
         await handle.dispose()
       }
     } finally {
-      // The context is shared with the rest of the file. `replace({})` drops
-      // the user section wholesale so the field re-inherits the composition
-      // base; `update` merges, and would leave the override standing.
-      await ctx.settings.replace(SETTINGS_NAMESPACE, {})
+      // `replace({})` drops the user section wholesale so the field re-inherits
+      // the composition base; `update` merges, and would leave it standing.
+      await defaultCtx.settings.replace(SETTINGS_NAMESPACE, {})
     }
 
-    expect(ctx.agentPresets.defaultId).toBe('ptc')
+    expect(defaultCtx.agentPresets.defaultId).toBe('standard')
   })
 })
 

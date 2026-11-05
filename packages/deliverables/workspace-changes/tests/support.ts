@@ -39,7 +39,7 @@ export function toolCall(session: Session, turn: number, name: string, args: unk
     stream: [], turn, step: 1,
     message: createAssistantMessage({
       content: [{ type: 'tool-call', id: callId, name, arguments: serialized }],
-      source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+      source: { provider: 'deepseek-official', model: 'deepseek-flash' },
     }),
   }, { surfaceOp: 'append' })
   const source = session.append('tool/call', { turn, step: 1, callId, name, arguments: serialized })

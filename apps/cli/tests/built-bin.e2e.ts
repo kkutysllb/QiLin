@@ -193,7 +193,7 @@ function createEnvironmentProbeProfile(home: string, project: string): void {
     "    let text = ''",
     '    for await (const chunk of ctx.llm.stream({',
     "      provider: 'deepseek-official',",
-    "      model: 'deepseek-v4-flash',",
+    "      model: 'deepseek-flash',",
     '      messages: [],',
     '      maxTokens: 32,',
     '    })) {',
@@ -342,20 +342,48 @@ function startStartupProfile(fixture: StartupFixture, args: readonly string[]) {
 }
 
 describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx)', () => {
-  it('requires a profile and rejects removed flags', async () => {
-    const bare = await runBuiltBin()
-    expect(bare.code).toBe(1)
-    expect(bare.stdout).toBe('')
-    expect(bare.stderr).toContain('--profile <name> is required')
-    const help = await runBuiltBin(['--help'])
-    expect(help.code).toBe(0)
-    await expect(help.stdout).toMatchFileSnapshot('./expected/launcher-help.txt')
-    expect(help.stdout).toContain('qilin --profile web')
-    expect(help.stdout).toContain('qilin plugin --profile')
-    expect(help.stdout).not.toMatch(/^\s+(?:tui|meta|upgrade)\b/mu)
-    for (const removed of [['--config', 'x.yml'], ['-p', 'task'], ['web', '--profile', 'tui']]) {
-      const result = await runBuiltBin(removed)
-      expect(result.code).toBe(1)
+  it('boots the product surface when no profile is named and keeps the launcher flags separate', async () => {
+    const home = mkdtempSync(join(tmpdir(), 'qilin-built-bare-'))
+    try {
+      // A bare invocation boots the product profile; the tenant marker keeps
+      // this process the served application so the readiness hook can end it.
+      const bare = await runBuiltBin(['--port', '0', '--no-open'], {
+        QILIN_HOME: home,
+        QILIN_TENANT: '1',
+        QILIN_TELEMETRY_DISABLED: '1',
+        QILIN_BROWSER_OPEN_TEST_EXIT_ON_READY: '1',
+        DEEPSEEK_API_KEY: 'keyless-built-bin',
+        NODE_OPTIONS: `--import=${webReadyExitHook}`,
+      })
+      expect(bare.code, bare.stderr).toBe(0)
+      expect(bare.stderr).not.toContain('--profile <name> is required')
+      expect(startupUrl(bare.stdout)).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/workspace\?token=[A-Za-z0-9_-]+$/u)
+
+      const help = await runBuiltBin(['--help'])
+      expect(help.code).toBe(0)
+      await expect(help.stdout).toMatchFileSnapshot('./expected/launcher-help.txt')
+      expect(help.stdout).toContain('qilin --profile web')
+      expect(help.stdout).toContain('qilin plugin --profile')
+      expect(help.stdout).not.toMatch(/^\s+(?:tui|meta|upgrade)\b/mu)
+
+      // Selecting a profile twice is still a launcher error.
+      const duplicate = await runBuiltBin(['web', '--profile', 'tui'])
+      expect(duplicate.code).toBe(1)
+      expect(startupUrl(duplicate.stdout)).toBeUndefined()
+      // The retired launcher flags are not launcher options any more: they reach
+      // the booted app, which rejects them as its own usage errors.
+      for (const removed of [['--config', 'x.yml'], ['-p', 'task']]) {
+        const result = await runBuiltBin([...removed, '--port', '0', '--no-open'], {
+          QILIN_HOME: home,
+          QILIN_TENANT: '1',
+          QILIN_TELEMETRY_DISABLED: '1',
+          DEEPSEEK_API_KEY: 'keyless-built-bin',
+        })
+        expect(result.code).toBe(1)
+        expect(result.stderr).toContain(`unknown option '${removed[0]}'`)
+      }
+    } finally {
+      rmSync(home, { recursive: true, force: true })
     }
   }, SPAWN_TIMEOUT_MS * 3 + 30_000)
 
@@ -488,7 +516,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
         jsonrpc: '2.0',
         id: 1,
         method: 'initialize',
-        params: { cwd: home, provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+        params: { cwd: home, provider: 'deepseek-official', model: 'deepseek-flash' },
       })}\n`)
       const initialized = await response(1)
       expect(initialized, `${JSON.stringify(initialized)}\n${stderr}`).toMatchObject({
@@ -502,7 +530,10 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       expect(result.timedOut, stderr).toBe(false)
       expect(result.signal, stderr).toBeUndefined()
       expect(result.exitCode, stderr).toBe(0)
-      expect(stderr).toBe('')
+      // The fake key lets the startup model-listing probe reach the real
+      // endpoint, whose 401 is the documented fallback to the bundled catalog.
+      expect(stderr).toMatch(/^\[llm-deepseek-api-key\] model listing from https:\/\/api\.deepseek\.com\/models failed/u)
+      expect(stderr).toMatch(/; (?:using the bundled catalog|keeping the previous catalog)\n$/u)
       expect(readFileSync(marker, 'utf8')).toBe('loaded')
     } finally {
       child.kill('SIGKILL')
@@ -519,7 +550,6 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       successText: 'ACP BUILT PROFILE OK',
     })
     const home = mkdtempSync(join(tmpdir(), 'qilin-built-acp-'))
-    writeFileSync(join(home, 'settings.yaml'), 'llm-deepseek:\n  protocol: chat-completions\n')
     const child = execa(process.execPath, [qilinBin, '--profile', 'acp'], {
       cwd: home,
       reject: false,
@@ -564,7 +594,8 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       expect(initialized.agentInfo).toMatchObject({ name: 'deepseek-harness-acp' })
       expect(initialized.agentCapabilities).toEqual({
         mcpCapabilities: { http: true },
-        promptCapabilities: { image: false, audio: false, embeddedContext: false },
+        // The ACP profile runs the official image-capable model catalog entry.
+        promptCapabilities: { image: true, audio: false, embeddedContext: false },
         sessionCapabilities: { close: {}, list: {}, resume: {} },
       })
       expect('_meta' in initialized).toBe(false)
@@ -605,7 +636,6 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       successText: 'published headless profile reached the mock',
     })
     const home = mkdtempSync(join(tmpdir(), 'qilin-built-headless-'))
-    writeFileSync(join(home, 'settings.yaml'), 'llm-deepseek:\n  protocol: chat-completions\n')
     try {
       const result = await runBuiltBin(['--profile', 'headless', 'answer', 'from', 'the', 'published', 'entry'], {
         QILIN_HOME: home,
@@ -617,7 +647,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       expect(result.stdout).toBe('published headless profile reached the mock')
       expect(result.stderr).toBe('qilin: reasoning:\nInspecting the published entry.')
       expect(server.requests.length).toBeGreaterThan(0)
-      expect(server.requests.every(request => request.path === '/chat/completions')).toBe(true)
+      expect(server.requests.every(request => request.path === '/v1/messages')).toBe(true)
       expect(JSON.stringify(server.requests.map(request => request.body))).toContain('answer from the published entry')
     } finally {
       await server.close()
@@ -685,7 +715,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       }
       expect(manifest.dependencies).toEqual({})
       expect(manifest.qilin.profile).toEqual({
-        bundles: ['@qilin-agent/base', '@qilin-agent/web-app'],
+        bundles: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'],
       })
       expect(readFileSync(join(dir, 'cordis.patch.yml'), 'utf8')).toContain('[]')
       expect(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')).toContain('nodeLinker: hoisted')
@@ -742,7 +772,6 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       successText: 'launching endpoint reached the mock',
     })
     const home = mkdtempSync(join(tmpdir(), 'qilin-home-environment-'))
-    writeFileSync(join(home, 'settings.yaml'), 'llm-deepseek:\n  protocol: chat-completions\n')
     const project = mkdtempSync(join(tmpdir(), 'qilin-home-project-'))
     writeFileSync(join(home, '.credentials.yaml'), `version: 1\nrefs:\n  DEEPSEEK_API_KEY: ${apiKey}\n`, { mode: 0o600 })
     createEnvironmentProbeProfile(home, project)
@@ -765,8 +794,8 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       expect(result.stdout).not.toContain(apiKey)
       expect(result.stderr).not.toContain(apiKey)
       expect(server.requests).toHaveLength(1)
-      expect(server.requests[0]?.path).toBe('/chat/completions')
-      expect(server.requests[0]?.headers.authorization).toBe(`Bearer ${apiKey}`)
+      expect(server.requests[0]?.path).toBe('/v1/messages')
+      expect(server.requests[0]?.headers['x-api-key']).toBe(apiKey)
       expect(JSON.stringify(server.requests[0]?.body)).not.toContain(apiKey)
     } finally {
       await server.close()
@@ -778,8 +807,11 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
   it('keeps serving when an optional patch-overlay plugin fails', async () => {
     const home = mkdtempSync(join(tmpdir(), 'qilin-invalid-patch-'))
     try {
+      // The tenant marker keeps this process the served application instead of
+      // the deployment supervisor, so the readiness hook ends it.
       const result = await runBuiltBin(['--profile', 'web', '--patch', invalidProvider, '--port', '0', '--no-open'], {
         QILIN_HOME: home,
+        QILIN_TENANT: '1',
         QILIN_BROWSER_OPEN_TEST_EXIT_ON_READY: '1',
         DEEPSEEK_API_KEY: 'keyless-invalid-config',
         QILIN_TELEMETRY_DISABLED: '1',
@@ -1105,7 +1137,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
     }
   }, SPAWN_TIMEOUT_MS * 2 + 30_000)
 
-  it('reconciles a real pnpm alias without reactivating it and keeps ordinary dependencies outside the bundle list', async () => {
+  it('reconciles a real pnpm alias by activating its declared bundle and keeps ordinary dependencies outside the bundle list', async () => {
     const home = mkdtempSync(join(tmpdir(), 'qilin-plugin-alias-'))
     try {
       const bundle = join(home, 'bundle-source')
@@ -1129,13 +1161,16 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       }
       expect(Object.keys(installed.dependencies).sort()).toEqual(['bundle-alias', 'ordinary-library'])
       expect(installed.qilin.profile.bundles).toEqual(['@qilin-agent/base', 'bundle-alias'])
+      // Dropping the layer by hand does not survive a reconcile: the
+      // dependency still declares a bundle, so the installation is the source
+      // of truth and the layer comes back.
       installed.qilin.profile.bundles = ['@qilin-agent/base']
       writeFileSync(manifestPath, JSON.stringify(installed))
       const refreshed = await runBuiltBin(['plugin', '--profile', 'alias', 'root'], { QILIN_HOME: home }, home)
       expect(refreshed.code).toBe(0)
       expect(refreshed.stderr).not.toContain('declares no qilin.bundle')
       const active = JSON.parse(readFileSync(manifestPath, 'utf8')) as { qilin: { profile: { bundles: string[] } } }
-      expect(active.qilin.profile.bundles).toEqual(['@qilin-agent/base'])
+      expect(active.qilin.profile.bundles).toEqual(['@qilin-agent/base', 'bundle-alias'])
       const removed = await runBuiltBin(['plugin', '--profile', 'alias', 'remove', 'bundle-alias'], { QILIN_HOME: home }, home)
       expect(removed.code).toBe(0)
       const remaining = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
@@ -1149,7 +1184,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
     }
   })
 
-  it('keeps existing dependencies inactive when package metadata gains a bundle declaration', async () => {
+  it('activates an existing dependency when its package metadata gains a bundle declaration', async () => {
     const home = mkdtempSync(join(tmpdir(), 'qilin-plugin-update-'))
     try {
       const profileDir = join(home, 'profiles', 'up')
@@ -1168,7 +1203,8 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       expect(first.code).toBe(0)
       let manifest = JSON.parse(readFileSync(join(profileDir, 'package.json'), 'utf8')) as { qilin: { profile: { bundles: string[] } } }
       expect(manifest.qilin.profile.bundles).toEqual(['@qilin-agent/base'])
-      // v2: the installed package now declares qilin.bundle (an update landed).
+      // v2: the installed package now declares qilin.bundle (an update landed),
+      // and the next reconcile activates the layer it already depends on.
       writeFileSync(join(installed, 'package.json'), JSON.stringify({
         name: 'late-bundle', version: '2.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } },
       }))
@@ -1176,7 +1212,7 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
       const second = await runBuiltBin(['plugin', '--profile', 'up', 'root'], { QILIN_HOME: home })
       expect(second.code).toBe(0)
       manifest = JSON.parse(readFileSync(join(profileDir, 'package.json'), 'utf8')) as { qilin: { profile: { bundles: string[] } } }
-      expect(manifest.qilin.profile.bundles).toEqual(['@qilin-agent/base'])
+      expect(manifest.qilin.profile.bundles).toEqual(['@qilin-agent/base', 'late-bundle'])
     } finally {
       rmSync(home, { recursive: true, force: true })
     }
@@ -1248,9 +1284,17 @@ describe.skipIf(!existsSync(qilinBin))('qilin BUILT bin (node lib/bin.js, no tsx
         ['deepseek-llm-api-extensions', '@qilin-agent/deepseek-llm-api-extensions'],
         ['session-log-deepseek', '@qilin-agent/session-log-deepseek'],
         ['plugin-package-inventory-deepseek', '@qilin-agent/plugin-package-inventory-deepseek'],
-        ['llm-deepseek', '@qilin-agent/llm-deepseek'],
+        ['llm-deepseek', '@qilin-agent/llm-deepseek-api-key'],
         ['sandbox', '@qilin-agent/sandbox-local'],
+        ['filesystem', '@qilin-agent/fs-local'],
+        ['attachment-local', '@qilin-agent/attachment-local'],
+        ['tool-fs', '@qilin-agent/tool-fs'],
+        ['working-directory', '@qilin-agent/working-directory'],
+        ['tool-working-directory', '@qilin-agent/tool-working-directory'],
         ['session-projection', '@qilin-agent/session-projection'],
+        ['token-meter', '@qilin-agent/token-meter'],
+        ['compaction-basic', '@qilin-agent/compaction-basic'],
+        ['image-offload', '@qilin-agent/compaction-image-offload'],
         ['sandbox-policy', '@qilin-agent/sandbox-policy'],
         ['subprocess', '@qilin-agent/subprocess-local'],
         ['pty', '@qilin-agent/terminal'],

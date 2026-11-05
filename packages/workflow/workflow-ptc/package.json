@@ -58,6 +58,7 @@
     "@qilin-agent/subagent-spawn-in-process": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
     "@qilin-agent/workflow": "workspace:*",
     "@qilin-agent/http-proxy": "workspace:*",
     "@qilin-agent/ptc-runtime": "workspace:*",

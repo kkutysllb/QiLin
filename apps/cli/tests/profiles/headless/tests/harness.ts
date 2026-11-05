@@ -50,13 +50,13 @@ export interface CodingHarnessOptions {
    */
   compact?: BasicCompactionConfig
   /**
-   * Test-only context capacity advertised for `deepseek-v4-flash`. Automatic
+   * Test-only context capacity advertised for `deepseek-flash`. Automatic
    * pressure scales the message budget left after the request's reserved
    * output tokens, so this capacity must exceed the advertised output cap.
    */
   modelContextWindow?: number
   /**
-   * Test-only per-request output cap advertised for `deepseek-v4-flash`, which
+   * Test-only per-request output cap advertised for `deepseek-flash`, which
    * the adapter forwards as `max_tokens` and pressure excludes from the
    * capacity above.
    */
@@ -72,7 +72,7 @@ export async function codingHarness(workdir: string, options: CodingHarnessOptio
   await ctx.plugin(LlmDeepSeek, {
     ...options.modelContextWindow === undefined && options.modelMaxTokens === undefined ? {} : {
       models: [{
-        id: 'deepseek-v4-flash',
+        id: 'deepseek-flash',
         ...options.modelContextWindow === undefined ? {} : { contextWindow: options.modelContextWindow },
         ...options.modelMaxTokens === undefined ? {} : { maxTokens: options.modelMaxTokens },
       }],

@@ -116,21 +116,35 @@ describe.skipIf(!requiredArtifacts)('Goal Remote built LIB chain', () => {
       host.agents.register(rootAgent)
       host.agents.register(scopedAgent)
 
-      if (routes.length !== 1 || routes[0].path !== '/api') {
-        throw new Error('Connection did not register exactly one /api route')
+      // The connection also registers its exact "/connect" handshake route
+      // beside the shared prefix transport; only the "/api" prefix carries the
+      // Remote calls this harness drives.
+      const apiRoutes = routes.filter(route => route.kind === 'prefix' && route.path === '/api')
+      if (apiRoutes.length !== 1) {
+        throw new Error('Connection did not register exactly one /api prefix route')
       }
+      const matchRoute = pathname => routes.find(route => route.kind === 'prefix'
+        ? pathname === route.path || pathname.startsWith(route.path + '/')
+        : pathname === route.path)
       // Derive the entry path from the minted login URL so the route follows
       // the connection's own entry constant instead of a copied literal.
       const entryPath = new URL(host.connection.authenticatedUrl('http://127.0.0.1:0')).pathname
       const server = createServer((request, response) => {
-        if (new URL(request.url ?? '/', 'http://127.0.0.1').pathname === entryPath) {
+        const pathname = new URL(request.url ?? '/', 'http://127.0.0.1').pathname
+        if (pathname === entryPath) {
           if (host.connection.authorizeIndex(request, response)) {
             response.writeHead(200, { 'content-type': 'text/html' })
             response.end('<body>shell</body>')
           }
           return
         }
-        void routes[0].handler(request, response)
+        const route = matchRoute(pathname)
+        if (route === undefined) {
+          response.writeHead(404)
+          response.end()
+          return
+        }
+        void route.handler(request, response)
       })
       await new Promise(resolveListen => server.listen(0, '127.0.0.1', resolveListen))
       const address = server.address()
@@ -191,8 +205,11 @@ describe.skipIf(!requiredArtifacts)('Goal Remote built LIB chain', () => {
         const plugin = instantiate(id)
         await client.plugin({ inject: plugin.inject, apply: plugin.apply })
       }
+      // Probe before reading: a Context without this marker has no such
+      // property declared, and reading an undeclared property through an
+      // active plugin Context throws instead of yielding undefined.
       client.typert.contexts.registerClient('agent', {
-        identity: candidate => candidate.builtAgentId,
+        identity: candidate => 'builtAgentId' in candidate ? candidate.builtAgentId : undefined,
       })
 
       const invalidResult = await client.remote.goals.create(rootAgent.id, { objective: 1 })

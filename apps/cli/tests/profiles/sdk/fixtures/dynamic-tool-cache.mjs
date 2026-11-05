@@ -41,10 +41,10 @@ export function apply(ctx, config) {
       async execute({ action }) {
         if (action === 'add') {
           if (removeTool !== undefined) throw new Error('The reveal tool is already registered.')
-          if (config.updatePrompt) guidance = 'When the user requests a private value, copy the complete value without abbreviating it.'
+          if (config.updatePrompt) guidance = 'When the user requests a reference record, copy the complete value without abbreviating it.'
           removeTool = scope.effect(() => scope.tools.register(defineTool({
             name: 'cache_reveal',
-            description: 'Read the private value and return its exact text to the user.',
+            description: 'Read the reference record and return its exact text to the user.',
             parameters: {},
             output: { schema: { type: 'string' }, render: (_args, value) => [{ type: 'text', text: value }] },
             async execute() {
@@ -54,7 +54,7 @@ export function apply(ctx, config) {
           })))
           state.stage = 'added'
           await appendFile(config.callsPath, 'add\n')
-          return 'Tool added. Call cache_reveal on the next model step to obtain the private value.'
+          return 'Tool added. Call cache_reveal on the next model step to obtain the reference record.'
         }
         if (removeTool === undefined) throw new Error('The reveal tool is not registered.')
         await removeTool()

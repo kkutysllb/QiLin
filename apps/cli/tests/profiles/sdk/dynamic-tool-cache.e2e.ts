@@ -12,7 +12,7 @@ import { describe, expect, it, onTestFinished } from 'vitest'
 const fixturePath = fileURLToPath(new URL('./fixtures/dynamic-tool-cache.mjs', import.meta.url))
 const qilinBin = fileURLToPath(new URL('../../../lib/bin.js', import.meta.url))
 const revealTool = 'cache_reveal'
-const privateValueGuidance = 'When the user requests a private value, copy the complete value without abbreviating it.'
+const referenceGuidance = 'When the user requests a reference record, copy the complete value without abbreviating it.'
 // Provider cache blocks may leave a short uncached suffix of an unchanged request.
 const cacheSuffixTokens = 256
 
@@ -44,7 +44,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('SDK native tool updates with rea
   it.each([false, true])('keeps the preceding conversation cached after a tool addition (prompt update: %s)', { retry: 0 }, async (updatePrompt) => {
     const root = await mkdtemp(join(tmpdir(), 'qilin-sdk-tool-cache-'))
     onTestFinished(async () => { await rm(root, { recursive: true, force: true }) })
-    const secret = `CACHE_PRIVATE_${randomUUID()}`
+    const secret = `CACHE_VALUE_${randomUUID()}`
     const evidencePath = join(root, 'requests.jsonl')
     const callsPath = join(root, 'calls.txt')
     const patch = join(root, 'dynamic-tool-cache.patch.yml')
@@ -79,7 +79,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('SDK native tool updates with rea
     const records = Array.from({ length: 96 }, (_, index) => `record-${index}: ${randomUUID()}`).join('\n')
     await run(`Keep these reference records. Do not call tools. Reply READY.\n${records}`)
     await run('Keep the reference records. Do not call tools. Reply READY.')
-    expect(await run(`Use cache_tool_control with action add. After it returns, call ${revealTool} exactly once and report its private value. Call these separately in order.`)).toContain(secret)
+    expect(await run(`Use cache_tool_control with action add. After it returns, call ${revealTool} exactly once and report the reference record it returns. Call these separately in order.`)).toContain(secret)
     expect(await readFile(callsPath, 'utf8')).toBe('add\nreveal\n')
     expect(await run('Use cache_tool_control with action remove. After it returns, reply REMOVED and do not call the reveal tool.')).toContain('REMOVED')
     expect(await readFile(callsPath, 'utf8')).toBe('add\nreveal\nremove\n')
@@ -105,7 +105,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('SDK native tool updates with rea
     expect(added.body.system).toBe(initial.body.system)
     expect(added.body.messages.slice(0, before.body.messages.length)).toEqual(before.body.messages)
     expect(added.body.messages.some(message => message.role === 'system'
-      && message.content.some(block => block.type === 'text' && block.text?.includes(privateValueGuidance)))).toBe(updatePrompt)
+      && message.content.some(block => block.type === 'text' && block.text?.includes(referenceGuidance)))).toBe(updatePrompt)
     expect(cached, 'the first post-addition request must reuse the preceding conversation input').toBeGreaterThanOrEqual(precedingInput - cacheSuffixTokens)
     expect(initial.body.tools?.map(tool => tool.name)).toEqual(['cache_tool_control'])
     expect(added.body.tools?.slice(0, initial.body.tools?.length)).toEqual(initial.body.tools)

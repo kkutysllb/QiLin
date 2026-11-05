@@ -77,7 +77,7 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
   const handle = await ctx.sessionPersistence.create(session.header)
   try {
     const user = createUserMessage({ content: [{ type: 'text', text: 'Question' }], source: { kind: 'user' } })
-    const assistant = createAssistantMessage({ content: [{ type: 'text', text: 'Answer' }], source: { provider: 'deepseek-official', model: 'deepseek-v4-flash' } })
+    const assistant = createAssistantMessage({ content: [{ type: 'text', text: 'Answer' }], source: { provider: 'deepseek-official', model: 'deepseek-flash' } })
     session.append('turn/start', { turn: 1 })
     session.append('step/start', { turn: 1, step: 1 })
     session.append('user/message', user, { surfaceOp: 'append' })
@@ -91,7 +91,7 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
     const initialPrefix = session.snapshotEvents()
     const request = async () => {
       const chunks = []
-      for await (const chunk of ctx!.llm.stream({ provider: 'deepseek-official', model: 'deepseek-v4-flash', sessionId: session.id, messages: session.deriveMessages() })) chunks.push(chunk)
+      for await (const chunk of ctx!.llm.stream({ provider: 'deepseek-official', model: 'deepseek-flash', sessionId: session.id, messages: session.deriveMessages() })) chunks.push(chunk)
       return chunks.at(-1)
     }
     expect(await request()).toMatchObject({ type: 'finish', reason: { kind: 'error' } })
@@ -130,7 +130,7 @@ it('uploads freeform feedback and message put/edit/delete through the unchanged 
     for (const wire of server.requests) {
       expect(wire.path).toBe('/v1/messages')
       expect(wire.body).not.toHaveProperty('qilin_feedback')
-      expect(wire.body).toMatchObject({ model: 'deepseek-v4-flash', messages: [
+      expect(wire.body).toMatchObject({ model: 'deepseek-flash', messages: [
         { role: 'user', content: [{ type: 'text', text: 'Question' }] },
         { role: 'assistant', content: [{ type: 'text', text: 'Answer' }] },
       ] })

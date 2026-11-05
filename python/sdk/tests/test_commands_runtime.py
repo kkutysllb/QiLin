@@ -30,7 +30,7 @@ from deepseek_harness.client import UserQuestionHandler
 
 _WAIT_SECONDS = 30
 _SESSION_ID = "commands-runtime"
-_MODEL = "deepseek-v4-flash"
+_MODEL = "deepseek-flash"
 _HISTORY_MARKER = "QILIN_COMMANDS_OLD_USER_INPUT"
 _FIRST_REPLY = "SDK_COMPACT_READY"
 _CHECKPOINT = "## Primary Request and Intent\n- QILIN_COMMANDS_CHECKPOINT: retain the earlier task."

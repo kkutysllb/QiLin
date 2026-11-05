@@ -48,7 +48,7 @@ const bashSchema: ToolSchema = { name: 'bash', description: 'Run a command.', pa
 /** The request header the model saw before it asked. */
 function header(seq: number, tools: ToolSchema[] | undefined): SessionEvent {
   return event(seq, 'request/header', {
-    header: { config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' }, ...(tools === undefined ? {} : { tools }) },
+    header: { config: { provider: 'deepseek-official', model: 'deepseek-flash' }, ...(tools === undefined ? {} : { tools }) },
     reason: 'initial',
   })
 }

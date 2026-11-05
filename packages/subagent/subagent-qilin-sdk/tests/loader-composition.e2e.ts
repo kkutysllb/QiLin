@@ -20,6 +20,9 @@ const fixtureDir = new URL('./fixtures/loader/', import.meta.url)
 const driver = fileURLToPath(new URL('driver.ts', fixtureDir))
 const configPath = fileURLToPath(new URL('dsh-sdk.patch.yml', fixtureDir))
 const childConfigPath = fileURLToPath(new URL('child.patch.yml', fixtureDir))
+// The SDK provider spawns a complete second runtime, so the child needs the
+// CLI entry this lane builds; the driver itself boots from source.
+const cliBin = fileURLToPath(new URL('../../../../apps/cli/lib/bin.js', import.meta.url))
 const childMockPath = fileURLToPath(new URL('child-mock-llm.ts', fixtureDir))
 const repoTsconfig = fileURLToPath(new URL('../../../../tsconfig.json', import.meta.url))
 
@@ -65,6 +68,7 @@ async function childLaunch(failure = false): Promise<{
     env: {
       DSH_TEST_CHILD_PATCHES: JSON.stringify([childPatch]),
       DSH_TEST_CHILD_HOME: childHome,
+      QILIN_TEST_CLI_BIN: cliBin,
       ...(failure ? { DSH_TEST_CHILD_FAILURE: '1' } : {}),
     },
   }

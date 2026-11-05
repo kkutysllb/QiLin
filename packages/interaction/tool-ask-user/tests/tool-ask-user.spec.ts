@@ -20,7 +20,7 @@ const testToolSignal = new AbortController().signal
 function headerEvent(seq: number, tools: ToolSchema[]): SessionEvent {
   return {
     type: 'request/header', seq: SessionSeq(seq), time: seq,
-    data: { header: { config: { provider: 'deepseek-official', model: 'deepseek-v4-flash' }, tools }, reason: 'initial' },
+    data: { header: { config: { provider: 'deepseek-official', model: 'deepseek-flash' }, tools }, reason: 'initial' },
   }
 }
 

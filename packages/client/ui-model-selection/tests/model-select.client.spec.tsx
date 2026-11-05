@@ -43,13 +43,13 @@ const reasoning = {
 
 function state(overrides: Partial<ModelDirectoryState> = {}): ModelDirectoryState {
   return {
-    current: { provider: 'deepseek-official', model: 'deepseek-v4-flash' },
+    current: { provider: 'deepseek-official', model: 'deepseek-flash' },
     routable: true,
     groups: [{
       id: 'deepseek-official',
       name: 'DeepSeek',
       models: [{
-        id: 'deepseek-v4-flash',
+        id: 'deepseek-flash',
         name: 'DeepSeek-V4-Flash',
         description: 'Fast catalog description',
         reasoning,
@@ -288,7 +288,7 @@ describe('ModelSelect reasoning effort', () => {
     await waitFor(() => {
       expect(select).toHaveBeenCalledWith({
         provider: 'deepseek-official',
-        model: 'deepseek-v4-flash',
+        model: 'deepseek-flash',
         reasoningEffort: 'max',
       })
       expect(trigger.getAttribute('aria-label')).toBe('选择模型，当前 DeepSeek-V4-Flash，推理等级 Max')
@@ -402,7 +402,7 @@ describe('ModelSelect reasoning effort', () => {
       id: 'deepseek-official',
       name: 'DeepSeek',
       models: [
-        { id: 'deepseek-v4-flash', name: 'DeepSeek-V4-Flash', reasoning },
+        { id: 'deepseek-flash', name: 'DeepSeek-V4-Flash', reasoning },
         { id: 'deepseek-v4-pro', name: 'DeepSeek-V4-Pro' },
       ],
     }]
@@ -446,7 +446,7 @@ describe('ModelSelect reasoning effort', () => {
       id: 'deepseek-official',
       name: 'DeepSeek',
       models: [
-        { id: 'deepseek-v4-flash', name: 'DeepSeek-V4-Flash', reasoning },
+        { id: 'deepseek-flash', name: 'DeepSeek-V4-Flash', reasoning },
         { id: 'deepseek-v4-pro', name: 'DeepSeek-V4-Pro' },
       ],
     }]
@@ -610,7 +610,7 @@ describe('ModelSelect keyboard walk', () => {
     fireEvent.keyDown(rows[1]!, { key: 'ArrowDown' }) // High → Max
     expect(fireEvent.keyDown(rows[2]!, { key: 'Tab' })).toBe(false)
     expect(select).toHaveBeenCalledWith({
-      provider: 'deepseek-official', model: 'deepseek-v4-flash', reasoningEffort: 'max',
+      provider: 'deepseek-official', model: 'deepseek-flash', reasoningEffort: 'max',
     })
     await waitFor(() => { expect(screen.queryByRole('menu')).toBeNull() })
   })
@@ -753,7 +753,7 @@ describe('ModelSelect keyboard walk', () => {
 describe('ModelSelect catalog size', () => {
   it.each([0, 1, 4, 5])('shows search only above four models (%i models)', (count) => {
     const groups = modelGroups(count)
-    const current = { provider: 'deepseek-official', model: count > 1 ? 'model-2' : 'deepseek-v4-flash' }
+    const current = { provider: 'deepseek-official', model: count > 1 ? 'model-2' : 'deepseek-flash' }
     render(<ModelSelect locked={false} available directory={createSnapshotStore(state({ groups, current }))}
       load={vi.fn()} resolveText={resolveText} select={vi.fn()} t={t} />)
     const trigger = screen.getByRole('button', { name: /选择模型/ })
