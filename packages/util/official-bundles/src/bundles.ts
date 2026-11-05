@@ -68,6 +68,16 @@ export const EXPERIMENTAL_BUNDLES: ReadonlySet<string> = new Set([
 ])
 
 /**
+ * Bundles a profile's selected bundle replaces, keyed by the replacing bundle. The
+ * forge bundle inserts the same `worktree` and `tool-worktree` rows the standalone
+ * worktree bundle ships, so a profile that keeps both selects duplicate ids and the
+ * rows those ids feed stay read-only; selecting the replacing bundle retires the other.
+ */
+export const SUPERSEDED_BUNDLES: Readonly<Record<string, readonly string[]>> = {
+  '@qilin-agent/experimental-forge-bundle': ['@qilin-agent/experimental-tool-worktree'],
+}
+
+/**
  * Public QiLin releases the Plugins page offers for on-demand installation.
  * Nothing named here ships inside the QiLin distribution: selecting one installs
  * it into the running installation before its profile layer applies, and the

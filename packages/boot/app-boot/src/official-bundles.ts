@@ -2,7 +2,7 @@
 
 import type { PluginLocalizedMeta } from '@qilin-agent/package-manifest'
 
-export { ON_DEMAND_BUNDLES } from './official-bundle-packages.ts'
+export { ON_DEMAND_BUNDLES, SUPERSEDED_BUNDLES } from './official-bundle-packages.ts'
 
 /** Offline discovery metadata; installation state and the requested version belong to the running host. */
 export interface OfficialBundleCatalogEntry {

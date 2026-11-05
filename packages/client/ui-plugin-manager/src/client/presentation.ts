@@ -171,6 +171,10 @@ export function noticeText(notice: ManagerNotice, t: Translate): string {
   switch (notice.kind) {
     case 'restart': return restartText('restartNotice', notice.reason, t)
     case 'overridden': return t('overriddenNotice', { name: notice.packageName })
+    case 'superseded': return [
+      t('supersededNotice', { name: notice.label }),
+      ...notice.restartReason === undefined ? [] : [restartText('restartNotice', notice.restartReason, t)],
+    ].join(' ')
     case 'cancelled': return t('installCancelled')
     case 'refresh-failed': return t('refreshError')
     case 'install': return t(({

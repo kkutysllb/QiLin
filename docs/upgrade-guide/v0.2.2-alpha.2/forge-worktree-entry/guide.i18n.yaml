@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.2-alpha.2/forge-worktree-entry/guide.md
 /:
-  en: 8bffaeaf7b6d85eb
-  zh: 0931600ccc842bac
+  en: d148e9ebba9fb992
+  zh: d76b99db52a9060b
 /one-plugin-entry-for-change-requests-and-worktrees:
   en: 87d0039a66f92441
   zh: d090d279ff72a1c3
 /one-plugin-entry-for-change-requests-and-worktrees/change:
-  en: 79a18ec5e9384b6b
-  zh: 9524d9c3fe87acc5
+  en: 0276948464a4a001
+  zh: 95943df051f33352
 /one-plugin-entry-for-change-requests-and-worktrees/migration:
-  en: 65004de40471646f
-  zh: a7e2f8ca8896fc82
+  en: a66afcac677d87a0
+  zh: 20a3dc7cdfdf186d

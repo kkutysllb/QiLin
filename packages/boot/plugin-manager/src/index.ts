@@ -23,7 +23,7 @@ import {
   readProfilePatches, OPTIONAL_BUNDLES, bundlePatchPaths,
   evaluatePluginCompatibility, readProfileCompatibility, readProfileVersionExemptions,
   setProfileVersionExemption, PROFILE_COMPATIBILITY_FILENAME,
-  OFFICIAL_ON_DEMAND_CATALOG, getQilinRuntimeVersion, ResolutionRestartRequired,
+  OFFICIAL_ON_DEMAND_CATALOG, getQilinRuntimeVersion, ResolutionRestartRequired, SUPERSEDED_BUNDLES,
 } from '@qilin-agent/app-boot'
 import type {} from '@qilin-agent/hmr'
 import type { ProfileContext, ProfileManifest } from '@qilin-agent/app-boot'
@@ -828,7 +828,8 @@ export class PluginManager extends TypertRemoteService {
   @Remote
   setBundleEnabled(name: string, enabled: boolean): Promise<ChangeResult> {
     return this.change(result => this.configure(async () => {
-      await this.selectBundle(name, enabled)
+      const superseded = await this.selectBundle(name, enabled)
+      if (superseded.length > 0) result.supersededBundles = superseded
       Object.assign(result, enabled ? await this.publishAndReload(this.bundleRows(name).map(row => row.id)) : await this.reload())
     }), { stage: 'enable', target: name, enabled }, 'bundle')
   }
@@ -1146,7 +1147,12 @@ export class PluginManager extends TypertRemoteService {
     }
   }
 
-  private async selectBundle(name: string, enabled: boolean): Promise<void> {
+  /** Select or remove one bundle layer, and retire the bundles the selected one supersedes.
+   * @param name Bundle package name.
+   * @param enabled Whether the bundle contributes its patch layer.
+   * @returns The superseded bundles this selection removed, in declaration order.
+   */
+  private async selectBundle(name: string, enabled: boolean): Promise<string[]> {
     const manifest = readProfileManifest('qilin', this.profile.dir)
     const previous = bundleSelection(manifest)
     if (enabled || !previous.includes(name)) {
@@ -1161,11 +1167,15 @@ export class PluginManager extends TypertRemoteService {
     if (!enabled && previous.includes(name)) {
       if (this.protectsManager(name)) throw new ManagementFailure('management-required')
     }
-    const bundles = enabled ? [...previous, ...previous.includes(name) ? [] : [name]] : previous.filter(item => item !== name)
-    if (JSON.stringify(previous) === JSON.stringify(bundles)) return
+    // Selection retires the bundles this one supersedes; deselection never brings them back.
+    const superseded = enabled ? (SUPERSEDED_BUNDLES[name] ?? []).filter(item => previous.includes(item)) : []
+    const remaining = previous.filter(item => !superseded.includes(item))
+    const bundles = enabled ? [...remaining, ...remaining.includes(name) ? [] : [name]] : previous.filter(item => item !== name)
+    if (JSON.stringify(previous) === JSON.stringify(bundles)) return []
     manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles } }
     await saveManifest(this.profile.dir, manifest)
     if (enabled) this.protectsManager(name)
+    return superseded
   }
 
   /** The version one installed profile dependency declares, or `undefined` when its files carry no readable manifest. */

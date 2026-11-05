@@ -27,7 +27,7 @@ kind: "package-bundle"
 
 打开插件页面，在官方分组中启用“变更请求与工作树”。在 Git 工作区中，发出第一条消息之前在输入框中勾选“工作树”，Session 就会在新的 worktree 中开始。Session 的目录位于 Git 检出中时，标题栏按钮会打开面板。Session 用 `gh pr create` 创建、用 `gh pr view`、`gh pr edit` 或 `gh pr checkout` 打开的 GitHub pull request，以及 Session 所在分支上或之后 `git push` 更新的 pull request，无需额外操作即会作为变更请求出现。在终端运行 `gh auth login --hostname <host>` 登录；缺少登录时，面板会显示这条命令。[面板包](../client-ui-forge/README.zh.md#use-this-package)说明了每个控件。
 
-同一个开关也启用模型的 [`create_worktree`](../tool-worktree/README.zh.md) 工具。关闭后面板和工具一起移除，已有检出目录与分支仍然保留。已选中独立工作树组合包的 profile，请在启用本组合包前按[升级指南](../../../docs/upgrade-guide/v0.2.2-alpha.2/forge-worktree-entry/guide.zh.md)调整配置。
+同一个开关也启用模型的 [`create_worktree`](../tool-worktree/README.zh.md) 工具。关闭后面板和工具一起移除，已有检出目录与分支仍然保留。选中本组合包时会同时移除已选中的独立工作树组合包 `@qilin-agent/experimental-tool-worktree`，插件页会提示一次：两个组合包插入相同的 `worktree` 与 `tool-worktree` 行，重复 id 会让这些控件变成只读。[升级指南](../../../docs/upgrade-guide/v0.2.2-alpha.2/forge-worktree-entry/guide.zh.md)保留了旧版本仍需的手工步骤。
 
 -----
 

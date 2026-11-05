@@ -1,6 +1,6 @@
 ---
 kind: upgrade-guide
-description: "插件页用一个开关同时启用变更请求与工作树；同时选择独立组合包与统一入口会插入重复行。"
+description: "插件页用一个开关同时启用变更请求与工作树；选中它会移除会造成重复行的独立工作树组合包。"
 ---
 
 # 变更请求与工作树使用同一个插件入口
@@ -11,9 +11,11 @@ description: "插件页用一个开关同时启用变更请求与工作树；同
 
 Web 和 Desktop 通过**变更请求与工作树**同时启用评审面板、新会话的工作树选项和模型的 `create_worktree` 工具。已经启用 Forge 组合包的 profile 也会新增模型工具。
 
-已有 profile 不会自动迁移。选中的 `@qilin-agent/experimental-tool-worktree` 组合包仍会运行，并在插件页的“更多”中保留自己的卡片，因此关闭“变更请求与工作树”不会停用这个独立工具。同时选择它和 `@qilin-agent/experimental-forge-bundle` 会插入重复的 `worktree` 与 `tool-worktree` id，使对应组件控件变为只读。使用统一开关前，请移除独立组合包的选择。
+启用**变更请求与工作树**会从 `qilin.profile.bundles` 中移除已选中的 `@qilin-agent/experimental-tool-worktree`，并在插件页提示一次。两个组合包插入相同的 `worktree` 与 `tool-worktree` 行，因此把它和 `@qilin-agent/experimental-forge-bundle` 同时保留会让对应组件控件变成只读；有了自动移除，当前版本不再需要手工调整。关闭统一开关不会恢复独立组合包，它仍留在“更多”列表中。
 
 ## 迁移
+
+以下手工步骤适用于尚未包含自动移除的旧版本；当前版本在启用统一开关时自动移除独立组合包。
 
 1. 停止 Web 或退出 Desktop。备份 `$QILIN_HOME/profiles/<name>/package.json` 及同目录下的 `cordis.patch.yml`。未设置 `QILIN_HOME` 时使用 `~/.qilin`；标准 profile 名称为 `web`。自定义 profile 使用其自身名称。
 2. 编辑该 `package.json` 的 `qilin.profile.bundles`。移除所有 `@qilin-agent/experimental-tool-worktree` 条目。若要通过统一开关保留工作树功能，添加一次 `@qilin-agent/experimental-forge-bundle`；若已选中它，则保留该条目。若要关闭两项功能，则移除这两个组合包名称。保留其他所有条目和字段。

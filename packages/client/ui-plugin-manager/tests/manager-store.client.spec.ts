@@ -504,6 +504,25 @@ describe('PluginManagerController', () => {
     await vi.waitFor(() => { expect(state().notice).toEqual({ kind: 'overridden', packageName: BUNDLE.name, seq: 2 }) })
   })
 
+  it('says once when a selection retired the bundles it supersedes, and stays quiet when none was retired', async () => {
+    const { face, state, controller } = bench({
+      setBundleEnabled: vi.fn()
+        .mockResolvedValueOnce(ok({ ...APPLIED, supersededBundles: ['dsh-old-worktree'] }))
+        .mockResolvedValueOnce(ok(APPLIED)),
+    })
+    await controller.load()
+    face.setEnabled(BUNDLE.name, true)
+    await vi.waitFor(() => {
+      expect(state().notice).toEqual({ kind: 'superseded', packageName: BUNDLE.name, label: BUNDLE.name, seq: 1 })
+    })
+    face.dismissNotice()
+    expect(state().notice).toBeNull()
+    // An applied change that retired nothing leaves no notice behind.
+    face.setEnabled(BUNDLE.name, true)
+    await vi.waitFor(() => { expect(state().busy).toEqual([]) })
+    expect(state().notice).toBeNull()
+  })
+
   it('turns a change the Host could not apply, or a refused answer, into a notice carrying its code and words', async () => {
     const { face, state, controller } = bench({
       setBundleEnabled: vi.fn()

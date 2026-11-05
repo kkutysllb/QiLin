@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 import {
-  EXPERIMENTAL_BUNDLES, EXTENSION_BUNDLES, HIDDEN_BUNDLES, MORE_BUNDLES, ON_DEMAND_BUNDLES,
+  EXPERIMENTAL_BUNDLES, EXTENSION_BUNDLES, HIDDEN_BUNDLES, MORE_BUNDLES, ON_DEMAND_BUNDLES, SUPERSEDED_BUNDLES,
   isExperimentalBundle, isHiddenBundle, isOnDemandBundle,
 } from '../src/index.ts'
 
@@ -34,6 +34,18 @@ describe('Official on-demand admission', () => {
   it('offers no on-demand bundle, so no page holds an on-demand affordance', () => {
     expect(ON_DEMAND_BUNDLES).toEqual([])
     for (const name of [...EXTENSION_BUNDLES, ...MORE_BUNDLES, ...HIDDEN_BUNDLES]) expect(isOnDemandBundle(name)).toBe(false)
+  })
+})
+
+describe('Superseded bundles', () => {
+  it('retires the standalone worktree bundle when the unified forge bundle is selected', () => {
+    expect(SUPERSEDED_BUNDLES).toEqual({
+      '@qilin-agent/experimental-forge-bundle': ['@qilin-agent/experimental-tool-worktree'],
+    })
+    for (const [replacing, retired] of Object.entries(SUPERSEDED_BUNDLES)) {
+      expect(isExperimentalBundle(replacing)).toBe(true)
+      for (const name of retired) expect(isExperimentalBundle(name)).toBe(true)
+    }
   })
 })
 

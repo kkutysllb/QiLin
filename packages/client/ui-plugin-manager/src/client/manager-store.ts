@@ -51,6 +51,16 @@ export type FailedAction = 'enable' | 'disable' | 'uninstall' | 'rowEnable' | 'r
 export type ManagerNotice =
   | { readonly kind: 'restart'; readonly packageName: string; readonly reason: RestartReason | undefined; readonly seq: number }
   | { readonly kind: 'overridden'; readonly packageName: string; readonly seq: number }
+  | {
+    readonly kind: 'superseded'
+    /** The bundle whose selection retired the others. */
+    readonly packageName: string
+    /** That bundle's display label, resolved when the notice was made. */
+    readonly label: string
+    /** Present when the change also waits for a restart; the sentence carries both facts. */
+    readonly restartReason?: RestartReason
+    readonly seq: number
+  }
   | { readonly kind: 'cancelled'; readonly seq: number }
   | { readonly kind: 'refresh-failed'; readonly seq: number }
   | { readonly kind: 'install'; readonly outcome: 'done' | 'failed' | 'unconfirmed' | 'applying' | 'unknown'; readonly seq: number }
@@ -786,6 +796,23 @@ export class PluginManagerController {
         void this.run(packageName, { packageName, action: enabled ? 'enable' : 'disable' }, async () => {
           const result = await this.ctx.remote.pluginManager.setBundleEnabled(packageName, enabled)
           this.applied(result, packageName)
+          // A selection that retired another bundle says so once; a restart it also needs is part of the same sentence.
+          const superseded = result.ok && (result.value.application === 'applied' || result.value.application === 'restart-required')
+            ? result.value.supersededBundles ?? []
+            : []
+          if (result.ok && superseded.length > 0) {
+            const labelOf = (name: string): string => {
+              const found = this.getSnapshot().packages.find(item => item.name === name)
+              return found?.meta?.title === undefined ? name : resolveText(found.meta.title)
+            }
+            this.patch({
+              notice: {
+                kind: 'superseded', packageName, label: labelOf(packageName),
+                ...result.value.application === 'restart-required' ? { restartReason: result.value.restartReason } : {},
+                seq: ++this.noticeSeq,
+              },
+            })
+          }
           if (result.ok && (result.value.application === 'applied' || result.value.application === 'restart-required')) this.trackToggle(packageName, enabled)
         })
       },

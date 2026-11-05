@@ -44,6 +44,9 @@ const { CATALOG_ENTRY } = vi.hoisted(() => ({
 vi.mock('@qilin-agent/app-boot', async importOriginal => ({
   ...await importOriginal<typeof import('@qilin-agent/app-boot')>(),
   OFFICIAL_ON_DEMAND_CATALOG: [CATALOG_ENTRY],
+  // The case below exercises the retirement mechanism with fixture bundles; the
+  // shipped map names the real pair and is pinned by the official-bundles spec.
+  SUPERSEDED_BUNDLES: { 'superseding-bundle': ['superseded-bundle'] },
 }))
 
 // These cases install through real Git and pnpm, so the host's command-line configuration group must not reach their children.
@@ -366,6 +369,33 @@ it('recomposes the remaining layers while another bundle is broken and mounts it
   expect(await manager.setBundleEnabled('another', false)).toMatchObject({ application: 'applied' })
   expect([...ctx.loader.entries()].find(entry => entry.id === 'include:managed')?.fiber?.state).toBe(2)
   expect((await manager.listBundles()).find(row => row.name === 'extra')?.error).toBeUndefined()
+})
+
+it('retires the bundle a selection supersedes, and never restores it', async () => {
+  const { manager, dir, bundle } = await fixture()
+  // Each fixture row provides its own probe service; the shared name belongs to `extra`.
+  bundle('superseding-bundle', [{ id: 'superseding-row', name: './plugin.mjs', config: { service: 'supersedingProbe' } }])
+  bundle('superseded-bundle', [{ id: 'superseded-row', name: './plugin.mjs', config: { service: 'supersededProbe' } }])
+  // The profile carries the superseded bundle while the replacing one is offered.
+  const manifest = readProfileManifest('test', dir)
+  manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles: ['core', 'extra', 'superseded-bundle'] } }
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  expect(await manager.setBundleEnabled('superseding-bundle', true)).toMatchObject({
+    changed: true, application: 'applied', supersededBundles: ['superseded-bundle'],
+  })
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra', 'superseding-bundle'])
+  // Selecting it again changes nothing, so it retires nothing.
+  const repeated = await manager.setBundleEnabled('superseding-bundle', true)
+  expect(repeated).toMatchObject({ changed: false, application: 'applied' })
+  expect(repeated.supersededBundles).toBeUndefined()
+  // Switching it off does not bring the superseded bundle back.
+  expect(await manager.setBundleEnabled('superseding-bundle', false)).toMatchObject({ changed: true, application: 'applied' })
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra'])
+  // A profile that never carried the superseded bundle keeps its selection as it was.
+  const absent = await manager.setBundleEnabled('superseding-bundle', true)
+  expect(absent).toMatchObject({ changed: true, application: 'applied' })
+  expect(absent.supersededBundles).toBeUndefined()
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra', 'superseding-bundle'])
 })
 
 it('lists bundle versions and current-profile plugin targets', async () => {

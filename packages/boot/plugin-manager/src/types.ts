@@ -168,6 +168,8 @@ export interface ChangeResult {
   error?: ManagementError
   /** Pre-existing inactive entries the operation left as they were. */
   warnings?: string[]
+  /** Bundles this selection removed because the selected bundle supersedes them; present only when at least one was removed. */
+  supersededBundles?: string[]
   packageResult?: PackageResult
   /** The bundle an installation added or replaced, once pnpm and the bundle check accepted it. */
   bundle?: string
