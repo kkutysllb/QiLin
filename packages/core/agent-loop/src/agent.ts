@@ -15,7 +15,7 @@ import type {
   PreStepDecision,
   RequestErrorAction,
 } from '@qilin-agent/agent'
-import { agentEvents, assembleContextFor } from '@qilin-agent/agent'
+import { agentEvents, assembleContextFor, deliverAtNextStep } from '@qilin-agent/agent'
 import type { GenerateOptions, LlmCallConfig, Message, PreparedLlmCall } from '@qilin-agent/llm'
 import {
   LlmError,
@@ -99,6 +99,13 @@ export class ReactLoopAgent implements Agent {
   readonly inbox: ReactLoopInbox
   private phase: Phase
   private activityDone: Promise<void> = Promise.resolve()
+  /**
+   * Steering accepted for the boundary that claims it. The loop splices these
+   * into the inbox immediately before a step claims its batch, so one boundary
+   * records the insertion and consumes it; a message never lands between an
+   * existing claim and the step it opens.
+   */
+  private readonly stagedStepInput: UserMessage[] = []
 
   /** The agent-scoped registration boundary; the lifecycle owner unwinds it after the driver exits. */
   readonly scope: Scope
@@ -168,12 +175,39 @@ export class ReactLoopAgent implements Agent {
     this.send(input, 'next-step', true)
   }
 
+  /**
+   * Stage steering for the pre-step that records and claims it together. An
+   * idle driver wakes and claims it in the turn's first step; a running driver
+   * splices it immediately before its next claim; a driver that closes first
+   * delivers it at the turn boundary and wakes.
+   * @param input - identified steering content and the source that supplied it.
+   */
+  [deliverAtNextStep](input: UserMessage): void {
+    // Waking input cannot join an aborted activity, so it starts the next turn.
+    if (this.phase.kind !== 'idle' && this.phase.abort.signal.aborted) {
+      this.send(input, 'next-turn', true)
+      return
+    }
+    this.stagedStepInput.push(input)
+    this.wakeDriver()
+  }
+
+  /**
+   * Move staged steering into the inbox so the pending step boundary records
+   * the insertion and claims it together.
+   */
+  private drainStagedStepInput(): void {
+    if (this.stagedStepInput.length === 0) return
+    this.inbox.splice('next-step', Infinity, 0, this.stagedStepInput.splice(0))
+  }
+
   inject(input: UserMessage): void {
     this.send(input, 'next-step', false)
   }
 
   cancel(cause: AgentCancelCause, options: CancelOptions = {}): void {
     if (!options.keepInbox) {
+      this.stagedStepInput.length = 0
       this.inbox.clear()
       if (this.phase.kind !== 'idle') this.phase.wakeRequested = false
     }
@@ -195,9 +229,11 @@ export class ReactLoopAgent implements Agent {
       try {
         return await job(maintenance.abort.signal)
       } finally {
-        this.setPhase({ kind: 'idle', lastTurn: maintenance.lastTurn })
+        const staged = this.stagedStepInput.length > 0
         const cause = abortedCancelCause(maintenance.abort.signal)
-        if (cause?.kind !== 'disposed' && maintenance.wakeRequested && this.inbox.hasPending) this.wakeDriver()
+        if (cause?.kind !== 'disposed') this.drainStagedStepInput()
+        this.setPhase({ kind: 'idle', lastTurn: maintenance.lastTurn })
+        if (staged || (cause?.kind !== 'disposed' && maintenance.wakeRequested && this.inbox.hasPending)) this.wakeDriver()
         done.resolve()
       }
     })()
@@ -258,8 +294,12 @@ export class ReactLoopAgent implements Agent {
       /* v8 ignore next -- kick owns a running phase until this driver boundary */
       if (this.phase.kind === 'running') {
         const { turn, wakeRequested } = this.phase
+        const cause = abortedCancelCause(this.phase.abort.signal)
+        // A turn that closed before another claim still owes these deliveries.
+        const staged = this.stagedStepInput.length > 0
+        if (cause?.kind !== 'disposed') this.drainStagedStepInput()
         this.setPhase({ kind: 'idle', lastTurn: turn })
-        if (wakeRequested && this.inbox.hasPending) this.wakeDriver()
+        if (staged || (cause?.kind !== 'disposed' && wakeRequested && this.inbox.hasPending)) this.wakeDriver()
       }
     }
   }
@@ -268,6 +308,7 @@ export class ReactLoopAgent implements Agent {
     /* v8 ignore next -- private callers establish the running phase before proposing a step */
     if (this.phase.kind !== 'running') throw new Error(`agent "${this.id}": pre-step outside running phase`)
     const signal = this.phase.abort.signal
+    this.drainStagedStepInput()
     const claimed = this.inbox.claim(target, position.turn)
     const assembly = await this.loopCtx.systemPrompt.assemble(assembleContextFor(this, signal))
     signal.throwIfAborted()
@@ -358,6 +399,9 @@ export class ReactLoopAgent implements Agent {
           this.session.append('step/end', { turn, step })
         }
         signal.throwIfAborted()
+        // Steering accepted during the step joins the next claim, so the turn
+        // it must extend stays open and the follow-up step consumes it.
+        this.drainStagedStepInput()
         if (turnEnds && this.inbox.nextStep.length === 0) {
           await this.dispatch.serial('agent/turn-stopping', { turn, signal })
           signal.throwIfAborted()

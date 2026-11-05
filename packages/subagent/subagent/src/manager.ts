@@ -10,7 +10,8 @@ import { randomUUID } from 'node:crypto'
 import { isAbsolute, resolve } from 'node:path'
 import type {} from '@qilin-agent/working-directory'
 import type { Context } from '@qilin-agent/kylin'
-import type { Agent, AgentOptions, CreateAgentOptions } from '@qilin-agent/agent'
+import type { Agent, AgentOptions, CreateAgentOptions, StepBoundaryDelivery } from '@qilin-agent/agent'
+import { deliverAtNextStep } from '@qilin-agent/agent'
 import { brandString } from '@qilin-agent/brand'
 import { ReasoningEffortId, contentHasImage, createUserMessage, errorChain } from '@qilin-agent/llm'
 import type { ContentBlock, MessageId, MessageSource } from '@qilin-agent/llm'
@@ -880,8 +881,19 @@ export class SubagentManager {
     return this.deliverToChild(parent, childId, content, { source, signal, delivery: 'steer' })
   }
 
-  /** Admit local input synchronously before any teardown can begin. */
-  private deliver(activation: Activation, message: UserMessage, delivery: SubagentDelivery): void {
+  /**
+   * Admit local input synchronously before any teardown can begin.
+   * @param activation - resident activation whose agent receives the message.
+   * @param message - durable user message to deliver.
+   * @param delivery - receiving inbox destination.
+   * @param atStep - whether a running receiver records the message at the step boundary that claims it.
+   */
+  private deliver(
+    activation: Activation,
+    message: UserMessage,
+    delivery: SubagentDelivery,
+    atStep = false,
+  ): void {
     if (activation.closing !== undefined) {
       throw new SubagentError(
         'subagent activation is being disposed; the message was not accepted',
@@ -892,7 +904,8 @@ export class SubagentManager {
     if (local.structured?.acceptsInput() === false) {
       throw new SubagentError('subagent is submitting or has submitted its structured result; the message was not accepted', 'INPUT_CLOSED')
     }
-    if (delivery === 'steer') local.handle.agent.steer(message)
+    if (atStep) this.deliverAtStepBoundary(local.handle.agent, message)
+    else if (delivery === 'steer') local.handle.agent.steer(message)
     else local.handle.agent.followup(message)
   }
 
@@ -943,19 +956,38 @@ export class SubagentManager {
    * @param parent - exact live Agent receiving the message.
    * @param message - durable user message to deliver.
    * @param delivery - receiving inbox destination.
+   * @param atStep - whether a running receiver records the message at the step boundary that claims it.
    */
-  private sendWaking(parent: Agent, message: UserMessage, delivery: SubagentDelivery): void {
+  private sendWaking(
+    parent: Agent,
+    message: UserMessage,
+    delivery: SubagentDelivery,
+    atStep = false,
+  ): void {
     const parentActivation = this.resident.get(parent.id)
     if (parentActivation !== undefined && activationAgent(parentActivation) === parent) {
       try {
-        this.deliver(parentActivation, message, delivery)
+        this.deliver(parentActivation, message, delivery, atStep)
       } finally {
         this.wake(parentActivation)
       }
       return
     }
-    if (delivery === 'steer') parent.steer(message)
+    if (atStep) this.deliverAtStepBoundary(parent, message)
+    else if (delivery === 'steer') parent.steer(message)
     else parent.followup(message)
+  }
+
+  /**
+   * Deliver steering that a running Agent records at the step boundary claiming
+   * it. A host without the hook keeps the immediate steer recorded at call time.
+   * @param target - exact live Agent receiving the message.
+   * @param message - durable user message to deliver.
+   */
+  private deliverAtStepBoundary(target: Agent, message: UserMessage): void {
+    const host = (target as Agent & Partial<StepBoundaryDelivery>)[deliverAtNextStep]
+    if (host === undefined) target.steer(message)
+    else host.call(target, message)
   }
 
   /**
@@ -1712,7 +1744,11 @@ export class SubagentManager {
     message: ReturnType<typeof createUserMessage>,
   ): void {
     try {
-      this.sendWaking(parent, message, 'steer')
+      // A running parent records the relay at the step boundary that claims it,
+      // so the durable insertion keeps one position instead of racing the
+      // opening of a step it cannot join. An idle parent keeps the immediate
+      // waking delivery.
+      this.sendWaking(parent, message, 'steer', parent.status === 'running')
     } catch (error: unknown) {
       throw new SubagentError(
         'direct parent is not live; the message was not delivered',

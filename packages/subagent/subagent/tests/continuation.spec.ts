@@ -2941,6 +2941,73 @@ describe('continuable adjacent-Agent delivery', () => {
     })
   })
 
+  it('records a running direct parent relay at the step boundary that claims it', async () => {
+    const releaseChild = Promise.withResolvers<undefined>()
+    const releaseParent = Promise.withResolvers<undefined>()
+    const adapter = new GatedAdapter([
+      { chunks: textResponse('child answer'), gate: releaseChild.promise },
+      { chunks: textResponse('parent first step'), gate: releaseParent.promise },
+      { chunks: textResponse('parent second step') },
+      { chunks: textResponse('parent settlement ack') },
+    ])
+    const { ctx, parent } = await setupWith(adapter)
+    const started = await ctx.subagents.startActivation({ ...startSpec(parent), delivery: 'parent' })
+    await vi.waitFor(() => {
+      expect(adapter.requests.filter(request => request.sessionId === started.childId)).toHaveLength(1)
+    })
+    const child = ctx.agents.get(started.childId)
+    expect(child).toBeDefined()
+
+    let stepStarts = 0
+    let stepEnds = 0
+    const firstStepStarted = Promise.withResolvers<undefined>()
+    const secondStepEnded = Promise.withResolvers<undefined>()
+    ctx.on('session/event', (session, event) => {
+      if (session !== parent.session) return
+      if (event.type === 'step/start') {
+        stepStarts += 1
+        if (stepStarts === 1) firstStepStarted.resolve(undefined)
+      }
+      if (event.type === 'step/end') {
+        stepEnds += 1
+        if (stepEnds === 2) secondStepEnded.resolve(undefined)
+      }
+    })
+    parent.followup(createUserMessage({ content: message('parent task'), source: { kind: 'user' } }))
+    await firstStepStarted.promise
+
+    // The parent is inside a step, so the relay cannot join its claimed batch.
+    const messageId = await ctx.subagents.sendMessage(child!, parent.id, message('an explicit message'), {
+      signal: testSignal,
+    })
+    expect(parent.session.snapshotEvents().some(event => event.type === 'agent/inbox/spliced'
+      && event.data.inserted.some(inserted => inserted.id === messageId))).toBe(false)
+
+    releaseParent.resolve(undefined)
+    await secondStepEnded.promise
+
+    const events = parent.session.snapshotEvents()
+    const insertedAt = events.findIndex(event => event.type === 'agent/inbox/spliced'
+      && event.data.inserted.some(inserted => inserted.id === messageId))
+    const claimedAt = events.findIndex((event, index) => index > insertedAt
+      && event.type === 'agent/inbox/spliced' && event.data.inserted.length === 0)
+    const stepStartAt = events.findIndex((event, index) => index > claimedAt && event.type === 'step/start')
+    const admittedAt = events.findIndex(event => event.type === 'user/message' && event.data.id === messageId)
+    // One boundary records the insertion and claims it: the step closed first,
+    // then the insertion, then the claim that consumes it opens the next step.
+    expect(events[insertedAt - 1]?.type).toBe('step/end')
+    expect(claimedAt).toBeGreaterThan(insertedAt)
+    expect(stepStartAt).toBeGreaterThan(claimedAt)
+    expect(admittedAt).toBeGreaterThan(stepStartAt)
+    expect(events[admittedAt]).toMatchObject({
+      type: 'user/message',
+      data: { source: { kind: 'agent-message', senderSessionId: started.childId } },
+    })
+
+    releaseChild.resolve(undefined)
+    await waitNoActivation(ctx, started.childId)
+  })
+
   it.each(['absent', 'replaced'] as const)('rejects child-to-parent delivery when the direct parent is %s', async (state) => {
     const releaseChild = Promise.withResolvers<undefined>()
     const adapter = new GatedAdapter([

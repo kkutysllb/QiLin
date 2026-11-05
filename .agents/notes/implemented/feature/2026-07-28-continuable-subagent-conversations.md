@@ -117,7 +117,7 @@ The shared `sendMessage(sender, targetId, content, options)` service operation a
 
 ### Agent and human scheduling
 
-Every accepted Agent message uses `Agent.steer()`. A running target claims it at the nearest step boundary; an idle or cold-resumed target starts a turn. Browser-authored human input separately carries `delivery: 'queue' | 'steer'` through `subagent.prompt`: Queue opens a later FIFO turn, while Steer uses the same best-effort nearest-step scheduling without changing the message's human source. The public service exposes no caller-selectable scheduling mode for Agent messages.
+Every accepted Agent message reaches a running target at its nearest step boundary through the loop's `deliverAtNextStep` host hook, which stages the message and splices it immediately before the claim that consumes it, so the durable insertion and the step it joins share one boundary and the log position never depends on when the message arrived inside the preceding step; a host without the hook falls back to `Agent.steer()`, which records the insertion at call time. An idle or cold-resumed target starts a turn. Browser-authored human input separately carries `delivery: 'queue' | 'steer'` through `subagent.prompt`: Queue opens a later FIFO turn, while Steer uses the same best-effort nearest-step scheduling without changing the message's human source. The public service exposes no caller-selectable scheduling mode for Agent messages.
 
 ### Authority and recorded sender identity
 
