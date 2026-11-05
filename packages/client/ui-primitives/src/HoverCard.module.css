@@ -6,12 +6,12 @@
 }
 
 /* Preview card (figma session hover card): 244 wide, r12, pad 12/16, the
- * menu card's elevation. Surface is #2C2C2E in both themes (figma value,
- * light/dark identical), so a component-level variable, not a theme token.
+ * menu card's elevation. The surface token is scheme-independent (#2c2c2e in
+ * both themes, figma value) and lives in ui-theme's design platform, where the
+ * dsh-era compat alias reads it too.
  * Hit-testable on purpose: resting the pointer on the card holds it open
  * (HoverCard's grace close), which a `pointer-events: none` card cannot do. */
 .card {
-  --qilin-hovercard-bg: #2C2C2E;
   position: fixed;
   z-index: 100;
   box-sizing: border-box;

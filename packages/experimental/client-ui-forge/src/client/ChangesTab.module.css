@@ -430,15 +430,15 @@
 }
 
 .add {
-  --forge-diff-gutter: var(--dsw-alias-file-diff-added-gutter);
-  --forge-diff-marker: var(--dsw-alias-file-diff-added-marker);
-  background: var(--dsw-alias-file-diff-added-bg);
+  --forge-diff-gutter: var(--qilin-alias-file-diff-added-gutter);
+  --forge-diff-marker: var(--qilin-alias-file-diff-added-marker);
+  background: var(--qilin-alias-file-diff-added-bg);
 }
 
 .del {
-  --forge-diff-gutter: var(--dsw-alias-file-diff-deleted-gutter);
-  --forge-diff-marker: var(--dsw-alias-file-diff-deleted-marker);
-  background: var(--dsw-alias-file-diff-deleted-bg);
+  --forge-diff-gutter: var(--qilin-alias-file-diff-deleted-gutter);
+  --forge-diff-marker: var(--qilin-alias-file-diff-deleted-marker);
+  background: var(--qilin-alias-file-diff-deleted-bg);
 }
 
 .add .number,

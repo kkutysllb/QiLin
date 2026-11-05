@@ -58,7 +58,7 @@
 }
 
 .hoverIcon[data-tone='merged'] {
-  color: var(--dsw-static-violet-400);
+  color: var(--qilin-static-violet-400);
 }
 
 .hoverIcon[data-tone='closed'] {

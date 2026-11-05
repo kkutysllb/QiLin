@@ -75,6 +75,8 @@ body {
   --qilin-static-red-50: rgb(254, 242, 242);
   --qilin-static-red-600: rgb(236, 19, 19);
   --qilin-static-red-900: rgb(87, 12, 12);
+  --qilin-static-violet-400: rgb(167, 139, 250);
+  --qilin-static-violet-600: rgb(124, 58, 237);
 }
 
 body[data-ds-dark-theme] {
@@ -151,6 +153,8 @@ body[data-ds-dark-theme] {
   --qilin-static-red-50: rgb(254, 242, 242);
   --qilin-static-red-600: rgb(236, 19, 19);
   --qilin-static-red-900: rgb(87, 12, 12);
+  --qilin-static-violet-400: rgb(167, 139, 250);
+  --qilin-static-violet-600: rgb(124, 58, 237);
 }
 
 body {
@@ -160,6 +164,7 @@ body {
   --qilin-alias-bg-layer-1: var(--qilin-static-neutral-bluish-00);
   --qilin-alias-bg-layer-2: var(--qilin-static-neutral-bluish-00);
   --qilin-alias-bg-layer-3: var(--qilin-static-neutral-bluish-00);
+  --qilin-alias-bg-layer-4: var(--qilin-static-neutral-bluish-75);
   --qilin-alias-bg-mask-1: rgba(0, 0, 0, 0.24);
   --qilin-alias-bg-mask-2: rgba(0, 0, 0, 0.12);
   --qilin-alias-bg-mask-3: rgba(0, 0, 0, 0.48);
@@ -230,6 +235,12 @@ body {
   --qilin-alias-markdown-inline-code: var(--qilin-static-neutral-50);
   --qilin-alias-markdown-placeholder: var(--qilin-static-neutral-bluish-60);
   --qilin-alias-markdown-tag: var(--qilin-static-neutral-bluish-75);
+  --qilin-alias-file-diff-added-bg: rgb(230, 244, 231);
+  --qilin-alias-file-diff-added-gutter: rgb(237, 247, 237);
+  --qilin-alias-file-diff-added-marker: rgb(1, 162, 65);
+  --qilin-alias-file-diff-deleted-bg: rgb(252, 230, 226);
+  --qilin-alias-file-diff-deleted-gutter: rgb(253, 236, 233);
+  --qilin-alias-file-diff-deleted-marker: rgb(186, 39, 35);
   --qilin-alias-scrollbar-bg-l1: var(--qilin-static-neutral-200);
   --qilin-alias-scrollbar-bg-l2: var(--qilin-static-neutral-200);
   --qilin-alias-scrollbar-hover-l1: var(--qilin-static-neutral-300);
@@ -245,6 +256,7 @@ body {
   --qilin-alias-state-warn-primary: var(--qilin-static-amber-500);
   --qilin-alias-state-warn-secondary: var(--qilin-static-amber-400);
   --qilin-alias-state-warn-tertiary: var(--qilin-static-amber-100);
+  --qilin-alias-state-done-primary: var(--qilin-static-violet-600);
   --qilin-alias-toast-bg: var(--qilin-static-neutral-bluish-800);
   --qilin-alias-tooltip-bg: var(--qilin-static-neutral-bluish-850);
   --qilin-alias-tooltip-key-bg: color-mix(in srgb, var(--qilin-alias-tooltip-bg), white 18%);
@@ -271,6 +283,7 @@ body[data-ds-dark-theme] {
   --qilin-alias-bg-layer-1: var(--qilin-static-neutral-bluish-875);
   --qilin-alias-bg-layer-2: var(--qilin-static-neutral-bluish-850);
   --qilin-alias-bg-layer-3: var(--qilin-static-neutral-bluish-800);
+  --qilin-alias-bg-layer-4: var(--qilin-static-neutral-bluish-750);
   --qilin-alias-bg-mask-1: rgba(0, 0, 0, 0.5);
   --qilin-alias-bg-mask-2: rgba(0, 0, 0, 0.2);
   --qilin-alias-bg-mask-3: rgba(0, 0, 0, 0.48);
@@ -341,6 +354,12 @@ body[data-ds-dark-theme] {
   --qilin-alias-markdown-inline-code: var(--qilin-static-neutral-800);
   --qilin-alias-markdown-placeholder: var(--qilin-static-neutral-bluish-850);
   --qilin-alias-markdown-tag: var(--qilin-static-neutral-bluish-850);
+  --qilin-alias-file-diff-added-bg: rgb(31, 49, 36);
+  --qilin-alias-file-diff-added-gutter: rgb(19, 32, 22);
+  --qilin-alias-file-diff-added-marker: rgb(65, 201, 119);
+  --qilin-alias-file-diff-deleted-bg: rgb(60, 31, 27);
+  --qilin-alias-file-diff-deleted-gutter: rgb(40, 19, 14);
+  --qilin-alias-file-diff-deleted-marker: rgb(250, 66, 62);
   --qilin-alias-scrollbar-bg-l1: var(--qilin-static-neutral-700);
   --qilin-alias-scrollbar-bg-l2: var(--qilin-static-neutral-600);
   --qilin-alias-scrollbar-hover-l1: var(--qilin-static-neutral-600);
@@ -356,6 +375,7 @@ body[data-ds-dark-theme] {
   --qilin-alias-state-warn-primary: var(--qilin-static-amber-500);
   --qilin-alias-state-warn-secondary: var(--qilin-static-amber-400);
   --qilin-alias-state-warn-tertiary: var(--qilin-static-amber-900);
+  --qilin-alias-state-done-primary: var(--qilin-static-violet-400);
   --qilin-alias-toast-bg: var(--qilin-static-neutral-bluish-750);
   --qilin-alias-tooltip-bg: var(--qilin-static-neutral-bluish-750);
   --qilin-alias-tooltip-key-bg: color-mix(in srgb, var(--qilin-alias-tooltip-bg), white 18%);
@@ -381,3 +401,71 @@ body[data-ds-dark-theme] {
 /* Document text-selection visibility in Office/PDF previews across themes. */
 [data-theme='light'] { --qilin-alias-bg-document-selection: rgba(101, 142, 255, 0.32); }
 [data-theme='dark'] { --qilin-alias-bg-document-selection: rgba(101, 142, 255, 0.45); }
+
+/* Upstream-generation aliases. Two naming generations reach these names: the
+   dsh-era `--dsw-*` vocabulary aliased by dsw-compat.css, and components
+   ported from that generation, which read the `--qilin-*` spelling directly.
+   Every entry resolves to a token the scheme blocks above already own, so a
+   palette change stays in one place; the names carry no colors of their own. */
+body {
+  /* Text levels the old vocabulary numbered 1..4. */
+  --qilin-alias-text-1: var(--qilin-alias-label-primary);
+  --qilin-alias-text-2: var(--qilin-alias-label-secondary);
+  --qilin-alias-text-3: var(--qilin-alias-label-tertiary);
+  --qilin-alias-text-primary: var(--qilin-alias-label-primary);
+  --qilin-alias-label-quaternary: var(--qilin-alias-label-caption);
+  --qilin-alias-label-error: var(--qilin-alias-state-error-primary);
+  --qilin-alias-text-link: var(--qilin-alias-link);
+  --qilin-alias-fg: var(--qilin-alias-label-primary);
+  --qilin-alias-menu-icon: var(--qilin-alias-label-secondary);
+  --qilin-alias-separator-primary: var(--qilin-alias-label-caption);
+  --qilin-alias-state-warning-primary: var(--qilin-alias-state-warn-primary);
+  --qilin-alias-state-business-primary-weak: var(--qilin-alias-state-business-tertiary);
+
+  /* Surfaces and fills. The layer-4 step, the file-diff palette, and the done
+     state own scheme values above; these entries are pure indirections. */
+  --qilin-alias-bg: var(--qilin-alias-bg-base);
+  --qilin-alias-bg-l1: var(--qilin-alias-bg-layer-1);
+  --qilin-alias-bg-l2: var(--qilin-alias-bg-layer-2);
+  --qilin-alias-bg-layer-0: var(--qilin-alias-bg-base);
+  --qilin-alias-surface-raised: var(--qilin-alias-bg-layer-2);
+  --qilin-alias-scrim: var(--qilin-alias-bg-mask-1);
+  --qilin-alias-fill-l1: var(--qilin-alias-interactive-bg-hover);
+  --qilin-alias-fill-l2: var(--qilin-alias-interactive-bg-active);
+  --qilin-alias-fill-tertiary: var(--qilin-alias-interactive-bg-hover);
+  --qilin-alias-fill-tsp-secondary: var(--qilin-alias-bg-skeleton);
+  --qilin-alias-interactive-bg-default: var(--qilin-alias-interactive-bg-hover);
+  --qilin-alias-border-l: var(--qilin-alias-border-l2);
+  --qilin-alias-settings-card-fill: var(--qilin-alias-bg-layer-2);
+  --qilin-alias-settings-card-stroke: var(--qilin-alias-border-l4);
+
+  /* The `color-*` generation: text, surfaces, and borders by role. */
+  --qilin-color-text-primary: var(--qilin-alias-label-primary);
+  --qilin-color-text-secondary: var(--qilin-alias-label-secondary);
+  --qilin-color-text-accent: var(--qilin-alias-link);
+  --qilin-color-text-accent-contrast: var(--qilin-alias-label-primary-foreground);
+  --qilin-color-bg-primary: var(--qilin-specific-input-major);
+  --qilin-color-bg-subtle: var(--qilin-alias-bg-skeleton);
+  --qilin-color-bg-accent: var(--qilin-alias-brand-primary);
+  --qilin-color-bg-accent-subtle: var(--qilin-specific-sidebar-nav-item-active-accent);
+  --qilin-color-border-primary: var(--qilin-alias-border-l2);
+  --qilin-color-border-accent: var(--qilin-alias-state-business-primary);
+
+  /* Type and spacing scale the old vocabulary expected. The text entries alias
+     the scale gradient-shadow-text.css owns; the palette has no spacing scale,
+     so the 4px step is declared here. */
+  --qilin-font: var(--qilin-font-family);
+  --qilin-font-mono: var(--ds-font-family-code);
+  --qilin-font-size-sm: var(--qilin-font-xs-13-font-size);
+  --qilin-font-size-xs: var(--qilin-font-xxs-12-font-size);
+  --qilin-font-sm-13: var(--qilin-font-xs-13);
+  --qilin-font-xs-12: var(--qilin-font-xxs-12);
+  --qilin-font-xs-strong-12: var(--qilin-font-xxs-strong-12);
+  --qilin-space-1: 4px;
+  --qilin-space-2: 8px;
+  --qilin-space-3: 12px;
+
+  /* The hover card surface is #2c2c2e in both schemes (figma value), so its
+     token is scheme-independent; the card component reads it from here. */
+  --qilin-hovercard-bg: #2c2c2e;
+}

@@ -63,6 +63,8 @@ Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-`
 
 `src/styles/` 下有七张样式表，由 ui-theme 的动态客户端 entry 依次导入：`base.css`、`corner-shape.css`、`design-platform.css`、`focus.css`、`scrollbar.css`、`gradient-shadow-text.css` 与 `shiki.css`。客户端 bundle 将其编译并注入为插件持有的全局样式，因此卸载与 HMR 会随 ui-theme 一同移除。`scrollbar.css` 是 `--qilin-alias-scrollbar-*` token 的唯一消费方，必须排在声明这些 token 的 `design-platform.css` 之后。
 
+`design-platform.css` 同时承载上游世代的别名。两代命名仍在读取这套调色板：`dsw-compat.css` 镜像的 dsh 时代 `--dsw-*` 词汇，以及从那一代移植、直接读 `--qilin-*` 拼写的组件。每个名字都解析到方案块已经拥有的 token，因此调色板变更仍只有一处；需要按明暗取值的条目——第四级背景层、文件 diff 调色板、done 状态与 violet 静态色——与同类条目一起放在明暗两个块里。两条机检门把词汇表封闭起来：`tests/compat-alias-resolution.client.spec.ts` 要求每条 compat 别名都能解析且不留白名单；`tests/token-resolution.client.spec.ts` 拒绝客户端源码中任何既无 fallback 又无定义的 `var()`，其解析来源包括主题表、组件表、客户端程序注入的 token，以及唯一一份具名 vendor 清单（pdf.js 的 `--min-font-size`）。
+
 [`focus.css`](src/styles/focus.css) 为 `:focus-visible` 提供兜底声明，通过 `var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary))` 指名环色、通过 `--qilin-focus-ring-width` 指名标准宽度，但从不指名 outline 样式——自行禁用 outline 的控件保持不绘制，未声明环的控件保持标准几何而不是 Chromium 的 `auto 1px`。两套调色板都把该蓝色解析为一致取值；组件 outline 与 focus-ring 阴影使用同一颜色表达式，包括绘制在后代与伪元素上的环。`--qilin-focus-ring-width`（2px）是标准宽度；稠密表格与工具栏可以保留 1px，偏移量仍由组件自己决定。
 
 指针模态下，`html[data-input-modality='pointer'] body :focus-visible:not(:read-write)` 把环色设为透明。后代与伪元素继承该值；该规则不清除 `box-shadow`，因此 elevation 与选中态边框不受环可见性影响。匹配 `:read-write` 的可编辑文本控件在点击时保留自己的焦点反馈。[输入模态](../ui-primitives/README.zh.md#input-modality)决定键盘焦点样式何时恢复；它不会移动 DOM 焦点。

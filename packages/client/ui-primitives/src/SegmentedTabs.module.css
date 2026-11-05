@@ -1,4 +1,7 @@
 .tabs {
+  /* The indicator's inline width subtracts this inset twice; it matches the
+     track's own padding so the sliding pill spans the padded content box. */
+  --segmented-tabs-inset: 4px;
   position: relative;
   display: grid;
   padding: 4px;

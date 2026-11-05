@@ -5,71 +5,23 @@
  * failure mode the menu material hit when its fill and blur tokens were renamed
  * to unused upstream names.
  */
-import { readdirSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { parseRules } from './stylesheet-scan.ts'
+import { programTokens, themeTokens } from './token-resolution.ts'
 
 /** Stylesheet directory the theme package owns. */
 const STYLES_DIR = fileURLToPath(new URL('../src/styles/', import.meta.url))
 
 /**
- * Compat aliases with no token definition in this client. Most are upstream
- * vocabulary this palette never carried; `--qilin-hovercard-bg` is owned by the
- * ui-primitives hover card sheet, and `--qilin-specific-brand-seal-fill` by the
- * skin pack. The resolution assertion fails when this set changes, so a new
- * entry here is a decision rather than a place to silence a missing token.
+ * Compat aliases with no resolvable target. Empty by contract: the compat sheet
+ * mirrors the dsh-era vocabulary, so every alias must land on a token the
+ * palette sheets define or a client program injects. A new entry here is a
+ * missing definition, not a place to silence one.
  */
-const UNRESOLVED_COMPAT_TARGETS = [
-  '--qilin-alias-bg',
-  '--qilin-alias-bg-l1',
-  '--qilin-alias-bg-l2',
-  '--qilin-alias-bg-layer-0',
-  '--qilin-alias-bg-layer-4',
-  '--qilin-alias-border-l',
-  '--qilin-alias-fg',
-  '--qilin-alias-fill-l1',
-  '--qilin-alias-fill-l2',
-  '--qilin-alias-fill-tertiary',
-  '--qilin-alias-fill-tsp-secondary',
-  '--qilin-alias-interactive-bg-default',
-  '--qilin-alias-label-error',
-  '--qilin-alias-label-quaternary',
-  '--qilin-alias-menu-icon',
-  '--qilin-alias-scrim',
-  '--qilin-alias-separator-primary',
-  '--qilin-alias-state-business-primary-weak',
-  '--qilin-alias-state-warning-primary',
-  '--qilin-alias-surface-raised',
-  '--qilin-alias-text-1',
-  '--qilin-alias-text-2',
-  '--qilin-alias-text-3',
-  '--qilin-alias-text-link',
-  '--qilin-alias-text-primary',
-  '--qilin-color-bg-accent',
-  '--qilin-color-bg-accent-subtle',
-  '--qilin-color-bg-primary',
-  '--qilin-color-bg-subtle',
-  '--qilin-color-border-accent',
-  '--qilin-color-border-primary',
-  '--qilin-color-text-accent',
-  '--qilin-color-text-accent-contrast',
-  '--qilin-color-text-primary',
-  '--qilin-color-text-secondary',
-  '--qilin-font',
-  '--qilin-font-mono',
-  '--qilin-font-size-sm',
-  '--qilin-font-size-xs',
-  '--qilin-font-sm-13',
-  '--qilin-font-xs-12',
-  '--qilin-font-xs-strong-12',
-  '--qilin-hovercard-bg',
-  '--qilin-space-1',
-  '--qilin-space-2',
-  '--qilin-space-3',
-  '--qilin-specific-brand-seal-fill',
-]
+const UNRESOLVED_COMPAT_TARGETS: readonly string[] = []
 
 /**
  * Every `--dsw-X: var(--qilin-Y)` alias the compat sheet declares.
@@ -82,16 +34,12 @@ function compatAliases(): Map<string, string> {
 }
 
 /**
- * Custom properties every shipped theme sheet defines.
- * @returns the defined token names.
+ * Custom properties the theme sheets define plus the ones client programs
+ * inject, such as the brand pack's skin tokens.
+ * @returns the resolvable token names.
  */
 function definedTokens(): Set<string> {
-  const defined = new Set<string>()
-  for (const name of readdirSync(STYLES_DIR).filter(file => file.endsWith('.css'))) {
-    const css = readFileSync(join(STYLES_DIR, name), 'utf8')
-    for (const [, token = ''] of css.matchAll(/(--qilin-[\w-]+)\s*:/g)) defined.add(token)
-  }
-  return defined
+  return new Set([...themeTokens(), ...programTokens()])
 }
 
 /**
@@ -134,5 +82,31 @@ describe('menu glass tokens', () => {
 
     const gradient = declarationsBySelector(readFileSync(join(STYLES_DIR, 'gradient-shadow-text.css'), 'utf8'))
     expect(gradient.get('body')?.get('--qilin-menu-backdrop-filter')).toBe('blur(40px) saturate(150%)')
+  })
+})
+
+describe('file-diff, done-state, and violet vocabulary', () => {
+  it('resolves the compat aliases and keeps the forge sheets on the palette spelling', () => {
+    const aliases = compatAliases()
+    const defined = definedTokens()
+    for (const part of ['added-bg', 'added-gutter', 'added-marker', 'deleted-bg', 'deleted-gutter', 'deleted-marker']) {
+      const alias = `--dsw-alias-file-diff-${part}`
+      expect(aliases.get(alias)).toBe(`--qilin-alias-file-diff-${part}`)
+      expect(defined.has(`--qilin-alias-file-diff-${part}`)).toBe(true)
+    }
+    expect(aliases.get('--dsw-alias-state-done-primary')).toBe('--qilin-alias-state-done-primary')
+    expect(aliases.get('--dsw-static-violet-400')).toBe('--qilin-static-violet-400')
+    expect(defined.has('--qilin-static-violet-400')).toBe(true)
+
+    // The ported forge sheets read the palette spelling directly; the compat
+    // aliases stay a compatibility surface for dsh-era plugin sheets.
+    const changes = readFileSync(new URL('../../../experimental/client-ui-forge/src/client/ChangesTab.module.css', import.meta.url), 'utf8')
+    expect(changes).toContain('var(--qilin-alias-file-diff-added-bg)')
+    expect(changes).not.toContain('--dsw-alias-file-diff-')
+    const forge = readFileSync(new URL('../../../experimental/client-ui-forge/src/client/ForgeTab.module.css', import.meta.url), 'utf8')
+    expect(forge).toContain('var(--qilin-alias-state-done-primary)')
+    expect(forge).not.toContain('--dsw-alias-state-done-primary')
+    const sessions = readFileSync(new URL('../../../experimental/client-ui-forge/src/client/SessionList.module.css', import.meta.url), 'utf8')
+    expect(sessions).not.toContain('--dsw-static-violet-400')
   })
 })

@@ -63,6 +63,12 @@ body {
   --dsw-alias-fill-l2: var(--qilin-alias-fill-l2);
   --dsw-alias-fill-tertiary: var(--qilin-alias-fill-tertiary);
   --dsw-alias-fill-tsp-secondary: var(--qilin-alias-fill-tsp-secondary);
+  --dsw-alias-file-diff-added-bg: var(--qilin-alias-file-diff-added-bg);
+  --dsw-alias-file-diff-added-gutter: var(--qilin-alias-file-diff-added-gutter);
+  --dsw-alias-file-diff-added-marker: var(--qilin-alias-file-diff-added-marker);
+  --dsw-alias-file-diff-deleted-bg: var(--qilin-alias-file-diff-deleted-bg);
+  --dsw-alias-file-diff-deleted-gutter: var(--qilin-alias-file-diff-deleted-gutter);
+  --dsw-alias-file-diff-deleted-marker: var(--qilin-alias-file-diff-deleted-marker);
   --dsw-alias-interactive-bg-active: var(--qilin-alias-interactive-bg-active);
   --dsw-alias-interactive-bg-default: var(--qilin-alias-interactive-bg-default);
   --dsw-alias-interactive-bg-hover: var(--qilin-alias-interactive-bg-hover);
@@ -101,9 +107,12 @@ body {
   --dsw-alias-scrollbar-hover-l1: var(--qilin-alias-scrollbar-hover-l1);
   --dsw-alias-scrollbar-hover-l2: var(--qilin-alias-scrollbar-hover-l2);
   --dsw-alias-separator-primary: var(--qilin-alias-separator-primary);
+  --dsw-alias-settings-card-fill: var(--qilin-alias-settings-card-fill);
+  --dsw-alias-settings-card-stroke: var(--qilin-alias-settings-card-stroke);
   --dsw-alias-state-business-primary: var(--qilin-alias-state-business-primary);
   --dsw-alias-state-business-primary-weak: var(--qilin-alias-state-business-primary-weak);
   --dsw-alias-state-business-tertiary: var(--qilin-alias-state-business-tertiary);
+  --dsw-alias-state-done-primary: var(--qilin-alias-state-done-primary);
   --dsw-alias-state-error-primary: var(--qilin-alias-state-error-primary);
   --dsw-alias-state-error-secondary: var(--qilin-alias-state-error-secondary);
   --dsw-alias-state-success-primary: var(--qilin-alias-state-success-primary);
@@ -436,4 +445,5 @@ body {
   --dsw-static-red-500: var(--qilin-static-red-500);
   --dsw-static-red-600: var(--qilin-static-red-600);
   --dsw-static-red-900: var(--qilin-static-red-900);
+  --dsw-static-violet-400: var(--qilin-static-violet-400);
 }

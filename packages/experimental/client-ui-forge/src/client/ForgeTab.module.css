@@ -310,7 +310,7 @@
 }
 
 .tinted[data-tone='merged'] {
-  color: var(--dsw-alias-state-done-primary);
+  color: var(--qilin-alias-state-done-primary);
 }
 
 .tinted[data-tone='closed'] {
@@ -370,7 +370,7 @@
 }
 
 .finished[data-tone='merged'] {
-  color: var(--dsw-alias-state-done-primary);
+  color: var(--qilin-alias-state-done-primary);
 }
 
 /* Read failure or unsupported host below the head, with its one action. */
@@ -463,7 +463,7 @@
 }
 
 .rowValue[data-tone='merged'] {
-  color: var(--dsw-alias-state-done-primary);
+  color: var(--qilin-alias-state-done-primary);
 }
 
 .rowValue[data-tone='closed'] {

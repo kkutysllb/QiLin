@@ -88,7 +88,7 @@
 }
 
 .running {
-  color: var(--qilin-color-text-accent);
+  color: var(--qilin-alias-label-running);
 }
 
 .transcript {
@@ -124,7 +124,7 @@
 }
 
 .user {
-  background: var(--qilin-color-bg-accent-subtle);
+  background: var(--qilin-specific-bubble);
 }
 
 .boundary {

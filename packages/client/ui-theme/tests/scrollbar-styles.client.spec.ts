@@ -80,6 +80,21 @@ const BASE_SURFACE_SCROLLERS: readonly {
     selector: '.wizardScroll',
     reason: 'The wizard step scroller draws on the dialog body, a base rung below the elevated card the sheet paints.',
   },
+  {
+    file: 'ui-sidebar-terminal/src/client/terminal.module.css',
+    selector: '.empty',
+    reason: 'The empty-state scroller draws on the panel background; the l2 status and error rows the same sheet paints are siblings, not its background.',
+  },
+  {
+    file: 'ui-sidechat/src/client/SidechatBody.module.css',
+    selector: '.rail',
+    reason: 'The roster rail draws on the side-chat panel background; the tinted selected row is a descendant, not its background.',
+  },
+  {
+    file: 'ui-sidechat/src/client/SidechatBody.module.css',
+    selector: '.entries',
+    reason: 'The transcript scroller draws on the side-chat panel background; user bubbles are descendants, not its background.',
+  },
 ]
 
 /** The classifications naming one stylesheet. */
