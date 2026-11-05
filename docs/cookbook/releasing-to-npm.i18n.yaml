@@ -1,0 +1,31 @@
+# Bilingual-pair consistency record for releasing-to-npm.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/cookbook/releasing-to-npm.md
+/:
+  en: 1f0399e6ee97f001
+  zh: b70990dce3fd81f8
+/cookbook-publishing-a-release-to-npm:
+  en: 9c37c961dc1f45d1
+  zh: 6e291e488450fe10
+/cookbook-publishing-a-release-to-npm/summary:
+  en: 130afc75e72b6c1c
+  zh: 9b7a699454aeef3d
+/cookbook-publishing-a-release-to-npm/table-of-contents:
+  en: c0e5d5a5753527d8
+  zh: c1c7d58ccd10878f
+/cookbook-publishing-a-release-to-npm/1-check-what-the-release-references:
+  en: c53d94dc21f8b7e9
+  zh: 56d8ac78ff260f22
+/cookbook-publishing-a-release-to-npm/2-publish-the-vendor-family-first:
+  en: 7e30985340166995
+  zh: 046e6ca027a89b9e
+/cookbook-publishing-a-release-to-npm/3-publish-the-product-family:
+  en: 3e115877ee3a79ad
+  zh: d047ee1b216cbdb9
+/cookbook-publishing-a-release-to-npm/4-read-the-gate-s-failure:
+  en: c67067c90d1542d7
+  zh: 4eb90a2d87cf2e41
+/cookbook-publishing-a-release-to-npm/dev-note:
+  en: b75c8458928b72b9
+  zh: 003ba4e17b4b5269

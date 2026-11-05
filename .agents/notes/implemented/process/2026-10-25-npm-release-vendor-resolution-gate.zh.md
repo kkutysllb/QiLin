@@ -10,7 +10,7 @@ Status: implemented
 
 ## Decision
 
-发布任务以 registry 后置条件收尾：`pnpm run release:verify-published --family qilin --from dist/npm`。门禁经发布顺序与 tarball 身份读取打包集合，然后按陈旧 packument 规则带 `--prefer-online` 检查 registry 的两个事实：每个成员自身的已发布版本必须存在，因为被打断的发布留下的是空洞；已发布清单声明的每一条 `@qilin-agent` dependency、optional-dependency 与 peer 范围必须存在满足版本。可选 peer 跳过，npm 对其保持建议语义；可选依赖必须解析，因为本仓库用它承载包所声明的引擎，npm 零退出地静默跳过引擎同样是残缺发布。vendor 族保持独立序列：当 qilin 发布引用 vendor 版本时，操作者先发布该族（`release:pack --family vendor`，再 `release:publish --family vendor`），在 registry 可解析之前，门禁扣住 qilin 的发布。AGENTS.md 在 releases-on-demand 条目旁载明这条规则。
+发布任务以 registry 后置条件收尾：`pnpm run release:verify-published --family qilin --from dist/npm`。门禁经发布顺序与 tarball 身份读取打包集合，然后按陈旧 packument 规则带 `--prefer-online` 检查 registry 的两个事实：每个成员自身的已发布版本必须存在，因为被打断的发布留下的是空洞；已发布清单声明的每一条 `@qilin-agent` dependency、optional-dependency 与 peer 范围必须存在满足版本。可选 peer 跳过，npm 对其保持建议语义；可选依赖必须解析，因为本仓库用它承载包所声明的引擎，npm 零退出地静默跳过引擎同样是残缺发布。vendor 族保持独立序列：当 qilin 发布引用 vendor 版本时，操作者先切出并发布该族——`release:vendor`、给每个被升级的成员打 `vendor-<package>-v<version>` 标签，再跑 `Release publish (vendor)` 工作流——在 registry 可解析之前，门禁扣住 qilin 的发布。只升级了版本却没有打标签、没有发布的 vendor 改动只会在这里暴露，因为升级只改清单。[npm 发布手册](../../../../docs/cookbook/releasing-to-npm.zh.md) 承载操作顺序与失败诊断。AGENTS.md 在 releases-on-demand 条目旁载明这条规则。
 
 ## Alternatives considered
 
