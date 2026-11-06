@@ -73,7 +73,11 @@ describe('Superseded bundles', () => {
     })
     for (const [replacing, retired] of Object.entries(SUPERSEDED_BUNDLES)) {
       expect(isExperimentalBundle(replacing)).toBe(true)
-      for (const name of retired) expect(isExperimentalBundle(name)).toBe(true)
+      // A superseded bundle is no longer offered: hidden from the page, retired at profile load.
+      for (const name of retired) {
+        expect(isHiddenBundle(name)).toBe(true)
+        expect(RETIRED_BUNDLES.has(name)).toBe(true)
+      }
     }
   })
 })
@@ -83,6 +87,8 @@ describe('Retired bundles', () => {
     expect([...RETIRED_BUNDLES]).toEqual([
       '@qilin-agent/experimental-inspector-profile',
       '@qilin-agent/experimental-schedule-bundle',
+      // Merged into the forge bundle: the standalone worktree bundle retires at profile load.
+      '@qilin-agent/experimental-tool-worktree',
     ])
     for (const name of RETIRED_BUNDLES) {
       expect(EXTENSION_BUNDLES).not.toContain(name)
