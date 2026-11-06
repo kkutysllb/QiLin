@@ -105,12 +105,9 @@
   padding-top: 30px;
 }
 
-/* OpenKylin 桌面壳：无框窗口的红绿灯中心压在 26px 光学线上（与侧栏 topStrip
-   同一条线），设置页轨道不在这条线上——上游 22px 顶距让返回键顶边与灯带
-   齐平，贴得过紧。darwin 下再让出 10px；纯 web 无 data-platform 不受影响。 */
-:global(html[data-platform='darwin']) .navBack {
-  margin-top: 10px;
-}
+/* KStock patch (K49): 2026-11-06 真机——「返回工作区」整体上移 10px：
+   取消 darwin 下额外 10px 顶距，返回键顶边与红绿灯带保持 K40 收紧后的
+   10px 间隙。纯 web 无 data-platform 不受影响。 */
 
 /* Workspace return control at the rail head: one nav-cell box above the panel
    title, so leaving the page is the first row of the same list. */
