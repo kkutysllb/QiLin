@@ -50,10 +50,10 @@ describe('V5 to V6 stage', () => {
 
   it('passes compact runs through unchanged', () => {
     const current = stage()
-    const run = {
+    const run: SessionFormatEventRun = {
       runType: 'assistant-stream', firstSeq: 0, eventCount: 1,
       expand: () => [],
-    } as unknown as SessionFormatEventRun
+    }
     const emitted: SessionFormatEventRun[] = []
     current.transformRun(run, { emitRun: value => void emitted.push(value), emitEvent: () => {} })
     expect(emitted).toEqual([run])

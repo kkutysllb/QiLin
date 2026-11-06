@@ -254,7 +254,7 @@ describe('qilin web deployment authentication through the real CLI', () => {
       expect(new URL(second.launchUrl).href).toBe(firstUrl.href)
       const restarted = await describeSettings(port, firstUrl.host, cookie)
       expect(restarted.status).toBe(200)
-      expect(JSON.parse(restarted.body) as unknown).toMatchObject({
+      expect(JSON.parse(restarted.body)).toMatchObject({
         type: 'server-response',
         rpcId: 'web-auth-real-cli',
         result: { ok: true },
