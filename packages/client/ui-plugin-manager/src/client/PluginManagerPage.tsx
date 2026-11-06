@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
-import { EXTENSION_BUNDLES, HIDDEN_BUNDLES, isExperimentalBundle, MORE_BUNDLES } from '@qilin-agent/official-bundles'
+import { ALWAYS_ON_BUNDLES, EXTENSION_BUNDLES, HIDDEN_BUNDLES, isExperimentalBundle, MORE_BUNDLES } from '@qilin-agent/official-bundles'
 import { createPortal } from 'react-dom'
 import type { PluginInstallFailureKind, Registry } from '@qilin-agent/api-remotes/client'
 import {
@@ -399,6 +399,9 @@ function EnableSwitch({ pkg, title, t, busy, onSetEnabled }: {
   readonly busy: boolean
   readonly onSetEnabled: (enabled: boolean) => void
 }): ReactNode {
+  // A bundle the product ships as a built-in stays on: no switch at all, rather
+  // than a disabled one that only says "you cannot".
+  if (ALWAYS_ON_BUNDLES.has(pkg.name)) return null
   return (
     <Switch
       checked={pkg.enabled}

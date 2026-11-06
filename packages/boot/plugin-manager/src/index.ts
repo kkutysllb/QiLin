@@ -12,6 +12,7 @@ import z from '@qilin-agent/schemastery'
 import semver from 'semver'
 import { TypertRemoteService, Remote, RemoteError, remoteErrorOf } from '@qilin-agent/typert-protocol'
 import { detailImageResponse, NPM_FILE_SOURCES } from '@qilin-agent/plugin-detail'
+import { ALWAYS_ON_BUNDLES } from '@qilin-agent/official-bundles'
 import type { NpmFileSource } from '@qilin-agent/plugin-detail'
 import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import type {} from '@qilin-agent/client-connection'
@@ -1166,6 +1167,9 @@ export class PluginManager extends TypertRemoteService {
     }
     if (!enabled && previous.includes(name)) {
       if (this.protectsManager(name)) throw new ManagementFailure('management-required')
+      // The product ships these as built-ins: the page hides their switch, and a
+      // direct call (CLI, automation) must not strand them either.
+      if (ALWAYS_ON_BUNDLES.has(name)) throw new ManagementFailure('always-enabled')
     }
     // Selection retires the bundles this one supersedes; deselection never brings them back.
     const superseded = enabled ? (SUPERSEDED_BUNDLES[name] ?? []).filter(item => previous.includes(item)) : []

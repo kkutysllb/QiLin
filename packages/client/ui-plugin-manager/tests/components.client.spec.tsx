@@ -12,6 +12,7 @@ import type { ConfigForm, ConfigFormSnapshot, SettingsMirrorSnapshot } from '@qi
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { MenuItemButton } from '@qilin-agent/client-ui-primitives'
 import { StrictMode, type ReactNode } from 'react'
+import { ALWAYS_ON_BUNDLES } from '@qilin-agent/official-bundles'
 import { createNavigationStore } from '../src/client/navigation-store.ts'
 import { PluginManagerPage } from '../src/client/PluginManagerPage.tsx'
 import { PluginRefreshToast } from '../src/client/PluginRefreshToast.tsx'
@@ -742,7 +743,7 @@ describe('PluginManagerPage', () => {
     expect(actions.uninstall).toHaveBeenCalledExactlyOnceWith('dsh-retired')
   })
 
-  it('opens a promoted official bundle\'s page without the beta tag and switches it on', () => {
+  it('opens a promoted built-in bundle\'s page without a switch', () => {
     const title = 'Agent Teams'
     const { actions } = renderTab({
       packages: [pkg({ name: '@qilin-agent/experimental-agent-team-profile', meta: { title }, installed: false, optional: true, removable: false, enabled: false })],
@@ -751,8 +752,9 @@ describe('PluginManagerPage', () => {
     const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
     expect(within(detail).queryByText(en.statusBeta)).toBeNull()
     expect(within(detail).queryByRole('button', { name: en.uninstallLabel.replace('{name}', title) })).toBeNull()
-    fireEvent.click(within(detail).getByRole('switch', { name: en.enableToggle.replace('{name}', title) }))
-    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@qilin-agent/experimental-agent-team-profile', true)
+    // The product ships agent teams as a built-in: the page offers no switch at all.
+    expect(within(detail).queryByRole('switch')).toBeNull()
+    expect(actions.setEnabled).not.toHaveBeenCalled()
   })
 
   it.each([
@@ -773,7 +775,9 @@ describe('PluginManagerPage', () => {
       expect(card.textContent).toBe(title(dict))
       expect(screen.getByText(description(dict))).toBeTruthy()
       expect(document.getElementById(card.getAttribute('aria-describedby')!)?.textContent).toBe(description(dict))
-      expect(screen.getByRole('switch', { name: dict.enableToggle.replace('{name}', title(dict)) })).toBeTruthy()
+      const toggle = { name: dict.enableToggle.replace('{name}', title(dict)) }
+      if (ALWAYS_ON_BUNDLES.has(name)) expect(screen.queryByRole('switch', toggle)).toBeNull()
+      else expect(screen.getByRole('switch', toggle)).toBeTruthy()
       expect(screen.queryByText('Original metadata.')).toBeNull()
       // The badge follows official-bundle admission: a name outside that list carries none, whatever its prefix.
       expect(screen.queryByText(dict.statusBeta) !== null).toBe(beta)
@@ -781,15 +785,19 @@ describe('PluginManagerPage', () => {
     assertCard(en)
     setLanguage(zh)
     assertCard(zh)
-    fireEvent.click(screen.getByRole('switch', { name: zh.enableToggle.replace('{name}', title(zh)) }))
-    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith(name, false)
+    if (ALWAYS_ON_BUNDLES.has(name)) expect(actions.setEnabled).not.toHaveBeenCalled()
+    else {
+      fireEvent.click(screen.getByRole('switch', { name: zh.enableToggle.replace('{name}', title(zh)) }))
+      expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith(name, false)
+    }
     fireEvent.click(screen.getByRole('button', { name: zh.openDetail.replace('{name}', title(zh)) }))
     for (const dict of [zh, en]) {
       setLanguage(dict)
       expect(screen.getByRole('heading', { level: 3 }).textContent).toBe(title(dict))
       expect(screen.getByText(description(dict))).toBeTruthy()
       expect(document.querySelector('[data-plugin-name]')?.textContent).toBe(name)
-      expect(screen.getByRole('switch', { name: dict.enableToggle.replace('{name}', title(dict)) })).toBeTruthy()
+      if (ALWAYS_ON_BUNDLES.has(name)) expect(screen.queryByRole('switch', { name: dict.enableToggle.replace('{name}', title(dict)) })).toBeNull()
+      else expect(screen.getByRole('switch', { name: dict.enableToggle.replace('{name}', title(dict)) })).toBeTruthy()
       expect(screen.getByRole('button', { name: dict.uninstallLabel.replace('{name}', title(dict)) })).toBeTruthy()
     }
     fireEvent.click(screen.getByRole('button', { name: en.uninstallLabel.replace('{name}', title(en)) }))
@@ -1061,8 +1069,12 @@ describe('PluginManagerPage', () => {
       expect(extensionList.lastElementChild?.getAttribute('role')).toBe('presentation')
       expect(within(extensions).getByRole('button', { name: en.moreAction }).closest('li')).toBe(extensionList.lastElementChild)
       // A card's switch belongs to the card end: it toggles without opening the page.
-      const promotedCard = within(basic).getAllByRole('listitem')
+      // A built-in bundle carries no switch; a promoted package that is not one keeps it.
+      const teamCard = within(basic).getAllByRole('listitem')
         .find(card => card.getAttribute('data-plugin-package') === team) as HTMLElement
+      expect(within(teamCard).queryByRole('switch')).toBeNull()
+      const promotedCard = within(basic).getAllByRole('listitem')
+        .find(card => card.getAttribute('data-plugin-package') === '@acme/new-official') as HTMLElement
       fireEvent.click(within(promotedCard).getByRole('switch'))
       expect(document.querySelector('[data-plugin-detail]')).toBeNull()
       expect(document.querySelector('[data-plugin-group="extensions"]')).not.toBeNull()
