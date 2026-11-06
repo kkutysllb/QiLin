@@ -8,9 +8,6 @@
   "apps/cli/tests/profiles/acp/tests/cleanup.ts": {
     "04bc8a44533574365dfedf563e2356458bcf95f990a00906938c977c1d683356": 1
   },
-  "apps/cli/tests/profiles/headless/tests/ptc.e2e.ts": {
-    "ca1e93aab8b6091b8ab6c5adef9bf533b73d724ec7a0a0e588c11e6b99c101f0": 1
-  },
   "apps/cli/tests/profiles/headless/tests/session-format-guard.expected.e2e.ts": {
     "340837865a9f6222ae46d41b594c4c079ae3935c004433c76da047df31c8008f": 1
   },

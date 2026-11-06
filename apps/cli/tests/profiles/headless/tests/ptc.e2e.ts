@@ -141,6 +141,9 @@ async function typedPtcModeHarness(): Promise<Context> {
   const harness = new Context()
   await harness.plugin(SystemPrompt)
   await harness.plugin(ToolRuntime, { mode: 'ptc' })
+  await harness.plugin(LlmRuntime)
+  await harness.plugin(AgentRegistry)
+  await harness.plugin(AgentLoop, { agents: [] })
   await mountRuntime(harness)
   // An agent-owned `run_code` program resolves its execution directory through
   // this service; a composition that passes an Agent must mount it.
@@ -309,12 +312,9 @@ describe('PTC mode typed values: keyless real-process contracts', () => {
     // The inspect providers are a host row; the tools read that shared registry.
     await ctx.plugin(ToolCordisHost)
     await ctx.plugin(ToolCordis)
-    const agent = {
-      id: SessionId('ptc-cordis'),
-      session: ctx.sessions.create(SessionId('ptc-cordis'), { meta: { cwd: process.cwd() } }),
-      // Directory resolution asserts this context is live, so the stub carries it.
-      ctx,
-    } as unknown as Agent
+    // Directory resolution asserts the caller's context is live, so the caller is
+    // a published Agent rather than a subset double.
+    const agent = await ctx.agentLoop.create(SessionId('ptc-cordis'), {}, { cwd: process.cwd() })
 
     const value = completion(await runCode(ctx, `
       const listed = await tools.cordis_inspect_list({});
