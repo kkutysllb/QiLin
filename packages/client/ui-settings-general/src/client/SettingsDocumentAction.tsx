@@ -34,6 +34,10 @@ export function SettingsDocumentAction({ controller, useSnapshot, t }: SettingsD
   }, [controller])
 
   if (state.status !== 'ready') return null
+  // KToon: the product does not expose the Host configuration document.
+  const disabled = (globalThis as { __KTOON_SETTINGS_DOCUMENT_ACTION_DISABLED__?: unknown })
+    .__KTOON_SETTINGS_DOCUMENT_ACTION_DISABLED__ === true
+  if (disabled) return null
 
   return (
     <div className={css.action}>
