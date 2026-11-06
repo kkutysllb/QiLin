@@ -95,15 +95,18 @@ describe('web e2e: plugin manager', () => {
     expect(await toggle.getAttribute('aria-checked')).toBe('false')
     // The profile's own group holds the layers the shipped template composes
     // (base, web-app, and the built-in animations pack); the installation's
-    // optional bundles open the Official group (OPTIONAL_BUNDLES: Agent Teams,
-    // voice input, and Auto review), followed by the official plugins that
-    // registered their configuration, and its other bundles stay off the page.
-    // The composed profile also brings the developer tools and automation tasks bundles.
+    // optional bundles fill the built-in group (Agent Teams and automation tasks,
+    // which the catalogue no longer marks Experimental) and the Experimental grid
+    // (voice input, Auto review, and the change-request worktree), followed by the
+    // official plugins that registered their configuration, and its other bundles
+    // stay off the page.
     expect(await panel.locator('[data-plugin-group="bundles"] [data-plugin-package]').count()).toBe(2)
-    expect(await panel.locator('[data-plugin-group="extensions"] [data-plugin-package]').count()).toBe(5)
+    expect(await panel.locator('[data-plugin-group="extensions"] [data-plugin-package]').count()).toBe(3)
     expect(await panel.locator('[data-plugin-group="basic"] [data-plugin-item]').count()).toBe(4)
-    // Every optional bundle is an experimental one, so all of them carry the tag.
-    expect(await panel.getByText('实验性', { exact: true }).count()).toBe(5)
+    // A promoted bundle joins the built-in group and never reaches the Experimental tag or grid.
+    expect(await panel.locator('[data-plugin-group="basic"] [data-plugin-package]').count()).toBe(2)
+    // Only the Experimental grid tags its bundles.
+    expect(await panel.getByText('实验性', { exact: true }).count()).toBe(3)
     // A bundle that is off still shows the rows its patch declares, without switches.
     await panel.getByRole('button', { name: '查看 @fixture/bundle' }).click()
     await panel.locator('[data-plugin-row]', { hasText: 'fixture-row' }).waitFor({ timeout: 10_000 })
@@ -114,6 +117,14 @@ describe('web e2e: plugin manager', () => {
 
     const snapshot = await captureStableAria(page, '[data-plugin-panel]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(MANAGER_EXPECTED, snapshot, MODE)
+    // The secondary page lists the Experimental bundles alone, so a promoted bundle never reaches it.
+    await panel.getByRole('button', { name: '更多', exact: true }).click()
+    await panel.getByRole('heading', { name: '实验性插件', level: 1 }).waitFor({ timeout: 10_000 })
+    expect(await panel.getByRole('button', { name: '查看 智能体团队', exact: true }).count()).toBe(0)
+    expect(await panel.getByRole('button', { name: '查看 自动化任务', exact: true }).count()).toBe(0)
+    expect(await panel.getByRole('button', { name: '查看 语音输入', exact: true }).count()).toBe(1)
+    await panel.getByRole('button', { name: '返回插件' }).click()
+    await panel.getByRole('heading', { name: '插件', exact: true }).waitFor({ timeout: 10_000 })
     expect(tripwire.pageErrors).toEqual([])
   }, 60_000)
 

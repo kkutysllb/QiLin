@@ -111,10 +111,11 @@ describe('web e2e: plugin configuration pages', () => {
     // Git service, the agent loop, subagent selection, and the DeepSeek search
     // provider, after the two official bundles the installation ships switched off.
     await panel.getByRole('button', { name: '查看 网页搜索', exact: true }).waitFor({ timeout: 20_000 })
-    // Bundled entries: the Agent Teams Host and Web layers, voice input, Auto review,
-    // developer tools, and the automation tasks bundle.
+    // Bundled entries the catalogue still marks Experimental: voice input, Auto
+    // review, and the change-request worktree. Agent Teams and the automation tasks
+    // bundle are promoted, so they sit in the built-in group above.
     const extensions = panel.locator('[data-plugin-group="extensions"]')
-    expect(await extensions.locator('[data-plugin-package]').count()).toBe(5)
+    expect(await extensions.locator('[data-plugin-package]').count()).toBe(3)
     const items = panel.locator('[data-plugin-group="basic"]')
     expect(await items.locator('[data-plugin-item]').count()).toBe(4)
     for (const title of ['终端', 'Agent 循环', 'Subagent', '网页搜索']) {

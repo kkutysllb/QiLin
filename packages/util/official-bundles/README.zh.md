@@ -26,7 +26,7 @@ kind: "package-reference"
 
 ### 在插件页安置官方 bundle
 
-`EXTENSION_BUNDLES` 按顺序列出主列表始终持有的可选 bundle；`MORE_BUNDLES` 列出留待 profile 启用后才进主列表的 bundle，「更多」列表把它们排在最后；`HIDDEN_BUNDLES` 列出没有自身页面的内建 profile 层。插件页从这些名单推导位置，因此新增可选 bundle 时改动这里的 `EXTENSION_BUNDLES`，而不是某个包内的副本。
+`EXTENSION_BUNDLES` 按顺序列出主列表始终持有的可选 bundle；`MORE_BUNDLES` 列出留待 profile 启用后才进主列表的实验性 bundle，「更多」列表把它们排在最后；`HIDDEN_BUNDLES` 列出没有自身页面的内建 profile 层。插件页从这些名单推导位置，因此新增可选 bundle 时改动这里的 `EXTENSION_BUNDLES`，而不是某个包内的副本。位置同时取决于准入： 「更多」列表只放实验性 bundle，`EXPERIMENTAL_BUNDLES` 之外的可选 bundle 一律留在主列表，因此把名字从该集合移除即把它转正到主列表。
 
 ### 判断 bundle 是否实验性、隐藏或按需
 

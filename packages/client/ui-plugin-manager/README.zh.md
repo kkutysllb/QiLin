@@ -86,7 +86,7 @@ ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
 <a id="understand-the-implementation"></a>
 ## 理解实现
 
-页面两个列表与其「实验性」徽标都读取安装方的 bundle 准入，来源是 [`@qilin-agent/official-bundles`](../../util/official-bundles/README.zh.md)：主列表始终持有的可选 bundle、留待 profile 启用后由「更多」列表排在最后的那些、页面隐藏的内建 profile 层，以及带徽标的 bundle。因此安装方提供的 bundle 从同一个共享包到达页面，而不是靠客户端的包名副本。
+页面两个列表与其「实验性」徽标都读取安装方的 bundle 准入，来源是 [`@qilin-agent/official-bundles`](../../util/official-bundles/README.zh.md)：主列表始终持有的可选 bundle、留待 profile 启用后由「更多」列表排在最后的那些、页面隐藏的内建 profile 层，以及带徽标的 bundle。「更多」列表只放带徽标的 bundle，而名单不再标记为实验性的 bundle 一律留在主列表的「内置插件配置」组里——转正就是从该集合删除一个名字。因此安装方提供的 bundle 从同一个共享包到达页面，而不是靠客户端的包名副本。
 
 插件管理依据 profile 的依赖记录：已安装组合包可启停、可移除，随安装提供的组合包保持锁定。profile 与安装都不持有的选中组合包同样提供卸载，且仅把它从 profile 的组合包列表移除。这一区分不决定启动失败策略。
 

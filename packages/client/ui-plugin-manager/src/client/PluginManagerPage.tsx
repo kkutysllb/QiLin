@@ -102,12 +102,13 @@ function AddPluginMenu({ t, disabled, openInstall, renderSlot }: {
 const HIGHLIGHT_MS = 2_400
 
 /**
- * Whether the main list shows an official optional bundle: the always-held ones, and any held-back one the profile enabled.
+ * Whether the main list shows an official optional bundle: every bundle the catalogue no longer marks Experimental, the
+ * always-held experimental ones, and any held-back experimental one the profile enabled.
  * @param pkg - the official bundle as the Host reports it.
  * @returns whether the main list shows it.
  */
 function pinnedToMainList(pkg: PackageView): boolean {
-  return !MORE_BUNDLES.includes(pkg.name) || pkg.enabled
+  return !isExperimentalBundle(pkg.name) || !MORE_BUNDLES.includes(pkg.name) || pkg.enabled
 }
 
 /**
@@ -1582,15 +1583,16 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const mine = listed.filter(pkg => !pkg.official)
   const official = listed.filter(pkg => pkg.official)
   // Both lists read one order over every offered bundle: the main list holds the always-held ones plus the held-back
-  // ones the profile enabled, and the More list holds all of them, so enabling a bundle from the More list pins it
-  // to the main list without moving it among its neighbours there.
+  // ones the profile enabled, and the More list holds the experimental bundles, so enabling a bundle from the More list
+  // pins it to the main list without moving it among its neighbours there.
   const ordered = orderOptionalBundles(official)
   const pinned = new Set(official.filter(pinnedToMainList).map(pkg => pkg.name))
-  // A main-list bundle the catalogue no longer marks Experimental joins the
-  // built-in group: promotion is a deletion from EXPERIMENTAL_BUNDLES, not a rename.
+  // A main-list bundle the catalogue no longer marks Experimental joins the built-in group: promotion is a deletion
+  // from EXPERIMENTAL_BUNDLES, not a rename. The More list holds the marked bundles alone, so a promoted bundle never
+  // reaches it; its main-list place keeps it reachable.
   const extensions = ordered.filter(pkg => pinned.has(pkg.name) && isExperimentalBundle(pkg.name))
   const promoted = ordered.filter(pkg => pinned.has(pkg.name) && !isExperimentalBundle(pkg.name))
-  const more = ordered
+  const more = ordered.filter(pkg => isExperimentalBundle(pkg.name))
   const loaded = state.status === 'ready' || state.status === 'error'
   const refreshing = state.refreshStatus === 'refreshing'
   const openPkg = view.kind === 'package' || view.kind === 'row'
