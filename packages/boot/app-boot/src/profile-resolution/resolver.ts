@@ -469,6 +469,14 @@ class ResolutionRouter {
         moves.push([current.realDir, realDir])
         continue
       }
+      // The same directory at the same version, only recorded under another scope: the two
+      // generations name one set of files. A compatibility alias is declared by a profile plugin
+      // in one traversal and by the installation in the other, so its scope and declarer flip on
+      // every recomposition while nothing moves — publishing it keeps loaded modules intact.
+      if (next !== undefined
+        && current.scope !== next.scope
+        && sameResolution(current.packageDir, next.packageDir)
+        && current.version === next.version) continue
       if (next === undefined
         || !sameResolution(current.packageDir, next.packageDir)
         || (current.scope === 'installation' && !sameResolution(current.declarer, next.declarer))

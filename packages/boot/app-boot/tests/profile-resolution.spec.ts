@@ -1539,6 +1539,28 @@ describe('profile resolution generation', { concurrent: false }, () => {
     )).toBe(f.installed)
   })
 
+  it('publishes a mapping whose scope changed but whose directory and version did not', async () => {
+    const f = fixture()
+    const first = await generationOf(f)
+    const registration = installRuntimeInterception(first)
+    registrations.push(registration)
+    const installed = first.entries.find(entry => entry.name === 'resolution-lib')
+    // A compatibility alias is declared by a profile plugin in one traversal and by the
+    // installation in the other: scope and declarer flip while both name the same files.
+    const echoed = {
+      ...first,
+      entries: first.entries.map(entry => entry.name === 'resolution-lib'
+        ? { ...entry, scope: 'profile' as const, declarer: join(f.profile.dir, 'package.json') }
+        : entry),
+    }
+    expect(() => { registration.replace(echoed) }).not.toThrow()
+    expect(registration.packageDir(
+      'resolution-lib', pathToFileURL(join(f.profile.dir, 'entry.mjs')).href,
+    )).toBe(installed?.packageDir)
+    // The reverse direction stays publishable too, so a recomposition may settle either way.
+    expect(() => { registration.replace(first) }).not.toThrow()
+  })
+
   it('reinstalls a profile package whose dependency was removed without a restart', async () => {
     const f = fixture()
     const first = await generationOf(f)
