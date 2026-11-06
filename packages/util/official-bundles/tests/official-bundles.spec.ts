@@ -22,8 +22,12 @@ describe('Plugins page placement lists', () => {
     }
   })
 
-  it('keeps the promoted Agent Teams and Schedule bundles off the Experimental badge', () => {
-    for (const name of ['@qilin-agent/experimental-agent-team-profile', '@qilin-agent/experimental-schedule-bundle']) {
+  it('keeps the promoted Agent Teams, Schedule and Forge bundles off the Experimental badge', () => {
+    for (const name of [
+      '@qilin-agent/experimental-agent-team-profile',
+      '@qilin-agent/experimental-schedule-bundle',
+      '@qilin-agent/experimental-forge-bundle',
+    ]) {
       expect(EXTENSION_BUNDLES).toContain(name)
       expect(isExperimentalBundle(name)).toBe(false)
     }
@@ -55,7 +59,8 @@ describe('Superseded bundles', () => {
       '@qilin-agent/experimental-forge-bundle': ['@qilin-agent/experimental-tool-worktree'],
     })
     for (const [replacing, retired] of Object.entries(SUPERSEDED_BUNDLES)) {
-      expect(isExperimentalBundle(replacing)).toBe(true)
+      // The replacing bundle is offered on the main list (the forge bundle is a built-in now).
+      expect(EXTENSION_BUNDLES.includes(replacing) || isExperimentalBundle(replacing)).toBe(true)
       // A superseded bundle is no longer offered: hidden from the page, retired at profile load.
       for (const name of retired) {
         expect(isHiddenBundle(name)).toBe(true)

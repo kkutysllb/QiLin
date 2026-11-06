@@ -29,6 +29,7 @@ export const HIDDEN_BUNDLES: ReadonlySet<string> = new Set([
 export const EXTENSION_BUNDLES: readonly string[] = [
   '@qilin-agent/experimental-agent-team-profile',
   '@qilin-agent/experimental-schedule-bundle',
+  '@qilin-agent/experimental-forge-bundle',
   '@qilin-agent/experimental-voice-input-bundle',
   '@qilin-agent/experimental-auto-review',
 ]
@@ -42,6 +43,7 @@ export const EXTENSION_BUNDLES: readonly string[] = [
 export const ALWAYS_ON_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/experimental-agent-team-profile',
   '@qilin-agent/experimental-schedule-bundle',
+  '@qilin-agent/experimental-forge-bundle',
 ])
 
 /**
@@ -67,7 +69,6 @@ export const EXPERIMENTAL_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/experimental-auto-review',
   '@qilin-agent/experimental-badge-skill-bundle',
   '@qilin-agent/experimental-cot-translation-bundle',
-  '@qilin-agent/experimental-forge-bundle',
   '@qilin-agent/experimental-plugin-market-bundle',
   '@qilin-agent/experimental-ralph-bundle',
   '@qilin-agent/experimental-session-search',
