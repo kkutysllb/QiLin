@@ -1593,7 +1593,9 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   // built-in group: promotion is a deletion from EXPERIMENTAL_BUNDLES, not a rename.
   const extensions = ordered.filter(pkg => pinned.has(pkg.name) && isExperimentalBundle(pkg.name))
   const promoted = ordered.filter(pkg => pinned.has(pkg.name) && !isExperimentalBundle(pkg.name))
-  const more = ordered
+  // The More list previews the optional experiments: a bundle the main list already
+  // holds as a built-in is not one of them, so it must not appear twice.
+  const more = ordered.filter(pkg => !(pinned.has(pkg.name) && !isExperimentalBundle(pkg.name)))
   const loaded = state.status === 'ready' || state.status === 'error'
   const refreshing = state.refreshStatus === 'refreshing'
   const openPkg = view.kind === 'package' || view.kind === 'row'

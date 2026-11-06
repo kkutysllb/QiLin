@@ -296,7 +296,7 @@ describe('PluginManagerPage', () => {
   })
 
   it('keeps the Installed tab panel through loading and the More list out of the tabs', () => {
-    const worktree = '@qilin-agent/experimental-tool-worktree'
+    const worktree = '@qilin-agent/experimental-session-search'
     const { navigation, set } = renderTab({ status: 'loading', packages: [] }, {}, {
       'plugins.tab:discover': (_view, owner) => (
         <button type="button" onClick={() => { (owner as PluginTabProps).openPackage(worktree) }}>Discover open</button>
@@ -684,8 +684,9 @@ describe('PluginManagerPage', () => {
     expect(cards.map(card => card.getAttribute('data-plugin-status'))).toEqual(['disabled', 'running', 'problem', 'running', 'disabled', 'problem'])
     // Group titles have no counts; a promoted bundle carries no experimental marker.
     expect(screen.getByRole('heading', { name: en.bundlesTitle })).toBeTruthy()
-    // The More link alone renders the experimental grid once a promoted bundle is the only main-list entry.
-    expect(screen.getByRole('heading', { name: en.extensionsTitle })).toBeTruthy()
+    // A promoted built-in is no experiment: with nothing experimental offered, the section and its More link stay away.
+    expect(screen.queryByRole('heading', { name: en.extensionsTitle })).toBeNull()
+    expect(screen.queryByRole('button', { name: en.moreAction })).toBeNull()
     expect(document.querySelector('[data-plugin-count]')).toBeNull()
     expect(screen.queryAllByText(en.statusBeta)).toHaveLength(0)
     expect(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', '@acme/dsh-tool') })).toHaveProperty('disabled', false)
@@ -1090,10 +1091,11 @@ describe('PluginManagerPage', () => {
       expect([...document.querySelectorAll('[data-plugin-group]')].map(group => group.getAttribute('data-plugin-group')))
         .toEqual(['more'])
       const more = document.querySelector('[data-plugin-group="more"]') as HTMLElement
+      // Built-ins the main list holds, and the retired worktree bundle, stay out of the preview list.
       expect(within(more).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')))
-        .toEqual([team, '@acme/new-official', '@qilin-agent/experimental-tool-worktree', '@qilin-agent/experimental-badge-skill-bundle'])
+        .toEqual(['@qilin-agent/experimental-badge-skill-bundle'])
       expect(document.querySelector('[data-plugin-package="dsh-better-sidebar"]')).toBeNull()
-      fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', team) }))
+      fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', '@qilin-agent/experimental-badge-skill-bundle') }))
       fireEvent.click(screen.getByRole('button', { name: en.backToPackage.replace('{name}', en.moreTitle) }))
       expect(screen.getByRole('heading', { name: en.moreTitle, level: 1 })).toBeTruthy()
       fireEvent.click(screen.getByRole('button', { name: en.backToList }))
@@ -1127,8 +1129,8 @@ describe('PluginManagerPage', () => {
 
     it('pins a bundle the profile picks onto the main list, in its full-list place', () => {
       const team = '@qilin-agent/experimental-agent-team-profile'
-      const first = '@qilin-agent/experimental-tool-worktree'
-      const second = '@qilin-agent/experimental-cot-translation-bundle'
+      const first = '@qilin-agent/experimental-cot-translation-bundle'
+      const second = '@qilin-agent/experimental-terminal-bundle'
       const entry = (name: string, enabled: boolean): PackageView => pkg({ name, official: true, enabled })
       const b = renderTab({ packages: [entry(second, true), entry(team, true), entry(first, false)] })
       const cards = (group: 'basic' | 'extensions' | 'more'): (string | null)[] => {
@@ -1139,11 +1141,12 @@ describe('PluginManagerPage', () => {
       expect(cards('basic')).toEqual([team])
       expect(cards('extensions')).toEqual([second])
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
-      expect(cards('more')).toEqual([team, first, second])
+      // The promoted built-in is not repeated in the More list.
+      expect(cards('more')).toEqual([first, second])
       fireEvent.click(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', first) }))
       expect(b.actions.setEnabled).toHaveBeenCalledWith(first, true)
       b.set({ packages: [entry(second, true), entry(team, true), entry(first, true)] })
-      expect(cards('more')).toEqual([team, first, second])
+      expect(cards('more')).toEqual([first, second])
       fireEvent.click(screen.getByRole('button', { name: en.backToList }))
       expect(cards('basic')).toEqual([team])
       expect(cards('extensions')).toEqual([first, second])
@@ -1153,7 +1156,7 @@ describe('PluginManagerPage', () => {
       expect(cards('basic')).toEqual([team])
       expect(cards('extensions')).toEqual([second])
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
-      expect(cards('more')).toEqual([team, first, second])
+      expect(cards('more')).toEqual([first, second])
     })
 
     it('returns a held-back bundle opened outside the lists to the list that shows it', () => {

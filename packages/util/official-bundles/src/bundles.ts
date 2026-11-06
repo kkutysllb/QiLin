@@ -16,6 +16,9 @@ export const HIDDEN_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/sdk-app',
   '@qilin-agent/acp-app',
   '@qilin-agent/sdk-minimal',
+  // The standalone worktree bundle is superseded by the forge bundle: its rows
+  // now ride with 变更请求与工作树, so the page must not offer it as a second card.
+  '@qilin-agent/experimental-tool-worktree',
 ])
 
 /**
@@ -46,7 +49,6 @@ export const ALWAYS_ON_BUNDLES: ReadonlySet<string> = new Set([
  * the More list holds every eligible bundle and ranks these last, in this order.
  */
 export const MORE_BUNDLES: readonly string[] = [
-  '@qilin-agent/experimental-tool-worktree',
   '@qilin-agent/experimental-cot-translation-bundle',
   '@qilin-agent/experimental-terminal-bundle',
   '@qilin-agent/experimental-session-search',
@@ -71,7 +73,6 @@ export const EXPERIMENTAL_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/experimental-session-search',
   '@qilin-agent/experimental-session-titles-bundle',
   '@qilin-agent/experimental-terminal-bundle',
-  '@qilin-agent/experimental-tool-worktree',
   '@qilin-agent/experimental-voice-input-bundle',
 ])
 
@@ -82,6 +83,9 @@ export const EXPERIMENTAL_BUNDLES: ReadonlySet<string> = new Set([
  */
 export const RETIRED_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/experimental-inspector-profile',
+  // Superseded by the forge bundle: a profile that still selects the standalone
+  // worktree bundle drops it at load, so the forge rows are the only ones applied.
+  '@qilin-agent/experimental-tool-worktree',
 ])
 
 /**
