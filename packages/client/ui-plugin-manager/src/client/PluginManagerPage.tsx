@@ -58,6 +58,13 @@ export type PluginManagerPageProps =
 type RenderConfig = PluginManagerPageProps['renderSlot']
 type ResolveText = PluginManagerFace['resolveText']
 
+/** Product-supplied bundle names hidden from every Plugins list (KToon brand sets the global at boot). */
+function productHiddenBundles(): ReadonlySet<string> {
+  const value = (globalThis as { __KTOON_HIDDEN_BUNDLES__?: unknown }).__KTOON_HIDDEN_BUNDLES__
+  if (!Array.isArray(value)) return new Set()
+  return new Set(value.filter((item): item is string => typeof item === 'string'))
+}
+
 type RowPhase = NonNullable<PackageRow['phase']>
 
 /** The primary action installs; the adjacent menu offers every add-plugin path. */
@@ -1577,7 +1584,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   // selected name the Host cannot read; the installation's other bundles are inspected in the Settings
   // Plugins section's Plugin list tab.
   // Built-in profile layers stay out of this page even when the profile declares them as dependencies.
-  const listed = state.packages.filter(pkg => !HIDDEN_BUNDLES.has(pkg.name)
+  const productHidden = productHiddenBundles()
+  const listed = state.packages.filter(pkg => !HIDDEN_BUNDLES.has(pkg.name) && !productHidden.has(pkg.name)
     && (pkg.installed || pkg.official || pkg.error !== undefined))
   const mine = listed.filter(pkg => !pkg.official)
   const official = listed.filter(pkg => pkg.official)

@@ -1097,6 +1097,25 @@ describe('PluginManagerPage', () => {
       expect(screen.getByRole('heading', { name: en.basicTitle })).toBeTruthy()
     })
 
+    it('hides a bundle the product global names from the official lists', () => {
+      const hidden = '@qilin-agent/experimental-tool-worktree'
+      const visible = '@qilin-agent/experimental-terminal-bundle'
+      const scope = globalThis as { __KTOON_HIDDEN_BUNDLES__?: unknown }
+      const previous = scope.__KTOON_HIDDEN_BUNDLES__
+      scope.__KTOON_HIDDEN_BUNDLES__ = [hidden]
+      try {
+        const packages = [
+          pkg({ name: hidden, official: true, enabled: false }),
+          pkg({ name: visible, official: true, enabled: true }),
+        ]
+        renderTab({ packages })
+        expect(document.querySelector(`[data-plugin-package="${hidden}"]`)).toBeNull()
+        expect(document.querySelector(`[data-plugin-package="${visible}"]`)).not.toBeNull()
+      } finally {
+        if (previous === undefined) delete scope.__KTOON_HIDDEN_BUNDLES__
+        else scope.__KTOON_HIDDEN_BUNDLES__ = previous
+      }
+    })
     it('returns from package details to the secondary page and retains it across React remounts', () => {
       const name = '@qilin-agent/experimental-terminal-bundle'
       const b = renderTab({ packages: [pkg({ name, official: true, enabled: false })] })
