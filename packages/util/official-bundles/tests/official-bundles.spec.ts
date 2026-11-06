@@ -62,12 +62,21 @@ describe('Superseded bundles', () => {
 })
 
 describe('Retired bundles', () => {
-  it('names the removed Developer Tools bundle and keeps it out of every offered list', () => {
-    expect([...RETIRED_BUNDLES]).toEqual(['@qilin-agent/experimental-inspector-profile'])
+  it('names the removed Developer Tools bundle and the three this product no longer offers', () => {
+    expect([...RETIRED_BUNDLES].toSorted()).toEqual([
+      '@qilin-agent/experimental-forge-bundle',
+      '@qilin-agent/experimental-inspector-profile',
+      '@qilin-agent/experimental-terminal-bundle',
+      '@qilin-agent/experimental-tool-worktree',
+    ])
+    // The Developer Tools bundle left the distribution; the three product-retired names
+    // stay in the placement lists but stop being offered because OPTIONAL_BUNDLES drops
+    // them, and a selected profile loses them on the next load.
+    expect(EXTENSION_BUNDLES).not.toContain('@qilin-agent/experimental-inspector-profile')
+    expect(MORE_BUNDLES).not.toContain('@qilin-agent/experimental-inspector-profile')
+    expect(isExperimentalBundle('@qilin-agent/experimental-inspector-profile')).toBe(false)
     for (const name of RETIRED_BUNDLES) {
-      expect(EXTENSION_BUNDLES).not.toContain(name)
-      expect(MORE_BUNDLES).not.toContain(name)
-      expect(isExperimentalBundle(name)).toBe(false)
+      expect(isHiddenBundle(name)).toBe(false)
       expect(isOnDemandBundle(name)).toBe(false)
     }
   })

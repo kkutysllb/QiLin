@@ -376,12 +376,10 @@ export const OPTIONAL_BUNDLES: readonly string[] = [
   '@qilin-agent/experimental-voice-input-bundle',
   '@qilin-agent/experimental-auto-review',
   '@qilin-agent/experimental-schedule-bundle',
-  '@qilin-agent/experimental-forge-bundle',
-  '@qilin-agent/experimental-tool-worktree',
+  // KStock patch (K46): 产品不提供工作树 / 变更请求 / 持久终端，Host 不再把它们列为可选组合包。
   '@qilin-agent/experimental-session-search',
   '@qilin-agent/experimental-session-titles-bundle',
   '@qilin-agent/experimental-ralph-bundle',
-  '@qilin-agent/experimental-terminal-bundle',
   '@qilin-agent/experimental-badge-skill-bundle',
   '@qilin-agent/experimental-cot-translation-bundle',
 ]

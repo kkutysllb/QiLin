@@ -71,6 +71,11 @@ export const EXPERIMENTAL_BUNDLES: ReadonlySet<string> = new Set([
  */
 export const RETIRED_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/experimental-inspector-profile',
+  // KStock patch (K46): 本产品不提供变更请求与工作树 / Git 工作树 / 持久终端。
+  // 已选中的 profile 在加载时移除这些名字并提示一次，不再加载对应插件。
+  '@qilin-agent/experimental-forge-bundle',
+  '@qilin-agent/experimental-tool-worktree',
+  '@qilin-agent/experimental-terminal-bundle',
 ])
 
 /**
