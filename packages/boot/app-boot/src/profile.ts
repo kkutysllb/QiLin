@@ -370,7 +370,6 @@ export const OPTIONAL_BUNDLES: readonly string[] = [
   '@qilin-agent/experimental-voice-input-bundle',
   '@qilin-agent/experimental-auto-review',
   '@qilin-agent/experimental-forge-bundle',
-  '@qilin-agent/experimental-tool-worktree',
   '@qilin-agent/experimental-session-search',
   '@qilin-agent/experimental-session-titles-bundle',
   '@qilin-agent/experimental-ralph-bundle',

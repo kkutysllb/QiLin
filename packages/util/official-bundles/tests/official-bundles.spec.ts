@@ -23,7 +23,7 @@ describe('Plugins page placement lists', () => {
     }
   })
 
-  it('keeps the always-on layers off the page and the offered bundles on it', () => {
+  it('keeps the always-on layers off the page and the promoted forge bundle on it', () => {
     // Agent Teams is switched from the Session header; the automation tasks rows
     // are part of the shipped Web composition, so its package is retired. Both
     // stay out of the page's lists.
@@ -34,6 +34,10 @@ describe('Plugins page placement lists', () => {
     expect(EXTENSION_BUNDLES).not.toContain('@qilin-agent/experimental-schedule-bundle')
     expect(EXTENSION_BUNDLES).toContain('@qilin-agent/experimental-voice-input-bundle')
     expect(isExperimentalBundle('@qilin-agent/experimental-voice-input-bundle')).toBe(true)
+    // Forge is a built-in, always-on plugin: main list, no Experimental badge, no switch.
+    expect(EXTENSION_BUNDLES).toContain('@qilin-agent/experimental-forge-bundle')
+    expect(isExperimentalBundle('@qilin-agent/experimental-forge-bundle')).toBe(false)
+    expect([...ALWAYS_ON_BUNDLES]).toEqual(['@qilin-agent/experimental-forge-bundle'])
   })
 
   it('keeps the built-in profile layers out of every offered list', () => {
@@ -72,7 +76,8 @@ describe('Superseded bundles', () => {
       '@qilin-agent/experimental-forge-bundle': ['@qilin-agent/experimental-tool-worktree'],
     })
     for (const [replacing, retired] of Object.entries(SUPERSEDED_BUNDLES)) {
-      expect(isExperimentalBundle(replacing)).toBe(true)
+      // The replacing bundle is offered on the main list (the forge bundle is a built-in now).
+      expect(EXTENSION_BUNDLES.includes(replacing) || isExperimentalBundle(replacing)).toBe(true)
       // A superseded bundle is no longer offered: hidden from the page, retired at profile load.
       for (const name of retired) {
         expect(isHiddenBundle(name)).toBe(true)

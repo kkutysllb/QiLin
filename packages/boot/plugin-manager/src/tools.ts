@@ -13,6 +13,7 @@ import { getQilinRuntimeVersion } from '@qilin-agent/app-boot'
 const ERROR_STEPS: Record<ManagementError['code'], string> = {
   'management-required': 'This entry belongs to plugin management itself and cannot be changed.',
   'unaddressable': 'This entry has no unique profile patch target; tell the user to edit the profile patch file directly.',
+  'always-enabled': 'This bundle is a built-in the product keeps on; there is nothing to toggle. Report it and move on.',
   'unknown-plugin': 'Call list_plugins and retry with an exact entryId.',
   'invalid-spec': 'Retry with an npm package name, a git URL, a tarball URL, or an absolute local directory.',
   'already-installed': 'The QiLin installation or a local bundle provides this name, so the profile cannot replace it; an installed dependency is updated by calling install_bundle again with the wanted version.',

@@ -37,11 +37,23 @@ export const EXTENSION_BUNDLES: readonly string[] = [
   '@qilin-agent/kylin-images-bundle',
   '@qilin-agent/animations-bundle',
   '@qilin-agent/skills-bundle',
+  '@qilin-agent/experimental-forge-bundle',
   '@qilin-agent/experimental-voice-input-bundle',
   '@qilin-agent/experimental-auto-review',
 ]
 
 /**
+ * The bundles the product ships as always-on built-ins: the Plugins page hides
+ * their switch and the Host refuses to disable them, so a profile hand-edit, a
+ * stale toggle, or a CLI call cannot strand a surface the product guarantees
+ * (变更请求与工作树 is part of the product, not a preview).
+ */
+export const ALWAYS_ON_BUNDLES: ReadonlySet<string> = new Set([
+  '@qilin-agent/experimental-forge-bundle',
+])
+
+/**
+
  * The optional bundles the main list leaves out until the profile enables them;
  * the More list holds every eligible bundle and ranks these last, in this order.
  */
@@ -65,7 +77,6 @@ export const EXPERIMENTAL_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/experimental-auto-review',
   '@qilin-agent/experimental-badge-skill-bundle',
   '@qilin-agent/experimental-cot-translation-bundle',
-  '@qilin-agent/experimental-forge-bundle',
   '@qilin-agent/experimental-plugin-market-bundle',
   '@qilin-agent/experimental-ralph-bundle',
   '@qilin-agent/experimental-session-search',
