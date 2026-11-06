@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/deliverable-file-references",
   "description": "Shared model guidance for file links and deliverables across QiLin hosts",
-  "version": "3.1.10",
+  "version": "3.1.11",
   "publishConfig": {
     "access": "public"
   },
