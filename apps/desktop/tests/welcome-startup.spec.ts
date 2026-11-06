@@ -46,6 +46,31 @@ const state = vi.hoisted(() => ({
   nativeTheme: { themeSource: 'system', shouldUseDarkColors: false },
 }))
 
+vi.mock('../src/product-runtime.ts', async importOriginal => ({
+  ...await importOriginal<typeof import('../src/product-runtime.ts')>(),
+  prepareProductRuntime: () => ({
+    paths: {
+      dataDir: '/tmp/ktoon-desktop-data',
+      harnessHome: '/tmp/ktoon-desktop-home',
+      profileDir: '/tmp/ktoon-desktop-home/profiles/desktop',
+      pluginDir: undefined,
+      presetsDir: undefined,
+      runtimeDir: '/tmp/ktoon-desktop-runtime',
+      qilinDir: '/tmp/ktoon-desktop-runtime',
+      nodeBin: '/tmp/ktoon-desktop-runtime/tools/pnpm/bin',
+      pnpm: '/tmp/ktoon-desktop-runtime/tools/pnpm/bin/pnpm.cjs',
+    },
+    environment: {
+      QILIN_HOME: '/tmp/ktoon-desktop-home',
+      QILIN_DESKTOP_HOME: '/tmp/ktoon-desktop-home',
+      QILIN_DESKTOP_PROFILE: 'desktop',
+      QILIN_DESKTOP_OFFICE: '0',
+      QILIN_CLIENT_PRODUCT_VERSION: '1.0.0',
+      PYTHONPATH: '',
+    },
+  }),
+  ensurePythonDependencies: vi.fn(async () => {}),
+}))
 vi.mock('../src/crash-report.ts', async importOriginal => ({
   ...await importOriginal<typeof import('../src/crash-report.ts')>(),
   writeCrashReport: vi.fn(async () => undefined),
@@ -58,6 +83,9 @@ vi.mock('electron', () => ({
     name: 'Harness',
     requestSingleInstanceLock: () => true,
     setAsDefaultProtocolClient: vi.fn(),
+    setName: vi.fn(),
+    setAppUserModelId: vi.fn(),
+    commandLine: { appendSwitch: vi.fn() },
     whenReady: () => Promise.resolve(),
     getLocale: () => 'en',
     getVersion: () => '1.0.0',
@@ -75,12 +103,19 @@ vi.mock('electron', () => ({
     constructor(options: BrowserWindowConstructorOptions) { state.windowOptions = options }
     private ready: (() => void) | undefined
     webContents = { mainFrame: { url: 'qilin-app://app/' }, setWindowOpenHandler: vi.fn(),
-      on: vi.fn(), once: vi.fn(), send: vi.fn(), openDevTools: state.openDevTools }
+      on: vi.fn(), once: vi.fn(), send: vi.fn(), openDevTools: state.openDevTools,
+      executeJavaScript: vi.fn(async () => undefined) }
     static getAllWindows() { return [] }
     once(name: string, callback: () => void) { if (name === 'ready-to-show') this.ready = callback; return this }
     on() { return this }
     isDestroyed() { return false }
     isMinimized() { return false }
+    isVisible() { return true }
+    setMenuBarVisibility = vi.fn()
+    setMenu = vi.fn()
+    center = vi.fn()
+    destroy = vi.fn()
+    close = vi.fn()
     restore = vi.fn()
     focus = state.focusWorkspace
     moveTop = state.moveTopWorkspace
@@ -119,6 +154,7 @@ vi.mock('../src/project-manager.ts', () => ({ DesktopProjectManager: class {
   canRecoverProfile = vi.fn(() => true)
 } }))
 vi.mock('../src/host-process.ts', () => ({
+  DesktopHostFatalError: class DesktopHostFatalError extends Error {},
   DesktopHostProcess: class {
     start = state.startHost
     stop = state.stopHost

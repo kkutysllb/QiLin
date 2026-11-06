@@ -76,7 +76,7 @@ import { mintProductAccountSession } from './product-auth.ts'
 
 // KToon 面向中文用户：应用与内嵌 Web 的界面语言固定简体中文（显式语言偏好仍可覆盖）。
 // 必须在 ready 之前挂到 Chromium 命令行，navigator.language 与 app.getLocale 才会解析为 zh-CN。
-app.commandLine.appendSwitch('lang', 'zh-CN')
+app.commandLine?.appendSwitch('lang', 'zh-CN')
 
 let focusPrimaryWindow = (): void => {}
 let stopForRecovery = async (): Promise<void> => {}

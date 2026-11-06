@@ -24,6 +24,31 @@ vi.mock('../src/web-document.ts', async importOriginal => ({
 }))
 // Report persistence has its own unit tests; here it resolves within microtasks so the fatal
 // dialog never outlives the test that triggered it.
+vi.mock('../src/product-runtime.ts', async importOriginal => ({
+  ...await importOriginal<typeof import('../src/product-runtime.ts')>(),
+  prepareProductRuntime: () => ({
+    paths: {
+      dataDir: '/tmp/ktoon-desktop-data',
+      harnessHome: '/tmp/ktoon-desktop-home',
+      profileDir: '/tmp/ktoon-desktop-home/profiles/desktop',
+      pluginDir: undefined,
+      presetsDir: undefined,
+      runtimeDir: '/tmp/ktoon-desktop-runtime',
+      qilinDir: '/tmp/ktoon-desktop-runtime',
+      nodeBin: '/tmp/ktoon-desktop-runtime/tools/pnpm/bin',
+      pnpm: '/tmp/ktoon-desktop-runtime/tools/pnpm/bin/pnpm.cjs',
+    },
+    environment: {
+      QILIN_HOME: '/tmp/ktoon-desktop-home',
+      QILIN_DESKTOP_HOME: '/tmp/ktoon-desktop-home',
+      QILIN_DESKTOP_PROFILE: 'desktop',
+      QILIN_DESKTOP_OFFICE: '0',
+      QILIN_CLIENT_PRODUCT_VERSION: '1.0.0',
+      PYTHONPATH: '',
+    },
+  }),
+  ensurePythonDependencies: vi.fn(async () => {}),
+}))
 vi.mock('../src/crash-report.ts', async importOriginal => ({
   ...await importOriginal<typeof import('../src/crash-report.ts')>(),
   writeCrashReport: vi.fn(async () => 'desktop-test-logs/crash-test.log'),
@@ -168,6 +193,9 @@ const harness = await vi.hoisted(async () => {
     getVersion: () => '1.0.0',
     getAppPath: (): string => 'desktop-test-app',
     setAppLogsPath: vi.fn(),
+    setName: vi.fn(),
+    setAppUserModelId: vi.fn(),
+    commandLine: { appendSwitch: vi.fn() },
     getPath: vi.fn<(name: string) => string>(),
     setAboutPanelOptions: vi.fn<(options: Electron.AboutPanelOptionsOptions) => void>(),
     requestSingleInstanceLock: () => true,
