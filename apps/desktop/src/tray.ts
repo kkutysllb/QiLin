@@ -1,4 +1,4 @@
-/** Windows system tray: the always-present way back to a hidden window and the explicit quit entry. */
+/** Desktop tray: the Windows notification area and the macOS menu bar, always present as the way back to a hidden window. */
 
 import { Menu, nativeImage, Tray } from 'electron'
 import type { DesktopLocale } from './locale.ts'

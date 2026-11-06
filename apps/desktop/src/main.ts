@@ -1296,11 +1296,17 @@ async function main(): Promise<void> {
     tray?.relabel()
   }
   refreshApplicationMenu()
-  const trayIconPath = development ? join(app.getAppPath(), 'resources', 'tray-windows.ico') : join(process.resourcesPath, 'tray.ico')
-  if (process.platform === 'win32') {
+  const windowsTrayIconPath = development ? join(app.getAppPath(), 'resources', 'tray-windows.ico') : join(process.resourcesPath, 'tray.ico')
+  // KStock patch (K51): macOS keeps a menu-bar extra too, using the product's existing
+  // tray bitmap (build/tray.png plus @2x) rather than a separately drawn icon.
+  const macTrayIconPath = development && product !== undefined
+    ? join(product.root, 'apps', 'desktop', 'build', 'tray.png')
+    : join(process.resourcesPath, 'tray.png')
+  if (process.platform === 'win32' || process.platform === 'darwin') {
     // The tray is the way back to a hidden window; without it, relaunching the application still focuses it.
     try {
-      tray = new DesktopTray({ iconPath: trayIconPath, locale: currentDesktopLocale,
+      tray = new DesktopTray({ iconPath: process.platform === 'darwin' ? macTrayIconPath : windowsTrayIconPath,
+        locale: currentDesktopLocale,
         open: () => { focusPrimaryWindow() }, quit: () => { app.quit() } })
     } catch (error) { console.warn('desktop tray: unavailable', error) }
   }
@@ -1318,7 +1324,7 @@ async function main(): Promise<void> {
     focus: () => { if (process.platform === 'darwin') app.focus({ steal: true }) },
     // The task dialog draws its main icon at the system icon size; the multi-size ICO yields that
     // size directly, where the 1024 px PNG would be scaled down by GDI.
-    ...(process.platform === 'win32' ? { icon: nativeImage.createFromPath(trayIconPath) } : {}),
+    ...(process.platform === 'win32' ? { icon: nativeImage.createFromPath(windowsTrayIconPath) } : {}),
   })
 
   if (process.platform === 'win32') {
