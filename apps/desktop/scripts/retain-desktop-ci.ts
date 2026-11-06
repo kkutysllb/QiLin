@@ -62,7 +62,7 @@ export async function retainDesktopCi(env: NodeJS.ProcessEnv, appRoot = resolve(
       unsigned: qualification === 'unsigned', skipNotarization: qualification === 'unnotarized',
     }).directory
     : join(appRoot, '.desktop-build', 'targets', target, mode)
-  const base = `QiLin-${version}-${windows ? 'win-x64' : target}`
+  const base = `KToon-${version}-${windows ? 'win-x64' : target}`
   const debugSuffix = qualification === 'unnotarized' ? '-unnotarized' : qualification === 'unsigned' ? '-unsigned' : ''
   const names = windows ? [`${base}${debugSuffix}.exe`] : [`${base}${debugSuffix}.dmg`, `${base}${debugSuffix}.zip`]
   if (qualification === 'signed' || qualification === 'notarized') {

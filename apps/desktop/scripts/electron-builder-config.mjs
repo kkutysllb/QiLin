@@ -21,7 +21,7 @@ import {
 } from './windows-sign.mjs'
 import { resolveDesktopAutoUpdateConfig } from './desktop-auto-update-environment.mjs'
 import { resolveDesktopBuildCommit } from './desktop-build-commit.mjs'
-import { resolveDesktopBuildVersion } from './desktop-build-version.mjs'
+import { resolveDesktopBuildVersion, resolveDesktopProductVersion } from './desktop-build-version.mjs'
 import { resolveDesktopPolicyEnvironment } from './desktop-policy-environment.mjs'
 import { desktopArtifactOutput, desktopTargetBuildPaths, resolveDesktopBuildTarget } from './desktop-build-paths.mjs'
 import { installWindowsDirectoryInstaller } from './windows-directory-installer.mjs'
@@ -100,23 +100,31 @@ export function createElectronBuilderConfig(
   if (preparedRuntime !== undefined) buildPaths.qilin = preparedRuntime
   // electron-builder merges extraMetadata into the packaged manifest, so a build version here reaches
   // the artifact names, the update feed, and the installed app.getVersion() the updater compares against.
-  const productVersion = JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')).version
+  // The product release version is independent of the engine package version: a product build
+  // exports QILIN_DESKTOP_PRODUCT_VERSION, while an engine build keeps its declared version.
+  const declaredVersion = JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), 'utf8')).version
+  const productVersion = resolveDesktopProductVersion(env, declaredVersion)
   const buildVersion = resolveDesktopBuildVersion(env, productVersion)
   if (update?.channel === 'latest' && buildVersion.includes('-')) throw new Error('desktop package: latest requires a stable version')
   const packaged = resolveDesktopBuildCommit(env)
+  // Product payload (product.json + engine plugins/presets) staged by the product build.
+  // KToon's package script sets this env; an engine-only build leaves it unset.
+  const productPayload = env.QILIN_DESKTOP_PRODUCT_PAYLOAD?.trim()
   return {
     appId,
-    protocols: [{ name: 'QiLin Desktop', schemes: ['qilin'] }],
+    protocols: [{ name: 'KToon', schemes: ['ktoon'] }],
     extraMetadata: {
       qilinDesktopAppId: appId,
       qilinDesktopUpdateChannel: update?.channel ?? 'nightly',
       ...(policy === undefined ? {} : { dshMandatoryUpdatePolicy: policy }),
-      ...buildVersion === productVersion ? {} : { version: buildVersion },
+      // Compare against the declared engine version: a product build must still write its own
+      // version, even when it equals the product version rather than the declared one.
+      ...buildVersion === declaredVersion ? {} : { version: buildVersion },
       ...packaged === undefined ? {} : { dshBuildCommit: packaged.commit, dshBuildDirty: packaged.dirty },
     },
-    productName: 'QiLin Desktop',
+    productName: 'KToon',
     // Unsigned builds carry their own suffix so a shared file can never pass for a release artifact.
-    artifactName: `QiLin-\${version}-\${os}-\${arch}${output.suffix}.\${ext}`,
+    artifactName: `KToon-\${version}-\${os}-\${arch}${output.suffix}.\${ext}`,
     directories: { output: output.directory },
     asar: true,
     electronDist: buildPaths.electron,
@@ -144,6 +152,9 @@ export function createElectronBuilderConfig(
       'lib/preload-welcome.cjs',
       'renderer/**/*',
       'package.json',
+      ...(productPayload === undefined || productPayload === ''
+        ? []
+        : [{ from: productPayload, to: '.', filter: ['product.json'] }]),
       '!node_modules/**/*.{js,cjs,mjs,ts,cts,mts,css}.map',
       '!node_modules/**/*.tsbuildinfo',
       { from: buildPaths.qilin, to: 'qilin', filter: ['**/*'] },
@@ -152,10 +163,23 @@ export function createElectronBuilderConfig(
     ],
     asarUnpack: unpack,
     extraResources: [
+      ...(productPayload === undefined || productPayload === ''
+        ? []
+        : [{ from: join(productPayload, 'engine'), to: 'engine' }]),
+      ...(env.QILIN_DESKTOP_PRODUCT_RUNTIME_TAR?.trim()
+        ? [{ from: env.QILIN_DESKTOP_PRODUCT_RUNTIME_TAR.trim(), to: 'runtime-runtime.tar.gz' }]
+        : []),
+      ...(env.QILIN_DESKTOP_ICON_CAR?.trim()
+        ? [{ from: env.QILIN_DESKTOP_ICON_CAR.trim(), to: 'Assets.car' }]
+        : []),
       { from: buildPaths.runtime, to: 'runtime' },
       { from: fileURLToPath(new URL('../resources/icon-windows.png', import.meta.url)), to: 'icon.png' },
-      // Windows tray bitmaps; macOS keeps the Dock and ships no menu bar icon.
+      // Platform tray bitmaps: Windows multi-size ICO, macOS monochrome template PNG (+@2x).
       ...(packagesWindows ? [{ from: fileURLToPath(new URL('../resources/tray-windows.ico', import.meta.url)), to: 'tray.ico' }] : []),
+      ...(packagesMacOS ? [
+        { from: fileURLToPath(new URL('../resources/tray-template.png', import.meta.url)), to: 'tray-template.png' },
+        { from: fileURLToPath(new URL('../resources/tray-template@2x.png', import.meta.url)), to: 'tray-template@2x.png' },
+      ] : []),
     ],
     mac: {
       icon: fileURLToPath(new URL('../resources/icon-macos.png', import.meta.url)),
@@ -168,8 +192,9 @@ export function createElectronBuilderConfig(
       // macOS「本地网络」：缺少 NSLocalNetworkUsageDescription 时系统既不弹窗也不放行，局域网连接直接 EHOSTUNREACH。
       extendInfo: {
         CFBundleLocalizations: ['en', 'zh_CN'],
-        NSMicrophoneUsageDescription: 'QiLin Desktop uses your microphone to transcribe speech into message drafts.',
-        NSLocalNetworkUsageDescription: 'QiLin Desktop connects to local services you configure, such as a media gateway on your local network.',
+        NSMicrophoneUsageDescription: 'KToon uses your microphone to transcribe speech into message drafts.',
+        NSLocalNetworkUsageDescription: 'KToon connects to local services you configure, such as a media gateway on your local network.',
+        ...(env.QILIN_DESKTOP_ICON_CAR?.trim() ? { CFBundleIconName: 'AppIcon' } : {}),
       },
       entitlements: fileURLToPath(new URL('./macos-entitlements.plist', import.meta.url)),
       entitlementsInherit: fileURLToPath(new URL('./macos-entitlements.plist', import.meta.url)),
@@ -204,10 +229,14 @@ export function createElectronBuilderConfig(
         await writeMacOSAppUpdateConfig(resourcesDir, resolveMacOSAppUpdateFeed(context.packager.config.publish),
           context.packager.appInfo.updaterCacheDirName)
       }
-      // The bundled runtime declares whichever version prepared it: the product version for an ordinary
-      // release, and a rewritten one for installed-update qualification.
+      // The bundled runtime declares whichever version prepared it. A product build (KToon) bundles
+      // the engine runtime at its own declared version — the product version rides extraMetadata —
+      // so integrity verification pins platform/architecture and bytes, and pins the declared
+      // version only where a qualification flow supplied a rewritten tree.
+      const { readDesktopRuntime } = await import('../lib/types/runtime-tree.js')
+      const declaredRuntimeVersion = readDesktopRuntime(buildPaths.qilin).release.version
       await verifyDesktopRuntime(buildPaths.qilin,
-        preparedRuntimeVersion ?? productVersion, { platform: resolvedPlatform, arch: resolvedArch })
+        preparedRuntimeVersion ?? declaredRuntimeVersion, { platform: resolvedPlatform, arch: resolvedArch })
       // Unsigned Windows builds skip electron-builder's afterSign hook.
       if (packagesWindows && unsigned) await verifyWindowsAsarUnpack(buildPaths.qilin, resourcesDir, windowsCode)
     },

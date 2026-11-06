@@ -35,6 +35,10 @@ Open Settings → General and select a registered language. The active locale is
 
 Call `ctx.locale.register(ns, { zh, en })` with a namespace merged into `LocaleNamespaceMap`; the compiler checks every key against the namespace's typed key union and requires both shipped locales. Consumers translate through `ctx.locale.bind(ns)` or the framework-injected `t` seat. A dictionary registered after the UI is already mounted is picked up without a remount.
 
+### Overriding product copy
+
+A deployment that ships its own brand or greeting copy layers it over the engine's text with `ctx.locale.override(ns, { zh: { key: 'text' }, en: { key: 'text' } })`. Overrides win per key for every locale in the fallback chain, unspecified keys keep the registered dictionary, a later override for the same `(ns, locale)` replaces the earlier map, and the disposer restores the registered text. Registration stays single-occupant: overrides are the only way a product replaces an existing namespace's keys.
+
 ### Registering a language pack
 
 An external client plugin registers the language definition and each translated namespace as owned effects; definitions and dictionaries may register in either order:

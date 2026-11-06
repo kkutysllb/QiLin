@@ -10,7 +10,7 @@ import { catalogFact } from './facts.ts'
 import { assertV4RetiredSyntax } from './retired-syntax.ts'
 import { assertV4SystemMessageFields } from './system-message.ts'
 import { assertV4ForkResult } from './fork-result.ts'
-import { assertV4ToolResultMessage } from './tool-role.ts'
+import { assertV4ToolResultMessage, normalizeV4ToolResultCallIds } from './tool-role.ts'
 
 /**
  * Validate the exact native V4 logical header.
@@ -54,8 +54,15 @@ export function restoreReleasedV4Artifact(artifact: SessionFormatArtifact, known
   const cut = sessionFormatCount(artifact.inheritedEventCount, 'format v4 inherited event count')
   if (cut > artifact.events.length) throw new SessionFormatError('format v4 inherited event count exceeds its events')
   if (!artifact.header.isSeeded && cut !== 0) throw new SessionFormatError('unseeded format v4 Session has inherited events')
+  // 以 source.callId 为准修正 toolCallId，让带历史脏行的会话可读。
+  let repaired = false
+  const events = artifact.events.map((event) => {
+    const normalized = normalizeV4ToolResultCallIds(event)
+    if (normalized !== event) repaired = true
+    return normalized
+  })
   let lastInheritedMarker: number | undefined
-  for (const [index, event] of artifact.events.entries()) {
+  for (const [index, event] of events.entries()) {
     if (!knownEventTypes.has(event.type) && event['ignorable'] !== true) {
       throw new SessionFormatUnsupportedMigrationError(
         `format v4 contains unknown event type ${JSON.stringify(event.type)} at seq ${index}`,
@@ -76,8 +83,9 @@ export function restoreReleasedV4Artifact(artifact: SessionFormatArtifact, known
   if (!artifact.header.isSeeded && lastInheritedMarker !== undefined) {
     throw new SessionFormatError('format v4 unseeded Session contains an inherited end-seed marker')
   }
-  assertReleasedV4Relationships(artifact, knownEventTypes)
-  return artifact
+  const normalized: SessionFormatArtifact = repaired ? { ...artifact, events } : artifact
+  assertReleasedV4Relationships(normalized, knownEventTypes)
+  return normalized
 }
 
 /**

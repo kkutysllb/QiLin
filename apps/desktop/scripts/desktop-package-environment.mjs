@@ -28,7 +28,7 @@ const FILE_SETTINGS = ['QILIN_DESKTOP_WINDOWS_CER_FILE', 'QILIN_DESKTOP_WINDOWS_
 export function localMacOSPackageEnvironment(environment = process.env) {
   return {
     ...Object.fromEntries(Object.entries(environment).filter(([name]) => !AMBIENT_RELEASE_SETTING.test(name))),
-    QILIN_DESKTOP_APP_ID: 'com.qilin.desktop',
+    QILIN_DESKTOP_APP_ID: 'com.ktoon.desktop',
     QILIN_DESKTOP_UNSIGNED: '1',
   }
 }

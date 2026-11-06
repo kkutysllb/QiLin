@@ -71,6 +71,45 @@ export function liftToolResult(event: SessionFormatEvent): SessionFormatEvent {
 }
 
 /**
+ * Adopt `source.callId` as the authoritative tool-call link.
+ *
+ * A retried or recovered turn can persist a tool/result whose message carries a
+ * stale/empty `toolCallId` while `source.callId` still names the call event.
+ * The engine links results by `source.callId` (scheduler, UI replay, repair), so
+ * normalize that field before admission instead of failing the whole turn.
+ * @param event - untrusted event or physical row.
+ * @returns the same value when already consistent, otherwise a shallow-copied event.
+ */
+export function normalizeV4ToolResultCallIds<T>(event: T): T {
+  if (!isSessionFormatJsonObject(event) || event['type'] !== 'tool/result') return event
+  const data = event['data']
+  if (!isSessionFormatJsonObject(data)) return event
+  const message = data['message']
+  if (!isSessionFormatJsonObject(message)) return event
+  const source = message['source']
+  if (!isSessionFormatJsonObject(source)) return event
+  // Fork 的 not-started 结果用 id 编码身份（fork-result.ts 专门校验），不能改写。
+  const error = data['error']
+  if (isSessionFormatJsonObject(error) && error['code'] === 'TOOL_NOT_STARTED'
+    && typeof message['id'] === 'string' && message['id'].startsWith('forked-tool-result-')) return event
+  const callId = source['callId']
+  if (typeof callId !== 'string' || callId === '') return event
+  if (message['toolCallId'] === callId) return event
+  return { ...event, data: { ...data, message: { ...message, toolCallId: callId } } } as T
+}
+
+const SOURCE_TOOL_NAME_KEYS = ['name', 'toolName', 'tool_name'] as const
+
+function sourceToolName(source: SessionFormatJsonValue | undefined): string {
+  if (!isSessionFormatJsonObject(source)) return 'unknown'
+  for (const key of SOURCE_TOOL_NAME_KEYS) {
+    const value = source[key]
+    if (typeof value === 'string' && value !== '') return value
+  }
+  return 'unknown'
+}
+
+/**
  * Validate the native V4 first-class tool-role message of one tool/result row.
  * @param event - canonical V4 event.
  * @throws {SessionFormatError} when the row is not an exact first-class tool result.
@@ -94,7 +133,14 @@ export function assertV4ToolResultMessage(event: SessionFormatEvent): void {
   }
   if (role !== 'tool') throw new SessionFormatError(`${subject} requires a tool-role message`)
   if (typeof toolCallId !== 'string' || toolCallId.length === 0 || sourceCallId !== toolCallId) {
-    throw new SessionFormatError(`${subject} requires toolCallId matching its tool source`)
+    // 带 tool 名与两个 id、turn/step：只有 seq 时线上无法定位是哪条结果。
+    const turn = data['turn'] === undefined ? '?' : String(data['turn'])
+    const step = data['step'] === undefined ? '?' : String(data['step'])
+    throw new SessionFormatError(
+      `${subject} requires toolCallId matching its tool source `
+      + `(tool=${sourceToolName(source)}, toolCallId=${JSON.stringify(toolCallId)}, `
+      + `source.callId=${JSON.stringify(sourceCallId)}, turn=${turn}, step=${step})`,
+    )
   }
   if (!isSessionFormatJsonObject(source) || source['kind'] !== 'tool') {
     throw new SessionFormatError(`${subject} requires a tool source`)

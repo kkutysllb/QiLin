@@ -7,7 +7,7 @@
   },
   {
     "role": "hide",
-    "label": "隐藏 QiLin Desktop"
+    "label": "隐藏 KToon"
   },
   {
     "role": "hideOthers",
@@ -19,6 +19,6 @@
   },
   {
     "role": "quit",
-    "label": "退出 QiLin Desktop"
+    "label": "退出 KToon"
   }
 ]

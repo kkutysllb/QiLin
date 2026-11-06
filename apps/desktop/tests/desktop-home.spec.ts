@@ -5,11 +5,11 @@ import { resolveQilinDesktopHome } from '@qilin-agent/home-paths'
 import { adoptDesktopHome } from '../src/desktop-home.ts'
 
 describe('desktop home adoption', () => {
-  it('names ~/.qilin-desktop when nothing overrides it', () => {
+  it('names ~/.ktoon when nothing overrides it', () => {
     const environment: NodeJS.ProcessEnv = {}
     adoptDesktopHome(environment)
     expect(environment.QILIN_HOME).toBe(resolveQilinDesktopHome(undefined, {}))
-    expect(environment.QILIN_HOME).toContain('.qilin-desktop')
+    expect(environment.QILIN_HOME).toContain('.ktoon')
   })
 
   it('overrides a Web deployment home inherited from the shell', () => {

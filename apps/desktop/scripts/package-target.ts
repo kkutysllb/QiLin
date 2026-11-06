@@ -20,7 +20,7 @@ import { macOSDownloadEnvironment, resolveMacOSPackageSettings } from './macos-p
 import { packagingErrorDetails, packagingStep } from './packaging-step.mjs'
 import { notarizeMacOS } from './notarize-macos.mjs'
 import { resolveMacOSNotarizationEnvironment } from './desktop-release-environment.mjs'
-import { DESKTOP_BUILD_VERSION_ENV, resolveDesktopBuildVersion, validateDesktopBuildVersion } from './desktop-build-version.mjs'
+import { DESKTOP_BUILD_VERSION_ENV, resolveDesktopBuildVersion, resolveDesktopProductVersion, validateDesktopBuildVersion } from './desktop-build-version.mjs'
 import { suggestDesktopBuildVersion } from './desktop-build-version-discovery.ts'
 import { desktopBuildCommitEnvironment, readDesktopBuildCommit, resolveDesktopBuildCommit } from './desktop-build-commit.mjs'
 import { requireDesktopToolchain } from './desktop-toolchain-preflight.ts'
@@ -144,7 +144,8 @@ function writeReleaseRecord(
   if (desktopVersion !== dshVersion) {
     throw new Error(`desktop package: desktop version ${desktopVersion} does not match qilin version ${dshVersion}`)
   }
-  const buildVersion = resolveDesktopBuildVersion(environment, dshVersion)
+  const productVersion = resolveDesktopProductVersion(environment, dshVersion)
+  const buildVersion = resolveDesktopBuildVersion(environment, productVersion)
   const packaged = resolveDesktopBuildCommit(environment)
   const update = resolveDesktopAutoUpdateConfig(environment, target.platform, target.arch)
   const recordPath = join(artifactsRoot, desktopBuildRecordFilename(target.name))
@@ -348,7 +349,8 @@ async function main(): Promise<void> {
     : loadDesktopPackageEnvironment(target.platform, process.env, APP_ROOT, {
       unsigned: invocation.unsigned, prepareOnly: invocation.prepareOnly,
     })
-  const productVersion = packageVersion(join(APP_ROOT, 'package.json'), 'desktop package')
+  const productVersion = resolveDesktopProductVersion(environment,
+    packageVersion(join(APP_ROOT, 'package.json'), 'desktop package'))
   // Release settings come from the selected configuration files, so the version this run publishes is an
   // argument; the environment variable below only carries it to the child processes that build.
   const buildVersion = await resolveRequestedBuildVersion(invocation, productVersion, environment)
@@ -403,7 +405,7 @@ async function main(): Promise<void> {
     const output = desktopArtifactOutput(desktopTargetBuildPaths(target.name), invocation)
     console.log(`ARTIFACTS: ${output.directory}`)
     if (target.platform === 'darwin' && !invocation.directory) {
-      const filename = `QiLin-${buildVersion}-mac-${target.arch}${output.suffix}.dmg`
+      const filename = `KToon-${buildVersion}-mac-${target.arch}${output.suffix}.dmg`
       console.log(`DMG: ${join(output.directory, filename)}`)
     }
   }
@@ -501,6 +503,11 @@ export async function packageTarget(
   await execute(['run', 'prepare:packages'], targetEnv)
   await execute(['run', 'prepare:qilin', ...(signPrimaryRuntime ? ['--defer-runtime-smoke'] : [])], downloadEnv)
   if (signPrimaryRuntime) await execute(['run', 'sign:primary-runtime', '--dsh'], electronBuilderEnv)
+  // 产品构建：把物化好的运行时树打成捆绑归档（product.json 的 runtime.tar 由壳解压）。
+  const productRuntimeTarPath = targetEnv.QILIN_DESKTOP_PRODUCT_RUNTIME_TAR?.trim()
+  if (productRuntimeTarPath !== undefined && productRuntimeTarPath !== '') {
+    await execute(['exec', 'tsx', 'scripts/pack-product-runtime-tar.ts', productRuntimeTarPath], targetEnv)
+  }
   if (invocation.prepareOnly) return
   if (target.platform === 'darwin' && !invocation.unsigned && !invocation.skipNotarization && !invocation.directory) {
     await execute([
@@ -511,7 +518,8 @@ export async function packageTarget(
     await withMacOSNotarizationProxy(mac?.notarizationProxy, () => packageMacOSArtifacts({
       arch: target.arch,
       // electron-builder named these artifacts after the published version, so locating them uses the same identifier.
-      version: resolveDesktopBuildVersion(environment, packageVersion(join(APP_ROOT, 'package.json'), 'desktop package')),
+      version: resolveDesktopBuildVersion(environment,
+        resolveDesktopProductVersion(environment, packageVersion(join(APP_ROOT, 'package.json'), 'desktop package'))),
       artifactsRoot: buildPaths.artifacts,
       // Copies and per-lane output staging are intermediates, so they stay in the checkout.
       workRoot: buildPaths.root,
@@ -520,7 +528,7 @@ export async function packageTarget(
   } else if (target.platform === 'darwin' && !invocation.unsigned && !invocation.skipNotarization) {
     await execute([...desktopElectronBuilderArguments(target, true), '--config.mac.notarize=false'], electronBuilderEnv)
     await execute(['exec', 'tsx', 'scripts/smoke-packaged-runtime.ts'], targetEnv)
-    const appPath = join(buildPaths.artifacts, target.arch === 'arm64' ? 'mac-arm64' : 'mac', 'QiLin Desktop.app')
+    const appPath = join(buildPaths.artifacts, target.arch === 'arm64' ? 'mac-arm64' : 'mac', 'KToon.app')
     await withMacOSNotarizationProxy(mac?.notarizationProxy,
       () => notarizeMacOS({ appPath, ...resolveMacOSNotarizationEnvironment(environment) }), undefined, undefined, proxyEvent)
   } else {

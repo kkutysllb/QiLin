@@ -8,7 +8,7 @@ import { assertV4RetiredSyntax } from './retired-syntax.ts'
 import { assertV4SystemMessageFields } from './system-message.ts'
 import { assertV4DeveloperData } from './developer.ts'
 import { assertV4ForkResult } from './fork-result.ts'
-import { assertV4ToolResultMessage } from './tool-role.ts'
+import { assertV4ToolResultMessage, normalizeV4ToolResultCallIds } from './tool-role.ts'
 import { assertReleasedV4Header } from './validation.ts'
 
 function physicalV2(value: unknown): SessionFormatHeader {
@@ -31,8 +31,10 @@ export const releasedV4SessionFormatCodec = Object.freeze({
       ...decoder,
       header: { ...decoder.header, version: 4 },
       decodeRow(row, context) {
-        assertV4RowAdmission(row)
-        decoder.decodeRow(row, {
+        // 历史/重试行可能只有 source.callId 是对的：先规范化再准入，旧会话才打得开。
+        const normalized = normalizeV4ToolResultCallIds(row)
+        assertV4RowAdmission(normalized)
+        decoder.decodeRow(normalized, {
           emitRun: context.emitRun.bind(context),
           emitEvent: context.emitEvent.bind(context),
         })
@@ -44,12 +46,14 @@ export const releasedV4SessionFormatCodec = Object.freeze({
     return { ...releasedV2SessionFormatCodec.encodeHeader({ ...header, version: 2 }, inheritedEventCount), version: 4 }
   },
   encodeEvent(event: SessionFormatEvent) {
-    if (event.type === 'developer/message' && event['ignorable'] === true) {
-      assertV4DeveloperData(event)
-      assertV4RetiredSyntax(event)
+    // 以 source.callId 为准修正 toolCallId：否则重试/恢复产生的一行会让整轮落盘失败。
+    const normalized = normalizeV4ToolResultCallIds(event)
+    if (normalized.type === 'developer/message' && normalized['ignorable'] === true) {
+      assertV4DeveloperData(normalized)
+      assertV4RetiredSyntax(normalized)
     }
-    assertV4RowAdmission(event)
-    return releasedV2SessionFormatCodec.encodeEvent(event)
+    assertV4RowAdmission(normalized)
+    return releasedV2SessionFormatCodec.encodeEvent(normalized)
   },
 } satisfies SessionFormatCodec & SessionFormatCurrentEncoder)
 

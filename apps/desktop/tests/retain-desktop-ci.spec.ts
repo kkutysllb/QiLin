@@ -19,8 +19,8 @@ it.each(['mac-arm64', 'win-x64'] as const)('retains the complete %s release with
   await writeFile(join(appRoot, 'package.json'), '{"version":"1.0.0"}')
   await writeFile(join(config, 'presets/test.env'), `QILIN_DESKTOP_AUTO_UPDATE_ENV=test\nDOWNLOAD_TEST_RELEASE_ID=${'a'.repeat(32)}\n`)
   const names = target === 'win-x64'
-    ? ['QiLin-1.0.0-win-x64.exe', 'QiLin-1.0.0-win-x64.exe.blockmap', 'win-x64-release.json', 'nightly.yml']
-    : ['QiLin-1.0.0-mac-arm64.dmg', 'QiLin-1.0.0-mac-arm64.zip', 'QiLin-1.0.0-mac-arm64.zip.blockmap', 'mac-arm64-release.json', 'nightly-mac.yml']
+    ? ['KToon-1.0.0-win-x64.exe', 'KToon-1.0.0-win-x64.exe.blockmap', 'win-x64-release.json', 'nightly.yml']
+    : ['KToon-1.0.0-mac-arm64.dmg', 'KToon-1.0.0-mac-arm64.zip', 'KToon-1.0.0-mac-arm64.zip.blockmap', 'mac-arm64-release.json', 'nightly-mac.yml']
   await Promise.all(names.map(name => writeFile(join(artifacts, name), 'fixture')))
   const env = {
     QILIN_PACKAGING_CONFIG_DIR: config, QILIN_PACKAGING_PRESET: 'test', QILIN_DESKTOP_TARGET_PLATFORM: target === 'win-x64' ? 'win32' : 'darwin',

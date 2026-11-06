@@ -12,7 +12,7 @@ type Page = 'entry' | 'login' | 'register' | 'key' | 'account'
  * Render the standalone welcome flow using shell-owned operations and localized copy.
  * Clearing the account attempt returns the sign-in status page to the initial choices.
  * @param props.api - isolated preload API; no account credentials reach the renderer.
- * @returns the welcome flow: a brand rail beside the page's form and action column.
+ * @returns welcome pages with fixed bottom actions.
  */
 export function Welcome({ api }: { api: WelcomeApi }) {
   const { messages: m } = api
@@ -231,19 +231,20 @@ export function Welcome({ api }: { api: WelcomeApi }) {
 
   return <>
     {expiryNotice && <Toast text={m.welcomeSessionExpired} onDone={() => { setExpiryNotice(false) }} />}
-    <div className="welcome-shell">
-      <div className="titlebar" aria-hidden="true" />
-      <aside className="brand-rail">
-        <div className="brand">
-          <img src="assets/qilin-mark.svg" alt="" width="40" height="40" />
-          <span className="brand-name">{m.welcomeBrand}</span>
-        </div>
-      </aside>
-      <main className="welcome" aria-labelledby={heading}>
-        <div id="tagline" className="tagline" hidden={page !== 'entry'}>
-          <h1 id="welcome-heading"><span>{m.welcomeTaglineBefore}</span><em>{m.welcomeTaglineBrand}</em><span>{m.welcomeTaglineAfter}</span></h1>
-          <p id="welcome-description">{m.welcomeDescription}</p>
-        </div>
+    <div className="titlebar" aria-hidden="true" />
+    <main className="welcome" aria-labelledby={heading}>
+      <div className="brand">
+        <img src="assets/ktoon-mark.svg" alt="" width="40" height="40" />
+        <span className="brand-name">{m.welcomeBrand}</span>
+      </div>
+      <div id="tagline" className="tagline" hidden={page !== 'entry'}>
+        <p className="welcome-kicker">{m.welcomeKicker}</p>
+        <h1 id="welcome-heading"><span>{m.welcomeTaglineBefore}</span><em>{m.welcomeTaglineBrand}</em><span>{m.welcomeTaglineAfter}</span></h1>
+        <p id="welcome-description">{m.welcomeDescription}</p>
+        <p className="welcome-local">{m.welcomeLocalNote}</p>
+      </div>
+      <div className="auth-stack">
+        <div className="auth-stack-kicker">{m.welcomeAccountKicker}</div>
         <form id="key-form" className="key-form" hidden={page !== 'key'} noValidate onSubmit={(event) => { void saveKey(event) }} aria-busy={busy}>
           <header className="key-heading"><h1 id="key-title">{m.welcomeKeyTitle}</h1><p id="key-description">{m.welcomeKeyDescription}</p></header>
           <div className="key-field">
@@ -274,7 +275,7 @@ export function Welcome({ api }: { api: WelcomeApi }) {
         </div>
         <div id="entry-actions" className="actions" hidden={page !== 'entry'}>
           <button id="sign-in" className="primary" type="button" onClick={() => { void api.analytics?.('auth_page_click', { button_name: 'sign_in' }); setAuthError(''); navigate('login') }}>{m.welcomeSignIn}</button>
-          <button id="entry-register" className="secondary" type="button" onClick={() => { setAuthError(''); navigate('register') }}>{m.welcomeRegisterSubmit}</button>
+          <button id="entry-register" className="secondary" type="button" onClick={() => { setAuthError(''); navigate('register') }}>{m.welcomeEntryRegister}</button>
         </div>
         <form id="login-form" className="key-form" hidden={page !== 'login'} noValidate onSubmit={(event) => { event.preventDefault(); void submitLocal('login') }} aria-busy={authBusy}>
           <header className="key-heading"><h1 id="login-title">{m.welcomeLoginTitle}</h1><p id="login-description">{m.welcomeLoginDescription}</p></header>
@@ -322,7 +323,7 @@ export function Welcome({ api }: { api: WelcomeApi }) {
             setDraft(''); setError(''); focusEntry.current = true; navigate('entry')
           }}>{m.welcomeKeyBack}</button>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   </>
 }

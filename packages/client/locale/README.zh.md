@@ -35,6 +35,10 @@ kind: "package-reference"
 
 用已合并进 `LocaleNamespaceMap` 的命名空间调用 `ctx.locale.register(ns, { zh, en })`；编译器会对照该命名空间的类型化键并集检查每个键，并要求两个内置 locale 齐全。消费方通过 `ctx.locale.bind(ns)` 或框架注入的 `t` 席位翻译。UI 已挂载后再注册的词典无需重新挂载即可生效。
 
+### 覆盖产品文案
+
+自带品牌名或问候语的产品用 `ctx.locale.override(ns, { zh: { key: '文本' }, en: { key: 'text' } })` 叠在引擎文案之上：按 key 胜出，级联链上所有 locale 都先查覆盖层；未覆盖的 key 保留已注册词典；同一 `(ns, locale)` 的后一次覆盖替换前一次，disposer 恢复注册文案。注册本身仍是单一占用——覆盖是产品替换既有命名空间文案的唯一通道。
+
 ### 注册语言包
 
 外部 client 插件把语言定义和每个已翻译命名空间注册为自身拥有的 effect；定义与字典可以按任意顺序注册：

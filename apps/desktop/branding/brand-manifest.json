@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "productName": "OpenKylin Desktop",
-  "displayName": "QiLin Desktop",
-  "subtitle": "基于 QiLin 构建的中文桌面智能工作台",
+  "productName": "KToon",
+  "displayName": "KToon Desktop",
+  "subtitle": "本地漫剧 · 边写边拍",
   "defaultLocale": "zh-CN",
-  "logo": { "source": "branding/logo/qilin.svg", "usage": "authorized" },
-  "trademarkNotice": "QiLin 商标及 Logo 归其权利人所有"
+  "logo": { "source": "branding/logo/ktoon.svg", "usage": "owned" },
+  "trademarkNotice": "KToon 名称与 Logo 归 KToon Studio 所有"
 }

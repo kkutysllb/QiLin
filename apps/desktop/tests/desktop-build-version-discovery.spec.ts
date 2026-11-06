@@ -36,16 +36,16 @@ describe('desktop build version discovery', () => {
   })
 
   it('numbers a stable product version under the documented test prerelease', async () => {
-    const artifactsRoot = await artifactsWith([`QiLin-${STABLE}-test.${DATE}.4-win-x64.exe`])
+    const artifactsRoot = await artifactsWith([`KToon-${STABLE}-test.${DATE}.4-win-x64.exe`])
     await expect(suggestDesktopBuildVersion({ productVersion: STABLE, target: 'win-x64', environment: {}, date: DATE, artifactsRoot }))
       .resolves.toBe(`${STABLE}-test.${DATE}.5`)
   })
 
   it('numbers after the highest local artifact for the same date', async () => {
     const artifactsRoot = await artifactsWith([
-      `QiLin-${PRERELEASE}.${DATE}.1-win-x64.exe`,
-      `QiLin-${PRERELEASE}.${DATE}.2-win-x64.exe`,
-      `QiLin-${PRERELEASE}.${DATE}.10-win-x64.exe`,
+      `KToon-${PRERELEASE}.${DATE}.1-win-x64.exe`,
+      `KToon-${PRERELEASE}.${DATE}.2-win-x64.exe`,
+      `KToon-${PRERELEASE}.${DATE}.10-win-x64.exe`,
     ])
     await expect(suggestDesktopBuildVersion({ productVersion: PRERELEASE, target: 'win-x64', environment: {}, date: DATE, artifactsRoot }))
       .resolves.toBe(`${PRERELEASE}.${DATE}.11`)
@@ -53,9 +53,9 @@ describe('desktop build version discovery', () => {
 
   it('ignores artifacts from another date or product version', async () => {
     const artifactsRoot = await artifactsWith([
-      `QiLin-${PRERELEASE}.20260920.7-win-x64.exe`,
-      `QiLin-0.1.5-alpha.1.${DATE}.9-win-x64.exe`,
-      `QiLin-${PRERELEASE}-win-x64.exe`,
+      `KToon-${PRERELEASE}.20260920.7-win-x64.exe`,
+      `KToon-0.1.5-alpha.1.${DATE}.9-win-x64.exe`,
+      `KToon-${PRERELEASE}-win-x64.exe`,
       'unrelated.exe',
     ])
     await expect(suggestDesktopBuildVersion({ productVersion: PRERELEASE, target: 'win-x64', environment: {}, date: DATE, artifactsRoot }))
@@ -64,8 +64,8 @@ describe('desktop build version discovery', () => {
 
   it('reads macOS artifact names too', async () => {
     const artifactsRoot = await artifactsWith([
-      `QiLin-${PRERELEASE}.${DATE}.3-mac-arm64.dmg`,
-      `QiLin-${PRERELEASE}.${DATE}.3-mac-arm64.zip`,
+      `KToon-${PRERELEASE}.${DATE}.3-mac-arm64.dmg`,
+      `KToon-${PRERELEASE}.${DATE}.3-mac-arm64.zip`,
     ])
     await expect(suggestDesktopBuildVersion({ productVersion: PRERELEASE, target: 'mac-arm64', environment: {}, date: DATE, artifactsRoot }))
       .resolves.toBe(`${PRERELEASE}.${DATE}.4`)
@@ -73,9 +73,9 @@ describe('desktop build version discovery', () => {
 
   it('numbers after existing unnotarized DMG and ZIP artifacts', async () => {
     const artifactsRoot = await artifactsWith([
-      `QiLin-${PRERELEASE}.${DATE}.2-mac-arm64-unnotarized.dmg`,
-      `QiLin-${PRERELEASE}.${DATE}.4-mac-arm64-unnotarized.zip`,
-      `QiLin-${PRERELEASE}.${DATE}.9-mac-arm64-unnotarized.zip.blockmap`,
+      `KToon-${PRERELEASE}.${DATE}.2-mac-arm64-unnotarized.dmg`,
+      `KToon-${PRERELEASE}.${DATE}.4-mac-arm64-unnotarized.zip`,
+      `KToon-${PRERELEASE}.${DATE}.9-mac-arm64-unnotarized.zip.blockmap`,
     ])
     await expect(suggestDesktopBuildVersion({ productVersion: PRERELEASE, target: 'mac-arm64', environment: {}, date: DATE, artifactsRoot }))
       .resolves.toBe(`${PRERELEASE}.${DATE}.5`)
@@ -83,8 +83,8 @@ describe('desktop build version discovery', () => {
 
   it('counts unsigned Windows artifacts written under their own suffix', async () => {
     const artifactsRoot = await artifactsWith([
-      `QiLin-${PRERELEASE}.${DATE}.2-win-x64-unsigned.exe`,
-      `QiLin-${PRERELEASE}.${DATE}.5-win-x64-unsigned.exe.blockmap`,
+      `KToon-${PRERELEASE}.${DATE}.2-win-x64-unsigned.exe`,
+      `KToon-${PRERELEASE}.${DATE}.5-win-x64-unsigned.exe.blockmap`,
     ])
     await expect(suggestDesktopBuildVersion({ productVersion: PRERELEASE, target: 'win-x64', environment: {}, date: DATE, artifactsRoot }))
       .resolves.toBe(`${PRERELEASE}.${DATE}.3`)

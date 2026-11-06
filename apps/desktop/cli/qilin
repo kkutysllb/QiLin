@@ -13,10 +13,7 @@ done
 resources=$(CDPATH= cd -- "$(dirname -- "$launcher")/../../.." && pwd -P)
 # The installed CLI manages this installation own Harness home unless the caller names one.
 if [ -z "${QILIN_HOME:-}" ]; then
-  case "$(uname -s)" in
-    Darwin) QILIN_HOME="$HOME/Library/Application Support/QiLin Desktop" ;;
-    *) QILIN_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/QiLin Desktop" ;;
-  esac
+  QILIN_HOME="$HOME/.ktoon"
   export QILIN_HOME
 fi
-ELECTRON_RUN_AS_NODE=1 exec "$resources/../MacOS/QiLin Desktop" --expose-internals "$resources/app.asar/qilin/node_modules/@qilin-agent/desktop-host/lib/cli.js" "$@"
+ELECTRON_RUN_AS_NODE=1 exec "$resources/../MacOS/KToon" --expose-internals "$resources/app.asar/qilin/node_modules/@qilin-agent/desktop-host/lib/cli.js" "$@"

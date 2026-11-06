@@ -33,7 +33,7 @@
   line-height: 24px;
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: var(--qilin-alias-label-primary, var(--qilin-boot-label-primary));
+  color: var(--qilin-alias-brand-primary, var(--qilin-boot-brand));
 }
 
 .hint {

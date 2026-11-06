@@ -1,11 +1,11 @@
 {
   "darwin:en-US": {
     "menu": [
-      { "label": "About QiLin Desktop", "role": "about" },
+      { "label": "About KToon", "role": "about" },
       { "type": "separator" }
     ],
     "options": {
-      "applicationName": "QiLin Desktop",
+      "applicationName": "KToon",
       "applicationVersion": "1.0.0",
       "version": "",
       "copyright": "",
@@ -14,11 +14,11 @@
   },
   "darwin:zh-CN": {
     "menu": [
-      { "label": "关于 QiLin Desktop", "role": "about" },
+      { "label": "关于 KToon", "role": "about" },
       { "type": "separator" }
     ],
     "options": {
-      "applicationName": "QiLin Desktop",
+      "applicationName": "KToon",
       "applicationVersion": "1.0.0",
       "version": "",
       "copyright": "",
@@ -27,11 +27,11 @@
   },
   "win32:zh-CN": {
     "menu": [
-      { "label": "关于 QiLin Desktop" },
+      { "label": "关于 KToon" },
       { "type": "separator" }
     ],
     "options": {
-      "applicationName": "QiLin Desktop",
+      "applicationName": "KToon",
       "applicationVersion": "1.0.0",
       "version": "",
       "copyright": "",
@@ -40,11 +40,11 @@
   },
   "win32:en-US": {
     "menu": [
-      { "label": "About QiLin Desktop" },
+      { "label": "About KToon" },
       { "type": "separator" }
     ],
     "options": {
-      "applicationName": "QiLin Desktop",
+      "applicationName": "KToon",
       "applicationVersion": "1.0.0",
       "version": "",
       "copyright": "",

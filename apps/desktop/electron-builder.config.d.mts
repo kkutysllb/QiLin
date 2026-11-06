@@ -4,7 +4,7 @@ import type { AfterPackContext, BeforePackContext } from 'app-builder-lib'
 export interface DesktopElectronBuilderConfig {
   readonly appId: string
   readonly artifactName: string
-  readonly protocols: readonly [{ readonly name: 'QiLin Desktop'; readonly schemes: readonly ['qilin'] }]
+  readonly protocols: readonly [{ readonly name: 'KToon'; readonly schemes: readonly ['ktoon'] }]
   readonly directories: {
     readonly output: string
   }

@@ -3,7 +3,7 @@ import { WINDOWS_TITLEBAR_HEIGHT } from './windows-layout.ts'
 /** Electron shell: desktop project ownership, custom protocol, windows, and lifecycle. */
 
 import { readFile, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
   app,
@@ -31,9 +31,9 @@ import { installFileActions } from './file-actions.ts'
 import { installDesktopDirectoryPicker } from './directory-picker.ts'
 import { installMicrophonePermissions } from './microphone-permissions.ts'
 import { DesktopBackendController } from './backend-controller.ts'
-import { DESKTOP_IPC, SCHEME, assertDesktopSender, type DesktopUpdateState } from './ipc.ts'
+import { DESKTOP_IPC, SCHEME, SCHEME_ARGUMENT, assertDesktopSender, type DesktopUpdateState } from './ipc.ts'
 import { readDeviceInfo } from './device-info.ts'
-import { desktopUpdateReadyConfirmation, formatDesktopMessage, resolveDesktopLocale, resolveDesktopStartupLocale } from './locale.ts'
+import { desktopUpdateReadyConfirmation, formatDesktopMessage, resolveDesktopLocale, resolveDesktopStartupLocale, type DesktopLocale } from './locale.ts'
 import { claimDesktopSingleInstance } from './single-instance.ts'
 import { desktopUpdateChannel } from './update-channel.ts'
 import { DesktopUpdateCoordinator } from './update-coordinator.ts'
@@ -49,7 +49,6 @@ import { openWelcomeWindow } from './welcome-window.ts'
 import { submitLocalAccount } from './local-auth.ts'
 import { WELCOME_IPC, needsWelcome, type WelcomeNotice } from './welcome-api.ts'
 import { connectDesktopWelcome, type DesktopWelcomeBackend } from './welcome-backend.ts'
-import { closeSplashWindow, openSplashWindow } from './splash-window.ts'
 import { DesktopUpdateJournal } from './update-journal.ts'
 import { DesktopUpdatePreparationError } from './update-error.ts'
 import { DesktopUpdateSchedule, resolveDesktopUpdateScheduleConfig } from './update-schedule.ts'
@@ -70,6 +69,14 @@ import { DesktopUpdateOverlays } from './update-overlay.ts'
 import { DesktopQuitConfirmation } from './quit-confirmation.ts'
 import { DesktopTray } from './tray.ts'
 import { DesktopBackgroundNotice } from './background-notice.ts'
+import { closeKToonSplash, dismissKToonSplash, openKToonSplash } from './ktoon-splash.ts'
+import { loadDesktopProduct, type ResolvedDesktopProduct } from './product.ts'
+import { ensurePythonDependencies, prepareProductRuntime } from './product-runtime.ts'
+import { mintProductAccountSession } from './product-auth.ts'
+
+// KToon 面向中文用户：应用与内嵌 Web 的界面语言固定简体中文（显式语言偏好仍可覆盖）。
+// 必须在 ready 之前挂到 Chromium 命令行，navigator.language 与 app.getLocale 才会解析为 zh-CN。
+app.commandLine.appendSwitch('lang', 'zh-CN')
 
 let focusPrimaryWindow = (): void => {}
 let stopForRecovery = async (): Promise<void> => {}
@@ -89,12 +96,72 @@ let backendReady = false
 /** Error-level console output of the primary window, attached to crash reports. */
 const rendererConsole = new RendererConsoleTail()
 
+/** Product manifest outcome, resolved before `ready` so the application name is set early. */
+// KStock patch: desktop-product — one manifest replaces the hard-coded identity and welcome flow.
+const productState: { readonly product: ResolvedDesktopProduct } | { readonly failure: unknown } = (() => {
+  try {
+    return {
+      product: loadDesktopProduct({
+        packaged: app.isPackaged,
+        appPath: app.getAppPath(),
+        resourcesPath: process.resourcesPath,
+        manifestPath: process.env.QILIN_DESKTOP_PRODUCT,
+        root: process.env.QILIN_DESKTOP_PRODUCT_ROOT,
+      }),
+    }
+  } catch (error) {
+    return { failure: error }
+  }
+})()
+/** Product manifest; undefined when loading failed (the failure is reported after `ready`). */
+const product: ResolvedDesktopProduct | undefined = 'product' in productState ? productState.product : undefined
+/** Application scheme this build serves; a product may name its own. */
+const applicationScheme = product?.product.scheme ?? SCHEME
+/** Origin of the product's application document; shell documents keep the engine scheme. */
+const applicationOrigin = `${applicationScheme}://app`
+// Main-process helpers assert renderer origins without receiving the scheme directly.
+process.env.QILIN_DESKTOP_SCHEME = applicationScheme
+if (product !== undefined) {
+  app.setName(product.product.name)
+  app.setAppUserModelId(product.product.appId)
+  app.setAboutPanelOptions({ applicationName: product.product.name, applicationVersion: app.getVersion() })
+}
+
+// A product launcher may own Chromium state separately from its Harness home (development
+// runs keep their own profile and single-instance lock).
+const userDataOverride = process.env.QILIN_DESKTOP_USER_DATA_DIR
+if (userDataOverride !== undefined && userDataOverride !== '') app.setPath('userData', resolve(userDataOverride))
+
 // Platform-conventional logs directory (macOS ~/Library/Logs/<name>, otherwise under userData);
 // set before ready so the first fatal report already resolves under it.
 app.setAppLogsPath()
 
+/**
+ * Product release version shown to users.
+ *
+ * A product build exports QILIN_DESKTOP_PRODUCT_VERSION so the application reports its own release
+ * version; engine builds keep Electron's package version. This affects display only — update
+ * comparisons continue against app.getVersion(), which electron-builder already records as the
+ * product version for packaged builds.
+ * @returns the product version when exported, otherwise Electron's package version.
+ */
+function desktopAppVersion(): string {
+  const productVersion = process.env.QILIN_DESKTOP_PRODUCT_VERSION?.trim()
+  return productVersion === undefined || productVersion === '' ? app.getVersion() : productVersion
+}
+
+/** Replace the built-in product name in every localized string a product panel shows. */
+function brandLocale(locale: DesktopLocale): DesktopLocale {
+  const name = product?.product.name
+  if (name === undefined || name === 'QiLin Desktop') return locale
+  const messages = Object.fromEntries(Object.entries(locale.messages).map(([key, value]) => [
+    key, typeof value === 'string' ? value.replaceAll('QiLin Desktop', name) : value,
+  ])) as DesktopLocale['messages']
+  return { ...locale, messages }
+}
+
 function currentDesktopLocale(): ReturnType<typeof resolveDesktopLocale> {
-  return resolveDesktopLocale(windowsLanguage ?? app.getLocale())
+  return brandLocale(resolveDesktopLocale(windowsLanguage ?? app.getLocale()))
 }
 /** Quit without the task confirmation; the caller has already decided the application must stop. */
 function quitWithoutConfirmation(): void {
@@ -123,7 +190,7 @@ function persistCrashReport(error: unknown, source: CrashReportSource): Promise<
     ...(error instanceof DesktopHostFatalError && error.diagnostic !== undefined ? { hostDiagnostic: error.diagnostic } : {}),
     rendererConsole: rendererConsole.snapshot(),
     app: {
-      name: app.name, version: app.getVersion(), platform: process.platform, arch: process.arch,
+      name: app.name, version: desktopAppVersion(), platform: process.platform, arch: process.arch,
       electron: process.versions.electron, node: process.versions.node, locale: currentDesktopLocale().id,
     },
     time: new Date(),
@@ -131,18 +198,19 @@ function persistCrashReport(error: unknown, source: CrashReportSource): Promise<
 }
 
 function reportFatal(error: unknown, source: CrashReportSource): void {
+  dismissKToonSplash()
   console.error(error)
   if (shuttingDown) {
     // No dialog during shutdown, but the report still records what failed on the way out.
     void persistCrashReport(error, source)
     return
   }
-  closeSplashWindow()
+  dismissKToonSplash()
   void recovery.report(error, source).catch((failure: unknown) => { console.error(failure); app.exit(1) })
 }
 
 protocol.registerSchemesAsPrivileged([{
-  scheme: SCHEME,
+  scheme: applicationScheme,
   privileges: {
     standard: true,
     secure: true,
@@ -217,14 +285,19 @@ function platformLoginUrl(authorizeUrl: string): string {
 
 function createWindow(preload: string, show = false, primary = false): BrowserWindow {
   const window = new BrowserWindow({
-    width: 1280,
-    height: 820,
+    width: 1440,
+    height: 900,
     minWidth: 520,
     minHeight: 600,
+    // KToon: the product owns its navigation; no native menu bar above it.
+    autoHideMenuBar: true,
     show,
     ...(process.platform === 'win32' && primary ? {
       titleBarStyle: 'hidden' as const,
-      titleBarOverlay: { height: WINDOWS_TITLEBAR_HEIGHT, color: chromeFallbackFill(),
+      // KToon: the overlay paints only the 40px title strip; match the product
+      // canvas so the system buttons sit on the scene background.
+      titleBarOverlay: { height: WINDOWS_TITLEBAR_HEIGHT,
+        color: nativeTheme.shouldUseDarkColors ? '#0c0c0e' : '#faf7f2',
         symbolColor: nativeTheme.shouldUseDarkColors ? '#f9fafb' : '#0f1115' },
     } : {}),
     // hiddenInset places traffic lights inside the sidebar; sidebar vibrancy
@@ -246,8 +319,12 @@ function createWindow(preload: string, show = false, primary = false): BrowserWi
       webSecurity: true,
       webviewTag: primary,
       devTools: true,
+      // A product names its own application scheme; the sandboxed preload reads it here.
+      additionalArguments: [`${SCHEME_ARGUMENT}${applicationScheme}`],
     },
   })
+  window.setMenuBarVisibility(false)
+  if (process.platform !== 'darwin') window.setMenu(null)
   window.webContents.setWindowOpenHandler(({ url }) => {
     if (['http:', 'https:'].includes(new URL(url).protocol)) void shell.openExternal(url)
     return { action: 'deny' }
@@ -315,7 +392,7 @@ function createWindow(preload: string, show = false, primary = false): BrowserWi
   window.webContents.on('will-navigate', (event, url) => {
     const destination = new URL(url)
     const current = new URL(window.webContents.getURL())
-    if (destination.protocol !== `${SCHEME}:`
+    if (destination.protocol !== `${applicationScheme}:`
       && !(destination.protocol === 'http:' && destination.origin === current.origin)) {
       event.preventDefault()
       if (['http:', 'https:'].includes(destination.protocol)) void shell.openExternal(url)
@@ -325,20 +402,51 @@ function createWindow(preload: string, show = false, primary = false): BrowserWi
 }
 
 async function main(): Promise<void> {
-  // The splash covers the Host boot; every real surface and shutdown path below closes it.
-  void openSplashWindow().catch((error: unknown) => { console.warn('desktop splash: unavailable', error) })
   const desktopSettings = readDesktopSettings(app.getPath('userData'))
   void pruneCrashReports(app.getPath('logs'))
   const journalDirectory = process.env.QILIN_DESKTOP_UPDATE_JOURNAL_DIR
   const updateJournal = journalDirectory === undefined ? undefined : new DesktopUpdateJournal(journalDirectory, app.getVersion())
-  const resources = runtimeResources()
-  const paths = resolveDesktopPaths()
+  if ('failure' in productState) {
+    reportFatal(productState.failure, 'main')
+    return
+  }
+  openKToonSplash()
+  // A product drives its own runtime archive, profile, data root, and Host environment.
+  const productRuntime = product === undefined ? undefined : prepareProductRuntime({
+    product: product.product,
+    root: product.root,
+    packaged: app.isPackaged,
+    resourcesPath: process.resourcesPath,
+    version: app.getVersion(),
+    electronExecutable: process.execPath,
+    log: (message: string) => { console.info(message) },
+  })
+  if (productRuntime !== undefined) {
+    Object.assign(process.env, productRuntime.environment)
+    // Clean machines need the skill Python packages; this never blocks the window.
+    void ensurePythonDependencies({
+      dataDir: productRuntime.paths.dataDir,
+      environment: productRuntime.environment,
+      log: (message: string) => { console.info(message) },
+    })
+  }
+  const resources = productRuntime === undefined
+    ? runtimeResources()
+    : {
+      node: process.execPath,
+      nodeBin: productRuntime.paths.nodeBin,
+      pnpm: productRuntime.paths.pnpm,
+      qilin: productRuntime.paths.qilinDir,
+    }
+  const paths = resolveDesktopPaths(product?.product.profile)
   const development = !app.isPackaged
-  const primaryRuntime = development
-    ? developmentPrimaryRuntime()
-    : join(process.resourcesPath, 'runtime', 'primary-runtime')
+  const primaryRuntime = productRuntime !== undefined
+    ? undefined
+    : development
+      ? developmentPrimaryRuntime()
+      : join(process.resourcesPath, 'runtime', 'primary-runtime')
   const activeProject = paths.profile
-  const manager = new DesktopProjectManager(paths, resources)
+  const manager = new DesktopProjectManager(paths, resources, productRuntime === undefined)
   // The Desktop owns its Harness home; the login-shell read below preserves QILIN_* values,
   // so the Host and every child inherit this decision rather than the shared Web home.
   adoptDesktopHome()
@@ -353,7 +461,11 @@ async function main(): Promise<void> {
     return result.environment
   })
   let hostEnvironment: NodeJS.ProcessEnv = process.env
-  const prepareHostEnvironment = async (): Promise<void> => { hostEnvironment = await loginShell }
+  const prepareHostEnvironment = async (): Promise<void> => {
+    // Product-owned variables outrank the login shell: the shell cannot know the boot secret,
+    // data root, or preset root this launch resolved.
+    hostEnvironment = { ...await loginShell, ...productRuntime?.environment }
+  }
   let quitting = false
   let startup: Promise<void> | undefined
   let workspaceRecovery: Promise<void> | undefined
@@ -368,7 +480,7 @@ async function main(): Promise<void> {
   let updateStopFailure: DesktopHostUncleanExitError | undefined
   let updateState: DesktopUpdateState = { phase: 'idle' }
   const systemLanguages = app.getPreferredSystemLanguages()
-  let locale = resolveDesktopStartupLocale(null, systemLanguages)
+  let locale = brandLocale(resolveDesktopStartupLocale(null, systemLanguages))
   windowsLanguage = locale.id
   let mandatoryPolicy: DesktopMandatoryUpdatePolicy | undefined
   let mandatoryUI: DesktopMandatoryUpdateWindow | undefined
@@ -401,7 +513,7 @@ async function main(): Promise<void> {
   // chrome and its content never mix languages.
   const showAbout = async (): Promise<void> => {
     await ordinaryMessageBox({ type: 'info', title: locale.messages.aboutMenu, message: locale.messages.aboutProduct,
-      detail: formatDesktopMessage(locale.messages.aboutVersion, { version: app.getVersion() }),
+      detail: formatDesktopMessage(locale.messages.aboutVersion, { version: desktopAppVersion() }),
       buttons: [locale.messages.updateAcknowledge], cancelId: 0 })
   }
   const commandManager = new DesktopCommandManager({
@@ -414,7 +526,8 @@ async function main(): Promise<void> {
     show: ordinaryMessageBox,
   })
   const appPreload = fileURLToPath(new URL('./preload-app.cjs', import.meta.url))
-  const applicationUrl = `${SCHEME}://app/`
+  // The product may open a path other than the engine root (KToon opens its own studio).
+  const applicationUrl = `${applicationScheme}://app${product?.product.entry ?? '/'}`
   let hostUrl: string | undefined
   let hostCookie: string | undefined
   let accountSession: WebSessionCookie | undefined
@@ -498,7 +611,7 @@ async function main(): Promise<void> {
   let pendingWelcomeNotice: WelcomeNotice | undefined
   let previousAccountStatus: string | undefined
   const assertProductSender = (event: IpcMainInvokeEvent): void => {
-    assertDesktopSender(event, ['app'])
+    assertDesktopSender(event, ['app'], applicationScheme)
     if (mainWindow === undefined || mainWindow.isDestroyed() || event.sender !== mainWindow.webContents
       || event.senderFrame === null || event.senderFrame !== mainWindow.webContents.mainFrame) {
       throw new Error('qilin desktop: rejected IPC from an unowned renderer')
@@ -552,6 +665,21 @@ async function main(): Promise<void> {
         hostCookie = await authenticateWebHost(ready.url)
         await restoreAccountSession(ready.url)
         hostUrl = ready.url
+        // A product that owns its accounts exchanges its per-launch boot secret for a session here:
+        // the welcome surface never opens, and a Host without an account yet leaves the web gate visible.
+        if (product !== undefined && product.product.auth.mode === 'boot-secret' && accountSession === undefined) {
+          const secret = productRuntime?.environment[product.product.auth.secretEnv] ?? ''
+          try {
+            const session = await mintProductAccountSession({
+              origin: new URL(ready.url).origin,
+              auth: product.product.auth,
+              secret,
+            })
+            if (session !== undefined) storeAccountSession(ready.url, session)
+          } catch (error) {
+            console.warn('desktop product: automatic sign-in failed', error)
+          }
+        }
         if (ready.injections === undefined) throw new Error('Desktop Host did not provide boot injections')
         injections = ready.injections
         welcomeBackend = await connectDesktopWelcome(ready.url, fetchWithDesktopAuthority, async () => (await session.defaultSession.cookies.get({ url: ready.url })).map(cookie => `${cookie.name}=${cookie.value}`).join('; '))
@@ -768,7 +896,7 @@ async function main(): Promise<void> {
     window.once('closed', () => { resolve() })
   })
 
-  protocol.handle(SCHEME, async (request) => {
+  protocol.handle(applicationScheme, async (request) => {
     const url = new URL(request.url)
     // Shell-owned documents live in the application bundle and never pass through the Host.
     if (url.hostname === 'shell') return serveWebDocument(request, join(app.getAppPath(), 'renderer'))
@@ -777,12 +905,23 @@ async function main(): Promise<void> {
         || ['/favicon.svg', '/manifest.webmanifest'].includes(url.pathname)) {
         return serveWebDocument(request, join(resources.qilin, 'node_modules', '@qilin-agent', 'web-frontend', 'dist'))
       }
+      // 产品登出：壳清会话并回到欢迎/登录页，不依赖 Host 是否挂账号门。
+      if (request.method === 'POST' && url.pathname === '/api/auth/logout') {
+        clearAccountSession()
+        enteredWorkspace = false
+        void showWelcome().catch((error: unknown) => {
+          console.warn('desktop sign-out: welcome re-entry failed', error)
+        })
+        return Promise.resolve(new Response(JSON.stringify({ ok: true }), {
+          status: 200, headers: { 'content-type': 'application/json' },
+        }))
+      }
       if (backend.host === undefined || hostUrl === undefined || hostCookie === undefined) {
         return Promise.resolve(new Response(null, { status: 503 }))
       }
       const target = hostUrl
       const response = await forwardWebRequest(request, target, webCookieHeader(accountSession, hostCookie),
-        (cookie) => { storeAccountSession(target, cookie) })
+        (cookie) => { storeAccountSession(target, cookie) }, applicationOrigin)
       // Signing out returns the shell to the welcome stage, exactly like the browser landing page a
       // sign-out returns to: the workspace document has no session to boot, so the login surface
       // replaces it instead of leaving a spinner. enteredWorkspace clears first, or the welcome
@@ -805,8 +944,14 @@ async function main(): Promise<void> {
   app.on('will-quit', () => { shortcuts.dispose() })
 
   ipcMain.handle(DESKTOP_IPC.boot, async (event) => {
-    assertDesktopSender(event, ['app'])
+    assertDesktopSender(event, ['app'], applicationScheme)
     await startup
+    if (product?.product.auth.mode === 'boot-secret') {
+      // The application document carries the product's own account gate; boot proceeds without a
+      // shell-owned session so a Host without an account can still render sign-in.
+      if (backend.host === undefined || hostUrl === undefined) throw new Error('Desktop Host is unavailable')
+      return { injections, streamBaseUrl: new URL(hostUrl).origin }
+    }
     if (accountSession === undefined) {
       // The document cannot finish booting without a session, so the welcome stage must own the
       // screen while the wait lasts. enteredWorkspace is already false on every such path.
@@ -820,7 +965,7 @@ async function main(): Promise<void> {
   })
 
   ipcMain.handle(DESKTOP_IPC.bootFailed, (event, message: unknown) => {
-    assertDesktopSender(event, ['app'])
+    assertDesktopSender(event, ['app'], applicationScheme)
     if (event.sender !== mainWindow?.webContents || event.senderFrame !== event.sender.mainFrame) {
       throw new Error('qilin desktop: rejected startup failure from a non-primary frame')
     }
@@ -846,7 +991,7 @@ async function main(): Promise<void> {
     const requested = new URL(details.url)
     if (requested.host !== target.host || requested.protocol !== (target.protocol === 'https:' ? 'wss:' : 'ws:')) { callback({}); return }
     const headers = Object.fromEntries(Object.entries(details.requestHeaders).map(([name, value]) => [name.toLowerCase(), value]))
-    if (headers.origin !== 'qilin-app://app') { callback({ cancel: true }); return }
+    if (headers.origin !== applicationOrigin) { callback({ cancel: true }); return }
     callback({
       requestHeaders: {
         ...headers, origin: target.origin, cookie: webCookieHeader(accountSession, hostCookie),
@@ -858,7 +1003,7 @@ async function main(): Promise<void> {
   const assertMainApplication = (event: IpcMainInvokeEvent): BrowserWindow => {
     const owner = mainWindow
     if (owner === undefined || event.sender !== owner.webContents || event.senderFrame !== owner.webContents.mainFrame
-      || !event.senderFrame.url.startsWith('qilin-app://app/')) throw new Error('Rejected Platform command')
+      || !event.senderFrame.url.startsWith(`${applicationOrigin}/`)) throw new Error('Rejected Platform command')
     return owner
   }
   installFileActions(assertMainApplication, () => hostUrl)
@@ -893,7 +1038,7 @@ async function main(): Promise<void> {
     const window = mainWindow
     if (window === undefined || event.sender !== window.webContents || event.senderFrame !== window.webContents.mainFrame
       || typeof next !== 'string') return
-    const current = resolveDesktopStartupLocale(next, systemLanguages)
+    const current = brandLocale(resolveDesktopStartupLocale(next, systemLanguages))
     if (current.id === locale.id) return
     locale = current
     platformView.notifyLocaleChanged()
@@ -916,7 +1061,7 @@ async function main(): Promise<void> {
     const window = mainWindow
     if (window === undefined || window.isDestroyed() || event.sender !== window.webContents
       || event.senderFrame !== window.webContents.mainFrame
-      || !event.senderFrame.url.startsWith(`${SCHEME}://app/`) || typeof active !== 'boolean') return
+      || !event.senderFrame.url.startsWith(`${applicationScheme}://app/`) || typeof active !== 'boolean') return
     window.setMinimumSize(active ? 960 : 520, 600)
     if (active) {
       const { width, height } = window.getBounds()
@@ -964,7 +1109,7 @@ async function main(): Promise<void> {
         if (state.phase === 'idle') {
           await ordinaryMessageBox({ type: 'info', title: locale.messages.updateCheckTitle,
             message: locale.messages.updateCurrent,
-            detail: formatDesktopMessage(locale.messages.updateCurrentDetail, { version: app.getVersion() }) })
+            detail: formatDesktopMessage(locale.messages.updateCurrentDetail, { version: desktopAppVersion() }) })
           return
         }
         if (state.phase === 'ready' || (state.phase === 'error' && state.failedOperation === 'install')) {
@@ -1062,9 +1207,12 @@ async function main(): Promise<void> {
 
   const applicationIconPath = development ? join(app.getAppPath(), 'resources', 'icon-windows.png')
     : join(process.resourcesPath, 'icon.png')
+  if (process.env.QILIN_DESKTOP_PRODUCT_VERSION?.trim()) {
+    console.log(`desktop: product version ${desktopAppVersion()} (engine package ${app.getVersion()})`)
+  }
   app.setAboutPanelOptions({
-    applicationName: 'QiLin Desktop',
-    applicationVersion: app.getVersion(),
+    applicationName: 'KToon',
+    applicationVersion: desktopAppVersion(),
     // The release has no separate build number; omit Electron's bundle version.
     version: '',
     copyright: '',
@@ -1130,11 +1278,17 @@ async function main(): Promise<void> {
     tray?.relabel()
   }
   refreshApplicationMenu()
-  const trayIconPath = development ? join(app.getAppPath(), 'resources', 'tray-windows.ico') : join(process.resourcesPath, 'tray.ico')
-  if (process.platform === 'win32') {
+  const darwinTrayIcon = development ? join(app.getAppPath(), 'resources', 'tray-template.png') : join(process.resourcesPath, 'tray-template.png')
+  const trayIconPath = process.platform === 'darwin'
+    ? darwinTrayIcon
+    : development ? join(app.getAppPath(), 'resources', 'tray-windows.ico') : join(process.resourcesPath, 'tray.ico')
+  if (process.platform === 'win32' || process.platform === 'darwin') {
     // The tray is the way back to a hidden window; without it, relaunching the application still focuses it.
+    // macOS uses a template image and leaves click to the context menu; Windows opens on click.
     try {
       tray = new DesktopTray({ iconPath: trayIconPath, locale: currentDesktopLocale,
+        templateImage: process.platform === 'darwin',
+        openOnClick: process.platform !== 'darwin',
         open: () => { focusPrimaryWindow() }, quit: () => { app.quit() } })
     } catch (error) { console.warn('desktop tray: unavailable', error) }
   }
@@ -1157,7 +1311,7 @@ async function main(): Promise<void> {
 
   if (process.platform === 'win32') {
     ipcMain.handle(DESKTOP_IPC.windowsMenu, (event, name: unknown, x: unknown, y: unknown) => {
-      assertDesktopSender(event, ['app'])
+      assertDesktopSender(event, ['app'], applicationScheme)
       if (mainWindow === undefined || event.sender !== mainWindow.webContents
         || event.senderFrame !== mainWindow.webContents.mainFrame) throw new Error('desktop menu: rejected sender')
       const menu = CAPTION_MENUS.find(candidate => candidate === name)
@@ -1174,7 +1328,7 @@ async function main(): Promise<void> {
     ipcMain.on(DESKTOP_IPC.windowsAppearance, (event, language: unknown, color: unknown, symbolColor: unknown) => {
       if (mainWindow === undefined || event.sender !== mainWindow.webContents
         || event.senderFrame !== mainWindow.webContents.mainFrame) return
-      if (!event.senderFrame.url.startsWith(`${SCHEME}://app/`)) return
+      if (!event.senderFrame.url.startsWith(`${applicationScheme}://app/`)) return
       if (typeof language === 'string' && /^[a-zA-Z]+(?:-[a-zA-Z0-9]+)*$/u.test(language)) {
         windowsLanguage = language
       }
@@ -1205,12 +1359,29 @@ async function main(): Promise<void> {
       if (quitting || shellInstallerOwnsQuit || sessionEnding) return
       event.preventDefault()
       if (updateDialog.isOpen) { updateDialog.focus(); return }
-      const hide = (): void => {
-        if (!quitting && !shellInstallerOwnsQuit && !sessionEnding && !window.isDestroyed()) hideMainWindow(window)
-      }
-      if (backgroundNotice === undefined) hide()
-      else backgroundNotice.close(hide)
+      if (!quitting && !shellInstallerOwnsQuit && !sessionEnding && !window.isDestroyed()) hideMainWindow(window)
     })
+    // 产品入口路由可能先于 Host 注册 web 路由被请求，窗口会停留在空文档；
+    // 空文档按 1.2s 间隔重试，最多 5 次，直到渲染出内容（Host 路由就绪有延迟）。
+    let blankRetries = 0
+    let blankTimer: NodeJS.Timeout | undefined
+    const scheduleBlankCheck = (): void => {
+      if (blankTimer !== undefined) clearTimeout(blankTimer)
+      blankTimer = setTimeout(() => {
+        blankTimer = undefined
+        if (window.isDestroyed() || blankRetries >= 5) return
+        void window.webContents.executeJavaScript('document.body ? document.body.innerText.trim().length : 0', true)
+          .then((length: unknown) => {
+            if (typeof length === 'number' && length < 20 && !window.isDestroyed()) {
+              blankRetries += 1
+              window.webContents.reload()
+            }
+          })
+          .catch(() => undefined)
+      }, 1200)
+    }
+    window.webContents.on('did-finish-load', scheduleBlankCheck)
+    window.on('closed', () => { if (blankTimer !== undefined) clearTimeout(blankTimer) })
     if (process.platform === 'win32') {
       // Shutdown, restart, and log-off must not wait on a confirmation. query-session-end is only a
       // question that another application can veto without any follow-up message, so it does not count.
@@ -1247,10 +1418,10 @@ async function main(): Promise<void> {
     const window = mainWindow ?? createMainWindow()
     await navigateMain(applicationUrl)
     if (isQuitting() || recovery.active || window.isDestroyed()) return
-    if (activate) window.show()
+    if (activate) { window.show(); window.moveTop(); window.focus() }
     else window.showInactive()
     enteredWorkspace = true
-    closeSplashWindow()
+    closeKToonSplash()
     if (welcomeWindow !== undefined) {
       welcomeWindow.close()
       window.webContents.send(DESKTOP_IPC.enterWorkspace)
@@ -1268,11 +1439,15 @@ async function main(): Promise<void> {
   let openingWelcome: Promise<void> | undefined
   const showWelcome = (): Promise<void> => {
     if (quitting) return Promise.resolve()
-    closeSplashWindow()
+    closeKToonSplash()
+    // Products with their own account gate never show the built-in welcome surface; the
+    // application document owns sign-in instead.
+    if (product?.product.auth.mode === 'boot-secret') return navigateMain(applicationUrl, true)
     if (welcomeWindow !== undefined && !welcomeWindow.isDestroyed()) {
       if (!welcomeWindow.isVisible()) void track('auth_page_view', {})
       welcomeWindow.show()
       welcomeWindow.focus()
+      closeKToonSplash()
       return Promise.resolve()
     }
     openingWelcome ??= (async () => {
@@ -1350,9 +1525,16 @@ async function main(): Promise<void> {
   }
   const openInitialWindow = async (): Promise<void> => {
     if (quitting || recovery.active) return
+    // A product with its own account gate enters the workspace directly; the welcome backend's
+    // account routes belong to the engine's own sign-in surface.
+    if (product?.product.auth.mode === 'boot-secret') {
+      refreshApplicationMenu()
+      await enterWorkspace()
+      return
+    }
     const state = await readWelcomeState()
     if (isQuitting() || backend.state.phase !== 'ready') return
-    locale = resolveDesktopStartupLocale(state.localePreference, systemLanguages)
+    locale = brandLocale(resolveDesktopStartupLocale(state.localePreference, systemLanguages))
     windowsLanguage = locale.id
     refreshApplicationMenu()
     if (!enteredWorkspace && needsWelcome({ loggedIn: state.loggedIn, hasApiKey: state.hasApiKey })) {
@@ -1376,13 +1558,15 @@ async function main(): Promise<void> {
     if (window === mainWindow && !enteredWorkspace) return
     if (window.isMinimized()) window.restore()
     window.show()
+    window.moveTop()
     window.focus()
   }
 
-  if (app.isPackaged || process.env.QILIN_DESKTOP_DEV_APP === '1') app.setAsDefaultProtocolClient('qilin')
+  const deepLinkScheme = product?.product.scheme ?? 'qilin'
+  if (app.isPackaged || process.env.QILIN_DESKTOP_DEV_APP === '1') app.setAsDefaultProtocolClient(deepLinkScheme)
   app.on('open-url', (event, url) => {
     event.preventDefault()
-    if (url === 'qilin://open' || url === 'qilin://open/') focusPrimaryWindow()
+    if (url === `${deepLinkScheme}://open` || url === `${deepLinkScheme}://open/`) focusPrimaryWindow()
   })
 
   app.on('activate', (_event, hasVisibleWindows) => {
@@ -1411,7 +1595,7 @@ async function main(): Promise<void> {
       .catch((error: unknown) => { console.error(error) }).finally(() => { app.quit() })
   }
   app.on('before-quit', (event) => {
-    closeSplashWindow()
+    dismissKToonSplash()
     if (shellInstallerOwnsQuit) {
       shuttingDown = true
       quitConfirmation.dispose()
@@ -1457,7 +1641,7 @@ async function main(): Promise<void> {
     }, (state) => {
       if (state.error !== 'authentication-required') policyAuthenticationQueued = false
       if (state.blocking) {
-        closeSplashWindow()
+        dismissKToonSplash()
         for (const controller of ordinaryDialogs) controller.abort()
         if (!wasBlocking) updateDialog.cancel()
       }

@@ -4,8 +4,8 @@ import { describe, expect, it } from 'vitest'
 import { defaultQilinDesktopHome, resolveQilinDesktopHome } from '../src/index.ts'
 
 describe('resolveQilinDesktopHome', () => {
-  it('resolves the ~/.qilin-desktop default', () => {
-    expect(defaultQilinDesktopHome()).toBe(join(homedir(), '.qilin-desktop'))
+  it('resolves the ~/.ktoon default', () => {
+    expect(defaultQilinDesktopHome()).toBe(join(homedir(), '.ktoon'))
     expect(resolveQilinDesktopHome(undefined, {})).toBe(defaultQilinDesktopHome())
   })
 

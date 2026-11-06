@@ -28,6 +28,14 @@ import { parse } from 'semver'
 /** Environment variable that carries the build version through one packaging and upload run. */
 export const DESKTOP_BUILD_VERSION_ENV = 'QILIN_DESKTOP_BUILD_VERSION'
 
+/**
+ * Environment variable naming the product release version independently of the engine version.
+ *
+ * Engine packages keep their own version; a product built from this tree (KToon) exports the
+ * product version here so the application, its artifacts, and its update feed carry it instead.
+ */
+export const DESKTOP_PRODUCT_VERSION_ENV = 'QILIN_DESKTOP_PRODUCT_VERSION'
+
 /** Prerelease field that opens a test build's suffix on a stable product version. */
 const STABLE_TEST_FIELD = 'test'
 
@@ -78,6 +86,22 @@ export function validateDesktopBuildVersion(buildVersion, productVersion) {
       desktopBuildVersionPrefix(productVersion)}<date>.<run>.<attempt>`)
   }
   return build.version
+}
+
+/**
+ * Resolve the product release version, independent of the engine version.
+ *
+ * An engine build publishes the version its manifest declares. A product build exports
+ * `QILIN_DESKTOP_PRODUCT_VERSION` and publishes that instead, while engine packages keep their
+ * own version.
+ * @param {NodeJS.ProcessEnv} env - Packaging or upload environment.
+ * @param {string} declaredVersion - Engine version the desktop package manifest declares.
+ * @returns {string} The normalized product version.
+ */
+export function resolveDesktopProductVersion(env, declaredVersion) {
+  const productVersion = env[DESKTOP_PRODUCT_VERSION_ENV]?.trim()
+  if (productVersion === undefined || productVersion === '') return declaredVersion
+  return parseVersion(productVersion, 'product version').version
 }
 
 /**
