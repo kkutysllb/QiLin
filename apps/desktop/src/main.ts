@@ -50,6 +50,7 @@ import { submitLocalAccount } from './local-auth.ts'
 import { WELCOME_IPC, needsWelcome, type WelcomeNotice } from './welcome-api.ts'
 import { connectDesktopWelcome, type DesktopWelcomeBackend } from './welcome-backend.ts'
 import { closeSplashWindow, openSplashWindow } from './splash-window.ts'
+import { closeKStockSplash, dismissKStockSplash, openKStockSplash, usesKStockSplash } from './kstock-splash.ts'
 import { DesktopUpdateJournal } from './update-journal.ts'
 import { DesktopUpdatePreparationError } from './update-error.ts'
 import { DesktopUpdateSchedule, resolveDesktopUpdateScheduleConfig } from './update-schedule.ts'
@@ -186,6 +187,7 @@ function reportFatal(error: unknown, source: CrashReportSource): void {
     void persistCrashReport(error, source)
     return
   }
+  dismissKStockSplash()
   closeSplashWindow()
   void recovery.report(error, source).catch((failure: unknown) => { console.error(failure); app.exit(1) })
 }
@@ -387,7 +389,10 @@ function createWindow(preload: string, show = false, primary = false): BrowserWi
 
 async function main(): Promise<void> {
   // The splash covers the Host boot; every real surface and shutdown path below closes it.
-  void openSplashWindow().catch((error: unknown) => { console.warn('desktop splash: unavailable', error) })
+  // KStock patch (K50): a KStock build owns the first paint with its own product splash;
+  // every other product keeps the engine splash.
+  if (usesKStockSplash(product?.product.name)) openKStockSplash()
+  else void openSplashWindow().catch((error: unknown) => { console.warn('desktop splash: unavailable', error) })
   const desktopSettings = readDesktopSettings(app.getPath('userData'))
   void pruneCrashReports(app.getPath('logs'))
   const journalDirectory = process.env.QILIN_DESKTOP_UPDATE_JOURNAL_DIR
@@ -1429,6 +1434,7 @@ async function main(): Promise<void> {
     if (activate) window.show()
     else window.showInactive()
     enteredWorkspace = true
+    closeKStockSplash()
     closeSplashWindow()
     if (welcomeWindow !== undefined) {
       welcomeWindow.close()
@@ -1447,6 +1453,7 @@ async function main(): Promise<void> {
   let openingWelcome: Promise<void> | undefined
   const showWelcome = (): Promise<void> => {
     if (quitting) return Promise.resolve()
+    closeKStockSplash()
     closeSplashWindow()
     // Products with their own account gate never show the built-in welcome surface; the
     // application document owns sign-in instead.
@@ -1601,6 +1608,7 @@ async function main(): Promise<void> {
       .catch((error: unknown) => { console.error(error) }).finally(() => { app.quit() })
   }
   app.on('before-quit', (event) => {
+    dismissKStockSplash()
     closeSplashWindow()
     if (shellInstallerOwnsQuit) {
       shuttingDown = true
@@ -1647,6 +1655,7 @@ async function main(): Promise<void> {
     }, (state) => {
       if (state.error !== 'authentication-required') policyAuthenticationQueued = false
       if (state.blocking) {
+        dismissKStockSplash()
         closeSplashWindow()
         for (const controller of ordinaryDialogs) controller.abort()
         if (!wasBlocking) updateDialog.cancel()

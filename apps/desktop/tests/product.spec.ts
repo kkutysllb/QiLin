@@ -121,7 +121,7 @@ describe('product profile seeding', () => {
     expect(written.qilin.profile.bundles).toEqual(manifest.profileBundles)
   })
 
-  it('preserves user bundle layers when the product layers already exist', () => {
+  it('drops an unresolvable user layer while keeping the product layers (K41)', () => {
     const root = temporary()
     const profile = join(root, 'profile')
     mkdirSync(profile, { recursive: true })
@@ -129,9 +129,11 @@ describe('product profile seeding', () => {
       name: 'profile', private: true, dependencies: {},
       qilin: { profile: { bundles: [...manifest.profileBundles, 'user-layer'] } },
     }))
-    seedProductProfile(profile, parseDesktopProduct(manifest), [])
+    const logs: string[] = []
+    seedProductProfile(profile, parseDesktopProduct(manifest), [], message => logs.push(message))
     const written = JSON.parse(readFileSync(join(profile, 'package.json'), 'utf8')) as { qilin: { profile: { bundles: string[] } } }
-    expect(written.qilin.profile.bundles).toEqual([...manifest.profileBundles, 'user-layer'])
+    expect(written.qilin.profile.bundles).toEqual(manifest.profileBundles)
+    expect(logs).toContain('desktop profile: dropped unresolvable bundle(s): user-layer')
   })
 })
 
