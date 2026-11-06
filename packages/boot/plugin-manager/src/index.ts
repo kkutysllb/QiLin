@@ -737,6 +737,20 @@ export class PluginManager extends TypertRemoteService {
     announce('installing')
     const result = await installTarget()
     if (result.application !== 'failed' && result.application !== 'cancelled') return { from, to: version, step: 'install', result }
+    // KStock patch (K45): a version bumped in place deletes the previous version's directory before
+    // this process can drop the paths Node cached for it. The replacement is installed and saved;
+    // activating it here would only fail on the missing files, so report the restart the change needs
+    // and leave the new version for the next start instead of restoring the removed one.
+    if (result.application === 'failed' && result.stage === 'enable'
+      && result.error?.diagnostic !== undefined
+      && result.error.diagnostic.includes('ENOENT')
+      && result.error.diagnostic.includes(`${name}@${from}`)) {
+      // The optional error is dropped rather than set to undefined (exactOptionalPropertyTypes).
+      const { error: _replaced, ...rest } = result
+      return { from, to: version, step: 'install', result: {
+        ...rest, application: 'restart-required', restartReason: 'package-moved',
+      } }
+    }
     announce('restoring')
     // A target that installed but failed to start is still a dependency; it goes before the removed version returns.
     if (result.stage === 'enable') await settled('remove', name, this.removeBundle(name))

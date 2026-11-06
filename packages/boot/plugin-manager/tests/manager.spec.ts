@@ -1995,6 +1995,25 @@ it('updates a registry bundle by removing it and installing the exact newer vers
   expect(ctx.get('managedProbe')).toBe(true)
 })
 
+it('reports the restart a version bump needs when Node still selects the removed files (K45)', async () => {
+  const { manager, dir, bundle } = await fixture()
+  viewAnswers(extraRegistry)
+  extraPnpm(dir, bundle)
+  // pnpm replaced the files, then activation still selected extra@1.0.0 through Node's cached link.
+  const install = vi.spyOn(manager, 'installBundle').mockResolvedValue({
+    changed: true, application: 'failed', stage: 'enable', target: 'extra@1.2.0', enabled: true, version: '1.2.0',
+    error: { code: 'operation-error', diagnostic: "qilin: warning: 1 entry did not activate extra (extra): failed to import: Error: ENOENT: no such file or directory, lstat '/profile/node_modules/.pnpm/extra@1.0.0/node_modules/extra/lib'" },
+  } as never)
+  onTestFinished(() => { install.mockRestore() })
+  const updated = await manager.updateBundle('extra', '1.2.0', { registry: MIRROR })
+  expect(updated).toMatchObject({
+    from: '1.0.0', to: '1.2.0', step: 'install',
+    result: { application: 'restart-required', restartReason: 'package-moved', changed: true, version: '1.2.0' },
+  })
+  expect(updated.restore).toBeUndefined()
+  expect(updated.result.error).toBeUndefined()
+})
+
 it('installs the removed version again when the target fails to install', async () => {
   const { manager, dir, bundle } = await fixture()
   viewAnswers(extraRegistry)
