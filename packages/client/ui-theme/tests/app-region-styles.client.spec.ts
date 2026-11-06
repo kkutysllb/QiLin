@@ -71,7 +71,8 @@ const CHROME_ROWS: readonly ChromeRow[] = [
     file: SIDEBAR,
     selector: '.topStrip',
     markup: 'client/ui-sidebar/src/client/SidebarRoot.tsx',
-    height: ['height', '52px'],
+    // KStock patch (K13): 品牌行不再上提——topStrip 独占 48px，钉值随产品几何。
+    height: ['height', '48px'],
   },
   {
     file: SIDEBAR,
