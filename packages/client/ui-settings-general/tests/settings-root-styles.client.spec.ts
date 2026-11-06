@@ -49,6 +49,14 @@ describe('SettingsRoot.module.css overlay', () => {
     )
   })
 
+  it('drops the rail return control below the window control band on a self-drawn macOS titlebar', () => {
+    // The rail's 22px top padding alone leaves the control level with the window
+    // controls' 26px optical line, so darwin pushes it 20px further down.
+    expect(declarations(":global(html[data-platform='darwin']) .navBack")?.get('margin-top')).toBe('20px')
+    // Pure web sets no data-platform and keeps the flat rail.
+    expect(declarations('.navBack')?.get('margin-top')).toBeUndefined()
+  })
+
   it('gives the caption slot the same height and clips it away when no titlebar claims it', () => {
     const mark = declarations('.captionMark')
     expect(mark?.get('position')).toBe('fixed')
