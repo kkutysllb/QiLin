@@ -496,6 +496,16 @@ class ResolutionRouter {
         shadowed.set(name, current)
         continue
       }
+      // KStock patch (K44): a DSH compatibility alias (@deepseek-ai/* → @qilin-agent/*) is
+      // recorded under different scopes in the two generations — declared by a profile plugin
+      // in one traversal and by the installation in the other — while naming the same directory
+      // at the same version. That is bookkeeping, not a replacement: publish it, so a recompose
+      // after install / uninstall / toggle needs no restart. A real directory or version change
+      // still below falls through to the rejection.
+      if (next !== undefined
+        && current.scope !== next.scope
+        && sameResolution(current.packageDir, next.packageDir)
+        && current.version === next.version) continue
       if (next === undefined
         || !sameResolution(current.packageDir, next.packageDir)
         || (current.scope === 'installation' && !sameResolution(current.declarer, next.declarer))

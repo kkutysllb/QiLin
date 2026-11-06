@@ -1502,6 +1502,30 @@ describe('profile resolution generation', { concurrent: false }, () => {
     })).toBeInstanceOf(ResolutionRestartRequired)
   })
 
+  it('publishes a scope flip that keeps the same directory and version (K44)', async () => {
+    const f = fixture()
+    const first = await generationOf(f)
+    // A DSH compatibility alias is declared by a profile plugin in one traversal and by the
+    // installation in the other: scope and declarer flip while both name the same files.
+    const aliased = {
+      ...first,
+      entries: first.entries.map(entry => entry.name === 'resolution-lib'
+        ? { ...entry, scope: 'profile' as const, declarer: join(f.profile.dir, 'package.json') }
+        : entry),
+      localPackageNames: [...first.localPackageNames, 'resolution-lib'],
+    }
+    const registration = installRuntimeInterception(aliased)
+    registrations.push(registration)
+    const installed = first.entries.find(entry => entry.name === 'resolution-lib')
+    // profile → installation: the recomposition that used to throw now publishes.
+    expect(() => { registration.replace(first) }).not.toThrow()
+    expect(registration.packageDir(
+      'resolution-lib', pathToFileURL(join(f.profile.dir, 'entry.mjs')).href,
+    )).toBe(installed?.packageDir)
+    // installation → profile with the same directory and version is equally publishable.
+    expect(() => { registration.replace(aliased) }).not.toThrow()
+  })
+
   it('rejects changing an existing package mapping without publishing it', async () => {
     const f = fixture()
     const second = join(f.root, 'second')
