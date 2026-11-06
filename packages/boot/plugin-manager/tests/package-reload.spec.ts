@@ -28,7 +28,7 @@ vi.mock('chokidar', async (original) => {
 })
 
 /** Write the `addon` bundle, whose plugin is its private bare dependency `addon-plugin`. */
-function writeBundle(dir: string, version: number): void {
+function writeBundle(dir: string, version: number, dshEra = false): void {
   const bundleDir = join(dir, 'node_modules', 'addon')
   const pluginDir = join(bundleDir, 'node_modules', 'addon-plugin')
   rmSync(bundleDir, { recursive: true, force: true })
@@ -36,6 +36,7 @@ function writeBundle(dir: string, version: number): void {
   writeFileSync(join(bundleDir, 'package.json'), JSON.stringify({
     name: 'addon', version: `${version}.0.0`, type: 'module',
     dependencies: { 'addon-plugin': `${version}.0.0` }, qilin: { bundle: { patch: './cordis.patch.yml' } },
+    ...dshEra ? { peerDependencies: { '@deepseek-ai/dsh-session': '*' } } : {},
   }))
   writeFileSync(join(bundleDir, 'cordis.patch.yml'), JSON.stringify([{ insert: [{ id: 'addon', name: 'addon-plugin' }] }]))
   writeFileSync(join(pluginDir, 'package.json'), JSON.stringify({
@@ -53,8 +54,8 @@ export function apply(ctx) {
 }
 
 /** Write `addon` and save it as a profile dependency, as `pnpm add` does. */
-function installFiles(dir: string, version: number): void {
-  writeBundle(dir, version)
+function installFiles(dir: string, version: number, dshEra = false): void {
+  writeBundle(dir, version, dshEra)
   const manifest = readProfileManifest('test', dir)
   manifest.dependencies = { ...manifest.dependencies, addon: `${version}.0.0` }
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
@@ -81,7 +82,7 @@ function installOtherBundle(dir: string, shared = false): void {
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
 }
 
-async function fixture(options: { live?: boolean; installed?: boolean; enabled?: boolean; shared?: boolean } = {}) {
+async function fixture(options: { live?: boolean; installed?: boolean; enabled?: boolean; shared?: boolean; dshEra?: boolean } = {}) {
   const home = realpathSync.native(mkdtempSync(join(tmpdir(), 'manager-package-reload-')))
   let owner: Context | undefined
   onTestFinished(async () => {
@@ -90,7 +91,18 @@ async function fixture(options: { live?: boolean; installed?: boolean; enabled?:
   })
   const dir = join(home, 'profiles', 'test')
   const installAnchor = join(home, 'package.json')
-  writeFileSync(installAnchor, '{"name":"installation","dependencies":{}}\n')
+  // The installation ships the QiLin package a DSH-era bundle names through its compatibility alias.
+  const shipped = join(home, 'node_modules', '@qilin-agent', 'session')
+  if (options.dshEra === true) {
+    mkdirSync(shipped, { recursive: true })
+    writeFileSync(join(shipped, 'package.json'), JSON.stringify({
+      name: '@qilin-agent/session', version: '1.0.0', type: 'module', exports: './index.mjs',
+    }))
+    writeFileSync(join(shipped, 'index.mjs'), 'export const marker = 1\n')
+  }
+  writeFileSync(installAnchor, JSON.stringify({
+    name: 'installation', dependencies: options.dshEra === true ? { '@qilin-agent/session': '1.0.0' } : {},
+  }))
   initProfile(dir, options.installed === true && options.enabled !== false ? ['core', 'addon'] : ['core'])
   writeFileSync(join(dir, 'cordis.yml'), '[]\n')
   const core = join(dir, 'node_modules', 'core')
@@ -112,7 +124,7 @@ export function apply(ctx) {
   const manifest = readProfileManifest('test', dir)
   manifest.dependencies = {}
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
-  if (options.installed === true) installFiles(dir, 1)
+  if (options.installed === true) installFiles(dir, 1, options.dshEra === true)
   if (options.shared === true) {
     renameSync(join(dir, 'node_modules', 'addon', 'node_modules', 'addon-plugin'), join(dir, 'node_modules', 'addon-plugin'))
     installOtherBundle(dir, true)
@@ -157,7 +169,7 @@ export function apply(ctx) {
   onTestFinished(() => { published.mockRestore() })
   const bundleDir = join(dir, 'node_modules', 'addon')
   return {
-    ctx, dir, trace, published, manager: ctx.pluginManager,
+    ctx, dir, trace, published, shipped, manager: ctx.pluginManager,
     parentURL: pathToFileURL(join(dir, 'caller.cjs')).href,
     bundleURL: pathToFileURL(join(bundleDir, 'package.json')).href,
     bundleDir,
@@ -205,6 +217,32 @@ it('publishes a newly installed enabled bundle before its private bare plugin st
   const failed = await manager.installBundle('addon@3', { enabled: true })
   expect(failed).toMatchObject({ application: 'failed' })
   expect(failed).not.toHaveProperty('restartReason')
+})
+
+it('publishes a DSH-era alias of a shipped package as bundles start and stop naming it', async () => {
+  const { ctx, dir, trace, manager, shipped } = await fixture({ dshEra: true })
+  const alias = () => ctx.pluginPackages.resolution?.entries
+    .filter(entry => entry.name === '@deepseek-ai/dsh-session').at(-1)
+  expect(alias()).toMatchObject({ packageDir: shipped, version: '1.0.0', scope: 'installation' })
+  mockPnpm(dir, trace, (args) => {
+    if (args[0] === 'add') installFiles(dir, 1, true)
+    else removeFiles(dir)
+  })
+
+  // The installed bundle declares the pre-rescope name, so the profile books the alias for itself. The installation's
+  // directory still answers it at the same version, so the change publishes and the plugin runs without a restart.
+  expect(await manager.installBundle('addon', { enabled: true })).toMatchObject({ application: 'applied', changed: true })
+  expect(alias()).toMatchObject({ packageDir: shipped, scope: 'profile' })
+  expect(ctx.get('addonVersion')).toBe(1)
+  // Deselecting it books the alias back as installation-provided, and selecting it again moves it once more.
+  expect(await manager.setBundleEnabled('addon', false)).toMatchObject({ application: 'applied', changed: true })
+  expect(alias()).toMatchObject({ packageDir: shipped, scope: 'installation' })
+  expect(await manager.setBundleEnabled('addon', true)).toMatchObject({ application: 'applied', changed: true })
+  expect(alias()).toMatchObject({ packageDir: shipped, scope: 'profile' })
+  // Removing the bundle takes the alias out of the profile scope again.
+  expect(await manager.removeBundle('addon')).toMatchObject({ application: 'applied', changed: true })
+  expect(alias()).toMatchObject({ packageDir: shipped, scope: 'installation' })
+  expect(ctx.get('addonVersion')).toBeUndefined()
 })
 
 it('publishes a newly installed disabled bundle without evaluating its plugin', async () => {

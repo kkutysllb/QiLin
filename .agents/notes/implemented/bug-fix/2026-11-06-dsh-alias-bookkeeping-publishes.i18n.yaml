@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for 2026-11-06-dsh-alias-bookkeeping-publishes.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-11-06-dsh-alias-bookkeeping-publishes.md
+/agent-note-publishing-a-dsh-era-alias-whose-bookkeeping-changed:
+  en: 6586d8f04c31dd37
+  zh: 5995a3cc3aa923a3
+/agent-note-publishing-a-dsh-era-alias-whose-bookkeeping-changed/problem:
+  en: c0bd52590dac1dc5
+  zh: d3e651b4ec55c5d6
+/agent-note-publishing-a-dsh-era-alias-whose-bookkeeping-changed/decision:
+  en: ab152ae0ca69e163
+  zh: 893b4a785eb876aa
+/agent-note-publishing-a-dsh-era-alias-whose-bookkeeping-changed/alternatives-considered:
+  en: 9993832f2a88921a
+  zh: a8aa027035121fa7
+/agent-note-publishing-a-dsh-era-alias-whose-bookkeeping-changed/testing:
+  en: c0c082ded95d1c62
+  zh: 4f85b9b0e082a70f
+/agent-note-publishing-a-dsh-era-alias-whose-bookkeeping-changed/consequences:
+  en: 142583bf6fcca50e
+  zh: 7bdf251984813bf1
+/agent-note-publishing-a-dsh-era-alias-whose-bookkeeping-changed/related:
+  en: e3976f7090ca278d
+  zh: 1d4973ef1f18aafe

@@ -122,11 +122,13 @@ export interface ProfileResolutionRegistration {
    * package names may leave the table. A retained profile mapping may change its version, declarer, and directory, as an
    * upgrade in place and a reinstallation from another location do; files Node selected through its previous directory
    * load from the current one, and callers stop the plugins of that directory first. A previously published link name
-   * may point to another real directory in the same way. Existing modules and Node caches stay intact: callers remove a
+   * may point to another real directory in the same way. A retained mapping whose directory and version stay the same
+   * also publishes when its scope and declarer change, as a DSH-era alias republished for the manifest that now declares
+   * it does: one physical package answers either scope. Existing modules and Node caches stay intact: callers remove a
    * package only after its plugins stop, and replace the loaded modules of an upgrade in place separately.
    * @param generation - fully constructed successor generation.
-   * @throws when the profile scope changes; {@link ResolutionRestartRequired} when a retained installation mapping
-   * changes its directory, declarer, version, or scope or leaves, or a new local name overrides a package the
+   * @throws when the profile scope changes; {@link ResolutionRestartRequired} when a retained mapping changes its
+   * directory or version, leaves the table unless it is profile-scoped, or a new local name overrides a package the
    * installation provides. Every rejected change is named in the message.
    */
   replace(generation: RuntimeResolution): void
@@ -371,6 +373,11 @@ function sameResolution(left: string, right: string): boolean {
   return canonicalPath(leftPath) === canonicalPath(rightPath)
 }
 
+/** The diagnostic for one retained mapping the running process cannot adopt. */
+function restartDiagnostic(name: string): string {
+  return `profile resolution: replacing ${JSON.stringify(name)} requires a process restart`
+}
+
 /** A directory as given and in its JavaScript and native real paths, each with a trailing separator. */
 function spellings(dir: string): string[] {
   const result = new Set([dir + sep])
@@ -456,26 +463,29 @@ class ResolutionRouter {
     const moves: [string, string][] = []
     for (const [name, current] of this.current.entries) {
       const next = entries.get(name)
-      // A profile-scoped mapping may leave the table once its plugins have stopped.
-      if (next === undefined && current.scope === 'profile') continue
-      if (next !== undefined && current.scope === 'profile' && next.scope === 'profile') {
+      if (next === undefined) {
+        // A profile-scoped mapping may leave the table once its plugins have stopped.
+        if (current.scope === 'profile') continue
+        rejected.push(restartDiagnostic(name))
+        continue
+      }
+      // Real directories are compared: a link keeps its path when its target changes.
+      const realDir = canonicalPath(next.packageDir)
+      if (current.scope === 'profile' && next.scope === 'profile') {
         // A bundle-only fallback keeps its normalized directory; a package upgraded in place keeps that directory too,
-        // so its recorded version and declarer may move without the process holding a module of the old files. Real
-        // directories are compared: a link keeps its path when its target changes.
-        const realDir = canonicalPath(next.packageDir)
+        // so its recorded version and declarer may move without the process holding a module of the old files.
         if (current.realDir === realDir) continue
         // A profile mapping that names another directory is the package installed again elsewhere. Its plugins stop
         // before the publication, and files Node selected through the previous directory load from the current one.
         moves.push([current.realDir, realDir])
         continue
       }
-      if (next === undefined
-        || !sameResolution(current.packageDir, next.packageDir)
-        || (current.scope === 'installation' && !sameResolution(current.declarer, next.declarer))
-        || (current.scope === 'installation' && current.version !== next.version)
-        || current.scope !== next.scope) {
-        rejected.push(`profile resolution: replacing ${JSON.stringify(name)} requires a process restart`)
-      }
+      // One physical package answers both scopes: a DSH-era alias of a QiLin package is published for every manifest
+      // that declares it, so the directory the installation provides is booked as an installation mapping in one
+      // generation and as a profile mapping in the next. That difference, and the declarer it rewrites, changes no
+      // loaded module, so it publishes; a changed directory or version still requires a restart.
+      if (current.realDir === realDir && current.version === next.version) continue
+      rejected.push(restartDiagnostic(name))
     }
     const localPackageNames = new Set(generation.localPackageNames)
     for (const name of localPackageNames) {

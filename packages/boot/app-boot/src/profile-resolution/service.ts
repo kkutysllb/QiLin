@@ -93,11 +93,13 @@ export class PluginPackages extends Service {
   /**
    * Publish a successor generation for this process and subsequently created Workers. Profile-scoped mappings may
    * leave the table; a retained profile mapping may change its version, declarer, and directory; a link may point to
-   * another real directory. Existing modules and Node caches stay intact, so a caller replaces the loaded modules of an
-   * upgrade in place separately, and files Node selected through a previous directory are redirected to the current one.
+   * another real directory. A retained mapping whose directory and version stay the same also publishes when its scope
+   * and declarer change, as a DSH-era alias republished for the manifest that now declares it does. Existing modules and
+   * Node caches stay intact, so a caller replaces the loaded modules of an upgrade in place separately, and files Node
+   * selected through a previous directory are redirected to the current one.
    * @param generation - fully constructed successor generation.
-   * @throws when the profile scope changes; `ResolutionRestartRequired` when a retained installation mapping changes
-   * its directory, declarer, version, or scope or leaves, or a new local name overrides an existing mapping. A caller
+   * @throws when the profile scope changes; `ResolutionRestartRequired` when a retained mapping changes its directory
+   * or version, leaves the table unless it is profile-scoped, or a new local name overrides an existing mapping. A caller
    * that stops the replaced plugins first catches it to report a restart.
    */
   replace(generation: RuntimeResolution): void {

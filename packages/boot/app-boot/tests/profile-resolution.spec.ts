@@ -1563,6 +1563,68 @@ describe('profile resolution generation', { concurrent: false }, () => {
     expect(() => { registration.replace(mapped(next, '2.0.0')) }).not.toThrow()
   })
 
+  it('publishes a DSH-era alias whose scope and declarer move between two generations', async () => {
+    const f = fixture()
+    // The installation ships the QiLin package; a DSH-era bundle names its pre-rescope spelling.
+    const session = join(f.root, 'install', 'node_modules', '@qilin-agent', 'session')
+    pkg(session, '@qilin-agent/session', 3)
+    file(f.installAnchor, JSON.stringify({
+      name: 'test-app', version: '0.0.0',
+      dependencies: { 'resolution-lib': '*', '@qilin-agent/session': '*' },
+    }))
+    const bundle = join(f.profile.dir, 'node_modules', 'dsh-bundle')
+    pkg(bundle, 'dsh-bundle', 4, {}, { '@deepseek-ai/dsh-session': '*' })
+    const aliasEntries = (generation: RuntimeResolution) => (
+      generation.entries.filter(entry => entry.name === '@deepseek-ai/dsh-session')
+    )
+    const withoutBundle = await generationOf(f)
+    expect(aliasEntries(withoutBundle).at(-1)).toMatchObject({
+      packageDir: session, version: '3.0.0', scope: 'installation',
+    })
+    const registration = installRuntimeInterception(withoutBundle)
+    registrations.push(registration)
+
+    // Selecting the bundle republishes the alias for the manifest that declares it: same directory, same version.
+    f.profile.layers = [{ packageName: 'dsh-bundle', packageDir: bundle, patchPaths: [], patches: [] }]
+    const withBundle = await generationOf(f)
+    expect(aliasEntries(withBundle).at(-1)).toMatchObject({
+      packageDir: session, version: '3.0.0', scope: 'profile', declarer: join(bundle, 'package.json'),
+    })
+    expect(() => { registration.replace(withBundle) }).not.toThrow()
+    const parent = pathToFileURL(join(f.profile.dir, 'alias-entry.mjs')).href
+    expect(registration.packageDir('@deepseek-ai/dsh-session', parent)).toBe(session)
+
+    // Deselecting it books the alias back as installation-provided, which needs no restart either.
+    f.profile.layers = []
+    const deselected = await generationOf(f)
+    expect(() => { registration.replace(deselected) }).not.toThrow()
+    expect(registration.packageDir('@deepseek-ai/dsh-session', parent)).toBe(session)
+  })
+
+  it('rejects a DSH-era alias that a bundle republishes from another directory', async () => {
+    const f = fixture()
+    const session = join(f.root, 'install', 'node_modules', '@qilin-agent', 'session')
+    pkg(session, '@qilin-agent/session', 3)
+    file(f.installAnchor, JSON.stringify({
+      name: 'test-app', version: '0.0.0',
+      dependencies: { 'resolution-lib': '*', '@qilin-agent/session': '*' },
+    }))
+    const first = await generationOf(f)
+    const registration = installRuntimeInterception(first)
+    registrations.push(registration)
+    // A second copy of the same package is a second instance, so its alias still waits for the next start.
+    const copy = join(f.root, 'bundle', 'node_modules', '@qilin-agent', 'session')
+    pkg(copy, '@qilin-agent/session', 3)
+    const replaced = {
+      ...first,
+      entries: first.entries.filter(entry => entry.name !== '@deepseek-ai/dsh-session').concat([{
+        name: '@deepseek-ai/dsh-session', packageDir: copy, version: '3.0.0',
+        declarer: join(f.root, 'bundle', 'package.json'), scope: 'profile' as const,
+      }]),
+    }
+    expect(thrownError(() => { registration.replace(replaced) })).toBeInstanceOf(ResolutionRestartRequired)
+  })
+
   it('publishes a profile mapping that changed in place and adopts one that moved to another directory', async () => {
     const f = fixture()
     const second = join(f.root, 'second')
