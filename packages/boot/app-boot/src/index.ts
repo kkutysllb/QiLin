@@ -303,9 +303,7 @@ const ROOT_INCLUDE_ID = 'include'
  * @param ctx - booted root context.
  * @returns the root Include entry, or undefined when the tree has none.
  */
-function rootIncludeOf(ctx: Context): Entry | undefined {
-  const loader = ctx.get('loader')
-  if (loader === undefined) return undefined
+function rootIncludeIn<E extends StartupAuditEntry>(loader: { entries(): Iterable<E> }): E | undefined {
   // The root row is created before any plugin row, so the first match is it.
   return [...loader.entries()].find(row => row.options.id === ROOT_INCLUDE_ID)
 }
@@ -381,10 +379,11 @@ async function recompose(
   // The rows stopped first, which a failure before the generation applies puts back.
   let stopped: StoppedRow[] = []
   try {
-    const entry = rootIncludeOf(ctx)
+    const loader = ctx.get('loader')
+    const entry = loader === undefined ? undefined : rootIncludeIn(loader)
     if (entry === undefined) throw new Error(`${binName}: profile reload requires the root Include entry`)
     // Reading the prior state imports nothing, so plugin code does not run before the next generation publishes.
-    const previousFailures = (await inactiveEntries(ctx, false)).map((failure): RecordedFailure => ({
+    const previousFailures = (await inactiveEntriesOf<Entry>(ctx.loader, false)).map((failure): RecordedFailure => ({
       entry: failure.entry, fiber: failure.entry.fiber, options: JSON.stringify(failure.entry.options),
       // An entry without a running fiber has no import error yet; the judgment after the update reads it.
       diagnostic: failure.entry.fiber?.uid ? reloadDiagnostic(failure) : undefined,
@@ -441,7 +440,7 @@ async function recompose(
     }
     const results = await Promise.allSettled(previousFibers.map(({ fiber }) => fiber.await()))
     await ctx.loader.await()
-    const failures = await inactiveEntries(ctx)
+    const failures = await inactiveEntriesOf<Entry>(ctx.loader)
     const introduced = failures.filter((failure) => {
       if (requiredIds.includes(failure.entry.options.id)) return true
       // An entry waiting for a service starts once a provider appears.
@@ -475,7 +474,7 @@ async function recompose(
         await resume(ctx, running)
         // A restored row is a new Loader entry with the id of the one that ran.
         const ran = new Set(running.map(row => row.options.id))
-        for (const failure of await inactiveEntries(ctx)) {
+        for (const failure of await inactiveEntriesOf<Entry>(ctx.loader)) {
           if (ran.has(failure.entry.options.id)) ctx.logger.warn(`${binName}: ${reloadDiagnostic(failure)}`)
         }
       } catch (error) {
@@ -1010,13 +1009,42 @@ function formatActivationError(error: unknown, stacks = true): string {
   return details.join('\n')
 }
 
-interface InactiveEntry {
+/**
+ * The loader entry surface the startup audit reads. A Cordis `Entry` satisfies it,
+ * so callers may audit a loader view without constructing a whole Context.
+ */
+export interface StartupAuditEntry {
+  /** True when the entry's disabled expression excludes it from activation. */
+  readonly disabled?: boolean
+  /** Declaration identity: the bootstrap Include id and the required-id list. */
+  readonly options: { readonly id?: string; readonly name: string }
+  /** Activation state; absent before the entry imports. */
+  readonly fiber?: {
+    readonly state: FiberState
+    readonly inject: object
+    readonly ctx: { get(name: string): unknown }
+    await(): Promise<unknown>
+    readonly uid?: number | null
+  }
+  /** Owner group; a failed import is read through its tree. */
+  readonly parent?: { readonly tree: { import(name: string): Promise<unknown> } }
+}
+
+/** The loader view the startup audit reads. A Cordis `Loader` satisfies it. */
+export interface StartupAuditLoader {
+  /** Every entry the loader currently holds, in declaration order. */
+  entries(): Iterable<StartupAuditEntry>
+}
+
+interface Inactive<T extends StartupAuditEntry> {
   /** Loader entry used to identify the bootstrap Include and required ids. */
-  entry: Entry
+  entry: T
   /** Activation errors and missing services remain distinct for presentation. */
   outcome: { kind: 'failed'; error: unknown; phase?: string }
     | { kind: 'pending'; missing: string[] }
 }
+
+type InactiveEntry = Inactive<Entry>
 
 /** Inactive plugin metadata without retaining its Context or Fiber. */
 interface StartupEntryDiagnostic {
@@ -1064,10 +1092,13 @@ export class StartupError extends Error {
  * @param importNow - Whether to retry the import of an entry that has no running fiber.
  * @returns Every inactive entry with the reason it is inactive.
  */
-async function inactiveEntries(ctx: Context, importNow = true): Promise<InactiveEntry[]> {
-  const failures: InactiveEntry[] = []
+async function inactiveEntriesOf<T extends StartupAuditEntry>(
+  loader: { entries(): Iterable<T> },
+  importNow = true,
+): Promise<Inactive<T>[]> {
+  const failures: Inactive<T>[] = []
   const rejectionReasons: unknown[] = []
-  for (const entry of ctx.loader.entries()) {
+  for (const entry of loader.entries()) {
     try {
       if (entry.disabled) continue
     } catch (error) {
@@ -1109,9 +1140,11 @@ async function inactiveEntries(ctx: Context, importNow = true): Promise<Inactive
 }
 
 /** The error importing an entry's module raises now, or `undefined` when the module imports. */
-async function importFailure(entry: Entry): Promise<unknown> {
+async function importFailure(entry: StartupAuditEntry): Promise<unknown> {
+  const tree = entry.parent?.tree
+  if (tree === undefined) return undefined
   try {
-    await entry.parent.tree.import(entry.options.name)
+    await tree.import(entry.options.name)
     return undefined
   } catch (error) {
     return error
@@ -1124,9 +1157,9 @@ function failureDetail(outcome: Extract<InactiveEntry['outcome'], { kind: 'faile
 }
 
 /** Render optional-only warnings without changing startup policy. */
-function activationDiagnostic(
+function activationDiagnostic<T extends StartupAuditEntry>(
   binName: string,
-  failures: readonly InactiveEntry[],
+  failures: readonly Inactive<T>[],
   stacks = true,
 ): string {
   const noun = failures.length === 1 ? 'entry' : 'entries'
@@ -1137,24 +1170,28 @@ function activationDiagnostic(
  * Per-entry reload text, which people read through the Web UI and agents, so it carries error messages without stack
  * frames.
  */
-function reloadDiagnostic(failure: InactiveEntry): string {
+function reloadDiagnostic<T extends StartupAuditEntry>(failure: Inactive<T>): string {
   return inactiveDiagnostic(failure, false)
 }
 
 /** Stable per-entry text for reload comparisons and optional warnings. */
-function inactiveDiagnostic({ entry, outcome }: InactiveEntry, stacks = true): string {
+function inactiveDiagnostic<T extends StartupAuditEntry>({ entry, outcome }: Inactive<T>, stacks = true): string {
   const detail = outcome.kind === 'failed' ? failureDetail(outcome, stacks)
     : `pending (waiting for ${outcome.missing.length === 1 ? 'service' : 'services'}: ${outcome.missing.join(', ') || 'unknown'})`
   return `${entry.options.id} (${entry.options.name}): ${detail}`
 }
 
 /** Group startup failures and pending services, marking every required entry. */
-function startupDiagnostic(binName: string, failures: readonly InactiveEntry[], required: ReadonlySet<Entry>): string {
+function startupDiagnostic<T extends StartupAuditEntry>(
+  binName: string,
+  failures: readonly Inactive<T>[],
+  required: ReadonlySet<T>,
+): string {
   const lines = [`${binName}: startup failed: ${String(required.size)} required ${required.size === 1 ? 'plugin' : 'plugins'} did not activate`]
   const failed = failures.flatMap(({ entry, outcome }) => outcome.kind === 'failed' ? [{ entry, outcome }] : [])
   const pending = failures.flatMap(({ entry, outcome }) => outcome.kind === 'pending' ? [{ entry, outcome }] : [])
   pending.sort((left, right) => Number(required.has(right.entry)) - Number(required.has(left.entry)))
-  const label = (entry: Entry): string => `${entry.options.id}${required.has(entry) ? ' (required)' : ''}`
+  const label = (entry: T): string => `${entry.options.id ?? ''}${required.has(entry) ? ' (required)' : ''}`
   if (failed.length > 0) {
     lines.push('', `Failed plugins (${String(failed.length)}):`)
     for (const { entry, outcome } of failed) {
@@ -1193,13 +1230,29 @@ export async function auditStartupEntries(
   binName: string,
   warn: (line: string) => void = line => void process.stderr.write(line),
 ): Promise<void> {
-  const failures = await inactiveEntries(ctx)
-  const rootInclude = rootIncludeOf(ctx)
+  await auditStartupEntriesOf(ctx.loader, binName, warn)
+}
+
+/**
+ * Audit a loader view against QILIN startup policy without requiring its Context.
+ * @param loader - the settled loader whose entries to audit.
+ * @param binName - the prefix on startup diagnostics.
+ * @param warn - sink for optional-entry warnings.
+ * @returns after optional warnings if required startup checks pass.
+ * @throws {@link StartupError} when the bootstrap Include or a required entry is inactive or its disabled expression throws.
+ */
+export async function auditStartupEntriesOf(
+  loader: StartupAuditLoader,
+  binName: string,
+  warn: (line: string) => void = line => void process.stderr.write(line),
+): Promise<void> {
+  const failures = await inactiveEntriesOf(loader)
+  const rootInclude = rootIncludeIn(loader)
   const required = new Set(failures.filter(({ entry }) => entry === rootInclude
-    || requiredStartupEntryIds.has(entry.options.id)).map(({ entry }) => entry))
+    || (entry.options.id !== undefined && requiredStartupEntryIds.has(entry.options.id))).map(({ entry }) => entry))
   if (required.size > 0) {
     throw new StartupError(startupDiagnostic(binName, failures, required), failures.map(({ entry, outcome }) => ({
-      id: entry.options.id, module: entry.options.name, required: required.has(entry), fiberState: entry.fiber?.state, outcome,
+      id: entry.options.id ?? '', module: entry.options.name, required: required.has(entry), fiberState: entry.fiber?.state, outcome,
     })))
   }
   if (failures.length > 0) warn(activationDiagnostic(binName, failures))

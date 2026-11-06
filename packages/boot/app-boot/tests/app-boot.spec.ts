@@ -7,7 +7,7 @@ import { afterAll, describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
 import {
-  addHarnessSourceSection, auditStartupEntries, boot, StartupError,
+  addHarnessSourceSection, auditStartupEntriesOf, boot, StartupError, type StartupAuditLoader,
   FAIL_LOUD_RELEASE_TIMEOUT_MS, HARNESS_SOURCE_SECTION,
   installFailLoud, loadEnv, loadLayeredEnv, loadOverlayPatches, resolveConfigPath, type FailLoudProcess,
 } from '../src/index.ts'
@@ -432,10 +432,7 @@ describe('installFailLoud', () => {
         },
       })),
     }
-    const audit = auditStartupEntries({
-      loader,
-      get: (name: string) => name === 'loader' ? loader : undefined,
-    } as unknown as Context, NAME, warn)
+    const audit = auditStartupEntriesOf(loader, NAME, warn)
     await Promise.resolve()
     await Promise.resolve()
     proc.handlers[0]!(error)
@@ -529,13 +526,7 @@ describe('auditStartupEntries', () => {
     parent?: { tree: { import(name: string): Promise<unknown> } }
   }
 
-  const ctxWith = (entries: FakeEntry[]): Context => {
-    const loader = { entries: () => entries.values() }
-    return {
-      loader,
-      get: (name: string) => name === 'loader' ? loader : undefined,
-    } as unknown as Context
-  }
+  const loaderWith = (entries: FakeEntry[]): StartupAuditLoader => ({ entries: () => entries.values() })
 
   const fiber = (
     state: number,
@@ -551,9 +542,9 @@ describe('auditStartupEntries', () => {
 
   it('ignores active, disabled, and absent required entries', async () => {
     const warn = vi.fn()
-    await expect(auditStartupEntries(ctxWith([]), NAME, warn)).resolves.toBeUndefined()
+    await expect(auditStartupEntriesOf(loaderWith([]), NAME, warn)).resolves.toBeUndefined()
     for (const disabled of [false, true]) {
-      await expect(auditStartupEntries(ctxWith(requiredIds.map(id => ({
+      await expect(auditStartupEntriesOf(loaderWith(requiredIds.map(id => ({
         fiber: disabled ? fiber(3, new Error('disabled failure')) : fiber(2),
         disabled,
         options: { id, name: './required.mjs' },
@@ -565,7 +556,7 @@ describe('auditStartupEntries', () => {
   it('warns once for optional import, apply, and dependency failures', async () => {
     const warn = vi.fn()
     const original = new Error('todo apply failure')
-    await auditStartupEntries(ctxWith([
+    await auditStartupEntriesOf(loaderWith([
       // Its module imports now, so an entry without a fiber reports the bare failed import.
       { options: { id: 'missing-tool', name: './missing.mjs' }, parent: { tree: { import: () => Promise.resolve() } } },
       { fiber: fiber(3, original), options: { id: 'tool-todo', name: '@qilin-agent/tool-todo' } },
@@ -590,7 +581,7 @@ describe('auditStartupEntries', () => {
   ])('reports a throwing disabled expression on $id (required: $required)', async ({ id, required }) => {
     const error = new Error('disabled evaluation failed')
     const warn = vi.fn()
-    const result = auditStartupEntries(ctxWith([{
+    const result = auditStartupEntriesOf(loaderWith([{
       options: { id, name: './plugin.mjs' },
       get disabled(): boolean { throw error },
     }]), NAME, warn)
@@ -611,7 +602,7 @@ describe('auditStartupEntries', () => {
       cause: new Error('server rejected discovery'),
     })
     const wrapper = new Error('plugin activation failed', { cause: aggregate })
-    await auditStartupEntries(ctxWith([
+    await auditStartupEntriesOf(loaderWith([
       { fiber: fiber(3, wrapper), options: { id: 'wrapped-plugin', name: './wrapped.mjs' } },
     ]), NAME, warn)
     expect(warn).toHaveBeenCalledWith([
@@ -638,7 +629,7 @@ describe('auditStartupEntries', () => {
     const wrappedStackless = new Error('wrapped stackless', { cause: deepestWithoutStack })
     const wrappedValue = new Error('wrapped value', { cause: 'plain cause' })
 
-    await auditStartupEntries(ctxWith([
+    await auditStartupEntriesOf(loaderWith([
       { fiber: fiber(3, circular), options: { id: 'circular', name: './circular.mjs' } },
       { fiber: fiber(3, stackless), options: { id: 'stackless', name: './stackless.mjs' } },
       {
@@ -683,7 +674,7 @@ describe('auditStartupEntries', () => {
     const warn = vi.fn()
     const requiredError = new Error('address already in use')
     const optionalError = new Error('todo unavailable')
-    const error = await auditStartupEntries(ctxWith([
+    const error = await auditStartupEntriesOf(loaderWith([
       { fiber: fiber(3, requiredError), options: { id, name: './required.mjs' } },
       { fiber: fiber(3, optionalError), options: { id: 'tool-todo', name: '@qilin-agent/tool-todo' } },
     ]), NAME, warn).catch((error: unknown) => error)
@@ -696,7 +687,7 @@ describe('auditStartupEntries', () => {
   })
 
   it('omits an error cause when required plugins are only waiting for services', async () => {
-    const error = await auditStartupEntries(ctxWith([
+    const error = await auditStartupEntriesOf(loaderWith([
       { fiber: fiber(0, undefined, { webStartup: {} }), options: { id: 'connection', name: './connection.mjs' } },
     ]), NAME, vi.fn()).catch((error: unknown) => error)
     expect(error).toBeInstanceOf(StartupError)
@@ -733,7 +724,7 @@ describe('auditStartupEntries', () => {
     leaf.stack = 'Error: leaf failure\n    at plugin.mjs:1:2'
     const aggregate = new AggregateError([leaf, 'plain failure'], 'activation failed', { cause: leaf })
     aggregate.stack = 'AggregateError: activation failed\n    at plugin.mjs:3:4'
-    const error = await auditStartupEntries(ctxWith([
+    const error = await auditStartupEntriesOf(loaderWith([
       { fiber: fiber(3, aggregate), options: { id: 'webserver', name: './plugin.mjs' } },
     ]), NAME, vi.fn()).catch((error: unknown) => error)
     expect((error as Error).message).toContain('AggregateError: activation failed')
@@ -747,7 +738,7 @@ describe('auditStartupEntries', () => {
     const original = new Error('listen EADDRINUSE: address already in use 127.0.0.1:3080')
     original.stack = `${original.name}: ${original.message}\n    at Server.listen (node:net:1:2)`
     const warn = vi.fn()
-    const error = await auditStartupEntries(ctxWith([
+    const error = await auditStartupEntriesOf(loaderWith([
       { fiber: fiber(0, undefined, { webServer: {} }), options: { id: 'web-runtime', name: './web.mjs' } },
       { fiber: fiber(3, original), options: { id: 'webserver', name: '@qilin-agent/host-webserver' } },
       { fiber: fiber(0, undefined, { webStartup: {} }), options: { id: 'connection', name: './connection.mjs' } },
@@ -773,7 +764,7 @@ describe('auditStartupEntries', () => {
   })
 
   it('rejects a required entry pending on an injected service', async () => {
-    await expect(auditStartupEntries(ctxWith([{
+    await expect(auditStartupEntriesOf(loaderWith([{
       fiber: fiber(0, undefined, { headlessStartup: {} }),
       options: { id: 'headless-runner', name: '@qilin-agent/headless' },
     }]), NAME, vi.fn())).rejects.toThrow(

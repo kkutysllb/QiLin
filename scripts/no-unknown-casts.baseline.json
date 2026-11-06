@@ -354,9 +354,6 @@
   "packages/attachment/attachment/tests/admission.spec.ts": {
     "d7dc9c349af8699fefcaffed26377443dd73ef95f1dc985f4de542ec133869f5": 1
   },
-  "packages/boot/app-boot/tests/app-boot.spec.ts": {
-    "21592e5fa1e3dabe0631e13e2dbdbe63aa546fb0de2cd4da5c8dd8c195a1455d": 2
-  },
   "packages/boot/app-boot/tests/profile-recomposition.spec.ts": {
     "8e64f643827a3bd6972a25e9bc1cd71c4e9849f2876ac48c40240886b4ef51c9": 1
   },
