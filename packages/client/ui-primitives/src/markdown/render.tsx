@@ -84,11 +84,15 @@ function remoteImageUrl(url: string): string | undefined {
   }
 }
 
-/** Protocols a vocabulary-rewritten image destination may carry. */
+/**
+ * Protocols a vocabulary-rewritten image destination may carry. `qilin-app:`
+ * is the desktop shell's standard scheme: plugin detail images resolve against
+ * the page's own base there, and the shell serves them itself.
+ */
 function vocabularyImageUrl(url: string): string | undefined {
   try {
     const protocol = new URL(url).protocol
-    return protocol === 'http:' || protocol === 'https:' || protocol === 'blob:' || protocol === 'data:'
+    return protocol === 'http:' || protocol === 'https:' || protocol === 'blob:' || protocol === 'data:' || protocol === 'qilin-app:'
       ? url
       : undefined
   } catch {

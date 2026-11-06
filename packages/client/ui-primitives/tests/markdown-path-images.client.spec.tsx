@@ -80,6 +80,13 @@ describe('MarkdownText local-path images', () => {
     expect(screen.getByText('diagram')).toBeTruthy()
   })
 
+  it('accepts a desktop app-scheme vocabulary result', () => {
+    const app: MarkdownPathImages = { resolve: () => 'qilin-app://app/api/plugin-manager/detail-file?path=preview.svg' }
+    const { container } = render(<MarkdownText text={LOCAL_IMAGE} pathImages={app} />)
+    expect(resolverSrc(container.querySelector('img')))
+      .toBe('qilin-app://app/api/plugin-manager/detail-file?path=preview.svg')
+  })
+
   it('accepts data and blob vocabulary results', () => {
     const data: MarkdownPathImages = { resolve: () => 'data:image/png;base64,AAAA' }
     const blob: MarkdownPathImages = { resolve: () => 'blob:https://example.com/id' }
