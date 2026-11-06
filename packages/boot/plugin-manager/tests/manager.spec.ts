@@ -828,6 +828,16 @@ it('reports a selected plain dependency as a problem, omits an unselected one, a
   expect((await manager.listBundles()).filter(bundle => bundle.installTarget === undefined)).toEqual([])
 })
 
+it('refuses to disable a bundle the product always keeps on', async () => {
+  const { manager, bundle } = await fixture()
+  const name = '@qilin-agent/experimental-schedule-bundle'
+  bundle(name, [])
+  expect(await manager.setBundleEnabled(name, true)).toMatchObject({ application: 'applied' })
+  expect(await manager.setBundleEnabled(name, false)).toMatchObject({
+    changed: false, application: 'failed', error: { code: 'always-enabled' },
+  })
+})
+
 it('refuses management bundle disablement and permits repeated bundle selections', async () => {
   const { manager } = await fixture()
   expect(await manager.setBundleEnabled('core', false)).toMatchObject({ application: 'failed', changed: false })

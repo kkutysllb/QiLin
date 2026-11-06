@@ -23,7 +23,7 @@ declare module '@qilin-agent/typert-protocol' {
 }
 
 /** Reasons a profile control cannot modify its target. */
-export type ReadOnlyReason = 'management-required' | 'unaddressable'
+export type ReadOnlyReason = 'management-required' | 'unaddressable' | 'always-enabled'
 
 /** A package whose declared qilin peers reject the running runtime version, without an exemption for the exact pair. */
 export interface IncompatiblePlugin {

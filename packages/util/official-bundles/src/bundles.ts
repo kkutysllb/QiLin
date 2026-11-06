@@ -31,6 +31,17 @@ export const EXTENSION_BUNDLES: readonly string[] = [
 ]
 
 /**
+ * The bundles the product ships as always-on built-ins: the Plugins page hides
+ * their switch and the Host refuses to disable them, so a profile hand-edit, a
+ * stale toggle, or a CLI call cannot strand the surfaces the product guarantees
+ * (agent teams and scheduled tasks are part of the product, not a preview).
+ */
+export const ALWAYS_ON_BUNDLES: ReadonlySet<string> = new Set([
+  '@qilin-agent/experimental-agent-team-profile',
+  '@qilin-agent/experimental-schedule-bundle',
+])
+
+/**
  * The optional bundles the main list leaves out until the profile enables them;
  * the More list holds every eligible bundle and ranks these last, in this order.
  */
