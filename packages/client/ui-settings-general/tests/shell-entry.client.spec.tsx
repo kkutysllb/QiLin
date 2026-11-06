@@ -13,7 +13,6 @@ import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/c
 import { apply, inject } from '../src/client/index.ts'
 import { SettingsRoot } from '../src/client/SettingsRoot.tsx'
 import { SettingsDocumentAction } from '../src/client/SettingsDocumentAction.tsx'
-import { DeveloperToolsRow, type DeveloperToolsRowInjected } from '../src/client/DeveloperToolsRow.tsx'
 import type { SettingsRootInjected } from '../src/client/shell-contract.ts'
 import type { SettingsDocumentActionInjected } from '../src/client/SettingsDocumentAction.tsx'
 
@@ -132,23 +131,6 @@ describe('settings shell entry wiring', () => {
     await b.fiber.dispose()
   })
 
-  it('reports a completed developer-tools toggle to product analytics', async () => {
-    const b = await bench()
-    const entry = b.slots.entries('settings.general.item').find(row => row.options.id === 'developer-tools')
-    if (entry?.inject === undefined) throw new Error('the developer-tools row was not registered')
-    const face = (entry.inject as unknown as () => DeveloperToolsRowInjected)()
-    const enabled = b.ctx.configForms.developerTools.enabled
-    let value = enabled.getSnapshot()
-    vi.spyOn(b.ctx.configForms.developerTools, 'setEnabled').mockImplementation(async (next: boolean) => { value = next })
-    vi.spyOn(enabled, 'getSnapshot').mockImplementation(() => value)
-    const track = vi.fn()
-    b.ctx.provide('productAnalytics', { track } as never)
-
-    await face.setEnabled(true)
-    expect(track).toHaveBeenCalledWith('code_work_view_toggle', { is_enabled: true }, expect.any(Number))
-    await b.fiber.dispose()
-  })
-
   it('reloads the page from the Host-release prompt action', async () => {
     const b = await bench()
     const overlay = b.slots.entries('shell.overlay').find(row => row.options.id === 'host-release-change')
@@ -165,18 +147,9 @@ describe('settings shell entry wiring', () => {
     await b.fiber.dispose()
   })
 
-  it('injects the shared cursor-tools preference into the General row', async () => {
+  it('does not seat a coding-view switch in the General section (K48)', async () => {
     const b = await bench()
-    const entry = b.slots.entries('settings.general.item').find(row => row.options.id === 'developer-tools')
-    if (entry?.inject === undefined) throw new Error('the developer-tools row was not registered')
-    expect(entry.component).toBe(DeveloperToolsRow)
-
-    const face = (entry.inject as unknown as () => DeveloperToolsRowInjected)()
-    expect(face.hooks.developerTools).toBe(b.ctx.configForms.developerTools.enabled)
-    const setEnabled = vi.spyOn(b.ctx.configForms.developerTools, 'setEnabled').mockResolvedValue(undefined)
-    await face.setEnabled(true)
-    expect(setEnabled).toHaveBeenCalledWith(true)
-    setEnabled.mockRestore()
+    expect(b.slots.entries('settings.general.item').some(row => row.options.id === 'developer-tools')).toBe(false)
     await b.fiber.dispose()
   })
 

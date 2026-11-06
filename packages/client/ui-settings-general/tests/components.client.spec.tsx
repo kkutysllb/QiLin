@@ -3,13 +3,11 @@ import type { GlobalStandardProps } from '@qilin-agent/client-ui-slots'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { allowAllAccess, bindSnapshotSelector, contextMenuHook, RemoteError } from '@qilin-agent/client-test-runtime'
-import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { GeneralSectionComponentProps } from '../src/client/GeneralSection.tsx'
 import { GeneralSection } from '../src/client/GeneralSection.tsx'
 import { CloseLabel, HeaderContent } from '../src/client/chrome.tsx'
 import type { HeaderContentProps } from '../src/client/chrome.tsx'
 import { SettingsDocumentAction } from '../src/client/SettingsDocumentAction.tsx'
-import { DeveloperToolsRow } from '../src/client/DeveloperToolsRow.tsx'
 import { SettingsDescribeMirror } from '@qilin-agent/client-ui-settings/src/client/settings-mirror.ts'
 import { SettingsDocumentStore } from '../src/client/settings-document-store.ts'
 import { en, zh } from '../src/client/locales.ts'
@@ -68,37 +66,6 @@ describe('GeneralSection', () => {
     expect(renderSlot).toHaveBeenCalledWith('settings.general.item', {})
     expect(screen.getByTestId('slot-settings.general.item')).toBeTruthy()
   })
-})
-
-it('toggles coding tools using the accepted setting and disables duplicate writes', async () => {
-  const state = createSnapshotStore(false)
-  let finish!: () => void
-  const setEnabled = vi.fn((enabled: boolean) => new Promise<void>((resolve) => {
-    finish = () => { state.set(enabled); resolve() }
-  }))
-  render(<DeveloperToolsRow {...kit} t={t} useDeveloperTools={bindSnapshotSelector(state)} setEnabled={setEnabled} />)
-  const toggle = screen.getByRole('switch', { name: 'Show coding view' })
-  expect(toggle.getAttribute('aria-checked')).toBe('false')
-  fireEvent.click(toggle)
-  expect(setEnabled).toHaveBeenCalledWith(true)
-  expect(toggle.hasAttribute('disabled')).toBe(true)
-  finish()
-  await waitFor(() => { expect(toggle.getAttribute('aria-checked')).toBe('true') })
-  expect(toggle.hasAttribute('disabled')).toBe(false)
-})
-
-it('reports a failed coding-tool write and allows retry', async () => {
-  const state = createSnapshotStore(false)
-  const setEnabled = vi.fn().mockRejectedValueOnce(new Error('offline')).mockImplementation(async (enabled: boolean) => { state.set(enabled) })
-  render(<DeveloperToolsRow {...kit} t={t} useDeveloperTools={bindSnapshotSelector(state)} setEnabled={setEnabled} />)
-  const toggle = screen.getByRole('switch', { name: 'Show coding view' })
-  fireEvent.click(toggle)
-  expect((await screen.findByRole('alert')).textContent).toBe('Could not save. Please try again.')
-  expect(toggle.hasAttribute('disabled')).toBe(false)
-  expect(toggle.getAttribute('aria-checked')).toBe('false')
-  fireEvent.click(toggle)
-  await waitFor(() => { expect(toggle.getAttribute('aria-checked')).toBe('true') })
-  expect(screen.queryByRole('alert')).toBeNull()
 })
 
 describe('SettingsDocumentAction', () => {

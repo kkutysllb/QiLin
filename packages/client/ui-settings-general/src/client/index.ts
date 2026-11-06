@@ -31,7 +31,6 @@ import { CloseLabel, HeaderContent } from './chrome.tsx'
 import { AboutSection } from './AboutSection.tsx'
 import { GeneralSection } from './GeneralSection.tsx'
 import { CurrentVersionRow } from './CurrentVersionRow.tsx'
-import { DeveloperToolsRow, type DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
 import { SettingsDocumentAction, type SettingsDocumentActionInjected } from './SettingsDocumentAction.tsx'
 import { SettingsDocumentStore } from './settings-document-store.ts'
 import { HostReleasePrompt, type HostReleasePromptInjected } from './HostReleasePrompt.tsx'
@@ -44,7 +43,6 @@ export type {
 export type {
   GeneralSectionComponentProps,
 } from './GeneralSection.tsx'
-export type { DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
 export type { SettingsDocumentActionInjected, SettingsDocumentActionProps } from './SettingsDocumentAction.tsx'
 export type { SettingsDocumentState } from './settings-document-store.ts'
 export { SettingsDocumentStore } from './settings-document-store.ts'
@@ -64,8 +62,7 @@ const NS = 'settings'
  * Required services (cordis fiber inject). The target slots are declared by
  * ui-settings' apply, whose activation order relative to this one is NOT
  * constrained; registrations depend on their slots through `slots.inject()`.
- * `configForms` serves the local-document availability mirror and the
- * shared coding-tools preference.
+ * `configForms` serves the local-document availability mirror.
  */
 export const inject = ['slots', 'locale', 'connection', 'remote', 'remote.settings', 'configForms', 'shortcuts', 'modules']
 
@@ -75,21 +72,8 @@ export const inject = ['slots', 'locale', 'connection', 'remote', 'remote.settin
  * @param ctx - client root context.
  */
 export function apply(ctx: ClientContext): void {
-  ctx.slots.inject('settings.general.item', () => ctx.slots.register({
-    name: 'settings.general.item', id: 'developer-tools', order: 15, locale: NS,
-    inject: (): DeveloperToolsRowInjected => ({
-      hooks: { developerTools: ctx.configForms.developerTools.enabled },
-      setEnabled: async (enabled) => {
-        const preference = ctx.configForms.developerTools
-        const previous = preference.enabled.getSnapshot()
-        const timestamp = Date.now()
-        await preference.setEnabled(enabled)
-        if (previous !== enabled && preference.enabled.getSnapshot() === enabled) {
-          ctx.get('productAnalytics')?.track('code_work_view_toggle', { is_enabled: enabled }, timestamp)
-        }
-      },
-    }),
-  }, DeveloperToolsRow))
+  // KStock patch (K48): 通用设置不提供「显示代码工作视图」开关。该偏好默认开启，
+  // 轨迹 / 代码差异 / Agent 预设切换沿用产品既有行为，不再给用户关闭入口。
   // Version information follows the core preferences.
   ctx.slots.inject('settings.general.item', () => ctx.slots.register({
     name: 'settings.general.item', id: 'current-version', order: 100, locale: NS,
