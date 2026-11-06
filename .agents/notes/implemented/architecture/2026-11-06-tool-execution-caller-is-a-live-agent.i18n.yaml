@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for 2026-11-06-tool-execution-caller-is-a-live-agent.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-11-06-tool-execution-caller-is-a-live-agent.md
+/agent-note-a-tool-call-carries-the-live-agent:
+  en: 91f98c164d81f04b
+  zh: 22a5bd2cf26a124e
+/agent-note-a-tool-call-carries-the-live-agent/problem:
+  en: 2a90bbf78bd94a8b
+  zh: 1f6496fe4ec3a0a2
+/agent-note-a-tool-call-carries-the-live-agent/decision:
+  en: b6b7c56e52a7a6b8
+  zh: 092a276b323317c3
+/agent-note-a-tool-call-carries-the-live-agent/cost-of-a-narrowed-caller-type:
+  en: 95f5773fd34ff55a
+  zh: 1d07ba8ab3df2eb5
+/agent-note-a-tool-call-carries-the-live-agent/alternatives-considered:
+  en: 4cb6becbbbe5f8f8
+  zh: b9194bf11c462f08
+/agent-note-a-tool-call-carries-the-live-agent/consequences:
+  en: ce9fc298ec0b9e3f
+  zh: a954b27973da07ce
+/agent-note-a-tool-call-carries-the-live-agent/verification:
+  en: a808fce6edb24d68
+  zh: 8186b218022475de
