@@ -1590,7 +1590,9 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   // built-in group: promotion is a deletion from EXPERIMENTAL_BUNDLES, not a rename.
   const extensions = ordered.filter(pkg => pinned.has(pkg.name) && isExperimentalBundle(pkg.name))
   const promoted = ordered.filter(pkg => pinned.has(pkg.name) && !isExperimentalBundle(pkg.name))
-  const more = ordered
+  // KStock patch (K47): a promoted built-in bundle keeps its card on the main list; the
+  // experimental page does not repeat it, so Agent Teams and Automation Tasks stay out.
+  const more = ordered.filter(pkg => !promoted.includes(pkg))
   const loaded = state.status === 'ready' || state.status === 'error'
   const refreshing = state.refreshStatus === 'refreshing'
   const openPkg = view.kind === 'package' || view.kind === 'row'
