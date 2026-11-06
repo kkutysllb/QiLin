@@ -65,6 +65,13 @@ function productHiddenBundles(): ReadonlySet<string> {
   return new Set(value.filter((item): item is string => typeof item === 'string'))
 }
 
+/** Product-supplied bundle names hidden only from the optional/More list (promoted built-ins stay in the main list). */
+function productHiddenMoreBundles(): ReadonlySet<string> {
+  const value = (globalThis as { __KTOON_HIDDEN_MORE_BUNDLES__?: unknown }).__KTOON_HIDDEN_MORE_BUNDLES__
+  if (!Array.isArray(value)) return new Set()
+  return new Set(value.filter((item): item is string => typeof item === 'string'))
+}
+
 type RowPhase = NonNullable<PackageRow['phase']>
 
 /** The primary action installs; the adjacent menu offers every add-plugin path. */
@@ -1598,7 +1605,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   // built-in group: promotion is a deletion from EXPERIMENTAL_BUNDLES, not a rename.
   const extensions = ordered.filter(pkg => pinned.has(pkg.name) && isExperimentalBundle(pkg.name))
   const promoted = ordered.filter(pkg => pinned.has(pkg.name) && !isExperimentalBundle(pkg.name))
-  const more = ordered
+  const productHiddenMore = productHiddenMoreBundles()
+  const more = ordered.filter(pkg => !productHiddenMore.has(pkg.name))
   const loaded = state.status === 'ready' || state.status === 'error'
   const refreshing = state.refreshStatus === 'refreshing'
   const openPkg = view.kind === 'package' || view.kind === 'row'

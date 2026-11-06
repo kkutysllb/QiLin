@@ -1116,6 +1116,27 @@ describe('PluginManagerPage', () => {
         else scope.__KTOON_HIDDEN_BUNDLES__ = previous
       }
     })
+    it('hides a promoted built-in from only the optional list', () => {
+      const promoted = '@qilin-agent/experimental-agent-team-profile'
+      const optional = '@qilin-agent/experimental-terminal-bundle'
+      const scope = globalThis as { __KTOON_HIDDEN_MORE_BUNDLES__?: unknown }
+      const previous = scope.__KTOON_HIDDEN_MORE_BUNDLES__
+      scope.__KTOON_HIDDEN_MORE_BUNDLES__ = [promoted]
+      try {
+        const packages = [
+          pkg({ name: promoted, official: true, enabled: true }),
+          pkg({ name: optional, official: true, enabled: false }),
+        ]
+        renderTab({ packages })
+        expect(document.querySelector(`[data-plugin-package="${promoted}"]`)).not.toBeNull()
+        fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
+        expect(document.querySelector(`[data-plugin-package="${promoted}"]`)).toBeNull()
+        expect(document.querySelector(`[data-plugin-package="${optional}"]`)).not.toBeNull()
+      } finally {
+        if (previous === undefined) delete scope.__KTOON_HIDDEN_MORE_BUNDLES__
+        else scope.__KTOON_HIDDEN_MORE_BUNDLES__ = previous
+      }
+    })
     it('returns from package details to the secondary page and retains it across React remounts', () => {
       const name = '@qilin-agent/experimental-terminal-bundle'
       const b = renderTab({ packages: [pkg({ name, official: true, enabled: false })] })
