@@ -1,6 +1,6 @@
 /** Validate source locale metadata, Node resource exports, and package publication selections. */
 
-import { globSync, readFileSync, realpathSync } from 'node:fs'
+import { existsSync, globSync, readFileSync, realpathSync } from 'node:fs'
 import { basename, dirname, join, matchesGlob, relative, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { readPluginMeta, resolvePluginResource } from '../packages/boot/app-boot/src/package-meta.ts'
@@ -17,6 +17,8 @@ interface SourceJson {
   metadata: boolean
   invalid: boolean
   icon?: unknown
+  /** The locale's `meta.detail` value, a Markdown path relative to the package root. */
+  detail?: unknown
   packageName?: string
 }
 
@@ -33,9 +35,13 @@ function sourceJsonFiles(dir: string): SourceJson[] {
       return { file, metadata: false, invalid: true }
     }
     const name = 'name' in contents ? contents.name : undefined
+    const meta = 'meta' in contents && typeof contents.meta === 'object' && contents.meta !== null
+      ? contents.meta as { detail?: unknown }
+      : undefined
     return {
       file, metadata: Object.hasOwn(contents, 'meta'), invalid: false,
       icon: 'icon' in contents ? contents.icon : undefined,
+      detail: meta?.detail,
       ...basename(file) === 'package.json' && typeof name === 'string' && name.trim() !== '' ? { packageName: name } : {},
     }
   })
@@ -192,6 +198,20 @@ function packageProblems(manifestPath: string): string[] {
       }
       if (pkg.files !== undefined && !published(document.file, pkg.files)) {
         problems.push(`${manifestPath}: files must include ${document.file}`)
+      }
+    }
+    // A declared detail document is read from the package root at open time, so it must stay
+    // inside the package and ship; a packed copy otherwise reports an invalid details file.
+    for (const { file } of resources) {
+      const detail = byPath.get(file)?.detail
+      if (typeof detail !== 'string') continue
+      const stayed = !detail.startsWith('/') && !detail.includes('\\') && !detail.split('/').includes('..')
+      if (!stayed || detail.trim() === '') {
+        problems.push(`${manifestPath}: meta.detail must name a file inside the package, received ${JSON.stringify(detail)}`)
+      } else if (!existsSync(join(dir, detail))) {
+        problems.push(`${manifestPath}: meta.detail names a missing file, received ${detail}`)
+      } else if (pkg.files !== undefined && !published(detail, pkg.files)) {
+        problems.push(`${manifestPath}: files must include ${detail}`)
       }
     }
   }

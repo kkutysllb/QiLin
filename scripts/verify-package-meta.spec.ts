@@ -129,6 +129,30 @@ it('requires publication of a remapped package manifest', () => {
   expect(packageMetaProblems(root).join('\n')).toContain('files must include resources/display.json')
 })
 
+it('requires a declared meta.detail document to stay inside the package and ship', () => {
+  manifest({ files: ['lib', 'locale', 'docs'] })
+  json('locale/en.json', { meta: { title: 'Plugin', detail: 'docs/DETAIL.md' } })
+  file('lib/index.js', '')
+  expect(packageMetaProblems(root).join('\n')).toContain('meta.detail names a missing file, received docs/DETAIL.md')
+  file('docs/DETAIL.md', 'detail')
+  expect(packageMetaProblems(root)).toEqual([])
+})
+
+it('rejects a meta.detail document the package does not publish', () => {
+  manifest({ files: ['lib', 'locale'] })
+  json('locale/en.json', { meta: { title: 'Plugin', detail: 'docs/DETAIL.md' } })
+  file('lib/index.js', '')
+  file('docs/DETAIL.md', 'detail')
+  expect(packageMetaProblems(root)).toEqual([`${join(dir, 'package.json')}: files must include docs/DETAIL.md`])
+})
+
+it.each(['../outside.md', '/absolute.md', 'docs\\\\DETAIL.md'])('rejects a meta.detail path that leaves the package: %s', (detail) => {
+  manifest({ files: ['lib', 'locale'] })
+  json('locale/en.json', { meta: { title: 'Plugin', detail } })
+  file('lib/index.js', '')
+  expect(packageMetaProblems(root).join('\n')).toContain('meta.detail must name a file inside the package')
+})
+
 it('ignores icon-like fields in unrelated source JSON', () => {
   manifest()
   json('data.json', { icon: false })
