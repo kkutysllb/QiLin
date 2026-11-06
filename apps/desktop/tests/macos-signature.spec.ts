@@ -61,7 +61,8 @@ describe('desktop macOS release signature', () => {
       'com.apple.security.cs.disable-library-validation', 'com.apple.security.device.audio-input']) {
       expect(entitlements).toContain(`<key>${key}</key>\n    <true/>`)
     }
-    expect(config.extraResources).toHaveLength(2)
+    // The prepared runtime, the window icon, and the menu bar PNG pair.
+    expect(config.extraResources.map(resource => resource.to)).toEqual(['runtime', 'icon.png', 'tray-macos.png', 'tray-macos@2x.png'])
     expect(config.extraResources[0]?.to).toBe('runtime')
     expect(portablePath(config.extraResources[0]?.from ?? '')).toContain('/.desktop-build/targets/mac-arm64/runtime')
     const [dshFiles, dshNodeModules] = config.files.slice(-2)

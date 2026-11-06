@@ -1,12 +1,20 @@
-/** Windows system tray: the always-present way back to a hidden window and the explicit quit entry. */
+/**
+ * Desktop tray: the Windows notification-area icon and the macOS menu bar item — the always-present way back to a
+ * hidden window and the explicit quit entry.
+ */
 
 import { Menu, nativeImage, Tray } from 'electron'
 import type { DesktopLocale } from './locale.ts'
 
 /** Main-process actions the tray triggers; both run the same paths as the window and application menu. */
 export interface DesktopTrayOptions {
-  /** Multi-size ICO rendered by `scripts/render-tray-icon.ts`; Windows picks the bitmap for the display scale. */
+  /** Icon rendered by `scripts/render-tray-icon.ts`: Windows takes the multi-size ICO, macOS the `@2x` PNG pair. */
   readonly iconPath: string
+  /**
+   * Open the window on a single click. Windows' notification-area icon answers a click that way; a macOS menu bar
+   * item answers it with the context menu instead, which the platform opens by itself.
+   */
+  readonly openOnClick: boolean
   readonly locale: () => DesktopLocale
   /** Show and focus the primary window. */
   readonly open: () => void
@@ -18,11 +26,11 @@ export interface DesktopTrayOptions {
 export class DesktopTray {
   private tray: Tray | undefined
 
-  /** @param options - Icon path, locale reader, and the open and quit actions. */
+  /** @param options - Icon path, click behaviour, locale reader, and the open and quit actions. */
   constructor(private readonly options: DesktopTrayOptions) {
     const tray = new Tray(nativeImage.createFromPath(options.iconPath))
     this.tray = tray
-    tray.on('click', () => { options.open() })
+    if (options.openOnClick) tray.on('click', () => { options.open() })
     this.relabel()
   }
 

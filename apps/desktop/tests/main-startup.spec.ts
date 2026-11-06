@@ -1357,13 +1357,18 @@ describe('desktop main startup', () => {
     vi.stubGlobal('process', { ...process, platform: 'darwin', arch: 'arm64', resourcesPath: 'desktop-test-resources' })
     await readyWorkspace()
     const window = harness.windows[0]!
-    expect(harness.trays).toHaveLength(0)
+    // macOS keeps its menu bar item too, drawn from the PNG pair the menu bar resolves by name.
+    expect(harness.trays).toHaveLength(1)
+    expect(harness.trays[0]!.image).toEqual({ path: join('desktop-test-resources', 'tray-macos.png') })
     window.fullscreen = true
     window.close()
     expect(window.setFullScreen).toHaveBeenCalledWith(false)
     expect(window.hide).toHaveBeenCalledOnce()
     expect(harness.backgroundNotice.close).not.toHaveBeenCalled()
     window.show.mockClear()
+    // A click on the menu bar item opens its menu; the window returns from that menu or the Dock.
+    harness.trays[0]!.emit('click')
+    expect(window.show).not.toHaveBeenCalled()
     harness.app.emit('activate', {}, false)
     expect(window.show).toHaveBeenCalledOnce()
     harness.app.emit('activate', {}, true)

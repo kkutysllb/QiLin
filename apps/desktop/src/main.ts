@@ -1131,11 +1131,17 @@ async function main(): Promise<void> {
   }
   refreshApplicationMenu()
   const trayIconPath = development ? join(app.getAppPath(), 'resources', 'tray-windows.ico') : join(process.resourcesPath, 'tray.ico')
-  if (process.platform === 'win32') {
-    // The tray is the way back to a hidden window; without it, relaunching the application still focuses it.
+  // The menu bar resolves the @2x sibling by name, so one path covers both backing scales.
+  const menuBarIconPath = development
+    ? join(app.getAppPath(), 'resources', 'tray-macos.png')
+    : join(process.resourcesPath, 'tray-macos.png')
+  const menuBar = process.platform === 'darwin'
+  if (menuBar || process.platform === 'win32') {
+    // The tray is the way back to a hidden window; without it, relaunching the application still focuses it. A menu
+    // bar item answers a click with its menu, so it opens the window from that menu instead.
     try {
-      tray = new DesktopTray({ iconPath: trayIconPath, locale: currentDesktopLocale,
-        open: () => { focusPrimaryWindow() }, quit: () => { app.quit() } })
+      tray = new DesktopTray({ iconPath: menuBar ? menuBarIconPath : trayIconPath, openOnClick: !menuBar,
+        locale: currentDesktopLocale, open: () => { focusPrimaryWindow() }, quit: () => { app.quit() } })
     } catch (error) { console.warn('desktop tray: unavailable', error) }
   }
   const backgroundNotice = process.platform === 'win32'

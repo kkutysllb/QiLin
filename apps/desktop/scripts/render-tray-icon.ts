@@ -1,11 +1,18 @@
 /**
- * Render the Windows tray icon with an enlarged whale from `resources/icon-windows.svg`.
+ * Render the tray icons from `resources/icon-windows.svg`.
  *
- * The tray shows the icon at 16 logical pixels, so Windows picks one of the
- * bundled bitmaps by display scale. Each size is rasterized from the vector
+ * Windows: the tray shows the icon at 16 logical pixels, so Windows picks one of
+ * the bundled bitmaps by display scale. Each size is rasterized from the vector
  * source separately instead of downscaling one large bitmap, which keeps edges
- * crisp at every scale. The committed `resources/tray-windows.ico` is the output;
- * rerun `pnpm run render:tray-icon` in `apps/desktop` after changing the vector source.
+ * crisp at every scale; `resources/tray-windows.ico` is the output.
+ *
+ * macOS: the menu bar shows the application tile itself — the mark stays legible as
+ * a colored square where a monochrome silhouette of the two dense characters
+ * would smudge — so the tile is rasterized once per backing scale at the status
+ * item's 18 pt. `resources/tray-macos.png` and its `@2x` sibling are the outputs;
+ * the platform picks them up by name. Windows alone enlarges the mark inside the
+ * tile ([tray behaviour](../README.md#closing-the-window-and-quitting)).
+ * Rerun `pnpm run render:tray-icon` in `apps/desktop` after changing the vector source.
  */
 
 import { readFile, writeFile } from 'node:fs/promises'
@@ -20,6 +27,19 @@ export const TRAY_ICON_SIZES = [16, 20, 24, 32, 40, 48, 64] as const
 export const TRAY_ICON_PATHS = {
   source: fileURLToPath(new URL('../resources/icon-windows.svg', import.meta.url)),
   output: fileURLToPath(new URL('../resources/tray-windows.ico', import.meta.url)),
+} as const
+
+/**
+ * Menu bar canvas edge in points. macOS reserves 22 pt for the bar, so an 18 pt
+ * square leaves the mark the same margins the system icons keep.
+ */
+export const MACOS_TRAY_SIZE = 18
+
+/** Committed macOS menu bar images: one per backing scale, the `@2x` sibling resolved by name. */
+export const MACOS_TRAY_PATHS = {
+  source: TRAY_ICON_PATHS.source,
+  base: fileURLToPath(new URL('../resources/tray-macos.png', import.meta.url)),
+  retina: fileURLToPath(new URL('../resources/tray-macos@2x.png', import.meta.url)),
 } as const
 
 /** Coordinate space of the vector source; sharp's SVG density is scaled against it. */
@@ -109,15 +129,39 @@ export async function renderTrayIconEntries(svg: Buffer, sizes: readonly number[
   })))
 }
 
+/**
+ * Rasterize the application tile at both backing scales for the macOS menu bar.
+ *
+ * The tile is rendered from the vector source at each size rather than scaled
+ * down from one bitmap, so the mark and its border stay crisp at 18 and 36 pixels.
+ * @param svg - the application icon vector.
+ * @param edge - canvas edge in points for the @1x image; the @2x image is twice that.
+ * @returns the two PNG streams at the requested sizes.
+ */
+export async function renderMacosTrayIcons(
+  svg: Buffer, edge: number = MACOS_TRAY_SIZE,
+): Promise<{ base: Buffer; retina: Buffer }> {
+  const render = (size: number) => sharp(svg, { density: SOURCE_DENSITY * size / SOURCE_EDGE })
+    .resize(size, size)
+    .png()
+    .toBuffer()
+  return { base: await render(edge), retina: await render(edge * 2) }
+}
+
 function pngDimensions(png: Buffer): { width: number; height: number } {
   if (png.length < 24 || !png.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) throw new Error('tray icon: bitmap is not a PNG stream')
   return { width: png.readUInt32BE(16), height: png.readUInt32BE(20) }
 }
 
 async function main(): Promise<void> {
-  const entries = await renderTrayIconEntries(await readFile(TRAY_ICON_PATHS.source))
+  const svg = await readFile(TRAY_ICON_PATHS.source)
+  const entries = await renderTrayIconEntries(svg)
   await writeFile(TRAY_ICON_PATHS.output, packIco(entries))
   console.info(`tray icon: wrote ${TRAY_ICON_PATHS.output} with ${entries.map(entry => String(entry.size)).join(', ')} px bitmaps`)
+  const macos = await renderMacosTrayIcons(svg)
+  await writeFile(MACOS_TRAY_PATHS.base, macos.base)
+  await writeFile(MACOS_TRAY_PATHS.retina, macos.retina)
+  console.info(`tray icon: wrote ${MACOS_TRAY_PATHS.base} (${String(MACOS_TRAY_SIZE)} px) and its @2x sibling`)
 }
 
 if (process.argv[1] !== undefined && import.meta.filename === resolve(process.argv[1])) await main()

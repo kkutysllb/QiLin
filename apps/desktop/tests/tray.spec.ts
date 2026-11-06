@@ -31,7 +31,9 @@ function setup(locale = 'en') {
   let current = resolveDesktopLocale(locale)
   const open = vi.fn()
   const quit = vi.fn()
-  const tray = new DesktopTray({ iconPath: 'C:/app/resources/tray.ico', locale: () => current, open, quit })
+  const tray = new DesktopTray({
+    iconPath: 'C:/app/resources/tray.ico', openOnClick: true, locale: () => current, open, quit,
+  })
   return { tray, open, quit, native: native.trays[0]!, setLocale: (next: string) => { current = resolveDesktopLocale(next) } }
 }
 
@@ -57,6 +59,20 @@ it('opens the window on a single click and routes menu entries to the open and q
   ;(menu[2] as { click: () => void }).click()
   expect(f.open).toHaveBeenCalledTimes(2)
   expect(f.quit).toHaveBeenCalledOnce()
+})
+
+it('leaves a menu bar item to its own menu instead of opening the window on a click', () => {
+  const current = resolveDesktopLocale('en')
+  const open = vi.fn()
+  new DesktopTray({
+    iconPath: '/app/resources/tray-macos.png', openOnClick: false, locale: () => current, open, quit: vi.fn(),
+  })
+  native.trays[0]!.emit('click')
+  expect(open).not.toHaveBeenCalled()
+  // The menu bar item still carries the same Open and Quit entries.
+  expect(labels(native.menus[0]!)).toEqual(['Open QiLin Desktop', 'separator', 'Quit QiLin Desktop'])
+  ;(native.menus[0]![0] as { click: () => void }).click()
+  expect(open).toHaveBeenCalledOnce()
 })
 
 it('relabels the menu in the current locale and ignores relabel after disposal', () => {

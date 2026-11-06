@@ -1,7 +1,10 @@
 /** This suite needs the icon render toolchain; it self-skips where that is unavailable. */
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { packIco, TRAY_ICON_PATHS, TRAY_ICON_SIZES, unpackIco, type IcoEntry } from '../scripts/render-tray-icon.ts'
+import {
+  MACOS_TRAY_PATHS, MACOS_TRAY_SIZE, packIco, renderMacosTrayIcons, TRAY_ICON_PATHS, TRAY_ICON_SIZES, unpackIco,
+  type IcoEntry,
+} from '../scripts/render-tray-icon.ts'
 
 /** Smallest valid-looking PNG stream: signature plus an IHDR chunk declaring the given edge. */
 function pngStub(width: number, height = width): Buffer {
@@ -40,5 +43,24 @@ describe.skipIf(process.env.QILIN_DESKTOP_ICONS !== '1')('tray icon packaging', 
     const entries = unpackIco(readFileSync(TRAY_ICON_PATHS.output))
     expect(entries.map(entry => entry.size)).toEqual([...TRAY_ICON_SIZES])
     for (const entry of entries) expect(entry.png.length).toBeGreaterThan(100)
+  })
+
+  it.skipIf(process.env.QILIN_DESKTOP_ICONS !== '1')('ships the menu bar PNG pair at both backing scales, drawn from the vector source', async () => {
+    const { default: sharp } = await import('sharp')
+    const render = async (path: string) => sharp(readFileSync(path)).metadata()
+    // The platform resolves the @2x sibling by name, so the pair carries the two edge lengths it expects.
+    expect(await render(MACOS_TRAY_PATHS.base)).toMatchObject({ width: MACOS_TRAY_SIZE, height: MACOS_TRAY_SIZE, hasAlpha: true })
+    expect(await render(MACOS_TRAY_PATHS.retina))
+      .toMatchObject({ width: MACOS_TRAY_SIZE * 2, height: MACOS_TRAY_SIZE * 2, hasAlpha: true })
+    // The mark is opaque artwork on a transparent canvas, so a blank or cropped pair fails here.
+    for (const path of [MACOS_TRAY_PATHS.base, MACOS_TRAY_PATHS.retina]) {
+      const { channels } = await sharp(readFileSync(path)).stats()
+      expect(channels[3]!.mean).toBeGreaterThan(0)
+    }
+    // A pair that no longer rasterizes from the vector source would ship a stale mark.
+    const rendered = await renderMacosTrayIcons(readFileSync(MACOS_TRAY_PATHS.source))
+    expect(await sharp(rendered.base).metadata()).toMatchObject({ width: MACOS_TRAY_SIZE, height: MACOS_TRAY_SIZE })
+    expect(await sharp(rendered.retina).metadata())
+      .toMatchObject({ width: MACOS_TRAY_SIZE * 2, height: MACOS_TRAY_SIZE * 2 })
   })
 })
