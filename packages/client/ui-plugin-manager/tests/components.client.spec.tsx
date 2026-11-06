@@ -1137,6 +1137,20 @@ describe('PluginManagerPage', () => {
         else scope.__KTOON_HIDDEN_MORE_BUNDLES__ = previous
       }
     })
+    it('hides refresh and install controls when the product forbids external plugins', () => {
+      const scope = globalThis as { __KTOON_PLUGIN_INSTALL_DISABLED__?: unknown }
+      const previous = scope.__KTOON_PLUGIN_INSTALL_DISABLED__
+      scope.__KTOON_PLUGIN_INSTALL_DISABLED__ = true
+      try {
+        const packages = [pkg({ name: '@qilin-agent/experimental-badge-skill-bundle', official: true })]
+        renderTab({ packages })
+        expect(screen.queryByRole('button', { name: en.refresh })).toBeNull()
+        expect(screen.queryByRole('button', { name: en.addPlugin })).toBeNull()
+      } finally {
+        if (previous === undefined) delete scope.__KTOON_PLUGIN_INSTALL_DISABLED__
+        else scope.__KTOON_PLUGIN_INSTALL_DISABLED__ = previous
+      }
+    })
     it('returns from package details to the secondary page and retains it across React remounts', () => {
       const name = '@qilin-agent/experimental-terminal-bundle'
       const b = renderTab({ packages: [pkg({ name, official: true, enabled: false })] })

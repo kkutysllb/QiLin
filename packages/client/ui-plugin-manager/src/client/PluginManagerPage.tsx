@@ -72,6 +72,11 @@ function productHiddenMoreBundles(): ReadonlySet<string> {
   return new Set(value.filter((item): item is string => typeof item === 'string'))
 }
 
+/** Whether the product forbids installing or refreshing external plugins. */
+function productInstallDisabled(): boolean {
+  return (globalThis as { __KTOON_PLUGIN_INSTALL_DISABLED__?: unknown }).__KTOON_PLUGIN_INSTALL_DISABLED__ === true
+}
+
 type RowPhase = NonNullable<PackageRow['phase']>
 
 /** The primary action installs; the adjacent menu offers every add-plugin path. */
@@ -1592,6 +1597,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   // Plugins section's Plugin list tab.
   // Built-in profile layers stay out of this page even when the profile declares them as dependencies.
   const productHidden = productHiddenBundles()
+  const installDisabled = productInstallDisabled()
   const listed = state.packages.filter(pkg => !HIDDEN_BUNDLES.has(pkg.name) && !productHidden.has(pkg.name)
     && (pkg.installed || pkg.official || pkg.error !== undefined))
   const mine = listed.filter(pkg => !pkg.official)
@@ -1709,21 +1715,25 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
                     </Tooltip>
                   </div>
                 </div>
-                <div className={css.toolbar} data-plugin-toolbar data-plugin-header-part="toolbar" hidden={!onInstalled}>
-                  {updates === undefined ? null : <span className={css.updatesNote} data-tone={updates.tone}>{updates.text}</span>}
-                  <Tooltip label={t('refresh')} delayMs={500} focusDelayMs={500} side="bottom" portal disabled={!loaded || refreshing}>
-                    <Button variant="outline" size="sm" className={css.addButton} aria-label={t('refresh')} aria-busy={refreshing}
-                      disabled={!loaded || refreshing} onClick={props.refresh}
-                      icon={refreshing ? <StateDot state="ongoing" size={13} /> : <IconRefreshOutlineRegular size={13} />}>
-                      {t('refresh')}
-                    </Button>
-                  </Tooltip>
-                  {state.install.requestId === undefined
-                    ? <AddPluginMenu t={t} disabled={!loaded} openInstall={props.openInstall} renderSlot={renderSlot} />
-                    : <Button variant="primary" size="sm" className={css.addButton} icon={<IconPlusOutlineRegular size={13} />} disabled={!loaded} onClick={props.openInstall}>
-                      {t('installViewTask')}
-                    </Button>}
-                </div>
+                {installDisabled
+                  ? null
+                  : (
+                    <div className={css.toolbar} data-plugin-toolbar data-plugin-header-part="toolbar" hidden={!onInstalled}>
+                      {updates === undefined ? null : <span className={css.updatesNote} data-tone={updates.tone}>{updates.text}</span>}
+                      <Tooltip label={t('refresh')} delayMs={500} focusDelayMs={500} side="bottom" portal disabled={!loaded || refreshing}>
+                        <Button variant="outline" size="sm" className={css.addButton} aria-label={t('refresh')} aria-busy={refreshing}
+                          disabled={!loaded || refreshing} onClick={props.refresh}
+                          icon={refreshing ? <StateDot state="ongoing" size={13} /> : <IconRefreshOutlineRegular size={13} />}>
+                          {t('refresh')}
+                        </Button>
+                      </Tooltip>
+                      {state.install.requestId === undefined
+                        ? <AddPluginMenu t={t} disabled={!loaded} openInstall={props.openInstall} renderSlot={renderSlot} />
+                        : <Button variant="primary" size="sm" className={css.addButton} icon={<IconPlusOutlineRegular size={13} />} disabled={!loaded} onClick={props.openInstall}>
+                          {t('installViewTask')}
+                        </Button>}
+                    </div>
+                  )}
                 {tabs.length > 0
                   ? (
                     <div className={css.pageTabs} data-plugin-header-part="tabs">
