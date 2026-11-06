@@ -69,7 +69,7 @@ import { DesktopBrowserGuests } from './browser-guests.ts'
 import { installDesktopShortcuts } from './keyboard.ts'
 import { DesktopUpdateOverlays } from './update-overlay.ts'
 import { DesktopQuitConfirmation } from './quit-confirmation.ts'
-import { DesktopTray } from './tray.ts'
+import { DesktopTray, desktopTrayIconPath } from './tray.ts'
 import { DesktopBackgroundNotice } from './background-notice.ts'
 import { loadDesktopProduct, type ResolvedDesktopProduct } from './product.ts'
 import { ensurePythonDependencies, prepareProductRuntime } from './product-runtime.ts'
@@ -1296,16 +1296,22 @@ async function main(): Promise<void> {
     tray?.relabel()
   }
   refreshApplicationMenu()
-  const windowsTrayIconPath = development ? join(app.getAppPath(), 'resources', 'tray-windows.ico') : join(process.resourcesPath, 'tray.ico')
+  const trayIconEnvironment = {
+    development,
+    appPath: app.getAppPath(),
+    resourcesPath: process.resourcesPath,
+    productRoot: product?.root,
+  }
+  const windowsTrayIconPath = desktopTrayIconPath({ ...trayIconEnvironment, platform: 'win32' })
   // KStock patch (K51): macOS keeps a menu-bar extra too, using the product's existing
   // tray bitmap (build/tray.png plus @2x) rather than a separately drawn icon.
-  const macTrayIconPath = development && product !== undefined
-    ? join(product.root, 'apps', 'desktop', 'build', 'tray.png')
-    : join(process.resourcesPath, 'tray.png')
+  // KStock patch (K52): both paths resolve through `desktopTrayIconPath`, so the
+  // development/packaged × Windows/macOS matrix is unit-tested instead of inline.
+  const trayIconPath = desktopTrayIconPath({ ...trayIconEnvironment, platform: process.platform })
   if (process.platform === 'win32' || process.platform === 'darwin') {
     // The tray is the way back to a hidden window; without it, relaunching the application still focuses it.
     try {
-      tray = new DesktopTray({ iconPath: process.platform === 'darwin' ? macTrayIconPath : windowsTrayIconPath,
+      tray = new DesktopTray({ iconPath: trayIconPath,
         locale: currentDesktopLocale,
         open: () => { focusPrimaryWindow() }, quit: () => { app.quit() } })
     } catch (error) { console.warn('desktop tray: unavailable', error) }

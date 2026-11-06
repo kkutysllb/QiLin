@@ -1,7 +1,8 @@
 import type { MenuItemConstructorOptions } from 'electron'
-import { afterEach, expect, it, vi } from 'vitest'
+import { join } from 'node:path'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { resolveDesktopLocale } from '../src/locale.ts'
-import { DesktopTray } from '../src/tray.ts'
+import { DesktopTray, desktopTrayIconPath } from '../src/tray.ts'
 
 const native = await vi.hoisted(async () => {
   const { EventEmitter } = await import('node:events')
@@ -69,4 +70,38 @@ it('relabels the menu in the current locale and ignores relabel after disposal',
   expect(f.native.destroy).toHaveBeenCalledOnce()
   f.tray.relabel()
   expect(native.menus).toHaveLength(2)
+})
+
+describe('desktopTrayIconPath', () => {
+  const facts = { appPath: join('app'), resourcesPath: join('resources') }
+
+  it('keeps the Windows ICO in development under the application resources directory', () => {
+    expect(desktopTrayIconPath({ ...facts, platform: 'win32', development: true }))
+      .toBe(join('app', 'resources', 'tray-windows.ico'))
+  })
+
+  it('uses the packaged Windows ICO from resourcesPath', () => {
+    expect(desktopTrayIconPath({ ...facts, platform: 'win32', development: false }))
+      .toBe(join('resources', 'tray.ico'))
+  })
+
+  it('reuses the product tray bitmap on macOS in development', () => {
+    expect(desktopTrayIconPath({ ...facts, platform: 'darwin', development: true, productRoot: join('repo') }))
+      .toBe(join('repo', 'apps', 'desktop', 'build', 'tray.png'))
+  })
+
+  it('falls back to resourcesPath on macOS when no product root is available', () => {
+    expect(desktopTrayIconPath({ ...facts, platform: 'darwin', development: true }))
+      .toBe(join('resources', 'tray.png'))
+  })
+
+  it('uses the packaged macOS tray bitmap from resourcesPath', () => {
+    expect(desktopTrayIconPath({ ...facts, platform: 'darwin', development: false, productRoot: join('repo') }))
+      .toBe(join('resources', 'tray.png'))
+  })
+
+  it('leaves other platforms on the ICO path because they create no tray', () => {
+    expect(desktopTrayIconPath({ ...facts, platform: 'linux', development: false }))
+      .toBe(join('resources', 'tray.ico'))
+  })
 })

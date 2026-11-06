@@ -118,7 +118,10 @@ vi.mock('electron', () => ({
   nativeImage: { createFromPath: (path: string) => ({ path }) },
 }))
 // The Windows tray relabels through Menu as well; keep the menu call counts below platform-neutral.
-vi.mock('../src/tray.ts', () => ({ DesktopTray: class { relabel() {} dispose() {} } }))
+vi.mock('../src/tray.ts', async importOriginal => ({
+  ...await importOriginal<typeof import('../src/tray.ts')>(),
+  DesktopTray: class { relabel() {} dispose() {} },
+}))
 
 vi.mock('../src/paths.ts', () => ({ resolveDesktopPaths: () => ({ profile: '/profile' }) }))
 vi.mock('../src/settings.ts', () => ({ readDesktopSettings: () => ({ updates: { allowTestAuthPopupWindow: false } }) }))
