@@ -32,7 +32,16 @@ export function syncWindowsAppearance(): void {
     settingsProbe.style.cssText = 'position:fixed;visibility:hidden;pointer-events:none;background-color:var(--qilin-alias-bg-layer-2);color:var(--dsw-alias-label-primary)'
     settingsProbe.dataset.desktopCaptionProbe = 'settings'
     document.body.append(settingsProbe)
-    const captionProbe = (): Element => (document.querySelector("[data-shortcut-modal='settings']") === null ? probe : settingsProbe)
+    // KStock patch (K54): the product's settings portal mounts below the caption
+    // (its top starts at the titlebar height), so a mounted portal is not proof
+    // that it repaints the strip. Follow it only when its box covers the strip;
+    // otherwise the frame keeps painting the sidebar fill.
+    const settingsCoversCaption = (): boolean => {
+      const modal = document.querySelector("[data-shortcut-modal='settings']")
+      if (modal === null) return false
+      return modal.getBoundingClientRect().top <= 0
+    }
+    const captionProbe = (): Element => (settingsCoversCaption() ? settingsProbe : probe)
     const canvas = document.createElement('canvas')
     canvas.width = canvas.height = 1
     const context = canvas.getContext('2d', { willReadFrequently: true })
