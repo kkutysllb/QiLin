@@ -359,6 +359,13 @@ it.each(['live', 'startup'] as const)('removes a bundle skipped at startup in a 
   expect((await manager.listBundles()).some(row => row.name === 'extra')).toBe(false)
 })
 
+it('hides a deployment-hidden bundle from the inventory', async () => {
+  const { manager } = await fixture('live', false, undefined, { hiddenBundles: ['extra'] })
+  const rows = await manager.listBundles()
+  expect(rows.some(row => row.name === 'extra')).toBe(false)
+  expect(rows.some(row => row.name === 'core')).toBe(true)
+})
+
 it('recomposes the remaining layers while another bundle is broken and mounts it after repair', async () => {
   const { manager, dir, bundle, ctx } = await fixture()
   writeFileSync(join(dir, 'node_modules', 'extra', 'cordis.patch.yml'), '[invalid')

@@ -80,6 +80,12 @@ export interface Config {
   versionListLimit?: number
   /** How many single-version registry lookups a version listing runs at once. */
   versionLookupConcurrency?: number
+  /**
+   * Bundle package names this deployment does not offer on the Plugins page.
+   * A hidden bundle stays installed and selected if the profile already names it;
+   * only its management row disappears from the inventory.
+   */
+  hiddenBundles?: string[]
 }
 
 /** The Fetch route serving images beside bundle detail documents. */
@@ -326,6 +332,7 @@ export class PluginManager extends TypertRemoteService {
     detailNpmFileSources: z.array(z.union(NPM_FILE_SOURCES)).min(1).default([...NPM_FILE_SOURCES]),
     versionListLimit: z.number().step(1).min(1).default(20),
     versionLookupConcurrency: z.number().step(1).min(1).default(4),
+    hiddenBundles: z.array(z.string()).default([]),
   })
   /** Management bundles remain protected if their files become unreadable. */
   private readonly managementBundles = new Set<string>()
@@ -345,6 +352,8 @@ export class PluginManager extends TypertRemoteService {
   private readonly pnpmCommand: string
   private readonly versionListLimit: number
   private readonly versionLookupConcurrency: number
+  /** Deployment-hidden bundle names; see {@link Config.hiddenBundles}. */
+  private readonly hiddenBundles: Set<string>
   private readonly configuredRegistries: Omit<PluginRegistries, 'resolved'>
   private readonly ownerContext: Context
   private readonly abort = new AbortController()
@@ -366,6 +375,7 @@ export class PluginManager extends TypertRemoteService {
     this.pnpmCommand = (config as Required<Config>).pnpmCommand
     this.versionListLimit = (config as Required<Config>).versionListLimit
     this.versionLookupConcurrency = (config as Required<Config>).versionLookupConcurrency
+    this.hiddenBundles = new Set((config as Required<Config>).hiddenBundles)
     this.configuredRegistries = {
       registry: config.registry === undefined ? null : normalizeRegistry(config.registry),
       fallbackRegistries: (config as Required<Config>).fallbackRegistries.map(normalizeRegistry),
@@ -500,6 +510,7 @@ export class PluginManager extends TypertRemoteService {
     const bundles: Omit<BundleInfo, 'updatable'>[] = []
     const runtimeVersion = getQilinRuntimeVersion()
     for (const name of names) {
+      if (this.hiddenBundles.has(name)) continue
       const installed = dependencies.includes(name)
       const optional = OPTIONAL_BUNDLES.includes(name)
       const enabled = selected.includes(name)
