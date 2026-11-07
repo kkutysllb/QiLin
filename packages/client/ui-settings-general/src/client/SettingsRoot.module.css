@@ -89,9 +89,15 @@
 /* KStock patch (K26): 设置页 portal 在 .frame 之外，会盖住窗口 chrome 带；
    平台标题栏形态下为导航栏让出 chrome 高度 + 间隙（全屏时只留间隙）。产品
    口径：不出现「打开配置文件」与「×」。 */
-:global(html[data-platform='darwin']) .nav,
-:global([data-windows-titlebar]) .nav {
+:global(html[data-platform='darwin']) .nav {
   padding-top: calc(var(--dsh-frame-top-clearance, 48px) + 30px);
+}
+
+/* KStock patch (K53): Windows 标题栏形态下「返回工作区」累计上移 50px
+   ——K26 的 chrome 高度 + 30px 间距在真机上偏低，再收紧到 chrome 高度 - 20px。
+   darwin 继续走 K40 的 10px 间隙：上移会压到红绿灯。 */
+:global([data-windows-titlebar]) .nav {
+  padding-top: calc(var(--dsh-frame-top-clearance, 48px) - 20px);
 }
 
 /* KStock patch (K40): 2026-10-22 真机——darwin 上 +30px 让「返回工作区」与红绿灯
