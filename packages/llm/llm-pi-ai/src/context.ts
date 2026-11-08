@@ -68,6 +68,7 @@ function userContent(
   blocks: readonly ContentBlock[],
   requestImages: ReadonlyMap<AttachmentId, RequestImageAttachment>,
   resolveImageAccess: ImageAttachmentAccessResolver,
+  missing: ReadonlySet<AttachmentId> = new Set(),
 ): string | (TextContent | ImageContent)[] {
   const content: (TextContent | ImageContent)[] = []
   for (const block of blocks) {
@@ -76,6 +77,17 @@ function userContent(
         if (block.text.length > 0) content.push({ type: 'text', text: block.text })
         break
       case 'image': {
+        if (missing.has(block.attachment.attachmentId)) {
+          // 附件对象不在本机：降级成引擎自己的「已省略」占位文本，而不是让整轮请求失败。
+          let resolved: ReturnType<ImageAttachmentAccessResolver> | undefined
+          try {
+            resolved = resolveImageAccess(block.attachment)
+          } catch {
+            resolved = undefined
+          }
+          content.push({ type: 'text', text: offloadedImageText(block.attachment, resolved) })
+          break
+        }
         const version = requestImages.get(block.attachment.attachmentId) as RequestImageAttachment
         content.push({
           type: 'text',
@@ -113,18 +125,34 @@ async function prepareRequestImages(
   attachments: AttachmentStore,
   budget: PiImageRequestBudget,
   signal?: AbortSignal,
-): Promise<Map<AttachmentId, RequestImageAttachment>> {
+): Promise<{ versions: Map<AttachmentId, RequestImageAttachment>; missing: Set<AttachmentId> }> {
   const refs = new Map<AttachmentId, ImageAttachmentRef>()
   for (const message of messages) collectImageRefs(message.content, refs)
   const orderedRefs = [...refs.values()]
-  const prepared = await Promise.all(orderedRefs.map(
-    ref => attachments.readImageRequest(ref, requestImageTarget(ref, budget), signal),
+  const settled = await Promise.all(orderedRefs.map(
+    async (ref) => {
+      try {
+        return await attachments.readImageRequest(ref, requestImageTarget(ref, budget), signal)
+      } catch (error) {
+        // 附件对象丢失（换机/清缓存）：只降级这一张图。以前会把原始错误抛给上层，
+        // 整轮请求（换哪个模型都一样）全废。
+        if (typeof error === 'object' && error !== null && 'code' in error
+          && (error as { code?: unknown }).code === 'ATTACHMENT_NOT_FOUND') return null
+        throw error
+      }
+    },
   ))
   const versions = new Map<AttachmentId, RequestImageAttachment>()
+  const missing = new Set<AttachmentId>()
   for (const [index, ref] of orderedRefs.entries()) {
-    versions.set(ref.attachmentId, prepared[index] as RequestImageAttachment)
+    const prepared = settled[index]
+    if (prepared === null || prepared === undefined) {
+      missing.add(ref.attachmentId)
+      continue
+    }
+    versions.set(ref.attachmentId, prepared as RequestImageAttachment)
   }
-  return versions
+  return { versions, missing }
 }
 
 /** Convert a projected declaration without its harness-owned activation marker. */
@@ -344,7 +372,9 @@ async function toPiContextWithImages(
   }
   assertSupportedHistory(options.messages)
   const split = splitSystemPrompt(options)
-  const requestImages = await prepareRequestImages(split.messages, attachments, requestImagePolicy, options.signal)
+  const { versions: requestImages, missing: missingImages } = await prepareRequestImages(
+    split.messages, attachments, requestImagePolicy, options.signal,
+  )
   const offloadImages = requiredImageOffload(
     split.messages,
     {
@@ -353,7 +383,7 @@ async function toPiContextWithImages(
       ...maxRequestImages === undefined ? {} : { maxImages: maxRequestImages },
       ...imageOffloadCountQuantum === undefined ? {} : { countQuantum: imageOffloadCountQuantum },
     },
-    block => (requestImages.get(block.attachment.attachmentId) as RequestImageAttachment).bytes,
+    block => (requestImages.get(block.attachment.attachmentId)?.bytes ?? 0),
   )
   if (offloadImages > 0) {
     throw new LlmError(
@@ -372,10 +402,10 @@ async function toPiContextWithImages(
   for (const message of exactMessages) {
     if (appendSharedHistory(message, options, messages, toolNames, onReplayDegrade)) continue
     if (message.role === 'tool') {
-      messages.push(toolResultOf(message, toolNames, userContent(message.content, requestImages, resolveImageAccess)))
+      messages.push(toolResultOf(message, toolNames, userContent(message.content, requestImages, resolveImageAccess, missingImages)))
       continue
     }
-    const content = userContent(message.content, requestImages, resolveImageAccess)
+    const content = userContent(message.content, requestImages, resolveImageAccess, missingImages)
     messages.push({ role: 'user', content, timestamp: 0 })
   }
 

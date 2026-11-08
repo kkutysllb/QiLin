@@ -20,6 +20,36 @@ function bounds(connection: Connection, representation: 'raw' | 'base64') {
   }
 }
 
+/** 本机附件对象丢失（换机、清缓存、附件库被重建）：请求里这张图必须降级，不能拖垮整轮。 */
+function isMissingAttachment(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error
+    && (error as { code?: unknown }).code === 'ATTACHMENT_NOT_FOUND'
+}
+
+/** 把读不到对象的图片块换成引擎自己的「已省略」占位文本（与 image/offload 同一措辞）。 */
+function omitMissingImages(
+  messages: readonly RequestMessage[],
+  missing: ReadonlySet<string>,
+  access: ImageAttachmentAccessResolver,
+): readonly RequestMessage[] {
+  return messages.map((message) => {
+    if (!contentHasImage(message.content)) return message
+    let changed = false
+    const content = message.content.map((block) => {
+      if (block.type !== 'image' || !missing.has(block.attachment.attachmentId)) return block
+      changed = true
+      let resolved: ReturnType<ImageAttachmentAccessResolver> | undefined
+      try {
+        resolved = access(block.attachment)
+      } catch {
+        resolved = undefined
+      }
+      return { type: 'text' as const, text: offloadedImageText(block.attachment, resolved) }
+    })
+    return changed ? { ...message, content } : message
+  })
+}
+
 function* imageRefs(blocks: readonly ContentBlock[]): Generator<ImageAttachmentRef> {
   for (const block of blocks) {
     if (block.type === 'image') yield block.attachment
@@ -49,15 +79,24 @@ export async function prepareImages(
   if (messages.some(message => message.role !== 'user' && message.role !== 'tool' && contentHasImage(message.content))) {
     throw new LlmError('DeepSeek Messages supports images only in user messages and tool results', 'UNSUPPORTED_CONTENT')
   }
+  const missing = new Set<string>()
   for (const message of messages) {
     for (const ref of imageRefs(message.content)) {
-      if (!versions.has(ref.attachmentId)) {
+      if (versions.has(ref.attachmentId) || missing.has(ref.attachmentId)) continue
+      try {
         versions.set(ref.attachmentId, await attachments.readImageRequest(ref, resolveRequestImageTarget(model, ref), signal))
+      } catch (error) {
+        // 附件对象不在本机（换机/清缓存）：只降级这一张图。
+        // 以前这里直接把原始错误抛给 generate()，会被包成 'DeepSeek Messages transport failed'——
+        // 看起来像网络故障，实际是附件丢失，而且整轮（换哪个模型都一样）全废。
+        if (!isMissingAttachment(error)) throw error
+        missing.add(ref.attachmentId)
       }
     }
   }
-  assertImagesFit(messages, versions, connection, 'raw')
-  return { messages, versions }
+  const usable = missing.size === 0 ? messages : omitMissingImages(messages, missing, access)
+  assertImagesFit(usable, versions, connection, 'raw')
+  return { messages: usable, versions }
 }
 
 /** Require logged offload before retrying images that exceed the inline budget.
