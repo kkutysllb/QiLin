@@ -48,6 +48,13 @@ describe('Node program process', () => {
     expect(result.sandbox).toEqual({ mode: 'danger-full-access', denied: false })
   })
 
+  it('names a worker that never started instead of reporting a worker exit', async () => {
+    const { run } = await setup({ launch: { kind: 'node-script', executable: '/nonexistent/qilin-ptc-node' } })
+    const result = await run({ program: 'return 1', bindings: [] })
+    expect(result.error?.kind).toBe('worker-exit')
+    expect(result.error?.message).toMatch(/^Node worker did not start: .*not an executable file/)
+  })
+
   it('keeps native startup paths available for nested Node creation with an empty model environment', async () => {
     const { run } = await setup()
     const result = await run({

@@ -1,6 +1,6 @@
 import { logSpillFailure, OutputCollector, type SpillOptions } from '../src/output.ts'
 import { spawn as nodeSpawn, spawnSync as nodeSpawnSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
+import { chmodSync, mkdtempSync, readFileSync, rmSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { afterAll, describe, expect, it, vi } from 'vitest'
@@ -211,6 +211,41 @@ describe('spawnSubprocess', () => {
         .toThrow(`subprocess graceMs must be a positive finite number no greater than ${MAX_TIMER_DELAY_MS}`)
     },
   )
+
+  it('names the launch and keeps the errno facts when spawn throws', () => {
+    const failure: NodeJS.ErrnoException = Object.assign(new Error('spawn EBADF'), {
+      code: 'EBADF',
+      errno: 9,
+      syscall: 'spawn',
+    })
+    const traced = { ...spec('true'), stdio: { ...spec('true').stdio, control: 'pipe' as const } }
+    expect(() => { spawnSubprocess(traced, { spawn: () => { throw failure } }) }).toThrow(
+      `spawn EBADF (program: ${traced.argv[0]}, cwd: ${traced.cwd}, stdio: ignore/collect/collect/control)`,
+    )
+    expect(failure.code).toBe('EBADF')
+    expect(failure.syscall).toBe('spawn')
+  })
+
+  it('describes a thrown non-Error spawn failure, even without a program', () => {
+    const traced = { ...spec('true'), argv: [] }
+    expect(() => { spawnSubprocess(traced, { spawn: () => { throw 'spawn failed' } }) }).toThrow(
+      `spawn failed (program: , cwd: ${traced.cwd}, stdio: ignore/collect/collect/none)`,
+    )
+  })
+
+  it.skipIf(process.platform === 'win32')('describes a real exec failure', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'qilin-subprocess-spawn-failure-'))
+    try {
+      const script = join(directory, 'no-interpreter-line')
+      writeFileSync(script, 'this file has no interpreter line\n')
+      chmodSync(script, 0o755)
+      expect(() => spawnSubprocess({ ...spec('unused'), argv: [script], cwd: directory })).toThrow(
+        new RegExp('^spawn ENOEXEC \\(program: ' + script + ', cwd: ' + directory + ', stdio: ignore/collect/collect/none\\)$'),
+      )
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
 
   it('captures stdout on success', async () => {
     const result = await finish(spawnSubprocess(spec('echo hello')))

@@ -189,10 +189,10 @@ describe('Node runtime host failures', () => {
     expect(h.waitForExit).toHaveBeenCalledOnce()
   })
 
-  it('reports an executable lookup failure without allocating a process', async () => {
+  it('names a worker that never started when the executable lookup fails', async () => {
     const h = await setup()
     h.resolveExecutable.mockRejectedValue(new Error('Node executable missing'))
-    expect((await h.start()).error).toEqual({ kind: 'worker-exit', message: 'Node executable missing' })
+    expect((await h.start()).error).toEqual({ kind: 'worker-exit', message: 'Node worker did not start: Node executable missing' })
     expect(h.spawn).not.toHaveBeenCalled()
   })
 

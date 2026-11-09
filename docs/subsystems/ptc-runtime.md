@@ -186,7 +186,7 @@ Failure kinds are **orthogonal outcomes reported independently** (per [defensive
  * - `'exception'` — the program threw or failed to parse/transform.
  * - `'timeout'` — an implementation-owned budget expired; the message says which.
  * - `'abort'` — {@link PtcRunRequest.signal} fired.
- * - `'worker-exit'` — the execution substrate died without settling (e.g. OOM).
+ * - `'worker-exit'` — the execution substrate never started or died without settling (e.g. a spawn error, OOM).
  * - `'invalid-output'` — the completion value was not lossless JSON.
  * - `'output-limit'` — the serialized outer logs/value/diagnostic exceeded the configured cap.
  * - `'protocol'` — the program sent invalid or over-budget control traffic.

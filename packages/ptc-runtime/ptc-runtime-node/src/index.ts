@@ -31,6 +31,8 @@ const STRIP_PREFIX = 'async function __qilin_program__() {\n'
 const STRIP_SUFFIX = '\n}'
 
 function messageOf(error: unknown): string { return error instanceof Error ? error.message : String(error) }
+/** A worker that never reached its bootstrap did not exit after running; say so. */
+function launchFailureMessage(error: unknown): string { return `Node worker did not start: ${messageOf(error)}` }
 function record(value: unknown): value is Record<string, unknown> { return typeof value === 'object' && value !== null && !Array.isArray(value) }
 
 /** Node execution under file policy, with optional owner-scoped retained memory. */
@@ -334,9 +336,13 @@ export class NodePtcRuntime extends PtcRuntime {
       void launched.done.then((outcome) => {
         // Allow queued control-frame callbacks to run before classifying a command exit.
         setImmediate(() => { processFinished(outcome) })
-      }, (error: unknown) => { finish({ kind: confined !== undefined && isRunnerSpawnFailure(error, confined.argv[0], spec.cwd) ? 'sandbox-unavailable' : 'worker-exit', message: messageOf(error) }) })
+      }, (error: unknown) => {
+        const sandboxFailure = confined !== undefined && isRunnerSpawnFailure(error, confined.argv[0], spec.cwd)
+        finish({ kind: sandboxFailure ? 'sandbox-unavailable' : 'worker-exit', message: messageOf(error) })
+      })
     } catch (error: unknown) {
-      finish({ kind: error instanceof SandboxUnavailableError ? 'sandbox-unavailable' : parsing ? 'exception' : 'worker-exit', message: messageOf(error) })
+      const kind = error instanceof SandboxUnavailableError ? 'sandbox-unavailable' : parsing ? 'exception' : 'worker-exit'
+      finish({ kind, message: kind === 'worker-exit' ? launchFailureMessage(error) : messageOf(error) })
     }
     return await result.promise
   }

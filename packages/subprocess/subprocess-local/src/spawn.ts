@@ -19,6 +19,7 @@ import type {
   SubprocessOutcome,
   SubprocessOutputMode,
   SubprocessSpawnSpec,
+  SubprocessStdinMode,
 } from '@qilin-agent/subprocess'
 import type { BoundProcessOwner, ManagedProcessLaunch } from './managed-owner.ts'
 import { waitWithAbort } from './managed-owner.ts'
@@ -445,6 +446,33 @@ export function bindManagedProcess(
   }
 }
 
+/** One stdio disposition as it reads in a launch description. */
+function stdioModeName(mode: SubprocessStdinMode | SubprocessOutputMode): string {
+  return typeof mode === 'string' ? mode : 'collect'
+}
+
+/**
+ * Name the launch a spawn failure came from. The operating system reports only
+ * an errno ("spawn EBADF"), which does not say which program, directory, or
+ * stdio plan was rejected; a caller that surfaces the failure to a model or a
+ * user needs those facts to tell a missing worker apart from a crashing one.
+ * Exec failures are synchronous in `child_process.spawn`, so this annotates the
+ * thrown error. A later `error` event reports a kill or message failure and is
+ * left undescribed. The same error object is returned so its `code`, `errno`,
+ * `syscall`, and `path` stay readable.
+ * @param error - the failure `spawn` threw for this launch.
+ * @param spec - resolved argv, cwd, and stdio plan of the attempted launch.
+ * @returns the launch-describing error.
+ */
+function describeSpawnFailure(error: unknown, spec: SubprocessSpawnSpec): Error {
+  const described = error instanceof Error ? error : new Error(String(error))
+  const control = spec.stdio.control === 'pipe' ? 'control' : 'none'
+  described.message += ' (program: ' + (spec.argv[0] ?? '') + ', cwd: ' + spec.cwd + ', stdio: '
+    + [stdioModeName(spec.stdio.stdin), stdioModeName(spec.stdio.stdout), stdioModeName(spec.stdio.stderr), control].join('/')
+    + ')'
+  return described
+}
+
 /**
  * Spawn one detached PGID/taskkill fallback and bind the common lifecycle.
  * @param spec - fully resolved argv, cwd, stdio, grace, cancellation, environment.
@@ -464,13 +492,18 @@ export function spawnSubprocess(spec: SubprocessSpawnSpec, internals: SpawnInter
     while (stdio.length < SUBPROCESS_CONTROL_FD) stdio.push('ignore')
     stdio.push('overlapped')
   }
-  const child = (internals.spawn ?? spawn)(program as string, args, {
-    cwd: spec.cwd,
-    env: controlEnvironment(childEnv(spec.env), spec.stdio.control),
-    stdio,
-    detached: platform !== 'win32',
-    windowsHide: platform === 'win32',
-  })
+  let child: ChildProcess
+  try {
+    child = (internals.spawn ?? spawn)(program as string, args, {
+      cwd: spec.cwd,
+      env: controlEnvironment(childEnv(spec.env), spec.stdio.control),
+      stdio,
+      detached: platform !== 'win32',
+      windowsHide: platform === 'win32',
+    })
+  } catch (error: unknown) {
+    throw describeSpawnFailure(error, spec)
+  }
   const direct = directChildResult(child)
   const pid = child.pid
   const owner = fallbackOwner(
