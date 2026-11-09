@@ -829,10 +829,13 @@ it('reports a selected plain dependency as a problem, omits an unselected one, a
 })
 
 it('refuses to disable a bundle the product always keeps on', async () => {
-  const { manager, bundle } = await fixture()
+  const { manager, profile } = await fixture()
   const name = '@qilin-agent/experimental-schedule-bundle'
-  bundle(name, [])
-  expect(await manager.setBundleEnabled(name, true)).toMatchObject({ application: 'applied' })
+  // Seed the selection directly: enabling the real official bundle would resolve its
+  // installation copy and apply real entries the fixture profile cannot import.
+  const manifest = readProfileManifest('test', profile.dir)
+  manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles: [...(manifest.qilin?.profile?.bundles ?? []), name] } }
+  writeFileSync(join(profile.dir, 'package.json'), JSON.stringify(manifest))
   expect(await manager.setBundleEnabled(name, false)).toMatchObject({
     changed: false, application: 'failed', error: { code: 'always-enabled' },
   })
