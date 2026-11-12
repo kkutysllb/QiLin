@@ -42,6 +42,48 @@ type LangModule = { default: typeof langTs }
 const LANGS = [langTs, langBash, langJson]
 
 /**
+ * The Perl grammar's bare `/…/` rule begins a match only after these characters or at line start.
+ */
+const PERL_FIND_BEGIN = '(?<=[\\&({|~]|if|unless|^)\\s*((/))'
+
+/**
+ * Words after which a Perl `/` starts a match rather than a division. A word
+ * counts only when no identifier character, sigil, `>`, `:` or `-` precedes
+ * it, so `$split / 2` and `$obj->return / 2` stay divisions. Each word is a
+ * separate fixed-length lookbehind alternative because the JavaScript engine's
+ * Oniguruma translator rejects nested lookbehinds.
+ */
+const PERL_FIND_WORDS = ['if', 'unless', 'split', 'grep', 'and', 'or', 'not', 'return', 'while', 'until']
+
+/**
+ * Widen the vendored Perl grammar's bare `/…/` match rule, which begins only
+ * after `&`, `(`, `{`, `|`, `~`, `if`, `unless` or at line start. Elsewhere,
+ * such as `split /^---\s*$/m, $text`, the pattern body tokenizes as code: its
+ * `m,` opens an `m` match delimited by commas that runs to the end of the
+ * source. The patched rule also begins after `,`, `!`, `=` and `=>`, and after
+ * the list operators `split` and `grep`, the low-precedence operators `and`,
+ * `or` and `not`, and `return`, `while`, `until`, `if` and `unless` when no
+ * identifier character, sigil, `>`, `:` or `-` precedes the word. The upstream
+ * textmate/perl.tmbundle grammar, which `@shikijs/langs` ships through VS Code,
+ * has the same rule.
+ * @param grammars - the `@shikijs/langs/perl` default export, left unmodified.
+ * @returns copies of `grammars` with that rule's begin replaced in the `perl` grammar.
+ * @throws When the module has no `perl` grammar or that grammar has no or several
+ * top-level rules with the vendored begin pattern. The lazy load then rejects
+ * unhandled and Perl code renders as plain text.
+ */
+export function patchPerlGrammar(grammars: LangModule['default']): LangModule['default'] {
+  const perl = grammars.find(grammar => grammar.name === 'perl')
+  const rules = perl?.patterns.filter(rule => rule.begin === PERL_FIND_BEGIN) ?? []
+  if (perl === undefined || rules.length !== 1) {
+    throw new Error(`ui-primitives: expected exactly one Perl match rule to patch, found ${rules.length}; update or delete the patch`)
+  }
+  const words = PERL_FIND_WORDS.flatMap(word => ['[^\\w$@%&>:-]' + word, '^' + word]).join('|')
+  const begin = '(?<=[\\&({|~,!=]|=>|^|' + words + ')\\s*((/))'
+  const patterns = perl.patterns.map(rule => rule === rules[0] ? { ...rule, begin } : rule)
+  return grammars.map(grammar => grammar === perl ? { ...perl, patterns } : grammar)
+}
+/**
  * The read card's extension grammars, each behind a dynamic import so its
  * module stays out of the boot chunk until a read of that language renders.
  * Keyed by the grammar id (`LanguageRegistration.name`) the aliases resolve to.
@@ -74,6 +116,7 @@ const LAZY_GRAMMARS = new Map<string, () => Promise<LangModule>>([
   ['sql', () => import('@shikijs/langs/sql')],
   ['xml', () => import('@shikijs/langs/xml')],
   ['lua', () => import('@shikijs/langs/lua')],
+  ['perl', async () => ({ default: patchPerlGrammar((await import('@shikijs/langs/perl')).default) })],
 ])
 
 /**
@@ -130,6 +173,9 @@ const LANG_ALIASES = new Map<string, string>([
   ['sql', 'sql'],
   ['xml', 'xml'],
   ['lua', 'lua'],
+  ['perl', 'perl'],
+  ['pl', 'perl'],
+  ['pm', 'perl'],
 ])
 
 /**
