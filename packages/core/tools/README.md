@@ -75,6 +75,7 @@ The `mode` config decides what the model sees: `native` (every visible schema), 
 |---|---|---|
 | `mode` | `native` | How visible tools are presented to the model: `native`, `ptc`, or `both` |
 | `maxParallelSubCalls` | `10` | Concurrency cap for a `run_code` program's overlapping sub-calls; `1` restores strictly serial dispatch |
+| `maxSubCallsPerMinute` | `1024` | Nested tool-call attempts allowed per minute of the run's resolved `timeoutMs`, including failed attempts; exceeding it aborts the program and clears retained variables while completed tool effects stay. A runtime without a deadline imposes no cap |
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agenttools) is the exhaustive source for every accepted field. Non-native modes require a composed `ctx.ptcRuntime` whose language has a registered SDK renderer; an agent preset selects its own presentation with [`qilin-agent-tool-presentation`](../agent-tool-presentation/README.md), and one agent can shadow the default with `presentAs(mode)`.
 

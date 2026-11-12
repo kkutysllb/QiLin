@@ -6,7 +6,7 @@ This reference defines styling ownership and component rules for browser client 
 
 ## Paper base
 
-The platform palettes carry a warm paper neutral ramp (cream canvas, ink text, warm hairline borders) and content headings ride a system serif, so every color skin sits on the same reading surface instead of restyling the canvas. Skins override brand accent, surfaces, and state tints only; the paper ramp, the collapsed radius scale, and the serif heading face belong to the theme owner.
+The platform palettes carry a warm paper neutral ramp (cream canvas, ink text, warm hairline borders) and content headings ride the system Heiti (sans) stack, so every color skin sits on the same reading surface instead of restyling the canvas. Skins override brand accent, surfaces, and state tints only; the paper ramp, the collapsed radius scale, and the heading face belong to the theme owner.
 
 ## Ownership
 

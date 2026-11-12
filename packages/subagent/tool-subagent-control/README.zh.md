@@ -42,7 +42,13 @@ kind: "package-reference"
 - name: '@qilin-agent/tool-subagent-control/list-agents'
 ```
 
-本包不接收任何配置：根插件提供 `send_message` 与 `interrupt_agent`，列表插件提供 `list_agents`。
+根插件接受一个可选配置，列表插件不接受配置：
+
+| 字段 | 默认值 | 含义 |
+|---|---|---|
+| `interrupt` | `true` | 注册 `interrupt_agent` 及其指引；设为 `false` 时消息发送、列表与 subagent 服务的中断 API 仍然可用 |
+
+随包组合可以设置 `interrupt: false`；未声明该字段的独立组合保留中断能力。
 
 ### send_message
 

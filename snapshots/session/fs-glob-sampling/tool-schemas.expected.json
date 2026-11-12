@@ -148,22 +148,6 @@
       }
     },
     {
-      "name": "interrupt_agent",
-      "description": "Ask a subagent to stop its current work. This call returns without waiting for it to stop. You can continue a local direct child's conversation later with send_message. External executions stop permanently and cannot receive follow-ups. Subagents it started will keep running.",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "agent_id": {
-            "type": "string",
-            "description": "The id of an agent created under you: your direct child or a deeper descendant."
-          }
-        },
-        "required": [
-          "agent_id"
-        ]
-      }
-    },
-    {
       "name": "list_agents",
       "description": "List subagents you started, with their ids, labels, and status. running means it is working; inactive means it is not currently working. You will be notified when a subagent finishes; there is no need to keep checking its status. Use send_message to continue the conversation.",
       "parameters": {

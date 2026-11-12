@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { APP_IDENTITY, attributionHeaders, userAgent } from '@qilin-agent/llm'
 import type { AppIdentity } from '@qilin-agent/llm'
 
@@ -22,7 +22,38 @@ describe('APP_IDENTITY', () => {
       product: 'qilin',
       version: manifest.version,
       url: 'https://github.com/kkutysllb/QiLin',
+      suffix: undefined,
     })
+  })
+})
+
+describe('launch suffix', () => {
+  afterEach(() => { vi.unstubAllEnvs() })
+
+  it('adds nothing when the launcher leaves the variable unset or empty', () => {
+    vi.stubEnv('QILIN_USER_AGENT_SUFFIX', '')
+    expect(userAgent()).toBe(
+      `qilin/${manifest.version} (+https://github.com/kkutysllb/QiLin)`,
+    )
+  })
+
+  it('appends the launcher-set profile token after the comment', () => {
+    vi.stubEnv('QILIN_USER_AGENT_SUFFIX', 'qilin-profile/web')
+    expect(userAgent()).toBe(
+      `qilin/${manifest.version} (+https://github.com/kkutysllb/QiLin) qilin-profile/web`,
+    )
+    expect(attributionHeaders()).toEqual({ 'user-agent': userAgent() })
+  })
+
+  it('rejects a value that is not an RFC 9110 product token', () => {
+    vi.stubEnv('QILIN_USER_AGENT_SUFFIX', 'two words')
+    expect(() => userAgent()).toThrow(/RFC 9110 product token/)
+  })
+
+  it('appends a custom identity suffix', () => {
+    expect(userAgent({ ...forkIdentity, suffix: 'fork-profile/desktop' })).toBe(
+      'fork-agent/9.9.9 (+https://example.com/fork-agent) fork-profile/desktop',
+    )
   })
 })
 

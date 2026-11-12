@@ -39,7 +39,7 @@ ctx.sessions.list()              // every live session, in creation order
 
 ### Append and derive
 
-`session.append(type, data, opts?)` commits one typed event — it snapshots and freezes the payload, validates it as lossless JSON, and notifies observers. `session.deriveMessages()` projects the log into the `Message[]` the model sees, incrementally and cached:
+`session.append(type, data, opts?)` commits one typed event — it snapshots and freezes the payload, validates it as lossless JSON, and notifies observers. `session.append(inputs)` commits a batch of `SessionEventInput` tuples (`[type, data, opts?]`) in one transaction: it snapshots and validates every member, plans the whole surface transition, and only then grows the log, so an invalid later member leaves the log, surface, and event feed unchanged. Observers see the complete committed log, and `session.currentBatchPublication` names the member being published. `session.deriveMessages()` projects the log into the `Message[]` the model sees, incrementally and cached:
 
 ```text
 session.append('user/message', { role: 'user', content: [{ type: 'text', text: 'hello' }], source: { kind: 'user' } },

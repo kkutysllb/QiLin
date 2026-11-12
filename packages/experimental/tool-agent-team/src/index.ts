@@ -381,6 +381,8 @@ To message another teammate, use send_message({ target: "<teammate name>", messa
         limit: { type: 'integer', description: 'Number of rows, 1 through 100. Defaults to 50.' },
       },
       output: jsonOutput(TASK_LIST_VALUE_SCHEMA),
+      // Board reads project the Team Lead journal without appending to it.
+      isConcurrencySafe: () => true,
       execute(args, exec) {
         const status = args.status
         const filtered = ctx.agentTeams.listTasks(callingAgent(exec.agent, 'team_task_list')).filter(task =>
@@ -405,6 +407,8 @@ To message another teammate, use send_message({ target: "<teammate name>", messa
         task_id: { type: 'string', required: true, description: 'Shared task id.' },
       },
       output: jsonOutput(TASK_VIEW_SCHEMA),
+      // Board reads project the Team Lead journal without appending to it.
+      isConcurrencySafe: () => true,
       async execute(args, exec) {
         return Promise.resolve(ctx.agentTeams.getTask(
           callingAgent(exec.agent, 'team_task_get'),

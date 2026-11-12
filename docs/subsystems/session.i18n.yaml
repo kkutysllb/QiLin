@@ -39,8 +39,11 @@
   en: 13820e0611b2e141
   zh: 2aafb1e5e3dc42f6
 /sessions/session-public-api:
-  en: 04e9982948d9560d
-  zh: 221961cadebc6fb1
+  en: 2dbf1890d8c38701
+  zh: 9948971a092b3243
+/sessions/session-public-api/sessioneventinput-one-proposed-event:
+  en: d29249268296b26f
+  zh: 53fa5f68abd76f00
 /sessions/derived-history-derivemessages-and-deriveeventmessage:
   en: 73a1f34f9ea9f77c
   zh: b5871c442a1787ac

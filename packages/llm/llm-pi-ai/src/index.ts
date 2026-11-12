@@ -247,6 +247,9 @@ export function apply(ctx: Context, config: Config): void {
       ref,
     ),
     prepareHeaders: (request, headers) => ctx.waterfall('llm-pi-ai/request-headers', request, headers, () => headers),
+    onThinkingOmitted: ({ provider, model, count }) => {
+      if (count > 0) ctx.logger.debug(`llm-pi-ai: omitted stale thinking from ${count} assistant message(s) for route "${provider}/${model}"`)
+    },
     onReplayDegrade: ({ provider, model, reason }) => {
       ctx.logger.warn(
         `llm-pi-ai: unusable replay state on assistant history for route "${provider}/${model}";`

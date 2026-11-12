@@ -445,6 +445,22 @@ interface SurfaceFoldResult {
 
 ## `Session` public API
 
+### `SessionEventInput` — one proposed event
+
+```ts type-equiv
+/**
+ * One positional event call proposed for a batch append: event type, payload,
+ * and — for message-producing types — the required surface intent. The Session
+ * assigns `seq` and `time` when the batch commits, so members cite each other
+ * by the positions they will occupy.
+ */
+type SessionEventInput = {
+  [K in SessionEventType]: readonly [type: K, data: SessionEventMap[K], ...opts: K extends SurfaceEventType ? [opts: SurfaceIntent<K>] : []]
+}[SessionEventType]
+```
+
+Each array member keeps its event type paired with its payload and requires surface intent only for message-producing events. `session.append(inputs)` validates every member and the whole surface transition before the log changes, then publishes the members in order with the complete committed log visible to each observer.
+
 The body-stripped declaration keeps the plain class's detached factory, state accessors, append method, and history projections synchronized with source. Store operations remain in the generated [`ctx.sessions` section](#ctxsessions--sessionstore).
 
 ```ts public-api
@@ -459,6 +475,13 @@ The body-stripped declaration keeps the plain class's detached factory, state ac
 declare class Session {
   /** The ordered surface over this session's event log. */
   get surface(): SessionSurface;
+  /**
+     * The member whose `session/event` listeners are running right now, or
+     * undefined outside a batch append. Observers use it to attribute the
+     * snapshot they read; every member sees the complete committed log.
+     * @returns the event being published, or undefined.
+     */
+  get currentBatchPublication(): SessionEvent | undefined;
   /**
      * Detached, deep-frozen creation metadata (format version, cwd, lineage,
      * and whether fork history exists). Supplied by the store via `ctx.sessions.create()`. When a
@@ -571,6 +594,19 @@ declare class Session {
   /** The next event's sequence number — always the log length (the `seq = log.length` contiguity contract). */
   get seq(): SessionLogOffset;
   /**
+     * Append consecutive events together after validating every candidate and
+     * its synchronous dispatch. Observers read the complete committed log and
+     * final message surface for each member. Listener registration changes
+     * during publication take effect on the next append; persistence listeners
+     * retain their own durability rules.
+     * @param inputs - event payloads and surface intents in commit order. An empty array records no events.
+     * @returns immutable committed events in the same order.
+     * @throws if the Session cannot accept writes, when a member is a sparse
+     *   hole, or when any candidate or synchronous dispatch validation fails;
+     *   the log then keeps its previous contents.
+     */
+  append(inputs: readonly SessionEventInput[]): readonly SessionEvent[];
+  /**
      * Append one typed event to the log and synchronously notify observers via
      * the store-owned, module-private publication hooks. The hot path never blocks
      * on I/O — persistence plugins buffer asynchronously. Once the event enters
@@ -612,6 +648,11 @@ declare class Session {
       data: SessionEventMap[T],
       ...opts: T extends SurfaceEventType ? [opts: SurfaceIntent<T>] : []
     ): SessionEvent<T>;
+  append(
+      type: SessionEventType | readonly SessionEventInput[],
+      data?: SessionEventMap[SessionEventType],
+      ...opts: [opts?: SurfaceIntent]
+    ): SessionEvent | readonly SessionEvent[];
   /**
      * The {@link EpochHeader} in force after the log's last header event — the
      * header the NEXT request will be compared against — or undefined before
@@ -1339,13 +1380,15 @@ Source: [`packages/core/session/src/index.ts`](../../packages/core/session/src/i
 
 #### `session/event` — emit
 
-Post-commit, fire-and-forget append feed. The listener snapshot resolves before the log push, but callbacks run after it; observer failures are logged and contained without making the committed append fail. Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only events from sessions entered through that agent's context.
+Post-commit, fire-and-forget append feed. The listener snapshot resolves before the log push, but callbacks run after it; observer failures are logged and contained without making the committed append fail. Array append commits every member before publishing them in order; observers therefore read the complete log and final surface for each member. Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only events from sessions entered through that agent's context.
 
 ```ts cordis-catalog
 /**
  * Post-commit, fire-and-forget append feed. The listener snapshot resolves
  * before the log push, but callbacks run after it; observer failures are
- * logged and contained without making the committed append fail.
+ * logged and contained without making the committed append fail. Array
+ * append commits every member before publishing them in order; observers
+ * therefore read the complete log and final surface for each member.
  * Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners
  * receive only events from sessions entered through that agent's context.
  * @param session - the session whose log grew.

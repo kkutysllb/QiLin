@@ -27,6 +27,7 @@
       config:
         freshProvider: spawn
         forkProvider: fork
+        interrupt: false
 
     - id: ui-agent-team
       name: '@qilin-agent/experimental-client-ui-agent-team'

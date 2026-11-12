@@ -75,6 +75,7 @@ ctx.tools.register(defineTool({
 |---|---|---|
 | `mode` | `native` | 可见工具向模型呈现的方式：`native`、`ptc` 或 `both` |
 | `maxParallelSubCalls` | `10` | `run_code` 程序重叠子调用的并发上限；`1` 恢复严格串行分发 |
+| `maxSubCallsPerMinute` | `1024` | 按运行解析后的 `timeoutMs` 每分钟允许的嵌套工具调用尝试数（含失败尝试）；超限会中止程序并清空保留变量，已完成的工具效果保留。运行时无截止时间时不设上限 |
 
 生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agenttools)是每个受支持字段的穷尽式真源。非原生模式要求已组合的 `ctx.ptcRuntime` 且其语言有已注册的 SDK 渲染器；agent preset 通过 [`qilin-agent-tool-presentation`](../agent-tool-presentation/README.zh.md) 自行选择呈现方式，单个 agent 可用 `presentAs(mode)` 遮蔽默认值。
 

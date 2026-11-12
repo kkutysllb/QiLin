@@ -1,5 +1,5 @@
 ---
-description: "共享工具家族的包映射：原子文件写入、品牌化 id、双端队列、JSON 值、harness 主目录路径、启动环境、原生命令、输出保留、时区与超时。"
+description: "共享工具家族的包映射：原子文件写入、品牌化 id、双端队列、JSON 值、共享错误基类、harness 主目录路径、启动环境、原生命令、输出保留、时区与超时。"
 kind: "package-group"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-group"
 
 ## 概述
 
-`util/` 组为能力包提供共享的机制原语，避免重复实现。它涵盖原子写入、品牌化 id、双端队列、无损 JSON 值、UUID、Harness home 路径、启动环境、出站代理策略、原生命令、输出保留、时区规范化、源码视图的语法选择、安装方持有的 bundle 名单以及超时处理。这里的每个根入口都是库：它不注册产品服务或事件，业务语义仍由消费它的能力负责。
+`util/` 组为能力包提供共享的机制原语，避免重复实现。它涵盖原子写入、品牌化 id、双端队列、无损 JSON 值、共享 `HarnessError` 基类、UUID、Harness home 路径、启动环境、出站代理策略、原生命令、输出保留、时区规范化、源码视图的语法选择、安装方持有的 bundle 名单以及超时处理。这里的每个根入口都是库：它不注册产品服务或事件，业务语义仍由消费它的能力负责。
 
 ## 目录
 
@@ -34,6 +34,7 @@ kind: "package-group"
 | [`deque/`](deque/README.zh.md) | 提供摊销常数时间的队列操作和有界空闲存储 |
 | [`chunked-list/`](chunked-list/README.zh.md) | 通过有界追加复制和检查点校验保留不可变列表版本 |
 | [`values/`](values/README.zh.md) | 校验、创建快照、比较和冻结无损 JSON 兼容值 |
+| [`error/`](error/README.zh.md) | 无依赖的 `HarnessError` 基类，携带稳定且可机器路由的 code |
 | [`code-language/`](code-language/README.zh.md) | 为源码路径选择语法，并列出与源码视图共享的高亮后缀表 |
 | [`file-drag/`](file-drag/README.zh.md) | 为导出的文件命名，并描述浏览器与原生的拖拽令牌，不接触字节本身 |
 | [`home-paths/`](home-paths/README.zh.md) | 解析统一的 Harness 主目录并拼接共享的用户数据路径 |

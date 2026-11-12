@@ -387,8 +387,13 @@
 
     # Continuable background children are selected per delegation tool. The
     # separately loaded follow-up tool registers the one global `send_message`.
+    # Interruption is disabled in the shipped profile: messaging, discovery,
+    # inbox waiting, and the subagent service's interruption API remain
+    # available, while the model no longer receives `interrupt_agent`.
     - id: tool-subagent-control
       name: '@qilin-agent/tool-subagent-control'
+      config:
+        interrupt: false
 
     - id: tool-subagent-list-agents
       name: '@qilin-agent/tool-subagent-control/list-agents'
@@ -472,21 +477,20 @@
 
     # The shared base enables the stable model-facing web_search and web_fetch
     # tools. The Web app disables this host row and composes both tools per agent
-    # preset; products with a stricter network policy override tool-web. DeepSeek
-    # search resolves the same DEEPSEEK_API_KEY
-    # credential the Models page manages for chat, at each search; its Messages
-    # endpoint is separate from the chat-completions endpoint, so it takes its own
-    # base-URL override. Anonymous fetch accepts only public HTTP(S) destinations,
-    # resolves and validates every destination, and pins every actual connection.
-    # Search is a full auxiliary model request with server-side retrieval, so this
-    # shipped DeepSeek route gets 60s while the provider-neutral tool default
-    # remains 30s. The DeepSeek Search and Fetch APIs register as
-    # deepseek-search-api and deepseek-fetch-api with the same credential; the Web
+    # preset; products with a stricter network policy override tool-web. Search
+    # uses the DeepSeek Search API (deepseek-search-api): one direct retrieval
+    # request per search, accounting for the service's 5 QPS limit, with the same
+    # DEEPSEEK_API_KEY the Models page manages for chat. The Messages-API search
+    # provider (deepseek-official) stays mounted for explicit selection; it is a
+    # full auxiliary model request, so selecting it needs a longer timeout.
+    # Anonymous fetch accepts only public HTTP(S) destinations, resolves and
+    # validates every destination, and pins every actual connection. The DeepSeek
+    # Fetch API registers as deepseek-fetch-api with the same credential; the Web
     # search settings switch selects both in place of these defaults.
     - id: web
       name: '@qilin-agent/web'
       config:
-        searchProvider: deepseek-official
+        searchProvider: deepseek-search-api
         fetchProvider: http
 
     - id: web-search-deepseek

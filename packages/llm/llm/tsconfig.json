@@ -33,6 +33,9 @@
       "path": "../../util/values"
     },
     {
+      "path": "../../util/error"
+    },
+    {
       "path": "../../util/package-manifest"
     },
     {

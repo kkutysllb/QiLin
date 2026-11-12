@@ -1,0 +1,34 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/util/error/README.md
+/:
+  en: 7b41a2bbd7b93995
+  zh: 3905bb3d44dddbb6
+/qilin-agent-util-error:
+  en: 9e953c846385716d
+  zh: ab863c32f7c90457
+/qilin-agent-util-error/summary:
+  en: d512c7d686531a4e
+  zh: 7e1c79f88f4e2ad6
+/qilin-agent-util-error/table-of-contents:
+  en: 80b31a934611cb4a
+  zh: 05f3f7f9cb2fd881
+/qilin-agent-util-error/use-this-package:
+  en: 5b6c95de66ce1868
+  zh: 7f5e4bd474e473d8
+/qilin-agent-util-error/understand-the-implementation:
+  en: 2ff7e2bd2fcb0af6
+  zh: 9636b47d0c4cef36
+/qilin-agent-util-error/understand-the-implementation/source-map:
+  en: b5ec9bcd76b2a6f0
+  zh: 9311375823b6d857
+/qilin-agent-util-error/further-exploration:
+  en: 029dce614573b656
+  zh: b02f0d4e965555f0
+/qilin-agent-util-error/known-limitations-and-deferred-work:
+  en: 68ad6357830a783f
+  zh: f05112a7bf20ebda
+/qilin-agent-util-error/known-limitations-and-deferred-work/dev-note:
+  en: 1276cef2e465624e
+  zh: 3cd3df2c382209bc

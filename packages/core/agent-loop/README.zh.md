@@ -152,7 +152,7 @@ const handle = await ctx.agents.create({
 
 #### 模型看到什么
 
-每个步骤中，循环会发送会话的派生消息与可见工具 schema。非空的 `system/message` 节点承载提示词，最新一条是有效版本；空渲染文本会从派生历史中清除所有提示词版本。它提供 `provider`、`model` 与 `cwd` 变量值，但不添加固定文案。 请求头始终记录当前有效工具。将其名称与前一请求头比较后，添加和移除合并为一条 `developer/message`，不依赖模型能力；添加记录引用新请求头。请求还携带 `Session.toolHistory()`，供 LLM 运行时构造提供方声明。
+每个步骤中，循环会发送会话的派生消息与可见工具 schema。非空的 `system/message` 节点承载提示词，最新一条是有效版本；空渲染文本会从派生历史中清除所有提示词版本。它提供 `provider`、`model` 与 `cwd` 变量值，但不添加固定文案。 请求头始终记录当前有效工具。将其名称与前一请求头比较后，添加和移除合并为一条 `developer/message`，不依赖模型能力；添加记录引用新请求头。请求还携带 `Session.toolHistory()`，供 LLM 运行时构造提供方声明。 运行时上下文是一条 `<system-reminder>` 用户消息。首个快照以 `The following information describes your current session:` 开头；后续快照以 `The following information describes your current session. It replaces earlier versions of this context, including any retained in conversation summaries.` 开头。贡献未变化时不产生消息；压缩移除保留的快照会触发新的提醒，恢复会话后同样如此。活动集合为空时，在同一包装内输出 `Current runtime context: none. Earlier runtime-context snapshots no longer apply.` 并记录空 sections。投影比较已提交 `source.sections` 中的有序名称与文本，与提醒措辞无关；未提交的候选不推进状态。消息文本会转义闭合的 `system-reminder` 标签（含大小写与尾随空白变体），而记录的 sections 保留原文；该包装只是格式约定，不是安全边界。
 
 #### Token 影响
 

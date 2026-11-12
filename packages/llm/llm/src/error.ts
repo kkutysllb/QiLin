@@ -1,25 +1,13 @@
 /**
- * Harness error base with a stable machine-routable code and chained cause.
- * Package errors extend it so tool results and replay can retain failure class.
+ * Llm error taxonomy, provider-neutral failure codes, and classifier helpers.
+ * The {@link HarnessError} base is re-exported from `@qilin-agent/util-error`
+ * so `llm` and the capability packages it depends on share one base.
  * @module @qilin-agent/llm/error
  */
 
-/**
- * Base class for all harness errors. Carries a `code` (stable, programmatic —
- * e.g. `NO_ADAPTER`, `INVALID_ARGS`, `INVARIANT`) distinct from the
- * human-readable `message`, and supports `cause` chaining via the standard
- * `ErrorOptions`. `name` defaults to the subclass constructor name.
- */
-export class HarnessError extends Error {
-  /** Stable machine-routable failure class (e.g. `RATE_LIMIT`); route on this, never by parsing `message`. */
-  readonly code: string
+import { HarnessError } from '@qilin-agent/util-error'
 
-  constructor(message: string, code: string, options?: ErrorOptions) {
-    super(message, options)
-    this.code = code
-    this.name = new.target.name
-  }
-}
+export { HarnessError }
 
 /** Canonical provider-neutral code for a model request rejected because its context window was exceeded. */
 export const CONTEXT_WINDOW_EXCEEDED_CODE = 'CONTEXT_WINDOW_EXCEEDED'

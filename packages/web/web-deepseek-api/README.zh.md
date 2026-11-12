@@ -42,9 +42,12 @@ kind: "package-reference"
 | `apiKeyEnv` | `DEEPSEEK_API_KEY` | 每次操作解析的凭据引用 |
 | `baseURL` | `https://api.deepseek.com/v1/tools` | Search 与 Fetch API 的基础地址（含部署的路径前缀）；程序追加 `/search` 或 `/fetch` |
 | `count` | `10` | 每次搜索的 Search API 结果数，1 到 50 的整数；请求上更小的 `maxResults` 优先 |
+| `searchRequestsPerSecond` | `5` | 本插件实例在任意一秒窗口内发起的 Search 请求上限；后续搜索会等待，等待计入调用方超时 |
 | `sendOriginalQuestion` | `true` | 把触发搜索的用户提示词截断到 128 个字符后作为 Search API 的 `ori_question` 发送 |
 
 `baseURL` 必须填写完整 API 基础地址：包含路径前缀、不含操作名。默认值会请求 `https://api.deepseek.com/v1/tools/search` 与 `https://api.deepseek.com/v1/tools/fetch`；使用其他前缀（例如 `/api/v1/tools`）的部署需要填写自己的完整地址。
+
+随包的基础组合为 `web_search` 选择本提供方的搜索（`deepseek-search-api`）；Messages API 搜索提供方（`deepseek-official`）仍可通过显式 `searchProvider` 配置使用，每次搜索消耗一次辅助模型请求。同一插件实例的 Search 请求按配置的每秒上限间隔发送；同一账号上的其他进程与客户端会共享服务端限额且不做协调。
 
 用 `DEEPSEEK_API_KEY` 与 `DEEPSEEK_SEARCH_API_TEST_BASE_URL` 运行真实 API 测试：两者都必须提供，后者包含 API 路径前缀。
 

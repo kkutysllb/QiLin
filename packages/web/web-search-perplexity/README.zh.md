@@ -145,6 +145,8 @@ kind: "package-reference"
 
 这些限制说明提供方在哪些情况下不合适。它们是当前包约束。
 
+- **在随包组合中已废弃。** 基础组合现在为 `web_search` 选择 `deepseek-search-api`；本提供方仍可通过显式 `searchProvider` 配置使用一个发布周期，之后移除。
+
 - **引用回退来源只含 URL**——Perplexity 省略结构化 `search_results[]` 时，来源不含 `title`／`snippet`／`publishedAt`，因此工具只渲染纯主机名标签。
 - **超量返回的来源仍会增加 token 消耗与延迟**——协议没有结果数量控制，`maxResults` 只能由服务在事后截断。
 - **只公开 `model`／`maxTokens`／`searchRecency`**——Perplexity 的其他搜索控制项（域名过滤条件、`web_search_options` 上下文大小、图片）等待提供方无关的服务字段（见 [seam Agent Note](../../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.zh.md)）。

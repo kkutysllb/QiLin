@@ -38,6 +38,7 @@ const NO_MODEL_EXPERIENCE_SECTION: Readonly<Record<string, string>> = {
   'packages/util/plugin-detail': 'The package only reads installed package documentation and images for the plugin manager; it never constructs model input.',
   'packages/util/code-language': 'The package only maps file extensions to grammar ids; tokenization and every model-facing use belong to consumers.',
   'packages/util/values': 'The package only validates, snapshots, compares, freezes, or rejects caller-owned values; consumers own every model-facing use.',
+  'packages/util/error': 'The package only supplies the HarnessError base class; tool results and model-request rendering belong to consumers.',
   'packages/client/ui-agent-opens': 'The package only opens Sidebar tabs a model request already carries; the tool that made the request owns every model-facing effect.',
 }
 

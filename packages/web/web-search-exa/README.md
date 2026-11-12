@@ -123,6 +123,8 @@ No direct invalidation; the named consumer owns any request-prefix changes.
 
 These limits define when the provider is a poor fit. They are current package constraints.
 
+- **Deprecated in the shipped composition.** The base bundle now selects `deepseek-search-api` for `web_search`; this provider stays available through an explicit `searchProvider` setting for one release cycle and is scheduled for removal.
+
 - **A result with no non-blank highlight is dropped entirely** — there is no portable snippet to map, so fewer sources than requested can return.
 - **Only `searchType`/`numResults`/`highlightsPerResult` are exposed** — Exa's other controls (livecrawl, category, domain/date filters, full-text contents) wait on provider-neutral service fields ([seam Agent Note](../../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.md)).
 - **Abort classification is error-shape-based** — only a `DOMException` named `AbortError` maps to `WEB_ABORTED`; an abort carrying a custom reason (such as `qilin-timeout`'s `TimeoutReason`) surfaces as `WEB_PROVIDER_ERROR`.

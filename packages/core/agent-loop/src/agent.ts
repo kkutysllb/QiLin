@@ -29,7 +29,7 @@ import type { Scope } from '@qilin-agent/scope'
 import { createScope } from '@qilin-agent/scope'
 import type { EpochHeader, RequestContext, Session, SessionId, SessionSeq, TurnEndReason, UserMessage } from '@qilin-agent/session'
 import { canonicalHeader, headerEquals, ToolCallRecovery } from '@qilin-agent/session'
-import { joinContextSections, renderContextSections, renderPrompt } from '@qilin-agent/system-prompt'
+import { renderContextSections, renderPrompt } from '@qilin-agent/system-prompt'
 import type { PromptAssembly } from '@qilin-agent/system-prompt'
 import type {} from '@qilin-agent/session-projection'
 import type { Context } from '@qilin-agent/kylin'
@@ -316,7 +316,7 @@ export class ReactLoopAgent implements Agent {
       'agent/pre-step', { messages: claimed, ...position, signal },
       (): Promise<PreStepDecision> => {
         const sections = renderContextSections(assembly)
-        const context = this.runtimeContext.project(joinContextSections(sections), sections)
+        const context = this.runtimeContext.project(sections)
         return Promise.resolve<PreStepDecision>({
           kind: 'enter',
           messages: context === undefined ? claimed : [...claimed, context],
@@ -454,7 +454,7 @@ export class ReactLoopAgent implements Agent {
       const { config, preparedCall } = await this.prepareRequest(turn, step, signal)
       const currentContext = this.loopCtx.systemPrompt.refreshContext(assembly, assembleContextFor(this, signal))
       const sections = renderContextSections(currentContext)
-      const context = this.runtimeContext.project(joinContextSections(sections), sections)
+      const context = this.runtimeContext.project(sections)
       signal.throwIfAborted()
       const startsRequestSeries = firstAttempt && decision.startsRequestSeries === true
       const commits = this.systemPrompt.project(renderedPrompt, {

@@ -546,6 +546,11 @@
     },
     {
       "doc": "docs/subsystems/session.md",
+      "symbol": "SessionEventInput",
+      "source": "packages/core/session/src/types.ts"
+    },
+    {
+      "doc": "docs/subsystems/session.md",
       "symbol": "EpochHeader",
       "source": "packages/core/session/src/types.ts"
     },

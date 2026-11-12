@@ -155,6 +155,7 @@ Settings 写入会在合并组合层与用户层后严格校验每个新增或�
 | [`src/context.ts`](src/context.ts) | Harness 到 pi-ai 的上下文转换、图片处理、回放恢复 |
 | [`src/stream.ts`](src/stream.ts) | 把 pi-ai 事件转换为 harness `StreamChunk` 值 |
 | [`src/replay.ts`](src/replay.ts) | 带版本的 `ReplayEnvelope` 存储与校验 |
+| [`src/prefix-binding.ts`](src/prefix-binding.ts) | 请求前缀变化后省略 Anthropic thinking |
 | [`src/discovery.ts`](src/discovery.ts) | 面向配置界面的端点询问 |
 
 ### 注册与目录
@@ -183,6 +184,8 @@ git add packages/llm/llm-pi-ai/src/provider-data.generated.ts
 ### 回放与词汇
 
 成功 assistant 响应会存储带版本的、无损 JSON 回放状态，与产生它们的提供方和模型放在一起——响应级事实加每个流式块一条逐块条目。请求时，`LlmRuntime` 仅当同一适配器实例拥有两条路由时才传递回放状态；适配器校验它并恢复原生响应 id、提供方签名与可选的 `providerThinkingLevel` effort 元数据，缺失的 effort 元数据仍保持缺失。回放会对照 assistant 来源校验请求模型身份，并用它保留同模型签名；提供方报告的响应模型仅作为诊断元数据。无法使用的状态会降级为提供方无关内容而不是让请求失败。pi-ai 工具调用参数是解析后的对象，因此适配器解析输入并重新字符串化输出，以符合 harness 原始 JSON 约定；pi-ai 流内错误事件映射为终止 `finish` 分片。
+
+Anthropic 可以把每个带签名的 thinking 块绑定到生成它时的请求前缀：系统提示、工具以及更早的消息。启用该检查的账号与请求会拒绝重放失效块。因此 Anthropic Messages 响应会把请求上下文的 SHA-256 摘要记录为 `prefixDigest`。之后的 Anthropic Messages 请求在重放每个响应前重新计算重建前缀的摘要，并在摘要不同（例如压缩、工具结果裁剪、图片卸载、系统提示或工具变更之后）时省略该响应的带签名与 redacted thinking。没有 `prefixDigest` 的旧回放状态按同样方式处理，从而修复已经失败的会话。文本、工具调用与无签名 thinking 保留；只包含带签名 thinking 的响应不再发送。被省略的 thinking 在后续请求中保持省略。手动 thinking 要求工具轮的最后一个 assistant 轮次以 thinking 块开头，因此当请求启用 thinking 且模型 compat 未设置 `forceAdaptiveThinking` 时，请求以工具结果继续的那个 assistant 消息保留其 thinking。
 
 </details>
 

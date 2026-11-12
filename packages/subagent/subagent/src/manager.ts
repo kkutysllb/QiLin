@@ -9,7 +9,7 @@
 import { randomUUID } from 'node:crypto'
 import { isAbsolute, resolve } from 'node:path'
 import type {} from '@qilin-agent/working-directory'
-import type { Context } from '@qilin-agent/kylin'
+import { FiberState, type Context } from '@qilin-agent/kylin'
 import type { Agent, AgentOptions, CreateAgentOptions, StepBoundaryDelivery } from '@qilin-agent/agent'
 import { deliverAtNextStep } from '@qilin-agent/agent'
 import { brandString } from '@qilin-agent/brand'
@@ -1558,6 +1558,9 @@ export class SubagentManager {
     try {
       const parent = this.ctx.agents.get(activation.parent.id)
       if (parent !== activation.parent) return
+      // A parent whose scope is unwinding can no longer run a turn; queueing the
+      // notice would only wake a released Agent.
+      if (parent.ctx.fiber.state !== FiberState.ACTIVE) return
       const message = createSettlementMessage(
         activation.childId, terminal, activationAgent(activation) !== undefined,
       )

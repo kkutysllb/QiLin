@@ -35,6 +35,8 @@ Load this plugin in any composition where the agent should start, observe, and s
 
 The three tools return `{ text, job }`, `PublicJobSnapshot[]`, and `{ outcome: 'cancellation-requested' | 'already-finished', job }` respectively. A public snapshot carries id, kind, label, status/detail, and start/finish times and omits ownership and notification bookkeeping. All three render through generic UI cards: `read` for output and list, `execute` for kill.
 
+`job_list` opts into concurrent scheduling with sibling parallel-safe calls because it reads a status snapshot. `job_output` stays exclusive because each read consumes the stream cursor and the one-time result delivery, and `job_kill` stays exclusive because it requests cancellation.
+
 ### Completion notices
 
 When a job finishes, the owning agent receives `background job <id> (<kind>: <label>) finished [status: ...]. Read its output with job_output.` as an in-session message. A busy agent has the notice injected into its next step — the turn cannot close while the inbox holds it, so several jobs settling together cost one step rather than one turn each. An idle agent is instead woken with a follow-up turn, because an unclaimed notice is a completion the model never learns about. A kill or a terminal read/wait marks the completion reported and suppresses the redundant notice, as does the teardown cancel that drains an owner or the service.

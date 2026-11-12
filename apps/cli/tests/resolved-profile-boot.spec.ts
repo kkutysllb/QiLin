@@ -11,7 +11,7 @@ import {
 } from '@qilin-agent/app-boot'
 import { installProxyFromEnvironment } from '@qilin-agent/http-proxy'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { runProfile } from '../src/profile-boot.ts'
+import { runProfile, userAgentProfile } from '../src/profile-boot.ts'
 
 vi.mock('@qilin-agent/app-boot', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@qilin-agent/app-boot')>()
@@ -27,6 +27,8 @@ vi.mock('@qilin-agent/http-proxy', () => ({ installProxyFromEnvironment: vi.fn()
 
 const homes: string[] = []
 afterEach(() => {
+  // runProfile writes the suffix straight into process.env, which unstubAllEnvs does not restore.
+  delete process.env.QILIN_USER_AGENT_SUFFIX
   vi.restoreAllMocks()
   vi.unstubAllEnvs()
   vi.resetAllMocks()
@@ -194,5 +196,41 @@ describe('runProfile with an application-owned profile', () => {
       await ctx.fiber.dispose()
       process.exitCode = oldExitCode
     }
+  })
+})
+describe('profile User-Agent suffix', () => {
+  it.each([
+    ['web', 'web'],
+    ['sdk-minimal', 'sdk-minimal'],
+    ['my web/v2', 'my%20web%2Fv2'],
+    ['工作', '%E5%B7%A5%E4%BD%9C'],
+    ['a(b)%', 'a%28b%29%25'],
+  ] as const)('encodes %j as %j', (name, encoded) => {
+    expect(userAgentProfile(name)).toBe(encoded)
+  })
+
+  it('names the profile before any plugin loads', async () => {
+    const home = mkdtempSync(join(tmpdir(), 'qilin-profile-user-agent-'))
+    homes.push(home)
+    mkdirSync(join(home, 'runtime'))
+    writeFileSync(join(home, 'runtime/package.json'), '{"name":"test-runtime","version":"1.0.0"}')
+    writeFileSync(join(home, 'package.json'), '{"name":"test-bundle","version":"1.0.0"}')
+    vi.stubEnv('QILIN_HOME', home)
+    vi.spyOn(process, 'on').mockReturnValue(process)
+    vi.mocked(installProxyFromEnvironment).mockResolvedValue(async () => {})
+    const failure = new Error('stop after observing the environment')
+    let seen: string | undefined
+    vi.mocked(boot).mockImplementation(async () => {
+      seen = process.env.QILIN_USER_AGENT_SUFFIX
+      throw failure
+    })
+    const profile: Profile = {
+      skippedBundles: [], name: 'my web', dir: home, patchPath: join(home, 'cordis.patch.yml'), patches: [], layers: [],
+    }
+    await expect(runProfile({
+      environment: createLaunchEnvironmentSnapshot([]), profile: 'my web', patchFiles: [], args: [],
+      resolvedProfile: { profile, installAnchor: join(home, 'runtime/package.json') },
+    })).rejects.toBe(failure)
+    expect(seen).toBe('qilin-profile/my%20web')
   })
 })

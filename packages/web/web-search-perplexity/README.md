@@ -145,6 +145,8 @@ Append-only; newly visible content follows the reusable request prefix and does 
 
 These limits define when the provider is a poor fit. They are current package constraints.
 
+- **Deprecated in the shipped composition.** The base bundle now selects `deepseek-search-api` for `web_search`; this provider stays available through an explicit `searchProvider` setting for one release cycle and is scheduled for removal.
+
 - **Citation-fallback sources are URL-only** — when Perplexity omits structured `search_results[]`, sources carry no `title`/`snippet`/`publishedAt`, so the tool renders bare hostname labels.
 - **Over-returned sources still cost tokens and latency** — with no result-count control on the wire, `maxResults` is enforced only post-hoc by service truncation.
 - **Only `model`/`maxTokens`/`searchRecency` are exposed** — Perplexity's other search controls (domain filters, `web_search_options` context size, images) wait on provider-neutral service fields ([seam Agent Note](../../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.md)).

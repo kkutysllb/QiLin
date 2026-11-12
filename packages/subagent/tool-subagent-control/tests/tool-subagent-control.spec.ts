@@ -351,11 +351,25 @@ describe('dsh-tool-subagent-control', () => {
     expect(ctx.tools.schemas().some(schema => schema.name === 'interrupt_agent')).toBe(false)
   })
 
+  it('omits interrupt_agent when interruption is disabled', async () => {
+    const ctx = new Context()
+    contexts.push(ctx)
+    await mountAgentLoopTestDependencies(ctx)
+    await ctx.plugin(AgentLoop, { agents: [] })
+    await mountWorkingDirectoryFixture(ctx)
+    await ctx.plugin(SubagentRuntime)
+    const fiber = await ctx.plugin(tool, { interrupt: false })
+    expect(ctx.tools.schemas().some(schema => schema.name === 'send_message')).toBe(true)
+    expect(ctx.tools.schemas().some(schema => schema.name === 'interrupt_agent')).toBe(false)
+    await fiber.dispose()
+  })
+
   it('has the namespace-plugin export shape (no stray default)', () => {
     expect('default' in tool).toBe(false)
     expect(tool.name).toBe('tool-subagent-control')
     expect(tool.inject).toEqual(['tools', 'subagents'])
     expect(typeof tool.apply).toBe('function')
+    expect(tool.Config).toBeDefined()
   })
 })
 

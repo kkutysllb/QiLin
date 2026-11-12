@@ -59,6 +59,27 @@ describe('plugin-owned message projections', () => {
     expect(source.data.content).toEqual([{ type: 'text', text: 'original' }])
   })
 
+  it('plans a whole batch before applying any projection in it', () => {
+    const definitions = [projection]
+    const session = Session.create(SessionId('batch-projection'), undefined, undefined, undefined, definitions)
+    const source = input(session)
+    const original = session.deriveMessages()
+    expect(() => session.append([
+      ['test/project', { seq: source.seq, text: 'first' }],
+      ['test/project', { seq: source.seq, text: 'reject' }],
+    ])).toThrow('rejected decision')
+    expect(session.seq).toBe(1)
+    expect(session.deriveMessages()).toEqual(original)
+    expect(session.surface.contentGeneration).toBe(0)
+    const events = session.append([
+      ['test/project', { seq: source.seq, text: 'first' }],
+      ['test/project', { seq: source.seq, text: 'second' }],
+    ])
+    expect(events.map(event => event.seq)).toEqual([1, 2])
+    expect(session.deriveMessages()[0]?.content).toEqual([{ type: 'text', text: 'second' }])
+    expect(session.surface.contentGeneration).toBe(2)
+  })
+
   it('registers by fiber and refuses cached or pending decisions after disposal', async () => {
     const ctx = new Context()
     contexts.push(ctx)

@@ -706,7 +706,7 @@ describe('agent loop', () => {
     expect(contextEvents()).toHaveLength(1)
     expect(contextEvents()[0]?.data.content).toEqual([{
       type: 'text',
-      text: 'Current runtime context. This snapshot supersedes earlier runtime-context snapshots.\n\nMode: read-only.',
+      text: '<system-reminder>\nThe following information describes your current session:\n\nMode: read-only.\n</system-reminder>',
     }])
 
     send(agent, 'unchanged')
@@ -728,7 +728,7 @@ describe('agent loop', () => {
     expect(contextEvents()).toHaveLength(3)
     expect(contextEvents()[2]?.data.content).toEqual([{
       type: 'text',
-      text: 'Current runtime context: none. Earlier runtime-context snapshots no longer apply.',
+      text: '<system-reminder>\nCurrent runtime context: none. Earlier runtime-context snapshots no longer apply.\n</system-reminder>',
     }])
 
     send(agent, 'still clear')
@@ -799,7 +799,7 @@ describe('agent loop', () => {
       message.role === 'user' && message.source?.kind === 'runtime-context')
     expect(clearing?.content).toEqual([{
       type: 'text',
-      text: 'Current runtime context: none. Earlier runtime-context snapshots no longer apply.',
+      text: '<system-reminder>\nCurrent runtime context: none. Earlier runtime-context snapshots no longer apply.\n</system-reminder>',
     }])
   })
 
@@ -845,7 +845,7 @@ describe('agent loop', () => {
     expect(runtimeContexts).toHaveLength(2)
     expect(runtimeContexts[1]?.data.content).toEqual([{
       type: 'text',
-      text: 'Current runtime context. This snapshot supersedes earlier runtime-context snapshots.\n\nMode: read-only.',
+      text: '<system-reminder>\nThe following information describes your current session. It replaces earlier versions of this context, including any retained in conversation summaries.\n\nMode: read-only.\n</system-reminder>',
     }])
   })
 

@@ -94,6 +94,7 @@ const PACKAGE_LIBRARIES: Readonly<Record<string, string>> = {
   'packages/util/crypto': 'Zero-dependency identifier minting utility.',
   'packages/util/dsh-compat': 'Zero-dependency DSH-era module-name aliases and manifest-key fallback readers.',
   'packages/util/deque': 'Zero-dependency circular deque utility.',
+  'packages/util/error': 'Zero-dependency HarnessError base class with no plugin surface.',
   'packages/util/chunked-list': 'Persistent collection operations and checkpoint validation without a plugin surface.',
   'packages/util/code-language': 'Stateless file-extension to language table shared with the Host read hint; plain function/type exports.',
   'packages/util/file-drag': 'Export naming and browser/native drag token contracts shared by Web and Desktop; plain function/type exports.',

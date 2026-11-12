@@ -52,7 +52,7 @@ kind: "package-reference"
 
 生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentexperimental-tool-agent-team)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
-设置 `interrupt: false` 会为 Lead 和每个 teammate（包括恢复的成员）省略 `interrupt_agent` 及其策略指引。其余八个工具与领域中断 API 仍然可用。此设置只控制本插件：请保持旧版 `tool-subagent-control` 插件禁用，以免其同名工具重新可见。
+随包的 Agent Teams profile 设置 `interrupt: false`，为 Lead 和每个 teammate（包括恢复的成员）省略 `interrupt_agent` 及其策略指引；独立组合未设置 `interrupt: false` 时保留中断。其余八个工具与领域中断 API 仍然可用。此设置只控制本插件：请保持旧版 `tool-subagent-control` 插件禁用，以免其同名工具重新可见。
 
 试试这样要求 Lead 模型：「创建一个名为 reviewer 的 teammate 检查 diff，再把变更摘要发给 reviewer」。模型会调用创建工具，然后调用消息工具。
 

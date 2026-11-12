@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
     "@qilin-agent/util-values": "workspace:*"
   }
 }

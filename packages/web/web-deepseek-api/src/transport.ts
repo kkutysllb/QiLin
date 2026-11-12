@@ -51,6 +51,8 @@ interface DeepSeekWebRequest<T> {
   apiKeyHeaders?: (key: string) => Readonly<Record<string, string>>
   /** Validate and project the response. */
   decode: (payload: unknown) => T
+  /** Wait for a provider-owned rate window before dispatch; aborting the signal cancels the wait. */
+  waitToSend?: (signal?: AbortSignal) => Promise<void>
   /** Endpoint recovery settings. */
   guidance: DeepSeekWebGuidance
   /** Record model input before dispatch; a throw prevents dispatch. */
@@ -116,8 +118,9 @@ export function invalidResponse(): WebError {
 export async function dispatchDeepSeekWeb<T>(
   options: DeepSeekWebAuth, request: DeepSeekWebRequest<T>, signal?: AbortSignal,
 ): Promise<T> {
-  const { endpoint, body, decode, recordRequest, guidance } = request
+  const { endpoint, body, decode, recordRequest, waitToSend, guidance } = request
   const headers = await authHeaders(options, request, signal)
+  await waitToSend?.(signal)
   throwIfSearchAborted(signal)
   recordRequest?.(endpoint)
   throwIfSearchAborted(signal)
@@ -299,7 +302,7 @@ function throwIfSearchAborted(signal?: AbortSignal): void {
 }
 
 /** Build the provider's stable cancellation error while retaining the caller's reason. */
-function searchAborted(signal?: AbortSignal, fallback?: unknown): WebError {
+export function searchAborted(signal?: AbortSignal, fallback?: unknown): WebError {
   return new WebError('DeepSeek web request aborted', 'WEB_ABORTED', {
     cause: signal?.aborted === true ? signal.reason : fallback,
   })

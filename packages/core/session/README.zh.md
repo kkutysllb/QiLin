@@ -39,7 +39,7 @@ ctx.sessions.list()              // every live session, in creation order
 
 ### 追加与派生
 
-`session.append(type, data, opts?)` 提交一个类型化事件——它先快照并冻结载荷、校验其为无损 JSON，再通知观察者。`session.deriveMessages()` 把日志投影为模型看到的 `Message[]`，采用增量且有缓存的方式：
+`session.append(type, data, opts?)` 提交一个类型化事件——它先快照并冻结载荷、校验其为无损 JSON，再通知观察者。`session.append(inputs)` 在一个事务里提交一批 `SessionEventInput` 元组（`[type, data, opts?]`）：它先快照并校验每个成员、整体规划 surface 迁移，然后才增长日志，因此后一个成员非法时日志、surface 与事件流都保持不变。观察者能看到完整的已提交日志，`session.currentBatchPublication` 指出当前正在发布的成员。`session.deriveMessages()` 把日志投影为模型看到的 `Message[]`，采用增量且有缓存的方式：
 
 ```text
 session.append('user/message', { role: 'user', content: [{ type: 'text', text: 'hello' }], source: { kind: 'user' } },

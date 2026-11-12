@@ -1,4 +1,5 @@
 import { Context } from '@qilin-agent/kylin'
+import { HarnessError } from '@qilin-agent/util-error'
 import { describe, expect, it } from 'vitest'
 import AttachmentStore, {
   AttachmentError,
@@ -226,5 +227,13 @@ describe('isAttachmentError', () => {
     }))).toBe(true)
     expect(isAttachmentError(Object.assign(new Error('other failure'), { code: 'OTHER' }))).toBe(false)
     expect(isAttachmentError({ code: 'ATTACHMENT_WRITE_FAILED' })).toBe(false)
+  })
+})
+describe('AttachmentError', () => {
+  it('shares the harness error base so failures keep their code', () => {
+    const error = new AttachmentError('missing', 'ATTACHMENT_NOT_FOUND')
+    expect(error).toBeInstanceOf(HarnessError)
+    expect(error).toMatchObject({ name: 'AttachmentError', code: 'ATTACHMENT_NOT_FOUND' })
+    expect(isAttachmentError(error)).toBe(true)
   })
 })

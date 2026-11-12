@@ -36,10 +36,12 @@
   "license": "MIT",
   "peerDependencies": {
     "@qilin-agent/brand": "workspace:*",
-    "@qilin-agent/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/util-error": "workspace:*"
   },
   "devDependencies": {
     "@qilin-agent/brand": "workspace:*",
-    "@qilin-agent/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/util-error": "workspace:*"
   }
 }

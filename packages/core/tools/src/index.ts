@@ -689,6 +689,14 @@ export interface Config {
    * restores strictly serial dispatch. Must be a positive integer.
    */
   maxParallelSubCalls?: number
+  /**
+   * Nested tool-call attempts per minute of the run's resolved `run_code`
+   * deadline, including failed attempts (default 1024). The allowance scales
+   * with `timeoutMs`; a runtime without a deadline imposes no cap. Exceeding
+   * it aborts the program and clears retained variables, while completed tool
+   * effects stay. Must be a positive integer.
+   */
+  maxSubCallsPerMinute?: number
 }
 
 /**
@@ -798,6 +806,15 @@ function resolveMaxParallelSubCalls(value: number | undefined): number {
   return maxParallelSubCalls
 }
 
+/** Resolve the run_code tool-call allowance at the owning config boundary (direct construction bypasses the Loader schema). */
+function resolveMaxSubCallsPerMinute(value: number | undefined): number {
+  const maxSubCallsPerMinute = value ?? 1024
+  if (!Number.isInteger(maxSubCallsPerMinute) || maxSubCallsPerMinute < 1) {
+    throw new Error('maxSubCallsPerMinute must be a positive integer')
+  }
+  return maxSubCallsPerMinute
+}
+
 /**
  * Tool registry and execution pipeline. Scoped registrations shadow globals;
  * one visibility resolver feeds presentation, lookup, and dispatch.
@@ -808,6 +825,7 @@ export class ToolRuntime extends Service {
   static Config: z<Config> = z.object({
     mode: z.union(['native', 'ptc'] as const).default('native'),
     maxParallelSubCalls: z.natural().min(1).default(10),
+    maxSubCallsPerMinute: z.natural().min(1).default(1024),
   })
 
   /** Internal staged view consumed by `qilin-agent-loop`'s parallel scheduler. */
@@ -833,6 +851,7 @@ export class ToolRuntime extends Service {
   /** Presentation for scopes that declare none; {@link presentAs} shadows it per scope. */
   private readonly defaultMode: ToolPresentationMode
   private readonly maxParallelSubCalls: number
+  private readonly maxSubCallsPerMinute: number
   /**
    * Reserved presentation transport, kept outside the filterable registration
    * layers. Built on first need rather than at construction: which agents run
@@ -849,6 +868,7 @@ export class ToolRuntime extends Service {
     // optional-input type for direct (non-Loader) construction in tests.
     this.defaultMode = config.mode ?? 'native'
     this.maxParallelSubCalls = resolveMaxParallelSubCalls(config.maxParallelSubCalls)
+    this.maxSubCallsPerMinute = resolveMaxSubCallsPerMinute(config.maxSubCallsPerMinute)
     ctx.systemPrompt.tools(context => this.wireSchemas(context.scope))
     if (this.defaultMode !== 'native') {
       ctx.systemPrompt.section(this.collapseSection())
@@ -961,6 +981,7 @@ export class ToolRuntime extends Service {
       // the transport for an agent that chose code.
       peekRuntime: () => this.ctx.get('ptcRuntime'),
       maxParallel: this.maxParallelSubCalls,
+      maxSubCallsPerMinute: this.maxSubCallsPerMinute,
       shapeDispatchLog: dispatch => this.shapeDispatchLog(dispatch),
     }, this.ptcContext)
     return this.ptcTransport

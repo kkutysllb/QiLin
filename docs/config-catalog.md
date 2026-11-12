@@ -4157,6 +4157,23 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/tool-subagent -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-subagent-control -->
+<a id="qilin-agenttool-subagent-control"></a>
+
+## `@qilin-agent/tool-subagent-control`
+
+- `inject`: `tools` · `subagents`
+- `source`: [`packages/subagent/tool-subagent-control/src/index.ts:25`](../packages/subagent/tool-subagent-control/src/index.ts)
+
+```ts config-catalog
+/** Plugin configuration. */
+export interface Config {
+  /** Register `interrupt_agent` and its guidance; the subagent service's interruption API stays available either way. Defaults to true. */
+  interrupt?: boolean
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/tool-subagent-control -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-todo -->
 <a id="qilin-agenttool-todo"></a>
 
@@ -4289,6 +4306,14 @@ export interface Config {
    * restores strictly serial dispatch. Must be a positive integer.
    */
   maxParallelSubCalls?: number
+  /**
+   * Nested tool-call attempts per minute of the run's resolved `run_code`
+   * deadline, including failed attempts (default 1024). The allowance scales
+   * with `timeoutMs`; a runtime without a deadline imposes no cap. Exceeding
+   * it aborts the program and clears retained variables, while completed tool
+   * effects stay. Must be a positive integer.
+   */
+  maxSubCallsPerMinute?: number
 }
 
 /** How the registry presents its tools to the model (see {@link Config.mode}). */
@@ -4415,7 +4440,7 @@ export interface Config {
 
 - `inject`: `web`
 - `refs`: `Volatile` (`@qilin-agent/kylin`)
-- `source`: [`packages/web/web-deepseek-api/src/index.ts:33`](../packages/web/web-deepseek-api/src/index.ts)
+- `source`: [`packages/web/web-deepseek-api/src/index.ts:35`](../packages/web/web-deepseek-api/src/index.ts)
 
 ```ts config-catalog
 /** Settings read by the next search or fetch without re-registering either provider. */
@@ -4428,6 +4453,12 @@ export interface Config {
   baseURL: Volatile<string>
   /** Search API results per search, from 1 through 50; a smaller request bound wins. Defaults to 10. */
   count: Volatile<number>
+  /**
+   * Most Search requests this plugin instance sends in any one-second window; later searches wait,
+   * and the wait counts against the caller's timeout. Other processes and clients on the same account
+   * share the account limit without coordination. Defaults to 5.
+   */
+  searchRequestsPerSecond: Volatile<number>
   /** Send the triggering user question, bounded to 128 characters, as `ori_question`. Defaults to true. */
   sendOriginalQuestion: Volatile<boolean>
 }
@@ -4725,7 +4756,6 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@qilin-agent/tool-call-timeout-policy` | `tools` | [`packages/guard/timeout-policy/src/index.ts`](../packages/guard/timeout-policy/src/index.ts) |
 | `@qilin-agent/tool-kylin` | `tools` · `systemPrompt` · `cordisInspect` | [`packages/extensions/tool-kylin/src/index.ts`](../packages/extensions/tool-kylin/src/index.ts) |
 | `@qilin-agent/tool-schedule` | `tools` · `systemPrompt` | [`packages/schedule/tool-schedule/src/index.ts`](../packages/schedule/tool-schedule/src/index.ts) |
-| `@qilin-agent/tool-subagent-control` | `tools` · `subagents` | [`packages/subagent/tool-subagent-control/src/index.ts`](../packages/subagent/tool-subagent-control/src/index.ts) |
 | `@qilin-agent/tool-working-directory` | `tools` · `workingDirectory` | [`packages/session/tool-working-directory/src/index.ts`](../packages/session/tool-working-directory/src/index.ts) |
 | `@qilin-agent/usage-local` | `sessionQuery` · `connection` | [`packages/session/usage-local/src/index.ts`](../packages/session/usage-local/src/index.ts) |
 | `@qilin-agent/usage-report` | — | [`packages/session/usage-report/src/index.ts`](../packages/session/usage-report/src/index.ts) |
@@ -4836,6 +4866,7 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 | `@qilin-agent/typert-registry` | — | [`packages/typert/registry/src/index.ts`](../packages/typert/registry/src/index.ts) |
 | `@qilin-agent/util-code-language` | — | [`packages/util/code-language/src/index.ts`](../packages/util/code-language/src/index.ts) |
 | `@qilin-agent/util-crypto` | — | [`packages/util/crypto/src/index.ts`](../packages/util/crypto/src/index.ts) |
+| `@qilin-agent/util-error` | — | [`packages/util/error/src/index.ts`](../packages/util/error/src/index.ts) |
 | `@qilin-agent/util-file-drag` | — | [`packages/util/file-drag/src/index.ts`](../packages/util/file-drag/src/index.ts) |
 | `@qilin-agent/util-time` | — | [`packages/util/time/src/index.ts`](../packages/util/time/src/index.ts) |
 | `@qilin-agent/util-values` | — | [`packages/util/values/src/index.ts`](../packages/util/values/src/index.ts) |

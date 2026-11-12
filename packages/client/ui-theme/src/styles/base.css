@@ -7,10 +7,11 @@
   --qilin-font-family-text-default: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --qilin-font-family: var(--qilin-font-family-text-default);
-  /* Paper typography: content headings ride a system serif, which costs no
-     webfont bytes and keeps CJK display shapes distinct from UI chrome. */
-  --qilin-font-family-heading: 'Songti SC', 'Noto Serif SC', 'Source Han Serif SC', 'Source Han Serif CN',
-    STSong, 'Times New Roman', Georgia, serif;
+  /* Content headings ride the system Heiti (sans) stack: no webfont bytes,
+     and message titles keep the same CJK shapes as body text. Deployments
+     that want a display face override this one variable. */
+  --qilin-font-family-heading: 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Source Han Sans SC',
+    'Source Han Sans CN', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --qilin-font-family-code-default: 'SF Mono', 'JetBrains Mono', 'Fira Code', Consolas,
     'Liberation Mono', Menlo, Courier, 'PingFang SC', 'Microsoft YaHei';
   --ds-font-family-code: var(--qilin-font-family-code-default);

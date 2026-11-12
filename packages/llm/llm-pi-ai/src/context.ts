@@ -16,6 +16,7 @@ import type {
 } from '@qilin-agent/attachment'
 import type { Context as PiContext, ImageContent, Message as PiMessage, SystemMessage, TextContent, Tool as PiTool } from '@earendil-works/pi-ai'
 import { toPiAssistant } from './replay.ts'
+import type { PrefixDigests } from './prefix-binding.ts'
 import { requestImageDimensions } from '@qilin-agent/attachment'
 import { DEFAULT_REQUEST_IMAGE_MAX_BYTES, DEFAULT_REQUEST_IMAGE_PIXEL_BUDGET } from './config.ts'
 
@@ -205,8 +206,9 @@ function appendAssistant(
   messages: PiMessage[],
   toolNames: Map<ToolCallId, string>,
   onReplayDegrade?: (reason: string) => void,
+  prefixDigests?: PrefixDigests,
 ): void {
-  const assistant = toPiAssistant(message, onReplayDegrade)
+  const assistant = toPiAssistant(message, onReplayDegrade, prefixDigests)
   for (const block of assistant.content) {
     if (block.type === 'toolCall') toolNames.set(brandString<ToolCallId>(block.id), block.name)
   }
@@ -220,6 +222,7 @@ function appendSharedHistory(
   messages: PiMessage[],
   toolNames: Map<ToolCallId, string>,
   onReplayDegrade?: (reason: string) => void,
+  prefixDigests?: PrefixDigests,
 ): boolean {
   if (message.role === 'developer') {
     appendDeveloper(message, options, messages)
@@ -231,13 +234,17 @@ function appendSharedHistory(
     return true
   }
   if (message.role === 'assistant') {
-    appendAssistant(message, messages, toolNames, onReplayDegrade)
+    appendAssistant(message, messages, toolNames, onReplayDegrade, prefixDigests)
     return true
   }
   return false
 }
 
-function textOnlyContext(options: GenerateOptions<string>, onReplayDegrade?: (reason: string) => void): PiContext {
+function textOnlyContext(
+  options: GenerateOptions<string>,
+  onReplayDegrade?: (reason: string) => void,
+  prefixDigests?: PrefixDigests,
+): PiContext {
   assertSupportedHistory(options.messages)
   const split = splitSystemPrompt(options)
   const toolNames = new Map<ToolCallId, string>()
@@ -246,7 +253,7 @@ function textOnlyContext(options: GenerateOptions<string>, onReplayDegrade?: (re
     if (contentHasImage(message.content)) {
       throw new LlmError('pi-ai image conversion requires the durable attachment service', 'UNSUPPORTED_CONTENT')
     }
-    if (appendSharedHistory(message, options, messages, toolNames, onReplayDegrade)) continue
+    if (appendSharedHistory(message, options, messages, toolNames, onReplayDegrade, prefixDigests)) continue
     if (message.role === 'tool') {
       messages.push(toolResultOf(message, toolNames, flattenText(message)))
       continue
@@ -296,6 +303,7 @@ export function requestImageTarget(ref: ImageAttachmentRef, budget: PiImageReque
  * @param options - projected request; one-shot system text precedes the leading history prompt.
  * @param images - absent; selects the synchronous conversion.
  * @param onReplayDegrade - forwarded to {@link toPiAssistant} for each assistant message.
+ * @param prefixDigests - receives the recorded request-prefix digest of each replayed assistant message that has one.
  * @returns the pi-ai context; `tools` is omitted when the request declares none.
  * @throws {LlmError} `UNSUPPORTED_CONTENT` for images in any history role, including a leading system message.
  */
@@ -303,6 +311,7 @@ export function toPiContext(
   options: GenerateOptions<string>,
   images?: undefined,
   onReplayDegrade?: (reason: string) => void,
+  prefixDigests?: PrefixDigests,
 ): PiContext
 /**
  * Convert harness history to a pi-ai Context while resolving durable images.
@@ -315,27 +324,31 @@ export function toPiContext(
  * @param options - projected request; one-shot system text precedes the leading history prompt.
  * @param images - attachment provider, current path resolver, and request limits.
  * @param onReplayDegrade - forwarded to {@link toPiAssistant} for each assistant message.
+ * @param prefixDigests - receives the recorded request-prefix digest of each replayed assistant message that has one.
  * @returns the asynchronously resolved pi-ai context.
  */
 export function toPiContext(
   options: GenerateOptions<string>,
   images: PiImageRequestContext,
   onReplayDegrade?: (reason: string) => void,
+  prefixDigests?: PrefixDigests,
 ): Promise<PiContext>
 export function toPiContext(
   options: GenerateOptions<string>,
   images?: PiImageRequestContext,
   onReplayDegrade?: (reason: string) => void,
+  prefixDigests?: PrefixDigests,
 ): PiContext | Promise<PiContext> {
   return images === undefined
-    ? textOnlyContext(options, onReplayDegrade)
-    : toPiContextWithImages(options, images, onReplayDegrade)
+    ? textOnlyContext(options, onReplayDegrade, prefixDigests)
+    : toPiContextWithImages(options, images, onReplayDegrade, prefixDigests)
 }
 
 async function toPiContextWithImages(
   options: GenerateOptions<string>,
   images: PiImageRequestContext,
   onReplayDegrade?: (reason: string) => void,
+  prefixDigests?: PrefixDigests,
 ): Promise<PiContext> {
   const { attachments, resolveImageAccess, maxRequestImageBytes, maxRequestImages, imageOffloadCountQuantum } = images
   const requestImagePolicy = images.requestImagePolicy ?? {
@@ -370,7 +383,7 @@ async function toPiContextWithImages(
   const messages: PiMessage[] = []
 
   for (const message of exactMessages) {
-    if (appendSharedHistory(message, options, messages, toolNames, onReplayDegrade)) continue
+    if (appendSharedHistory(message, options, messages, toolNames, onReplayDegrade, prefixDigests)) continue
     if (message.role === 'tool') {
       messages.push(toolResultOf(message, toolNames, userContent(message.content, requestImages, resolveImageAccess)))
       continue

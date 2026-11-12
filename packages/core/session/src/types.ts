@@ -479,6 +479,16 @@ export type SurfaceIntent<T extends SurfaceEventType = SurfaceEventType> = {
 })
 
 /**
+ * One positional event call proposed for a batch append: event type, payload,
+ * and — for message-producing types — the required surface intent. The Session
+ * assigns `seq` and `time` when the batch commits, so members cite each other
+ * by the positions they will occupy.
+ */
+export type SessionEventInput = {
+  [K in SessionEventType]: readonly [type: K, data: SessionEventMap[K], ...opts: K extends SurfaceEventType ? [opts: SurfaceIntent<K>] : []]
+}[SessionEventType]
+
+/**
  * One immutable entry in the session log.
  *
  * A proper discriminated union over `type` (not independent `type`/`data`

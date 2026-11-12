@@ -376,6 +376,7 @@
       "@qilin-agent/util-file-drag": ["./packages/util/file-drag/src"],
       "@qilin-agent/deliverable-file-references": ["./packages/deliverables/deliverable-file-references/src"],
       "@qilin-agent/util-values": ["./packages/util/values/src"],
+      "@qilin-agent/util-error": ["./packages/util/error/src"],
       // util/ folders are role-named without the util- prefix their npm names carry,
       // so these aliases stay hand-written like qilin-util-crypto above.
       "@qilin-agent/util-time": ["./packages/util/time/src"],

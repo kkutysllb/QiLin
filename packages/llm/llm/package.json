@@ -59,7 +59,8 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@qilin-agent/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/util-error": "workspace:*"
   },
   "dependencies": {
     "@qilin-agent/util-crypto": "workspace:*",
@@ -73,6 +74,7 @@
   "devDependencies": {
     "@qilin-agent/attachment": "workspace:*",
     "@qilin-agent/package-manifest": "workspace:*",
-    "@qilin-agent/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/util-error": "workspace:*"
   }
 }

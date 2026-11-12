@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
+import { AttachmentError } from '@qilin-agent/attachment'
 import { normalizeLlmFailure } from '../src/adapter-failure.ts'
 
 describe('adapter failure normalization', () => {
+  it('keeps an attachment failure code instead of collapsing to UNKNOWN', () => {
+    expect(normalizeLlmFailure(new AttachmentError('Image attachment is missing.', 'ATTACHMENT_NOT_FOUND')))
+      .toEqual({ message: 'Image attachment is missing.', code: 'ATTACHMENT_NOT_FOUND' })
+  })
+
   it('contains hostile non-Error coercion', () => {
     const thrown = { [Symbol.toPrimitive]: () => { throw new Error('coercion failed') } }
     expect(normalizeLlmFailure(thrown)).toEqual({ message: 'LLM adapter failed', code: 'UNKNOWN' })

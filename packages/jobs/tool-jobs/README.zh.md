@@ -35,6 +35,8 @@ kind: "package-reference"
 
 三个工具依次返回 `{ text, job }`、`PublicJobSnapshot[]` 与 `{ outcome: 'cancellation-requested' | 'already-finished', job }`。公共快照携带 id、kind、label、status/detail 及开始／结束时间，并省略归属与通知簿记字段。三个工具都通过通用 UI 卡片渲染：output 和 list 用 `read`，kill 用 `execute`。
 
+`job_list` 选择与同批并行安全调用并发调度，因为它读取的是状态快照。`job_output` 仍按独占方式执行，因为每次读取都会消费流游标和一次性的结果投递；`job_kill` 仍按独占方式执行，因为它会请求取消。
+
 ### 完成通知
 
 任务完成时，拥有它的 agent 会收到会话内消息 `background job <id> (<kind>: <label>) finished [status: ...]. Read its output with job_output.`。繁忙的 agent 会在下一步收到注入的通知——inbox 尚有内容时轮次无法结束，因此同时结算的多个任务只花掉一步，而不是各占一轮。空闲的 agent 则被一个 follow-up 轮次唤醒，因为无人领取的通知等于模型永远不会知道的完成。kill 或针对终止任务的 read/wait 会把完成标为已报告并抑制重复通知；排空 owner 或服务的 teardown 取消同样如此。

@@ -32,6 +32,28 @@ import type {} from './types.ts'
 export const RUN_CODE_NAME = 'run_code'
 
 /**
+ * Host-only abort reason for an exhausted tool-call allowance. The excess call
+ * is never dispatched; the executor maps this reason to a `CODE_RUN_FAILED`
+ * result that states the allowance and how to correct the program. Retained
+ * variables are cleared by the runtime's abort handling, while completed tool
+ * effects stay.
+ */
+export class ToolCallLimitExceededError extends Error {
+  /**
+   * Describe the rejected call and how to correct the program.
+   * @param limit - Deadline-derived maximum tool-call attempts for one `run_code` invocation.
+   * @param callNumber - One-based attempt rejected without invoking the tool.
+   * @param callsPerMinute - Attempts granted per minute of the run's resolved deadline.
+   */
+  constructor(limit: number, callNumber: number, callsPerMinute: number) {
+    super(`run_code exceeded its limit of ${limit} tool calls (${callsPerMinute} per minute of its timeout); `
+      + `call ${callNumber} was not dispatched. The run_code program may contain an infinite loop. `
+      + 'Check loop termination or split the work into smaller run_code calls.')
+    this.name = 'ToolCallLimitExceededError'
+  }
+}
+
+/**
  * The language-specific `run_code` schema text: the tool `description` and its
  * `code` parameter description, kept together so a language's two model-facing
  * strings share one source of truth. Keyed by `PtcRuntime.language`, mirroring
@@ -311,6 +333,8 @@ export interface RunCodeBridgeOptions {
   peekRuntime: () => PtcRuntime | undefined
   /** The run's overlap cap for parallel-classified sub-calls (the registry passes its validated `maxParallelSubCalls`). */
   maxParallel: number
+  /** Attempts granted per minute of the run's resolved deadline (the registry passes its validated `maxSubCallsPerMinute`). */
+  maxSubCallsPerMinute: number
   /** Runs the contained `tools/ptc-dispatch-log` waterfall over one settled sub-dispatch (the registry's private invoker). */
   shapeDispatchLog: (dispatch: PtcDispatchLog) => Promise<ContentBlock[]>
 }
@@ -328,7 +352,7 @@ export interface RunCodeBridgeOptions {
  * @returns the registry-ready definition.
  */
 export function createRunCodeTool(registry: ToolRuntime, options: RunCodeBridgeOptions, ctx: Context): ToolDefinition {
-  const { requireRuntime, peekRuntime, maxParallel, shapeDispatchLog } = options
+  const { requireRuntime, peekRuntime, maxParallel, maxSubCallsPerMinute, shapeDispatchLog } = options
   const stateOwners = new WeakMap<object, WeakSet<PtcRuntime>>()
   const calls = new PtcCalls(ctx)
   const definition = defineTool({
@@ -414,7 +438,10 @@ export function createRunCodeTool(registry: ToolRuntime, options: RunCodeBridgeO
         const onOuterAbort = (): void => { runController.abort(callSignal.reason) }
         callSignal.addEventListener('abort', onOuterAbort, { once: true })
 
-        let dispatches = 0
+        /** Nested call attempts; rejected attempts count so a looping program cannot retry forever. */
+        let toolCallAttempts = 0
+        /** Attempt allowance from the resolved deadline; no deadline means no call cap. */
+        let maxSubCalls = Number.POSITIVE_INFINITY
         // The per-run scheduler uses the registry's staged interface and follows
         // the same concurrency rules as the native loop. It also follows the
         // native loop's SEQUENCING: every ordered stage (the dispatch-start
@@ -541,8 +568,14 @@ export function createRunCodeTool(registry: ToolRuntime, options: RunCodeBridgeO
           if (runOver()) {
             throw new Error(`run_code run is over (${String(runController.signal.reason)}); ${name} not dispatched`)
           }
+          // Count before normalizing or queuing: repeatedly failed calls exhaust the allowance too.
+          const n = ++toolCallAttempts
+          if (n > maxSubCalls) {
+            const error = new ToolCallLimitExceededError(maxSubCalls, n, maxSubCallsPerMinute)
+            runController.abort(error)
+            throw error
+          }
           const normalized = jsonNormalizeArgs(rawArgs)
-          const n = ++dispatches
           const subCallId = brandString<ToolCallId>(`${String(exec.callId)}:ptc:${n}`)
           const input = {
             callId: subCallId,
@@ -712,7 +745,7 @@ export function createRunCodeTool(registry: ToolRuntime, options: RunCodeBridgeO
                 runtimes.add(provider)
               }
             }
-            result = await runtime.run(runtime.resolve({
+            const spec = runtime.resolve({
               program: args.code,
               ...exec.agent === undefined || policy?.mode !== standingPolicy?.mode ? {} : { stateOwner: exec.agent },
               bindings: [{
@@ -724,7 +757,11 @@ export function createRunCodeTool(registry: ToolRuntime, options: RunCodeBridgeO
               ...cwd !== undefined ? { cwd } : {},
               ...policy !== undefined ? { sandboxPolicy: policy } : {},
               ...args.timeoutMs !== undefined ? { timeoutMs: args.timeoutMs } : {},
-            }))
+            })
+            maxSubCalls = spec.timeoutMs === null
+              ? Number.POSITIVE_INFINITY
+              : Math.floor(spec.timeoutMs / 60_000 * maxSubCallsPerMinute)
+            result = await runtime.run(spec)
           } finally {
             // Abort sub-dispatches and drain every in-flight dispatch before
             // closing the turn (queued-unstarted ones are abandoned unlogged).
@@ -737,7 +774,11 @@ export function createRunCodeTool(registry: ToolRuntime, options: RunCodeBridgeO
             const logsText = result.logs.length > 0 ? `\nCaptured output:\n${result.logs.join('\n')}` : ''
             const sandboxText = result.sandbox === undefined ? ''
               : `\nFile sandbox: ${result.sandbox.mode}${result.sandbox.enforcement === undefined ? '' : `; enforcement: ${result.sandbox.enforcement}`}${result.sandbox.denied ? '; operation denied' : ''}.`
-            throw new CodeRunFailedError(`code run failed (${result.error.kind}): ${result.error.message}${logsText}${sandboxText}${result.sandbox?.denied ? escalationGuidance(runtime) : ''}`)
+            const limitError = runController.signal.reason instanceof ToolCallLimitExceededError
+              ? runController.signal.reason : undefined
+            const failureText = limitError === undefined || limitError.message === result.error.message
+              ? result.error.message : `${limitError.message}\n${result.error.message}`
+            throw new CodeRunFailedError(`code run failed (${result.error.kind}): ${failureText}${logsText}${sandboxText}${result.sandbox?.denied ? escalationGuidance(runtime) : ''}`)
           }
           return {
             logs: result.logs,

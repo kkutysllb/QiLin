@@ -52,7 +52,7 @@ The smallest addition to an existing composition is the two-package fragment fro
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentexperimental-tool-agent-team) is the exhaustive source for every accepted field and its JSDoc.
 
-Set `interrupt: false` to omit `interrupt_agent` and its policy guidance for the Lead and every teammate, including resumed members. The other eight tools and the domain interruption API remain available. This setting controls only this plugin: keep the legacy `tool-subagent-control` plugin disabled so its same-named tool cannot become visible.
+The shipped Agent Teams profile sets `interrupt: false`, omitting `interrupt_agent` and its policy guidance for the Lead and every teammate, including resumed members. An independent composition retains interruption unless it sets `interrupt: false`. The other eight tools and the domain interruption API remain available. This setting controls only this plugin: keep the legacy `tool-subagent-control` plugin disabled so its same-named tool cannot become visible.
 
 Try it by asking the Lead model: "create a teammate named reviewer to check the diff, then send reviewer the change summary". The model calls the creation tool and then the messaging tool.
 

@@ -42,7 +42,13 @@ Load the subagent service, a backend, the delegation tool, and this package. Add
 - name: '@qilin-agent/tool-subagent-control/list-agents'
 ```
 
-This package takes no configuration: the root plugin provides `send_message` and `interrupt_agent`, and the list plugin provides `list_agents`.
+The root plugin accepts one optional setting; the list plugin takes none:
+
+| Field | Default | Meaning |
+|---|---|---|
+| `interrupt` | `true` | Register `interrupt_agent` and its guidance; `false` leaves messaging, listing, and the subagent service's interruption API available |
+
+Shipped compositions may set `interrupt: false`; an independent composition that omits it retains interruption.
 
 ### send_message
 

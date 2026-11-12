@@ -123,6 +123,8 @@ kind: "package-reference"
 
 这些限制说明提供方在哪些情况下不合适。它们是当前包约束。
 
+- **在随包组合中已废弃。** 基础组合现在为 `web_search` 选择 `deepseek-search-api`；本提供方仍可通过显式 `searchProvider` 配置使用一个发布周期，之后移除。
+
 - **没有非空白高亮的来源会被整个丢弃**——没有可映射的可移植 snippet，因此返回来源可能少于请求数量。
 - **只公开 `searchType`／`numResults`／`highlightsPerResult`**——Exa 的其他控制项（livecrawl、category、域名／日期过滤条件、全文内容）等待提供方无关的服务字段（见 [seam Agent Note](../../../.agents/notes/implemented/architecture/2026-06-24-web-capability-seam.zh.md)）。
 - **按错误形状分类中止**——只有名为 `AbortError` 的 `DOMException` 才映射为 `WEB_ABORTED`；携带自定义原因的中止（例如 `qilin-timeout` 的 `TimeoutReason`）呈现为 `WEB_PROVIDER_ERROR`。

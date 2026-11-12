@@ -1,5 +1,5 @@
 ---
-description: "Package map for shared utilities: atomic file writes, branded ids, deques, JSON values, harness home paths, launch environment, native commands, output retention, time zones, and timeouts."
+description: "Package map for shared utilities: atomic file writes, branded ids, deques, JSON values, a shared error base, harness home paths, launch environment, native commands, output retention, time zones, and timeouts."
 kind: "package-group"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The `util/` group gives capability packages shared mechanical primitives instead of duplicate implementations. It covers atomic writes, branded ids, deques, lossless JSON values, UUIDs, Harness-home paths, launch environments, outbound proxy policy, native commands, output retention, time-zone canonicalization, code-grammar selection for source views, installation-owned bundle lists, and timeout handling. Every root entry here is a library: it registers no product service or event, and the consuming capability retains the business semantics.
+The `util/` group gives capability packages shared mechanical primitives instead of duplicate implementations. It covers atomic writes, branded ids, deques, lossless JSON values, the shared `HarnessError` base, UUIDs, Harness-home paths, launch environments, outbound proxy policy, native commands, output retention, time-zone canonicalization, code-grammar selection for source views, installation-owned bundle lists, and timeout handling. Every root entry here is a library: it registers no product service or event, and the consuming capability retains the business semantics.
 
 ## Table of Contents
 
@@ -34,6 +34,7 @@ Each package provides one primitive; open a package page for how to use it.
 | [`deque/`](deque/README.md) | Provides amortized constant-time queue operations with bounded vacant storage |
 | [`chunked-list/`](chunked-list/README.md) | Retains immutable list versions with bounded append copying and checkpoint validation |
 | [`values/`](values/README.md) | Validates, snapshots, compares, and freezes lossless JSON-compatible values |
+| [`error/`](error/README.md) | Dependency-free `HarnessError` base with a stable machine-routable code |
 | [`code-language/`](code-language/README.md) | Selects the grammar for a source path and lists the highlight-suffix table shared with source views |
 | [`file-drag/`](file-drag/README.md) | Names an exported file and describes the browser and native drag tokens without touching the bytes |
 | [`home-paths/`](home-paths/README.md) | Resolves the single Harness home and joins shared user-data paths |

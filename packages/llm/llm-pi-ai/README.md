@@ -155,6 +155,7 @@ Initial prompt text and active tools use pi-ai's `Context.systemPrompt` and `Con
 | [`src/context.ts`](src/context.ts) | Harness-to-pi-ai context conversion, image handling, replay restore |
 | [`src/stream.ts`](src/stream.ts) | pi-ai event conversion into harness `StreamChunk` values |
 | [`src/replay.ts`](src/replay.ts) | Versioned `ReplayEnvelope` storage and validation |
+| [`src/prefix-binding.ts`](src/prefix-binding.ts) | Anthropic thinking omission after a request-prefix change |
 | [`src/discovery.ts`](src/discovery.ts) | Endpoint interrogation for configuration surfaces |
 
 ### Registration and directory
@@ -183,6 +184,8 @@ The `pre-commit` hook runs `node_modules/.bin/tsx packages/llm/llm-pi-ai/scripts
 ### Replay and vocabulary
 
 Successful assistant responses store a versioned, lossless-JSON replay state beside the provider and model that produced them — response-level facts plus one per-block entry per streamed block. At request time, `LlmRuntime` passes replay state only when the same adapter instance owns both routes; the adapter validates it and restores native response ids, provider signatures, and optional `providerThinkingLevel` effort metadata, keeping absent effort metadata absent. Replay validates the requested model identity against the assistant source and uses it to retain same-model signatures; provider-reported response models remain diagnostic metadata. An unusable state degrades to provider-neutral content instead of failing the request. pi-ai tool-call arguments are parsed objects, so the adapter parses input and re-stringifies output to the harness raw-JSON convention; pi-ai in-stream error events map to terminal `finish` chunks.
+
+Anthropic can bind each signed thinking block to the request prefix it was generated under: system prompt, tools, and earlier messages. Accounts and requests that enforce this check reject a request that replays a stale block. Anthropic Messages responses therefore record a SHA-256 digest of their request context as `prefixDigest`. A later Anthropic Messages request recomputes the digest of the reconstructed prefix before each replayed response and omits that response's signed and redacted thinking when the digests differ, as after compaction, tool-result pruning, image offload, or a system-prompt or tool change. Replay state without `prefixDigest`, written before this check existed, is treated the same way, which repairs conversations that already fail. Text, tool calls, and unsigned thinking remain; a response that held only signed thinking is no longer sent. Omitted thinking stays omitted on later requests. Manual thinking requires the final assistant turn of a tool round to start with a thinking block, so when a request enables thinking and the model's compat does not set `forceAdaptiveThinking`, the assistant message whose tool round the request continues with tool results keeps its thinking.
 
 </details>
 

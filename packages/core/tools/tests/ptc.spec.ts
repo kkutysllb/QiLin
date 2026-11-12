@@ -66,6 +66,7 @@ class FakeRuntime extends PtcRuntime {
 interface SetupOptions {
   mode?: Config['mode']
   maxParallelSubCalls?: number
+  maxSubCallsPerMinute?: number
   runtime?: false | { language?: string }
   toolOrder?: string[]
 }
@@ -74,7 +75,11 @@ async function setup(options: SetupOptions = {}) {
   const ctx = new Context()
   provideWorkingDirectoryFixture(ctx)
   await ctx.plugin(SystemPrompt, { ...options.toolOrder ? { toolOrder: options.toolOrder } : {} })
-  await ctx.plugin(ToolRuntime, { mode: options.mode ?? 'ptc', ...options.maxParallelSubCalls !== undefined ? { maxParallelSubCalls: options.maxParallelSubCalls } : {} })
+  await ctx.plugin(ToolRuntime, {
+    mode: options.mode ?? 'ptc',
+    ...options.maxParallelSubCalls !== undefined ? { maxParallelSubCalls: options.maxParallelSubCalls } : {},
+    ...options.maxSubCallsPerMinute !== undefined ? { maxSubCallsPerMinute: options.maxSubCallsPerMinute } : {},
+  })
   let runtime: FakeRuntime | undefined
   if (options.runtime !== false) {
     await ctx.plugin(FakeRuntime, options.runtime ?? {})
@@ -131,13 +136,17 @@ function fakeAgent(context: Context = new Context()): { agent: Agent; events: { 
 async function runCode(
   ctx: Context,
   code: string,
-  extras: { agent?: Agent; signal?: AbortSignal; description?: string } = {},
+  extras: { agent?: Agent; signal?: AbortSignal; description?: string; timeoutMs?: number } = {},
 ): Promise<ToolExecutionResult> {
   return ctx.tools.execute({
     signal: testToolSignal,
     callId: ToolCallId('call-1'),
     name: RUN_CODE_NAME,
-    arguments: { code, description: extras.description ?? 'Run the test program' },
+    arguments: {
+      code,
+      description: extras.description ?? 'Run the test program',
+      ...extras.timeoutMs !== undefined ? { timeoutMs: extras.timeoutMs } : {},
+    },
     ...extras.agent ? { agent: extras.agent } : {},
     ...extras.signal ? { signal: extras.signal } : {},
   })
@@ -177,6 +186,16 @@ it('logs detached frozen nested metadata without changing the binding value or l
 describe('mode-aware wire contribution', () => {
   it('rejects the both presentation mode in configuration', () => {
     expect(() => ToolRuntime.Config({ mode: 'both' } as never)).toThrow()
+  })
+
+  it('defaults and validates the tool-call allowance', async () => {
+    expect(ToolRuntime.Config({}).maxSubCallsPerMinute).toBe(1024)
+    expect(() => ToolRuntime.Config({ maxSubCallsPerMinute: 0 })).toThrow()
+    const ctx = new Context()
+    provideWorkingDirectoryFixture(ctx)
+    await ctx.plugin(SystemPrompt, {})
+    expect(() => new ToolRuntime(ctx, { mode: 'ptc', maxSubCallsPerMinute: 0 }))
+      .toThrow('maxSubCallsPerMinute must be a positive integer')
   })
 
   it.each([
@@ -726,6 +745,35 @@ describe('the sub-dispatch scheduler (native concurrency contract)', () => {
     if (result.isError) console.error('CAP-FAIL:', (result.content[0] as { text: string }).text)
     expect(result.isError).toBe(false)
     expect(gated.peakLive()).toBe(2)
+  })
+
+  it('aborts the run when nested calls exceed the deadline-derived allowance', async () => {
+    const { ctx, runtime } = await setup({ mode: 'ptc', maxSubCallsPerMinute: 2 })
+    Object.defineProperty(runtime, 'timeout', { get: () => ({ defaultMs: 120_000, maxMs: 600_000 }) })
+    try {
+      const calls = registerEcho(ctx, 'echo')
+      runtime.behavior = async (request) => {
+        const tools = request.bindings[0]!.functions
+        const values: string[] = []
+        for (let index = 0; index < 3; index += 1) {
+          try {
+            const value = await tools.echo!({ value: String(index) })
+            values.push(typeof value === 'string' ? value : JSON.stringify(value) ?? '')
+          } catch (error) {
+            return { logs: values, error: { kind: 'abort', message: (error as Error).message } }
+          }
+        }
+        return { logs: values }
+      }
+      const result = await runCode(ctx, 'program', { timeoutMs: 60_000 })
+      expect(result.isError).toBe(true)
+      const text = (result.content[0] as { text: string }).text
+      expect(text).toContain('exceeded its limit of 2 tool calls')
+      expect(text).toContain('call 3 was not dispatched')
+      expect(calls).toHaveLength(2)
+    } finally {
+      await ctx.fiber.dispose()
+    }
   })
 
   it('a tool unregistered between binding enumeration and dispatch fails as unknown tool', async () => {

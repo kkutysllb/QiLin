@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-11-12-heiti-heading-face.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-11-12-heiti-heading-face.md
+/agent-note-message-headings-ride-the-heiti-family-by-default:
+  en: 395d937a15a79c49
+  zh: 82c5d6a3a1b72f8f
+/agent-note-message-headings-ride-the-heiti-family-by-default/problem:
+  en: a743a9b03b17fe81
+  zh: aa3ee3c8767de1b4
+/agent-note-message-headings-ride-the-heiti-family-by-default/decision:
+  en: b16fa659123ec007
+  zh: 6b374563e4f42155
+/agent-note-message-headings-ride-the-heiti-family-by-default/alternatives-considered:
+  en: ff59810995f034c0
+  zh: 086578c240fabd4d
+/agent-note-message-headings-ride-the-heiti-family-by-default/consequences:
+  en: e3cf49b1856f3020
+  zh: c90bec7b09d0ab25

@@ -42,9 +42,12 @@ Mount the plugin alongside `qilin-web` and select its providers. Shipped profile
 | `apiKeyEnv` | `DEEPSEEK_API_KEY` | Credential reference resolved for each operation |
 | `baseURL` | `https://api.deepseek.com/v1/tools` | Search and Fetch API base including its deployment path prefix; append `/search` or `/fetch` |
 | `count` | `10` | Search API results per search, an integer from 1 to 50; a smaller `maxResults` on the request wins |
+| `searchRequestsPerSecond` | `5` | Most Search requests this plugin instance starts in any one-second window; later searches wait and the wait counts against the caller's timeout |
 | `sendOriginalQuestion` | `true` | Send the triggering human prompt, cut to 128 characters, as the Search API's `ori_question` |
 
 Fill `baseURL` with the complete API base, including its path prefix and excluding the operation name. The default reaches `https://api.deepseek.com/v1/tools/search` and `https://api.deepseek.com/v1/tools/fetch`; a deployment with another prefix, such as `/api/v1/tools`, needs its complete base.
+
+The shipped base composition selects this provider's search (`deepseek-search-api`) for `web_search`; the Messages-API search provider (`deepseek-official`) remains available through an explicit `searchProvider` setting and costs one auxiliary model request per search. Search requests from one plugin instance are spaced to the configured per-second limit; other processes and clients on the same account share the service limit without coordination.
 
 Run the real API tests with `DEEPSEEK_API_KEY` and `DEEPSEEK_SEARCH_API_TEST_BASE_URL`; both are required, and the latter includes the API path prefix.
 
