@@ -124,16 +124,16 @@ it('pins messages Files offload and inline fallback in assembled requests', asyn
   const normalizedBlocks = (content: unknown, spellings: readonly string[]): unknown => {
     if (!Array.isArray(content)) return content
     return content.map((block: { type?: string; text?: string }) => (
-      typeof block.text === 'string' && block.text.startsWith('Current runtime context.')
+      typeof block.text === 'string' && block.text.startsWith('<system-reminder>')
         ? { ...block, text: normalizeCwd(block.text, spellings) }
         : block
     ))
   }
 
-  const runtimeContext = 'Current runtime context. This snapshot supersedes earlier runtime-context snapshots.\n\n'
+  const runtimeContext = '<system-reminder>\nThe following information describes your current session:\n\n'
     + 'Current working directory: "{{cwd}}".\n\n'
     + 'Current QILIN file policy: danger-full-access. The QILIN file sandbox does not restrict file modifications by available operations.\n\n'
-    + 'Approval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).'
+    + 'Approval prompts are disabled in this session: actions that require approval are rejected automatically — do not request sandbox escalation (do not set `sandbox_permissions`).\n</system-reminder>'
 
   try {
     const result = await runScenario(input, {
