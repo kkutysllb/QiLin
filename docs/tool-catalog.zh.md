@@ -2004,13 +2004,13 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
 {
   "type": "object",
   "properties": {
-    "agent_id": {
+    "agent": {
       "type": "string",
-      "description": "The id of an agent created under you: your direct child or a deeper descendant."
+      "description": "The agent id, or a direct child's name from list_agents, of an agent created under you: your direct child or a deeper descendant."
     }
   },
   "required": [
-    "agent_id"
+    "agent"
   ]
 }
 ```
@@ -2047,9 +2047,9 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
 {
   "type": "object",
   "properties": {
-    "agent_id": {
+    "agent": {
       "type": "string",
-      "description": "The agent id of your direct continuable child, or your direct parent when you are a resident continuable child."
+      "description": "The agent id, or a direct child's name from list_agents: your direct continuable child, or your direct parent when you are a resident continuable child."
     },
     "message": {
       "type": "string",
@@ -2057,7 +2057,7 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
     }
   },
   "required": [
-    "agent_id",
+    "agent",
     "message"
   ]
 }

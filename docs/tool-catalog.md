@@ -1996,13 +1996,13 @@ Ask a subagent to stop its current work. This call returns without waiting for i
 {
   "type": "object",
   "properties": {
-    "agent_id": {
+    "agent": {
       "type": "string",
-      "description": "The id of an agent created under you: your direct child or a deeper descendant."
+      "description": "The agent id, or a direct child's name from list_agents, of an agent created under you: your direct child or a deeper descendant."
     }
   },
   "required": [
-    "agent_id"
+    "agent"
   ]
 }
 ```
@@ -2039,9 +2039,9 @@ Send a message to an agent. A working agent receives it at its next step; an idl
 {
   "type": "object",
   "properties": {
-    "agent_id": {
+    "agent": {
       "type": "string",
-      "description": "The agent id of your direct continuable child, or your direct parent when you are a resident continuable child."
+      "description": "The agent id, or a direct child's name from list_agents: your direct continuable child, or your direct parent when you are a resident continuable child."
     },
     "message": {
       "type": "string",
@@ -2049,7 +2049,7 @@ Send a message to an agent. A working agent receives it at its next step; an idl
     }
   },
   "required": [
-    "agent_id",
+    "agent",
     "message"
   ]
 }

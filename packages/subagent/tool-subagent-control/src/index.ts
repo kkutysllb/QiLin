@@ -11,10 +11,8 @@
 
 import type { Context } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
-import { brandString } from '@qilin-agent/brand'
 import { defineTool } from '@qilin-agent/tools'
 import type { ContentBlock } from '@qilin-agent/llm'
-import type { SessionId } from '@qilin-agent/session'
 import type {} from '@qilin-agent/subagent'
 import { markAdjacentAgentSendMessageTool } from '@qilin-agent/subagent/internal'
 
@@ -44,10 +42,10 @@ export function apply(ctx: Context, config: Config): void {
       'Send a message to an agent. A working agent receives it at its next step; an idle agent starts a new turn with it. '
       + 'Returns delivery confirmation, not the agent\'s answer.',
     parameters: {
-      agent_id: {
+      agent: {
         type: 'string',
         required: true,
-        description: 'The agent id of your direct continuable child, or your direct parent when you are a resident continuable child.',
+        description: 'The agent id, or a direct child\'s name from list_agents: your direct continuable child, or your direct parent when you are a resident continuable child.',
       },
       message: {
         type: 'string',
@@ -65,7 +63,7 @@ export function apply(ctx: Context, config: Config): void {
       },
       render: (args, _value) => [{
         type: 'text',
-        text: `message delivered to agent ${args.agent_id}`,
+        text: `message delivered to agent ${args.agent}`,
       }],
     },
     async execute(args, exec) {
@@ -74,9 +72,10 @@ export function apply(ctx: Context, config: Config): void {
         throw new Error('send_message requires a calling agent (exec.agent was undefined)')
       }
       const message: ContentBlock[] = [{ type: 'text', text: args.message }]
+      const targetId = await ctx.subagents.resolveName(sender, args.agent, exec.signal)
       const messageId = await ctx.subagents.sendMessage(
         sender,
-        brandString<SessionId>(args.agent_id),
+        targetId,
         message,
         { signal: exec.signal },
       )
@@ -92,10 +91,10 @@ export function apply(ctx: Context, config: Config): void {
         + 'You can continue a local direct child\'s conversation later with send_message. '
         + 'External executions stop permanently and cannot receive follow-ups. Subagents it started will keep running.',
       parameters: {
-        agent_id: {
+        agent: {
           type: 'string',
           required: true,
-          description: 'The id of an agent created under you: your direct child or a deeper descendant.',
+          description: 'The agent id, or a direct child\'s name from list_agents, of an agent created under you: your direct child or a deeper descendant.',
         },
       },
       output: {
@@ -108,10 +107,10 @@ export function apply(ctx: Context, config: Config): void {
         },
         render: (args, _value) => [{
           type: 'text',
-          text: `interrupt requested for agent ${args.agent_id}`,
+          text: `interrupt requested for agent ${args.agent}`,
         }],
       },
-      execute(args, exec) {
+      async execute(args, exec) {
         const caller = exec.agent
         if (!caller) {
           // Ancestor authority requires an exact live calling agent.
@@ -119,8 +118,9 @@ export function apply(ctx: Context, config: Config): void {
         }
         // The service authorizes the exact live caller against the target's
         // recorded lineage; the tool adds no authority of its own.
-        ctx.subagents.interrupt(brandString<SessionId>(args.agent_id), { kind: 'ancestor', agent: caller })
-        return Promise.resolve({ accepted: true })
+        const targetId = await ctx.subagents.resolveName(caller, args.agent, exec.signal)
+        ctx.subagents.interrupt(targetId, { kind: 'ancestor', agent: caller })
+        return { accepted: true }
       },
     }))
   }

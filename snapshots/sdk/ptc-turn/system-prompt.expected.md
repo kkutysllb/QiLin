@@ -151,8 +151,8 @@ interface ToolArgsMap {
   } & Record<string, JsonValue>;
   /** Send a message to an agent. A working agent receives it at its next step; an idle agent starts a new turn with it. Returns delivery confirmation, not the agent's answer. */
   send_message: {
-    /** The agent id of your direct continuable child, or your direct parent when you are a resident continuable child. */
-    agent_id: string;
+    /** The agent id, or a direct child's name from list_agents: your direct continuable child, or your direct parent when you are a resident continuable child. */
+    agent: string;
     /** The message to deliver to the agent. */
     message: string;
   } & Record<string, JsonValue>;

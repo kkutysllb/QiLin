@@ -313,8 +313,8 @@ class ReadImageOutput(TypedDict):
     image: ReadImageOutputImage
 
 class SendMessageArgs(TypedDict):
-    # The agent id of your direct continuable child, or your direct parent when you are a resident continuable child.
-    agent_id: str
+    # The agent id, or a direct child's name from list_agents: your direct continuable child, or your direct parent when you are a resident continuable child.
+    agent: str
     # The message to deliver to the agent.
     message: str
     # Additional keys beyond those declared are allowed.
