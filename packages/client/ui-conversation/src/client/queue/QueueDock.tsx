@@ -4,9 +4,9 @@ import type { FileAttachmentRef, ImageAttachmentRef } from '@qilin-agent/attachm
 import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { SessionId } from '@qilin-agent/session/types'
 import {
-  IconCheckOutlineRegular, IconChevronDownOutlineRegular, IconChevronUpOutlineRegular, IconCloseOutlineRegular,
-  FileTypeIcon, fileSizeText, IconEditOutlineRegular, InlineEditor, IconQueueOutlineRegular, IconSendOutlineRegular,
-  IconTrashOutlineRegular, projectUserText, Tooltip,
+  IconCheck, IconChevronDown, IconChevronUp, IconClose,
+  FileTypeIcon, fileSizeText, IconEdit, InlineEditor, IconQueue, IconSend,
+  IconTrash, projectUserText, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type { InboxState } from '@qilin-agent/agent/types'
 import type { QueueAction } from '@qilin-agent/api-session-controller/types'
@@ -175,13 +175,13 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
             disabled={interactionActive}
             onClick={() => { setCollapsed(value => !value) }}
           >
-            <span className={css.lead} aria-hidden><IconQueueOutlineRegular /></span>
+            <span className={css.lead} aria-hidden><IconQueue /></span>
             <span className={css.count}>{t('queue.count', { n: rowCount })}</span>
             {!listVisible && pendingQueue.length > 0 && (
               <span className={css.status} role="status">{t('queue.sending')}</span>
             )}
             <span className={css.chevron} aria-hidden>
-              {expanded ? <IconChevronDownOutlineRegular /> : <IconChevronUpOutlineRegular />}
+              {expanded ? <IconChevronDown /> : <IconChevronUp />}
             </span>
           </button>
         )}
@@ -192,7 +192,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
             return (
               <li key={row.id} className={css.row}>
                 {/* Single-item strip has no count header, so the row itself carries the queue glyph. */}
-                {rowCount === 1 && <span className={css.lead} aria-hidden><IconQueueOutlineRegular /></span>}
+                {rowCount === 1 && <span className={css.lead} aria-hidden><IconQueue /></span>}
                 {editing?.id === row.id
                   ? (
                     <InlineEditor
@@ -240,7 +240,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                             disabled={busy !== null || editing.text.trim() === ''}
                             onClick={() => { void saveEdit() }}
                           >
-                            <IconCheckOutlineRegular size={14} />
+                            <IconCheck size={14} />
                           </button>
                         </Tooltip>
                         <Tooltip label={t('queue.cancelEdit')} side="bottom" delayMs={500}>
@@ -251,7 +251,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                             disabled={busy !== null}
                             onClick={() => { setEditing(null) }}
                           >
-                            <IconCloseOutlineRegular size={14} />
+                            <IconClose size={14} />
                           </button>
                         </Tooltip>
                       </>
@@ -271,7 +271,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                               if (text !== null) setEditing({ id: row.id, text: text })
                             }}
                           >
-                            <IconEditOutlineRegular size={14} />
+                            <IconEdit size={14} />
                           </button>
                         </Tooltip>
                         <Tooltip label={t('queue.remove')} side="bottom" delayMs={500}>
@@ -288,7 +288,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                               )
                             }}
                           >
-                            <IconTrashOutlineRegular size={14} />
+                            <IconTrash size={14} />
                           </button>
                         </Tooltip>
                         <Tooltip label={t('queue.steer')} side="bottom" delayMs={500} disabled={!running}>
@@ -306,7 +306,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                               )
                             }}
                           >
-                            <IconSendOutlineRegular />
+                            <IconSend />
                           </button>
                         </Tooltip>
                       </>
@@ -318,7 +318,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
           {listVisible && pendingQueue.map((submission) => {
             return (
               <li key={submission.requestId} className={`${css.row} ${css.pendingRow}`} data-submission-echo="">
-                {rowCount === 1 && <span className={css.lead} aria-hidden><IconQueueOutlineRegular /></span>}
+                {rowCount === 1 && <span className={css.lead} aria-hidden><IconQueue /></span>}
                 {submission.attachments.length > 0 && (
                   <span className={css.attachments}>
                     {submission.attachments.map((attachment, index) => attachment.type === 'image'
@@ -349,7 +349,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                     title={t('queue.sending')}
                     disabled
                   >
-                    <IconEditOutlineRegular size={14} />
+                    <IconEdit size={14} />
                   </button>
                   <button
                     type="button"
@@ -358,7 +358,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                     title={t('queue.sending')}
                     disabled
                   >
-                    <IconTrashOutlineRegular size={14} />
+                    <IconTrash size={14} />
                   </button>
                   <button
                     type="button"
@@ -367,7 +367,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                     title={t('queue.sending')}
                     disabled
                   >
-                    <IconSendOutlineRegular />
+                    <IconSend />
                   </button>
                 </div>}
               </li>

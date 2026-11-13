@@ -1,10 +1,10 @@
 /** Stable process container; display policy changes visibility, never member parents. */
 import { memo, useCallback, useEffect, useId, useRef, useState, type ComponentProps, type ReactNode } from 'react'
 import {
-  IconAgentPresetOutlineRegular, IconApiOutlineRegular, IconBrowseOutlineRegular, IconChevronDownOutlineRegular,
-  IconChevronUpOutlineRegular, IconCodeOutlineRegular, IconEditOutlineRegular, IconGlobeOutlineRegular,
-  IconPlanOutlineRegular, IconQuestionOutlineRegular, IconSearchOutlineRegular, IconSparkleRegular,
-  IconThinkOutlineRegular, TextShimmer,
+  IconAgentPreset, IconApi, IconBrowse, IconChevronDown,
+  IconChevronUp, IconCodeOutlineRegular, IconEdit, IconGlobe,
+  IconPlan, IconQuestion, IconSearch, IconSparkle,
+  IconThink, TextShimmer,
 } from '@qilin-agent/client-ui-primitives'
 import type { GroupKey, NodeReference } from '@qilin-agent/client-ui-conversation/client'
 import type { ProcessActivity } from '../contract/process-groups.ts'
@@ -36,20 +36,20 @@ interface LiveProcessTitle {
 }
 
 const PROCESS_ICONS: Record<ProcessTitleActivity, ReactNode> = {
-  thinking: <IconThinkOutlineRegular />,
-  read: <IconBrowseOutlineRegular size={14} />,
-  readImage: <IconBrowseOutlineRegular size={14} />,
-  search: <IconSearchOutlineRegular size={14} />,
-  edit: <IconEditOutlineRegular size={14} />,
-  write: <IconEditOutlineRegular size={14} />,
-  commands: <IconApiOutlineRegular />,
+  thinking: <IconThink />,
+  read: <IconBrowse size={14} />,
+  readImage: <IconBrowse size={14} />,
+  search: <IconSearch size={14} />,
+  edit: <IconEdit size={14} />,
+  write: <IconEdit size={14} />,
+  commands: <IconApi />,
   code: <IconCodeOutlineRegular size={14} />,
-  webSearch: <IconGlobeOutlineRegular />,
-  webFetch: <IconBrowseOutlineRegular size={14} />,
-  subagents: <IconAgentPresetOutlineRegular size={14} />,
-  plan: <IconPlanOutlineRegular />,
-  questions: <IconQuestionOutlineRegular />,
-  tools: <IconSparkleRegular size={14} />,
+  webSearch: <IconGlobe />,
+  webFetch: <IconBrowse size={14} />,
+  subagents: <IconAgentPreset size={14} />,
+  plan: <IconPlan />,
+  questions: <IconQuestion />,
+  tools: <IconSparkle size={14} />,
 }
 
 function sameLiveProcessTitle(left: LiveProcessTitle, right: LiveProcessTitle): boolean {
@@ -129,7 +129,7 @@ const ProcessGroupHeader = memo(function ProcessGroupHeader({ groupKey, useChatG
       <span className={css.leading} aria-hidden="true">
         <span className={css.activityIcon} data-step-process-icon>{PROCESS_ICONS[activity]}</span>
         <span className={css.chevron} data-step-process-chevron>
-          {open ? <IconChevronUpOutlineRegular /> : <IconChevronDownOutlineRegular />}
+          {open ? <IconChevronUp /> : <IconChevronDown />}
         </span>
       </span>
       <TextShimmer active={!data.closed}>

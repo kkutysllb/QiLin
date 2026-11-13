@@ -18,8 +18,8 @@ import clsx from 'clsx'
 import {
   ConnectionIndicator,
   IconAgentPresetOutlineMedium, IconArchiveOutlineMedium, IconChevronLeftOutlineMedium,
-  IconCloseOutlineRegular, IconDataOutlineMedium, IconPersonalizationOutlineMedium,
-  IconQuestionOutlineMedium, IconSettingsOutlineMedium, QilinSeal, useModalLayer,
+  IconClose, IconDataOutlineMedium, IconPersonalization,
+  IconQuestionOutlineMedium, IconSettings, QilinSeal, useModalLayer,
 } from '@qilin-agent/client-ui-primitives'
 import type { ConnectionIndicatorState } from '@qilin-agent/client-ui-primitives'
 import type { SettingsRootComponentProps, SettingsSectionRow } from './shell-contract.ts'
@@ -126,11 +126,11 @@ function SettingsNavResizeHandle({ label, width, onResize }: {
 function navIcon(id: string) {
   if (id === 'models') return <IconDataOutlineMedium size={16} />
   if (id === 'agent-presets') return <IconAgentPresetOutlineMedium size={16} />
-  if (id === 'plugins') return <IconPersonalizationOutlineMedium size={16} />
+  if (id === 'plugins') return <IconPersonalization size={16} />
   // 20-native glyph in the rail's 16px icon slot, as on the Session row menu.
   if (id === 'archived-sessions') return <IconArchiveOutlineMedium size={16} />
   if (id === 'about') return <IconQuestionOutlineMedium size={16} />
-  return <IconSettingsOutlineMedium size={16} />
+  return <IconSettings size={16} />
 }
 
 type PanelProps = {
@@ -234,7 +234,7 @@ function SettingsPanel({
           <div className={css.header}>
             <div className={css.actions}>{renderSlot('settings.action', {})}</div>
             <button type="button" className={css.close} onClick={onClose}>
-              <IconCloseOutlineRegular size={14} />
+              <IconClose size={14} />
               <span className={css.hiddenLabel}>{renderSlot('settings.close', {})}</span>
             </button>
           </div>

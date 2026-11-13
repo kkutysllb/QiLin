@@ -127,6 +127,7 @@ export type { MarkdownPlainTextMode, MarkdownPlainTextOptions } from './markdown
 export { CODE_HIGHLIGHT_EXTENSIONS, languageForPath, useCodeHighlighter } from './code-highlighting.ts'
 export type { CodeHighlighter, HighlightSpan } from './code-highlighting.ts'
 export * from './icons/index.tsx'
+export * from './icons/v2/index.tsx'
 export { ImageLightbox } from './ImageLightbox.tsx'
 export type { ImageLightboxLabels } from './ImageLightbox.tsx'
 export { MenuGroup, observeStickyMenuGroups } from './MenuGroup.tsx'

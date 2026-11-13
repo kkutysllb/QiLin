@@ -4,7 +4,7 @@
 import { useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import {
-  IconChevronDownOutlineRegular, IconFolderCloseRegular, IconFolderOpenRegular, QilinSeal,
+  IconChevronDown, IconFolderCloseRegular, IconFolderOpenRegular, QilinSeal,
 } from '@qilin-agent/client-ui-primitives'
 import { workspaceTitleOf } from '@qilin-agent/util-workspace-path'
 import type { ConversationContentProps } from '../contract/slots.ts'
@@ -56,7 +56,7 @@ export function WorkspaceChip({ buttonRef, label, menuOpen = false, onClick, t }
         ? <IconFolderCloseRegular className={css.folder} size={16} />
         : <IconFolderOpenRegular className={css.folder} size={16} />}
       <span className={css.workspaceLabel}>{label ?? t('hero.chooseWorkspace')}</span>
-      <IconChevronDownOutlineRegular className={css.chevron} size={12} />
+      <IconChevronDown className={css.chevron} size={12} />
     </button>
   )
 }

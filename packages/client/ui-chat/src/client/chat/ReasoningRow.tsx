@@ -1,13 +1,13 @@
 /** Assistant reasoning disclosure, independent of Tool-call presentation. */
 import { memo, useCallback, useMemo, useState } from 'react'
-import { DisclosureRow, IconThinkOutlineRegular, TextShimmer } from '@qilin-agent/client-ui-primitives'
+import { DisclosureRow, IconThink, TextShimmer } from '@qilin-agent/client-ui-primitives'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import type { ChatViewSlotProps, UseDisclosure, UsePresentation } from '../contract/slots.ts'
 import { reasoningText } from '../reasoning-text.ts'
 import a11yCss from './accessibility.module.css'
 import css from './ReasoningRow.module.css'
 
-const THINK_ICON = <IconThinkOutlineRegular size={14} />
+const THINK_ICON = <IconThink size={14} />
 
 function firstLine(text: string): string {
   const newline = text.indexOf('\n')

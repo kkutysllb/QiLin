@@ -3,8 +3,8 @@
 
 import { memo, useMemo, useState } from 'react'
 import {
-  IconApiOutlineRegular,
-  IconChevronDownOutlineRegular,
+  IconApi,
+  IconChevronDown,
   IconChevronRightOutlineRegular,
   MarkdownText,
 } from '@qilin-agent/client-ui-primitives'
@@ -56,13 +56,13 @@ export const CompactionItem = memo(function CompactionItem({
       >
         <span className={css.compactionLeading} aria-hidden>
           <span className={css.compactionContextIcon} data-compaction-icon="context">
-            <IconApiOutlineRegular />
+            <IconApi />
           </span>
           <span
             className={css.compactionDisclosureIcon}
             data-compaction-disclosure={open ? 'expanded' : 'collapsed'}
           >
-            {open ? <IconChevronDownOutlineRegular /> : <IconChevronRightOutlineRegular />}
+            {open ? <IconChevronDown /> : <IconChevronRightOutlineRegular />}
           </span>
         </span>
         <span className={css.compactionTitle}>{title ?? t('message.compaction')}</span>

@@ -1,7 +1,7 @@
 /** Localized two-column selector shared by Chat preference rows. */
 
 import { useRef, useState } from 'react'
-import { IconChevronDownOutlineRegular, Menu } from '@qilin-agent/client-ui-primitives'
+import { IconChevronDown, Menu } from '@qilin-agent/client-ui-primitives'
 import css from './PreferenceRow.module.css'
 
 /**
@@ -35,7 +35,7 @@ export function PreferenceRow({ title, description, value, selectedLabel, option
       onClick={() => { setOpen(value => !value) }}
     >
       {selectedLabel}
-      <IconChevronDownOutlineRegular className={css.chevron} />
+      <IconChevronDown className={css.chevron} />
     </button>
   )
 

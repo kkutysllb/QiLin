@@ -1,9 +1,9 @@
 /** An independent, expandable notice explaining a non-human Turn trigger. */
 import { useId, useState, type ComponentType } from 'react'
 import {
-  IconAgentPresetOutlineRegular, IconAlarmClockOutlineRegular, IconBranchOutlineRegular,
-  IconChevronDownOutlineRegular, IconContextInjectionOutlineRegular, IconCordisPluginOutlineRegular,
-  IconGoalOutlineRegular, IconGlobeOutlineRegular, IconPaperPlaneOutlineRegular, IconQueueOutlineRegular,
+  IconAgentPreset, IconAlarmClockOutlineRegular, IconBranch,
+  IconChevronDown, IconContextInjection, IconCordisPluginOutlineRegular,
+  IconGoalOutlineRegular, IconGlobe, IconPaperPlaneOutlineRegular, IconQueue,
   type IconProps,
 } from '@qilin-agent/client-ui-primitives'
 import type { ChatNodeViewProps } from '../contract/slots.ts'
@@ -13,15 +13,15 @@ import { turnTriggerDetails, type TurnTriggerIcon } from './turn-trigger.ts'
 import css from './TurnTriggerNodeView.module.css'
 
 const TRIGGER_ICONS: Record<TurnTriggerIcon, ComponentType<IconProps>> = {
-  request: IconContextInjectionOutlineRegular,
+  request: IconContextInjection,
   goal: IconGoalOutlineRegular,
   agent: IconPaperPlaneOutlineRegular,
-  team: IconAgentPresetOutlineRegular,
-  subagent: IconAgentPresetOutlineRegular,
-  github: IconBranchOutlineRegular,
-  webhook: IconGlobeOutlineRegular,
+  team: IconAgentPreset,
+  subagent: IconAgentPreset,
+  github: IconBranch,
+  webhook: IconGlobe,
   schedule: IconAlarmClockOutlineRegular,
-  job: IconQueueOutlineRegular,
+  job: IconQueue,
   plugin: IconCordisPluginOutlineRegular,
 }
 
@@ -39,7 +39,7 @@ export function TurnTriggerNodeView({ node, t }: Pick<ChatNodeViewProps<'turn-tr
         <span className={css.icon} aria-hidden><TriggerIcon size={14} /></span>
         <span className={css.title}>{t(details.title)}</span>
         <time className={css.time} dateTime={date.toISOString()}>{time}</time>
-        <IconChevronDownOutlineRegular size={12} className={open ? css.openChevron : css.chevron} />
+        <IconChevronDown size={12} className={open ? css.openChevron : css.chevron} />
       </button>
       {open && <div id={bodyId} className={css.body}>
         <p className={css.explanation}>{t('message.trigger.explanation')}</p>

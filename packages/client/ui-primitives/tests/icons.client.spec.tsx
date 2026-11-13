@@ -2,6 +2,7 @@
 import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import * as primitives from '@qilin-agent/client-ui-primitives'
+import * as v2Icons from '../src/icons/v2/index.tsx'
 import {
   IconAlarmClockOutlineRegular, IconApiOutlineRegular, IconArchiveOutlineRegular, IconFolderCloseRegular,
   IconGoalOutlineRegular, IconSendOutlineRegular,
@@ -11,8 +12,11 @@ afterEach(cleanup)
 
 // Icon components all share the IconProps signature; the barrel also exports
 // non-icon atoms (different props shapes), so filter by prefix BEFORE typing.
+// The 24-grid set shares the Icon prefix but owns its own contract in
+// icons-v2.client.spec.tsx, so this suite counts only the 16-grid glyphs.
+const v2Names = new Set(Object.keys(v2Icons))
 const icons = Object.fromEntries(
-  Object.entries(primitives).filter(([name]) => name.startsWith('Icon')),
+  Object.entries(primitives).filter(([name]) => name.startsWith('Icon') && !v2Names.has(name)),
 ) as Record<string, (p: primitives.IconProps) => React.JSX.Element>
 const iconNames = Object.keys(icons)
 

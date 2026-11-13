@@ -6,7 +6,7 @@
 
 import { memo, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { IconDatabaseOutlineRegular, IconGaugeOutlineRegular, Tooltip } from '@qilin-agent/client-ui-primitives'
+import { IconDatabase, IconGaugeOutlineRegular, Tooltip } from '@qilin-agent/client-ui-primitives'
 import type { UseProjection } from '@qilin-agent/api-session-controller/client'
 import type { InjectFace, SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
 // Type-only: merges the sessionStats key into SessionProjectionMap for useProjection.
@@ -318,7 +318,7 @@ export const UsagePill = memo(function UsagePill({ useProjection, usePerformance
   if (usage === undefined || (billedInputTokens(usage) === 0 && usage.outputTokens === 0)) return null
   const cacheHit = cacheHitPercent(usage)
   const cacheHitText = cacheHit !== null ? t('stats.cacheHit', { percent: cacheHit }) : null
-  const icon = <IconDatabaseOutlineRegular />
+  const icon = <IconDatabase />
   if (mode === 'compact') {
     return cacheHitText === null ? null : <PlainPill stat="usage" icon={icon} {...reading(cacheHitText, null)} />
   }

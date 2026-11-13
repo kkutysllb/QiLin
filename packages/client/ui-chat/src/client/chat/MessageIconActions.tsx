@@ -3,7 +3,7 @@
 
 import { useId, type ReactNode } from 'react'
 import {
-  IconBranchOutlineRegular, IconCheckOutlineRegular, IconCopyOutlineRegular, IconEditOutlineRegular, Tooltip, useClipboardCopy,
+  IconBranch, IconCheck, IconCopyOutlineRegular, IconEdit, Tooltip, useClipboardCopy,
 } from '@qilin-agent/client-ui-primitives'
 import type { ChatViewSlotProps } from '../contract/slots.ts'
 import { formatMessageClock } from './message-chrome.ts'
@@ -61,14 +61,14 @@ export function MessageIconActions({
       {clock === 'start' ? clockEl : null}
       <Tooltip label={copied ? t('copied') : t('copy')} side="bottom">
         <button type="button" className={css.action} aria-label={copied ? t('copied') : t('copy')} onClick={onCopy}>
-          {copied ? <IconCheckOutlineRegular /> : <IconCopyOutlineRegular />}
+          {copied ? <IconCheck /> : <IconCopyOutlineRegular />}
         </button>
       </Tooltip>
       {extraActions}
       {onEdit !== undefined && (
         <Tooltip label={t('message.edit')} side="bottom">
           <button type="button" className={css.action} aria-label={t('message.edit')} onClick={onEdit}>
-            <IconEditOutlineRegular />
+            <IconEdit />
           </button>
         </Tooltip>
       )}
@@ -84,7 +84,7 @@ export function MessageIconActions({
             data-unavailable={branchUnavailable || undefined}
             onClick={branchUnavailable ? undefined : onBranch}
           >
-            <IconBranchOutlineRegular />
+            <IconBranch />
           </button>
         </Tooltip>
       )}
