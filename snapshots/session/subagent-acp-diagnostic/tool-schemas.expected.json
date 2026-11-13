@@ -229,7 +229,7 @@
     },
     {
       "name": "list_agents",
-      "description": "List subagents you started, with their ids, labels, and status. running means it is working; inactive means it is not currently working. You will be notified when a subagent finishes; there is no need to keep checking its status. Use send_message to continue the conversation.",
+      "description": "List subagents you started, with their ids, names, labels, and status. running means it is working; inactive means it is not currently working. You will be notified when a subagent finishes; there is no need to keep checking its status. Use send_message to continue the conversation.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -340,7 +340,7 @@
     },
     {
       "name": "subagent",
-      "description": "Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes.",
+      "description": "Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. Name the child with `name`; names stay unique among the children you create. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -351,6 +351,10 @@
           "description": {
             "type": "string",
             "description": "A short (3-5 word) description of the delegated task, for display."
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional child name, unique among the children you create: 1-32 lower-case letters, digits, or hyphens starting with a letter, other than \"lead\". Omit to allocate the next free \"agent-N\"."
           },
           "prompt": {
             "type": "string",
@@ -365,7 +369,7 @@
     },
     {
       "name": "subagent_acp",
-      "description": "Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. The completion notice includes its final answer. This backend does not accept follow-up messages.",
+      "description": "Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. Name the child with `name`; names stay unique among the children you create. The completion notice includes its final answer. This backend does not accept follow-up messages.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -376,6 +380,10 @@
           "description": {
             "type": "string",
             "description": "A short (3-5 word) description of the delegated task, for display."
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional child name, unique among the children you create: 1-32 lower-case letters, digits, or hyphens starting with a letter, other than \"lead\". Omit to allocate the next free \"agent-N\"."
           },
           "prompt": {
             "type": "string",
@@ -390,7 +398,7 @@
     },
     {
       "name": "subagent_fork",
-      "description": "Delegate a task to a subagent that inherits this conversation: a child agent seeded with all completed turns so far (it does not see the current in-flight turn). Use this when the subtask builds on this conversation's context — a follow-up analysis, a review, a continuation — without consuming this conversation's context for the work itself. You receive its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes.",
+      "description": "Delegate a task to a subagent that inherits this conversation: a child agent seeded with all completed turns so far (it does not see the current in-flight turn). Use this when the subtask builds on this conversation's context — a follow-up analysis, a review, a continuation — without consuming this conversation's context for the work itself. You receive its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. Name the child with `name`; names stay unique among the children you create. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes.",
       "parameters": {
         "type": "object",
         "properties": {
@@ -401,6 +409,10 @@
           "description": {
             "type": "string",
             "description": "A short (3-5 word) description of the delegated task, for display."
+          },
+          "name": {
+            "type": "string",
+            "description": "Optional child name, unique among the children you create: 1-32 lower-case letters, digits, or hyphens starting with a letter, other than \"lead\". Omit to allocate the next free \"agent-N\"."
           },
           "prompt": {
             "type": "string",

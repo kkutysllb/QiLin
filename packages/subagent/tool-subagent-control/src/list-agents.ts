@@ -34,6 +34,8 @@ type ListAgentsEntry =
     readonly kind: 'child'
     readonly id: SessionId
     readonly label: string
+    readonly name?: string
+    readonly path?: string
     readonly status: 'running' | 'inactive'
     readonly parent?: SessionId
     readonly depth?: number
@@ -73,6 +75,8 @@ function project(
     kind: 'child',
     id: entry.id,
     label: entry.label,
+    ...entry.name === undefined ? {} : { name: entry.name },
+    ...position !== undefined && 'path' in entry && typeof entry.path === 'string' ? { path: entry.path } : {},
     status: statusOf(agents, entry.id),
     ...at,
   }
@@ -86,7 +90,7 @@ export function apply(ctx: Context): void {
   ctx.tools.register(defineTool({
     name: 'list_agents',
     description:
-      'List subagents you started, with their ids, labels, and status. '
+      'List subagents you started, with their ids, names, labels, and status. '
       + 'running means it is working; inactive means it is not currently working. '
       + 'You will be notified when a subagent finishes; there is no need to keep checking its status. '
       + 'Use send_message to continue the conversation.',
@@ -110,6 +114,8 @@ export function apply(ctx: Context): void {
                 kind: { type: 'string', required: true, enum: ['child'] },
                 id: { type: 'string', required: true },
                 label: { type: 'string', required: true },
+                name: { type: 'string' },
+                path: { type: 'string' },
                 status: { type: 'string', required: true, enum: ['running', 'inactive'] },
                 parent: { type: 'string' },
                 depth: { type: 'number' },
@@ -142,8 +148,11 @@ export function apply(ctx: Context): void {
               const at = request.scope === 'descendants'
                 ? ` parent=${String(entry.parent)} depth=${String(entry.depth)}`
                 : ''
+              const named = entry.kind === 'child'
+                ? `${entry.name === undefined ? '' : ` name=${entry.name}`}${entry.path === undefined ? '' : ` path=${entry.path}`}`
+                : ''
               return entry.kind === 'child'
-                ? `${entry.id} [${entry.status}]${at} — ${entry.label}`
+                ? `${entry.id} [${entry.status}]${at}${named} — ${entry.label}`
                 : `${entry.id} [diagnostic: ${entry.reason}]${at}`
             }).join('\n'),
         }]

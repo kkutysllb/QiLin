@@ -122,8 +122,8 @@ describe('dsh-tool-subagent-control/list-agents', () => {
       const result = await callTool(ctx, 'list_agents', { scope }, parent)
       expect(result.isError).toBe(false)
       expect(text(result)).toBe(scope === 'children'
-        ? `${started.childId} [inactive] — workflow child`
-        : `${started.childId} [inactive] parent=${parent.id} depth=1 — workflow child`)
+        ? `${started.childId} [inactive] name=agent-1 — workflow child`
+        : `${started.childId} [inactive] parent=${parent.id} depth=1 name=agent-1 path=agent-1 — workflow child`)
     }
   })
 
@@ -244,7 +244,7 @@ describe('dsh-tool-subagent-control/list-agents', () => {
     await waitNoActivation(ctx, started.childId)
     const result = await callTool(ctx, 'list_agents', {}, parent)
     expect(result.isError).toBe(false)
-    expect(text(result)).toBe(`${started.childId} [inactive] — summarize the doc`)
+    expect(text(result)).toBe(`${started.childId} [inactive] name=agent-1 — summarize the doc`)
   })
 
   it('describes inactive as turn availability and pins the status vocabulary', async () => {
@@ -321,8 +321,8 @@ describe('dsh-tool-subagent-control/list-agents', () => {
     const result = await callTool(ctx, 'list_agents', { scope: 'descendants' }, parent)
     expect(result.isError).toBe(false)
     expect(text(result)).toBe(
-      `${started.childId} [inactive] parent=${parent.id} depth=1 — waiting branch\n`
-      + `${grandchild.childId} [running] parent=${started.childId} depth=2 — nested leaf`,
+      `${started.childId} [inactive] parent=${parent.id} depth=1 name=agent-1 path=agent-1 — waiting branch\n`
+      + `${grandchild.childId} [running] parent=${started.childId} depth=2 name=agent-1 path=agent-1/agent-1 — nested leaf`,
     )
 
     releaseGrandchild.resolve(undefined)

@@ -1950,7 +1950,7 @@ Source: [`packages/subagent/tool-subagent/src/list-models.ts`](../packages/subag
 
 ### `subagent`
 
-Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes.
+Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. Name the child with `name`; names stay unique among the children you create. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes.
 
 ```json
 {
@@ -1963,6 +1963,10 @@ Delegate a self-contained task to a subagent (a separate agent that works in its
     "description": {
       "type": "string",
       "description": "A short (3-5 word) description of the delegated task, for display."
+    },
+    "name": {
+      "type": "string",
+      "description": "Optional child name, unique among the children you create: 1-32 lower-case letters, digits, or hyphens starting with a letter, other than \"lead\". Omit to allocate the next free \"agent-N\"."
     },
     "prompt": {
       "type": "string",
@@ -2007,7 +2011,7 @@ Source: [`packages/subagent/tool-subagent-control/src/index.ts`](../packages/sub
 
 ### `list_agents`
 
-List subagents you started, with their ids, labels, and status. running means it is working; inactive means it is not currently working. You will be notified when a subagent finishes; there is no need to keep checking its status. Use send_message to continue the conversation.
+List subagents you started, with their ids, names, labels, and status. running means it is working; inactive means it is not currently working. You will be notified when a subagent finishes; there is no need to keep checking its status. Use send_message to continue the conversation.
 
 ```json
 {

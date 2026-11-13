@@ -231,7 +231,7 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
       const definition = defineTool({
         name: toolName,
         description: wording.description
-          + ' This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes.'
+          + ' This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. Name the child with `name`; names stay unique among the children you create.'
           + (subagentProvider.prepareContinuable !== undefined
             ? ' The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes.'
             : ' The completion notice includes its final answer. This backend does not accept follow-up messages.')
@@ -245,6 +245,10 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
             type: 'string',
             required: true,
             description: 'A short (3-5 word) description of the delegated task, for display.',
+          },
+          name: {
+            type: 'string',
+            description: 'Optional child name, unique among the children you create: 1-32 lower-case letters, digits, or hyphens starting with a letter, other than "lead". Omit to allocate the next free "agent-N".',
           },
           prompt: {
             type: 'string',
@@ -351,6 +355,7 @@ export function apply(ctx: Context, config: Config, session?: Session): void {
             provider: config.provider,
             ...(childId === undefined ? {} : { childId }),
             label: args.description,
+            ...args.name === undefined ? {} : { name: args.name },
             request,
             signal: exec.signal,
             delivery: 'parent',

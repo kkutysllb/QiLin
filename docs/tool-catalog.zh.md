@@ -1972,6 +1972,10 @@ lsp 工具将提供方选择和语言服务器子进程置于 ctx.lsp 之后，�
       "type": "string",
       "description": "A short (3-5 word) description of the delegated task, for display."
     },
+    "name": {
+      "type": "string",
+      "description": "Optional child name, unique among the children you create: 1-32 lower-case letters, digits, or hyphens starting with a letter, other than \"lead\". Omit to allocate the next free \"agent-N\"."
+    },
     "prompt": {
       "type": "string",
       "description": "The complete, self-contained task for the subagent. It does not share this conversation's context, so include everything it needs."

@@ -258,6 +258,8 @@ class ListAgentsOutput1(TypedDict):
     kind: Literal["child"]
     id: str
     label: str
+    name: NotRequired[str]
+    path: NotRequired[str]
     status: Literal["running", "inactive"]
     parent: NotRequired[str]
     depth: NotRequired[float]
@@ -361,6 +363,8 @@ class SubagentArgs(TypedDict):
     cwd: NotRequired[str]
     # A short (3-5 word) description of the delegated task, for display.
     description: str
+    # Optional child name, unique among the children you create: 1-32 lower-case letters, digits, or hyphens starting with a letter, other than "lead". Omit to allocate the next free "agent-N".
+    name: NotRequired[str]
     # The complete, self-contained task for the subagent. It does not share this conversation's context, so include everything it needs.
     prompt: str
     # Additional keys beyond those declared are allowed.
@@ -374,6 +378,8 @@ class SubagentForkArgs(TypedDict):
     cwd: NotRequired[str]
     # A short (3-5 word) description of the delegated task, for display.
     description: str
+    # Optional child name, unique among the children you create: 1-32 lower-case letters, digits, or hyphens starting with a letter, other than "lead". Omit to allocate the next free "agent-N".
+    name: NotRequired[str]
     # The task for the subagent. It already sees this conversation's completed turns, so build on them freely and state only what is new.
     prompt: str
     # Additional keys beyond those declared are allowed.
@@ -525,7 +531,7 @@ class Tools(Protocol):
     async def job_output(self, args: JobOutputArgs) -> JobOutputOutput:
         """Read a background job: output since the previous read for stream jobs, or the result of a finished final-output job."""
     async def list_agents(self, args: ListAgentsArgs) -> list[ListAgentsOutput1 | ListAgentsOutput2]:
-        """List subagents you started, with their ids, labels, and status. running means it is working; inactive means it is not currently working. You will be notified when a subagent finishes; there is no need to keep checking its status. Use send_message to continue the conversation."""
+        """List subagents you started, with their ids, names, labels, and status. running means it is working; inactive means it is not currently working. You will be notified when a subagent finishes; there is no need to keep checking its status. Use send_message to continue the conversation."""
     async def read(self, args: ReadArgs) -> ReadOutput:
         """Read a UTF-8 text file and return line-numbered content."""
     async def read_image(self, args: ReadImageArgs) -> ReadImageOutput:
@@ -537,9 +543,9 @@ class Tools(Protocol):
     async def skill(self, args: SkillArgs) -> SkillOutput:
         """Load the full instructions for an available skill. Call this with the exact skill name from the session skill catalog before acting on a task that names or clearly matches that skill."""
     async def subagent(self, args: SubagentArgs) -> SubagentOutput:
-        """Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes."""
+        """Delegate a self-contained task to a subagent (a separate agent that works in its own context) to offload focused, independent work — research, a scoped implementation, an analysis — so it does not consume this conversation's context. The subagent returns its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. Name the child with `name`; names stay unique among the children you create. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes."""
     async def subagent_fork(self, args: SubagentForkArgs) -> SubagentForkOutput:
-        """Delegate a task to a subagent that inherits this conversation: a child agent seeded with all completed turns so far (it does not see the current in-flight turn). Use this when the subtask builds on this conversation's context — a follow-up analysis, a review, a continuation — without consuming this conversation's context for the work itself. You receive its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes."""
+        """Delegate a task to a subagent that inherits this conversation: a child agent seeded with all completed turns so far (it does not see the current in-flight turn). Use this when the subtask builds on this conversation's context — a follow-up analysis, a review, a continuation — without consuming this conversation's context for the work itself. You receive its result, not its intermediate steps. This tool starts an independently managed subagent and immediately returns its id. The runtime notifies you when it finishes. Name the child with `name`; names stay unique among the children you create. The child reports results with `send_message`; use `send_message` to steer it while running or continue its conversation after it finishes."""
     async def todo_write(self, args: TodoWriteArgs) -> TodoWriteOutput:
         """Record and update a structured task list for the current work. Send the ENTIRE list every call — it REPLACES the previous list (there are no partial updates, no per-item edits). Use it to plan multi-step work and show progress: add one todo per concrete step before you start. Mark every todo being actively worked on `in_progress` — several at once when work genuinely runs in parallel (e.g. concurrent subagents or background commands), one for sequential work; while work remains, at least one task should be `in_progress`. Mark a todo `completed` the moment it is done (do not batch completions), and allow no `in_progress` item only once all work is complete. Skip the list for trivial single-step tasks. Statuses: `pending` (not started), `in_progress` (being worked on now), `completed` (finished)."""
     async def update_goal(self, args: UpdateGoalArgs) -> UpdateGoalOutput1 | UpdateGoalOutput2:
