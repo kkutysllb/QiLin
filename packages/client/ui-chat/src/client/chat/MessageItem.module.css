@@ -288,6 +288,18 @@
   font: var(--qilin-font-markdown-code-block-small);
 }
 
+/* Phones keep the copy readable: the code tag drops under it instead of
+   squeezing the message into a one-word column beside the tag. */
+@media (max-width: 520px) {
+  .turnErrorRow {
+    grid-template-columns: 10px minmax(0, 1fr);
+  }
+
+  .turnErrorCode {
+    grid-column: 2;
+  }
+}
+
 .turnErrorRetry {
   margin-left: var(--qilin-space-2);
   padding: 0;
