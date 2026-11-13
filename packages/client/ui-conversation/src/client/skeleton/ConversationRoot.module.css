@@ -26,7 +26,9 @@
 .header:has(.tabs) {
   display: block;
   height: 76px;
-  padding: var(--qilin-space-3) var(--qilin-space-6) 0 var(--qilin-space-5);
+  /* The 76px band is fixed by the Sidebar pane chrome (38px + 38px), so the
+     10px top inset keeps the exact figure the spacing scale cannot express. */
+  padding: calc(var(--qilin-space-2) + 2px) var(--qilin-space-6) 0 var(--qilin-space-5);
 }
 
 /* macOS collapsed desktop: the Sidebar's leading controls (sidebar-open and
@@ -192,7 +194,8 @@
   box-sizing: border-box;
   align-items: flex-start;
   flex-wrap: wrap;
-  margin-top: var(--qilin-space-3);
+  /* 10px, like the header inset: the strip shares the fixed 76px band. */
+  margin-top: calc(var(--qilin-space-2) + 2px);
   padding-left: var(--qilin-space-2);
 }
 
@@ -204,12 +207,12 @@
   min-height: 25px;
 }
 
-/* The 16px text line retains 9px below it. The active bar reaches 1px past
-   the tab box to sit over the header rule. */
+/* The 16px text line retains 9px below it (16 + 9 = the 25px tab box), so the
+   active bar's 1px reach lands on the header rule instead of hanging below it. */
 .tab {
   position: relative;
   min-height: 25px;
-  padding: 0 0 var(--qilin-space-2);
+  padding: 0 0 calc(var(--qilin-space-2) + 1px);
   border: none;
   background: transparent;
   font-size: var(--qilin-text-base);
