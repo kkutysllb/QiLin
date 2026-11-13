@@ -64,7 +64,9 @@ kind: "plan"
 | **V3 图标系统**（M，进行中） | 24 个高频图标落地并替换到 V1 三面；旧图标仅在未迁移面包内保留 | 迁移面图标全部来自 v2 图标集；视觉一致（24 网格/1.5 描边） | 图标对照表 + 三面截图 |
 
 **V3 进展（2026-11-13）**：`icons/v2` 落地 25 个 24×24/1.5 描边/圆角端点图标（chevron、close、check、plus、search、settings、send、trash、edit、branch、globe、database、api、think、plan、queue、browse、context-injection、warning、sparkle、question、agent-preset、personalization）；ui-chat、ui-conversation、ui-settings-general 的 19 个文件改用新集；新增 `icons-v2` 契约规格（网格/描边/端点/currentColor/size 缩放），旧集计数规格排除 v2 导出。剩余：图标对照表与三面截图归档，未迁移包的图标在各自批次替换。
-| **V4 聊天恢复闭环 + 侧栏文件**（L） | 继续生成、向上回看自动加载、失败重试队列、侧栏文件搜索/排除/隐藏、窄屏文件面板 | 行为测试 + 快照；窄屏可用 | 交互录屏/GIF（人工） |
+| **V4 聊天恢复闭环 + 侧栏文件**（L，进行中） | 继续生成、向上回看自动加载、失败重试队列、侧栏文件搜索/排除/隐藏、窄屏文件面板 | 行为测试 + 快照；窄屏可用 | 交互录屏/GIF（人工） |
+
+**V4 进展（2026-11-14）**：`继续生成` 已落地——`TurnMaxTokensNodeView` 在轮次因输出上限截断时渲染「继续生成」动作，经 `uiConversation.sendText` 以 `queue` 模式发送固定控制提示 `Continue`（会话日志中是一条普通 human 消息）；未接线时提示行保留手动输入的替代说法。`sendText` 为 SessionId 显式动词、无绑定即静默跳过，失败向上抛。测试：chat-view 渲染/点击/无接线隐藏、assembly 的 `sendText` 队列与错误、apply 注入接线各一条。
 | **V5 编码主线**（XL） | Forge 概览与 review 读面、Worktree 归档清理、终端面板 | 对应 provider 契约测试 + 真实会话冒烟 | 端到端流程截图 |
 | **V6 通用办公**（XL） | Office 原生工具（只读解析先行）、文档预览闭环 | 工具契约测试 + 安全边界说明 | 文档处理流程截图 |
 | **V7 收口**（S） | 全量静态审计清零、视觉规格文档定稿、release notes | 审计零豁免（或逐条列明例外） | 全量前后对比索引 |

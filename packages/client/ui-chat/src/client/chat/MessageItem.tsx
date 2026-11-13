@@ -166,7 +166,8 @@ function TurnErrorItem({ node, retryTurn, t }: {
 }
 
 /** Persistent, turn-positioned notice for a turn ended at the output-token cap. */
-function TurnMaxTokensItem({ t }: {
+function TurnMaxTokensItem({ continueGeneration, t }: {
+  continueGeneration?: (() => void) | undefined
   t: ChatViewSlotProps['t']
 }) {
   return (
@@ -175,6 +176,11 @@ function TurnMaxTokensItem({ t }: {
       <div className={css.turnErrorCopy}>
         <span className={css.maxTokensTitle}>{t('message.maxTokens')}</span>
         <span className={css.turnErrorMessage}>{t('message.maxTokens.hint')}</span>
+        {continueGeneration !== undefined && (
+          <button type="button" className={css.turnErrorRetry} onClick={() => { continueGeneration() }}>
+            {t('message.maxTokens.continue')}
+          </button>
+        )}
       </div>
     </div>
   )
@@ -403,8 +409,8 @@ export const TurnErrorNodeView = memo(function TurnErrorNodeView({ node, retryTu
 })
 
 /** Max-tokens turn-end notice keyed Chat renderer. */
-export const TurnMaxTokensNodeView = memo(function TurnMaxTokensNodeView({ t }: ChatNodeViewProps<'turn-max-tokens'>) {
-  return <TurnMaxTokensItem t={t} />
+export const TurnMaxTokensNodeView = memo(function TurnMaxTokensNodeView({ continueGeneration, t }: ChatNodeViewProps<'turn-max-tokens'>) {
+  return <TurnMaxTokensItem continueGeneration={continueGeneration} t={t} />
 })
 
 /** Explicit unknown-surface keyed Chat renderer. */

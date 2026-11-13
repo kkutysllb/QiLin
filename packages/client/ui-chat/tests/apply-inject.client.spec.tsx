@@ -319,6 +319,15 @@ describe('Chat inject API', () => {
     retryTurn.mockRejectedValueOnce(new Error('retry rejected'))
     injected.retryTurn?.(4)
     await Promise.resolve()
+
+    // Continue generating sends the fixed control prompt through the same
+    // assembly; its rejection also stays contained.
+    const sendText = vi.spyOn(b.runtime.ctx.uiConversation, 'sendText').mockResolvedValue(undefined)
+    injected.continueGeneration?.()
+    expect(sendText).toHaveBeenCalledWith(ROOT, 'Continue')
+    sendText.mockRejectedValueOnce(new Error('send rejected'))
+    injected.continueGeneration?.()
+    await Promise.resolve()
     await b.runtime.dispose()
   })
 

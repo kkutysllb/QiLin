@@ -321,6 +321,21 @@ export class UiConversation extends Service {
   }
 
   /**
+   * Send one prompt into a Session without touching the composer draft — the
+   * transcript "continue generating" entry. SessionId-explicit, like
+   * {@link fillDraft}; a Session without a binding is ignored.
+   * @param sessionId - target Session.
+   * @param text - prompt text sent verbatim as one text block.
+   * @returns completion; a rejected prompt rejects with the Host failure.
+   */
+  async sendText(sessionId: SessionId, text: string): Promise<void> {
+    const binding = this.sessions.binding(sessionId)
+    if (binding === undefined) return
+    const result = await binding.session.prompt([{ type: 'text', text }], 'queue')
+    if (!result.ok) throw new Error(`conversation.sendText failed: ${result.error.code}: ${result.error.message}`)
+  }
+
+  /**
    * Append `text` after one Session's composer draft, leaving the draft's
    * existing text and reference chips in place. Dispatched as the scoped
    * insert event against the revision the draft is read at, so a concurrent

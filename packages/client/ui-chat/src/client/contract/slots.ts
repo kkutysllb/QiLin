@@ -168,6 +168,12 @@ export interface ChatNodeOwnerProps {
    * @param turn - the ended turn to re-run.
    */
   retryTurn?: ((turn: number) => void) | undefined
+  /**
+   * Continue a turn the output-token cap truncated: sends one follow-up prompt
+   * so the model resumes from the retained output. Absent for owners that do
+   * not provide the wiring.
+   */
+  continueGeneration?: (() => void) | undefined
   /** Session-authorized image loader for the attachment presentation slot. */
   loadImage: MessageImageLoader
   renderMessageImages: RenderMessageImages
@@ -288,6 +294,11 @@ export interface ChatViewInjected {
    * @param turn - the ended turn to re-run.
    */
   retryTurn?: ((turn: number) => void) | undefined
+  /**
+   * Continue a turn the output-token cap truncated.
+   * Implemented by the composition wiring over the conversation service.
+   */
+  continueGeneration?: (() => void) | undefined
   /** Resolve a reference against this Session and its current path base when the gesture begins. */
   resolveFilePath: (path: string) => string
 }
@@ -297,7 +308,8 @@ export type ChatFlowDataInjected = Pick<ChatViewInjected, 'hooks' | 'keyedHooks'
 
 /** Ordered rows and reconciled local echoes rendered inside one Chat viewport. */
 export interface ChatFlowOwnerProps extends Pick<ChatNodeOwnerProps,
-  'cwd' | 'openSkill' | 'openFile' | 'inspectCall' | 'forkAt' | 'editUserMessage' | 'retryTurn' | 'loadImage'> {
+  'cwd' | 'openSkill' | 'openFile' | 'inspectCall' | 'forkAt' | 'editUserMessage' | 'retryTurn'
+  | 'continueGeneration' | 'loadImage'> {
   readonly entries: readonly RenderEntry[]
   readonly pendingInputs: readonly (PendingSubmission | InboxState['next-step'][number])[]
   readonly lastInputTurn: number | undefined

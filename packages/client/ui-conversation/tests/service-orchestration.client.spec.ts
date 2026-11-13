@@ -87,6 +87,13 @@ describe('ConversationController', () => {
       expect(b.retry).toHaveBeenCalledTimes(1)
       b.retry.mockResolvedValueOnce({ ok: false, error: new RemoteError('session/retry-rejected', 'busy', { turn: 2 }) })
       await expect(uiConversation.retryTurn('s1' as SessionId, 2)).rejects.toThrow('conversation.retryTurn failed: session/retry-rejected')
+      // The transcript "continue generating" verb sends one queued prompt and
+      // stays a no-op without a binding, like the retry verb.
+      b.prompt.mockClear()
+      await uiConversation.sendText('s1' as SessionId, 'Continue')
+      expect(b.prompt).toHaveBeenCalledWith([{ type: 'text', text: 'Continue' }], 'queue')
+      await uiConversation.sendText('absent' as SessionId, 'Continue')
+      expect(b.prompt).toHaveBeenCalledTimes(1)
     } finally {
       await b.runtime.dispose()
     }

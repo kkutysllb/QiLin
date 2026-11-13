@@ -67,7 +67,7 @@ const MOTION_TAIL_MS = 800
 export function ChatView({
   useSession, useChat, useConversation, useSessions, renderSlot,
   sessionId, openFile, openSkill, openExternalLink, loadOlder, loadThrough, loadImage,
-  openTrajectory, chatScroll, forkAt, editUserMessage, retryTurn, resolveFilePath, useContextMenu,
+  openTrajectory, chatScroll, forkAt, editUserMessage, retryTurn, continueGeneration, resolveFilePath, useContextMenu,
   usePresentation, useProjection, t,
 }: ChatViewSlotProps) {
   const { getTriggerProps } = useContextMenu()
@@ -245,6 +245,7 @@ export function ChatView({
               {renderSlot('conversation.chat.flow', {
                 entries, pendingInputs, lastInputTurn, deferCollapse,
                 cwd, openFile: requestOpenFile, openSkill, inspectCall, forkAt, loadImage, editUserMessage, retryTurn,
+                continueGeneration,
               }, { hookContext: flowContext })}
             </MarkdownDelegateProvider>
             {/* No pending placeholders: questions (ui-user-questions) and approvals

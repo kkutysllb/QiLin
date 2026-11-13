@@ -1997,6 +1997,18 @@ describe('ChatView', () => {
     expect(view2.queryByRole('button', { name: '重试' })).toBeNull()
   })
 
+  it('offers a continue action on a truncated turn and hides it without wiring', () => {
+    const continueGeneration = vi.fn()
+    const h = makeHarness({ nodes: [user(1, 'try'), turnMaxTokens(2)] })
+    const view = render(<h.ChatView {...h.props} continueGeneration={continueGeneration} />)
+    expect(view.getByRole('status').textContent).toContain('已达到输出 token 上限')
+    fireEvent.click(view.getByRole('button', { name: '继续生成' }))
+    expect(continueGeneration).toHaveBeenCalledTimes(1)
+    cleanup()
+    const unwired = render(<h.ChatView {...h.props} />)
+    expect(unwired.queryByRole('button', { name: '继续生成' })).toBeNull()
+  })
+
   it('renders every localized terminal failure and hides only the interruption code', () => {
     const h = makeHarness({
       nodes: [

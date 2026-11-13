@@ -279,6 +279,9 @@ export function apply(ctx: Context): void {
             // retry lands in promptError and needs no local state here.
             void ctx.uiConversation.retryTurn(sessionId, turn).catch(() => {})
           },
+          // The fixed control prompt reaches the model and the log verbatim;
+          // the hint above still names the typed alternative.
+          continueGeneration: () => { void ctx.uiConversation.sendText(sessionId, 'Continue').catch(() => {}) },
         }
       },
     }, ChatView)
