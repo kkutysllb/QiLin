@@ -49,7 +49,7 @@ Profile 与组合包的声明类型从 [`@qilin-agent/package-manifest`](../../u
 
 profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`headless`、`acp`、`sdk` 与 `sdk-minimal` 从同一 launcher 启动不同组合。profile 位于 `$QILIN_HOME/profiles/<name>`，由可安装组合包和自身 `cordis.patch.yml` 组成。YAML 组合决定是否启用 HMR。随产品交付的 `web` 模板实时重载，其他随附模板只在启动时应用 patch。`sdk-minimal` 只列出自身的独立组合包，其他模板保留 base 加模式的组合包栈。`qilin --profile <name> --from-default-profile <template>` 从一个随附模板，在新的非内置名称处创建自定义 profile；`qilin plugin` 则初始化以 base 为基础的 profile，并管理其中安装的组合包。安装实例与 profile 都无法解析的组合包、manifest 无法读取的组合包，或未声明 patch 的组合包，会让启动明确失败，并在诊断中点名该组合包与原因。插件管理器的恢复读取会容忍损坏的层，将其记入 `skippedBundles` 并列出，供所有者移除或修复。协调 profile 已安装依赖（`reconcileProfilePlugins`）时还会拒绝安装了上游 DSH 时代引擎包的 profile：诊断指明每个冲突包、它映射到的 QiLin 包与清除命令；bundle 列表保持不变，CLI 与 Web 插件管理器共用这一规则。由应用持有的 npm 项目（例如 Electron 保留的 Desktop profile）通过 `loadProfileDirectory` 加载已经初始化的目录，而不会将它暴露给 CLI profile 查找。
 
-产品不再分发的名字是例外：加载时会应用[退役名单](../../util/official-bundles/README.zh.md)，把该名字从 `qilin.profile.bundles` 移除、写回清理后的 manifest，并在 stderr 报告一次。因此仍选中已退役“开发者工具”组合包的 profile 会正常启动，而不是因为一个无处安装的组合包失败；把该名字声明为依赖也不会保留这一层。
+产品不再分发的名字是例外：加载时会应用[退役名单](../../util/official-bundles/README.zh.md)，把该名字从 `qilin.profile.bundles` 移除、写回清理后的 manifest，并在 stderr 报告一次。因此仍选中已退役“开发者工具”组合包的 profile 会正常启动，而不是因为一个无处安装的组合包失败；把该名字声明为依赖也不会保留这一层。迁移改名的包适用同一规则，只是多一步改写：[改名映射](../../util/official-bundles/README.zh.md)会把旧 bundle 名（及其依赖键）替换为发行版携带的新名字，因此改名之前创建的 profile 仍能启动。
 
 浏览器模板不再种下 `dsh-animations` 动效技能包：需要它的 profile 通过 `qilin plugin` 或[插件管理器](../plugin-manager/README.zh.md)自行安装，装下的副本属于 profile 所有，可原地升级或移除。加载随附 profile 时会恢复模板自身的层，并保留模板从未持有过的每一个条目，而安装实例曾经种下的条目归安装实例所有：浏览器模板曾种下的 `dsh-animations` 会在下次加载时从 profile 的列表中退役（自行添加的其他条目留在原处），装回的副本不受影响；列表等于模板加这些条目时不再写盘，因此该写入会收敛。
 

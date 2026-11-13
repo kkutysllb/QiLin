@@ -36,6 +36,10 @@ English | [中文](README.zh.md)
 
 `RETIRED_BUNDLES` names bundles the product no longer ships. A profile that still lists one keeps booting: [`@qilin-agent/app-boot`](../../boot/app-boot/README.md#profiles) drops the name from `qilin.profile.bundles` while loading the profile and reports the removal, instead of failing on a bundle nothing installs. The set carries no placement behavior: a retired name appears in no offered list.
 
+### Rename a bundle that moved
+
+`RENAMED_BUNDLES` maps a retired package name to the bundle that replaced it after a package move. App-boot rewrites the name in `qilin.profile.bundles` and its `dependencies` key while loading a profile, writes the manifest back, and reports the rewrite once on stderr. A profile created before the rename therefore keeps booting on the shipped replacement instead of failing to resolve the old name; a profile that already lists the replacement keeps one row.
+
 ### Admit a release for on-demand installation
 
 `ON_DEMAND_BUNDLES` names the public releases the Plugins page installs on demand; nothing named there ships inside the distribution. The generated offline catalog in `@qilin-agent/app-boot` carries one metadata entry per admitted name, and its freshness check rejects a catalog that disagrees with this list. The list is empty while QiLin ships no on-demand provider backend, and every consumer then offers nothing and shows no on-demand affordance.

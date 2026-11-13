@@ -744,6 +744,40 @@ describe('loadProfile', () => {
     })
   })
 
+  it('renames a bundle the installation now ships under a new name and rewrites its dependency', () => {
+    const anchor = stageInstallation({
+      '@qilin-agent/base': { patch: '[]\n' },
+      '@qilin-agent/agent-team-profile': { patch: '[]\n' },
+    })
+    const home = tmp()
+    const dir = resolveProfileDir('web', home)
+    initProfile(dir, ['@qilin-agent/base', '@qilin-agent/experimental-agent-team-profile'])
+    const manifest = readProfileManifest('t', dir)
+    writeProfileManifest(dir, {
+      ...manifest,
+      dependencies: { '@qilin-agent/experimental-agent-team-profile': 'workspace:*' },
+    })
+    const written: string[] = []
+    const write = process.stderr.write.bind(process.stderr)
+    process.stderr.write = (chunk: string | Uint8Array): boolean => { written.push(String(chunk)); return true }
+    try {
+      const profile = loadProfileDirectory('t', dir, anchor)
+      expect(profile.layers.map(layer => layer.packageName))
+        .toEqual(['@qilin-agent/base', '@qilin-agent/agent-team-profile'])
+    } finally {
+      process.stderr.write = write
+    }
+    expect(readProfileManifest('t', dir)).toMatchObject({
+      dependencies: { '@qilin-agent/agent-team-profile': 'workspace:*' },
+      qilin: {
+        profile: { bundles: ['@qilin-agent/base', '@qilin-agent/agent-team-profile'] },
+      },
+    })
+    expect(written.join('')).toContain(
+      'renamed profile bundle "@qilin-agent/experimental-agent-team-profile" to "@qilin-agent/agent-team-profile" in qilin.profile.bundles',
+    )
+  })
+
   it('drops a bundle the installation no longer ships, cleans the profile, and warns', () => {
     const anchor = stageInstallation({ '@qilin-agent/base': { patch: '[]\n' } })
     const home = tmp()

@@ -36,6 +36,10 @@ kind: "package-reference"
 
 `RETIRED_BUNDLES` 列出产品不再随发行版分发的 bundle。仍选中其名字的 profile 照常启动：[`@qilin-agent/app-boot`](../../boot/app-boot/README.zh.md#profiles) 在加载 profile 时把该名字从 `qilin.profile.bundles` 移除并报告这次移除，而不是因为一个无处安装的 bundle 启动失败。该集合不影响插件页位置：退役名字不出现在任何提供列表中。
 
+### 重命名迁移过的 bundle
+
+`RENAMED_BUNDLES` 把迁移后不再使用的包名映射到替代它的 bundle。app-boot 在加载 profile 时改写 `qilin.profile.bundles` 中的名字以及对应的 `dependencies` 键，写回清单并在 stderr 报告一次。迁移前创建的 profile 因此仍能在发行版携带的替代包上启动，而不是解析旧名字失败；已经列出替代名字的 profile 只保留一行。
+
 ### 准入一个按需安装的发布包
 
 `ON_DEMAND_BUNDLES` 列出插件页按需安装的公开发布包；其中任何包都不随发行版一起分发。`@qilin-agent/app-boot` 里生成的离线目录为每个准入名字携带一条元数据，其新鲜度检查会拒绝与这份名单不一致的目录。QiLin 不提供按需提供方后端时该名单为空，此时所有消费方都不提供任何条目，也不展示按需入口。

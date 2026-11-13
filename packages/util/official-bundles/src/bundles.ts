@@ -74,6 +74,16 @@ export const RETIRED_BUNDLES: ReadonlySet<string> = new Set([
 ])
 
 /**
+ * Bundles renamed by a package move, keyed by the retired name. App-boot
+ * rewrites the name in `qilin.profile.bundles` (and its `dependencies` key)
+ * while loading a profile, so an installation that predates the rename keeps
+ * booting on the shipped replacement without editing files by hand.
+ */
+export const RENAMED_BUNDLES: Readonly<Record<string, string>> = {
+  '@qilin-agent/experimental-agent-team-profile': '@qilin-agent/agent-team-profile',
+}
+
+/**
  * Bundles a profile's selected bundle replaces, keyed by the replacing bundle. The
  * forge bundle inserts the same `worktree` and `tool-worktree` rows the standalone
  * worktree bundle ships, so a profile that keeps both selects duplicate ids and the

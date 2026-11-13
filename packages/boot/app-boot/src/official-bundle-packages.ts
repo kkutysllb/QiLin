@@ -6,4 +6,4 @@
  * `@qilin-agent/official-bundles` beside the installation's other bundle lists,
  * so the Plugins page and the offline catalog read one source.
  */
-export { ON_DEMAND_BUNDLES, RETIRED_BUNDLES, SUPERSEDED_BUNDLES } from '@qilin-agent/official-bundles'
+export { ON_DEMAND_BUNDLES, RENAMED_BUNDLES, RETIRED_BUNDLES, SUPERSEDED_BUNDLES } from '@qilin-agent/official-bundles'

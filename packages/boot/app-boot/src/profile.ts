@@ -36,7 +36,7 @@ import { applyEntryPatches, type PatchOptions } from '@qilin-agent/kylin-plugin-
 import { resolveQilinHome } from '@qilin-agent/home-paths'
 import { bundlePatchFilesOf, bundlePatchOf, dshCompatAliasOf, dshCompatModuleId } from '@qilin-agent/dsh-compat'
 import { evaluatePluginCompatibility, pluginCompatibilityWarning } from './plugin-compatibility.ts'
-import { RETIRED_BUNDLES } from './official-bundle-packages.ts'
+import { RENAMED_BUNDLES, RETIRED_BUNDLES } from './official-bundle-packages.ts'
 import { readProfileVersionExemptions } from './profile-compatibility.ts'
 import type { QilinManifest, QilinPackageManifest } from '@qilin-agent/package-manifest'
 import { resolve as resolvePackage, type Package as ResolvePackageManifest } from 'resolve.exports'
@@ -1130,33 +1130,58 @@ function normalizeShippedProfile(name: string, dir: string, manifest: ProfileMan
 }
 
 /**
- * Drop the bundle names this installation no longer loads. A name an
- * installation-owned tuple of this profile once seeded goes when the shipped
- * template stopped carrying it, unless the profile owns the package (a
- * `dependencies` entry) or records a presentation choice for it (an `audiences`
- * entry). A name in {@link RETIRED_BUNDLES} goes regardless: no release ships it,
- * so resolving it would fail startup. {@link loadProfileDirectory} applies this to
- * every loader, not only {@link loadProfile}; the manifest is written only when a
- * name was dropped.
+ * Apply the bundle-catalog migrations to one saved profile: rename the names
+ * {@link RENAMED_BUNDLES} maps to their shipped replacement, then drop the names
+ * this installation no longer loads. A name an installation-owned tuple of this
+ * profile once seeded goes when the shipped template stopped carrying it, unless
+ * the profile owns the package (a `dependencies` entry) or records a presentation
+ * choice for it (an `audiences` entry). A name in {@link RETIRED_BUNDLES} goes
+ * regardless: no release ships it, so resolving it would fail startup.
+ * {@link loadProfileDirectory} applies this to every loader, not only
+ * {@link loadProfile}; the manifest is written only when a name was renamed or
+ * dropped.
  * @param dir - absolute profile directory.
  * @param manifest - the profile manifest as saved.
- * @returns the manifest to compose, and the names dropped because the installation
- * no longer ships them (a dropped seed the profile made its own is not reported).
+ * @returns the manifest to compose, the names dropped because the installation no
+ * longer ships them (a dropped seed the profile made its own is not reported), and
+ * the names rewritten to their renamed replacement.
  */
-function dropRetiredProfileBundles(dir: string, manifest: ProfileManifest): { manifest: ProfileManifest; retired: readonly string[] } {
+function dropRetiredProfileBundles(
+  dir: string, manifest: ProfileManifest,
+): { manifest: ProfileManifest; retired: readonly string[]; renamed: readonly { from: string; to: string }[] } {
   const bundles = profileDeclarationOf(manifest)?.profile?.bundles
-  if (bundles === undefined) return { manifest, retired: [] }
+  if (bundles === undefined) return { manifest, retired: [], renamed: [] }
+  const renamed: { from: string; to: string }[] = []
+  const current: string[] = []
+  for (const entry of bundles) {
+    const replacement = RENAMED_BUNDLES[entry]
+    if (replacement === undefined) {
+      if (!current.includes(entry)) current.push(entry)
+      continue
+    }
+    renamed.push({ from: entry, to: replacement })
+    // A profile that already lists the replacement keeps one row, not two.
+    if (!current.includes(replacement)) current.push(replacement)
+  }
+  const dependencies = new Map(Object.entries(manifest.dependencies ?? {}))
+  for (const { from, to } of renamed) {
+    const range = dependencies.get(from)
+    if (range === undefined) continue
+    dependencies.delete(from)
+    dependencies.set(to, range)
+  }
   const installationOwned = INSTALLATION_OWNED_PROFILE_TUPLES[basename(dir)]
   const template = PROFILE_TEMPLATES[basename(dir)]
   const seeded = installationOwned?.filter(name => !template?.bundles.includes(name)) ?? []
-  const dependencies = new Set(Object.keys(manifest.dependencies ?? {}))
+  const owned = new Set(dependencies.keys())
   const audiences = manifest.qilin?.profile?.audiences ?? {}
-  const retired = bundles.filter(entry => RETIRED_BUNDLES.has(entry))
-  const kept = bundles.filter(entry => !RETIRED_BUNDLES.has(entry)
-    && (!seeded.includes(entry) || dependencies.has(entry) || Object.hasOwn(audiences, entry)))
-  if (kept.length === bundles.length) return { manifest, retired: [] }
+  const retired = current.filter(entry => RETIRED_BUNDLES.has(entry))
+  const kept = current.filter(entry => !RETIRED_BUNDLES.has(entry)
+    && (!seeded.includes(entry) || owned.has(entry) || Object.hasOwn(audiences, entry)))
+  if (kept.length === bundles.length && renamed.length === 0) return { manifest, retired: [], renamed: [] }
   const normalized: ProfileManifest = {
     ...manifest,
+    ...(manifest.dependencies === undefined ? {} : { dependencies: Object.fromEntries(dependencies) }),
     qilin: {
       ...manifest.qilin,
       profile: {
@@ -1166,7 +1191,7 @@ function dropRetiredProfileBundles(dir: string, manifest: ProfileManifest): { ma
     },
   }
   writeProfileManifest(dir, normalized)
-  return { manifest: normalized, retired }
+  return { manifest: normalized, retired, renamed }
 }
 /**
  * Resolve a package's root directory from one anchor without depending on the
@@ -1422,6 +1447,10 @@ export function loadProfileDirectory(
 ): Profile {
   const dropped = dropRetiredProfileBundles(dir, readProfileManifest(binName, dir))
   const manifest = dropped.manifest
+  for (const { from, to } of dropped.renamed) {
+    process.stderr.write(binName + ': warning: renamed profile bundle ' + JSON.stringify(from) + ' to ' + JSON.stringify(to)
+      + ' in qilin.profile.bundles; this installation ships it under the new name\n')
+  }
   for (const packageName of dropped.retired) {
     process.stderr.write(binName + ': warning: dropped retired profile bundle ' + JSON.stringify(packageName)
       + ' from qilin.profile.bundles; this installation no longer ships it\n')
