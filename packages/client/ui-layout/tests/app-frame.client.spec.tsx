@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 /** Frame interactions with a real store and explicitly driven browser measurements. */
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import type { GlobalStandardProps, RenderOpts } from '@qilin-agent/client-ui-slots'
 import { allowAllAccess, bindSnapshotSelector, contextMenuHook } from '@qilin-agent/client-test-runtime'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -305,6 +307,18 @@ describe('AppFrame', () => {
     expect(tracks(frame)).toEqual([280, 0])
     expect(selectedSession).toBe(sessionId)
     expect(document.title).toBe('Session title — QILIN Local Build')
+  })
+})
+
+describe('AppFrame drawer geometry', () => {
+  const css = readFileSync(resolve(process.cwd(), 'packages/client/ui-layout/src/client/AppFrame.module.css'), 'utf8')
+
+  it('places the centre outside the zero-width sidebar track', () => {
+    // The drawer sidebar is absolutely positioned, so auto-placement would drop
+    // the centre into the 0px sidebar track and the right column would take the
+    // whole frame (the phone layout rendered blank).
+    const rule = /\.frame\[data-sidebar-drawer\] \.centerCol\s*\{([^}]*)\}/u.exec(css)?.[1] ?? ''
+    expect(rule).toMatch(/grid-column:\s*1\s*\/\s*3/u)
   })
 })
 
