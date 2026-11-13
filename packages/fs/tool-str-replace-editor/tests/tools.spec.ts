@@ -42,6 +42,7 @@ async function agent(ctx: Context, cwd: string): Promise<Agent> {
     ctx: scope.ctx,
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => ({ outcome: Promise.resolve({ status: 'rejected' as const }) }),
     inject: () => {},
     cancel() {},

@@ -183,6 +183,7 @@ async function bench(script: Script, options: BenchOptions = {}): Promise<{
       cancel: () => {},
       runMaintenance: () => Promise.reject(new Error('not used')),
       send: () => {},
+      retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
       followup: (message: UserMessage) => {
         agent.inbox.append('next-turn', message)
         idle = Promise.resolve().then(() => script.afterPrompt(session, message, agent))

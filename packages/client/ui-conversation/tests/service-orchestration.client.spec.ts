@@ -9,12 +9,13 @@ import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it, vi } from 'vitest'
 import { makeTranslate, RemoteError, SlotTestRuntime } from '@qilin-agent/client-test-runtime'
 import type {
-  BeginSubmissionInput, PendingSubmissionRetirement,
+  BeginSubmissionInput, PendingSubmissionRetirement, SessionFace,
 } from '@qilin-agent/api-session-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import { ComposerBlockRegistry } from '../src/client/input/blocks.ts'
 import { InputHub } from '../src/client/input/hub.ts'
 import { ConversationController } from '../src/client/service.ts'
+import { UiConversation } from '../src/client/conversation/assembly.ts'
 import { zh } from '../src/client/locales.ts'
 
 async function bench(maxConcurrentFileUploads = 2) {
@@ -31,10 +32,11 @@ async function bench(maxConcurrentFileUploads = 2) {
   ) => Promise.resolve({ ok: true as const, value: { accepted: true as const } }))
   const updateQueue = vi.fn(() => Promise.resolve({ ok: true as const, value: { accepted: true as const } }))
   const cancel = vi.fn(() => Promise.resolve({ ok: true as const, value: { accepted: true as const } }))
+  const retry = vi.fn<SessionFace['retry']>(() => Promise.resolve({ ok: true, value: { accepted: true } }))
   const loadOlder = vi.fn(() => Promise.resolve())
   await runtime.sessions.add({
     id: 's1',
-    session: { prompt, updateQueue, cancel, loadOlder },
+    session: { prompt, updateQueue, cancel, loadOlder, retry },
   })
   const reference = runtime.sessions.retain('s1' as SessionId)
   await reference.ready
@@ -50,7 +52,7 @@ async function bench(maxConcurrentFileUploads = 2) {
   const root = runtime.ctx.get('conversation') as ConversationController
   const scoped = runtime.sessions.scope('s1')!.get('conversation') as ConversationController
   const shell = hub.shellFor(runtime.sessions.binding('s1')!)
-  return { runtime, fiber, root, scoped, hub, shell, prompt, updateQueue, cancel, loadOlder, reference }
+  return { runtime, fiber, root, scoped, hub, shell, prompt, updateQueue, cancel, retry, loadOlder, reference }
 }
 
 describe('ConversationController', () => {
@@ -67,6 +69,24 @@ describe('ConversationController', () => {
       await b.runtime.flush()
       expect(b.prompt).not.toHaveBeenCalled()
       retain.mockRestore()
+    } finally {
+      await b.runtime.dispose()
+    }
+  })
+
+  it('retries one ended turn through the binding and rejects with the Host failure', async () => {
+    const b = await bench()
+    try {
+      // The transcript assembly owns the SessionId-explicit verb the Chat wiring calls.
+      const uiConversation = new UiConversation(b.runtime.ctx, b.runtime.sessions, 2)
+      await uiConversation.retryTurn('s1' as SessionId, 2)
+      expect(b.retry).toHaveBeenCalledWith(2)
+      // A Session without a binding is a silent no-op: the failure it would
+      // report belongs to a view that is no longer mounted.
+      await uiConversation.retryTurn('absent' as SessionId, 2)
+      expect(b.retry).toHaveBeenCalledTimes(1)
+      b.retry.mockResolvedValueOnce({ ok: false, error: new RemoteError('session/retry-rejected', 'busy', { turn: 2 }) })
+      await expect(uiConversation.retryTurn('s1' as SessionId, 2)).rejects.toThrow('conversation.retryTurn failed: session/retry-rejected')
     } finally {
       await b.runtime.dispose()
     }

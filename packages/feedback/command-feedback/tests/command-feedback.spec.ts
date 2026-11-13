@@ -41,6 +41,7 @@ function stubAgent(ctx: Context, id: string): { agent: Agent; session: Session }
     get status() { return status },
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => {},
     inject: () => {},
     cancel() { status = 'idle' },

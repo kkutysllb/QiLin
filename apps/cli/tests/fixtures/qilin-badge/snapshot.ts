@@ -29,6 +29,7 @@ try {
     status: 'idle',
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => {},
     inject: () => { throw new Error('qilin-badge snapshot must receive the catalog at the step boundary') },
     cancel: () => {},

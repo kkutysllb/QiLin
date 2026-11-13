@@ -52,6 +52,8 @@ import type {
   SessionPageRequest,
   SessionPromptRequest,
   SessionPromptValue,
+  SessionRetryRequest,
+  SessionRetryValue,
   SessionRenameRequest,
   SessionRenameValue,
   SessionSearchRequest,
@@ -457,6 +459,20 @@ export class SessionController extends TypertRemoteService {
       ...(principal === undefined ? {} : { principal }),
     }
     return this.commands.prompt(request, source)
+  }
+
+  /**
+   * Re-run the last ended turn over its existing surface with no new human input.
+   * The turn records a `turn/retry` marker instead of admitting another
+   * `user/message`, so replay never counts the retry as fresh input.
+   * @param request - Session identity and the exact last ended turn to re-run.
+   * @param signal - caller cancellation before the directive is admitted.
+   * @returns acknowledgement that the Agent accepted the retry.
+   */
+  @Remote('retry')
+  async retry(request: SessionRetryRequest, signal: AbortSignal): Promise<SessionRetryValue> {
+    signal.throwIfAborted()
+    return this.commands.retry(request)
   }
 
   /**

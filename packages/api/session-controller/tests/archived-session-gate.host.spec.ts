@@ -34,6 +34,7 @@ async function liveAgent(ctx: Context, session: Session): Promise<Agent> {
     ctx,
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => {},
     inject: () => {},
     cancel: () => {},

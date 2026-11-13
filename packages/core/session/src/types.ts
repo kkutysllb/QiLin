@@ -288,6 +288,14 @@ export interface SessionEventMap {
    */
   'turn/start': { turn: number }
   /**
+   * A turn re-run over the existing surface with no new input: the caller
+   * retried the earlier `retriedTurn` instead of sending new content. Log-only;
+   * it records that the turn's model call replays the conversation the earlier
+   * turn already ended with, so a reader never counts the retry as new
+   * human input.
+   */
+  'turn/retry': { turn: number; retriedTurn: number }
+  /**
    * Closes turn `turn` with the {@link TurnEndReason} that ended it. A turn
    * with no entered step has no `step/start` or `step/end`. The loop does not await a
    * flush at turn boundaries: `qilin-session-checkpoint-policy` owns the

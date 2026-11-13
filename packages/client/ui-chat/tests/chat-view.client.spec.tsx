@@ -1974,6 +1974,29 @@ describe('ChatView', () => {
     ])
   })
 
+  it('offers a retry action on a failed turn and names the ended turn', () => {
+    const retryTurn = vi.fn()
+    const h = makeHarness({ nodes: [user(1, 'try'), turnError(2, 'AUTH')] })
+    const view = render(<h.ChatView {...h.props} retryTurn={retryTurn} />)
+    fireEvent.click(view.getByRole('button', { name: '重试' }))
+    expect(retryTurn).toHaveBeenCalledWith(1)
+  })
+
+  it('omits the retry action without wiring and for a signed-out turn', () => {
+    const h = makeHarness({ nodes: [user(1, 'try'), turnError(2, 'AUTH')] })
+    const unwired = render(<h.ChatView {...h.props} />)
+    expect(unwired.queryByRole('button', { name: '重试' })).toBeNull()
+    cleanup()
+    const signedOut = render(<h.ChatView {...h.props} retryTurn={() => {}} />)
+    expect(signedOut.queryByRole('button', { name: '重试' })).not.toBeNull()
+    cleanup()
+    const h2 = makeHarness({
+      nodes: [user(1, 'try'), { ...turnError(2), code: 'ACCOUNT_SIGNED_OUT', message: 'Stopped because you signed out of DeepSeek.' }],
+    })
+    const view2 = render(<h2.ChatView {...h2.props} retryTurn={() => {}} />)
+    expect(view2.queryByRole('button', { name: '重试' })).toBeNull()
+  })
+
   it('renders every localized terminal failure and hides only the interruption code', () => {
     const h = makeHarness({
       nodes: [

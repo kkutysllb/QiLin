@@ -288,6 +288,28 @@
   font: var(--qilin-font-markdown-code-block-small);
 }
 
+.turnErrorRetry {
+  margin-left: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--qilin-alias-link);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.turnErrorRetry:hover {
+  text-decoration-thickness: 2px;
+}
+
+.turnErrorRetry:focus-visible {
+  /* The shared focus rule owns ring color and width; this keeps it clear of
+     the text underline it wraps. */
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .maxTokensTitle {
   margin-right: 6px;
   color: var(--qilin-alias-state-warn-primary);

@@ -39,6 +39,7 @@ async function liveAgent(ctx: Context, session: Session, initial: AgentStatus): 
     ctx,
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => {},
     inject: () => {},
     cancel: (cause, options) => { cancels.push([cause, options]) },

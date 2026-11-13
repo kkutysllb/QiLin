@@ -382,6 +382,7 @@ export function testAgent(ctx: Context, session: Session): TestAgent {
       if (wakeup) wake()
     },
     followup(message) { agent.send(message, 'next-turn', true) },
+    retry() { throw new Error('retry is not supported by this Agent stand-in') },
     steer(message) { agent.send(message, 'next-step', true) },
     inject(message) { agent.send(message, 'next-step', false) },
     cancel(cause, options = {}) {

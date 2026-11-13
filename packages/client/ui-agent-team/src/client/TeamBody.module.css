@@ -108,8 +108,7 @@
   cursor: default;
 }
 
-.member:not(:disabled):hover,
-.member:not(:disabled):focus-visible {
+.member:not(:disabled):hover {
   --qilin-elevation-stroke-color: var(--qilin-alias-border-l3);
   box-shadow: var(--qilin-elevation-panel);
 }

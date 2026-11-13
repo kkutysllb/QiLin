@@ -43,6 +43,8 @@ import type {
   SessionForkValue,
   SessionPromptRequest,
   SessionPromptValue,
+  SessionRetryRequest,
+  SessionRetryValue,
   SessionRenameRequest,
   SessionRenameValue,
   SessionSelectModelRequest,
@@ -342,6 +344,27 @@ export class SessionCommandController {
       }
     }
     return { sessionId: childId }
+  }
+
+  /**
+   * Admit one retry directive on a live or resumable Agent.
+   * @param request - Session identity and the exact last ended turn to re-run.
+   * @returns acceptance after the Agent claimed the directive.
+   * @throws {RemoteError} `session/not-found` for an unknown Session and
+   *   `session/retry-rejected` when the Agent is busy or the coordinate is stale.
+   */
+  async retry(request: SessionRetryRequest): Promise<SessionRetryValue> {
+    const agent = await this.resolveAgent(request.sessionId)
+    try {
+      agent.retry(request.turn)
+    } catch (error: unknown) {
+      throw new RemoteError(
+        'session/retry-rejected',
+        error instanceof Error ? error.message : String(error),
+        { turn: request.turn },
+      )
+    }
+    return { accepted: true }
   }
 
   /**

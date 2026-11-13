@@ -55,6 +55,7 @@ function sessionAgent(session: Session, id = 'agent'): Agent {
     ctx: new Context(),
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => {},
     inject: () => { throw new Error('time-context must append directly to the open step') },
     cancel() {},

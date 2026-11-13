@@ -305,6 +305,22 @@ export class UiConversation extends Service {
   }
 
   /**
+   * Re-run one Session's last ended turn over its existing surface with no new
+   * human input. The Host records the `turn/retry` marker instead of admitting
+   * another `user/message`. SessionId-explicit, like {@link fillDraft}; a
+   * Session without a binding is ignored.
+   * @param sessionId - target Session.
+   * @param turn - exact last ended turn to re-run.
+   * @returns completion; a rejected retry rejects with the Host failure.
+   */
+  async retryTurn(sessionId: SessionId, turn: number): Promise<void> {
+    const binding = this.sessions.binding(sessionId)
+    if (binding === undefined) return
+    const result = await binding.session.retry(turn)
+    if (!result.ok) throw new Error(`conversation.retryTurn failed: ${result.error.code}: ${result.error.message}`)
+  }
+
+  /**
    * Append `text` after one Session's composer draft, leaving the draft's
    * existing text and reference chips in place. Dispatched as the scoped
    * insert event against the revision the draft is read at, so a concurrent

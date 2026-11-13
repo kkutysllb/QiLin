@@ -90,6 +90,14 @@ export interface ISession {
     requestId?: SessionRequestId,
   ): Promise<RemoteResult<{ accepted: true }>>
   /**
+   * Re-run the last ended turn over its existing surface with no new human
+   * input. The Host records a `turn/retry` marker, so replay never counts the
+   * retry as fresh input. Supported on host sessions only.
+   * @param turn - exact last ended turn to re-run.
+   * @returns acceptance, or the business error (also mirrored into snapshot.promptError).
+   */
+  retry(turn: number): Promise<RemoteResult<{ accepted: true }>>
+  /**
    * Resolve one durable image referenced by this session.
    * @param attachmentId - opaque id found in the folded session log.
    * @returns the authenticated reference and decoded bytes.

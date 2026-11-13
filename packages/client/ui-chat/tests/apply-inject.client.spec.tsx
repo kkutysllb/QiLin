@@ -310,6 +310,15 @@ describe('Chat inject API', () => {
     const fillDraft = vi.spyOn(b.runtime.ctx.uiConversation, 'fillDraft')
     injected.editUserMessage?.('edited text')
     expect(fillDraft).toHaveBeenCalledWith(ROOT, 'edited text')
+
+    // The retry action re-runs the ended turn through the same assembly verb;
+    // its rejection is already surfaced on the Session and stays contained here.
+    const retryTurn = vi.spyOn(b.runtime.ctx.uiConversation, 'retryTurn').mockResolvedValue(undefined)
+    injected.retryTurn?.(3)
+    expect(retryTurn).toHaveBeenCalledWith(ROOT, 3)
+    retryTurn.mockRejectedValueOnce(new Error('retry rejected'))
+    injected.retryTurn?.(4)
+    await Promise.resolve()
     await b.runtime.dispose()
   })
 

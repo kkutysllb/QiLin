@@ -61,7 +61,7 @@ export type OpenState = 'cold' | 'loading' | 'open' | 'error'
 
 /** Send/stop failure surfaced by Session consumers. */
 export interface PromptError {
-  readonly op: 'send' | 'stop'
+  readonly op: 'send' | 'stop' | 'retry'
   readonly error: RemoteFailure
 }
 

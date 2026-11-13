@@ -53,6 +53,7 @@ function stubAgent(ctx: Context, rawId: string, presetScope?: ScopeKey): Agent {
     ctx: agentCtx,
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => ({ outcome: Promise.resolve({ status: 'rejected' as const }) }),
     inject: () => {},
     cancel() {},

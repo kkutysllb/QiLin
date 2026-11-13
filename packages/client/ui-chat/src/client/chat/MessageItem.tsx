@@ -140,16 +140,25 @@ function ModelRetryItem({ node, active, t }: {
 }
 
 /** Persistent, turn-positioned feedback for a terminal failure. */
-function TurnErrorItem({ node, t }: {
+function TurnErrorItem({ node, retryTurn, t }: {
   node: TurnErrorNode
+  retryTurn?: ((turn: number) => void) | undefined
   t: ChatViewSlotProps['t']
 }) {
+  // A signed-out turn cannot re-run until the account returns; every other
+  // failure keeps the retry action.
+  const retry = retryTurn !== undefined && node.code !== 'ACCOUNT_SIGNED_OUT' ? retryTurn : undefined
   return (
     <div className={css.turnErrorRow} role="status">
       <StateDot state="error" className={css.turnErrorDot} />
       <div className={css.turnErrorCopy}>
         <span className={css.turnErrorTitle}>{node.code === 'ACCOUNT_SIGNED_OUT' || node.code === 'INTERRUPTED' ? t('message.taskStopped') : t('message.turnError')}</span>
         <span className={css.turnErrorMessage}>{failureMessage(node.message, node.code, t)}</span>
+        {retry !== undefined && (
+          <button type="button" className={css.turnErrorRetry} onClick={() => { retry(node.turn) }}>
+            {t('message.turnError.retry')}
+          </button>
+        )}
       </div>
       {node.code !== undefined && node.code !== 'INTERRUPTED' && <code className={css.turnErrorCode}>{node.code}</code>}
     </div>
@@ -389,8 +398,8 @@ export const RetryNodeView = memo(function RetryNodeView({ node, t }: ChatNodeVi
 })
 
 /** Terminal turn-error keyed Chat renderer. */
-export const TurnErrorNodeView = memo(function TurnErrorNodeView({ node, t }: ChatNodeViewProps<'turn-error'>) {
-  return <TurnErrorItem node={node.data} t={t} />
+export const TurnErrorNodeView = memo(function TurnErrorNodeView({ node, retryTurn, t }: ChatNodeViewProps<'turn-error'>) {
+  return <TurnErrorItem node={node.data} retryTurn={retryTurn} t={t} />
 })
 
 /** Max-tokens turn-end notice keyed Chat renderer. */

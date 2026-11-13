@@ -40,6 +40,7 @@ async function agent(ctx: Context): Promise<Agent> {
     get status() { return status },
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => {},
     inject: () => {},
     cancel() { status = 'idle' },

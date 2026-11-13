@@ -29,6 +29,7 @@ export async function registerAgent(ctx: Context, rawId: string): Promise<Agent 
     ctx: scopeFiber.ctx,
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => {},
     inject: () => {},
     cancel: () => {},

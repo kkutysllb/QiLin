@@ -106,6 +106,8 @@ export class ReactLoopAgent implements Agent {
    * existing claim and the step it opens.
    */
   private readonly stagedStepInput: UserMessage[] = []
+  /** Last ended turn a pending retry re-runs; consumed by the turn it opens. */
+  private pendingRetry: number | undefined
 
   /** The agent-scoped registration boundary; the lifecycle owner unwinds it after the driver exits. */
   readonly scope: Scope
@@ -169,6 +171,15 @@ export class ReactLoopAgent implements Agent {
 
   followup(input: UserMessage): void {
     this.send(input, 'next-turn', true)
+  }
+
+  retry(retriedTurn: number): void {
+    if (this.phase.kind !== 'idle') throw new Error(`agent "${this.id}": retry requires an idle agent`)
+    if (retriedTurn !== this.phase.lastTurn) {
+      throw new Error(`agent "${this.id}": retry must name the last ended turn ${this.phase.lastTurn}`)
+    }
+    this.pendingRetry = retriedTurn
+    this.wakeDriver()
   }
 
   steer(input: UserMessage): void {
@@ -344,8 +355,13 @@ export class ReactLoopAgent implements Agent {
     const { signal } = phase.abort
     signal.throwIfAborted()
     const turn = phase.turn + 1
+    // A pending retry names the turn this one re-runs; consuming it here keeps
+    // the marker inside the turn it opened.
+    const retriedTurn = this.pendingRetry
     try {
       this.session.append('turn/start', { turn })
+      this.pendingRetry = undefined
+      if (retriedTurn !== undefined) this.session.append('turn/retry', { turn, retriedTurn })
     } catch (error: unknown) {
       this.throwError(error)
     }
@@ -363,8 +379,9 @@ export class ReactLoopAgent implements Agent {
         }
         if (turnEnds && decision.messages.length === 0) break
         // A removed waking message or an enter decision rewritten to empty
-        // still owns the initial turn boundary, but it spends no model call.
-        if (phase.step === 0 && decision.messages.length === 0) {
+        // still owns the initial turn boundary, but it spends no model call. A
+        // retry spends one on the surface the earlier turn already ended with.
+        if (phase.step === 0 && decision.messages.length === 0 && retriedTurn === undefined) {
           turnEnds = { kind: 'completed' }
           return false
         }

@@ -56,7 +56,7 @@ interface AgentHandle {
 
 ## Agent 句柄
 
-`Agent` 是每个插件（UI、钩子、orchestrator）面向编程的 surface；`ctx.agents.get(id)` 返回它，[发起者作用域](#initiating-agent)携带它。具体实现为 qilin-agent-loop 包内部细节；循环外没有任何组件依赖它。统一的 `send` 方法直接暴露 target 与 wakeup 路由；`followup`、`steer` 与 `inject` 是固定预设的别名方法。
+`Agent` 是每个插件（UI、钩子、orchestrator）面向编程的 surface；`ctx.agents.get(id)` 返回它，[发起者作用域](#initiating-agent)携带它。具体实现为 qilin-agent-loop 包内部细节；循环外没有任何组件依赖它。统一的 `send` 方法直接暴露 target 与 wakeup 路由；`followup`、`steer` 与 `inject` 是固定预设的别名方法。`retry` 是唯一不接纳输入却要花一次模型调用的指令：该轮重跑上一轮已经结束时的 surface。
 
 源码：[`packages/core/agent/src/types.ts`](../../packages/core/agent/src/types.ts)
 
@@ -123,6 +123,18 @@ interface Agent {
    * @param message - identified prompt content and the source that supplied it.
    */
   followup(message: UserMessage): void
+
+  /**
+   * Re-run the last ended turn over the existing surface with no new input. The
+   * loop opens a turn, records `turn/retry` for it, and spends one model call on
+   * the conversation the earlier turn ended with; no `user/message` is admitted,
+   * so a reader never counts the retry as new human input. The caller decides
+   * when a retry is meaningful — the shipped UI offers it after a failed turn.
+   * @param retriedTurn - the exact last ended turn this retry re-runs.
+   * @throws synchronously when the agent is not idle or the named turn is not
+   *   the last ended turn.
+   */
+  retry(retriedTurn: number): void
 
   /**
    * Submit steering for the nearest step. An idle driver starts a turn;

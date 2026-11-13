@@ -52,7 +52,7 @@ interface AgentHandle {
 
 ## The agent handle
 
-`Agent` is the surface every plugin (UI, hooks, orchestrators) programs against; `ctx.agents.get(id)` returns it, and the [initiator scope](#initiating-agent) carries it. The concrete implementation is package-internal to qilin-agent-loop; nothing outside the loop depends on it. The unified `send` method exposes target and wakeup routing directly; `followup`, `steer`, and `inject` are fixed-preset aliases.
+`Agent` is the surface every plugin (UI, hooks, orchestrators) programs against; `ctx.agents.get(id)` returns it, and the [initiator scope](#initiating-agent) carries it. The concrete implementation is package-internal to qilin-agent-loop; nothing outside the loop depends on it. The unified `send` method exposes target and wakeup routing directly; `followup`, `steer`, and `inject` are fixed-preset aliases. `retry` is the one directive that spends a model call without admitting input: the turn re-runs the surface the last ended turn already had.
 
 Source: [`packages/core/agent/src/types.ts`](../../packages/core/agent/src/types.ts)
 
@@ -119,6 +119,18 @@ interface Agent {
    * @param message - identified prompt content and the source that supplied it.
    */
   followup(message: UserMessage): void
+
+  /**
+   * Re-run the last ended turn over the existing surface with no new input. The
+   * loop opens a turn, records `turn/retry` for it, and spends one model call on
+   * the conversation the earlier turn ended with; no `user/message` is admitted,
+   * so a reader never counts the retry as new human input. The caller decides
+   * when a retry is meaningful — the shipped UI offers it after a failed turn.
+   * @param retriedTurn - the exact last ended turn this retry re-runs.
+   * @throws synchronously when the agent is not idle or the named turn is not
+   *   the last ended turn.
+   */
+  retry(retriedTurn: number): void
 
   /**
    * Submit steering for the nearest step. An idle driver starts a turn;

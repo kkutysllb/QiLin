@@ -217,6 +217,7 @@ declare module '@qilin-agent/typert-protocol' {
     'session/writer-held': { readonly sessionId: SessionId }
     'session/agent-busy': { readonly reason: string }
     'session/invalid-time-zone': { readonly value: string }
+    'session/retry-rejected': { readonly turn: number }
     'session/workspace-attach-failed': { readonly sessionId: SessionId; readonly workspaceId: string }
     'agent-preset/conflict': {
       readonly sessionId: SessionId
@@ -457,6 +458,18 @@ export interface SessionPromptRequest {
 
 /** Receipt after one prompt enters the target Agent inbox. */
 export interface SessionPromptValue {
+  readonly accepted: true
+}
+
+/** Request to re-run the last ended turn over its existing surface with no new input. */
+export interface SessionRetryRequest {
+  readonly sessionId: SessionId
+  /** Exact last ended turn to re-run; the Host refuses any other coordinate. */
+  readonly turn: number
+}
+
+/** Receipt after one retry directive enters the target Agent. */
+export interface SessionRetryValue {
   readonly accepted: true
 }
 

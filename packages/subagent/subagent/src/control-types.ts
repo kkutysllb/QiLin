@@ -157,5 +157,7 @@ declare module '@qilin-agent/typert-protocol' {
     'subagent/attachment-invalid': { readonly reason: string }
     /** The child exists but its inbox cannot admit the message now. */
     'subagent/delivery-unavailable': { readonly childSessionId: SessionId }
+    /** A continuation address has no Host-owned turn to re-run. */
+    'subagent/retry-unavailable': { readonly reason: string }
   }
 }

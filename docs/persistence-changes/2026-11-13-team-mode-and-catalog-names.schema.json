@@ -533,6 +533,77 @@
           }
         ]
       }
+    },
+    {
+      "key": "event:turn/retry",
+      "kind": "event",
+      "event": "turn/retry",
+      "surface": false,
+      "digest": "8b4eb3a7b4d7ba2881c46d0a4529c38a10907c93ef35f886f96b7b606cf29563",
+      "schema": {
+        "root": 0,
+        "nodes": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "data",
+                "type": 1,
+                "optional": false
+              },
+              {
+                "name": "ignorable",
+                "type": 3,
+                "optional": true
+              },
+              {
+                "name": "seq",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "time",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "type",
+                "type": 4,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "retriedTurn",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "turn",
+                "type": 2,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "primitive",
+            "type": "number"
+          },
+          {
+            "kind": "literal",
+            "value": true
+          },
+          {
+            "kind": "literal",
+            "value": "turn/retry"
+          }
+        ]
+      }
     }
   ],
   "types": []

@@ -274,6 +274,11 @@ export function apply(ctx: Context): void {
             // scope-addressed service inject that cordis would reject here.
             ctx.uiConversation.fillDraft(sessionId, text)
           },
+          retryTurn: (turn) => {
+            // The Session snapshot already carries the failure; a rejected
+            // retry lands in promptError and needs no local state here.
+            void ctx.uiConversation.retryTurn(sessionId, turn).catch(() => {})
+          },
         }
       },
     }, ChatView)

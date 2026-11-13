@@ -191,6 +191,7 @@ export function agentFor(ctx: Context, id = 'original', meta?: CreateSessionOpti
   return {
     id: session.id, session, ctx: ctx.extend(), options: {}, status: 'idle', inbox: unsupportedInbox(),
     followup: vi.fn<(message: UserMessage) => void>(), inject: vi.fn<(message: UserMessage) => void>(),
+    retry() { throw new Error('retry is not supported by this Agent stand-in') },
     send() {}, steer() {}, cancel() {},
     whenIdle: async () => {}, runMaintenance: operation => operation(new AbortController().signal),
   }

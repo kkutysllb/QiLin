@@ -334,6 +334,32 @@ export class Session implements SessionFace {
    * authority works without a live parent Agent.
    * @returns the cancel result.
    */
+  /**
+   * Re-run the last ended turn with no new input; failures land in promptError
+   * like other prompt operations. A subagent address has no Host-owned turn to
+   * re-run, so it reports the same unsupported shape as file continuation.
+   * @param turn - exact last ended turn to re-run.
+   * @returns the retry result (also mirrored into promptError on failure).
+   */
+  async retry(turn: number): Promise<RemoteResult<{ accepted: true }>> {
+    if (this.address !== undefined) {
+      return {
+        ok: false,
+        error: new RemoteError(
+          'subagent/retry-unavailable',
+          'subagent continuation does not support turn retry',
+          { reason: 'SUBAGENT_RETRY_UNSUPPORTED' },
+        ),
+      }
+    }
+    const result = await this.remote.session.retry({ sessionId: this.sessionId, turn })
+    if (!result.ok) {
+      this.promptError = { op: 'retry', error: result.error }
+      this.notifier.markDirty()
+    }
+    return result
+  }
+
   async cancel(): Promise<RemoteResult<{ accepted: true }>> {
     const address = this.address
     const result = address !== undefined

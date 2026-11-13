@@ -62,6 +62,7 @@ function stubAgent(rawId: string, supplied?: Session, suppliedCtx?: Context): St
     ctx: agentCtx,
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => ({ outcome: Promise.resolve({ status: 'rejected' as const }) }),
     inject(input) {
       this.inbox.append('next-step', input)

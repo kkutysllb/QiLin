@@ -9,7 +9,7 @@ English | [中文](2026-11-13-team-mode-and-catalog-names.zh.md)
 
 ## Summary
 
-Records Team mode as a required Session fact and admits the named subagent catalog fact into the same writer generation.
+Records Team mode and the retry control input as required Session facts and admits the named subagent catalog fact into the same writer generation.
 
 ## Table of Contents
 
@@ -38,17 +38,21 @@ changes:
     previous: null
     after: "a3c2d8bf46d07299ae6a8ffc0b3762a66e0b0c33210a2d7fcb481f9ceb745275"
     decision: version-bump
+  - root: "event:turn/retry"
+    previous: null
+    after: "8b4eb3a7b4d7ba2881c46d0a4529c38a10907c93ef35f886f96b7b606cf29563"
+    decision: version-bump
 ```
 
 <a id="compatibility"></a>
 ## Compatibility
 
-The writer stamps SessionHeader.version 7. A V6 reader refuses a log containing team/mode because the event is not ignorable, instead of reconstructing a Session that silently ignores its mode. V7 readers still read every V6 log: the V6-to-V7 edge steps only the header version, and catalog facts keep their versions 0 through 2 meaning while version 3 adds the name field. Team mode is log-only and never enters the model-visible surface, and a Session that never entered Team mode records no such event.
+The writer stamps SessionHeader.version 7. A V6 reader refuses a log containing team/mode or turn/retry because neither event is ignorable, instead of reconstructing a Session that silently ignores its Team mode or counts a retry as fresh input. V7 readers still read every V6 log: the V6-to-V7 edge steps only the header version, and catalog facts keep their versions 0 through 2 meaning while version 3 adds the name field. Team mode is log-only; a retry admits no user message, so replay keeps exactly one human input for the turn it re-runs.
 
 <a id="verification"></a>
 ## Verification
 
-pnpm exec vitest run packages/session/session-format-v6-to-v7/tests: 38 tests passed. pnpm exec vitest run packages/team/agent-team/tests: 85 tests passed. pnpm run verify-persistence-formats: v0 through v7 verified (8 complete references).
+pnpm exec vitest run packages/session/session-format-v6-to-v7/tests: 38 tests passed. pnpm exec vitest run packages/team/agent-team/tests: 85 tests passed. pnpm exec vitest run packages/core/agent-loop/tests/retry.spec.ts: 3 tests passed. pnpm run verify-persistence-formats: v0 through v7 verified (8 complete references).
 
 <a id="dev-note"></a>
 ## Dev Note

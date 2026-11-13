@@ -478,10 +478,14 @@ describe('prompt and cancel errors', () => {
     await session.open()
     const prompted = await session.prompt([{ type: 'text', text: '继续' }], 'queue')
     const steered = await session.prompt([{ type: 'text', text: '现在处理' }], 'steer')
+    // A continuation has no Host-owned turn to re-run, so retry reports the
+    // unsupported shape without reaching the wire.
+    const retried = await session.retry(1)
     const cancelled = await session.cancel()
 
     expect(prompted).toEqual({ ok: true, value: { accepted: true } })
     expect(steered).toEqual({ ok: true, value: { accepted: true } })
+    expect(retried).toMatchObject({ ok: false, error: { code: 'subagent/retry-unavailable' } })
     expect(cancelled).toEqual({ ok: true, value: { accepted: true } })
     expect(mock.log.requests(FOLLOW)).toEqual([
       { address: { kind: 'subagent', ...CHILD }, assistantStream: true, maxMessages: 50 },
@@ -507,6 +511,7 @@ describe('prompt and cancel errors', () => {
     // Positional parameters cross the wire as positional args.
     expect(mock.log.calls('subagents/interruptByParent').map(call => call.args)).toEqual([[SID, PARENT, 'continuable']])
     expect(mock.log.requests('session/prompt')).toEqual([])
+    expect(mock.log.requests('session/retry')).toEqual([])
     expect(mock.log.requests('session/cancel')).toEqual([])
     // A successful interrupt leaves no stop error behind.
     expect(session.getSnapshot().promptError).toBeNull()
@@ -755,6 +760,17 @@ describe('remaining branches', () => {
     mock.remote.session.cancel.mockResolvedValue(err(new RemoteError('session/agent-busy', 'nope', { reason: 'r' })))
     await session.cancel()
     expect(session.getSnapshot().promptError).toMatchObject({ op: 'stop', error: { code: 'session/agent-busy' } })
+  })
+
+  it('retry admits the exact ended turn and lands a rejection in op=retry promptError', async ({ mock, start }) => {
+    const session = await sessionBench(mock, start, SID)
+    mock.remote.session.retry.mockResolvedValue(ok({ accepted: true }))
+    await session.retry(3)
+    expect(mock.remote.session.retry).toHaveBeenCalledWith({ sessionId: SID, turn: 3 })
+    expect(session.getSnapshot().promptError).toBeNull()
+    mock.remote.session.retry.mockResolvedValue(err(new RemoteError('session/retry-rejected', 'busy', { turn: 3 })))
+    await session.retry(3)
+    expect(session.getSnapshot().promptError).toMatchObject({ op: 'retry', error: { code: 'session/retry-rejected' } })
   })
 
   it('loadOlder guards: not-open/no-hasMore no-op, err result kept window, empty page updates hasMore, throw fail-soft', async ({ mock, start }) => {

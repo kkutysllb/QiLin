@@ -62,6 +62,7 @@ function stubAgentForSession(session: Session, suppliedCtx?: Context): StubAgent
     status: 'idle',
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => {},
     inject(input) { this.inbox.append('next-step', input) },
     cancel() {},

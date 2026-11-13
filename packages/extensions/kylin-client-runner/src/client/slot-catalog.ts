@@ -272,7 +272,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.chat.assistant-actions\', () => ctx.slots.register(\n      { name: \'conversation.chat.assistant-actions\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:385',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:397',
   },
   {
     key: 'conversation.chat.commandview',
@@ -324,7 +324,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     occupants: [],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.chat.commandview\', () => ctx.slots.register(\n      { name: \'conversation.chat.commandview\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:373',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:385',
   },
   {
     key: 'conversation.chat.flow',
@@ -334,7 +334,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     doc: 'Ordered Chat rows and local echoes with viewport-bound visibility hooks.',
     registerOptions: [],
     ownerProps: [
-      '/** Ordered rows and reconciled local echoes rendered inside one Chat viewport. */\nexport interface ChatFlowOwnerProps extends Pick<ChatNodeOwnerProps,\n  \'cwd\' | \'openSkill\' | \'openFile\' | \'inspectCall\' | \'forkAt\' | \'editUserMessage\' | \'loadImage\'> {\n  readonly entries: readonly RenderEntry[]\n  readonly pendingInputs: readonly (PendingSubmission | InboxState[\'next-step\'][number])[]\n  readonly lastInputTurn: number | undefined\n  readonly deferCollapse: boolean\n}',
+      '/** Ordered rows and reconciled local echoes rendered inside one Chat viewport. */\nexport interface ChatFlowOwnerProps extends Pick<ChatNodeOwnerProps,\n  \'cwd\' | \'openSkill\' | \'openFile\' | \'inspectCall\' | \'forkAt\' | \'editUserMessage\' | \'retryTurn\' | \'loadImage\'> {\n  readonly entries: readonly RenderEntry[]\n  readonly pendingInputs: readonly (PendingSubmission | InboxState[\'next-step\'][number])[]\n  readonly lastInputTurn: number | undefined\n  readonly deferCollapse: boolean\n}',
     ],
     ownerPropsReferences: [
       'ChatNodeOwnerProps',
@@ -371,7 +371,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.chat.flow\', () => ctx.slots.register(\n      { name: \'conversation.chat.flow\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:336',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:348',
   },
   {
     key: 'conversation.chat.node',
@@ -388,7 +388,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       },
     ],
     ownerProps: [
-      '/** Stable owner currency delivered to a keyed Chat renderer. */\nexport interface ChatNodeOwnerProps {\n  /** Renderer-owned Node portion selected by the grouping Definition. */\n  groupPart?: string\n  cwd?: string | undefined\n  /** Open the current source file of a skill referenced by a sent message. */\n  openSkill: (name: string) => void\n  openFile: (path: string, options?: OpenFileOptions) => void\n  inspectCall: ((callId: ToolCallId) => void) | undefined\n  forkAt: (seq: number) => void\n  /**\n   * Revise one sent user message: replace the composer draft with its text\n   * (the user edits the bubble and resends a new turn). User bubbles only;\n   * absent for owners that do not provide the wiring.\n   * @param text - the user message\'s plain text.\n   */\n  editUserMessage?: ((text: string) => void) | undefined\n  /** Session-authorized image loader for the attachment presentation slot. */\n  loadImage: MessageImageLoader\n  renderMessageImages: RenderMessageImages\n  /** Turn-process state when this Node belongs to a projected Turn. */\n  turnProcess?: TurnProcessOwnerProps | undefined\n}',
+      '/** Stable owner currency delivered to a keyed Chat renderer. */\nexport interface ChatNodeOwnerProps {\n  /** Renderer-owned Node portion selected by the grouping Definition. */\n  groupPart?: string\n  cwd?: string | undefined\n  /** Open the current source file of a skill referenced by a sent message. */\n  openSkill: (name: string) => void\n  openFile: (path: string, options?: OpenFileOptions) => void\n  inspectCall: ((callId: ToolCallId) => void) | undefined\n  forkAt: (seq: number) => void\n  /**\n   * Revise one sent user message: replace the composer draft with its text\n   * (the user edits the bubble and resends a new turn). User bubbles only;\n   * absent for owners that do not provide the wiring.\n   * @param text - the user message\'s plain text.\n   */\n  editUserMessage?: ((text: string) => void) | undefined\n  /**\n   * Re-run the last ended turn over its existing surface with no new input.\n   * Absent for owners that do not provide the wiring.\n   * @param turn - the ended turn to re-run.\n   */\n  retryTurn?: ((turn: number) => void) | undefined\n  /** Session-authorized image loader for the attachment presentation slot. */\n  loadImage: MessageImageLoader\n  renderMessageImages: RenderMe /* …truncated — full shape in source */',
     ],
     ownerPropsReferences: [
       'MessageImageLoader',
@@ -444,7 +444,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.chat.node\', () => ctx.slots.register(\n      { name: \'conversation.chat.node\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:348',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:360',
   },
   {
     key: 'conversation.chat.reasoning.body',
@@ -488,7 +488,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.chat.reasoning.body\', () => ctx.slots.register(\n      { name: \'conversation.chat.reasoning.body\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:367',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:379',
   },
   {
     key: 'conversation.chat.turnTail',
@@ -554,7 +554,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.chat.turnTail\', () => ctx.slots.register(\n      { name: \'conversation.chat.turnTail\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:379',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:391',
   },
   {
     key: 'conversation.composer',
@@ -1552,7 +1552,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.message.images\', () => ctx.slots.register(\n      { name: \'conversation.message.images\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-chat/src/client/contract/slots.ts:361',
+    source: 'packages/client/ui-chat/src/client/contract/slots.ts:373',
   },
   {
     key: 'conversation.plan-review.actions',

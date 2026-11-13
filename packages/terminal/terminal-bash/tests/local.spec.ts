@@ -44,7 +44,7 @@ function stubAgent(ctx: Context, rawId: string): Agent {
     status: 'idle',
     ctx: scope.ctx,
     send: () => {},
-    followup: () => {}, steer: () => {}, inject: () => {}, cancel() {},
+    followup: () => {}, retry: () => { throw new Error('retry is not supported by this Agent stand-in') }, steer: () => {}, inject: () => {}, cancel() {},
     runMaintenance: task => task(new AbortController().signal),
     whenIdle: () => Promise.resolve(),
   }

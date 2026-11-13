@@ -28,6 +28,7 @@ function stubAgent(rawId: string, overrides: Partial<Agent> = {}): Agent {
     ctx,
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => ({ outcome: Promise.resolve({ status: 'rejected' as const }) }),
     inject: () => {},
     cancel() {},

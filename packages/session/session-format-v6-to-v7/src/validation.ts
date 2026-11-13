@@ -52,6 +52,23 @@ function validateTeamMode(event: SessionFormatEvent, current: TeamMode): TeamMod
 }
 
 /**
+ * Validate one retry marker. A retry names the turn it opens and an earlier
+ * ended turn it re-runs; both coordinates are non-negative safe integers and
+ * the retried turn strictly precedes the new one.
+ * @param event - decoded event whose type is `turn/retry`.
+ */
+function validateTurnRetry(event: SessionFormatEvent): void {
+  const data = event.data
+  if (!isSessionFormatJsonObject(data)) throw new SessionFormatError('format v7 turn/retry data must be an object')
+  for (const key of Object.keys(data)) {
+    if (key !== 'turn' && key !== 'retriedTurn') throw new SessionFormatError(`format v7 turn/retry has unexpected field ${JSON.stringify(key)}`)
+  }
+  const turn = sessionFormatCount(data['turn'], 'format v7 turn/retry turn')
+  const retriedTurn = sessionFormatCount(data['retriedTurn'], 'format v7 turn/retry retriedTurn')
+  if (retriedTurn >= turn) throw new SessionFormatError('format v7 turn/retry must name an earlier turn')
+}
+
+/**
  * Validate V7 inheritance, native message admission, lifecycle,
  * compaction, tool, retry, title, command, catalog, delivery, ownership, and
  * Team-mode rules. Structure and admission follow the released V6 rules.
@@ -79,6 +96,7 @@ export function restoreReleasedV7Artifact(artifact: SessionFormatArtifact, known
     assertV4ToolResultMessage(event)
     assertV4ForkResult(event)
     if (event.type === 'team/mode') teamMode = validateTeamMode(event, teamMode)
+    if (event.type === 'turn/retry') validateTurnRetry(event)
     if (event.type === 'session/end-seed' && isSessionFormatJsonObject(event.data)
       && event.data['inherited'] === true) lastInheritedMarker = index
   }

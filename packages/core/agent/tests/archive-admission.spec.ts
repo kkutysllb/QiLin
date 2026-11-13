@@ -23,6 +23,7 @@ async function liveAgent(ctx: Context, rawId: string, initial: AgentStatus): Pro
     ctx,
     send: () => {},
     followup: () => {},
+    retry: () => { throw new Error('retry is not supported by this Agent stand-in') },
     steer: () => ({ outcome: Promise.resolve({ status: 'rejected' as const }) }),
     inject: () => {},
     cancel: (cause, options) => { cancels.push([cause, options]) },

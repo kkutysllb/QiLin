@@ -155,8 +155,7 @@
   box-shadow: var(--qilin-elevation-stroke), inset 0 0 0 1px color-mix(in srgb, var(--qilin-alias-state-business-primary) 40%, transparent);
 }
 
-.member:not(:disabled):hover,
-.member:not(:disabled):focus-visible {
+.member:not(:disabled):hover {
   --qilin-elevation-stroke-color: var(--qilin-alias-border-l3);
   box-shadow: var(--qilin-elevation-panel);
 }

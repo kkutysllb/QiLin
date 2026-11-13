@@ -33,6 +33,14 @@ interface SessionEventMap {
    */
   'turn/start': { turn: number }
   /**
+   * A turn re-run over the existing surface with no new input: the caller
+   * retried the earlier `retriedTurn` instead of sending new content. Log-only;
+   * it records that the turn's model call replays the conversation the earlier
+   * turn already ended with, so a reader never counts the retry as new
+   * human input.
+   */
+  'turn/retry': { turn: number; retriedTurn: number }
+  /**
    * Closes turn `turn` with the {@link TurnEndReason} that ended it. A turn
    * with no entered step has no `step/start` or `step/end`. The loop does not await a
    * flush at turn boundaries: `qilin-session-checkpoint-policy` owns the
@@ -966,6 +974,16 @@ workspaceDesktop(): { name: string; available: boolean; fileManager: 'finder' | 
  * @returns acknowledgement that the Agent accepted the prompt.
  */
 @Remote('prompt') async prompt(request: SessionPromptRequest, signal: AbortSignal): Promise<SessionPromptValue>
+
+/**
+ * Re-run the last ended turn over its existing surface with no new human input.
+ * The turn records a `turn/retry` marker instead of admitting another
+ * `user/message`, so replay never counts the retry as fresh input.
+ * @param request - Session identity and the exact last ended turn to re-run.
+ * @param signal - caller cancellation before the directive is admitted.
+ * @returns acknowledgement that the Agent accepted the retry.
+ */
+@Remote('retry') async retry(request: SessionRetryRequest, signal: AbortSignal): Promise<SessionRetryValue>
 
 /**
  * Read one image proven reachable from the addressed Session log.
