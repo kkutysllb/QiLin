@@ -29,7 +29,8 @@ const sheetCss = readFileSync(sheetPath, 'utf8')
  */
 function isFullRound(value: string): boolean {
   return value.split(/\s+/).some(part =>
-    part === '50%' || part === '100%' || (part.endsWith('px') && Number.parseFloat(part) >= 99))
+    part === '50%' || part === '100%' || part === 'var(--qilin-radius-pill)'
+    || (part.endsWith('px') && Number.parseFloat(part) >= 99))
 }
 
 describe('corner-shape.css smoothing', () => {

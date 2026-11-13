@@ -16,8 +16,10 @@ export const DEFAULT_ROOT = resolve(import.meta.dirname, '..')
  * package enters when its batch lands and never leaves.
  */
 export const MIGRATED_CLIENT_PACKAGES: readonly string[] = [
-  // V1 migrates ui-chat, ui-conversation, and ui-settings-general; the list is
-  // still empty while V0 lands the gate itself.
+  // V1 batch: the three visible surfaces the first migration covered.
+  'ui-chat',
+  'ui-conversation',
+  'ui-settings-general',
 ]
 
 /** One declaration that bypasses the token scale. */
@@ -43,7 +45,11 @@ const SPACING_PROPERTIES = new Set([
 ])
 /** Gradients and masks legitimately mix stops; their colours still belong to a scale when the file migrates. */
 const GRADIENT_PROPERTIES = new Set(['background-image', 'mask-image', 'border-image'])
+/** Derived arithmetic over tokens is a scale expression, not a raw literal. */
+const DERIVED_VALUE = /\b(?:calc|clamp|min|max)\(/u
 const COLORLESS = /^(?:none|transparent|currentcolor|inherit|initial|unset|revert)$/iu
+/** A `var(--token, fallback)` fallback is not a raw literal: it mirrors a runtime value. */
+const VAR_WITH_FALLBACK = /var\(\s*--[\w-]+\s*,[^()]*(?:\([^()]*\)[^()]*)*\)/gu
 
 /**
  * Find every literal declaration in one stylesheet source.
@@ -68,21 +74,24 @@ export function findCssLiteralViolations(source: string, file: string): CssLiter
     const property = (match[1] ?? '').toLowerCase()
     if (property === '' || property.startsWith('--')) continue
     const value = (match[2] ?? '').trim()
-    if (COLORLESS.test(value)) continue
-    if (COLOR_PATTERN.test(value) && !GRADIENT_PROPERTIES.has(property)) {
+    // Fallbacks are compared after removing them, so the raw-literal scan sees
+    // only the values the declaration itself contributes.
+    const scanned = value.replace(VAR_WITH_FALLBACK, 'var()')
+    if (scanned.trim() === '' || COLORLESS.test(scanned) || DERIVED_VALUE.test(scanned)) continue
+    if (COLOR_PATTERN.test(scanned) && !GRADIENT_PROPERTIES.has(property)) {
       violations.push({ file, line: index + 1, property, value, kind: 'color' })
       continue
     }
-    if (property === 'font-size' && LENGTH_PATTERN.test(value)) {
+    if (property === 'font-size' && LENGTH_PATTERN.test(scanned)) {
       violations.push({ file, line: index + 1, property, value, kind: 'font-size' })
       continue
     }
-    if (property === 'border-radius' && LENGTH_PATTERN.test(value)) {
+    if (property === 'border-radius' && LENGTH_PATTERN.test(scanned)) {
       violations.push({ file, line: index + 1, property, value, kind: 'radius' })
       continue
     }
     if (SPACING_PROPERTIES.has(property)) {
-      const literal = LENGTH_PATTERN.exec(value)
+      const literal = LENGTH_PATTERN.exec(scanned)
       if (literal !== null && Number(literal[1]) !== 0) {
         violations.push({ file, line: index + 1, property, value, kind: 'spacing' })
       }

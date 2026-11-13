@@ -2,19 +2,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 16px 0;
+  gap: var(--qilin-space-6);
+  padding: var(--qilin-space-5) 0;
   border-bottom: 1px solid var(--qilin-alias-border-l2);
 }
 
 .title {
-  font-size: 14px;
+  font-size: var(--qilin-text-md);
   line-height: 20px;
 }
 
 .description {
-  margin-top: 4px;
+  margin-top: var(--qilin-space-2);
   color: var(--qilin-alias-label-secondary);
-  font-size: 12px;
+  font-size: var(--qilin-text-sm);
   line-height: 18px;
 }

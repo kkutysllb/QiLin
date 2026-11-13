@@ -12,9 +12,9 @@
 
 主题所有者发布四套标尺，功能组件使用它们而不是字面量：
 
-- **间距** `--qilin-space-1..8`（4/8/12/16/24/32/48/64），用于 padding、margin 与 gap。
+- **间距** `--qilin-space-1..10`（2/4/8/12/16/24/32/40/48/64），用于 padding、margin 与 gap。
 - **字号** `--qilin-text-xs..2xl`（11/12/13/14/16/18/22）搭配 `--qilin-leading-tight/normal/relaxed`；内容字号增量保持可叠加，因此用户的字号偏好与标尺组合生效。
-- **圆角** `--qilin-radius-xs..xl`、`-panel`、`-pill`（4/6/10/14/18/20/999），pill 圆角需搭配 `corner-shape: round`。
+- **圆角** `--qilin-radius-2xs`、`-xs..xl`、`-panel`、`-pill`（2/4/6/10/14/18/20/999），pill 圆角需搭配 `corner-shape: round`。
 - **密度** `body[data-qilin-density='compact' | 'standard' | 'comfortable']` 发布 `--qilin-density-gap`、`--qilin-density-control-height` 与 `--qilin-density-font-delta`；组件以标准值作为回退读取。
 
 强调色是一组实测配对：`--qilin-alias-accent`（含 `-hover`、`-tint`、`-ring`）在纸底解析为 `#2563EB`（4.87:1）、在暗底解析为 `#7C9BFF`（6.74:1）。`--qilin-alias-state-business-primary` 经由它取色，共享焦点环也回退到同一强调色。任一对低于 4.5:1 时 ui-theme 的对比度测试会失败。

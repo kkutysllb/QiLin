@@ -1,7 +1,7 @@
 /* Shared inline reference treatment; hover does not change text metrics. */
 .reference {
-  padding: 0 4px;
-  border-radius: 6px;
+  padding: 0 var(--qilin-space-2);
+  border-radius: var(--qilin-radius-sm);
   line-height: inherit;
   vertical-align: baseline;
   color: var(--qilin-alias-state-business-primary);

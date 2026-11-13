@@ -1,7 +1,7 @@
 .row {
-  padding: 16px 0;
+  padding: var(--qilin-space-5) 0;
   color: var(--qilin-alias-label-primary);
-  font-size: 14px;
+  font-size: var(--qilin-text-md);
   line-height: 22px;
   overflow-wrap: anywhere;
 }

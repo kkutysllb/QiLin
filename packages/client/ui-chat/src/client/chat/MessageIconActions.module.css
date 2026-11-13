@@ -5,7 +5,7 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--qilin-space-3);
   height: calc(28px + var(--qilin-content-font-delta, 0px));
 }
 
@@ -13,7 +13,7 @@
    Both read the secondary tier so the user row's clock matches the assistant
    tail's meta line. */
 .timeStart {
-  padding-right: 12px;
+  padding-right: var(--qilin-space-4);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: calc(24px + var(--qilin-content-font-delta, 0px));
   color: var(--qilin-alias-label-tertiary);
@@ -60,7 +60,7 @@
   justify-content: center;
   width: calc(28px + var(--qilin-content-font-delta, 0px));
   height: calc(28px + var(--qilin-content-font-delta, 0px));
-  padding: 6px;
+  padding: var(--qilin-space-3);
   border: none;
   border-radius: var(--qilin-radius-panel);
   background: transparent;

@@ -9,9 +9,9 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--qilin-space-4);
   width: 100%;
-  padding: 12px 16px;
+  padding: var(--qilin-space-4) var(--qilin-space-5);
   border: 0;
   background: none;
   color: var(--qilin-alias-label-primary);

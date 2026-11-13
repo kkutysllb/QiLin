@@ -50,9 +50,9 @@ describe('composer statistics row styles', () => {
     expect(rule(inputBarCss, '.hero .dock:empty')).toMatch(/display:\s*none;/)
   })
 
-  it('sizes the reservation to one reading: a 20px secondary line plus 1px block padding', () => {
+  it('sizes the reservation to one reading: a 20px secondary line plus the 2px block padding token', () => {
     const trigger = rule(contextMeterCss, '.trigger')
     expect(trigger).toContain('line-height: calc(20px + var(--qilin-content-font-delta-secondary, 0px))')
-    expect(trigger).toMatch(/padding:\s*1px 8px;/)
+    expect(trigger).toMatch(/padding:\s*var\(--qilin-space-1\) var\(--qilin-space-3\);/)
   })
 })

@@ -12,9 +12,9 @@ The platform palettes carry a warm paper neutral ramp (cream canvas, ink text, w
 
 The theme owner publishes four scales that feature components consume instead of literal values:
 
-- **Spacing** `--qilin-space-1..8` (4/8/12/16/24/32/48/64) for padding, margin, and gaps.
+- **Spacing** `--qilin-space-1..10` (2/4/8/12/16/24/32/40/48/64) for padding, margin, and gaps.
 - **Type** `--qilin-text-xs..2xl` (11/12/13/14/16/18/22) with `--qilin-leading-tight/normal/relaxed`; the content-size deltas stay additive so the user's font-size preference composes with the scale.
-- **Radius** `--qilin-radius-xs..xl`, `-panel`, `-pill` (4/6/10/14/18/20/999), with `corner-shape: round` pairing for pill radii.
+- **Radius** `--qilin-radius-2xs`, `-xs..xl`, `-panel`, `-pill` (2/4/6/10/14/18/20/999), with `corner-shape: round` pairing for pill radii.
 - **Density** `body[data-qilin-density='compact' | 'standard' | 'comfortable']` publishes `--qilin-density-gap`, `--qilin-density-control-height`, and `--qilin-density-font-delta`; components read them with the standard value as the fallback.
 
 The accent is a single measured pair: `--qilin-alias-accent` (with `-hover`, `-tint`, `-ring`) resolves to `#2563EB` on the paper base (4.87:1) and `#7C9BFF` on the dark base (6.74:1). `--qilin-alias-state-business-primary` routes through it, and the shared focus ring falls back to the same accent. The ui-theme contrast spec fails when either pair drops below 4.5:1.

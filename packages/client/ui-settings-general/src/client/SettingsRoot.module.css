@@ -6,7 +6,7 @@
   display: flex;
   justify-content: flex-end;
   min-height: 28px;
-  margin: 4px 12px;
+  margin: var(--qilin-space-2) var(--qilin-space-4);
 }
 
 /* Full-viewport layer (figma Mask 501:29946 #000@24%): mask tokens match the
@@ -78,9 +78,9 @@
   flex: none;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--qilin-space-6);
   width: 240px;
-  padding: 22px 12px 0;
+  padding: var(--qilin-space-6) var(--qilin-space-4) 0;
   box-sizing: border-box;
   background: var(--qilin-specific-sidebar-fill);
   border-right: 1px solid var(--qilin-alias-border-l1);
@@ -92,7 +92,7 @@
    as cramped. darwin clears the band with 20px above it; pure web sets no
    data-platform and keeps the flat rail. */
 :global(html[data-platform='darwin']) .navBack {
-  margin-top: 20px;
+  margin-top: var(--qilin-space-6);
 }
 
 /* Workspace return control at the rail head: one nav-cell box above the panel
@@ -101,16 +101,16 @@
   flex: none;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--qilin-space-3);
   height: 40px;
-  padding: 9px 16px 9px 12px;
+  padding: var(--qilin-space-3) var(--qilin-space-5) var(--qilin-space-3) var(--qilin-space-4);
   box-sizing: border-box;
   border: none;
   border-radius: var(--qilin-radius-md);
   background: transparent;
   cursor: pointer;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--qilin-text-md);
   line-height: 22px;
   color: var(--qilin-alias-label-primary);
   text-align: left;
@@ -152,8 +152,8 @@
 
 /* Title row (figma 501:29959): 16/500 lh24, 12px side padding. */
 .navTitle {
-  padding: 0 12px;
-  font-size: 16px;
+  padding: 0 var(--qilin-space-4);
+  font-size: var(--qilin-text-lg);
   line-height: 24px;
   font-weight: 500;
   color: var(--qilin-alias-label-primary);
@@ -163,7 +163,7 @@
 .navList {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--qilin-space-2);
 }
 
 .navSpacer {
@@ -180,16 +180,16 @@
 .navCell {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--qilin-space-3);
   height: 40px;
-  padding: 9px 16px 9px 12px;
+  padding: var(--qilin-space-3) var(--qilin-space-5) var(--qilin-space-3) var(--qilin-space-4);
   box-sizing: border-box;
   border: none;
   border-radius: var(--qilin-radius-md);
   background: transparent;
   cursor: pointer;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--qilin-text-md);
   line-height: 22px;
   font-weight: 400;
   color: var(--qilin-alias-label-primary);
@@ -230,9 +230,9 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--qilin-space-3);
   height: 54px;
-  padding: 20px 14px 8px 10px;
+  padding: var(--qilin-space-6) var(--qilin-space-5) var(--qilin-space-3) var(--qilin-space-4);
   box-sizing: border-box;
 }
 
@@ -241,7 +241,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--qilin-space-3);
   margin-left: auto;
 }
 
@@ -269,7 +269,7 @@
 .options {
   flex: 1;
   min-height: 0;
-  padding: 28px 40px 48px;
+  padding: var(--qilin-space-7) var(--qilin-space-8) var(--qilin-space-9);
   overflow-y: auto;
 }
 
@@ -289,8 +289,8 @@
     width: 100% !important;
     height: auto;
     max-height: 176px;
-    padding: 16px 16px 12px;
-    gap: 12px;
+    padding: var(--qilin-space-5) var(--qilin-space-5) var(--qilin-space-4);
+    gap: var(--qilin-space-4);
     border-right: 0;
     border-bottom: 1px solid var(--qilin-alias-border-l1);
   }
@@ -303,7 +303,7 @@
     flex-direction: row;
     min-width: 0;
     overflow-x: auto;
-    padding-bottom: 2px;
+    padding-bottom: var(--qilin-space-1);
   }
 
   .navCell {
@@ -325,9 +325,9 @@
   .header {
     height: auto;
     min-height: 56px;
-    padding: 12px 16px;
+    padding: var(--qilin-space-4) var(--qilin-space-5);
     flex-wrap: wrap;
-    row-gap: 8px;
+    row-gap: var(--qilin-space-3);
   }
 
   .actions {
@@ -341,7 +341,7 @@
   }
 
   .options {
-    padding: 20px 16px 32px;
+    padding: var(--qilin-space-6) var(--qilin-space-5) var(--qilin-space-7);
   }
 }
 

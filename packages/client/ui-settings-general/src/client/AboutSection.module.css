@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: var(--qilin-space-6);
   width: 100%;
   max-width: 640px;
   margin-inline: auto;
-  padding: 52px 48px 56px;
+  padding: var(--qilin-space-9) var(--qilin-space-9) var(--qilin-space-9);
   color: var(--qilin-alias-label-primary);
   text-align: center;
 }
@@ -16,7 +16,7 @@
   place-items: center;
   width: 96px;
   height: 96px;
-  border-radius: 28px;
+  border-radius: var(--qilin-radius-panel);
   background: var(--qilin-alias-bg-layer-2);
   box-shadow: var(--qilin-shadow-lv3);
 }
@@ -27,11 +27,11 @@
   width: 72px;
   height: 72px;
   border: 1px solid var(--qilin-alias-border-l3);
-  border-radius: 22px;
+  border-radius: var(--qilin-radius-panel);
   color: var(--qilin-alias-label-primary-foreground);
   background: var(--qilin-alias-brand-primary);
   font-family: serif;
-  font-size: 22px;
+  font-size: var(--qilin-text-2xl);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1;
@@ -42,13 +42,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: var(--qilin-space-4);
   max-width: 520px;
 }
 
 .copy h2 {
   margin: 0;
-  font-size: 22px;
+  font-size: var(--qilin-text-2xl);
   font-weight: 600;
   line-height: 30px;
 }
@@ -56,18 +56,18 @@
 .copy p {
   margin: 0;
   color: var(--qilin-alias-label-secondary);
-  font-size: 14px;
+  font-size: var(--qilin-text-md);
   line-height: 22px;
 }
 
 .copy .signature {
   color: var(--qilin-alias-label-tertiary);
-  font-size: 12px;
+  font-size: var(--qilin-text-sm);
   line-height: 18px;
 }
 
 @media (max-width: 640px) {
   .section {
-    padding: 40px 24px 44px;
+    padding: var(--qilin-space-8) var(--qilin-space-6) var(--qilin-space-8);
   }
 }

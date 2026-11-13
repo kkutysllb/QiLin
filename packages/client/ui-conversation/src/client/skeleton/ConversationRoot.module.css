@@ -15,7 +15,7 @@
   align-items: center;
   box-sizing: border-box;
   height: 48px;
-  padding: 0 28px 0 20px;
+  padding: 0 var(--qilin-space-7) 0 var(--qilin-space-6);
   border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
@@ -26,7 +26,7 @@
 .header:has(.tabs) {
   display: block;
   height: 76px;
-  padding: 10px 28px 0 20px;
+  padding: var(--qilin-space-4) var(--qilin-space-7) 0 var(--qilin-space-6);
 }
 
 /* macOS collapsed desktop: the Sidebar's leading controls (sidebar-open and
@@ -73,7 +73,7 @@
   display: flex;
   flex: 1;
   align-items: center;
-  gap: 10px;
+  gap: var(--qilin-space-4);
   min-width: 0;
 }
 
@@ -85,7 +85,7 @@
   display: flex;
   flex: none;
   align-items: center;
-  gap: 8px;
+  gap: var(--qilin-space-3);
 }
 
 .headerLeading:empty {
@@ -95,7 +95,7 @@
 .crumbs {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--qilin-space-2);
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -104,25 +104,25 @@
 .crumbSeg {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--qilin-space-2);
   min-width: 0;
 }
 
 .crumbSep {
   /* figma: "/" separators are 14px caption gray (75:7903), one tint lighter than crumb text. */
   color: var(--qilin-alias-label-caption);
-  font-size: 14px;
+  font-size: var(--qilin-text-md);
   line-height: 20px;
 }
 
 .crumb {
   max-width: 220px;
   overflow: hidden;
-  padding: 4px 8px;
+  padding: var(--qilin-space-2) var(--qilin-space-3);
   border: none;
   border-radius: var(--qilin-radius-lg);
   background: transparent;
-  font-size: 14px;
+  font-size: var(--qilin-text-md);
   line-height: 20px;
   color: var(--qilin-alias-label-tertiary);
   text-overflow: ellipsis;
@@ -131,7 +131,7 @@
 }
 
 .crumbSubagent {
-  font-size: 12px;
+  font-size: var(--qilin-text-sm);
   line-height: 18px;
 }
 
@@ -149,15 +149,15 @@
   display: flex;
   flex: none;
   align-items: center;
-  gap: 8px;
+  gap: var(--qilin-space-3);
 }
 
 .headerUtilities {
   display: flex;
   flex: none;
   align-items: center;
-  gap: 8px;
-  margin-left: 20px;
+  gap: var(--qilin-space-3);
+  margin-left: var(--qilin-space-6);
 }
 
 .headerUtilities:empty {
@@ -172,8 +172,8 @@
   display: flex;
   flex: none;
   align-items: center;
-  margin-left: 8px;
-  margin-right: -16px;
+  margin-left: var(--qilin-space-3);
+  margin-right: calc(-1 * var(--qilin-space-5));
 }
 
 .headerCorner:empty {
@@ -186,20 +186,20 @@
   position: relative;
   z-index: 1;
   display: flex;
-  gap: 16px 20px;
+  gap: var(--qilin-space-5) var(--qilin-space-6);
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
   align-items: flex-start;
   flex-wrap: wrap;
-  margin-top: 10px;
-  padding-left: 8px;
+  margin-top: var(--qilin-space-4);
+  padding-left: var(--qilin-space-3);
 }
 
 .viewTabs {
   display: flex;
   flex-wrap: wrap;
-  gap: 32px;
+  gap: var(--qilin-space-7);
   min-width: 0;
   min-height: 25px;
 }
@@ -209,10 +209,10 @@
 .tab {
   position: relative;
   min-height: 25px;
-  padding: 0 0 9px;
+  padding: 0 0 var(--qilin-space-3);
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: var(--qilin-text-base);
   line-height: 16px;
   font-weight: 500;
   color: var(--qilin-alias-label-tertiary);
@@ -226,7 +226,7 @@
   bottom: -1px;
   left: 0;
   height: 2px;
-  border-radius: 2px;
+  border-radius: var(--qilin-radius-2xs);
   background: transparent;
 }
 
@@ -249,7 +249,7 @@
 .viewsMore {
   width: 22px;
   height: 22px;
-  margin-top: -3px;
+  margin-top: calc(-1 * var(--qilin-space-2));
   padding: 0;
   color: var(--qilin-alias-label-secondary);
 }
@@ -323,7 +323,7 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  border-radius: 2px;
+  border-radius: var(--qilin-radius-2xs);
   background: linear-gradient(
     to bottom,
     transparent calc(var(--qilin-width-handle-pointer-y, 50%) - 36px),
@@ -424,7 +424,7 @@
   /* The product-wide 2px scrollbar offset (ui-workspace WorkspaceBrowser
      `.list`, ui-sidebar-files FilesBody `.body`): the bar sits 2px clear of
      the column's edge instead of flush against it. */
-  margin-right: 2px;
+  margin-right: var(--qilin-space-1);
   overflow-y: auto;
   /* Reserved unconditionally: the composer seat rides this box's content box in
      Chat and its padding box under a view's composer overlay, so an `auto`
@@ -436,7 +436,7 @@
 /* The bar also stops 2px short of the scroller's ends, matching its 2px edge
    offset. WebKit-only: the Firefox path has no track to inset. */
 .scrollBody::-webkit-scrollbar-track {
-  margin: 2px;
+  margin: var(--qilin-space-1);
 }
 
 .root[data-phase='active'] .viewArea,
@@ -491,9 +491,9 @@
   align-self: center;
   /* figma 75:8208 drew 12 between all three rows; the workspace row now sits
      8 above the card (its margin-top restores 12 under the hero chrome). */
-  gap: 8px;
+  gap: var(--qilin-space-3);
   /* Foot inside the centered box floats the stack a bit above true center. */
-  padding-bottom: 32px;
+  padding-bottom: var(--qilin-space-7);
   /* Card cap + both clearances: the hero input card lands at exactly the same
      width as the docked composer at every viewport. */
   width: min(calc(var(--qilin-composer-card-max-width) + 2 * var(--qilin-composer-side-clearance)), 100%);
@@ -503,13 +503,13 @@
 .heroWorkspaceRow {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--qilin-space-1);
   min-width: 0;
-  margin-top: 4px;
+  margin-top: var(--qilin-space-2);
   /* figma drew px 8; left nudged +12 so the chip's folder glyph lines up
      closer to the card's inner controls below; right keeps the trailing
      preset seat off the card edge. */
-  padding: 0 16px 0 20px;
+  padding: 0 var(--qilin-space-5) 0 var(--qilin-space-6);
 }
 
 /* Plugin options share the row, pushed to its right edge. */
@@ -517,7 +517,7 @@
   display: flex;
   flex: none;
   align-items: center;
-  gap: 2px;
+  gap: var(--qilin-space-1);
   min-width: 0;
   margin-left: auto;
 }

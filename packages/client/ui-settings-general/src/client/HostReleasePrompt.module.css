@@ -7,8 +7,8 @@
   grid-template-columns: max-content minmax(0, max-content) 56px minmax(0, max-content);
   justify-content: start;
   align-items: center;
-  gap: 8px 12px;
-  font-size: 13px;
+  gap: var(--qilin-space-3) var(--qilin-space-4);
+  font-size: var(--qilin-text-base);
   line-height: 20px;
 }
 

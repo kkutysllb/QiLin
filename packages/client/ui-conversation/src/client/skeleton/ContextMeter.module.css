@@ -9,9 +9,9 @@
 .trigger {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--qilin-space-3);
   flex: none;
-  padding: 1px 8px;
+  padding: var(--qilin-space-1) var(--qilin-space-3);
   border: none;
   border-radius: var(--qilin-radius-panel);
   background: transparent;
@@ -48,13 +48,13 @@
   z-index: 1100;
   box-sizing: border-box;
   width: min(264px, calc(100vw - 24px));
-  padding: 12px;
+  padding: var(--qilin-space-4);
   border: 0;
   border-radius: var(--qilin-radius-lg);
   background: var(--qilin-specific-menu);
   --qilin-elevation-stroke-color: var(--qilin-alias-border-l1);
   box-shadow: var(--qilin-elevation-prominent);
-  font-size: 12px;
+  font-size: var(--qilin-text-sm);
   line-height: 20px;
   color: var(--qilin-alias-label-secondary);
   cursor: default;
@@ -63,7 +63,7 @@
 .header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--qilin-space-3);
 }
 
 .figures {
@@ -90,10 +90,10 @@
 
 .bar {
   display: flex;
-  gap: 1px;
-  margin: 10px 0 12px;
+  gap: var(--qilin-space-1);
+  margin: var(--qilin-space-4) 0 var(--qilin-space-4);
   height: 4px;
-  border-radius: 999px;
+  border-radius: var(--qilin-radius-pill);
   corner-shape: round;
   background: var(--qilin-alias-interactive-bg-hover);
   overflow: hidden;
@@ -103,16 +103,16 @@
   flex: none;
   min-width: 2px;
   height: 100%;
-  border-radius: 1px;
+  border-radius: var(--qilin-radius-2xs);
   background: var(--meter-tint, var(--qilin-alias-label-tertiary));
 }
 
 .swatch {
   display: inline-block;
-  margin-right: 6px;
+  margin-right: var(--qilin-space-3);
   width: 8px;
   height: 8px;
-  border-radius: 2px;
+  border-radius: var(--qilin-radius-2xs);
   background: var(--meter-tint);
   vertical-align: baseline;
 }
@@ -131,15 +131,15 @@
 }
 
 .rows {
-  margin: 6px 0 0;
+  margin: var(--qilin-space-3) 0 0;
 }
 
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 2px 0;
+  gap: var(--qilin-space-4);
+  padding: var(--qilin-space-1) 0;
 }
 
 .row dt {

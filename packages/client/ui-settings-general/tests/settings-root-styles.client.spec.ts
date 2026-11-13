@@ -52,7 +52,7 @@ describe('SettingsRoot.module.css overlay', () => {
   it('drops the rail return control below the window control band on a self-drawn macOS titlebar', () => {
     // The rail's 22px top padding alone leaves the control level with the window
     // controls' 26px optical line, so darwin pushes it 20px further down.
-    expect(declarations(":global(html[data-platform='darwin']) .navBack")?.get('margin-top')).toBe('20px')
+    expect(declarations(":global(html[data-platform='darwin']) .navBack")?.get('margin-top')).toBe('var(--qilin-space-6)')
     // Pure web sets no data-platform and keeps the flat rail.
     expect(declarations('.navBack')?.get('margin-top')).toBeUndefined()
   })

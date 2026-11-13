@@ -7,16 +7,16 @@
      the sides narrow with the shared width axis); the bottom gradient mask
      is owned by the chat scroller. No top pad: the composer stack's gap owns
      the space above; the status strip still carries its own margin. */
-  padding: 0 var(--qilin-composer-side-clearance) 4px;
+  padding: 0 var(--qilin-composer-side-clearance) var(--qilin-space-2);
 }
 
 .dock {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: var(--qilin-space-4);
   max-width: 100%;
-  padding-top: 4px;
+  padding-top: var(--qilin-space-2);
 }
 
 /* The docked composer reserves one statistics row before its readings
@@ -42,12 +42,12 @@
 .notice {
   width: 100%;
   max-width: var(--qilin-composer-card-max-width);
-  margin-bottom: 6px;
-  padding: 4px 8px;
+  margin-bottom: var(--qilin-space-3);
+  padding: var(--qilin-space-2) var(--qilin-space-3);
   border-radius: var(--qilin-radius-md);
   background: var(--qilin-alias-interactive-bg-hover);
   color: var(--qilin-alias-label-secondary);
-  font-size: 12px;
+  font-size: var(--qilin-text-sm);
   line-height: 18px;
 }
 
@@ -58,10 +58,10 @@
   flex-direction: column;
   /* figma Input 75:8208: 12px between the text area and the button row; the
      card's top pad before .InputText tightened from the drawn 10 to 8. */
-  gap: 12px;
+  gap: var(--qilin-space-4);
   width: 100%;
   max-width: var(--qilin-composer-card-max-width);
-  padding-top: 8px;
+  padding-top: var(--qilin-space-3);
   /* Input stroke: the light neutral (l2, one step above the menus' l1),
      drawn as the elevation hairline so it costs no layout; the shadow is the
      soft elevation tier. Fill: the input surface token (elevated in dark). */
@@ -119,8 +119,8 @@
 .accessory {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px 0;
+  gap: var(--qilin-space-3);
+  padding: var(--qilin-space-4) var(--qilin-space-4) 0;
 }
 
 /* Floating overlay anchor (menu / popupSelect shell): entries position
@@ -139,7 +139,7 @@
   overflow-y: auto;
   /* Keeps the bar off the card's right border; .input's right pad gives the
      4px back so the text column is unchanged. */
-  margin-right: 4px;
+  margin-right: var(--qilin-space-2);
 }
 
 /* The card's corner arc still overlaps the scrollport's top (8px top
@@ -147,7 +147,7 @@
    pokes outside the capsule. WebKit-path only; Firefox's thin bar has no
    track margin, an accepted remainder. */
 .scroll::-webkit-scrollbar-track {
-  margin-top: 8px;
+  margin-top: var(--qilin-space-3);
 }
 
 /* Auto-grow anchor: the contenteditable is in normal flow and sets the
@@ -180,7 +180,7 @@
   /* Docked floor: one 24px line + 4px top pad = 28 content height; 36 leaves
      an 8px breath below the line (the hero keeps its own 52px floor below). */
   min-height: 36px;
-  padding: 4px 8px 0 14px;
+  padding: var(--qilin-space-2) var(--qilin-space-3) 0 var(--qilin-space-5);
   font-family: var(--qilin-font-family);
   font-size: inherit;
   line-height: inherit;
@@ -267,11 +267,11 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--qilin-space-4);
   /* 2px moved from the bottom pad to the top: the whole control row sits 2px
      lower in the card (it read too high against the textarea) while the
      controls' own centering stays untouched. */
-  padding: 2px 8px 6px;
+  padding: var(--qilin-space-1) var(--qilin-space-3) var(--qilin-space-3);
   min-width: 0;
   /* Size container so the chips inside can collapse to icon-only when the
      card runs out of row width (PermissionSelect @container rule). Anonymous
@@ -297,11 +297,11 @@
    Read-only; both gaps settled on 12 so the pill chips read as separate
    controls without drifting from the + control. */
 .tools {
-  gap: 12px;
+  gap: var(--qilin-space-4);
 }
 
 .modes {
-  gap: 12px;
+  gap: var(--qilin-space-4);
 }
 
 .trailing {
@@ -312,7 +312,7 @@
      model trigger (external:107). The auto margin re-anchors it right on the
      wrapped line; on a single line space-between already pins it right. */
   margin-left: auto;
-  gap: 12px;
+  gap: var(--qilin-space-4);
 }
 
 /* Compact spacing preserves room for the fixed-width controls in narrow cards. */
@@ -320,7 +320,7 @@
   .tools,
   .modes,
   .trailing {
-    gap: 8px;
+    gap: var(--qilin-space-3);
   }
 }
 
@@ -332,7 +332,7 @@
   width: 28px;
   height: 28px;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--qilin-radius-pill);
   corner-shape: round;
   background: var(--qilin-specific-selector);
   color: var(--qilin-alias-label-primary);
@@ -353,7 +353,7 @@
 .select {
   max-width: 220px;
   height: 28px;
-  padding: 0 20px 0 8px;
+  padding: 0 var(--qilin-space-6) 0 var(--qilin-space-3);
   border: none;
   border-radius: var(--qilin-radius-sm);
   outline: none;
@@ -363,7 +363,7 @@
   background-position: right 4px center;
   background-size: 12px 12px;
   color: var(--qilin-alias-label-secondary);
-  font-size: 13px;
+  font-size: var(--qilin-text-base);
   line-height: 20px;
   font-weight: 500;
   white-space: nowrap;
@@ -390,12 +390,12 @@
   width: 34px;
   height: 34px;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--qilin-radius-pill);
   corner-shape: round;
   background: var(--qilin-alias-button-info-fill);
   /* Static white, not the foreground token: the arrow stays white on the blue
      fill in both themes (design 34:10465). */
-  color: #fff;
+  color: var(--qilin-alias-label-primary-foreground);
   cursor: pointer;
   transition: background-color 100ms ease;
   /* Opts out of the row's 2px downward shift (.row top pad): the send circle
@@ -414,13 +414,13 @@
 }
 
 .retry {
-  margin-left: 8px;
-  padding: 1px 8px;
+  margin-left: var(--qilin-space-3);
+  padding: var(--qilin-space-1) var(--qilin-space-3);
   border: 1px solid currentColor;
   border-radius: var(--qilin-radius-sm);
   background: transparent;
   color: inherit;
-  font-size: 12px;
+  font-size: var(--qilin-text-sm);
   cursor: pointer;
 }
 
@@ -430,7 +430,7 @@
 .standardControls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--qilin-space-4);
   min-width: 0;
 }
 

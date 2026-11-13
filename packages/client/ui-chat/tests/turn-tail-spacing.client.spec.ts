@@ -10,7 +10,7 @@ describe('completed-turn spacing', () => {
   it('combines the flow and footer offsets around turn-tail content', () => {
     expect(read('ChatView.module.css')).toMatch(/margin-top:\s*var\(--qilin-chat-flow-gap, 6px\)/)
     const tail = read('TurnTailNodeView.module.css')
-    expect(tail).toMatch(/\.root\s*\{[^}]*gap:\s*16px/s)
-    expect(tail).toMatch(/\.actions\s*\{[^}]*margin-top:\s*4px/s)
+    expect(tail).toMatch(/\.root\s*\{[^}]*gap:\s*var\(--qilin-space-5\)/s)
+    expect(tail).toMatch(/\.actions\s*\{[^}]*margin-top:\s*var\(--qilin-space-2\)/s)
   })
 })
