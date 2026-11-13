@@ -31,11 +31,29 @@ import { pathPartsOf } from '@qilin-agent/util-workspace-path'
 import { joinEntryPath, mutationFailureLine, normalizedEntryName } from './file-mutations.ts'
 import type { EntryKind } from './file-mutations.ts'
 import type {} from './locales.ts'
+import { DEFAULT_HIDDEN } from './store.ts'
 import type { FilesTabState, TreeMutationState } from './store.ts'
 import css from './FilesBody.module.css'
 
 /** Natural, case-insensitive name order, so `file2` precedes `file10`. */
 const byName = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+
+/**
+ * Drop the entry kinds the reader hid: dotfiles and the dependency directory
+ * leave the listing, so the tree stays a view of the workspace's own sources.
+ * @param entries - one level's entries.
+ * @param hidden - the tree's hidden-entry kinds.
+ * @returns the entries this drawing shows.
+ */
+export function visibleEntries(
+  entries: readonly WorkspaceDirectoryEntry[], hidden: FilesTabState['hidden'] = DEFAULT_HIDDEN,
+): WorkspaceDirectoryEntry[] {
+  return entries.filter((entry) => {
+    if (hidden.dotfiles && entry.name.startsWith('.')) return false
+    if (hidden.nodeModules && entry.name === 'node_modules') return false
+    return true
+  })
+}
 
 /**
  * Order one level's entries for display: directories first, then everything
@@ -83,7 +101,10 @@ export function copyTextOf(root: string, path: string, form: 'relative' | 'absol
 }
 
 /** The tree's data as any drawing of it reads: the root, its levels, and what is open. */
-export type TreeState = Pick<FilesTabState, 'root' | 'levels' | 'expanded'>
+export type TreeState = Pick<FilesTabState, 'root' | 'levels' | 'expanded'> & {
+  /** Hidden-entry kinds; a read-only drawing without the toggle shows {@link DEFAULT_HIDDEN}. */
+  readonly hidden?: FilesTabState['hidden']
+}
 
 /** What every level shares: the tree, its gestures, and the row being renamed. */
 interface TreeContext {
@@ -243,7 +264,7 @@ function Level({ path, tree }: { path: string; tree: TreeContext }): ReactNode {
       </li>
     )
   }
-  const entries = orderEntries(level.level.entries)
+  const entries = visibleEntries(orderEntries(level.level.entries), tree.state.hidden ?? DEFAULT_HIDDEN)
   return (
     <>
       {entries.length === 0 && <li className={css.note} data-files-row="empty">{t('empty')}</li>}

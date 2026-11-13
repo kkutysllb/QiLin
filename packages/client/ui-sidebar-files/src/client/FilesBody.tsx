@@ -8,9 +8,10 @@
  * and the last segment in full ink, then the one control at its end, reload,
  * which drops every listed level and asks again for the expanded ones.
  */
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
-import { IconRefreshOutlineRegular } from '@qilin-agent/client-ui-primitives'
+import { IconRefreshOutlineRegular, IconSettingsOutlineRegular, Menu } from '@qilin-agent/client-ui-primitives'
+import type { MenuEntry } from '@qilin-agent/client-ui-primitives'
 import { fileAddressFor, pathPartsOf } from '@qilin-agent/util-workspace-path'
 import { FileSearchBox, FileSearchResults } from './FileSearch.tsx'
 import { FileTree } from './FileTree.tsx'
@@ -70,6 +71,10 @@ export function FilesBody({
 }: FilesBodyProps): ReactNode {
   const { tab } = useTabInfo()
   const { signal, actions: tabActions } = tab
+  // Declared before any early return: the body renders once without a working
+  // directory or a seeded bucket, and a hook after those returns would change
+  // the hook order on the next render.
+  const [viewMenu, setViewMenu] = useState(false)
   const cwd = useSessions(sessions => sessions.byId[sessionId]?.cwd)
   const state = useStore(store => store.byTab[tab.id])
   const pathRef = useRef<HTMLDivElement>(null)
@@ -126,6 +131,21 @@ export function FilesBody({
   // carries the query, which is why a blank box — not an empty result — is what
   // brings the tree back.
   const searching = state.search.query.trim() !== ''
+  // View options drop entry kinds from every level; the menu reports the
+  // current hidden set, so a checked row reads as "these are hidden now".
+  const viewItems: readonly MenuEntry[] = [
+    { id: 'hide-dotfiles', label: t('hideDotfiles') },
+    { id: 'hide-node-modules', label: t('hideNodeModules') },
+  ]
+  const hiddenIds = [
+    ...(state.hidden.dotfiles ? ['hide-dotfiles'] : []),
+    ...(state.hidden.nodeModules ? ['hide-node-modules'] : []),
+  ]
+  const toggleView = (id: string): void => {
+    setViewMenu(false)
+    if (id === 'hide-dotfiles') actions.toggleHidden(tab.id, 'dotfiles')
+    else if (id === 'hide-node-modules') actions.toggleHidden(tab.id, 'nodeModules')
+  }
   const openResult = (path: string): void => {
     openFileRow(tabActions, fileAddressFor(sessionId, state.root, path), path)
   }
@@ -150,6 +170,28 @@ export function FilesBody({
           >
             <IconRefreshOutlineRegular />
           </button>
+          <Menu
+            open={viewMenu}
+            anchor={(
+              <button
+                type="button"
+                className={css.tool}
+                aria-label={t('viewOptions')}
+                title={t('viewOptions')}
+                aria-haspopup="menu"
+                aria-expanded={viewMenu}
+                data-files-view-options
+                onClick={() => { setViewMenu(open => !open) }}
+              >
+                <IconSettingsOutlineRegular />
+              </button>
+            )}
+            items={viewItems}
+            selectedIds={hiddenIds}
+            align="end"
+            onSelect={toggleView}
+            onClose={() => { setViewMenu(false) }}
+          />
           {renderSlot('sidebar.right.tab.files.actions', {
             absolutePath: state.root,
           })}

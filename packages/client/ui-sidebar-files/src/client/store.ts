@@ -65,9 +65,20 @@ export type TreeMutationState =
   | { readonly kind: 'running' }
   | { readonly kind: 'failed'; readonly failure: RemoteFailure }
 
+/** Entry kinds the reader can drop from a listing. */
+export interface HiddenKinds {
+  /** Names starting with a dot. */
+  readonly dotfiles: boolean
+  /** The dependency directory every install writes. */
+  readonly nodeModules: boolean
+}
+
+/** The kinds a fresh tree hides: dependencies stay out, dotfiles show. */
+export const DEFAULT_HIDDEN: HiddenKinds = { dotfiles: false, nodeModules: true }
+
 /**
  * One tab's tree: its root, the levels it has asked for, what is open, the
- * filename search beside it, and the last row mutation.
+ * filename search beside it, the hidden-entry kinds, and the last row mutation.
  *
  * Every path here is absolute: the root is the session's working directory as
  * the Host reports it, and a child is the parent joined with the entry name.
@@ -85,6 +96,8 @@ export interface FilesTabState {
   search: FileSearchState
   /** How the last create, rename, or delete gesture ended, for the tree's strip. */
   mutation: TreeMutationState
+  /** Entry kinds this tree drops from its listings. */
+  hidden: HiddenKinds
 }
 
 /** What one file editor is doing with its file right now. */
@@ -240,6 +253,7 @@ type FilesActions = {
   failed: (draft: FilesState, tabId: TabId, path: string, failure: RemoteFailure) => void
   toggled: (draft: FilesState, tabId: TabId, path: string) => void
   scrolled: (draft: FilesState, tabId: TabId, scrollTop: number) => void
+  toggleHidden: (draft: FilesState, tabId: TabId, kind: keyof HiddenKinds) => void
   searchTyped: (draft: FilesState, tabId: TabId, query: string) => void
   searchRunning: (draft: FilesState, tabId: TabId, query: string) => void
   searchSettled: (
@@ -307,6 +321,7 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
           scrollTop: 0,
           search: { kind: 'idle', query: '' },
           mutation: { kind: 'idle' },
+          hidden: DEFAULT_HIDDEN,
         }
       },
       /**
@@ -360,6 +375,16 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
        */
       scrolled: (d, tabId: TabId, scrollTop: number) => {
         bucket(d, tabId).scrollTop = scrollTop
+      },
+      /**
+       * Flip one hidden-entry kind for this tree; the next drawing lists without it.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param kind - the entry kind to show or hide.
+       */
+      toggleHidden: (d, tabId: TabId, kind: keyof HiddenKinds) => {
+        const tree = bucket(d, tabId)
+        tree.hidden = { ...tree.hidden, [kind]: !tree.hidden[kind] }
       },
       /**
        * Record what the search box now holds, dropping any answer the previous

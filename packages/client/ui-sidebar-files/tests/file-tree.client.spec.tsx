@@ -5,7 +5,7 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { FileTree } from '../src/client/FileTree.tsx'
+import { FileTree, visibleEntries } from '../src/client/FileTree.tsx'
 import type { TreeState } from '../src/client/FileTree.tsx'
 import { zh } from '../src/client/locales.ts'
 
@@ -52,6 +52,25 @@ function harness(mutations: Mutations = {}) {
     item: (label: string) => view.queryByRole('menuitem', { name: label }),
   }
 }
+
+describe('visibleEntries', () => {
+  const entries = [
+    { name: 'src', type: 'directory' as const },
+    { name: 'node_modules', type: 'directory' as const },
+    { name: '.env', type: 'file' as const, size: 2 },
+    { name: 'README.md', type: 'file' as const, size: 12 },
+  ]
+
+  it('hides node_modules by default and keeps dotfiles', () => {
+    expect(visibleEntries(entries).map(entry => entry.name)).toEqual(['src', '.env', 'README.md'])
+  })
+
+  it('hides dotfiles once selected and shows everything when nothing is hidden', () => {
+    expect(visibleEntries(entries, { dotfiles: true, nodeModules: true }).map(entry => entry.name)).toEqual(['src', 'README.md'])
+    expect(visibleEntries(entries, { dotfiles: false, nodeModules: false }).map(entry => entry.name))
+      .toEqual(['src', 'node_modules', '.env', 'README.md'])
+  })
+})
 
 describe('FileTree row mutations', () => {
   it('offers nothing to mutate when the drawing supplies no capability', () => {

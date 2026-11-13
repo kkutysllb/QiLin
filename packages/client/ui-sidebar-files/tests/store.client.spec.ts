@@ -35,6 +35,7 @@ describe('createFilesStore', () => {
     actions.start(TAB, ROOT)
     expect(getSnapshot().byTab[TAB]).toEqual({
       root: ROOT, levels: {}, expanded: [ROOT], scrollTop: 0, search: { kind: 'idle', query: '' }, mutation: { kind: 'idle' },
+      hidden: { dotfiles: false, nodeModules: true },
     })
   })
 
@@ -79,6 +80,7 @@ describe('createFilesStore', () => {
     actions.reset(TAB)
     expect(getSnapshot().byTab[TAB]).toEqual({
       root: ROOT, levels: {}, expanded: [ROOT, child], scrollTop: 0, search: { kind: 'idle', query: '' }, mutation: { kind: 'idle' },
+      hidden: { dotfiles: false, nodeModules: true },
     })
   })
 

@@ -70,6 +70,19 @@ describe('FilesBody', () => {
     expect(envIcon).not.toBe(readmeIcon)
   })
 
+  it('hides node_modules by default and shows dotfiles until the view options hide them', async () => {
+    const { view, script } = mountBody()
+    await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
+    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/.env`, `${ROOT}/pipe`, `${ROOT}/README.md`])
+    fireEvent.click(view.getByRole('button', { name: zh.viewOptions }))
+    fireEvent.click(view.getByRole('menuitem', { name: zh.hideDotfiles }))
+    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/pipe`, `${ROOT}/README.md`])
+    // The hidden set lives in the tab's store, so it survives a remount.
+    fireEvent.click(view.getByRole('button', { name: zh.viewOptions }))
+    fireEvent.click(view.getByRole('menuitem', { name: zh.hideDotfiles }))
+    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/.env`, `${ROOT}/pipe`, `${ROOT}/README.md`])
+  })
+
   it('heads a separator-only root by the root itself, since it has no final segment', async () => {
     const { view, script } = mountBody('/')
     await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
