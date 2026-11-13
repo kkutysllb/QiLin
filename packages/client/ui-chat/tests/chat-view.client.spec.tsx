@@ -1997,6 +1997,19 @@ describe('ChatView', () => {
     expect(view2.queryByRole('button', { name: '重试' })).toBeNull()
   })
 
+  it('queues a retry while the turn still runs and fires it once the Session settles', () => {
+    const retryTurn = vi.fn()
+    const h = makeHarness({ nodes: [user(1, 'try'), turnError(2, 'AUTH')] })
+    h.setSession({ running: true })
+    const view = render(<h.ChatView {...h.props} retryTurn={retryTurn} />)
+    fireEvent.click(view.getByRole('button', { name: '重试' }))
+    expect(retryTurn).not.toHaveBeenCalled()
+    expect(view.getByRole('button', { name: '重试已排队' }).hasAttribute('disabled')).toBe(true)
+    act(() => { h.setSession({ running: false }) })
+    expect(retryTurn).toHaveBeenCalledWith(1)
+    expect(view.getByRole('button', { name: '重试' })).toBeDefined()
+  })
+
   it('offers a continue action on a truncated turn and hides it without wiring', () => {
     const continueGeneration = vi.fn()
     const h = makeHarness({ nodes: [user(1, 'try'), turnMaxTokens(2)] })

@@ -140,14 +140,16 @@ function ModelRetryItem({ node, active, t }: {
 }
 
 /** Persistent, turn-positioned feedback for a terminal failure. */
-function TurnErrorItem({ node, retryTurn, t }: {
+function TurnErrorItem({ node, retryTurn, retryQueuedTurn, t }: {
   node: TurnErrorNode
   retryTurn?: ((turn: number) => void) | undefined
+  retryQueuedTurn?: number | null | undefined
   t: ChatViewSlotProps['t']
 }) {
   // A signed-out turn cannot re-run until the account returns; every other
   // failure keeps the retry action.
   const retry = retryTurn !== undefined && node.code !== 'ACCOUNT_SIGNED_OUT' ? retryTurn : undefined
+  const queued = retryQueuedTurn === node.turn
   return (
     <div className={css.turnErrorRow} role="status">
       <StateDot state="error" className={css.turnErrorDot} />
@@ -155,8 +157,13 @@ function TurnErrorItem({ node, retryTurn, t }: {
         <span className={css.turnErrorTitle}>{node.code === 'ACCOUNT_SIGNED_OUT' || node.code === 'INTERRUPTED' ? t('message.taskStopped') : t('message.turnError')}</span>
         <span className={css.turnErrorMessage}>{failureMessage(node.message, node.code, t)}</span>
         {retry !== undefined && (
-          <button type="button" className={css.turnErrorRetry} onClick={() => { retry(node.turn) }}>
-            {t('message.turnError.retry')}
+          <button
+            type="button"
+            className={css.turnErrorRetry}
+            disabled={queued}
+            onClick={() => { retry(node.turn) }}
+          >
+            {queued ? t('message.turnError.retryQueued') : t('message.turnError.retry')}
           </button>
         )}
       </div>
@@ -404,8 +411,8 @@ export const RetryNodeView = memo(function RetryNodeView({ node, t }: ChatNodeVi
 })
 
 /** Terminal turn-error keyed Chat renderer. */
-export const TurnErrorNodeView = memo(function TurnErrorNodeView({ node, retryTurn, t }: ChatNodeViewProps<'turn-error'>) {
-  return <TurnErrorItem node={node.data} retryTurn={retryTurn} t={t} />
+export const TurnErrorNodeView = memo(function TurnErrorNodeView({ node, retryTurn, retryQueuedTurn, t }: ChatNodeViewProps<'turn-error'>) {
+  return <TurnErrorItem node={node.data} retryTurn={retryTurn} retryQueuedTurn={retryQueuedTurn} t={t} />
 })
 
 /** Max-tokens turn-end notice keyed Chat renderer. */

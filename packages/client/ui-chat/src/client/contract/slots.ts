@@ -174,6 +174,12 @@ export interface ChatNodeOwnerProps {
    * not provide the wiring.
    */
   continueGeneration?: (() => void) | undefined
+  /**
+   * The turn whose retry waits for the Session to settle, when the reader asked
+   * while it was still running. Its row shows the queued state instead of
+   * offering the action again.
+   */
+  retryQueuedTurn?: number | null | undefined
   /** Session-authorized image loader for the attachment presentation slot. */
   loadImage: MessageImageLoader
   renderMessageImages: RenderMessageImages
@@ -309,7 +315,7 @@ export type ChatFlowDataInjected = Pick<ChatViewInjected, 'hooks' | 'keyedHooks'
 /** Ordered rows and reconciled local echoes rendered inside one Chat viewport. */
 export interface ChatFlowOwnerProps extends Pick<ChatNodeOwnerProps,
   'cwd' | 'openSkill' | 'openFile' | 'inspectCall' | 'forkAt' | 'editUserMessage' | 'retryTurn'
-  | 'continueGeneration' | 'loadImage'> {
+  | 'continueGeneration' | 'retryQueuedTurn' | 'loadImage'> {
   readonly entries: readonly RenderEntry[]
   readonly pendingInputs: readonly (PendingSubmission | InboxState['next-step'][number])[]
   readonly lastInputTurn: number | undefined

@@ -14,7 +14,8 @@ export const ChatFlow = memo(function ChatFlow({
   entries, pendingInputs, lastInputTurn, deferCollapse,
   useSession, useChat, useChatNode, useChatNodeBottom, useChatNodeProcess, useChatGroup, usePresentation,
   useStore, actions, renderSlot, t, useGroupAction, useGroupHeaderAction,
-  cwd, openFile, openSkill, inspectCall, forkAt, editUserMessage, retryTurn, continueGeneration, loadImage,
+  cwd, openFile, openSkill, inspectCall, forkAt, editUserMessage, retryTurn, continueGeneration, retryQueuedTurn,
+  loadImage,
 }: ChatFlowSlotProps) {
   const nodeStore = useChat(snapshot => snapshot.nodes)
   const running = useSession(snapshot => snapshot.running)
@@ -105,7 +106,7 @@ export const ChatFlow = memo(function ChatFlow({
     nodeStore, useChatNode, useChatNodeBottom, useChatNodeProcess, usePresentation,
     useStore, actions, renderSlot, t, useGroupAction, deferCollapse,
     cwd, openFile, openSkill, inspectCall, forkAt, editUserMessage, retryTurn, continueGeneration,
-    loadImage, renderMessageImages,
+    retryQueuedTurn, loadImage, renderMessageImages,
   }
   const rows = entries.map((entry) => {
     switch (entry.kind) {

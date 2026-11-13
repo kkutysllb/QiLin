@@ -111,6 +111,22 @@ export function ChatView({
     },
   }), [cwd, t])
   const running = useSession(s => s.running)
+  // A retry asked for while the Session still runs waits for it to settle: the
+  // Host refuses a retry for a busy Session, and a queued one must not surface
+  // as a failure in the transcript.
+  const [retryQueuedTurn, setRetryQueuedTurn] = useState<number | null>(null)
+  useEffect(() => {
+    if (running || retryQueuedTurn === null) return
+    setRetryQueuedTurn(null)
+    retryTurn?.(retryQueuedTurn)
+  }, [running, retryQueuedTurn, retryTurn])
+  const retryOrQueue = useCallback((turn: number) => {
+    if (running) {
+      setRetryQueuedTurn(turn)
+      return
+    }
+    retryTurn?.(turn)
+  }, [running, retryTurn])
   // Fold transitions run while a Turn is live, while an input is pending, and briefly after settling.
   const [motionTail, setMotionTail] = useState(false)
   useEffect(() => {
@@ -244,8 +260,8 @@ export function ChatView({
               openExternalLink={openExternalLink} openFile={requestOpenFile} fileImages={fileImages}>
               {renderSlot('conversation.chat.flow', {
                 entries, pendingInputs, lastInputTurn, deferCollapse,
-                cwd, openFile: requestOpenFile, openSkill, inspectCall, forkAt, loadImage, editUserMessage, retryTurn,
-                continueGeneration,
+                cwd, openFile: requestOpenFile, openSkill, inspectCall, forkAt, loadImage, editUserMessage,
+                retryTurn: retryTurn === undefined ? undefined : retryOrQueue, continueGeneration, retryQueuedTurn,
               }, { hookContext: flowContext })}
             </MarkdownDelegateProvider>
             {/* No pending placeholders: questions (ui-user-questions) and approvals
