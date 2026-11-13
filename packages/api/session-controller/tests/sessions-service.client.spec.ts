@@ -966,6 +966,28 @@ describe('fork', () => {
     expect(b.mock.remote.session.rename).not.toHaveBeenCalled()
   })
 
+  it('gives repeated forks distinct titles past numbers listed sessions use', async ({ bench }) => {
+    const b = bench()
+    for (const [id, value] of [['source', 'Roadmap'], ['sibling', 'Roadmap (2)']] as const) {
+      b.svc.handleControlFrame({ type: 'projection', sessionId: sid(id), seq: 2, changes: [{ key: 'title', val: value }] })
+    }
+    await feedList(b, [{ id: 'source' }, { id: 'sibling' }])
+    b.mock.remote.session.rename.mockImplementation((payload) => {
+      const { title } = payload as { title: string }
+      return Promise.resolve(ok({ title, seq: 3 }))
+    })
+
+    for (const child of ['child-1', 'child-2']) {
+      b.mock.remote.session.fork.mockResolvedValueOnce(ok({ sessionId: sid(child) }))
+      await b.svc.fork({ sessionId: sid('source'), increaseTitle: true })
+    }
+
+    expect(b.mock.remote.session.rename.mock.calls).toEqual([
+      [{ sessionId: 'child-1', title: 'Roadmap (1)' }],
+      [{ sessionId: 'child-2', title: 'Roadmap (3)' }],
+    ])
+  })
+
   it('rejects child rename failure while preserving its catalog row without retaining the child', async ({ bench }) => {
     const b = bench()
     b.svc.handleControlFrame({ type: 'projection', sessionId: sid('source'), seq: 2, changes: [{ key: 'title', val: 'Roadmap' }] })
