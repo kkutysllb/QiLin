@@ -15,16 +15,20 @@ import type {
   SessionLogOffset,
 } from '@qilin-agent/session'
 import type { ProjectionDefinition } from '@qilin-agent/session-projection'
+import { isAgentName } from './names.ts'
 import type { SubagentCatalogEntry } from './projection-types.ts'
 
 /** Catalog payload version emitted by local child creation. */
 export const SUBAGENT_CATALOG_VERSION = 0
 
+/** Named catalog version: each child carries a name unique among its siblings. */
+export const NAMED_SUBAGENT_CATALOG_VERSION = 3
+
 type KnownCatalogMode =
   | { readonly mode: 'one-shot'; readonly label?: string }
   | { readonly mode: 'continuable'; readonly label: string }
 
-/** Parent catalog v0 records local modes, v1 adds unknown children, and v2 records external executions. */
+/** Parent catalog v0 records local modes, v1 adds unknown children, v2 records external executions, and v3 adds each child's name. */
 export type SubagentCatalogEvent =
   & {
     readonly childId: SessionId
@@ -33,6 +37,8 @@ export type SubagentCatalogEvent =
     | ({ readonly version: 0 } & KnownCatalogMode)
     | ({ readonly version: 1 } & (KnownCatalogMode | { readonly mode: 'unknown'; readonly label?: string }))
     | { readonly version: 2; readonly mode: 'external'; readonly label?: string }
+    | { readonly version: 3; readonly mode: 'continuable'; readonly label: string; readonly name: string }
+    | { readonly version: 3; readonly mode: 'external'; readonly label?: string; readonly name: string }
   )
 
 declare module '@qilin-agent/session/types' {
@@ -68,11 +74,22 @@ const continuableCatalogSchema = z.object({
 }).strict()
 const externalCatalogSchema = oneShotCatalogSchema.extend({ version: z.literal(2), mode: z.literal('external') })
 const unknownCatalogSchema = oneShotCatalogSchema.extend({ version: z.literal(1), mode: z.literal('unknown') })
+const nameSchema = z.string().refine(isAgentName, 'invalid agent name')
+const namedContinuableCatalogSchema = continuableCatalogSchema.extend({
+  version: z.literal(NAMED_SUBAGENT_CATALOG_VERSION),
+  name: nameSchema,
+})
+const namedExternalCatalogSchema = externalCatalogSchema.extend({
+  version: z.literal(NAMED_SUBAGENT_CATALOG_VERSION),
+  name: nameSchema,
+})
 const eventDataSchema = z.union([
   oneShotCatalogSchema,
   externalCatalogSchema,
   continuableCatalogSchema,
   unknownCatalogSchema,
+  namedContinuableCatalogSchema,
+  namedExternalCatalogSchema,
 ]) as z.ZodType<SubagentCatalogEvent>
 const viewSchema = z.array(z.union([
   oneShotCatalogSchema.omit({ version: true, childId: true, childCreatedAt: true }).extend({
@@ -90,6 +107,14 @@ const viewSchema = z.array(z.union([
   unknownCatalogSchema.omit({ version: true, childId: true, childCreatedAt: true }).extend({
     id: sessionIdSchema,
     createdAt: unknownCatalogSchema.shape.childCreatedAt,
+  }),
+  namedContinuableCatalogSchema.omit({ version: true, childId: true, childCreatedAt: true }).extend({
+    id: sessionIdSchema,
+    createdAt: namedContinuableCatalogSchema.shape.childCreatedAt,
+  }),
+  namedExternalCatalogSchema.omit({ version: true, childId: true, childCreatedAt: true }).extend({
+    id: sessionIdSchema,
+    createdAt: namedExternalCatalogSchema.shape.childCreatedAt,
   }),
 ])) as z.ZodType<SubagentCatalogEntry[]>
 const stateSchema: z.ZodType<SubagentCatalogState> = z.object({
@@ -172,6 +197,50 @@ export function establishCatalogChild(
     childCreatedAt: child.createdAt,
     mode: descriptor.mode,
     label: descriptor.label,
+  })
+}
+
+/** Append a named continuable child's discovery fact (catalog v3).
+ * @param parent - durable direct parent receiving the discovery fact.
+ * @param child - established child's immutable Session metadata.
+ * @param label - durable creation label frozen with the child.
+ * @param name - child's name, unique among its siblings; an invalid segment rejects the append.
+ */
+export function establishNamedContinuableCatalogChild(
+  parent: Session,
+  child: SessionHeader,
+  label: string,
+  name: string,
+): void {
+  parent.append('subagent/catalog', {
+    version: NAMED_SUBAGENT_CATALOG_VERSION,
+    childId: child.id,
+    childCreatedAt: child.createdAt,
+    mode: 'continuable',
+    label,
+    name,
+  })
+}
+
+/** Append a named external execution's discovery fact (catalog v3).
+ * @param parent - durable direct parent receiving the discovery fact.
+ * @param childId - identity returned by the external provider.
+ * @param label - display label assigned by the caller.
+ * @param name - child's name, unique among its siblings; an invalid segment rejects the append.
+ */
+export function establishNamedExternalCatalogChild(
+  parent: Session,
+  childId: SessionId,
+  label: string | undefined,
+  name: string,
+): void {
+  parent.append('subagent/catalog', {
+    version: NAMED_SUBAGENT_CATALOG_VERSION,
+    childId,
+    childCreatedAt: Date.now(),
+    mode: 'external',
+    ...label === undefined ? {} : { label },
+    name,
   })
 }
 

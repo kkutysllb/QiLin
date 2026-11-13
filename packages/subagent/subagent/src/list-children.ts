@@ -8,6 +8,7 @@ import type { Context } from '@qilin-agent/kylin'
 import type { SessionId } from '@qilin-agent/session'
 import type { SubagentListEntry } from './control-types.ts'
 import { SubagentError } from './error.ts'
+import { joinAgentPath } from './names.ts'
 import type { SubagentCatalogEntry } from './projection-types.ts'
 
 export type { SubagentListEntry } from './control-types.ts'
@@ -18,6 +19,8 @@ export type SubagentDescendantListEntry = SubagentListEntry & {
   readonly parentId: SessionId
   /** Edge distance from the requested root; direct children are `1`. */
   readonly depth: number
+  /** Slash-separated names from the requested root; absent when a link is unnamed. */
+  readonly path?: string
 }
 
 /**
@@ -85,13 +88,19 @@ export async function listDescendants(
     assertListingNotCancelled(signal)
     return children
   }
-  const stack = (await readChildren(rootSessionId))
-    .map(entry => ({ entry, parentId: rootSessionId, depth: 1 }))
+  const stack: Array<{
+    entry: SubagentCatalogEntry
+    parentId: SessionId
+    depth: number
+    parentPath: string | undefined
+  }> = (await readChildren(rootSessionId))
+    .map(entry => ({ entry, parentId: rootSessionId, depth: 1, parentPath: '' }))
     .reverse()
   const visited = new Set<SessionId>([rootSessionId])
   const result: SubagentDescendantListEntry[] = []
   for (let position = stack.pop(); position !== undefined; position = stack.pop()) {
-    const { entry, parentId, depth } = position
+    const { entry, parentId, depth, parentPath } = position
+    const path = joinAgentPath(parentPath, entry.name)
     if (visited.has(entry.id)) continue
     visited.add(entry.id)
     let children: SubagentCatalogEntry[]
@@ -113,13 +122,14 @@ export async function listDescendants(
       const { createdAt: _createdAt, ...identity } = entry
       result.push({
         ...identity, kind: 'child', parentId, depth,
+        ...path === undefined ? {} : { path },
         activity: sessions.get(entry.id) === undefined ? 'inactive' : 'running',
         hasChildren: children.length > 0,
       })
     }
     // Catalog event order defines siblings; the stack visits the first one next.
     for (const child of [...children].reverse()) {
-      stack.push({ entry: child, parentId: entry.id, depth: depth + 1 })
+      stack.push({ entry: child, parentId: entry.id, depth: depth + 1, parentPath: path })
     }
   }
   return result

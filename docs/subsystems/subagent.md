@@ -312,6 +312,8 @@ type SubagentDescendantListEntry = SubagentListEntry & {
   readonly parentId: SessionId
   /** Edge distance from the requested root; direct children are `1`. */
   readonly depth: number
+  /** Slash-separated names from the requested root; absent when a link is unnamed. */
+  readonly path?: string
 }
 ```
 

@@ -1,0 +1,54 @@
+/**
+ * Model-facing agent names. Each child's name is unique among its creator's
+ * children and is recorded in the creator's catalog; a member's full name is
+ * the slash-separated path of names from the root, whose own name is `lead`.
+ *
+ * @module @qilin-agent/subagent/names
+ */
+
+/** The root agent's fixed name; no child may take it. */
+export const ROOT_AGENT_NAME = 'lead'
+
+/** One lower-case segment of at most 32 characters, so a 36-character UUID never matches. */
+const NAME_PATTERN = /^[a-z][a-z0-9-]{0,31}$/u
+
+/**
+ * Whether a string is a valid child name.
+ * @param value - candidate name segment.
+ * @returns true for 1–32 lower-case letters, digits, or hyphens starting with a letter, other than `lead`.
+ */
+export function isAgentName(value: string): boolean {
+  return NAME_PATTERN.test(value) && value !== ROOT_AGENT_NAME
+}
+
+/**
+ * Append a child's name to its creator's path. The root's path is the empty string.
+ * @param parentPath - the creator's path, or undefined when an ancestor below the root has no name.
+ * @param name - the child's catalog name, absent on historical entries.
+ * @returns the child's path, or undefined when any link is unnamed.
+ */
+export function joinAgentPath(parentPath: string | undefined, name: string | undefined): string | undefined {
+  if (parentPath === undefined || name === undefined) return undefined
+  return parentPath === '' ? name : `${parentPath}/${name}`
+}
+
+/**
+ * Select the model-facing name of one tree member.
+ * @param path - the member's path; `''` for the root and undefined for unnamed history.
+ * @param id - the member's Session id, used when no complete path exists.
+ * @returns `lead`, the full path, or the Session id.
+ */
+export function agentAddress(path: string | undefined, id: string): string {
+  if (path === '') return ROOT_AGENT_NAME
+  return path ?? id
+}
+
+/**
+ * Remove the last name from a descendant path.
+ * @param path - a non-empty descendant path.
+ * @returns the creator's path; `''` when the creator is the root.
+ */
+export function parentAgentPath(path: string): string {
+  const separator = path.lastIndexOf('/')
+  return separator < 0 ? '' : path.slice(0, separator)
+}

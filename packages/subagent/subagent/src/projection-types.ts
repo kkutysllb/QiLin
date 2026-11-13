@@ -11,6 +11,8 @@ export type SubagentCatalogEntry =
   & {
     readonly id: SessionId
     readonly createdAt: number
+    /** Child name recorded by catalog v3; absent on older rows. */
+    readonly name?: string
   }
   & (
     | { readonly mode: 'one-shot'; readonly label?: string }

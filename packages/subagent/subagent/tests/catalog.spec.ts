@@ -12,6 +12,8 @@ import {
 import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
 import {
   establishExternalCatalogChild,
+  establishNamedContinuableCatalogChild,
+  establishNamedExternalCatalogChild,
   subagentCatalogProjectionDefinition,
 } from '../src/catalog.ts'
 import type { SubagentCatalogState } from '../src/catalog.ts'
@@ -69,6 +71,48 @@ describe('subagent catalog projection', () => {
       expect(entries).toHaveLength(1)
       expect(entries[0]!.createdAt).toBeGreaterThanOrEqual(before)
       expect(entries[0]!.createdAt).toBeLessThanOrEqual(Date.now())
+    } finally {
+      await ctx.fiber.dispose()
+    }
+  })
+
+  it('records catalog v3 names and rejects an invalid segment when projecting', async () => {
+    const ctx = new Context()
+    try {
+      await ctx.plugin(SessionStore)
+      const parent = ctx.sessions.create(header.id)
+      const childHeader: SessionHeader = {
+        version: SESSION_FORMAT_VERSION,
+        id: SessionId('named-child'),
+        createdAt: 5,
+        isSeeded: false,
+      }
+      establishNamedContinuableCatalogChild(parent, childHeader, 'Review work', 'reviewer')
+      establishNamedExternalCatalogChild(parent, SessionId('named-external'), undefined, 'runner')
+      const events = parent.snapshotEvents()
+      expect(events.map(event => event.data)).toEqual([
+        expect.objectContaining({ version: 3, mode: 'continuable', label: 'Review work', name: 'reviewer' }),
+        expect.objectContaining({ version: 3, mode: 'external', name: 'runner' }),
+      ])
+      expect(subagentCatalogProjectionDefinition.wire.view(fold(events))).toEqual([
+        expect.objectContaining({ id: 'named-child', mode: 'continuable', name: 'reviewer' }),
+        expect.objectContaining({ id: 'named-external', mode: 'external', name: 'runner' }),
+      ])
+
+      const invalid: SessionEvent<'subagent/catalog'> = {
+        type: 'subagent/catalog',
+        seq: SessionSeq(99),
+        time: 0,
+        data: {
+          version: 3,
+          childId: SessionId('invalid-child'),
+          childCreatedAt: 6,
+          mode: 'continuable',
+          label: 'Invalid name',
+          name: 'Lead',
+        },
+      }
+      expect(() => subagentCatalogProjectionDefinition.wire.view(fold([invalid]))).toThrow()
     } finally {
       await ctx.fiber.dispose()
     }

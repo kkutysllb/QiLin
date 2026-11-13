@@ -26,6 +26,8 @@ export type SubagentCatalogRow =
   & {
     /** The durable child session id, stable across Activations. */
     readonly id: SessionId
+    /** Child name recorded by catalog v3; absent on older rows. */
+    readonly name?: string
     /**
      * Whether complete-descendant listing observed a resident Session. This
      * does not encode a durable outcome or guarantee continuation delivery.
