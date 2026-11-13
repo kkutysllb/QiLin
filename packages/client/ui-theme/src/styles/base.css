@@ -24,14 +24,58 @@
   --ds-transition-duration: 0.2s;
   --ds-transition-duration-fast: 0.1s;
   --ds-transition-duration-slow: 0.3s;
-  /* Paper scale: flat surfaces read as sheets, so corners stay close to square
-     and only floating panels carry a visible radius. */
-  --qilin-radius-xs: 2px;
-  --qilin-radius-sm: 4px;
-  --qilin-radius-md: 6px;
-  --qilin-radius-lg: 10px;
-  --qilin-radius-xl: 14px;
-  --qilin-radius-panel: 16px;
+  /* Paper scale with the v1 softening: controls keep crisp edges while
+     floating surfaces read as rounded sheets. */
+  --qilin-radius-xs: 4px;
+  --qilin-radius-sm: 6px;
+  --qilin-radius-md: 10px;
+  --qilin-radius-lg: 14px;
+  --qilin-radius-xl: 18px;
+  --qilin-radius-panel: 20px;
+  --qilin-radius-pill: 999px;
+  /* Spacing scale. Components that adopted v1 reference these instead of
+     literal pixels; unmigrated packages keep their literals until their batch. */
+  --qilin-space-1: 4px;
+  --qilin-space-2: 8px;
+  --qilin-space-3: 12px;
+  --qilin-space-4: 16px;
+  --qilin-space-5: 24px;
+  --qilin-space-6: 32px;
+  --qilin-space-7: 48px;
+  --qilin-space-8: 64px;
+  /* Type scale; the content-size deltas keep the user's font-size preference
+     additive instead of replacing the scale. */
+  --qilin-text-xs: 11px;
+  --qilin-text-sm: 12px;
+  --qilin-text-base: 13px;
+  --qilin-text-md: 14px;
+  --qilin-text-lg: 16px;
+  --qilin-text-xl: 18px;
+  --qilin-text-2xl: 22px;
+  --qilin-leading-tight: 1.5;
+  --qilin-leading-normal: 1.6;
+  --qilin-leading-relaxed: 1.75;
+}
+
+/* Surface density, selected from the Appearance settings row. Components read
+   the deltas with the standard value as their fallback, so an unset attribute
+   keeps the current layout. */
+body[data-qilin-density='compact'] {
+  --qilin-density-gap: 2px;
+  --qilin-density-control-height: 26px;
+  --qilin-density-font-delta: -1px;
+}
+
+body[data-qilin-density='standard'] {
+  --qilin-density-gap: 4px;
+  --qilin-density-control-height: 30px;
+  --qilin-density-font-delta: 0px;
+}
+
+body[data-qilin-density='comfortable'] {
+  --qilin-density-gap: 8px;
+  --qilin-density-control-height: 36px;
+  --qilin-density-font-delta: 1px;
 }
 
 [data-dsh-automatic-focus]:focus,

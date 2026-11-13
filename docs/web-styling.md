@@ -6,7 +6,20 @@ This reference defines styling ownership and component rules for browser client 
 
 ## Paper base
 
-The platform palettes carry a warm paper neutral ramp (cream canvas, ink text, warm hairline borders) and content headings ride the system Heiti (sans) stack, so every color skin sits on the same reading surface instead of restyling the canvas. Skins override brand accent, surfaces, and state tints only; the paper ramp, the collapsed radius scale, and the heading face belong to the theme owner.
+The platform palettes carry a warm paper neutral ramp (cream canvas, ink text, warm hairline borders) and content headings ride the system Heiti (sans) stack, so every color skin sits on the same reading surface instead of restyling the canvas. Skins override brand accent, surfaces, and state tints only; the paper ramp, the radius scale, and the heading face belong to the theme owner.
+
+## Scales
+
+The theme owner publishes four scales that feature components consume instead of literal values:
+
+- **Spacing** `--qilin-space-1..8` (4/8/12/16/24/32/48/64) for padding, margin, and gaps.
+- **Type** `--qilin-text-xs..2xl` (11/12/13/14/16/18/22) with `--qilin-leading-tight/normal/relaxed`; the content-size deltas stay additive so the user's font-size preference composes with the scale.
+- **Radius** `--qilin-radius-xs..xl`, `-panel`, `-pill` (4/6/10/14/18/20/999), with `corner-shape: round` pairing for pill radii.
+- **Density** `body[data-qilin-density='compact' | 'standard' | 'comfortable']` publishes `--qilin-density-gap`, `--qilin-density-control-height`, and `--qilin-density-font-delta`; components read them with the standard value as the fallback.
+
+The accent is a single measured pair: `--qilin-alias-accent` (with `-hover`, `-tint`, `-ring`) resolves to `#2563EB` on the paper base (4.87:1) and `#7C9BFF` on the dark base (6.74:1). `--qilin-alias-state-business-primary` routes through it, and the shared focus ring falls back to the same accent. The ui-theme contrast spec fails when either pair drops below 4.5:1.
+
+**Migrated packages** (the list in `scripts/verify-css-tokens.ts`) must express colors, font sizes, spacing, and radius through these tokens; `pnpm run verify-css-tokens` rejects raw `#hex`/`rgb()`, `font-size: <n>px`, `padding/margin/gap: <n>px`, and `border-radius: <n>px` there. Gradient and mask image values remain exempt.
 
 ## Ownership
 
@@ -18,7 +31,7 @@ Global style sheets belong in `ui-theme/src/styles/`. Component styles live besi
 
 - Reuse the control before restyling one: the [ui-primitives component catalog](../packages/client/ui-primitives/README.md#component-catalog) is the only channel that crosses feature packages, and a deliberate visual difference belongs in a prop there rather than in a second copy ([decision](../.agents/notes/implemented/architecture/2026-09-05-shared-client-control-primitives.md)).
 - Use CSS Modules and `clsx`; do not add a component library or Tailwind.
-- Use `--qilin-alias-*` semantic tokens in feature components. Do not copy static palette values or write literal colors there.
+- Use `--qilin-alias-*` semantic tokens in feature components. Do not copy static palette values or write literal colors there; spacing, type size, and radius come from the scales above.
 - Keep theme selectors out of feature component CSS. Light/dark overrides belong to the theme owner.
 - Pair font sizes with line heights and use the theme typography variables when an existing role matches.
 - Keep source text, terminal output, and diff lines unwrapped when their component contract requires column preservation; use the shared scrollbar styles rather than component-specific scrollbar selectors.

@@ -8,8 +8,8 @@
 
 import type { IndexInjection } from '@qilin-agent/host-webserver'
 import {
-  DEFAULT_FONT_SIZES, DEFAULT_PREFERENCE, FONT_ROLES, FONT_SIZE_SPECS, fontFamilyVariable, normalizeFontFamily,
-  type FontFamilies, type FontSizes, type ThemePreference,
+  DEFAULT_DENSITY, DEFAULT_FONT_SIZES, DEFAULT_PREFERENCE, FONT_ROLES, FONT_SIZE_SPECS, fontFamilyVariable, normalizeFontFamily,
+  type Density, type FontFamilies, type FontSizes, type ThemePreference,
 } from './theme-settings.ts'
 
 /** Canvas background one skin contributes for each base palette. */
@@ -32,8 +32,13 @@ function bootThemeStyle(preference: ThemePreference, colors: SkinBootColors): st
   return `${light}@media(prefers-color-scheme:dark){${dark}}`
 }
 
-/** Build the body script that installs the palette selector and font variables. */
-function bootThemeBodyScript(preference: ThemePreference, fontSizes: FontSizes, fontFamilies: FontFamilies): string {
+/** Build the body script that installs the palette selector, density, and font variables. */
+function bootThemeBodyScript(
+  preference: ThemePreference,
+  fontSizes: FontSizes,
+  fontFamilies: FontFamilies,
+  density: Density,
+): string {
   const sizes = FONT_ROLES.map(role =>
     `\n  document.body.style.setProperty(${JSON.stringify(FONT_SIZE_SPECS[role].variable)}, ${JSON.stringify(`${fontSizes[role]}px`)})`).join('')
   const families = FONT_ROLES.flatMap((kind) => {
@@ -47,7 +52,8 @@ function bootThemeBodyScript(preference: ThemePreference, fontSizes: FontSizes, 
     && matchMedia('(prefers-color-scheme: dark)').matches
   const dark = preference === 'dark' || systemDark
   document.documentElement.dataset.dsThemeSource = preference
-  document.body.toggleAttribute('data-ds-dark-theme', dark)${sizes}${families}
+  document.body.toggleAttribute('data-ds-dark-theme', dark)
+  document.body.dataset.qilinDensity = ${JSON.stringify(density)}${sizes}${families}
 })()`
 }
 
@@ -59,6 +65,7 @@ function bootThemeBodyScript(preference: ThemePreference, fontSizes: FontSizes, 
  * @param fontSizes - Current Host-backed font sizes in px by role.
  * @param fontFamilies - Current Host-backed font lists; each is normalized before embedding.
  * @param colors - Canvas colors of the selected skin, or {@link PLATFORM_BOOT_COLORS}.
+ * @param density - Selected surface density written as `body[data-qilin-density]`.
  * @returns head and body script rows in execution order.
  */
 export function bootThemeInjections(
@@ -66,9 +73,10 @@ export function bootThemeInjections(
   fontSizes: FontSizes = DEFAULT_FONT_SIZES,
   fontFamilies: FontFamilies = { text: '', code: '', terminal: '' },
   colors: SkinBootColors = PLATFORM_BOOT_COLORS,
+  density: Density = DEFAULT_DENSITY,
 ): IndexInjection[] {
   return [
     { kind: 'style', text: bootThemeStyle(preference, colors) },
-    { kind: 'script', placement: 'body', text: bootThemeBodyScript(preference, fontSizes, fontFamilies) },
+    { kind: 'script', placement: 'body', text: bootThemeBodyScript(preference, fontSizes, fontFamilies, density) },
   ]
 }

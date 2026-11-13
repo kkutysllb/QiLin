@@ -20,6 +20,27 @@ export const DEFAULT_SKIN = ''
 /** Field carrying the conversation content font size. */
 export const FONT_SIZE_FIELD = 'fontSize'
 
+/** Surface density levels: row spacing and control height over the same type scale. */
+export const DENSITIES = ['compact', 'standard', 'comfortable'] as const
+
+/** Settings namespace field carrying the selected density. */
+export const DENSITY_FIELD = 'density'
+
+/** One accepted surface density level. */
+export type Density = typeof DENSITIES[number]
+
+/** Density selected when the user-settings document has no override. */
+export const DEFAULT_DENSITY: Density = 'standard'
+
+/**
+ * Whether one value names an accepted density level.
+ * @param value - value crossing the settings or registry boundary.
+ * @returns whether the value is a density level.
+ */
+export function isDensity(value: unknown): value is Density {
+  return DENSITIES.some(density => density === value)
+}
+
 /** Theme preference persisted by the product Appearance row. */
 export type ThemePreference = typeof THEME_PREFERENCES[number]
 
@@ -112,6 +133,8 @@ export interface ThemeSettings {
   codeFontFamily: string
   /** Sidebar terminal fonts placed before the built-in terminal stack; `''` keeps the built-in stack. */
   terminalFontFamily: string
+  /** Selected surface density over the same type scale. */
+  density: Density
 }
 
 /**
@@ -153,6 +176,7 @@ export const ThemeSettingsSchema: z<ThemeSettings> = z.object({
   [FONT_FAMILY_FIELDS.text]: z.string().default(''),
   [FONT_FAMILY_FIELDS.code]: z.string().default(''),
   [FONT_FAMILY_FIELDS.terminal]: z.string().default(''),
+  [DENSITY_FIELD]: z.union([...DENSITIES]).default(DEFAULT_DENSITY),
 })
 
 /** CSS Fonts generic and system family keywords, which must stay unquoted. */

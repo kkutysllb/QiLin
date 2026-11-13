@@ -37,6 +37,9 @@ const FONT_SIZE_VARIABLES = {
   terminal: '--qilin-terminal-font-size',
 } as const satisfies Record<FontRole, string>
 
+/** Body attribute carrying the selected surface density; the token sheet keys on it. */
+export const DENSITY_ATTRIBUTE = 'data-qilin-density'
+
 /** Body variables carrying the user's normalized font lists; absent selects the built-in stack. */
 const FONT_FAMILY_VARIABLES = {
   text: '--qilin-font-family-text',
@@ -74,6 +77,7 @@ export class ThemePresenter {
     const body = document.body
     if (scheme === 'dark') body.setAttribute(DARK_ATTRIBUTE, '')
     else body.removeAttribute(DARK_ATTRIBUTE)
+    body.setAttribute(DENSITY_ATTRIBUTE, snapshot.density)
     for (const [role, name] of Object.entries(FONT_SIZE_VARIABLES)) {
       body.style.setProperty(name, `${snapshot.fontSizes[role as FontRole]}px`)
     }
@@ -101,6 +105,7 @@ export class ThemePresenter {
     document.documentElement.removeAttribute(THEME_SOURCE_ATTRIBUTE)
     const body = document.body
     body.removeAttribute(DARK_ATTRIBUTE)
+    body.removeAttribute(DENSITY_ATTRIBUTE)
     for (const name of Object.values(FONT_SIZE_VARIABLES)) body.style.removeProperty(name)
     for (const name of Object.values(FONT_FAMILY_VARIABLES)) body.style.removeProperty(name)
     for (const name of this.appliedTokens) body.style.removeProperty(name)

@@ -28,10 +28,10 @@ import { installFontSizeShortcuts } from './font-size-shortcuts.ts'
 import { installThemeStyles } from './styles.ts'
 import { en, zh, type ThemeKey } from './locales.ts'
 import {
-  DEFAULT_FONT_SIZES, DEFAULT_PREFERENCE, DEFAULT_SKIN, FONT_FAMILY_FIELDS, FONT_ROLES, FONT_SIZE_SPECS,
-  fontFamilyVariable, isFontSize, isThemePreference, normalizeFontFamily, sectionFontSizes,
-  SKIN_FIELD, THEME_PREFERENCE_FIELD, THEME_SETTINGS_NAMESPACE,
-  type FontFamilies, type FontRole, type FontSizes, type ThemePreference, type ThemeSettings,
+  DEFAULT_DENSITY, DEFAULT_FONT_SIZES, DEFAULT_PREFERENCE, DEFAULT_SKIN, DENSITY_FIELD, FONT_FAMILY_FIELDS,
+  FONT_ROLES, FONT_SIZE_SPECS, fontFamilyVariable, isDensity, isFontSize, isThemePreference, normalizeFontFamily,
+  sectionFontSizes, SKIN_FIELD, THEME_PREFERENCE_FIELD, THEME_SETTINGS_NAMESPACE,
+  type Density, type FontFamilies, type FontRole, type FontSizes, type ThemePreference, type ThemeSettings,
 } from '../theme-settings.ts'
 
 export type { AppearanceRowComponentProps, AppearanceRowInjected } from './AppearanceRow.tsx'
@@ -107,6 +107,8 @@ export interface ThemeSnapshot {
   fontSizes: FontSizes
   /** Normalized user font lists by role; `''` selects the role's built-in stack. */
   fontFamilies: FontFamilies
+  /** Selected surface density over the same type scale. */
+  density: Density
   /**
    * The resolved active theme (`system` resolved via prefers-color-scheme)
    * with the selected skin and then the override layers folded into its tokens
@@ -194,6 +196,7 @@ export class ThemeRuntime {
   private preference: ThemePreference
   private fontSizes: FontSizes = bootstrapFontSizes()
   private fontFamilies: FontFamilies = bootstrapFontFamilies()
+  private density: Density = bootstrapDensity()
   private revision = 0
   /** Own settings writes not yet settled; adoption waits for zero so a Host echo of an earlier write cannot revert a later local change. */
   private pendingWrites = 0
@@ -297,6 +300,19 @@ export class ThemeRuntime {
   }
 
   /**
+   * Switch the surface density — the only density write entry. The value is
+   * persisted through the settings scope and emits `theme/change`.
+   * @param next - accepted density level; an unknown value throws.
+   */
+  setDensity(next: Density): void {
+    if (!isDensity(next)) throw new Error(`density "${String(next)}" is not a registered level`)
+    if (this.density === next) return
+    this.density = next
+    this.write(() => this.host.set(DENSITY_FIELD, next))
+    this.publish()
+  }
+
+  /**
    * Change one role's font size — the only font-size write entry. Accepted
    * values are written through the settings scope and emit `theme/change`.
    * @param role - font role.
@@ -364,12 +380,14 @@ export class ThemeRuntime {
     if (section === undefined) return
     const fontFamilies = durableFontFamilies(section)
     const fontSizes = sectionFontSizes(section)
-    if (this.preference === section.preference && this.skin === section.skin
+    const density = isDensity(section.density) ? section.density : DEFAULT_DENSITY
+    if (this.preference === section.preference && this.skin === section.skin && this.density === density
       && FONT_ROLES.every(role => this.fontSizes[role] === fontSizes[role] && this.fontFamilies[role] === fontFamilies[role])) return
     this.preference = section.preference
     this.skin = section.skin
     this.fontSizes = fontSizes
     this.fontFamilies = fontFamilies
+    this.density = density
     this.publish()
   }
 
@@ -469,6 +487,7 @@ export class ThemeRuntime {
       skins: Object.freeze([...this.skins]),
       fontSizes: this.fontSizes,
       fontFamilies: this.fontFamilies,
+      density: this.density,
       active: this.composeActive(active, skin),
       themes: Object.freeze([...this.themes]),
       revision: this.revision,
@@ -541,6 +560,14 @@ function durableFontFamilies(section: ThemeSettings): FontFamilies {
   })
 }
 
+/** Density the Host boot script wrote on `body`, read for the same first-paint reason as {@link bootstrapFontSizes}. */
+function bootstrapDensity(): Density {
+  /* v8 ignore next -- needs a documentless run (node e2e booting the client tree), not constructible under jsdom */
+  if (typeof document === 'undefined') return DEFAULT_DENSITY
+  const value = document.body.dataset.qilinDensity
+  return isDensity(value) ? value : DEFAULT_DENSITY
+}
+
 /**
  * Runtime shape check for one override layer (model-authored callers pass
  * untyped JS through the dynamic-package façade, so the static type cannot
@@ -607,7 +634,7 @@ export function apply(ctx: ClientContext): void {
     skin => ({ id: skin.id, label: ctx.locale.resolveText(skin.label) }),
   )
   const sync = (snapshot: ThemeSnapshot): void => {
-    bound?.sync(snapshot.preference, snapshot.skin, snapshot.revision)
+    bound?.sync(snapshot.preference, snapshot.skin, snapshot.density, snapshot.revision)
     bound?.syncSkins(skinOptions(snapshot))
     fontBound?.sync(snapshot.fontSizes, snapshot.fontFamilies, snapshot.revision)
   }
@@ -623,6 +650,7 @@ export function apply(ctx: ClientContext): void {
     return {
       setTheme: (id) => { theme.setTheme(id) },
       setSkin: (id) => { theme.setSkin(id) },
+      setDensity: (level) => { theme.setDensity(level) },
     }
   }
   ctx.slots.inject('settings.general.item', () => ctx.slots.register({

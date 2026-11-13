@@ -31,6 +31,8 @@ kind: "package-reference"
 
 插件在「通用」分区注册外观偏好方块与正文字号步进器。步进器之后有一个「更多字体设置」按钮，展开其下方区域——每次打开设置都保持折叠——内含正文、代码、侧栏终端三个角色的字体行，以及代码与终端字号步进器。明/暗/跟随系统的选择由账户菜单负责，两者共用同一服务。正文字号步进器接受 10 至 22 px 的整数，默认值为 14 px。它以相同增量调整会话标题与基础文本，包括用户气泡与 composer 草稿；流内行的标题、摘要与表格跟随比正文低一档的字号，小号文本保持固定字号。代码步进器（10–16 px，默认 11）设定代码块字号；行内代码大 1 px，小号工具输出变体使用相同字号。终端步进器（10–20 px，默认 13）设定侧栏终端的单元字号；变更后保留 shell 与输出并重新 fitting 网格。每次通过的变更都经 Host settings API 写入。连续快速变更按操作顺序携带命名空间 revision 串行写入，最新写入被拒时重新加载持久值。非 loopback 页面把这些选择都保留在进程内。
 
+表面密度是外观中的独立选项——紧凑、标准或宽松——持久化在同一命名空间的 `density` 字段里。它会发布 `body[data-qilin-density]`，token 表由此派生 `--qilin-density-gap`、`--qilin-density-control-height` 与 `--qilin-density-font-delta`；组件以标准值作为回退读取，因此尚未迁移的表面保持现有布局。
+
 Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-` 会一起增减正文、代码与终端字号各 1 px，各自不超过自身的取值区间。两个操作显示在快捷键参考中，并在主页面及其文本输入框内生效；终端输入保留自身的按键处理。Web 保留浏览器的缩放快捷键。
 
 ### 字体
@@ -47,7 +49,7 @@ Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-`
 
 ### 插件前调色板
 
-当主机组合包含 HTTP 服务器时，宿主侧会把已注册的 `ui-theme` 设置或 schema 默认值嵌入每份 index 响应。配色包提供方的宿主侧会把画布底色注册到 Host 的 `themeBoot` 注册表，因此选中配色的底色在浏览器插件加载之前就已生效。head CSS 会在任何脚本运行前选择文档画布的配色方案，其中 `system` 偏好使用 `prefers-color-scheme` 查询；随后，body 脚本会在加载页面和应用脚本之前设置 `body[data-ds-dark-theme]`、`--qilin-content-font-size`、`--qilin-code-font-size`、`--qilin-terminal-font-size` 以及每个非空的 `--qilin-font-family-<role>` 字表，因此首帧绘制就采用所选调色板与正文、代码字号，且 `ThemeRuntime` 从已保存的字号与字体出发，而不是先渲染默认值。
+当主机组合包含 HTTP 服务器时，宿主侧会把已注册的 `ui-theme` 设置或 schema 默认值嵌入每份 index 响应。配色包提供方的宿主侧会把画布底色注册到 Host 的 `themeBoot` 注册表，因此选中配色的底色在浏览器插件加载之前就已生效。head CSS 会在任何脚本运行前选择文档画布的配色方案，其中 `system` 偏好使用 `prefers-color-scheme` 查询；随后，body 脚本会在加载页面和应用脚本之前设置 `body[data-ds-dark-theme]`、`body[data-qilin-density]`、`--qilin-content-font-size`、`--qilin-code-font-size`、`--qilin-terminal-font-size` 以及每个非空的 `--qilin-font-family-<role>` 字表，因此首帧绘制就采用所选调色板、密度与正文、代码字号，且 `ThemeRuntime` 从已保存的字号、字体与密度出发，而不是先渲染默认值。
 
 -----
 
@@ -61,7 +63,7 @@ Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-`
 
 ### 样式表
 
-`src/styles/` 下有七张样式表，由 ui-theme 的动态客户端 entry 依次导入：`base.css`、`corner-shape.css`、`design-platform.css`、`focus.css`、`scrollbar.css`、`gradient-shadow-text.css` 与 `shiki.css`。客户端 bundle 将其编译并注入为插件持有的全局样式，因此卸载与 HMR 会随 ui-theme 一同移除。`scrollbar.css` 是 `--qilin-alias-scrollbar-*` token 的唯一消费方，必须排在声明这些 token 的 `design-platform.css` 之后。
+`src/styles/` 下有七张样式表，由 ui-theme 的动态客户端 entry 依次导入：`base.css`、`corner-shape.css`、`design-platform.css`、`focus.css`、`scrollbar.css`、`gradient-shadow-text.css` 与 `shiki.css`。`base.css` 拥有间距、字号与圆角标尺以及三个 `body[data-qilin-density]` 块；`design-platform.css` 拥有强调色静态值与别名。`tests/tokens-v1.client.spec.ts` 锁定标尺取值，并断言两组强调色相对各自底色的对比度不低于 4.5:1。客户端 bundle 将其编译并注入为插件持有的全局样式，因此卸载与 HMR 会随 ui-theme 一同移除。`scrollbar.css` 是 `--qilin-alias-scrollbar-*` token 的唯一消费方，必须排在声明这些 token 的 `design-platform.css` 之后。
 
 `design-platform.css` 同时承载上游世代的别名。两代命名仍在读取这套调色板：`dsw-compat.css` 镜像的 dsh 时代 `--dsw-*` 词汇，以及从那一代移植、直接读 `--qilin-*` 拼写的组件。每个名字都解析到方案块已经拥有的 token，因此调色板变更仍只有一处；需要按明暗取值的条目——第四级背景层、文件 diff 调色板、done 状态与 violet 静态色——与同类条目一起放在明暗两个块里。两条机检门把词汇表封闭起来：`tests/compat-alias-resolution.client.spec.ts` 要求每条 compat 别名都能解析且不留白名单；`tests/token-resolution.client.spec.ts` 拒绝客户端源码中任何既无 fallback 又无定义的 `var()`，其解析来源包括主题表、组件表、客户端程序注入的 token，以及唯一一份具名 vendor 清单（pdf.js 的 `--min-font-size`）。
 
@@ -81,7 +83,7 @@ Desktop 的固定快捷键 `Cmd`/`Ctrl` + `+`（或 `=`）和 `Cmd`/`Ctrl` + `-`
 
 ### 偏好持久化
 
-在 loopback 浏览器上，服务先以 schema 默认值立即提供自身，随后加载 `ui-theme` 命名空间，并把每次通过的主题、配色包、字号或字体变更经 Host settings API 写入。收到推送的设置变更时或重连后都会重新拉取该命名空间。自身写入未落定期间，服务会忽略重新拉取的节，早期写入的回显不会回滚更晚的变更；写入落定后服务再采纳持久节。非 loopback 页面不会创建该 Host-backed scope。该持久化边界由 [Host 支撑的偏好笔记](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.zh.md) 拥有。
+在 loopback 浏览器上，服务先以 schema 默认值立即提供自身，随后加载 `ui-theme` 命名空间，并把每次通过的主题、配色包、密度、字号或字体变更经 Host settings API 写入。收到推送的设置变更时或重连后都会重新拉取该命名空间。自身写入未落定期间，服务会忽略重新拉取的节，早期写入的回显不会回滚更晚的变更；写入落定后服务再采纳持久节。非 loopback 页面不会创建该 Host-backed scope。该持久化边界由 [Host 支撑的偏好笔记](../../../.agents/notes/implemented/bug-fix/2026-08-06-host-backed-web-preferences.zh.md) 拥有。
 
 </details>
 

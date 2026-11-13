@@ -584,6 +584,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ConnectionWebSocketEventMap {\n    readonly open: object;\n    readonly error: object;\n    readonly close: object;\n    readonly message: {\n        readonly data: unknown;\n    };\n}',
   },
   {
+    name: 'Density',
+    declaration: 'export type Density = typeof DENSITIES[number];',
+  },
+  {
     name: 'DraftInitializationOptions',
     declaration: 'export interface DraftInitializationOptions {\n    readonly prompt?: string;\n    readonly clearPreviousDraft?: boolean;\n    readonly whenDraftExists?: \'replace\' | \'append\' | \'keep\';\n}',
   },
@@ -1037,7 +1041,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ThemeSnapshot',
-    declaration: 'export interface ThemeSnapshot {\n    preference: ThemePreference;\n    skin: string;\n    skins: readonly ThemeSkin[];\n    fontSizes: FontSizes;\n    fontFamilies: FontFamilies;\n    active: ThemeDefinition;\n    themes: readonly ThemeDefinition[];\n    revision: number;\n}',
+    declaration: 'export interface ThemeSnapshot {\n    preference: ThemePreference;\n    skin: string;\n    skins: readonly ThemeSkin[];\n    fontSizes: FontSizes;\n    fontFamilies: FontFamilies;\n    density: Density;\n    active: ThemeDefinition;\n    themes: readonly ThemeDefinition[];\n    revision: number;\n}',
   },
   {
     name: 'ThemeTokenModes',

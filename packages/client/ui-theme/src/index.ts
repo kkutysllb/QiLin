@@ -9,8 +9,8 @@ import type { Context } from '@qilin-agent/kylin'
 import type {} from '@qilin-agent/host-webserver'
 import { bootThemeInjections, PLATFORM_BOOT_COLORS, type SkinBootColors } from './boot-theme.ts'
 import {
-  DEFAULT_PREFERENCE, DEFAULT_SKIN, FONT_SIZE_SPECS, fontSizeSchema,
-  THEME_PREFERENCES, type FontFamilies,
+  DEFAULT_DENSITY, DEFAULT_PREFERENCE, DEFAULT_SKIN, DENSITIES, FONT_SIZE_SPECS, fontSizeSchema,
+  THEME_PREFERENCES, type Density, type FontFamilies,
 } from './theme-settings.ts'
 
 export {
@@ -18,11 +18,11 @@ export {
 } from './boot-theme.ts'
 
 export {
-  DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE, DEFAULT_SKIN,
+  DEFAULT_DENSITY, DEFAULT_FONT_SIZE, DEFAULT_PREFERENCE, DEFAULT_SKIN, DENSITIES, DENSITY_FIELD,
   FONT_FAMILY_FIELDS, FONT_SIZE_FIELD, FONT_SIZE_MAX, FONT_SIZE_MIN,
   FONT_ROLES, FONT_SIZE_SPECS, SKIN_FIELD,
-  THEME_PREFERENCE_FIELD, THEME_PREFERENCES, THEME_SETTINGS_NAMESPACE,
-  type FontFamilies, type FontRole, type FontSizes, type ThemePreference, type ThemeSettings,
+  THEME_PREFERENCE_FIELD, THEME_PREFERENCES, THEME_SETTINGS_NAMESPACE, isDensity,
+  type Density, type FontFamilies, type FontRole, type FontSizes, type ThemePreference, type ThemeSettings,
 } from './theme-settings.ts'
 
 /**
@@ -94,6 +94,8 @@ export interface Config {
   codeFontFamily: Volatile<string>
   /** Sidebar terminal font list; `''` keeps the built-in stack. */
   terminalFontFamily: Volatile<string>
+  /** Surface density selected in the Appearance row. */
+  density: Volatile<Density>
 }
 
 /** Live theme and typography preferences. */
@@ -106,6 +108,7 @@ export const Config = z.object({
   textFontFamily: z.string().default('').volatile(),
   codeFontFamily: z.string().default('').volatile(),
   terminalFontFamily: z.string().default('').volatile(),
+  density: z.union([...DENSITIES]).default(DEFAULT_DENSITY).volatile(),
 })
 
 /** Supply the current palette before browser plugins start.
@@ -125,6 +128,6 @@ export function apply(ctx: Context, config: Config): void {
       text: config.textFontFamily.get(),
       code: config.codeFontFamily.get(),
       terminal: config.terminalFontFamily.get(),
-    }), boot.resolve(config.skin.get())))
+    }), boot.resolve(config.skin.get()), config.density.get()))
   }, { prepend: true })
 }

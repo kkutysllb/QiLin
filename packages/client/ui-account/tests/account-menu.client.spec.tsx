@@ -134,6 +134,7 @@ function bench(options: BenchOptions = {}) {
         skins: [],
         fontSizes: { text: 14, code: 11, terminal: 13 },
         fontFamilies: { text: '', code: '', terminal: '' },
+        density: 'standard',
         active: { id: 'light', colorScheme: 'light', tokens: {} },
         themes: [],
         revision: 0,

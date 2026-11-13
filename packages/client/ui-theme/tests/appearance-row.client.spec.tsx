@@ -27,10 +27,11 @@ const SKINS: readonly AppearanceSkinOption[] = [
 
 function mount(preference: ThemePreference = 'system', skins: readonly AppearanceSkinOption[] = [], skin = '') {
   const store = createAppearanceRowStore().create()
-  store.actions.sync(preference, skin, 1)
+  store.actions.sync(preference, skin, 'standard', 1)
   store.actions.syncSkins(skins)
   const setTheme = vi.fn()
   const setSkin = vi.fn()
+  const setDensity = vi.fn()
   const props: AppearanceRowComponentProps = {
     useSessions: bindSnapshotSelector(createSnapshotStore<SessionListState>({
       ids: [], byId: {}, phase: 'ready', projectionsBySession: {},
@@ -49,17 +50,31 @@ function mount(preference: ThemePreference = 'system', skins: readonly Appearanc
     t: makeTranslate(en),
     setTheme,
     setSkin,
+    setDensity,
   }
   render(<AppearanceRow {...props} />)
-  return { store, setTheme, setSkin }
+  return { store, setTheme, setSkin, setDensity }
 }
 
 describe('AppearanceRow', () => {
-  it('renders the row title and one cube per built-in preference', () => {
+  it('renders the row title, one cube per built-in preference, and one density chip per level', () => {
     mount()
     expect(screen.getByText(en['appearance.title'])).toBeDefined()
     expect(screen.getAllByRole('button').map(button => button.textContent))
-      .toEqual([en['appearance.light'], en['appearance.dark'], en['appearance.system']])
+      .toEqual([
+        en['appearance.light'], en['appearance.dark'], en['appearance.system'],
+        en['density.compact'], en['density.standard'], en['density.comfortable'],
+      ])
+  })
+
+  it('marks the persisted density and switches away from it', () => {
+    const b = mount('system')
+    const group = screen.getByRole('group', { name: en['appearance.density'] })
+    expect(within(group).getAllByRole('button').map(chip => chip.textContent))
+      .toEqual([en['density.compact'], en['density.standard'], en['density.comfortable']])
+    expect(screen.getByRole('button', { name: en['density.standard'] }).getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(screen.getByRole('button', { name: en['density.comfortable'] }))
+    expect(b.setDensity).toHaveBeenCalledWith('comfortable')
   })
 
   it('marks the persisted preference and switches away from it', () => {
@@ -75,7 +90,7 @@ describe('AppearanceRow', () => {
   it('follows the mirror when the accepted preference changes', () => {
     const b = mount('light')
     expect(screen.getByRole('button', { name: en['appearance.light'] }).getAttribute('aria-pressed')).toBe('true')
-    act(() => { b.store.actions.sync('system', '', 2) })
+    act(() => { b.store.actions.sync('system', '', 'standard', 2) })
     expect(screen.getByRole('button', { name: en['appearance.system'] }).getAttribute('aria-pressed')).toBe('true')
   })
 

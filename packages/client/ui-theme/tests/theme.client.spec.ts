@@ -15,7 +15,7 @@ import { FONT_SIZE_SPECS } from '../src/theme-settings.ts'
 function fullSection(over: Partial<ThemeSettings>): ThemeSettings {
   return {
     preference: 'system', skin: '', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
-    textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
+    textFontFamily: '', codeFontFamily: '', terminalFontFamily: '', density: 'standard',
     ...over,
   }
 }
@@ -69,6 +69,27 @@ describe('ThemeRuntime', () => {
     theme.setFontSize('text', 17)
     expect(events).toHaveLength(3)
     expect(host.set).toHaveBeenCalledTimes(3)
+  })
+
+  it('setDensity writes the level through the scope, republishes, and ignores repeats', () => {
+    const { theme, events, host } = make()
+    theme.setDensity('comfortable')
+    expect(theme.getTheme().density).toBe('comfortable')
+    expect(host.set).toHaveBeenCalledWith('density', 'comfortable')
+    theme.setDensity('comfortable')
+    expect(events).toHaveLength(1)
+    expect(host.set).toHaveBeenCalledTimes(1)
+    expect(() => { theme.setDensity('dense' as never) }).toThrow('is not a registered level')
+  })
+
+  it('starts from the density the boot script wrote on the body', () => {
+    document.body.dataset.qilinDensity = 'compact'
+    try {
+      const { theme } = make()
+      expect(theme.getTheme().density).toBe('compact')
+    } finally {
+      delete document.body.dataset.qilinDensity
+    }
   })
 
   it('setFontFamily writes the role list through the scope and republishes', () => {

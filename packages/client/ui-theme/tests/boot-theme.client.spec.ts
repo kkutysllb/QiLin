@@ -15,8 +15,9 @@ function executeBootstrap(
   preference?: ThemePreference,
   fontSizes?: { text: number; code: number; terminal: number },
   fontFamilies?: { text: string; code: string; terminal: string },
+  density?: 'compact' | 'standard' | 'comfortable',
 ): void {
-  for (const row of bootThemeInjections(preference, fontSizes, fontFamilies)) {
+  for (const row of bootThemeInjections(preference, fontSizes, fontFamilies, undefined, density)) {
     if (row.kind === 'script') runInNewContext(row.text, { document, matchMedia: globalThis.matchMedia })
   }
 }
@@ -87,6 +88,14 @@ describe('theme bootstrap row', () => {
     vi.stubGlobal('matchMedia', undefined)
     executeBootstrap()
     expect(document.body.hasAttribute(DARK_ATTRIBUTE)).toBe(false)
+  })
+
+  it('writes the selected density and defaults it to standard', () => {
+    mockSystemDark(false)
+    executeBootstrap('light', undefined, undefined, 'comfortable')
+    expect(document.body.dataset.qilinDensity).toBe('comfortable')
+    executeBootstrap('light')
+    expect(document.body.dataset.qilinDensity).toBe('standard')
   })
 
   it('writes the durable content font size and defaults it to 15px', () => {

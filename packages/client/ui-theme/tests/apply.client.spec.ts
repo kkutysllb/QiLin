@@ -39,7 +39,7 @@ async function bench(isLoopback = true) {
   ctx.provide('locale', locale)
   const section: Record<string, unknown> = {
     preference: 'system', skin: '', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
-    textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
+    textFontFamily: '', codeFontFamily: '', terminalFontFamily: '', density: 'standard',
   }
   const namespace = () => ({
     ns: THEME_SETTINGS_NAMESPACE,

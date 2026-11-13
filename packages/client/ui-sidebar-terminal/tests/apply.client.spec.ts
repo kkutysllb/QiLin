@@ -73,7 +73,7 @@ async function mountPlugin(stored: TerminalSettings | null = { fontFamily: 'User
   } as never)
   let theme = {
     preference: 'light' as const, skin: '', skins: [], fontSizes: { text: 14, code: 11, terminal: 13 },
-    fontFamilies: { text: '', code: '', terminal: '' }, leading: 0,
+    fontFamilies: { text: '', code: '', terminal: '' }, density: 'standard' as const, leading: 0,
     active: { id: 'light', colorScheme: 'light' as const, tokens: {} }, themes: [], revision: 0,
   }
   ctx.provide('theme', {
@@ -100,7 +100,7 @@ async function mountPlugin(stored: TerminalSettings | null = { fontFamily: 'User
   const themeDoc = createSnapshotStore<{ value: ThemeSettings | undefined }>({
     value: {
       preference: 'light', skin: '', fontSize: 14, codeFontSize: 11, terminalFontSize: 13,
-      textFontFamily: '', codeFontFamily: '', terminalFontFamily: '',
+      textFontFamily: '', codeFontFamily: '', terminalFontFamily: '', density: 'standard',
     },
   })
   const setThemeField = vi.fn(async (field: string, value: string | number) => {

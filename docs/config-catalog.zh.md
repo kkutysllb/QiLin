@@ -735,10 +735,15 @@ export interface Config {
   codeFontFamily: Volatile<string>
   /** Sidebar terminal font list; `''` keeps the built-in stack. */
   terminalFontFamily: Volatile<string>
+  /** Surface density selected in the Appearance row. */
+  density: Volatile<Density>
 }
 
 /** Theme preference persisted by the product Appearance row. */
 export type ThemePreference = typeof THEME_PREFERENCES[number]
+
+/** One accepted surface density level. */
+export type Density = typeof DENSITIES[number]
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/client-ui-theme -->
 

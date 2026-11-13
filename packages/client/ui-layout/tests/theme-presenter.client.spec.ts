@@ -3,7 +3,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import type { FontFamilies, ThemePreference, ThemeSnapshot } from '@qilin-agent/client-ui-theme/client'
 import { fontFamilyVariable } from '@qilin-agent/client-ui-theme/src/theme-settings.ts'
-import { DARK_ATTRIBUTE, THEME_SOURCE_ATTRIBUTE, ThemePresenter } from '@qilin-agent/client-ui-layout/src/client/theme-presenter.ts'
+import {
+  DARK_ATTRIBUTE, DENSITY_ATTRIBUTE, THEME_SOURCE_ATTRIBUTE, ThemePresenter,
+} from '@qilin-agent/client-ui-layout/src/client/theme-presenter.ts'
 
 const LIGHT_THEME_COLOR = 'rgb(255, 255, 255)'
 const DARK_THEME_COLOR = 'rgb(21, 21, 23)'
@@ -19,7 +21,7 @@ function snapshot(
   const active = { id: `${colorScheme}-test`, colorScheme, tokens }
   return {
     preference, skin: '', skins: [], fontSizes: { text: fontSize, code: 11, terminal: 13 }, fontFamilies,
-    active, themes: [active], revision: 1,
+    density: 'standard', active, themes: [active], revision: 1,
   }
 }
 
@@ -91,6 +93,16 @@ describe('ThemePresenter', () => {
     expect(document.body.style.getPropertyValue('--qilin-terminal-font-size')).toBe('13px')
     presenter.apply(snapshot('light', {}, 17))
     expect(document.body.style.getPropertyValue('--qilin-content-font-size')).toBe('17px')
+  })
+
+  it('publishes the selected density on the body and retracts it on dispose', () => {
+    const presenter = new ThemePresenter()
+    presenter.apply({ ...snapshot('light'), density: 'standard' })
+    expect(document.body.getAttribute(DENSITY_ATTRIBUTE)).toBe('standard')
+    presenter.apply({ ...snapshot('light'), density: 'comfortable' })
+    expect(document.body.getAttribute(DENSITY_ATTRIBUTE)).toBe('comfortable')
+    presenter.dispose()
+    expect(document.body.hasAttribute(DENSITY_ATTRIBUTE)).toBe(false)
   })
 
   it('publishes non-empty font lists and removes a list once it returns to the built-in stack', () => {

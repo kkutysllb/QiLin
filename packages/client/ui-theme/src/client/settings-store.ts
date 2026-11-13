@@ -5,7 +5,8 @@
  */
 import { defineStore, type EngineStoreHandle } from '@qilin-agent/client-store'
 import {
-  DEFAULT_FONT_SIZES, DEFAULT_SKIN, type FontFamilies, type FontSizes, type ThemePreference,
+  DEFAULT_DENSITY, DEFAULT_FONT_SIZES, DEFAULT_SKIN, type Density, type FontFamilies, type FontSizes,
+  type ThemePreference,
 } from '../theme-settings.ts'
 
 /** One registered skin as the row renders it: id plus the label resolved for the active language. */
@@ -22,6 +23,8 @@ export interface AppearanceRowState {
   preference: ThemePreference
   /** Persisted skin selection (an empty id keeps the platform palette). */
   skin: string
+  /** Persisted surface density selection. */
+  density: Density
   /** Registered skins in registration order. */
   skins: readonly AppearanceSkinOption[]
   /** Service revision; -1 until first sync so revision 0 lands as a change. */
@@ -30,7 +33,9 @@ export interface AppearanceRowState {
 
 /** Declared action shape giving the exported factory a stable return type. */
 type AppearanceRowActions = {
-  sync: (draft: AppearanceRowState, preference: ThemePreference, skin: string, revision: number) => void
+  sync: (
+    draft: AppearanceRowState, preference: ThemePreference, skin: string, density: Density, revision: number,
+  ) => void
   syncSkins: (draft: AppearanceRowState, skins: readonly AppearanceSkinOption[]) => void
 }
 
@@ -40,12 +45,15 @@ type AppearanceRowActions = {
  */
 export function createAppearanceRowStore(): EngineStoreHandle<AppearanceRowState, AppearanceRowActions> {
   return defineStore({
-    init: (): AppearanceRowState => ({ preference: 'system', skin: DEFAULT_SKIN, skins: [], revision: -1 }),
+    init: (): AppearanceRowState => ({
+      preference: 'system', skin: DEFAULT_SKIN, density: DEFAULT_DENSITY, skins: [], revision: -1,
+    }),
     actions: {
-      sync: (d, preference: ThemePreference, skin: string, revision: number) => {
+      sync: (d, preference: ThemePreference, skin: string, density: Density, revision: number) => {
         if (revision <= d.revision) return
         d.preference = preference
         d.skin = skin
+        d.density = density
         d.revision = revision
       },
       // Labels are resolved for the active language, so a language switch rewrites

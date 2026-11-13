@@ -15,6 +15,12 @@ body {
   --qilin-static-blue-50: rgb(239, 246, 255);
   --qilin-static-blue-50p: rgb(234, 243, 255);
   --qilin-static-blue-600: rgb(37, 99, 235);
+  /* v1 accent: a stronger blue than the inherited deepseek ramp, measured at
+     4.87:1 on the paper base (light) and 6.74:1 on the dark base. */
+  --qilin-static-accent-700: rgb(29, 78, 216);
+  --qilin-static-accent-600: rgb(37, 99, 235);
+  --qilin-static-accent-300: rgb(124, 155, 255);
+  --qilin-static-accent-200: rgb(157, 180, 255);
   --qilin-static-blue-75: rgb(229, 240, 255);
   --qilin-static-blue-800: rgb(30, 64, 175);
   --qilin-static-blue-900: rgb(14, 48, 116);
@@ -93,6 +99,12 @@ body[data-ds-dark-theme] {
   --qilin-static-blue-50: rgb(239, 246, 255);
   --qilin-static-blue-50p: rgb(234, 243, 255);
   --qilin-static-blue-600: rgb(37, 99, 235);
+  /* v1 accent: a stronger blue than the inherited deepseek ramp, measured at
+     4.87:1 on the paper base (light) and 6.74:1 on the dark base. */
+  --qilin-static-accent-700: rgb(29, 78, 216);
+  --qilin-static-accent-600: rgb(37, 99, 235);
+  --qilin-static-accent-300: rgb(124, 155, 255);
+  --qilin-static-accent-200: rgb(157, 180, 255);
   --qilin-static-blue-75: rgb(229, 240, 255);
   --qilin-static-blue-800: rgb(30, 64, 175);
   --qilin-static-blue-900: rgb(14, 48, 116);
@@ -245,7 +257,11 @@ body {
   --qilin-alias-scrollbar-bg-l2: var(--qilin-static-neutral-200);
   --qilin-alias-scrollbar-hover-l1: var(--qilin-static-neutral-300);
   --qilin-alias-scrollbar-hover-l2: var(--qilin-static-neutral-300);
-  --qilin-alias-state-business-primary: var(--qilin-static-deepseek-500);
+  --qilin-alias-accent: var(--qilin-static-accent-600);
+  --qilin-alias-accent-hover: var(--qilin-static-accent-700);
+  --qilin-alias-accent-tint: rgba(37, 99, 235, 0.10);
+  --qilin-alias-accent-ring: rgba(37, 99, 235, 0.35);
+  --qilin-alias-state-business-primary: var(--qilin-alias-accent);
   --qilin-alias-state-business-tertiary: var(--qilin-static-deepseek-100);
   --qilin-alias-state-error-primary: var(--qilin-static-red-600);
   --qilin-alias-state-error-secondary: var(--qilin-static-red-400);
@@ -364,7 +380,11 @@ body[data-ds-dark-theme] {
   --qilin-alias-scrollbar-bg-l2: var(--qilin-static-neutral-600);
   --qilin-alias-scrollbar-hover-l1: var(--qilin-static-neutral-600);
   --qilin-alias-scrollbar-hover-l2: var(--qilin-static-neutral-550);
-  --qilin-alias-state-business-primary: var(--qilin-static-deepseek-400);
+  --qilin-alias-accent: var(--qilin-static-accent-300);
+  --qilin-alias-accent-hover: var(--qilin-static-accent-200);
+  --qilin-alias-accent-tint: rgba(124, 155, 255, 0.16);
+  --qilin-alias-accent-ring: rgba(124, 155, 255, 0.40);
+  --qilin-alias-state-business-primary: var(--qilin-alias-accent);
   --qilin-alias-state-business-tertiary: var(--qilin-static-deepseek-800);
   --qilin-alias-state-error-primary: var(--qilin-static-red-400);
   --qilin-alias-state-error-secondary: var(--qilin-static-red-400);

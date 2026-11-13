@@ -10,7 +10,7 @@ import {
   IconDarkOutlineMedium, IconFollowsystemOutlineMedium, IconLightOutlineMedium,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
-import type { ThemePreference } from '../theme-settings.ts'
+import type { Density, ThemePreference } from '../theme-settings.ts'
 import type { ThemeKey } from './locales.ts'
 import type {} from '@qilin-agent/client-ui-settings/client'
 import type { createAppearanceRowStore } from './settings-store.ts'
@@ -22,12 +22,21 @@ export interface AppearanceRowInjected {
   setTheme: (id: ThemePreference) => void
   /** Switch the color skin. */
   setSkin: (id: string) => void
+  /** Switch the surface density. */
+  setDensity: (level: Density) => void
 }
 
 /** Full component props: runtime share + store share + locale seat + injected face. */
 export type AppearanceRowComponentProps =
   PropsRuntime<'settings.general.item'> & PropsStore<ReturnType<typeof createAppearanceRowStore>>
   & PropsLocale<'settings.theme'> & AppearanceRowInjected
+
+/** Density order (compact, standard, comfortable) and their copy keys. */
+const DENSITY_OPTIONS: readonly { id: Density; labelKey: ThemeKey }[] = [
+  { id: 'compact', labelKey: 'density.compact' },
+  { id: 'standard', labelKey: 'density.standard' },
+  { id: 'comfortable', labelKey: 'density.comfortable' },
+]
 
 /** Cube order and icons (figma 501:30015-30017: Light, Dark, System). */
 const CUBES: readonly { id: ThemePreference; labelKey: ThemeKey; Icon: typeof IconLightOutlineMedium }[] = [
@@ -41,10 +50,11 @@ const CUBES: readonly { id: ThemePreference; labelKey: ThemeKey; Icon: typeof Ic
  * @param props - composed slot props.
  * @returns the row element tree.
  */
-export function AppearanceRow({ t, setTheme, setSkin, useStore }: AppearanceRowComponentProps) {
+export function AppearanceRow({ t, setTheme, setSkin, setDensity, useStore }: AppearanceRowComponentProps) {
   const preference = useStore(s => s.preference)
   const skin = useStore(s => s.skin)
   const skins = useStore(s => s.skins)
+  const density = useStore(s => s.density)
   return (
     <div className={css.group}>
       <div className={css.title}>{t('appearance.title')}</div>
@@ -78,6 +88,19 @@ export function AppearanceRow({ t, setTheme, setSkin, useStore }: AppearanceRowC
           ))}
         </div>
       )}
+      <div className={css.skinRow} role="group" aria-label={t('appearance.density')}>
+        {DENSITY_OPTIONS.map(option => (
+          <button
+            key={option.id}
+            type="button"
+            className={clsx(css.skinChip, density === option.id && css.selected)}
+            aria-pressed={density === option.id}
+            onClick={() => { setDensity(option.id) }}
+          >
+            {t(option.labelKey)}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

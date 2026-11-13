@@ -6,7 +6,20 @@
 
 ## 纸感基底
 
-平台色板承载一套暖色纸感中性阶（奶油色画布、墨色文字、暖色发丝边），内容标题使用系统黑体字族，因此每套配色皮肤都落在同一张阅读纸面上，而不是另起画布。皮肤只覆盖品牌强调色、表面与状态色；纸感色阶、收窄的圆角标尺与标题字族归主题所有者。
+平台色板承载一套暖色纸感中性阶（奶油色画布、墨色文字、暖色发丝边），内容标题使用系统黑体字族，因此每套配色皮肤都落在同一张阅读纸面上，而不是另起画布。皮肤只覆盖品牌强调色、表面与状态色；纸感色阶、圆角标尺与标题字族归主题所有者。
+
+## 标尺
+
+主题所有者发布四套标尺，功能组件使用它们而不是字面量：
+
+- **间距** `--qilin-space-1..8`（4/8/12/16/24/32/48/64），用于 padding、margin 与 gap。
+- **字号** `--qilin-text-xs..2xl`（11/12/13/14/16/18/22）搭配 `--qilin-leading-tight/normal/relaxed`；内容字号增量保持可叠加，因此用户的字号偏好与标尺组合生效。
+- **圆角** `--qilin-radius-xs..xl`、`-panel`、`-pill`（4/6/10/14/18/20/999），pill 圆角需搭配 `corner-shape: round`。
+- **密度** `body[data-qilin-density='compact' | 'standard' | 'comfortable']` 发布 `--qilin-density-gap`、`--qilin-density-control-height` 与 `--qilin-density-font-delta`；组件以标准值作为回退读取。
+
+强调色是一组实测配对：`--qilin-alias-accent`（含 `-hover`、`-tint`、`-ring`）在纸底解析为 `#2563EB`（4.87:1）、在暗底解析为 `#7C9BFF`（6.74:1）。`--qilin-alias-state-business-primary` 经由它取色，共享焦点环也回退到同一强调色。任一对低于 4.5:1 时 ui-theme 的对比度测试会失败。
+
+**已迁移的包**（清单在 `scripts/verify-css-tokens.ts`）必须通过上述 token 表达颜色、字号、间距与圆角；`pnpm run verify-css-tokens` 会拒绝其中的 `#hex`/`rgb()`、`font-size: <n>px`、`padding/margin/gap: <n>px` 与 `border-radius: <n>px`。渐变与遮罩图像值不受此限。
 
 ## 职责归属
 
@@ -18,7 +31,7 @@
 
 - 重新设计控件样式之前先复用控件：[ui-primitives 组件目录](../packages/client/ui-primitives/README.zh.md#component-catalog)是唯一跨功能包的通道，有意的视觉差异应作为那里的一个 prop，而不是另起一份拷贝（[决定](../.agents/notes/implemented/architecture/2026-09-05-shared-client-control-primitives.zh.md)）。
 - 使用 CSS Modules 和 `clsx`；不得添加组件库或 Tailwind。
-- 功能组件使用 `--qilin-alias-*` 语义 token。不得复制静态色板值或在其中写入颜色字面量。
+- 功能组件使用 `--qilin-alias-*` 语义 token。不得复制静态色板值或在其中写入颜色字面量；间距、字号与圆角取自上述标尺。
 - 功能组件 CSS 不得包含主题选择器。明暗主题覆盖属于主题所有方。
 - 字体大小必须与行高配对；已有角色匹配时使用主题排版变量。
 - 当组件约定要求保留列结构时，源码文本、终端输出和 diff 行不得换行；使用共享滚动条样式，不得定义组件专用滚动条选择器。

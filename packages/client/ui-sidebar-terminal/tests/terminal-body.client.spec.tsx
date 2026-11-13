@@ -83,7 +83,7 @@ function mount(initial: TerminalViewState | undefined = idle, dictionary = en) {
   let visible = true
   let theme: ThemeSnapshot = {
     preference: 'light', skin: '', skins: [],
-    fontSizes: { text: 14, code: 11, terminal: 13 }, fontFamilies: { text: '', code: '', terminal: '' },
+    fontSizes: { text: 14, code: 11, terminal: 13 }, fontFamilies: { text: '', code: '', terminal: '' }, density: 'standard',
     active: { id: 'light', colorScheme: 'light', tokens: {} }, themes: [], revision: 0,
   }
   const detach = vi.fn()
