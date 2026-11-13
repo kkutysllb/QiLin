@@ -66,6 +66,9 @@ export class TeamJournal {
     // capability removes Session.append's conditional surface argument while
     // preserving the event-key/payload correlation.
     const append = root.session.append.bind(root.session) as unknown as AppendTeamEvent
+    // Every durable Team mutation runs with Team mode on: composition enables
+    // the domain, so the first mutation records it before its own event.
+    if (this.state(root).mode === 'off') append('team/mode', { mode: 'on', source: 'composition' })
     append(type, data)
     await this.ctx.sessions.flush(root.session)
     this.onCommit(root)

@@ -23,6 +23,9 @@
 /qilin-agent-agent-team/use-this-package/smallest-working-setup:
   en: 39dc14af749c444d
   zh: 0a98cbc1a006c9b7
+/qilin-agent-agent-team/use-this-package/team-mode:
+  en: 412fbe5c4ddfdac4
+  zh: 34a180681d8cebf8
 /qilin-agent-agent-team/use-this-package/teammates:
   en: 5a314d1f80ecd31b
   zh: c34e6a93dd1e2045
@@ -90,8 +93,8 @@
   en: af2993419835b838
   zh: b2a4fea055d5cdf4
 /qilin-agent-agent-team/known-limitations-and-deferred-work:
-  en: 2b6bbe3e4242d932
-  zh: c1b33474c62f9674
+  en: ab6928e31fc85abe
+  zh: 90ec4080094745d2
 /qilin-agent-agent-team/known-limitations-and-deferred-work/dev-note:
   en: 498e4cf9fe5741a7
   zh: 9d2bab630e655c99

@@ -22,7 +22,9 @@ export interface SnapshotCorpusGenerationSummary {
 }
 
 const RETAINED_BASELINE_VERSION = 3
-const MAX_RETAINED_ROLES = 12
+// One adjacent-migration role per retained historical generation, plus the fixed
+// v0 coverage set and the retired-tools pin: v1–v6 adjacent roles and six v0 roles.
+const MAX_RETAINED_ROLES = 13
 const REQUIRED_V0_COVERAGE = new Set([
   'multi-hop',
   'packed-row',

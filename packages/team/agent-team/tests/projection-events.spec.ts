@@ -582,3 +582,35 @@ describe('Agent Teams projection events', () => {
     })
   })
 })
+
+describe('Agent Teams mode', () => {
+  it('starts outside Team mode and records the composition transition once', () => {
+    expect(project(ROOT, []).mode).toBe('off')
+    const state = projectTeam(ROOT, [
+      event('team/mode', { mode: 'on', source: 'composition' }, SessionSeq(0)),
+      event('team/task', { version: 2, teamId: TEAM, task: task() }, SessionSeq(1)),
+    ])
+    expect(state.mode).toBe('on')
+  })
+
+  it('records leaving Team mode', () => {
+    const state = projectTeam(ROOT, [
+      event('team/mode', { mode: 'on', source: 'composition' }, SessionSeq(0)),
+      event('team/mode', { mode: 'off' }, SessionSeq(1)),
+    ])
+    expect(state.mode).toBe('off')
+  })
+
+  it('fails the projection on a repeated mode', () => {
+    expect(() => projectTeam(ROOT, [
+      event('team/mode', { mode: 'on', source: 'composition' }, SessionSeq(0)),
+      event('team/mode', { mode: 'on', source: 'composition' }, SessionSeq(1)),
+    ])).toThrow('team mode is already on')
+  })
+
+  it('fails the projection on a malformed mode payload', () => {
+    const invalid = { mode: 'on', source: 'command' } as unknown as SessionEventMap['team/mode']
+    expect(() => projectTeam(ROOT, [event('team/mode', invalid, SessionSeq(0))]))
+      .toThrow(/team\/mode payload is invalid/)
+  })
+})

@@ -29,6 +29,8 @@ kind: "package-library"
 ```ts
 import { HarnessError } from '@qilin-agent/util-error'
 
+type AttachmentErrorCode = 'ATTACHMENT_MISSING' | 'ATTACHMENT_TOO_LARGE'
+
 class AttachmentError extends HarnessError {
   constructor(message: string, code: AttachmentErrorCode, options?: ErrorOptions) {
     super(message, code, options)

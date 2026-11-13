@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { SessionFormatEventCollector } from '@qilin-agent/session-format'
 import type { SessionFormatEvent, SessionFormatEventRun, SessionFormatHeader } from '@qilin-agent/session-format'
+import { SESSION_FORMAT_VERSION } from '@qilin-agent/session'
 import { sessionFormatCatalog } from '@qilin-agent/session-format-catalog'
 import { releasedV5SessionFormatCodec, sessionFormatV5ToV6 } from '../src/index.ts'
 
@@ -82,7 +83,7 @@ describe('V5 rows restored into V6', () => {
       { type: 'turn/end', seq: 1, time: 2, data: { turn: 1, reason: { kind: 'completed' } } },
     ]
     const artifact = restore(rows, header)
-    expect(artifact.header.version).toBe(6)
+    expect(artifact.header.version).toBe(SESSION_FORMAT_VERSION)
     expect(artifact.events).toEqual(rows)
     expect(artifact.inheritedEventCount).toBe(0)
   })
@@ -91,6 +92,6 @@ describe('V5 rows restored into V6', () => {
     const row = releasedV5SessionFormatCodec.encodeEvent({ type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } })
     const reader = sessionFormatCatalog.createRestore({ type: 'session', ...header }, { recovery: 'strict', validation: 'current' })
     reader.decodeRow(row)
-    expect(reader.finish().header.version).toBe(6)
+    expect(reader.finish().header.version).toBe(SESSION_FORMAT_VERSION)
   })
 })

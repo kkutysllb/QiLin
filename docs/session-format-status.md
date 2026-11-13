@@ -42,11 +42,11 @@ Before the first V4 publication, every integration of a newer V3-writing master 
 ## Release record
 
 ```yaml session-format-release
-latestReleasedVersion: 3
-evidenceTag: qilin-v0.1.5-alpha.1
+latestReleasedVersion: 6
+evidenceTag: qilin-v3.1.11
 ```
 
-Evidence: published product tag `qilin-v0.1.5-alpha.1`; tagged writer: `packages/core/session/src/types.ts`.
+Evidence: published product tag `qilin-v3.1.11` (git tag `v3.1.11` carried under the format-reference name); tagged writer: `packages/core/session/src/types.ts`.
 
 <a id="updating-the-record"></a>
 ## Updating the record

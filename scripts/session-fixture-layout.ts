@@ -18,11 +18,12 @@ import { releasedV3SessionFormatCodec } from '@qilin-agent/session-format-v2-to-
 import { releasedV4SessionFormatCodec } from '@qilin-agent/session-format-v3-to-v4'
 import { releasedV5SessionFormatCodec } from '@qilin-agent/session-format-v4-to-v5'
 import { releasedV6SessionFormatCodec } from '@qilin-agent/session-format-v5-to-v6'
+import { releasedV7SessionFormatCodec } from '@qilin-agent/session-format-v6-to-v7'
 
 const historicalCodecs: readonly SessionFormatCodec[] = [
   releasedV0SessionFormatCodec, releasedV1SessionFormatCodec, releasedV2SessionFormatCodec,
   releasedV3SessionFormatCodec, releasedV4SessionFormatCodec, releasedV5SessionFormatCodec,
-  releasedV6SessionFormatCodec,
+  releasedV6SessionFormatCodec, releasedV7SessionFormatCodec,
 ]
 
 /** Physical persistence artifacts validated by the WebWorker runtime fixture spec. */

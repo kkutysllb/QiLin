@@ -386,6 +386,7 @@ flowchart TD
     pkg_session_format_v3_to_v4["session-format-v3-to-v4"]
     pkg_session_format_v4_to_v5["session-format-v4-to-v5"]
     pkg_session_format_v5_to_v6["session-format-v5-to-v6"]
+    pkg_session_format_v6_to_v7["session-format-v6-to-v7"]
     pkg_session_log_deepseek["session-log-deepseek"]
     pkg_session_persistence["session-persistence"]
     pkg_session_persistence_jsonl["session-persistence-jsonl"]
@@ -1606,6 +1607,7 @@ flowchart TD
 | [`session-format-v3-to-v4`](../packages/session/session-format-v3-to-v4) | `session` | — |
 | [`session-format-v4-to-v5`](../packages/session/session-format-v4-to-v5) | `session` | — |
 | [`session-format-v5-to-v6`](../packages/session/session-format-v5-to-v6) | `session` | — |
+| [`session-format-v6-to-v7`](../packages/session/session-format-v6-to-v7) | `session` | — |
 | [`usage-report`](../packages/session/usage-report) | `session` | — |
 | [`ssh-helper-runtime`](../packages/ssh/ssh-helper-runtime) | `ssh` | — |
 | [`storage`](../packages/storage/storage) | `storage` | — |

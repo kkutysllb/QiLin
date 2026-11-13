@@ -55,6 +55,10 @@ With the tools installed, the model does the rest on request — for example, "c
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentagent-team) is the exhaustive source for every accepted field and its JSDoc.
 
+### Team mode
+
+The Lead Session records Team mode before its first durable Team event: `team/mode` with `{ mode: 'on', source: 'composition' }`. Composition enables Agent Teams in this checkout, so the marker states that the Session owns a Team. A restored Session recovers the marker with the rest of its log; an unreadable, repeated, or refused transition fails Team recovery instead of starting a Team without its mode. Team mode is log-only and never enters the model-visible surface.
+
 ### Teammates
 
 Ask the Lead to create a teammate: give it a unique lowercase name such as `reviewer` and describe its job. A teammate starts fresh with no memory of the Lead's conversation, or as a fork that inherits the Lead's completed turns; the creation request chooses which. Teammate names are permanent — even a teammate whose creation failed keeps its name, and no name is ever reused.
@@ -210,6 +214,7 @@ These limits describe what a team cannot do yet or what needs special operationa
 - **Flat immutable roster** — only the Lead creates direct teammates; there is no nested Team, rename, deletion, or name reuse.
 - **No automatic ownership release** — inactivity, interruption, process exit, and failed work do not release a task owner.
 - **No send retry guarantee** — Team does not retain or deduplicate new attempts; concurrent processes over one Team are unsupported. Historical queued messages that never reached their target are not delivered.
+- **Team mode has no per-Session switch yet** — composition enables the domain, so only `{ mode: 'on', source: 'composition' }` is written. A Session that leaves Team mode records `off`, which readers already admit.
 
 <a id="dev-note"></a>
 ### Dev Note

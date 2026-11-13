@@ -29,6 +29,8 @@ Extend it in the package that owns a failure class:
 ```ts
 import { HarnessError } from '@qilin-agent/util-error'
 
+type AttachmentErrorCode = 'ATTACHMENT_MISSING' | 'ATTACHMENT_TOO_LARGE'
+
 class AttachmentError extends HarnessError {
   constructor(message: string, code: AttachmentErrorCode, options?: ErrorOptions) {
     super(message, code, options)

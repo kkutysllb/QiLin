@@ -34,6 +34,7 @@ afterEach(async () => {
 
 /** Detached durable Team read through the same projection definition as the service. */
 function durable(agent: Agent): {
+  mode: 'off' | 'on'
   members: readonly TeamMemberSnapshot[]
   tasks: readonly TeamTaskSnapshot[]
   pendingMessages: readonly TeamMessageSnapshot[]
@@ -43,6 +44,7 @@ function durable(agent: Agent): {
   if (projected.failure !== undefined) throw new Error(projected.failure)
   const state = projected
   return {
+    mode: state.mode,
     members: state.members,
     tasks: state.tasks,
     pendingMessages: state.messages.filter(message => !state.delivered.includes(message.id)),
@@ -234,6 +236,22 @@ describe('Team identity and provisioning', () => {
     ])
     await expect(spawn(ctx, lead, 'third-worker')).rejects.toMatchObject({ code: 'TEAM_MEMBER_LIMIT' })
     await expect(spawn(ctx, lead, 'fresh-worker')).rejects.toMatchObject({ code: 'TEAM_MEMBER_NAME_TAKEN' })
+  })
+
+  it('records Team mode before the first durable Team event and keeps one transition', async () => {
+    const { ctx, lead } = await setup([textResponse('lead answer'), textResponse('first child'), textResponse('second child')])
+    const first = await spawn(ctx, lead, 'mode-worker')
+    await waitNoAgent(ctx, first.member.id)
+    const later = await spawn(ctx, lead, 'mode-peer')
+    await waitNoAgent(ctx, later.member.id)
+
+    const events = lead.session.snapshotEvents()
+    const modeIndexes = events.flatMap((event, index) => event.type === 'team/mode' ? [index] : [])
+    const firstMember = events.findIndex(event => event.type === 'team/member')
+    expect(modeIndexes).toHaveLength(1)
+    expect(modeIndexes[0]).toBeLessThan(firstMember)
+    expect(events[modeIndexes[0]!]!.data).toEqual({ mode: 'on', source: 'composition' })
+    expect(durable(lead).mode).toBe('on')
   })
 
   it('flushes the accepted child prompt before committing the active roster edge', async () => {

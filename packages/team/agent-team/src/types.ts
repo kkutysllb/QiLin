@@ -229,8 +229,17 @@ export interface TeamWaitResult {
   readonly timedOut: boolean
 }
 
+/** Whether one Session currently runs as a Team Lead. */
+export type TeamMode = 'off' | 'on'
+
 declare module '@qilin-agent/session/types' {
   interface SessionEventMap {
+    /**
+     * Team mode after a transition, stored only in the Team Lead Session.
+     * Composition enables Team mode, so the service records `on` before its
+     * first durable Team event; a session that leaves Team mode records `off`.
+     */
+    'team/mode': { mode: TeamMode; source?: 'composition' }
     /** Whole teammate lifecycle value, stored only in the Team Lead Session. */
     'team/member': { version: 2; teamId: TeamId; member: TeamMemberSnapshot }
     /** Whole shared-task value, stored only in the Team Lead Session. */

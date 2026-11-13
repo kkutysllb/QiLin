@@ -55,6 +55,10 @@ kind: "package-reference"
 
 生成的[配置目录](../../../docs/config-catalog.zh.md#qilin-agentagent-team)是每个受支持字段及其 JSDoc 的穷尽式真源。
 
+### Team 模式
+
+Lead 会话在首个持久 Team 事件之前记录 Team 模式：`team/mode`，取值为 `{ mode: 'on', source: 'composition' }`。本检出用组合启用 Agent Teams，因此该标记说明会话拥有一个 Team。还原会话时，标记随日志其余部分一起恢复；不可读、重复或被拒绝的切换会让 Team 恢复失败，而不是在没有模式的情况下启动 Team。Team 模式只进日志，从不进入模型可见面。
+
 ### Teammate
 
 请 Lead 创建 teammate：给它一个唯一的小写名字（例如 `reviewer`）并描述其职责。teammate 可以 fresh 启动（不携带 Lead 对话的任何记忆），也可以作为 fork 启动（继承 Lead 已完成的轮次）；创建请求决定用哪种。teammate 名字是永久的——即使创建失败的 teammate 也保留其名字，任何名字都不会被复用。
@@ -200,7 +204,6 @@ Peer 消息追加在 target 可复用历史前缀之后。冷恢复会先复用�
 
 <a id="known-limitations-and-deferred-work"></a>
 
-
 这些限制说明一支团队目前不能做什么、或哪些方面需要特别的运维关注。它们是当前包约束，不是与其他协作机制的对比。
 
 - **完整视图广播** — 每次 roster 或任务变化都会把完整 roster 和未删除任务板（含描述）发给所有已连接浏览器，即使它正在查看其他 Session。
@@ -210,6 +213,7 @@ Peer 消息追加在 target 可复用历史前缀之后。冷恢复会先复用�
 - **扁平且不可变的 roster**——只有 Lead 可以创建直接 teammate；不支持嵌套 Team、重命名、删除或名字复用。
 - **不会自动释放 owner**——成员不活动、interrupt、进程退出与工作失败都不会释放任务 owner。
 - **无发送重试保证**——Team 不保留新尝试，也不对其去重；不支持多个进程同时操作一个 Team。从未到达目标的历史排队消息不会被投递。
+- **Team 模式尚无逐会话开关**: 本检出由组合启用该域，因此只写 `{ mode: 'on', source: 'composition' }`。离开 Team 模式的会话会记录 `off`，读者已接纳该值。
 
 <a id="dev-note"></a>
 ### 开发备注

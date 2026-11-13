@@ -301,7 +301,12 @@ function throwIfSearchAborted(signal?: AbortSignal): void {
   if (signal?.aborted === true) throw searchAborted(signal)
 }
 
-/** Build the provider's stable cancellation error while retaining the caller's reason. */
+/**
+ * Build the provider's stable cancellation error while retaining the caller's reason.
+ * @param signal - caller's aborted signal, whose reason becomes the cause when it fired.
+ * @param fallback - cause used when the signal never aborted.
+ * @returns the `WEB_ABORTED` error carrying that cause.
+ */
 export function searchAborted(signal?: AbortSignal, fallback?: unknown): WebError {
   return new WebError('DeepSeek web request aborted', 'WEB_ABORTED', {
     cause: signal?.aborted === true ? signal.reason : fallback,

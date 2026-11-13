@@ -11,6 +11,7 @@ import type {
   TeamMemberSnapshot,
   TeamMessageId,
   TeamMessageSnapshot,
+  TeamMode,
   TeamProjection,
   TeamTaskSnapshot,
   TeamTaskView,
@@ -123,6 +124,12 @@ const teamMessageDeliveredEventSchema = z.object({
   targetId: sessionIdSchema,
 }).strict() as z.ZodType<SessionEventMap['team/message/delivered']>
 
+// Team mode is Session-scoped, so its payload carries no Team identity or version.
+const teamModeEventSchema = z.object({
+  mode: z.enum(['off', 'on']),
+  source: z.literal('composition').optional(),
+}).strict() as z.ZodType<SessionEventMap['team/mode']>
+
 /**
  * Current Team state selected by durable Team identity. Every applied Team
  * event produces a new state object and replaces only the collection it
@@ -130,6 +137,7 @@ const teamMessageDeliveredEventSchema = z.object({
  */
 export interface TeamState {
   readonly id: TeamId
+  readonly mode: TeamMode
   readonly members: readonly TeamMemberSnapshot[]
   readonly tasks: readonly TeamTaskSnapshot[]
   readonly messages: readonly TeamMessageSnapshot[]
@@ -145,6 +153,7 @@ export interface TeamState {
 export function emptyTeamState(rootId: SessionId): TeamProjectionState {
   return {
     id: toTeamId(rootId),
+    mode: 'off',
     members: [],
     tasks: [],
     messages: [],
@@ -166,6 +175,7 @@ declare module '@qilin-agent/session-projection/types' {
 
 const teamProjectionEntrySchema = z.object({
   id: teamIdSchema,
+  mode: z.enum(['off', 'on']),
   members: z.array(teamMemberSnapshotSchema),
   tasks: z.array(teamTaskSnapshotSchema),
   messages: z.array(teamMessageSnapshotSchema),
@@ -176,6 +186,7 @@ const teamProjectionEntrySchema = z.object({
 
 /** Whether one event belongs to the Team domain. */
 export type TeamEventType =
+  | 'team/mode'
   | 'team/member'
   | 'team/task'
   | 'team/message/queued'
@@ -190,7 +201,8 @@ type TeamSessionEvent = SessionEvent<TeamEventType>
  * @returns whether the event has a Team-owned type.
  */
 export function isTeamEvent(event: SessionEvent): event is TeamSessionEvent {
-  return event.type === 'team/member'
+  return event.type === 'team/mode'
+    || event.type === 'team/member'
     || event.type === 'team/task'
     || event.type === 'team/message/queued'
     || event.type === 'team/message/delivered'
@@ -208,6 +220,8 @@ function parsePersisted<T>(type: TeamEventType, schema: z.ZodType<T>, value: unk
 /** Decode the complete current-version payload selected by one Team event type. */
 function parseCurrentTeamEvent(event: TeamSessionEvent): TeamSessionEvent {
   switch (event.type) {
+    case 'team/mode':
+      return { ...event, data: parsePersisted(event.type, teamModeEventSchema, event.data) }
     case 'team/member':
       return { ...event, data: parsePersisted(event.type, teamMemberEventSchema, event.data) }
     case 'team/task':
@@ -226,6 +240,8 @@ function applyProjectionEvent(state: TeamProjectionState, event: SessionEvent): 
   if (state.failure !== undefined) return state
   if (!isTeamEvent(event)) return state
   try {
+    // Team mode is Session-scoped: it carries no Team identity or payload version.
+    if (event.type === 'team/mode') return applyCurrentTeamEvent(state, parseCurrentTeamEvent(event))
     const selector = parsePersisted(event.type, teamEventSelectorSchema, event.data)
     if (selector.teamId !== state.id) return state
     if (selector.version !== 2) {
@@ -247,6 +263,10 @@ function replaceAt<T>(items: readonly T[], index: number, item: T): T[] {
 
 function applyCurrentTeamEvent(state: TeamProjectionState, event: TeamSessionEvent): TeamProjectionState {
   switch (event.type) {
+    case 'team/mode': {
+      if (state.mode === event.data.mode) throw new Error(`team mode is already ${event.data.mode}`)
+      return { ...state, mode: event.data.mode }
+    }
     case 'team/member': {
       const member = event.data.member
       const index = state.members.findIndex(candidate => candidate.id === member.id)
@@ -386,7 +406,7 @@ export function teamProjectionView(state: TeamProjectionState): TeamProjection {
 /** Team projection selected by the projected Session identity; the wire view carries durable roster and task state only. */
 export const teamProjectionDefinition = {
   key: 'agentTeam',
-  stateVersion: 4,
+  stateVersion: 5,
   stateSchema: teamProjectionEntrySchema,
   init: header => emptyTeamState(header.id),
   apply: applyProjectionEvent,

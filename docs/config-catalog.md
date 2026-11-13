@@ -3469,7 +3469,7 @@ export type JournalMode = 'wal' | 'delete' | 'truncate' | 'persist'
 
 - `inject`: `workingDirectory`
 - `refs`: `Volatile` (`@qilin-agent/kylin`)
-- `source`: [`packages/subagent/subagent/src/index.ts:202`](../packages/subagent/subagent/src/index.ts)
+- `source`: [`packages/subagent/subagent/src/index.ts:203`](../packages/subagent/subagent/src/index.ts)
 
 ```ts config-catalog
 /** Host configuration for continuable subagent capacity and delegation routes. */
@@ -4163,7 +4163,7 @@ export interface Config {
 ## `@qilin-agent/tool-subagent-control`
 
 - `inject`: `tools` · `subagents`
-- `source`: [`packages/subagent/tool-subagent-control/src/index.ts:25`](../packages/subagent/tool-subagent-control/src/index.ts)
+- `source`: [`packages/subagent/tool-subagent-control/src/index.ts:23`](../packages/subagent/tool-subagent-control/src/index.ts)
 
 ```ts config-catalog
 /** Plugin configuration. */
@@ -4856,6 +4856,7 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 | `@qilin-agent/session-format-v3-to-v4` | — | [`packages/session/session-format-v3-to-v4/src/index.ts`](../packages/session/session-format-v3-to-v4/src/index.ts) |
 | `@qilin-agent/session-format-v4-to-v5` | — | [`packages/session/session-format-v4-to-v5/src/index.ts`](../packages/session/session-format-v4-to-v5/src/index.ts) |
 | `@qilin-agent/session-format-v5-to-v6` | — | [`packages/session/session-format-v5-to-v6/src/index.ts`](../packages/session/session-format-v5-to-v6/src/index.ts) |
+| `@qilin-agent/session-format-v6-to-v7` | — | [`packages/session/session-format-v6-to-v7/src/index.ts`](../packages/session/session-format-v6-to-v7/src/index.ts) |
 | `@qilin-agent/session-snapshot` | — | [`packages/test-support/session-snapshot/src/index.ts`](../packages/test-support/session-snapshot/src/index.ts) |
 | `@qilin-agent/session-telemetry` | — | [`packages/session/session-telemetry/src/index.ts`](../packages/session/session-telemetry/src/index.ts) |
 | `@qilin-agent/session-title-llm` | — | [`packages/session/session-title-llm/src/index.ts`](../packages/session/session-title-llm/src/index.ts) |

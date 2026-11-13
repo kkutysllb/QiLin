@@ -12,11 +12,12 @@ import { releasedV2SessionFormatCodec, sessionFormatV1ToV2 } from '@qilin-agent/
 import { releasedV3SessionFormatCodec, sessionFormatV2ToV3 } from '@qilin-agent/session-format-v2-to-v3'
 import { releasedV4SessionFormatCodec, sessionFormatV3ToV4 } from '@qilin-agent/session-format-v3-to-v4'
 import { releasedV5SessionFormatCodec, sessionFormatV4ToV5 } from '@qilin-agent/session-format-v4-to-v5'
-import { assertReleasedV6Header, releasedV6SessionFormatCodec, restoreReleasedV6Artifact, sessionFormatV5ToV6 } from '@qilin-agent/session-format-v5-to-v6'
+import { releasedV6SessionFormatCodec, sessionFormatV5ToV6 } from '@qilin-agent/session-format-v5-to-v6'
+import { assertReleasedV7Header, releasedV7SessionFormatCodec, restoreReleasedV7Artifact, sessionFormatV6ToV7 } from '@qilin-agent/session-format-v6-to-v7'
 
 /** Static assembly shared by current reads and parent-specific historical restoration. */
 export const sessionFormatCatalogOptions: SessionFormatCatalogOptions = {
-  currentVersion: 6,
+  currentVersion: 7,
   codecs: [
     releasedV0SessionFormatCodec,
     releasedV1SessionFormatCodec,
@@ -25,8 +26,9 @@ export const sessionFormatCatalogOptions: SessionFormatCatalogOptions = {
     releasedV4SessionFormatCodec,
     releasedV5SessionFormatCodec,
     releasedV6SessionFormatCodec,
+    releasedV7SessionFormatCodec,
   ],
-  currentEncoder: releasedV6SessionFormatCodec,
+  currentEncoder: releasedV7SessionFormatCodec,
   migrations: [
     sessionFormatV0ToV1,
     sessionFormatV1ToV2,
@@ -34,17 +36,18 @@ export const sessionFormatCatalogOptions: SessionFormatCatalogOptions = {
     sessionFormatV3ToV4,
     sessionFormatV4ToV5,
     sessionFormatV5ToV6,
+    sessionFormatV6ToV7,
   ],
   restoreCurrent(artifact) {
-    const restored = restoreReleasedV6Artifact(artifact, KNOWN_SESSION_EVENT_TYPES)
+    const restored = restoreReleasedV7Artifact(artifact, KNOWN_SESSION_EVENT_TYPES)
     validateInstalledCurrentSessionArtifact(restored)
     return restored
   },
   restoreTransformedCurrent(artifact) {
-    return restoreReleasedV6Artifact(artifact, KNOWN_SESSION_EVENT_TYPES)
+    return restoreReleasedV7Artifact(artifact, KNOWN_SESSION_EVENT_TYPES)
   },
   restoreCurrentHeader(header) {
-    assertReleasedV6Header(header)
+    assertReleasedV7Header(header)
     validateInstalledCurrentSessionHeader(header)
     return header
   },

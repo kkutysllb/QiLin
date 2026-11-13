@@ -522,6 +522,7 @@
       "@qilin-agent/session-format-v3-to-v4": ["./packages/session/session-format-v3-to-v4/src"],
       "@qilin-agent/session-format-v4-to-v5": ["./packages/session/session-format-v4-to-v5/src"],
       "@qilin-agent/session-format-v5-to-v6": ["./packages/session/session-format-v5-to-v6/src"],
+      "@qilin-agent/session-format-v6-to-v7": ["./packages/session/session-format-v6-to-v7/src"],
       "@qilin-agent/session-log-deepseek": ["./packages/session/session-log-deepseek/src"],
       "@qilin-agent/session-log-export": ["./packages/session-query/session-log-export/src"],
       "@qilin-agent/session-persistence": ["./packages/session/session-persistence/src"],

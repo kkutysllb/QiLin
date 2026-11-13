@@ -42,11 +42,11 @@ V4 的已接受兼容性基线保存在[检查点](persistence-changes/finalized
 ## 发布记录
 
 ```yaml session-format-release
-latestReleasedVersion: 3
-evidenceTag: qilin-v0.1.5-alpha.1
+latestReleasedVersion: 6
+evidenceTag: qilin-v3.1.11
 ```
 
-证据：已发布产品标签 `qilin-v0.1.5-alpha.1`；该标签的写入器路径：`packages/core/session/src/types.ts`。
+证据：已发布产品标签 `qilin-v3.1.11`（git 标签 `v3.1.11`，按格式参考命名约定记录）；该标签的写入器路径：`packages/core/session/src/types.ts`。
 
 <a id="updating-the-record"></a>
 ## 更新记录

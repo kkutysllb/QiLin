@@ -4,7 +4,7 @@
     {
       "key": "SessionHeader",
       "kind": "header",
-      "digest": "d4a8d69cf67a077443a1b4ee1712a4954b9f12c884d9a3cf588b7d4fc6d681a6",
+      "digest": "3ba034e9590c2ef5f57dbde1742846b7c3776f89aa9285fe6682bf98d6963f18",
       "schema": {
         "root": 0,
         "nodes": [
@@ -77,7 +77,7 @@
           },
           {
             "kind": "literal",
-            "value": 6
+            "value": 7
           }
         ]
       }
@@ -15414,7 +15414,7 @@
       "kind": "event",
       "event": "subagent/catalog",
       "surface": false,
-      "digest": "979bda52f82c57aed40934394184e1aecaba0dd1fb6ca5cfe9b348b215d02187",
+      "digest": "e6adc9de30d7261b9ea463145f7e52a7cf0e28c75086db2d0858386eab45dd96",
       "schema": {
         "root": 0,
         "nodes": [
@@ -15428,7 +15428,7 @@
               },
               {
                 "name": "ignorable",
-                "type": 17,
+                "type": 20,
                 "optional": true
               },
               {
@@ -15443,7 +15443,7 @@
               },
               {
                 "name": "type",
-                "type": 18,
+                "type": 21,
                 "optional": false
               }
             ],
@@ -15455,9 +15455,11 @@
               2,
               7,
               9,
-              12,
-              14,
-              15
+              11,
+              13,
+              15,
+              17,
+              18
             ]
           },
           {
@@ -15484,6 +15486,11 @@
                 "optional": false
               },
               {
+                "name": "name",
+                "type": 4,
+                "optional": false
+              },
+              {
                 "name": "version",
                 "type": 6,
                 "optional": false
@@ -15502,6 +15509,41 @@
           {
             "kind": "literal",
             "value": "continuable"
+          },
+          {
+            "kind": "literal",
+            "value": 3
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "childCreatedAt",
+                "type": 3,
+                "optional": false
+              },
+              {
+                "name": "childId",
+                "type": 4,
+                "optional": false
+              },
+              {
+                "name": "label",
+                "type": 4,
+                "optional": false
+              },
+              {
+                "name": "mode",
+                "type": 5,
+                "optional": false
+              },
+              {
+                "name": "version",
+                "type": 8,
+                "optional": false
+              }
+            ],
+            "indices": []
           },
           {
             "kind": "literal",
@@ -15532,7 +15574,7 @@
               },
               {
                 "name": "version",
-                "type": 8,
+                "type": 10,
                 "optional": false
               }
             ],
@@ -15562,12 +15604,17 @@
               },
               {
                 "name": "mode",
-                "type": 10,
+                "type": 12,
+                "optional": false
+              },
+              {
+                "name": "name",
+                "type": 4,
                 "optional": false
               },
               {
                 "name": "version",
-                "type": 11,
+                "type": 6,
                 "optional": false
               }
             ],
@@ -15576,6 +15623,37 @@
           {
             "kind": "literal",
             "value": "external"
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "childCreatedAt",
+                "type": 3,
+                "optional": false
+              },
+              {
+                "name": "childId",
+                "type": 4,
+                "optional": false
+              },
+              {
+                "name": "label",
+                "type": 4,
+                "optional": true
+              },
+              {
+                "name": "mode",
+                "type": 12,
+                "optional": false
+              },
+              {
+                "name": "version",
+                "type": 14,
+                "optional": false
+              }
+            ],
+            "indices": []
           },
           {
             "kind": "literal",
@@ -15601,12 +15679,12 @@
               },
               {
                 "name": "mode",
-                "type": 13,
+                "type": 16,
                 "optional": false
               },
               {
                 "name": "version",
-                "type": 6,
+                "type": 8,
                 "optional": false
               }
             ],
@@ -15636,12 +15714,12 @@
               },
               {
                 "name": "mode",
-                "type": 13,
+                "type": 16,
                 "optional": false
               },
               {
                 "name": "version",
-                "type": 8,
+                "type": 10,
                 "optional": false
               }
             ],
@@ -15667,12 +15745,12 @@
               },
               {
                 "name": "mode",
-                "type": 16,
+                "type": 19,
                 "optional": false
               },
               {
                 "name": "version",
-                "type": 8,
+                "type": 10,
                 "optional": false
               }
             ],
@@ -17055,6 +17133,96 @@
           {
             "kind": "literal",
             "value": "team/message/queued"
+          }
+        ]
+      }
+    },
+    {
+      "key": "event:team/mode",
+      "kind": "event",
+      "event": "team/mode",
+      "surface": false,
+      "digest": "a3c2d8bf46d07299ae6a8ffc0b3762a66e0b0c33210a2d7fcb481f9ceb745275",
+      "schema": {
+        "root": 0,
+        "nodes": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "data",
+                "type": 1,
+                "optional": false
+              },
+              {
+                "name": "ignorable",
+                "type": 6,
+                "optional": true
+              },
+              {
+                "name": "seq",
+                "type": 7,
+                "optional": false
+              },
+              {
+                "name": "time",
+                "type": 7,
+                "optional": false
+              },
+              {
+                "name": "type",
+                "type": 8,
+                "optional": false
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "mode",
+                "type": 2,
+                "optional": false
+              },
+              {
+                "name": "source",
+                "type": 5,
+                "optional": true
+              }
+            ],
+            "indices": []
+          },
+          {
+            "kind": "union",
+            "types": [
+              3,
+              4
+            ]
+          },
+          {
+            "kind": "literal",
+            "value": "off"
+          },
+          {
+            "kind": "literal",
+            "value": "on"
+          },
+          {
+            "kind": "literal",
+            "value": "composition"
+          },
+          {
+            "kind": "literal",
+            "value": true
+          },
+          {
+            "kind": "primitive",
+            "type": "number"
+          },
+          {
+            "kind": "literal",
+            "value": "team/mode"
           }
         ]
       }
@@ -22476,7 +22644,7 @@
       "digest": "0040cfc00431af2403f13ce6249c0359646d15d9e40b3d50b4843c641dd11ced",
       "names": [],
       "sources": [
-        "packages/team/agent-team/src/types.ts:235"
+        "packages/team/agent-team/src/types.ts:244"
       ]
     },
     {
@@ -22856,11 +23024,6 @@
       ]
     },
     {
-      "digest": "154c9a81eb8c9c6eca37c17414811d4df204b3c2a845e01dd35b8fadedc1d832",
-      "names": [],
-      "sources": []
-    },
-    {
       "digest": "154d6c6e9c3bdbeb174f6b3f1ebe95c403b75d11e163aa2236864040635d3cfc",
       "names": [],
       "sources": []
@@ -23102,6 +23265,11 @@
       ]
     },
     {
+      "digest": "20961e0627939417040cc93a440125621215a9ecc7c3bb0b61225daab1bcf230",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "21090e0cc7131498014db6e2ac5695da42ea0a2fa2b2652863f6a8a2e5898909",
       "names": [],
       "sources": []
@@ -23331,6 +23499,11 @@
       "sources": []
     },
     {
+      "digest": "312184434a88a91e4ac15b39320c5cecd21117f1cd6496b25cd5a7d9a01d98ef",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "3199e22f0b45c937d9990215edd7868afb81298b607e6b6cec1845b8d2ad2852",
       "names": [],
       "sources": []
@@ -23497,6 +23670,20 @@
       ]
     },
     {
+      "digest": "3ba034e9590c2ef5f57dbde1742846b7c3776f89aa9285fe6682bf98d6963f18",
+      "names": [
+        "packages/core/session/src/types.ts#SessionHeader"
+      ],
+      "sources": [
+        "packages/core/session/src/types.ts:95"
+      ]
+    },
+    {
+      "digest": "3cb3a66322ca883f4a58c829a6eb3709afbef26fe36e7ee4540962d892c85d4e",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "3d013d512b88ab163cd7724f3d7bc0c827a4fbb9496e5feecb510333d8b5d7b5",
       "names": [],
       "sources": []
@@ -23633,6 +23820,15 @@
       "digest": "447cac28b108a6a65a5a22be43450099b9a03dfbf374a58056e9c40a29cb95a4",
       "names": [],
       "sources": []
+    },
+    {
+      "digest": "464373c1d8a34ff57764606a39a92c9dc435b5304f42765f6d8ed04b3aa88249",
+      "names": [
+        "packages/team/agent-team/src/types.ts#TeamMode"
+      ],
+      "sources": [
+        "packages/team/agent-team/src/types.ts:233"
+      ]
     },
     {
       "digest": "467661c631ab4e266064ace369c807d190716706f64be8b51c479069eebc2f2d",
@@ -23960,6 +24156,11 @@
       "sources": []
     },
     {
+      "digest": "5f6200fe4e99fd59f69c1b20569467a42b9428f8586543f4ab7645b6be6f270a",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "6116fb04799f9188c4ba6b2468ccb411174be0317e6bee94deedefca65d45eb4",
       "names": [
         "packages/context/session-reference/src/types.ts#SessionReferenceSource"
@@ -23977,7 +24178,7 @@
       "digest": "6358dc41ca0490a18939f4f4d4c163659d3b743b1f655fba14d6bf25ec494de0",
       "names": [],
       "sources": [
-        "packages/team/agent-team/src/types.ts:237"
+        "packages/team/agent-team/src/types.ts:246"
       ]
     },
     {
@@ -24010,6 +24211,11 @@
       "sources": [
         "packages/workflow/tool-workflow/src/types.ts:20"
       ]
+    },
+    {
+      "digest": "64baebcdaa3f2f75c5788d6ceef27def9ffd83fa093f9555ee6fc038233997da",
+      "names": [],
+      "sources": []
     },
     {
       "digest": "6567755acc08324c6bbb090f71512a5a8bf54052554a28c4fa76027fa374bd70",
@@ -24189,6 +24395,11 @@
       "sources": [
         "packages/llm/llm/src/message.ts:35"
       ]
+    },
+    {
+      "digest": "6f8e57ec81c35034bb2f428ce0f7365881279df356f152e700aea447c4a409af",
+      "names": [],
+      "sources": []
     },
     {
       "digest": "6fba63ebb3b6c58347148c26dcb9f6b6a85af543a741c83fb307410877401848",
@@ -24751,11 +24962,6 @@
       "sources": []
     },
     {
-      "digest": "979bda52f82c57aed40934394184e1aecaba0dd1fb6ca5cfe9b348b215d02187",
-      "names": [],
-      "sources": []
-    },
-    {
       "digest": "97cc51fd27d1cf77b4f747005c0120bb3ecc1c60f095d408cb163d3cd1f7e2b9",
       "names": [],
       "sources": []
@@ -24873,6 +25079,11 @@
       ]
     },
     {
+      "digest": "9cb960285f7b51114cce17ba6fe67db9b53a2ce6343eb6cf6d047541b446d4f8",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "9d3f5a41dafb74350b4632dc4376c613d4c3633bfda2581ee9b514440b043b3c",
       "names": [],
       "sources": []
@@ -24965,6 +25176,11 @@
     },
     {
       "digest": "a36fcb09e29a69783260c94084c6d9d38053c5c704fdd09ad481e71aff402b24",
+      "names": [],
+      "sources": []
+    },
+    {
+      "digest": "a3c2d8bf46d07299ae6a8ffc0b3762a66e0b0c33210a2d7fcb481f9ceb745275",
       "names": [],
       "sources": []
     },
@@ -25099,15 +25315,6 @@
       ],
       "sources": [
         "packages/web/web-search-deepseek/src/provider.ts:55"
-      ]
-    },
-    {
-      "digest": "ab0b2e7ed18ad2d29d3f3d3cd71b241818c6bcd7e92546d4807f2d600eeaa081",
-      "names": [
-        "packages/subagent/subagent/src/catalog.ts#SubagentCatalogEvent"
-      ],
-      "sources": [
-        "packages/subagent/subagent/src/catalog.ts:28"
       ]
     },
     {
@@ -25542,7 +25749,7 @@
       "digest": "c6b994133e98a3c633001e95dffbc0847da85ff4261659560b0bdb28500b2fdb",
       "names": [],
       "sources": [
-        "packages/team/agent-team/src/types.ts:239"
+        "packages/team/agent-team/src/types.ts:248"
       ]
     },
     {
@@ -25605,6 +25812,15 @@
       ]
     },
     {
+      "digest": "cc4e45f746d04c8ad7c53c8ff258ef78668e50c8107f472654fe4d8037fc4535",
+      "names": [
+        "packages/subagent/subagent/src/catalog.ts#SubagentCatalogEvent"
+      ],
+      "sources": [
+        "packages/subagent/subagent/src/catalog.ts:32"
+      ]
+    },
+    {
       "digest": "cc927be610fca2ebc7ea1d5f5682f14d11636c8f3566813a852fdee8f4bb36a5",
       "names": [],
       "sources": [
@@ -25635,7 +25851,7 @@
       "digest": "d0175524814e681ffdd8235e04dd8a9e0ffd59508be1b65bcf582a6e9e1b283f",
       "names": [],
       "sources": [
-        "packages/team/agent-team/src/types.ts:241"
+        "packages/team/agent-team/src/types.ts:250"
       ]
     },
     {
@@ -25696,15 +25912,6 @@
       "sources": []
     },
     {
-      "digest": "d4a8d69cf67a077443a1b4ee1712a4954b9f12c884d9a3cf588b7d4fc6d681a6",
-      "names": [
-        "packages/core/session/src/types.ts#SessionHeader"
-      ],
-      "sources": [
-        "packages/core/session/src/types.ts:95"
-      ]
-    },
-    {
       "digest": "d4be0bc098bff2e0a6f0628cad3c8b41b8f559d75efb501a7de4b5c786f357a7",
       "names": [],
       "sources": [
@@ -25739,6 +25946,11 @@
       "sources": [
         "packages/llm/llm/src/types.ts:75"
       ]
+    },
+    {
+      "digest": "d7acddd16ab861266fd70bbbd59a32bfabe93379b980caee1f8b1dd3d30b9e00",
+      "names": [],
+      "sources": []
     },
     {
       "digest": "d7d256e5fb8b96959e045e5f3e07950d6ece965023cbccc0757b60429936c145",
@@ -25899,6 +26111,11 @@
       "sources": []
     },
     {
+      "digest": "e6adc9de30d7261b9ea463145f7e52a7cf0e28c75086db2d0858386eab45dd96",
+      "names": [],
+      "sources": []
+    },
+    {
       "digest": "e70f9485efd1afe768f2ebf9e578293a65f27a0f74dea61ddd7fa7456e4e94a6",
       "names": [
         "packages/context/agent-instructions/src/render.ts#AgentInstructionChange"
@@ -26045,6 +26262,13 @@
       "digest": "edd4db879902b73fe44b376cb8568a3bd38d84576b5994949516057194a8a837",
       "names": [],
       "sources": []
+    },
+    {
+      "digest": "ee404b95ebc433ae752e77f9e152a2bf68cc14582a185e6f442a421265c656ca",
+      "names": [],
+      "sources": [
+        "packages/team/agent-team/src/types.ts:242"
+      ]
     },
     {
       "digest": "ef7ab4fc3c635d4d905026332610e7e9ae5ee2c9c09236fc381b02de1051201f",
