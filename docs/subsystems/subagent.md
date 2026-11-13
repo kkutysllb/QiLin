@@ -668,6 +668,22 @@ async drainChildren(parent: Agent, childIds: readonly SessionId[]): Promise<void
 listChildren(parentSessionId: SessionId, signal?: AbortSignal): Promise<SubagentCatalogEntry[]>
 
 /**
+ * Resolve a model-supplied agent reference against the caller's direct-child
+ * catalog. A matching catalog name selects that child; any other single token
+ * passes through as a Session id, because the caller may already hold one.
+ * A slash-separated path names no direct child, so an unmatched path fails
+ * instead of reaching a member lookup as an unknown id. Resolution grants no
+ * authority: messaging and interruption authorize the resolved Session id.
+ * @param parent - exact live Agent whose catalog supplies the names.
+ * @param reference - a direct-child name or a Session id.
+ * @param signal - cancellation forwarded to the catalog read.
+ * @returns the referenced Session id.
+ * @throws {@link SubagentError} `AGENT_NAME_NOT_FOUND` when a path names no member,
+ *   or when the catalog cannot be read.
+ */
+async resolveName(parent: Agent, reference: string, signal?: AbortSignal): Promise<SessionId>
+
+/**
  * Recursively list reachable parent catalogs in stable pre-order, preserving
  * each catalog's event order. Each row carries its catalog parent and depth;
  * external children are leaves; one-shot and unknown-mode children remain

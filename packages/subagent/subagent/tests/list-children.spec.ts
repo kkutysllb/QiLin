@@ -113,6 +113,22 @@ describe('SubagentRuntime.listChildren', () => {
     }
   })
 
+  it('resolves a direct-child name, passes unknown tokens through, and rejects paths', async () => {
+    const { ctx, parent } = await setup([textResponse('once')])
+    const child = await startTestActivation(ctx, 'spawn', {
+      prompt: [{ type: 'text', text: 'finish once' }],
+      parent,
+      signal: testSignal,
+    })
+    await child.result
+    await child.dispose()
+
+    expect(await ctx.subagents.resolveName(parent, 'agent-1', testSignal)).toBe(child.childId)
+    expect(await ctx.subagents.resolveName(parent, 'unseen-token', testSignal)).toBe('unseen-token')
+    await expect(ctx.subagents.resolveName(parent, 'agent-1/deeper', testSignal))
+      .rejects.toMatchObject({ code: 'AGENT_NAME_NOT_FOUND' })
+  })
+
   it('lists settled local children for both delivery modes without corpus or child reads', async () => {
     const { ctx, parent } = await setup([textResponse('once'), textResponse('again')])
     const callerOwned = await startTestActivation(ctx, 'spawn', {
