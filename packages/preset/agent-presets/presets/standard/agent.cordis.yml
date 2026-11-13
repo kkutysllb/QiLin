@@ -182,6 +182,8 @@
   config:
     - id: tool-subagent-control
       name: '@qilin-agent/tool-subagent-control'
+      config:
+        interrupt: false
 
     - id: tool-subagent-list-agents
       name: '@qilin-agent/tool-subagent-control/list-agents'

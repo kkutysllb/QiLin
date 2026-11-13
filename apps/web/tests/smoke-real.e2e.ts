@@ -597,7 +597,6 @@ describe('qilin web keyless CLI smoke', () => {
           "get_goal",
           "glob",
           "grep",
-          "interrupt_agent",
           "job_kill",
           "job_list",
           "job_output",
