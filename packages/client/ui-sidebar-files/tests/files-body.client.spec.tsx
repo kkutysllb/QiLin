@@ -55,7 +55,7 @@ describe('FilesBody', () => {
     expect(script.list).not.toHaveBeenCalled()
   })
 
-  it('lists the root on mount, heads it with its path split at the last segment, and draws directories first with dotfiles kept', async () => {
+  it('lists the root on mount, heads it with its path split at the last segment, and draws directories first', async () => {
     const { view, script } = mountBody()
     expect(script.list).toHaveBeenCalledWith(SESSION, ROOT, expect.any(AbortSignal))
     expect(view.container.querySelector('[data-files-row="loading"]')).not.toBeNull()
@@ -64,23 +64,23 @@ describe('FilesBody', () => {
     const path = view.container.querySelector('[data-files-path]')
     expect(path?.getAttribute('title')).toBe(ROOT)
     expect([...path?.querySelectorAll('span > span') ?? []].map(span => span.textContent)).toEqual(['/work/', 'app'])
-    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/.env`, `${ROOT}/pipe`, `${ROOT}/README.md`])
-    const envIcon = view.container.querySelector(`[data-files-path="${ROOT}/.env"] svg`)?.innerHTML
+    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/pipe`, `${ROOT}/README.md`])
+    const otherIcon = view.container.querySelector(`[data-files-path="${ROOT}/pipe"] svg`)?.innerHTML
     const readmeIcon = view.container.querySelector(`[data-files-path="${ROOT}/README.md"] svg`)?.innerHTML
-    expect(envIcon).not.toBe(readmeIcon)
+    expect(otherIcon).not.toBe(readmeIcon)
   })
 
-  it('hides node_modules by default and shows dotfiles until the view options hide them', async () => {
+  it('hides dotfiles and node_modules by default, and the view options show them again', async () => {
     const { view, script } = mountBody()
     await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
-    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/.env`, `${ROOT}/pipe`, `${ROOT}/README.md`])
+    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/pipe`, `${ROOT}/README.md`])
     fireEvent.click(view.getByRole('button', { name: zh.viewOptions }))
     fireEvent.click(view.getByRole('menuitem', { name: zh.hideDotfiles }))
-    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/pipe`, `${ROOT}/README.md`])
+    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/.env`, `${ROOT}/pipe`, `${ROOT}/README.md`])
     // The hidden set lives in the tab's store, so it survives a remount.
     fireEvent.click(view.getByRole('button', { name: zh.viewOptions }))
     fireEvent.click(view.getByRole('menuitem', { name: zh.hideDotfiles }))
-    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/.env`, `${ROOT}/pipe`, `${ROOT}/README.md`])
+    expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/pipe`, `${ROOT}/README.md`])
   })
 
   it('heads a separator-only root by the root itself, since it has no final segment', async () => {
@@ -88,7 +88,7 @@ describe('FilesBody', () => {
     await act(() => script.settle({ ok: true, value: ROOT_LEVEL }))
     const path = view.container.querySelector('[data-files-path]')
     expect([...path?.querySelectorAll('span > span') ?? []].map(span => span.textContent)).toEqual(['/'])
-    expect(names(view.container)).toEqual(['/src', '/.env', '/pipe', '/README.md'])
+    expect(names(view.container)).toEqual(['/src', '/pipe', '/README.md'])
   })
 
   it('marks the root path clipped while its text is wider than its box, re-reading on resize', async () => {

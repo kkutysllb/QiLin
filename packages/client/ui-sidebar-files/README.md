@@ -37,7 +37,7 @@ The browser half lives under `src/client/`: `definition.tsx` and `file-definitio
 <a id="the-tree"></a>
 ## The tree
 
-The root is the session's working directory, read from `useSessions().byId[sessionId].cwd`, and split for the header row by `pathPartsOf` from `@qilin-agent/util-workspace-path`. Every level is keyed by absolute path; a child's path is its parent's joined with the entry name by `/`. A level is listed when it is first expanded, through `remote.workspaceFiles.list(sessionId, absolutePath)` on the `@qilin-agent/api-workspace-files` namespace; the adapter keeps the listing's entries and truncation flag and drops its workspace-relative path. Rows are ordered directories first, then by natural, case-insensitive name; dotfiles are shown like any other entry, while `node_modules` is hidden by default. The header's view options toggle each kind per tab, and the hidden set lives in that tab's tree state, so a reload keeps it.
+The root is the session's working directory, read from `useSessions().byId[sessionId].cwd`, and split for the header row by `pathPartsOf` from `@qilin-agent/util-workspace-path`. Every level is keyed by absolute path; a child's path is its parent's joined with the entry name by `/`. A level is listed when it is first expanded, through `remote.workspaceFiles.list(sessionId, absolutePath)` on the `@qilin-agent/api-workspace-files` namespace; the adapter keeps the listing's entries and truncation flag and drops its workspace-relative path. Rows are ordered directories first, then by natural, case-insensitive name; dotfiles and `node_modules` are hidden by default. The header's view options toggle each kind per tab, and the hidden set lives in that tab's tree state, so a reload keeps it.
 
 | Entry type | Row |
 |---|---|

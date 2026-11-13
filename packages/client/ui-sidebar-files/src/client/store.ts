@@ -73,8 +73,8 @@ export interface HiddenKinds {
   readonly nodeModules: boolean
 }
 
-/** The kinds a fresh tree hides: dependencies stay out, dotfiles show. */
-export const DEFAULT_HIDDEN: HiddenKinds = { dotfiles: false, nodeModules: true }
+/** The kinds a fresh tree hides: a workspace root is read for its own sources, not for dotfiles or installed dependencies. */
+export const DEFAULT_HIDDEN: HiddenKinds = { dotfiles: true, nodeModules: true }
 
 /**
  * One tab's tree: its root, the levels it has asked for, what is open, the

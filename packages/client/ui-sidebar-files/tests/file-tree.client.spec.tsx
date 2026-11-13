@@ -61,8 +61,8 @@ describe('visibleEntries', () => {
     { name: 'README.md', type: 'file' as const, size: 12 },
   ]
 
-  it('hides node_modules by default and keeps dotfiles', () => {
-    expect(visibleEntries(entries).map(entry => entry.name)).toEqual(['src', '.env', 'README.md'])
+  it('hides dotfiles and node_modules by default', () => {
+    expect(visibleEntries(entries).map(entry => entry.name)).toEqual(['src', 'README.md'])
   })
 
   it('hides dotfiles once selected and shows everything when nothing is hidden', () => {

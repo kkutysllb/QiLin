@@ -37,7 +37,7 @@ kind: "package-reference"
 <a id="the-tree"></a>
 ## 树
 
-根是会话的工作目录，读自 `useSessions().byId[sessionId].cwd`，标题行里的拆分由 `@qilin-agent/util-workspace-path` 的 `pathPartsOf` 给出。每一层以绝对路径为键；子路径是父路径以 `/` 拼上条目名。一层在首次展开时经 `@qilin-agent/api-workspace-files` 命名空间的 `remote.workspaceFiles.list(sessionId, absolutePath)` 列出；适配层保留列表的条目与截断标志，丢弃其工作区相对路径。行序为目录优先，其后按自然序、不分大小写的名称排列；dotfiles 与其他条目一样显示，而 `node_modules` 默认隐藏。标题行的视图选项可以按标签页切换两类条目，隐藏集合保存在该标签页的树状态里，重新读取后仍然生效。
+根是会话的工作目录，读自 `useSessions().byId[sessionId].cwd`，标题行里的拆分由 `@qilin-agent/util-workspace-path` 的 `pathPartsOf` 给出。每一层以绝对路径为键；子路径是父路径以 `/` 拼上条目名。一层在首次展开时经 `@qilin-agent/api-workspace-files` 命名空间的 `remote.workspaceFiles.list(sessionId, absolutePath)` 列出；适配层保留列表的条目与截断标志，丢弃其工作区相对路径。行序为目录优先，其后按自然序、不分大小写的名称排列；dotfiles 与 `node_modules` 默认隐藏。标题行的视图选项可以按标签页切换两类条目，隐藏集合保存在该标签页的树状态里，重新读取后仍然生效。
 
 | 条目类型 | 行 |
 |---|---|
