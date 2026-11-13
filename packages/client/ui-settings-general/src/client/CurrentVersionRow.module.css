@@ -1,5 +1,5 @@
 .row {
-  padding: var(--qilin-space-5) 0;
+  padding: var(--qilin-space-4) 0;
   color: var(--qilin-alias-label-primary);
   font-size: var(--qilin-text-md);
   line-height: 22px;

@@ -53,6 +53,6 @@ describe('composer statistics row styles', () => {
   it('sizes the reservation to one reading: a 20px secondary line plus the 2px block padding token', () => {
     const trigger = rule(contextMeterCss, '.trigger')
     expect(trigger).toContain('line-height: calc(20px + var(--qilin-content-font-delta-secondary, 0px))')
-    expect(trigger).toMatch(/padding:\s*var\(--qilin-space-1\) var\(--qilin-space-3\);/)
+    expect(trigger).toMatch(/padding:\s*var\(--qilin-space-0\) var\(--qilin-space-2\);/)
   })
 })

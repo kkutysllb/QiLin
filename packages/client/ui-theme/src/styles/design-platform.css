@@ -481,9 +481,6 @@ body {
   --qilin-font-sm-13: var(--qilin-font-xs-13);
   --qilin-font-xs-12: var(--qilin-font-xxs-12);
   --qilin-font-xs-strong-12: var(--qilin-font-xxs-strong-12);
-  --qilin-space-1: 4px;
-  --qilin-space-2: 8px;
-  --qilin-space-3: 12px;
 
   /* The hover card surface is #2c2c2e in both schemes (figma value), so its
      token is scheme-independent; the card component reads it from here. */

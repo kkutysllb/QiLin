@@ -19,8 +19,8 @@
 .section > :global([data-slot='settings.general.item']) > * {
   box-sizing: border-box;
   width: 100%;
-  margin: 0 0 var(--qilin-space-6);
-  padding: var(--qilin-space-6) var(--qilin-space-6);
+  margin: 0 0 var(--qilin-space-5);
+  padding: var(--qilin-space-5) var(--qilin-space-5);
   border: 1px solid var(--qilin-alias-border-l2);
   border-radius: var(--qilin-radius-xl);
 }

@@ -17,7 +17,7 @@
   width: max-content;
   min-width: min(300px, calc(100vw - 24px));
   max-width: min(440px, calc(100vw - 24px));
-  padding: var(--qilin-space-5);
+  padding: var(--qilin-space-4);
   border: 0;
   border-radius: var(--qilin-radius-lg);
   background: var(--qilin-specific-menu);
@@ -35,15 +35,15 @@
 .title {
   display: flex;
   justify-content: space-between;
-  gap: var(--qilin-space-5);
-  margin-bottom: var(--qilin-space-3);
+  gap: var(--qilin-space-4);
+  margin-bottom: var(--qilin-space-2);
   color: var(--qilin-alias-label-primary);
   font-weight: 500;
 }
 
 /* Rule under each section heading, above its rows. */
 .titleRule {
-  margin-bottom: var(--qilin-space-4);
+  margin-bottom: var(--qilin-space-3);
   border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
@@ -55,7 +55,7 @@
 .titleLabel {
   display: inline-flex;
   align-items: center;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   min-width: 0;
 }
 
@@ -68,7 +68,7 @@
 .details {
   display: grid;
   grid-template-columns: minmax(76px, auto) minmax(0, 1fr);
-  gap: var(--qilin-space-3) var(--qilin-space-5);
+  gap: var(--qilin-space-2) var(--qilin-space-4);
   margin: 0;
   color: var(--qilin-alias-label-tertiary);
 }

@@ -85,12 +85,20 @@ describe('v1 accent contrast', () => {
 
 describe('v1 scale', () => {
   it('declares the spacing, type, and radius scales', () => {
-    for (const step of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) expect(base).toContain(`--qilin-space-${step}:`)
+    expect(base).toContain('--qilin-space-0: 2px;')
+    expect(base).toContain('--qilin-space-9: 64px;')
+    for (const step of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) expect(base).toContain(`--qilin-space-${step}:`)
     for (const token of ['xs', 'sm', 'base', 'md', 'lg', 'xl', '2xl']) expect(base).toContain(`--qilin-text-${token}:`)
     expect(base).toContain('--qilin-radius-2xs: 2px;')
     expect(base).toContain('--qilin-radius-md: 10px;')
     expect(base).toContain('--qilin-radius-panel: 20px;')
     expect(base).toContain('--qilin-radius-pill: 999px;')
+  })
+
+  it('owns the scales in one sheet, so no later sheet can shadow a value', () => {
+    expect(platform).not.toContain('--qilin-space-')
+    expect(platform).not.toContain('--qilin-radius-')
+    expect(platform).not.toContain('--qilin-text-')
   })
 
   it('declares all three density levels', () => {

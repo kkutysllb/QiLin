@@ -9,9 +9,9 @@
 .trigger {
   display: inline-flex;
   align-items: center;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   flex: none;
-  padding: var(--qilin-space-1) var(--qilin-space-3);
+  padding: var(--qilin-space-0) var(--qilin-space-2);
   border: none;
   border-radius: var(--qilin-radius-panel);
   background: transparent;
@@ -48,7 +48,7 @@
   z-index: 1100;
   box-sizing: border-box;
   width: min(264px, calc(100vw - 24px));
-  padding: var(--qilin-space-4);
+  padding: var(--qilin-space-3);
   border: 0;
   border-radius: var(--qilin-radius-lg);
   background: var(--qilin-specific-menu);
@@ -63,7 +63,7 @@
 .header {
   display: flex;
   align-items: center;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
 }
 
 .figures {
@@ -90,8 +90,8 @@
 
 .bar {
   display: flex;
-  gap: var(--qilin-space-1);
-  margin: var(--qilin-space-4) 0 var(--qilin-space-4);
+  gap: var(--qilin-space-0);
+  margin: var(--qilin-space-3) 0 var(--qilin-space-3);
   height: 4px;
   border-radius: var(--qilin-radius-pill);
   corner-shape: round;
@@ -109,7 +109,7 @@
 
 .swatch {
   display: inline-block;
-  margin-right: var(--qilin-space-3);
+  margin-right: var(--qilin-space-2);
   width: 8px;
   height: 8px;
   border-radius: var(--qilin-radius-2xs);
@@ -131,15 +131,15 @@
 }
 
 .rows {
-  margin: var(--qilin-space-3) 0 0;
+  margin: var(--qilin-space-2) 0 0;
 }
 
 .row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--qilin-space-4);
-  padding: var(--qilin-space-1) 0;
+  gap: var(--qilin-space-3);
+  padding: var(--qilin-space-0) 0;
 }
 
 .row dt {

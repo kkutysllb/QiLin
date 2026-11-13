@@ -45,7 +45,7 @@
   flex: none;
   width: 2px;
   height: 2px;
-  margin: 0 var(--qilin-space-3);
+  margin: 0 var(--qilin-space-2);
   border-radius: var(--qilin-radius-2xs);
   background: var(--qilin-alias-label-caption);
 }
@@ -68,8 +68,8 @@
 
 .body {
   max-height: 260px;
-  margin: var(--qilin-space-2) 0 var(--qilin-space-2) var(--qilin-space-2);
-  padding: var(--qilin-space-4) var(--qilin-space-5);
+  margin: var(--qilin-space-1) 0 var(--qilin-space-1) var(--qilin-space-1);
+  padding: var(--qilin-space-3) var(--qilin-space-4);
   overflow: auto;
   border: 1px solid var(--qilin-alias-border-l1);
   border-radius: var(--qilin-radius-lg);

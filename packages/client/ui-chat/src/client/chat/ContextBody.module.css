@@ -13,15 +13,15 @@
 .fields {
   display: flex;
   flex-direction: column;
-  gap: var(--qilin-space-1);
-  margin: var(--qilin-space-3) 0 0;
-  padding-top: var(--qilin-space-3);
+  gap: var(--qilin-space-0);
+  margin: var(--qilin-space-2) 0 0;
+  padding-top: var(--qilin-space-2);
   border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 .field {
   display: flex;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   min-width: 0;
 }
 
@@ -43,8 +43,8 @@
 .files {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--qilin-space-2) var(--qilin-space-4);
-  margin: 0 0 var(--qilin-space-3);
+  gap: var(--qilin-space-1) var(--qilin-space-3);
+  margin: 0 0 var(--qilin-space-2);
   padding: 0;
   list-style: none;
 }
@@ -52,7 +52,7 @@
 .file {
   display: flex;
   align-items: baseline;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   min-width: 0;
 }
 
@@ -67,7 +67,7 @@
 
 /* catalog: a replacement notice above one row per published entry. */
 .catalogNotice {
-  margin: 0 0 var(--qilin-space-3);
+  margin: 0 0 var(--qilin-space-2);
   color: var(--qilin-alias-label-caption);
 }
 
@@ -75,7 +75,7 @@
 .entries {
   display: flex;
   flex-direction: column;
-  gap: var(--qilin-space-2);
+  gap: var(--qilin-space-1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -83,7 +83,7 @@
 
 .entry {
   display: flex;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   min-width: 0;
 }
 
@@ -105,14 +105,14 @@
 .sections {
   display: flex;
   flex-direction: column;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   margin: 0;
 }
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--qilin-space-1);
+  gap: var(--qilin-space-0);
   min-width: 0;
 }
 
@@ -129,7 +129,7 @@
 
 /* relay: who sent this, above what they said. */
 .relaySender {
-  margin: 0 0 var(--qilin-space-3);
+  margin: 0 0 var(--qilin-space-2);
   color: var(--qilin-alias-label-caption);
   overflow-wrap: anywhere;
 }
@@ -138,15 +138,15 @@
 .recalls {
   display: flex;
   flex-direction: column;
-  gap: var(--qilin-space-1);
-  margin: 0 0 var(--qilin-space-3);
+  gap: var(--qilin-space-0);
+  margin: 0 0 var(--qilin-space-2);
   padding: 0;
   list-style: none;
 }
 
 .recall {
   display: flex;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   min-width: 0;
 }
 

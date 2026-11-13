@@ -10,7 +10,7 @@
   justify-content: center;
   height: 100%;
   min-width: 0;
-  padding: 0 var(--qilin-space-6);
+  padding: 0 var(--qilin-space-5);
   overflow: hidden;
 }
 
@@ -41,7 +41,7 @@
   flex-direction: column;
   align-items: stretch;
   /* 12 between the hero lines, the workspace row, and the input card. */
-  gap: var(--qilin-space-4);
+  gap: var(--qilin-space-3);
   width: 100%;
   max-width: var(--qilin-composer-card-max-width);
   overflow: visible;
@@ -89,7 +89,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--qilin-space-4);
+  gap: var(--qilin-space-3);
   min-width: 0;
   overflow: visible;
 }
@@ -107,7 +107,7 @@
   align-items: center;
   min-width: 0;
   /* figma 75:8208 workspace row: px 8 above the card. */
-  padding-left: var(--qilin-space-3);
+  padding-left: var(--qilin-space-2);
 }
 
 /* Folder + label + chevron — transparent at rest; fill only on hover / open.
@@ -117,10 +117,10 @@
 .workspace {
   display: inline-flex;
   align-items: center;
-  gap: var(--qilin-space-2);
+  gap: var(--qilin-space-1);
   max-width: min(100%, 360px);
   min-height: 28px;
-  padding: 0 var(--qilin-space-3);
+  padding: 0 var(--qilin-space-2);
   border: none;
   border-radius: var(--qilin-radius-lg);
   background: transparent;
@@ -166,7 +166,7 @@
   box-sizing: border-box;
   width: 100%;
   height: 44px;
-  padding: var(--qilin-space-3) var(--qilin-space-5);
+  padding: var(--qilin-space-2) var(--qilin-space-4);
   border: 1px solid var(--qilin-alias-border-l4);
   border-radius: var(--qilin-radius-panel);
   outline: none;
@@ -190,7 +190,7 @@
 }
 
 .modalError {
-  margin-top: var(--qilin-space-3);
+  margin-top: var(--qilin-space-2);
   font-size: var(--qilin-text-sm);
   line-height: 18px;
   color: var(--qilin-alias-state-error-primary);

@@ -12,7 +12,7 @@ The platform palettes carry a warm paper neutral ramp (cream canvas, ink text, w
 
 The theme owner publishes four scales that feature components consume instead of literal values:
 
-- **Spacing** `--qilin-space-1..10` (2/4/8/12/16/24/32/40/48/64) for padding, margin, and gaps.
+- **Spacing** `--qilin-space-0..9` (2/4/8/12/16/24/32/40/48/64) for padding, margin, and gaps.
 - **Type** `--qilin-text-xs..2xl` (11/12/13/14/16/18/22) with `--qilin-leading-tight/normal/relaxed`; the content-size deltas stay additive so the user's font-size preference composes with the scale.
 - **Radius** `--qilin-radius-2xs`, `-xs..xl`, `-panel`, `-pill` (2/4/6/10/14/18/20/999), with `corner-shape: round` pairing for pill radii.
 - **Density** `body[data-qilin-density='compact' | 'standard' | 'comfortable']` publishes `--qilin-density-gap`, `--qilin-density-control-height`, and `--qilin-density-font-delta`; components read them with the standard value as the fallback.

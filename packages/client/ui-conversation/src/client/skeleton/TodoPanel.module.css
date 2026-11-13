@@ -34,14 +34,14 @@
 .body {
   display: flex;
   flex-direction: column;
-  gap: var(--qilin-space-3);
-  padding: var(--qilin-space-3) var(--qilin-space-4);
+  gap: var(--qilin-space-2);
+  padding: var(--qilin-space-2) var(--qilin-space-3);
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: var(--qilin-space-4);
+  gap: var(--qilin-space-3);
   width: 100%;
   padding: 0;
   border: none;
@@ -87,7 +87,7 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -98,7 +98,7 @@
 .item {
   display: flex;
   align-items: center;
-  gap: var(--qilin-space-4);
+  gap: var(--qilin-space-3);
   min-width: 0;
   font-size: var(--qilin-text-base);
   line-height: 20px;

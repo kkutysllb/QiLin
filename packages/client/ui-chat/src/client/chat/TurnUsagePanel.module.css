@@ -10,7 +10,7 @@
    padding so the pair reads as one cluster inside the row's 8px flex gap,
    while keeping 2px clear between their hover backgrounds. */
 .root + .root {
-  margin-left: calc(-1 * var(--qilin-space-3));
+  margin-left: calc(-1 * var(--qilin-space-2));
 }
 
 /* Same pill rules as the sibling `.action` icon buttons (28px hit height,
@@ -19,10 +19,10 @@
 .trigger {
   display: inline-flex;
   align-items: center;
-  gap: var(--qilin-space-2);
+  gap: var(--qilin-space-1);
   min-width: 0;
   height: calc(28px + var(--qilin-content-font-delta, 0px));
-  padding: var(--qilin-space-3) var(--qilin-space-3);
+  padding: var(--qilin-space-2) var(--qilin-space-2);
   border: none;
   border-radius: var(--qilin-radius-panel);
   background: transparent;
@@ -62,7 +62,7 @@
   .trigger {
     justify-content: center;
     width: calc(28px + var(--qilin-content-font-delta, 0px));
-    padding: var(--qilin-space-3);
+    padding: var(--qilin-space-2);
   }
 
   .trigger .label {

@@ -14,10 +14,10 @@
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   box-sizing: border-box;
   max-width: 100%;
-  padding: var(--qilin-space-1) var(--qilin-space-3);
+  padding: var(--qilin-space-0) var(--qilin-space-2);
   border: none;
   border-radius: var(--qilin-radius-pill);
   corner-shape: round;
@@ -55,5 +55,5 @@ button.pill[aria-expanded='true'] {
 
 .sep {
   color: var(--qilin-alias-separator-primary);
-  margin: 0 var(--qilin-space-3);
+  margin: 0 var(--qilin-space-2);
 }

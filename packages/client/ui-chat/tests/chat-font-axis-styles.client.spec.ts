@@ -82,11 +82,11 @@ describe('chat flow font-size axis', () => {
     // 22px indent would misalign at every non-default size.
     const indent = 'calc(22px + var(--qilin-content-font-delta, 0px))'
     expect(declarationsFrom(read('ReasoningRow.module.css'), '.thinkBody'))
-      .toEqual(expect.arrayContaining([`padding: var(--qilin-space-2) 0 var(--qilin-space-2) ${indent}`]))
+      .toEqual(expect.arrayContaining([`padding: var(--qilin-space-1) 0 var(--qilin-space-1) ${indent}`]))
     expect(declarationsFrom(read('MessageItem.module.css'), '.compactionBody'))
-      .toEqual(expect.arrayContaining([`padding: var(--qilin-space-2) 0 var(--qilin-space-2) ${indent}`]))
+      .toEqual(expect.arrayContaining([`padding: var(--qilin-space-1) 0 var(--qilin-space-1) ${indent}`]))
     expect(declarationsFrom(read('ContextInjectionRow.module.css'), '.body'))
-      .toEqual(expect.arrayContaining([`margin: var(--qilin-space-2) 0 0 ${indent}`]))
+      .toEqual(expect.arrayContaining([`margin: var(--qilin-space-1) 0 0 ${indent}`]))
   })
 
   it('the usage-details trigger reads the secondary tier like its clock label', () => {
@@ -129,7 +129,7 @@ describe('chat flow font-size axis', () => {
     const narrow = /@media \(max-width: 480px\) \{([\s\S]*?)\n\}/.exec(css)?.[1] ?? ''
     expect(narrow).toMatch(/\.trigger \{[^}]*justify-content: center/)
     expect(narrow).toMatch(/\.trigger \{[^}]*width: calc\(28px \+ var\(--qilin-content-font-delta, 0px\)\)/)
-    expect(narrow).toMatch(/\.trigger \{[^}]*padding: var\(--qilin-space-3\)/)
+    expect(narrow).toMatch(/\.trigger \{[^}]*padding: var\(--qilin-space-2\)/)
     expect(narrow).toMatch(/\.trigger \.label \{[^}]*display: none/)
     expect(narrow).toMatch(/\.root \+ \.root \{[^}]*margin-left: 0/)
   })

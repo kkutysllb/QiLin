@@ -3,8 +3,8 @@
 .row {
   display: flex;
   align-items: center;
-  gap: var(--qilin-space-3);
-  padding: var(--qilin-space-5) 0;
+  gap: var(--qilin-space-2);
+  padding: var(--qilin-space-4) 0;
   border-bottom: 1px solid var(--qilin-alias-border-l2);
 }
 
@@ -13,8 +13,8 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--qilin-space-2);
-  padding-right: var(--qilin-space-9);
+  gap: var(--qilin-space-1);
+  padding-right: var(--qilin-space-8);
 }
 
 .title {
@@ -34,9 +34,9 @@
 .selector {
   display: inline-flex;
   align-items: center;
-  gap: var(--qilin-space-4);
+  gap: var(--qilin-space-3);
   height: 36px;
-  padding: 0 var(--qilin-space-5);
+  padding: 0 var(--qilin-space-4);
   border: none;
   border-radius: var(--qilin-radius-md);
   background: var(--qilin-alias-bg-module-platform);

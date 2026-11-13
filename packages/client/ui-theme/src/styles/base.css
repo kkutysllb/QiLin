@@ -36,16 +36,16 @@
   --qilin-radius-pill: 999px;
   /* Spacing scale. Components that adopted v1 reference these instead of
      literal pixels; unmigrated packages keep their literals until their batch. */
-  --qilin-space-1: 2px;
-  --qilin-space-2: 4px;
-  --qilin-space-3: 8px;
-  --qilin-space-4: 12px;
-  --qilin-space-5: 16px;
-  --qilin-space-6: 24px;
-  --qilin-space-7: 32px;
-  --qilin-space-8: 40px;
-  --qilin-space-9: 48px;
-  --qilin-space-10: 64px;
+  --qilin-space-0: 2px;
+  --qilin-space-1: 4px;
+  --qilin-space-2: 8px;
+  --qilin-space-3: 12px;
+  --qilin-space-4: 16px;
+  --qilin-space-5: 24px;
+  --qilin-space-6: 32px;
+  --qilin-space-7: 40px;
+  --qilin-space-8: 48px;
+  --qilin-space-9: 64px;
   /* Type scale; the content-size deltas keep the user's font-size preference
      additive instead of replacing the scale. */
   --qilin-text-xs: 11px;

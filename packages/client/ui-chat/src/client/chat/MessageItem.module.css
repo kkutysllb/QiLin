@@ -5,14 +5,14 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
 }
 
 .userStack {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   min-width: 0;
   /* The figma 525px cap held as a share of the width axis (525/748 ≈ 0.702):
      resolves to the original 525px on the default column and widens with a
@@ -26,7 +26,7 @@
   line-height: calc(18px + var(--qilin-content-font-delta-secondary, 0px));
 }
 .contextRow {
-  padding: var(--qilin-space-1) 0;
+  padding: var(--qilin-space-0) 0;
 }
 
 /* Compaction marker: one dim 24px row with a context icon at rest and a
@@ -37,7 +37,7 @@
      height and the offset that holds a summary's code banner below that band
      are the same measurement, so both read it from here. */
   --qilin-compaction-header-height: calc(24px + var(--qilin-content-font-delta, 0px));
-  padding: var(--qilin-space-1) 0;
+  padding: var(--qilin-space-0) 0;
 }
 
 .compactionButton {
@@ -104,7 +104,7 @@
   place-items: center;
   width: calc(16px + var(--qilin-content-font-delta, 0px));
   height: calc(16px + var(--qilin-content-font-delta, 0px));
-  margin-right: var(--qilin-space-3);
+  margin-right: var(--qilin-space-2);
   color: var(--qilin-alias-label-secondary);
 }
 
@@ -148,7 +148,7 @@
   flex: none;
   width: 2px;
   height: 2px;
-  margin: 0 var(--qilin-space-3);
+  margin: 0 var(--qilin-space-2);
   border-radius: var(--qilin-radius-2xs);
   background: var(--qilin-alias-label-caption);
 }
@@ -166,7 +166,7 @@
 
 .compactionBody {
   /* Indent under the title, which starts at leading (16 + delta) + gap 6. */
-  padding: var(--qilin-space-2) 0 var(--qilin-space-2) calc(22px + var(--qilin-content-font-delta, 0px));
+  padding: var(--qilin-space-1) 0 var(--qilin-space-1) calc(22px + var(--qilin-content-font-delta, 0px));
   color: var(--qilin-alias-label-tertiary);
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: calc(24px + var(--qilin-content-font-delta, 0px));
@@ -182,8 +182,8 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: var(--qilin-space-1) 0;
-  gap: var(--qilin-space-3);
+  padding: var(--qilin-space-0) 0;
+  gap: var(--qilin-space-2);
   border-radius: var(--qilin-radius-xs);
   color: inherit;
   cursor: pointer;
@@ -242,9 +242,9 @@
 
 .retryDetails {
   display: grid;
-  gap: var(--qilin-space-1);
-  margin-top: var(--qilin-space-2);
-  padding-left: var(--qilin-space-5);
+  gap: var(--qilin-space-0);
+  margin-top: var(--qilin-space-1);
+  padding-left: var(--qilin-space-4);
   overflow-wrap: anywhere;
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: calc(18px + var(--qilin-content-font-delta-secondary, 0px));
@@ -257,15 +257,15 @@
 .turnErrorRow {
   display: grid;
   grid-template-columns: 10px minmax(0, 1fr) auto;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
   align-items: start;
-  padding: var(--qilin-space-1) 0;
+  padding: var(--qilin-space-0) 0;
   font-size: var(--qilin-content-font-size-secondary, 13px);
   line-height: calc(20px + var(--qilin-content-font-delta-secondary, 0px));
 }
 
 .turnErrorDot {
-  margin-top: var(--qilin-space-2);
+  margin-top: var(--qilin-space-1);
 }
 
 .turnErrorCopy {
@@ -274,7 +274,7 @@
 }
 
 .turnErrorTitle {
-  margin-right: var(--qilin-space-3);
+  margin-right: var(--qilin-space-2);
   color: var(--qilin-alias-state-error-primary);
   font-weight: 600;
 }
@@ -289,7 +289,7 @@
 }
 
 .turnErrorRetry {
-  margin-left: var(--qilin-space-3);
+  margin-left: var(--qilin-space-2);
   padding: 0;
   border: 0;
   background: none;
@@ -311,7 +311,7 @@
 }
 
 .maxTokensTitle {
-  margin-right: var(--qilin-space-3);
+  margin-right: var(--qilin-space-2);
   color: var(--qilin-alias-state-warn-primary);
   font-weight: 600;
 }
@@ -339,17 +339,17 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   max-width: 100%;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
 }
 
 .fileCard {
   display: inline-flex;
   flex: 0 0 240px;
   align-items: center;
-  gap: var(--qilin-space-4);
+  gap: var(--qilin-space-3);
   width: 240px;
   min-height: 64px;
-  padding: var(--qilin-space-3) var(--qilin-space-4);
+  padding: var(--qilin-space-2) var(--qilin-space-3);
   border: 1px solid var(--qilin-alias-border-l2, rgba(0, 0, 0, 0.12));
   border-radius: var(--qilin-radius-lg);
   background: var(--qilin-specific-input-major, transparent);

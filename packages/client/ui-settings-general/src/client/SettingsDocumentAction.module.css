@@ -2,7 +2,7 @@
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: var(--qilin-space-3);
+  gap: var(--qilin-space-2);
 }
 
 .error {

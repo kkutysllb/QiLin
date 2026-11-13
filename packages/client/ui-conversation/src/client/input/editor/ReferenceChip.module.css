@@ -3,7 +3,7 @@
 .chip {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--qilin-space-2);
+  gap: var(--qilin-space-1);
   max-width: 240px;
   color: var(--qilin-alias-state-business-primary);
   user-select: none;

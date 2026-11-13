@@ -1,12 +1,12 @@
 .root {
   display: flex;
   flex-direction: column;
-  gap: var(--qilin-space-5);
+  gap: var(--qilin-space-4);
 }
 
 .actions {
   /* With tail content, this adds to the root gap; without it, the Chat flow's
      preceding-item offset supplies the other 16px. */
-  margin-top: var(--qilin-space-2);
-  margin-left: calc(-1 * var(--qilin-space-3));
+  margin-top: var(--qilin-space-1);
+  margin-left: calc(-1 * var(--qilin-space-2));
 }

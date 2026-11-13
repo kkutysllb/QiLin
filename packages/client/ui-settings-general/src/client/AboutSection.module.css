@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--qilin-space-6);
+  gap: var(--qilin-space-5);
   width: 100%;
   max-width: 640px;
   margin-inline: auto;
-  padding: var(--qilin-space-9) var(--qilin-space-9) var(--qilin-space-9);
+  padding: var(--qilin-space-8) var(--qilin-space-8) var(--qilin-space-8);
   color: var(--qilin-alias-label-primary);
   text-align: center;
 }
@@ -42,7 +42,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--qilin-space-4);
+  gap: var(--qilin-space-3);
   max-width: 520px;
 }
 
@@ -68,6 +68,6 @@
 
 @media (max-width: 640px) {
   .section {
-    padding: var(--qilin-space-8) var(--qilin-space-6) var(--qilin-space-8);
+    padding: var(--qilin-space-7) var(--qilin-space-5) var(--qilin-space-7);
   }
 }

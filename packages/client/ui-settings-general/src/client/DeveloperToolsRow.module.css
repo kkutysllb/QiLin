@@ -2,8 +2,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--qilin-space-6);
-  padding: var(--qilin-space-5) 0;
+  gap: var(--qilin-space-5);
+  padding: var(--qilin-space-4) 0;
   border-bottom: 1px solid var(--qilin-alias-border-l2);
 }
 
@@ -13,7 +13,7 @@
 }
 
 .description {
-  margin-top: var(--qilin-space-2);
+  margin-top: var(--qilin-space-1);
   color: var(--qilin-alias-label-secondary);
   font-size: var(--qilin-text-sm);
   line-height: 18px;

@@ -167,7 +167,7 @@
   width: min(300px, calc(100cqw - 120px));
   max-height: var(--turn-preview-height);
   overflow: hidden;
-  padding: var(--qilin-space-4) var(--qilin-space-4);
+  padding: var(--qilin-space-3) var(--qilin-space-3);
   border: 0;
   border-radius: var(--qilin-radius-lg);
   color: var(--qilin-alias-label-primary);
@@ -191,7 +191,7 @@
 }
 
 .previewResponse {
-  margin-top: var(--qilin-space-2);
+  margin-top: var(--qilin-space-1);
   color: var(--qilin-alias-label-caption);
   font: var(--qilin-font-xxs-12);
   -webkit-line-clamp: 3;
