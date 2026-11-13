@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  agentAddress, isAgentName, joinAgentPath, parentAgentPath, ROOT_AGENT_NAME,
+  agentAddress, isAgentName, joinAgentPath, parentAgentPath, ROOT_AGENT_NAME, SiblingNameReservations,
 } from '../src/names.ts'
 
 describe('agent names', () => {
@@ -28,5 +28,29 @@ describe('agent names', () => {
     expect(parentAgentPath('reviewer')).toBe('')
     expect(parentAgentPath('reviewer/checker')).toBe('reviewer')
     expect(parentAgentPath('a/b/c')).toBe('a/b')
+  })
+})
+
+describe('sibling name reservations', () => {
+  it('allocates the first free agent-N and holds it until release', () => {
+    const names = new SiblingNameReservations()
+    const parent = {}
+    const committed = new Set(['agent-1'])
+    const first = names.reserve(parent, committed)
+    expect(first.name).toBe('agent-2')
+    const second = names.reserve(parent, committed)
+    expect(second.name).toBe('agent-3')
+    first.release()
+    expect(names.reserve(parent, committed).name).toBe('agent-2')
+    expect(() => names.reserve(parent, committed, 'agent-1')).toThrow()
+  })
+
+  it('rejects invalid and duplicate requested names with typed codes', () => {
+    const names = new SiblingNameReservations()
+    const parent = {}
+    expect(() => names.reserve(parent, new Set(), 'Lead')).toThrow(expect.objectContaining({ code: 'INVALID_AGENT_NAME' }))
+    names.reserve(parent, new Set(), 'reviewer')
+    expect(() => names.reserve(parent, new Set(), 'reviewer')).toThrow(expect.objectContaining({ code: 'DUPLICATE_AGENT_NAME' }))
+    expect(() => names.reserve(parent, new Set(['taken']), 'taken')).toThrow(expect.objectContaining({ code: 'DUPLICATE_AGENT_NAME' }))
   })
 })

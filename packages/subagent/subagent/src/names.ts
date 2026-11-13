@@ -6,6 +6,8 @@
  * @module @qilin-agent/subagent/names
  */
 
+import { SubagentError } from './error.ts'
+
 /** The root agent's fixed name; no child may take it. */
 export const ROOT_AGENT_NAME = 'lead'
 
@@ -51,4 +53,58 @@ export function agentAddress(path: string | undefined, id: string): string {
 export function parentAgentPath(path: string): string {
   const separator = path.lastIndexOf('/')
   return separator < 0 ? '' : path.slice(0, separator)
+}
+/** A sibling name held from admission until the creator's catalog commits or startup fails. */
+export interface SiblingNameReservation {
+  readonly name: string
+  /** Return the name to the pool; repeated calls are harmless. */
+  release(): void
+}
+
+/** Names claimed by in-flight creations, keyed by the exact live creator. */
+export class SiblingNameReservations {
+  private readonly pending = new Map<object, Set<string>>()
+
+  /**
+   * Claim a name synchronously before startup awaits, so concurrent siblings cannot share it.
+   * @param parent - exact live creator whose catalog receives the name.
+   * @param committed - names already recorded in the creator's catalog.
+   * @param requested - requested name; omission selects the first free `agent-N`.
+   * @returns the claimed name and its release.
+   */
+  reserve(parent: object, committed: ReadonlySet<string>, requested?: string): SiblingNameReservation {
+    const pending = this.pending.get(parent) ?? new Set<string>()
+    const taken = (name: string): boolean => committed.has(name) || pending.has(name)
+    let name: string
+    if (requested === undefined) {
+      let ordinal = 1
+      while (taken(`agent-${ordinal}`)) ordinal++
+      name = `agent-${ordinal}`
+    } else {
+      if (!isAgentName(requested)) {
+        throw new SubagentError(
+          `agent name ${JSON.stringify(requested)} is invalid; use 1-32 lower-case letters, digits, or hyphens ` +
+          `starting with a letter, other than "${ROOT_AGENT_NAME}"`,
+          'INVALID_AGENT_NAME',
+        )
+      }
+      if (taken(requested)) {
+        throw new SubagentError(
+          `agent name ${JSON.stringify(requested)} is already used by another subagent you created; choose another name`,
+          'DUPLICATE_AGENT_NAME',
+        )
+      }
+      name = requested
+    }
+    pending.add(name)
+    this.pending.set(parent, pending)
+    return {
+      name,
+      release: () => {
+        pending.delete(name)
+        // A later reservation for the same creator replaces the set; a stale release must not drop it.
+        if (pending.size === 0 && this.pending.get(parent) === pending) this.pending.delete(parent)
+      },
+    }
+  }
 }

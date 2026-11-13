@@ -29,7 +29,11 @@ import { createAgentMessage, withContinuableReturnGuidance, createSettlementMess
 import { assertSubagentMaxDepth } from './depth.ts'
 import { foldSubagentDescriptor, snapshotSubagentDescriptor } from './descriptor.ts'
 import type { SubagentDescriptorData } from './descriptor.ts'
-import { acceptCatalogChild, establishCatalogChild, establishExternalCatalogChild } from './catalog.ts'
+import {
+  acceptCatalogChild, establishCatalogChild,
+  establishNamedContinuableCatalogChild, establishNamedExternalCatalogChild,
+} from './catalog.ts'
+import { SiblingNameReservations } from './names.ts'
 import { SubagentError } from './error.ts'
 import { isAdjacentAgentSendMessageTool } from './internal.ts'
 import type { ActivationObserver } from './lifecycle.ts'
@@ -207,6 +211,8 @@ export function requireSettlementFlushDeadline(deadlineMs: number): number {
 export class SubagentManager {
   /** Child session id → its live Activation. Process-local, never durable. */
   private readonly resident = new Map<SessionId, Activation>()
+  /** Sibling names claimed by in-flight creations under each live creator. */
+  private readonly names = new SiblingNameReservations()
   /** Root identities retain their pool across child settlement without retaining dead roots. */
   private readonly rootPools = new WeakMap<Agent, ActivationPool>()
   /** Materializations admitted before drain, tracked through publication or rollback. */
@@ -626,6 +632,9 @@ export class SubagentManager {
     const request = spec.request
     const parent = request.parent
     this.assertAdmitting(parent)
+    const reservation = spec.childId === undefined
+      ? this.names.reserve(parent, this.committedNames(parent), spec.name)
+      : undefined
     const persistence = spec.delivery === 'caller' ? this.ctx.get('sessionPersistence') : this.requirePersistence()
     assertSubagentMaxDepth(request.maxDepth)
     const childId = spec.childId ?? brandString<SessionId>(randomUUID())
@@ -733,7 +742,14 @@ export class SubagentManager {
           { source: { kind: 'user' }, signal: spec.signal, delivery: 'queue' },
           parent,
           spec.childId === undefined
-            ? () => { establishCatalogChild(parent.session, childHeader, { mode, label: spec.label }) }
+            ? () => {
+              if (mode === 'continuable') {
+                if (reservation === undefined) throw new SubagentError('a cataloged continuable child requires a reserved name', 'UNAUTHORIZED')
+                establishNamedContinuableCatalogChild(parent.session, childHeader, spec.label, reservation.name)
+              } else {
+                establishCatalogChild(parent.session, childHeader, { mode, label: spec.label })
+              }
+            }
             : undefined,
         )
       })
@@ -742,6 +758,8 @@ export class SubagentManager {
       releaseHold()
       admission?.releaseSlot()
       throw error
+    } finally {
+      reservation?.release()
     }
   }
 
@@ -753,6 +771,9 @@ export class SubagentManager {
   async startExternal(spec: SubagentActivationSpec): Promise<SubagentActivation> {
     const parent = spec.request.parent
     this.assertAdmitting(parent)
+    const reservation = spec.delivery === 'parent'
+      ? this.names.reserve(parent, this.committedNames(parent), spec.name)
+      : undefined
     const pendingId = brandString<SessionId>(randomUUID())
     const releaseHold = this.holdOwnership(parent, pendingId)
     let activation: Activation | undefined
@@ -773,7 +794,8 @@ export class SubagentManager {
       this.assertLiveParent(parent, activation.childId)
       spec.signal.throwIfAborted()
       if (spec.delivery === 'parent') {
-        establishExternalCatalogChild(parent.session, activation.childId, spec.label)
+        if (reservation === undefined) throw new SubagentError('a cataloged external child requires a reserved name', 'UNAUTHORIZED')
+        establishNamedExternalCatalogChild(parent.session, activation.childId, spec.label, reservation.name)
       }
       this.announce(activation)
       return this.receipt(activation)
@@ -788,7 +810,20 @@ export class SubagentManager {
       throw error
     } finally {
       releaseHold()
+      reservation?.release()
     }
+  }
+
+  /** Names already recorded in a live parent's own catalog log. */
+  private committedNames(parent: Agent): Set<string> {
+    const taken = new Set<string>()
+    // oxlint-disable-next-line typescript/no-deprecated -- Existing Session history read; migration deferred.
+    for (const event of parent.session.snapshotEvents()) {
+      if (event.type !== 'subagent/catalog') continue
+      const data = event.data as { version?: number; name?: string }
+      if (data.version === 3 && data.name !== undefined) taken.add(data.name)
+    }
+    return taken
   }
 
   /** Capture the explicit or inherited directory while the parent still owns startup. */

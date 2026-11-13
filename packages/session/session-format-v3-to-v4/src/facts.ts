@@ -70,13 +70,19 @@ export function childCatalogFact(source: SessionFormatJsonObject): SessionFormat
  * @returns validated catalog payload.
  */
 export function catalogFact(value: SessionFormatJsonValue, subject = 'subagent/catalog'): SessionFormatJsonObject {
-  if (!isSessionFormatJsonObject(value) || (value['version'] !== 0 && value['version'] !== 1 && value['version'] !== 2)
+  const version = isSessionFormatJsonObject(value) ? value['version'] : undefined
+  // Version 3 is the current-generation named catalog fact; a released v3-to-v4
+  // artifact never contains it, while current-generation scanning shares this
+  // structural validator.
+  const named = version === 3
+  if (!isSessionFormatJsonObject(value) || (version !== 0 && version !== 1 && version !== 2 && version !== 3)
     || typeof value['childId'] !== 'string'
     || (value['mode'] !== 'continuable' && value['mode'] !== 'one-shot' && value['mode'] !== 'external' && value['mode'] !== 'unknown')
-    || ((value['version'] === 2) !== (value['mode'] === 'external'))
-    || (value['version'] === 0 && value['mode'] === 'unknown')
+    || (value['mode'] === 'external' ? (version !== 2 && version !== 3) : version === 2)
+    || (version === 0 && value['mode'] === 'unknown')
     || (value['mode'] === 'continuable' && typeof value['label'] !== 'string')
-    || (value['label'] !== undefined && typeof value['label'] !== 'string')) {
+    || (value['label'] !== undefined && typeof value['label'] !== 'string')
+    || (named ? typeof value['name'] !== 'string' || value['name'].length === 0 : value['name'] !== undefined)) {
     throw new SessionFormatError(`${subject} requires a supported versioned catalog fact`)
   }
   sessionFormatCount(value['childCreatedAt'], 'catalog child creation time')

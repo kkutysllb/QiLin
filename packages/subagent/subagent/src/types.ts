@@ -210,6 +210,8 @@ export interface SubagentActivationSpec {
   readonly provider: string
   /** Short delegation label persisted as the child's creation label. */
   readonly label: string
+  /** Requested agent name, unique among the creator's children; omission allocates the first free `agent-N`. */
+  readonly name?: string
   /** Optional caller-reserved child identity; omission lets the manager allocate one. */
   readonly childId?: SessionId
   /**
