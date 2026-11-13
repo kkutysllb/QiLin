@@ -104,6 +104,45 @@ function mountScroll(deferCompletedTurns = true, initial: Partial<ChatScrollInpu
   }
 }
 
+describe('older-history loading', () => {
+  it('loads the next page when a reader scrolls into the top band, once per approach', () => {
+    const loadOlder = vi.fn()
+    const h = mountScroll(true, { hasMore: true, loadOlder })
+    h.scroller.scrollTop = 300
+    fireEvent.scroll(h.scroller)
+    h.scroller.scrollTop = 120
+    fireEvent.scroll(h.scroller)
+    expect(loadOlder).toHaveBeenCalledTimes(1)
+    // The approach stays spent until the reader leaves the top band again, so a
+    // page that lands without filling the viewport cannot trigger another load.
+    h.scroller.scrollTop = 60
+    fireEvent.scroll(h.scroller)
+    expect(loadOlder).toHaveBeenCalledTimes(1)
+    h.scroller.scrollTop = 320
+    fireEvent.scroll(h.scroller)
+    h.scroller.scrollTop = 100
+    fireEvent.scroll(h.scroller)
+    expect(loadOlder).toHaveBeenCalledTimes(2)
+  })
+
+  it('stays quiet without retained history or while a page is in flight', () => {
+    const loadOlder = vi.fn()
+    const h = mountScroll(true, { hasMore: false, loadOlder })
+    h.scroller.scrollTop = 200
+    fireEvent.scroll(h.scroller)
+    h.scroller.scrollTop = 100
+    fireEvent.scroll(h.scroller)
+    expect(loadOlder).not.toHaveBeenCalled()
+    cleanup()
+    const busy = mountScroll(true, { hasMore: true, loadingOlder: true, loadOlder })
+    busy.scroller.scrollTop = 200
+    fireEvent.scroll(busy.scroller)
+    busy.scroller.scrollTop = 100
+    fireEvent.scroll(busy.scroller)
+    expect(loadOlder).not.toHaveBeenCalled()
+  })
+})
+
 const visibleFoldCases = [
   { name: 'E/E', earlier: 2400, steps: 1000, body: 400, viewport: 800, top: 800, input: 80, target: 2080, room: 0 },
   { name: 'E/T', earlier: 600, steps: 1000, body: 100, viewport: 800, top: 200, input: 80, target: 200, room: 220 },

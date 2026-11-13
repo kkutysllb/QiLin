@@ -8,6 +8,12 @@ import { useChatReading, type ChatReadingState } from './use-chat-reading.ts'
 import { useChatViewport } from './use-chat-viewport.ts'
 import type { FlowMotionRows } from './flow-motion.ts'
 
+/**
+ * Distance from the scrollport top at which a reader who keeps scrolling up
+ * gets the next history page without aiming at the Load older control.
+ */
+const AUTO_LOAD_TOP_MARGIN = 200
+
 /** Committed content and Session operations used to reconcile scroll ownership. */
 export interface ChatScrollInput extends ChatNavigationInput {
   readonly chatScroll: ChatViewSlotProps['chatScroll']
@@ -58,6 +64,9 @@ export function useChatScroll(input: ChatScrollInput): ChatScrollState {
   })
   // A fold batch owns layout and scrolling until it lands: at the tail for own input or a following
   // reader, otherwise with the reader's content still. Growth consumes any room the landing installed.
+  // One auto-load per approach: re-armed once the reader leaves the top zone so
+  // a page that lands without filling the viewport cannot loop.
+  const autoLoadArmed = useRef(true)
   const cancelPendingFollow = useCallback(() => { viewport.motion.cancelInput() }, [viewport])
 
   const processContent = useCallback(() => {
@@ -104,6 +113,21 @@ export function useChatScroll(input: ChatScrollInput): ChatScrollState {
         if (!content.current.opened) return
         if (!event.movedByReader && viewport.motion.foldActive()) return
         reading.onScroll(event)
+        // Reading upward near the retained-history boundary loads the next page;
+        // the Load older control stays for readers who reach the very top.
+        const { hasMore, loadingOlder } = content.current.input
+        if (!event.movedByReader || !hasMore || loadingOlder) {
+          if (!hasMore || loadingOlder) autoLoadArmed.current = false
+          return
+        }
+        if (event.metrics.top > AUTO_LOAD_TOP_MARGIN) {
+          autoLoadArmed.current = true
+          return
+        }
+        if (autoLoadArmed.current) {
+          autoLoadArmed.current = false
+          navigation.loadEarlier()
+        }
       },
       scrollEnd: (outer) => {
         reading.onScrollEnd(outer)
