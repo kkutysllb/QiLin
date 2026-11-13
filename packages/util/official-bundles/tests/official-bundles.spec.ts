@@ -23,13 +23,13 @@ describe('Plugins page placement lists', () => {
   })
 
   it('keeps the promoted Agent Teams and Schedule bundles off the Experimental badge', () => {
-    for (const name of ['@qilin-agent/experimental-agent-team-profile', '@qilin-agent/experimental-schedule-bundle']) {
+    for (const name of ['@qilin-agent/agent-team-profile', '@qilin-agent/experimental-schedule-bundle']) {
       expect(EXTENSION_BUNDLES).toContain(name)
       expect(isExperimentalBundle(name)).toBe(false)
     }
     // Schedule follows Agent Teams on the main list, which is the order the page renders.
     expect(EXTENSION_BUNDLES.indexOf('@qilin-agent/experimental-schedule-bundle'))
-      .toBe(EXTENSION_BUNDLES.indexOf('@qilin-agent/experimental-agent-team-profile') + 1)
+      .toBe(EXTENSION_BUNDLES.indexOf('@qilin-agent/agent-team-profile') + 1)
   })
 
   it('keeps the built-in profile layers out of every offered list', () => {

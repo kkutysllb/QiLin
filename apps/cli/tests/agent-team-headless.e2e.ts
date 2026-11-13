@@ -28,14 +28,14 @@ describe('qilin run with Agent Teams enabled', () => {
         name: 'qilin-profile-headless',
         private: true,
         dependencies: {
-          '@qilin-agent/experimental-agent-team-profile': 'workspace:^',
+          '@qilin-agent/agent-team-profile': 'workspace:^',
         },
         qilin: {
           profile: {
             bundles: [
               '@qilin-agent/base',
               '@qilin-agent/headless',
-              '@qilin-agent/experimental-agent-team-profile',
+              '@qilin-agent/agent-team-profile',
             ],
           },
         },

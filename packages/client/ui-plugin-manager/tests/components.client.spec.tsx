@@ -671,14 +671,14 @@ describe('PluginManagerPage', () => {
         pkg({ name: '@acme/dsh-tool', enabled: false }),
         // Selected by the profile but not a bundle: a problem the person can switch off, in the profile's own group.
         pkg({ name: 'dsh-selected', installed: false, error: { code: 'not-bundle' } }),
-        pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, removable: false, enabled: false }),
+        pkg({ name: '@qilin-agent/agent-team-profile', installed: false, optional: true, removable: false, enabled: false }),
       ],
       busy: ['dsh-protected'],
     })
     const cards = screen.getAllByRole('listitem')
     // Offered extensions precede installed bundles.
     expect(cards.map(card => card.getAttribute('data-plugin-package'))).toEqual([
-      '@qilin-agent/experimental-agent-team-profile', 'dsh-better-sidebar', 'dsh-broken', 'dsh-protected', '@acme/dsh-tool', 'dsh-selected',
+      '@qilin-agent/agent-team-profile', 'dsh-better-sidebar', 'dsh-broken', 'dsh-protected', '@acme/dsh-tool', 'dsh-selected',
     ])
     expect(cards.map(card => card.getAttribute('data-plugin-status'))).toEqual(['disabled', 'running', 'problem', 'running', 'disabled', 'problem'])
     // Group titles have no counts; a promoted bundle carries no experimental marker.
@@ -713,11 +713,11 @@ describe('PluginManagerPage', () => {
         ].map(name => pkg({ name })),
         pkg({ name: '@acme/dsh-base', readOnlyReason: 'management-required' }),
         pkg({ name: 'dsh-better-sidebar' }),
-        pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, removable: false }),
+        pkg({ name: '@qilin-agent/agent-team-profile', installed: false, optional: true, removable: false }),
       ],
     })
     expect(screen.getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package'))).toEqual([
-      '@qilin-agent/experimental-agent-team-profile', '@acme/dsh-base', 'dsh-better-sidebar',
+      '@qilin-agent/agent-team-profile', '@acme/dsh-base', 'dsh-better-sidebar',
     ])
     expect(document.querySelector('[data-plugin-count]')).toBeNull()
   })
@@ -746,18 +746,18 @@ describe('PluginManagerPage', () => {
   it('opens a promoted official bundle\'s page without the beta tag and switches it on', () => {
     const title = 'Agent Teams'
     const { actions } = renderTab({
-      packages: [pkg({ name: '@qilin-agent/experimental-agent-team-profile', meta: { title }, installed: false, optional: true, removable: false, enabled: false })],
+      packages: [pkg({ name: '@qilin-agent/agent-team-profile', meta: { title }, installed: false, optional: true, removable: false, enabled: false })],
     })
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', title) }))
     const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
     expect(within(detail).queryByText(en.statusBeta)).toBeNull()
     expect(within(detail).queryByRole('button', { name: en.uninstallLabel.replace('{name}', title) })).toBeNull()
     fireEvent.click(within(detail).getByRole('switch', { name: en.enableToggle.replace('{name}', title) }))
-    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@qilin-agent/experimental-agent-team-profile', true)
+    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@qilin-agent/agent-team-profile', true)
   })
 
   it.each([
-    ['@qilin-agent/experimental-agent-team-profile', false],
+    ['@qilin-agent/agent-team-profile', false],
     ['@qilin-agent/experimental-auto-review', true],
     ['@qilin-agent/experimental-fixture-input', false],
     ['@acme/dsh-local-tools', false],
@@ -1031,11 +1031,11 @@ describe('PluginManagerPage', () => {
     }
 
     it('keeps configuration and installed plugins on the main list and shows the experimental bundles on the secondary page', () => {
-      const team = '@qilin-agent/experimental-agent-team-profile'
+      const team = '@qilin-agent/agent-team-profile'
       renderTab(
         { packages: [
           pkg({ name: '@qilin-agent/experimental-badge-skill-bundle', official: true, enabled: false }),
-          pkg({ name: '@qilin-agent/experimental-agent-team-profile', installed: false, optional: true, removable: false, enabled: false }),
+          pkg({ name: '@qilin-agent/agent-team-profile', installed: false, optional: true, removable: false, enabled: false }),
           pkg({ name: '@qilin-agent/experimental-tool-worktree', official: true, enabled: false }),
           pkg({ name: '@acme/new-official', official: true }),
           pkg(),
@@ -1117,7 +1117,7 @@ describe('PluginManagerPage', () => {
     })
 
     it('pins a bundle the profile picks onto the main list, in its full-list place', () => {
-      const team = '@qilin-agent/experimental-agent-team-profile'
+      const team = '@qilin-agent/agent-team-profile'
       const first = '@qilin-agent/experimental-tool-worktree'
       const second = '@qilin-agent/experimental-cot-translation-bundle'
       const entry = (name: string, enabled: boolean): PackageView => pkg({ name, official: true, enabled })
@@ -1295,7 +1295,7 @@ describe('PluginManagerPage', () => {
   })
 
   it('preserves the full package name and description for a third-party scope', () => {
-    const name = '@acme/dsh-experimental-agent-team-profile'
+    const name = '@acme/dsh-agent-team-profile'
     const { setLanguage } = renderTab({ packages: [pkg({ name, meta: { description: { en: 'Third-party description.' } } })] })
     setLanguage(zh)
     fireEvent.click(screen.getByRole('button', { name: zh.openDetail.replace('{name}', name) }))

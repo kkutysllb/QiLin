@@ -104,7 +104,7 @@ it('activates the actual default Client registry without experimental packages',
       expect(roster.plugins.some(plugin => plugin.modules.includes('@qilin-agent/client-ui-layout'))).toBe(true)
       expect(experimentalClientReferences(roster)).toEqual([])
       const contaminatedHost = await request('mount-experimental-entry')
-      const experimentalName = '@qilin-agent/experimental-client-ui-agent-team'
+      const experimentalName = '@qilin-agent/client-ui-agent-team'
       expect(contaminatedHost.client.entries.map(entry => entry.id)).toContain(experimentalName)
       await page.reload()
       await expect.poll(async () => {

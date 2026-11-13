@@ -64,8 +64,8 @@ import * as ToolSessionQuery from '@qilin-agent/experimental-tool-session-query'
 import * as ToolJobs from '@qilin-agent/tool-jobs'
 import BrowserUseRegistry from '@qilin-agent/browser-use'
 import * as StagehandBrowserTools from '@qilin-agent/experimental-browser-use-stagehand-native'
-import type TeamService from '@qilin-agent/experimental-agent-team'
-import * as ToolTeam from '@qilin-agent/experimental-tool-agent-team'
+import type TeamService from '@qilin-agent/agent-team'
+import * as ToolTeam from '@qilin-agent/tool-agent-team'
 import * as ToolTodo from '@qilin-agent/tool-todo'
 import * as ToolWorkingDirectory from '@qilin-agent/tool-working-directory'
 import * as ToolWorktree from '@qilin-agent/experimental-tool-worktree'
@@ -597,9 +597,9 @@ const TOOL_PACKAGES: ToolPackage[] = [
       'The kind-agnostic background-job controller: background bash commands, PTY sends, and subagents are read, listed, and killed through the same three tools. Loading the plugin attaches the controller that arms producers\' `ctx.jobs.start()`.',
   },
   {
-    pkg: '@qilin-agent/experimental-tool-agent-team',
+    pkg: '@qilin-agent/tool-agent-team',
     dir: 'tool-agent-team',
-    source: 'packages/experimental/tool-agent-team/src/index.ts',
+    source: 'packages/team/tool-agent-team/src/index.ts',
     requires: ['ctx.tools', 'ctx.systemPrompt', 'ctx.agentTeams', 'an exact live Team member Agent'],
     writes: ['tool/call', 'team/member', 'team/message/queued', 'team/message/delivered', 'team/task', 'tool/result'],
     async mount(ctx) {

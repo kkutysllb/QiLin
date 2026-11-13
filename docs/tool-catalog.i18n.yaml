@@ -9,8 +9,8 @@
   en: dd81e27c4521158a
   zh: 01417e2b5c61928a
 /tool-schema-catalog/tool-package-map:
-  en: 96d741ed95b77213
-  zh: b7489cbf0a225cb9
+  en: b299170490b12c15
+  zh: 5ba4954ebd3181f7
 /tool-schema-catalog/qilin-agent-plugin-manager:
   en: 45c8b03d92db06ad
   zh: 45c8b03d92db06ad
@@ -258,38 +258,38 @@
   en: 0c37fb1fed979d72
   zh: 5ea9d07f5a4a8a6c
 /tool-schema-catalog/qilin-agent-tool-jobs/job-output:
-  en: 31ba8869919f371a
-  zh: fa092251adc64a80
-/tool-schema-catalog/qilin-agent-experimental-tool-agent-team:
-  en: 42b60c9d649809df
-  zh: 42b60c9d649809df
-/tool-schema-catalog/qilin-agent-experimental-tool-agent-team/interrupt-agent:
-  en: c3c7af05ceb9f8c9
-  zh: ec379e0b42110c6a
-/tool-schema-catalog/qilin-agent-experimental-tool-agent-team/list-agents:
-  en: f9457f033f75f00a
-  zh: ce0eac458b06d96c
-/tool-schema-catalog/qilin-agent-experimental-tool-agent-team/send-message:
-  en: ec50e6a0b86aecc6
-  zh: 4888df81013476b3
-/tool-schema-catalog/qilin-agent-experimental-tool-agent-team/spawn-teammate:
-  en: 02d6cc746e234b99
-  zh: 49bc60ac098bca48
-/tool-schema-catalog/qilin-agent-experimental-tool-agent-team/team-task-create:
-  en: 91e84febe063c3bd
-  zh: 550555d0f44f603b
-/tool-schema-catalog/qilin-agent-experimental-tool-agent-team/team-task-get:
-  en: 1c6ae0aba0b8041d
-  zh: f8d634387b74121d
-/tool-schema-catalog/qilin-agent-experimental-tool-agent-team/team-task-list:
-  en: 2084d494aae8798a
-  zh: e4c136c91028a7b1
-/tool-schema-catalog/qilin-agent-experimental-tool-agent-team/team-task-update:
-  en: 2eac7360ba68b1bd
-  zh: b5d676bf288c245e
-/tool-schema-catalog/qilin-agent-experimental-tool-agent-team/wait-agent:
-  en: e3a2fd87c1be8a29
-  zh: 27c6a43e1e6e95e4
+  en: 6e275fd33e9744db
+  zh: 49f443fbfd309cfa
+/tool-schema-catalog/qilin-agent-tool-agent-team:
+  en: b5ca877264fd73b9
+  zh: b5ca877264fd73b9
+/tool-schema-catalog/qilin-agent-tool-agent-team/interrupt-agent:
+  en: ab892e9891776afa
+  zh: c3d19b2a142c9659
+/tool-schema-catalog/qilin-agent-tool-agent-team/list-agents:
+  en: 718e35e141d2031c
+  zh: 0d3d5abbc75ba73f
+/tool-schema-catalog/qilin-agent-tool-agent-team/send-message:
+  en: 1d6e9dd6aec1dc75
+  zh: 429ff469eb582900
+/tool-schema-catalog/qilin-agent-tool-agent-team/spawn-teammate:
+  en: ca21acf8ac8fb0c7
+  zh: e152b5f0376b2e63
+/tool-schema-catalog/qilin-agent-tool-agent-team/team-task-create:
+  en: ac9ed819b705b4b8
+  zh: 306477d2d457369a
+/tool-schema-catalog/qilin-agent-tool-agent-team/team-task-get:
+  en: bca1abf330638c19
+  zh: 903bfa977f75c046
+/tool-schema-catalog/qilin-agent-tool-agent-team/team-task-list:
+  en: 8001eda7e9ff6a25
+  zh: 2414761029f21404
+/tool-schema-catalog/qilin-agent-tool-agent-team/team-task-update:
+  en: 360e3988a7a09d4d
+  zh: d28509e7b4f4b440
+/tool-schema-catalog/qilin-agent-tool-agent-team/wait-agent:
+  en: 3ec155e200adaed9
+  zh: 927dcb98edcb24fa
 /tool-schema-catalog/qilin-agent-tool-todo:
   en: 3f607e5d78dfa79b
   zh: 3f607e5d78dfa79b

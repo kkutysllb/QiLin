@@ -1,0 +1,70 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/team/tool-agent-team/README.md
+/:
+  en: 770d44b09466af9a
+  zh: b8b84ed9464ce41b
+/qilin-agent-tool-agent-team:
+  en: 817a38011d386755
+  zh: 4b642305ea1178a9
+/qilin-agent-tool-agent-team/summary:
+  en: 8b42a7b1a7b547a4
+  zh: 9c25718cf0643ff0
+/qilin-agent-tool-agent-team/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-agent-tool-agent-team/use-this-package:
+  en: a2808baaf5cc8bac
+  zh: f0a063ffba54f234
+/qilin-agent-tool-agent-team/use-this-package/when-to-choose-it:
+  en: 60ea90ce57cca56f
+  zh: 181e48b7d4dcf755
+/qilin-agent-tool-agent-team/use-this-package/smallest-working-example:
+  en: 0186ef092e29b489
+  zh: f57f397538caba2b
+/qilin-agent-tool-agent-team/use-this-package/what-the-model-can-do:
+  en: 0ba402d04b8d1edc
+  zh: f21d47a1974e8cfd
+/qilin-agent-tool-agent-team/use-this-package/what-success-and-failure-look-like:
+  en: e49a980372c55892
+  zh: d4bcdd36278d040d
+/qilin-agent-tool-agent-team/understand-the-implementation:
+  en: 3952eb1d9de1f988
+  zh: 789d51b88f41b710
+/qilin-agent-tool-agent-team/understand-the-implementation/design-philosophy:
+  en: 0786cf1ef991473f
+  zh: 151db529937e2b67
+/qilin-agent-tool-agent-team/understand-the-implementation/source-map:
+  en: b073d8293ebc5c71
+  zh: 4d2616bcb320dad3
+/qilin-agent-tool-agent-team/understand-the-implementation/policy-and-tools:
+  en: 892f4a49bd00592c
+  zh: 6225bac7b65418d4
+/qilin-agent-tool-agent-team/understand-the-implementation/scoped-registration-and-teardown:
+  en: c2b29f27a74c02c0
+  zh: 026f2ef93dd604d8
+/qilin-agent-tool-agent-team/further-exploration:
+  en: 2bdb4f822752745a
+  zh: dae05a489d661488
+/qilin-agent-tool-agent-team/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-tool-agent-team/model-experience/team-policy-and-tools:
+  en: 8e1e365ff3b0dfb2
+  zh: c6c91fbf1e1df934
+/qilin-agent-tool-agent-team/model-experience/team-policy-and-tools/what-the-model-sees:
+  en: 35af7f112e4434e3
+  zh: 5e2e123eb0a40613
+/qilin-agent-tool-agent-team/model-experience/team-policy-and-tools/token-effect:
+  en: 3f49674f937a8ca3
+  zh: 79d34d605732abb1
+/qilin-agent-tool-agent-team/model-experience/team-policy-and-tools/kv-cache-effect:
+  en: 2ba143e89873e768
+  zh: 4f09446c0fb13cdb
+/qilin-agent-tool-agent-team/known-limitations-and-deferred-work:
+  en: 9bd9ecb680238918
+  zh: f08497d29d323a71
+/qilin-agent-tool-agent-team/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

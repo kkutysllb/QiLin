@@ -65,7 +65,7 @@ export async function withDefaultWeb(
     await writeFile(patch, JSON.stringify([{ insert: [{
       id: 'runtime-roster-observer',
       name: pathToFileURL(join(root, 'fixtures/runtime-roster-observer.js')).href,
-      config: { negativeControl: pathToFileURL(join(repoRoot, 'packages/experimental/client-ui-agent-team/lib/index.js')).href },
+      config: { negativeControl: pathToFileURL(join(repoRoot, 'packages/client/ui-agent-team/lib/index.js')).href },
     }] }, ACCOUNTS_DISABLED]) + '\n')
     const launch = resolveExampleLaunch({
       srcBin: join(repoRoot, 'apps/cli/src/bin.ts'),

@@ -7,7 +7,7 @@ import { experimentalRuntimeReferences, modulePackage } from './runtime-roster.t
 import { WEB_ENTRY_PATH } from '@qilin-agent/client-connection'
 import { withDefaultWeb, webGet } from './default-web-process.ts'
 
-const experimentalName = '@qilin-agent/experimental-client-ui-agent-team'
+const experimentalName = '@qilin-agent/client-ui-agent-team'
 
 it('boots the default Web profile without experimental Host modules or mounted plugins', async (test) => {
   await withDefaultWeb(test, async ({ url, request }) => {
@@ -51,7 +51,7 @@ it('boots the default Web profile without experimental Host modules or mounted p
     const mounted = contaminated.plugins.filter(plugin => plugin.modules.some(url => modulePackage(url) === experimentalName))
     expect(mounted).toEqual([expect.objectContaining({ state: FiberState.ACTIVE })])
     expect(experimentalRuntimeReferences(contaminated)).toEqual(expect.arrayContaining([
-      expect.stringContaining('/packages/experimental/client-ui-agent-team/'),
+      expect.stringContaining('/packages/client/ui-agent-team/'),
     ]))
   })
 })

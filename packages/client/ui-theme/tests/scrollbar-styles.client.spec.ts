@@ -56,7 +56,7 @@ const BASE_SURFACE_SCROLLERS: readonly {
   readonly reason: string
 }[] = [
   {
-    file: 'experimental/client-ui-agent-team/src/client/TeamBody.module.css',
+    file: 'client/ui-agent-team/src/client/TeamBody.module.css',
     selector: '.root',
     reason: 'The page scroller draws on the sidebar fill, a base rung below bg-layer-2/3; the l2 notice, member, task, and form cards are descendants, not its background.',
   },

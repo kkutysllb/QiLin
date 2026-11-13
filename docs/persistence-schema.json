@@ -22476,7 +22476,7 @@
       "digest": "0040cfc00431af2403f13ce6249c0359646d15d9e40b3d50b4843c641dd11ced",
       "names": [],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:235"
+        "packages/team/agent-team/src/types.ts:235"
       ]
     },
     {
@@ -22553,10 +22553,10 @@
     {
       "digest": "0376ec76d72c4d69f4b71bc56ed68746fb543a916ae683f0504ff08287fff0eb",
       "names": [
-        "packages/experimental/agent-team/src/types.ts#TeamTaskSnapshot"
+        "packages/team/agent-team/src/types.ts#TeamTaskSnapshot"
       ],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:75"
+        "packages/team/agent-team/src/types.ts:75"
       ]
     },
     {
@@ -22722,10 +22722,10 @@
     {
       "digest": "0cb68541703661cb54daa234e48bddccb52411140bd7f14383971eca303d83a8",
       "names": [
-        "packages/experimental/agent-team/src/types.ts#TeamMemberSnapshot"
+        "packages/team/agent-team/src/types.ts#TeamMemberSnapshot"
       ],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:48"
+        "packages/team/agent-team/src/types.ts:48"
       ]
     },
     {
@@ -23013,9 +23013,6 @@
         "packages/attachment/attachment/src/brand.ts#AttachmentId",
         "packages/compaction/compaction/src/brand.ts#CompactionId",
         "packages/core/session/src/types.ts#SessionId",
-        "packages/experimental/agent-team/src/types.ts#TeamId",
-        "packages/experimental/agent-team/src/types.ts#TeamMessageId",
-        "packages/experimental/agent-team/src/types.ts#TeamTaskId",
         "packages/experimental/webhook/src/brand.ts#WebhookDeliveryId",
         "packages/experimental/webhook/src/brand.ts#WebhookRuleId",
         "packages/experimental/webhook/src/brand.ts#WebhookSourceId",
@@ -23032,6 +23029,9 @@
         "packages/schedule/schedule/src/types.ts#ScheduleId",
         "packages/session/session-title/src/index.ts#SessionTitleProviderId",
         "packages/session/session-title/src/types.ts#SessionTitleProviderId",
+        "packages/team/agent-team/src/types.ts#TeamId",
+        "packages/team/agent-team/src/types.ts#TeamMessageId",
+        "packages/team/agent-team/src/types.ts#TeamTaskId",
         "packages/workflow/workflow/src/types.ts#WorkflowRunId"
       ],
       "sources": [
@@ -23039,9 +23039,6 @@
         "packages/attachment/attachment/src/brand.ts:6",
         "packages/compaction/compaction/src/brand.ts:4",
         "packages/core/session/src/types.ts:21",
-        "packages/experimental/agent-team/src/types.ts:21",
-        "packages/experimental/agent-team/src/types.ts:33",
-        "packages/experimental/agent-team/src/types.ts:9",
         "packages/experimental/webhook/src/brand.ts:12",
         "packages/experimental/webhook/src/brand.ts:6",
         "packages/experimental/webhook/src/brand.ts:9",
@@ -23058,6 +23055,9 @@
         "packages/schedule/schedule/src/types.ts:14",
         "packages/session/session-title/src/index.ts:42",
         "packages/session/session-title/src/types.ts:17",
+        "packages/team/agent-team/src/types.ts:21",
+        "packages/team/agent-team/src/types.ts:33",
+        "packages/team/agent-team/src/types.ts:9",
         "packages/workflow/workflow/src/types.ts:13"
       ]
     },
@@ -23406,10 +23406,10 @@
     {
       "digest": "34f3cd11b4624d15f512bfe2fd6022bcff49e8c786704e54a9e5d29d3238409b",
       "names": [
-        "packages/experimental/agent-team/src/types.ts#TeamMessageSnapshot"
+        "packages/team/agent-team/src/types.ts#TeamMessageSnapshot"
       ],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:129"
+        "packages/team/agent-team/src/types.ts:129"
       ]
     },
     {
@@ -23437,10 +23437,10 @@
     {
       "digest": "36ca66820917e406d94c825a705b966d457e602592c4e0c757f3b45d16c74ceb",
       "names": [
-        "packages/experimental/agent-team/src/types.ts#TeamMemberPhase"
+        "packages/team/agent-team/src/types.ts#TeamMemberPhase"
       ],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:45"
+        "packages/team/agent-team/src/types.ts:45"
       ]
     },
     {
@@ -23877,7 +23877,7 @@
         "packages/core/tools/src/index.ts#ToolRestriction"
       ],
       "sources": [
-        "packages/core/tools/src/index.ts:698"
+        "packages/core/tools/src/index.ts:706"
       ]
     },
     {
@@ -23977,7 +23977,7 @@
       "digest": "6358dc41ca0490a18939f4f4d4c163659d3b743b1f655fba14d6bf25ec494de0",
       "names": [],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:237"
+        "packages/team/agent-team/src/types.ts:237"
       ]
     },
     {
@@ -25337,10 +25337,10 @@
     {
       "digest": "b892e5c5cd082f9d64c30bc5a3f4ba342d2473dcfaca2faf40abe5657b317676",
       "names": [
-        "packages/experimental/agent-team/src/types.ts#TeamMessageSource"
+        "packages/team/agent-team/src/types.ts#TeamMessageSource"
       ],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:138"
+        "packages/team/agent-team/src/types.ts:138"
       ]
     },
     {
@@ -25356,10 +25356,10 @@
     {
       "digest": "ba078fda2731a867900036b9fe5daf913727f2d1c8a3010ca210a02e75697eff",
       "names": [
-        "packages/experimental/agent-team/src/types.ts#TeamTaskStatus"
+        "packages/team/agent-team/src/types.ts#TeamTaskStatus"
       ],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:72"
+        "packages/team/agent-team/src/types.ts:72"
       ]
     },
     {
@@ -25542,7 +25542,7 @@
       "digest": "c6b994133e98a3c633001e95dffbc0847da85ff4261659560b0bdb28500b2fdb",
       "names": [],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:239"
+        "packages/team/agent-team/src/types.ts:239"
       ]
     },
     {
@@ -25635,7 +25635,7 @@
       "digest": "d0175524814e681ffdd8235e04dd8a9e0ffd59508be1b65bcf582a6e9e1b283f",
       "names": [],
       "sources": [
-        "packages/experimental/agent-team/src/types.ts:241"
+        "packages/team/agent-team/src/types.ts:241"
       ]
     },
     {

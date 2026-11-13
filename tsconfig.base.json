@@ -170,7 +170,7 @@
       "@qilin-agent/agent/invariant": ["./packages/core/agent/src/invariant.ts"],
       "@qilin-agent/scope/invariant": ["./packages/core/scope/src/invariant.ts"],
       "@qilin-agent/agent-loop/invariant": ["./packages/core/agent-loop/src/invariant.ts"],
-      "@qilin-agent/experimental-agent-team/invariant": ["./packages/experimental/agent-team/src/invariant.ts"],
+      "@qilin-agent/agent-team/invariant": ["./packages/team/agent-team/src/invariant.ts"],
       // host/client package names prefix the group dir (qilin-client-<dir>), so
       // the generated aliases below — which map a package only when its name is
       // exactly qilin-<dir> — skip them; strip the group prefix with a dedicated
@@ -289,7 +289,7 @@
       "@qilin-agent/client-ui-permission-presets": ["./packages/client/ui-permission-presets/src"],
       "@qilin-agent/client-ui-skill": ["./packages/client/ui-skill/src"],
       "@qilin-agent/client-ui-subagent": ["./packages/client/ui-subagent/src"],
-      "@qilin-agent/experimental-client-ui-agent-team": ["./packages/experimental/client-ui-agent-team/src"],
+      "@qilin-agent/client-ui-agent-team": ["./packages/client/ui-agent-team/src"],
       "@qilin-agent/client-ui-settings-plugins": ["./packages/client/ui-settings-plugins/src"],
       "@qilin-agent/client-ui-jobs": ["./packages/client/ui-jobs/src"],
       "@qilin-agent/client-ui-schedule": ["./packages/client/ui-schedule/src"],
@@ -320,11 +320,11 @@
       "@qilin-agent/sdk-client": ["./packages/sdk/client/src"],
       "@qilin-agent/sdk-protocol": ["./packages/sdk/protocol/src"],
       "@qilin-agent/sdk-jsonrpc-server": ["./packages/sdk/server/src"],
-      "@qilin-agent/experimental-agent-team": ["./packages/experimental/agent-team/src"],
+      "@qilin-agent/agent-team": ["./packages/team/agent-team/src"],
       "@qilin-agent/experimental-auto-review": ["./packages/experimental/auto-review/src"],
-      "@qilin-agent/experimental-agent-team-profile": ["./packages/experimental/agent-team-profile/src"],
+      "@qilin-agent/agent-team-profile": ["./packages/team/agent-team-profile/src"],
       "@qilin-agent/experimental-plugin-market-bundle": ["./packages/experimental/plugin-market-bundle/src"],
-      "@qilin-agent/experimental-tool-agent-team": ["./packages/experimental/tool-agent-team/src"],
+      "@qilin-agent/tool-agent-team": ["./packages/team/tool-agent-team/src"],
       "@qilin-agent/experimental-claude-code-mods": ["./packages/experimental/claude-code-mods/src"],
       "@qilin-agent/experimental-hook-protocol": ["./packages/experimental/hook-protocol/src"],
       "@qilin-agent/experimental-hooks-claude-code": ["./packages/experimental/hooks-claude-code/src"],

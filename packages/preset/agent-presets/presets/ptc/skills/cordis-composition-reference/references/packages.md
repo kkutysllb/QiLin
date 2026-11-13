@@ -68,6 +68,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/client-ui-account` | no | Account menu in the Web client sidebar footer: theme, language, Settings, and sign-out |
 | `@qilin-agent/client-ui-agent-opens` | no | Opens what the model asked to see in the Session's Sidebar |
 | `@qilin-agent/client-ui-agent-preset` | no | Agent-preset surfaces: the default for later sessions, this session's seat, and the composition editor |
+| `@qilin-agent/client-ui-agent-team` | no | Web Agent Teams roster, task board, and teammate navigation |
 | `@qilin-agent/client-ui-approval` | no | Approval composer takeover over the scoped Remote Event waterfall |
 | `@qilin-agent/client-ui-attachment` | no | Dynamic attachment presentation plugin for conversation input, message-image, and trajectory image slots |
 | `@qilin-agent/client-ui-brand` | no | QiLin brand occupants for the Web client's sidebar and conversation-hero brand slots: the 麒麟 seal mark |
@@ -186,14 +187,12 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 
 | Package | Config | Description |
 |---|---|---|
-| `@qilin-agent/experimental-agent-team` | yes | Implicit-root Agent Teams roster, direct peer messaging, and shared task DAG |
 | `@qilin-agent/experimental-api-speech-to-text` | yes | Authenticated experimental speech transcription for browser clients |
 | `@qilin-agent/experimental-auto-review` | no | Per-tool LLM authorization review for the QiLin Auto permission preset |
 | `@qilin-agent/experimental-browser-use-chrome-devtools-mcp` | yes | Experimental per-Session Chromium browser tools through chrome-devtools-mcp |
 | `@qilin-agent/experimental-browser-use-playwright-mcp` | yes | Experimental per-Session Chromium browser tools through @playwright/mcp |
 | `@qilin-agent/experimental-browser-use-stagehand-native` | yes | Experimental Stagehand browser tools with separately configured native models |
 | `@qilin-agent/experimental-claude-code-mods` | yes | Experimental bridge: load Claude Code mods (hooks modules) and run their hook chains on QiLin extension points |
-| `@qilin-agent/experimental-client-ui-agent-team` | no | Web Agent Teams roster, task board, and teammate navigation |
 | `@qilin-agent/experimental-client-ui-claude-code-mods` | no | Web band above the prompt for Claude Code mods: draws each session's mod tree and sends button presses back to the bridge |
 | `@qilin-agent/experimental-client-ui-cot-translation` | yes | Optional machine translation of expanded reasoning, preserving original Session text |
 | `@qilin-agent/experimental-client-ui-forge` | yes | Sidebar panel for a Session's change requests, with a worktree option for new Sessions and its Host Remote |
@@ -211,7 +210,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-skill-badge` | no | Bundled qilin badge skill provider for QiLin |
 | `@qilin-agent/experimental-speech-to-text` | yes | Experimental speech recognition with independently selectable providers |
 | `@qilin-agent/experimental-speech-to-text-sensevoice` | yes | Local SenseVoice ONNX transcription with a managed sherpa-onnx process |
-| `@qilin-agent/experimental-tool-agent-team` | yes | Scoped model-facing Agent Teams tools over ctx.agentTeams |
 | `@qilin-agent/experimental-tool-ralph` | yes | Model-facing fresh-agent Ralph loop over the workflow and subagent seams |
 | `@qilin-agent/experimental-tool-session-query` | yes | Workspace-authorized model-facing session history search, trace, and event read tools |
 | `@qilin-agent/experimental-tool-terminal` | yes | Six model-facing persistent PTY tools with owner isolation and generic background-job integration |
@@ -460,13 +458,20 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/subagent-qilin-sdk` | yes | Out-of-process SDK subagent backend: drives a child QiLin runtime subprocess over stdio JSON-RPC through the TypeScript SDK client |
 | `@qilin-agent/subagent-spawn-in-process` | yes | In-process spawn subagent backend: runs a fresh child agent on ctx.agents |
 | `@qilin-agent/tool-subagent` | yes | Model-facing subagent delegation tool over the ctx.subagents seam |
-| `@qilin-agent/tool-subagent-control` | no | Globally named send_message, interrupt_agent, and list_agents tools over ctx.subagents continuations |
+| `@qilin-agent/tool-subagent-control` | yes | Globally named send_message, interrupt_agent, and list_agents tools over ctx.subagents continuations |
 
 ## subprocess
 
 | Package | Config | Description |
 |---|---|---|
 | `@qilin-agent/subprocess-local` | no | Local-subprocess implementation of the QiLin subprocess seam |
+
+## team
+
+| Package | Config | Description |
+|---|---|---|
+| `@qilin-agent/agent-team` | yes | Implicit-root Agent Teams roster, direct peer messaging, and shared task DAG |
+| `@qilin-agent/tool-agent-team` | yes | Scoped model-facing Agent Teams tools over ctx.agentTeams |
 
 ## telemetry
 

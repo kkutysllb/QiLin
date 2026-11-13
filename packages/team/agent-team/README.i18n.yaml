@@ -1,0 +1,103 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/team/agent-team/README.md
+/:
+  en: 8b11ad84b831ec01
+  zh: 01acc9f40e64b8d4
+/qilin-agent-agent-team:
+  en: 04acd51ba798c83c
+  zh: ff19fdccc43de986
+/qilin-agent-agent-team/summary:
+  en: 7d75f07e41d97a9a
+  zh: 6d95b3b9d910209f
+/qilin-agent-agent-team/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-agent-agent-team/use-this-package:
+  en: 08b2e6e9c7e5017b
+  zh: 982d80b2d557b597
+/qilin-agent-agent-team/use-this-package/when-to-choose-it:
+  en: fc789f82c1b86394
+  zh: c6dff674d537dc26
+/qilin-agent-agent-team/use-this-package/smallest-working-setup:
+  en: 39dc14af749c444d
+  zh: 0a98cbc1a006c9b7
+/qilin-agent-agent-team/use-this-package/teammates:
+  en: 5a314d1f80ecd31b
+  zh: c34e6a93dd1e2045
+/qilin-agent-agent-team/use-this-package/messages-between-teammates:
+  en: 3f98b1feabc09b11
+  zh: c83ad4de36021fb5
+/qilin-agent-agent-team/use-this-package/shared-task-board:
+  en: 73682f0d2001b517
+  zh: 3744d82eb3b7fcb9
+/qilin-agent-agent-team/use-this-package/waiting-and-interruption:
+  en: f8e38ccf6295b375
+  zh: 44f008e23613c0af
+/qilin-agent-agent-team/use-this-package/what-success-and-failure-look-like:
+  en: cfcb985f5628e427
+  zh: a455c63b9813a06f
+/qilin-agent-agent-team/understand-the-implementation:
+  en: 6a18034f1ccc247a
+  zh: e08b0eb0ccb41ea8
+/qilin-agent-agent-team/understand-the-implementation/design-philosophy:
+  en: a51c075c48bda8a5
+  zh: 49be741ef700dd89
+/qilin-agent-agent-team/understand-the-implementation/source-map:
+  en: b4617379acb1800c
+  zh: bdb67fae4e5b4c53
+/qilin-agent-agent-team/understand-the-implementation/team-identity-and-roster:
+  en: 2389048c1a494ed3
+  zh: 7e72acd6b83ea248
+/qilin-agent-agent-team/understand-the-implementation/direct-messages-and-historical-compatibility:
+  en: 60d5c54d032ec106
+  zh: efdf8a7dcd4e8e1e
+/qilin-agent-agent-team/understand-the-implementation/shared-task-board:
+  en: 2dc37ba97a8a7178
+  zh: 96bd24033030e19d
+/qilin-agent-agent-team/understand-the-implementation/waiting-and-interruption:
+  en: 29eebf85f25d8d8b
+  zh: 6976a482f65b4989
+/qilin-agent-agent-team/understand-the-implementation/durability-model:
+  en: 16e982658c04aa80
+  zh: 3c75e95bb6d7b8bd
+/qilin-agent-agent-team/understand-the-implementation/disposal:
+  en: a12fb358183cc6d8
+  zh: 7fdb0434d3c407fe
+/qilin-agent-agent-team/further-exploration:
+  en: e5dbb415d87b241a
+  zh: 69209523b08ad582
+/qilin-agent-agent-team/further-exploration/browser-projection:
+  en: 278f42969432e796
+  zh: a74b34bdd5651af2
+/qilin-agent-agent-team/further-exploration/browser-write-bridge:
+  en: 0b80f4c679480592
+  zh: 85725998a7d68604
+/qilin-agent-agent-team/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-agent-team/model-experience/peer-messages:
+  en: 7a72088145dd45ec
+  zh: 6763071c604c2edd
+/qilin-agent-agent-team/model-experience/peer-messages/what-the-model-sees:
+  en: 03d122c94d97375c
+  zh: e05915f33dedbdc1
+/qilin-agent-agent-team/model-experience/peer-messages/token-effect:
+  en: 57bac76f74e0d0f2
+  zh: 1cb73ec127188c27
+/qilin-agent-agent-team/model-experience/peer-messages/kv-cache-effect:
+  en: af2993419835b838
+  zh: b2a4fea055d5cdf4
+/qilin-agent-agent-team/known-limitations-and-deferred-work:
+  en: 2b6bbe3e4242d932
+  zh: c1b33474c62f9674
+/qilin-agent-agent-team/known-limitations-and-deferred-work/dev-note:
+  en: 498e4cf9fe5741a7
+  zh: 9d2bab630e655c99
+/qilin-agent-agent-team/known-limitations-and-deferred-work/dev-note/promotion:
+  en: 50c93dfcbc950445
+  zh: 46004975d12e8258
+/qilin-agent-agent-team/known-limitations-and-deferred-work/dev-note/future-directions:
+  en: 38eadeacd73b9c02
+  zh: 05c5b55022e0b8d9

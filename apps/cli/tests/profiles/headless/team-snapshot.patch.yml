@@ -39,7 +39,7 @@
       name: './tests/fixtures/fresh-agent.ts'
 
     - id: agent-team
-      name: '@qilin-agent/experimental-agent-team'
+      name: '@qilin-agent/agent-team'
       config:
         maxMembers: 8
         maxTasks: 256
@@ -47,7 +47,7 @@
         disposalTimeoutMs: 5000
 
     - id: tool-agent-team
-      name: '@qilin-agent/experimental-tool-agent-team'
+      name: '@qilin-agent/tool-agent-team'
       config:
         freshProvider: spawn
         forkProvider: fork

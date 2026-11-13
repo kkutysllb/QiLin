@@ -133,7 +133,7 @@ describe('web e2e: plugin manager', () => {
     const panel = await openPluginsPanel()
     await panel.getByRole('button', { name: '查看 智能体团队', exact: true }).click()
     const packageName = panel.locator('[data-plugin-name]')
-    expect(await packageName.textContent()).toBe('@qilin-agent/experimental-agent-team-profile')
+    expect(await packageName.textContent()).toBe('@qilin-agent/agent-team-profile')
     expect(await panel.getByText('启用团队协作、团队工具、成员列表和共享任务看板。').count()).toBe(1)
     try {
       // The dialog is modal, so the scenario leaves it, switches the language
@@ -155,7 +155,7 @@ describe('web e2e: plugin manager', () => {
       }
       await englishPanel.getByRole('heading', { name: 'Plugins', exact: true }).waitFor({ timeout: 10_000 })
       await englishPanel.getByRole('button', { name: 'View Agent Teams', exact: true }).click()
-      expect(await packageName.textContent()).toBe('@qilin-agent/experimental-agent-team-profile')
+      expect(await packageName.textContent()).toBe('@qilin-agent/agent-team-profile')
       expect(await englishPanel.getByText('Enable team collaboration, team tools, the member roster, and the shared task board.').count()).toBe(1)
       await englishPanel.getByRole('button', { name: 'Back to plugins', exact: true }).click()
       for (const title of ['Agent Teams']) {
@@ -191,7 +191,7 @@ describe('web e2e: plugin manager', () => {
       expect(await install.isDisabled()).toBe(true)
       await panel.getByText('@fixture/bundle', { exact: true }).waitFor({ timeout: 20_000 })
       // A name the QiLin installation provides is refused without asking the Host.
-      await field.fill('@qilin-agent/experimental-agent-team-profile')
+      await field.fill('@qilin-agent/agent-team-profile')
       await install.click()
       await dialog.getByRole('alert').waitFor({ timeout: 5_000 })
       expect(await dialog.getByRole('alert').textContent()).toBe('该插件随 QiLin 提供，升级 QiLin 即可获得新版本')

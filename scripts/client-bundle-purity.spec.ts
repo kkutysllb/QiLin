@@ -189,7 +189,7 @@ describe('client bundle purity gate', () => {
 })
 
 describe('client bundle experimental input isolation', () => {
-  const experimental = '@qilin-agent/experimental-client-ui-agent-team'
+  const experimental = '@qilin-agent/client-ui-agent-team'
 
   function fixture() {
     const root = mkdtempSync(join(tmpdir(), 'qilin-client-inputs-'))

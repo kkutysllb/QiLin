@@ -1,0 +1,52 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/team/agent-team-profile/README.md
+/:
+  en: e263a0edd266210f
+  zh: c5779bf7f64631d3
+/qilin-agent-agent-team-profile:
+  en: b439bd693df76933
+  zh: d27f4172ff80f567
+/qilin-agent-agent-team-profile/summary:
+  en: 14f90b778dd10636
+  zh: dbfdf0447b682d50
+/qilin-agent-agent-team-profile/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-agent-agent-team-profile/use-this-package:
+  en: bbff250eba0f1b89
+  zh: 0a618f05cc88ee2b
+/qilin-agent-agent-team-profile/use-this-package/install-into-a-profile:
+  en: e0cea3459382dd41
+  zh: 6061eb3a490a66d7
+/qilin-agent-agent-team-profile/use-this-package/what-you-get:
+  en: f7dbd8c3bd834caa
+  zh: f5f5434331582fb0
+/qilin-agent-agent-team-profile/understand-the-implementation:
+  en: 138c14913b88a272
+  zh: 7546bfd76d1267a0
+/qilin-agent-agent-team-profile/further-exploration:
+  en: e8b0b2c1b39a5163
+  zh: 85735e59d08ebafc
+/qilin-agent-agent-team-profile/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-agent-team-profile/model-experience/team-policy-and-tools:
+  en: 8e1e365ff3b0dfb2
+  zh: c6c91fbf1e1df934
+/qilin-agent-agent-team-profile/model-experience/team-policy-and-tools/what-the-model-sees:
+  en: e6d8bc22dd05dc32
+  zh: 7e415a0a03ec0576
+/qilin-agent-agent-team-profile/model-experience/team-policy-and-tools/token-effect:
+  en: 9a4609436ccfb6a9
+  zh: dacf104795b99864
+/qilin-agent-agent-team-profile/model-experience/team-policy-and-tools/kv-cache-effect:
+  en: c0a354098e0e325f
+  zh: c0c4237d51d57663
+/qilin-agent-agent-team-profile/known-limitations-and-deferred-work:
+  en: 70133ecebd5d4fc8
+  zh: 399b13264222ec61
+/qilin-agent-agent-team-profile/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

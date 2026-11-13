@@ -1,0 +1,46 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-agent-team/README.md
+/:
+  en: 13392ac86fb64ae3
+  zh: 99361a9562ec4441
+/qilin-agent-client-ui-agent-team:
+  en: e40cd9a284f892ff
+  zh: 3e0765b25758c339
+/qilin-agent-client-ui-agent-team/summary:
+  en: 67f8650d6c862ff3
+  zh: 6a3d58866e9483a5
+/qilin-agent-client-ui-agent-team/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-agent-client-ui-agent-team/use-this-package:
+  en: 308231d9c1fff3b5
+  zh: 79beba63357127bb
+/qilin-agent-client-ui-agent-team/use-this-package/inspect-and-navigate-the-roster:
+  en: 62778e911a4ee9e9
+  zh: dff1dbbc3d5e4af6
+/qilin-agent-client-ui-agent-team/use-this-package/inspect-the-task-board:
+  en: d1156074d801be53
+  zh: 0b75da44eefbf406
+/qilin-agent-client-ui-agent-team/use-this-package/edit-tasks-from-the-browser:
+  en: 9a8d5dfd48fdd8e4
+  zh: a230d33942b8e6a2
+/qilin-agent-client-ui-agent-team/understand-the-implementation:
+  en: 66e09c350db5f083
+  zh: 6b52ed92d76ae542
+/qilin-agent-client-ui-agent-team/further-exploration:
+  en: ec9d61bb03075e16
+  zh: 8a14ff600dc1e786
+/qilin-agent-client-ui-agent-team/model-experience:
+  en: 47ebeba07d72759d
+  zh: 8fe8133f6dd845a9
+/qilin-agent-client-ui-agent-team/model-experience/kv-cache-effect:
+  en: b51b320f5e4dacfc
+  zh: 6695947c3f9fed28
+/qilin-agent-client-ui-agent-team/known-limitations-and-deferred-work:
+  en: 40dd61294e1e9916
+  zh: ec6cf49efc675e2c
+/qilin-agent-client-ui-agent-team/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

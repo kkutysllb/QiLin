@@ -231,6 +231,29 @@ export type PresetTrust = 'system' | 'user'
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/agent-presets -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/agent-team -->
+<a id="qilin-agentagent-team"></a>
+
+## `@qilin-agent/agent-team`
+
+- `inject`: `agents` · `sessions` · `sessionPersistence` · `sessionProjections` · `subagents`
+- `source`: [`packages/team/agent-team/src/types.ts:153`](../packages/team/agent-team/src/types.ts)
+
+```ts config-catalog
+/** Team-service deployment limits. */
+export interface Config {
+  /** Maximum immutable teammate names retained by one Team. */
+  readonly maxMembers?: number
+  /** Maximum non-deleted tasks retained by one Team. */
+  readonly maxTasks?: number
+  /** Maximum UTF-8 bytes in one complete sender-framed delivery. */
+  readonly maxMessageBytes?: number
+  /** Maximum milliseconds for shared operation settlement and for each Team child drain. */
+  readonly disposalTimeoutMs?: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/agent-team -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/agent-tool-presentation -->
 <a id="qilin-agentagent-tool-presentation"></a>
 
@@ -811,29 +834,6 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/credentials-local -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-agent-team -->
-<a id="qilin-agentexperimental-agent-team"></a>
-
-## `@qilin-agent/experimental-agent-team`
-
-- `inject`: `agents` · `sessions` · `sessionPersistence` · `sessionProjections` · `subagents`
-- `source`: [`packages/experimental/agent-team/src/types.ts:153`](../packages/experimental/agent-team/src/types.ts)
-
-```ts config-catalog
-/** Team-service deployment limits. */
-export interface Config {
-  /** Maximum immutable teammate names retained by one Team. */
-  readonly maxMembers?: number
-  /** Maximum non-deleted tasks retained by one Team. */
-  readonly maxTasks?: number
-  /** Maximum UTF-8 bytes in one complete sender-framed delivery. */
-  readonly maxMessageBytes?: number
-  /** Maximum milliseconds for shared operation settlement and for each Team child drain. */
-  readonly disposalTimeoutMs?: number
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/experimental-agent-team -->
-
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-api-speech-to-text -->
 <a id="qilin-agentexperimental-api-speech-to-text"></a>
 
@@ -1354,27 +1354,6 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-speech-to-text-sensevoice -->
-
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-tool-agent-team -->
-<a id="qilin-agentexperimental-tool-agent-team"></a>
-
-## `@qilin-agent/experimental-tool-agent-team`
-
-- `inject`: `agents` · `agentTeams` · `tools` · `systemPrompt`
-- `source`: [`packages/experimental/tool-agent-team/src/index.ts:18`](../packages/experimental/tool-agent-team/src/index.ts)
-
-```ts config-catalog
-/** Tool registration and routing configuration. */
-export interface Config {
-  /** Register `interrupt_agent` and its policy guidance. Defaults to true; false leaves the domain API available. */
-  readonly interrupt?: boolean
-  /** Continuable-subagent provider used for fresh teammates. */
-  readonly freshProvider?: string
-  /** Continuable-subagent provider used for completed-prefix fork teammates. */
-  readonly forkProvider?: string
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/experimental-tool-agent-team -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-tool-ralph -->
 <a id="qilin-agentexperimental-tool-ralph"></a>
@@ -3798,6 +3777,27 @@ export type TokenMeterConfig = Record<string, never>
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/token-meter -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-agent-team -->
+<a id="qilin-agenttool-agent-team"></a>
+
+## `@qilin-agent/tool-agent-team`
+
+- `inject`: `agents` · `agentTeams` · `tools` · `systemPrompt`
+- `source`: [`packages/team/tool-agent-team/src/index.ts:18`](../packages/team/tool-agent-team/src/index.ts)
+
+```ts config-catalog
+/** Tool registration and routing configuration. */
+export interface Config {
+  /** Register `interrupt_agent` and its policy guidance. Defaults to true; false leaves the domain API available. */
+  readonly interrupt?: boolean
+  /** Continuable-subagent provider used for fresh teammates. */
+  readonly freshProvider?: string
+  /** Continuable-subagent provider used for completed-prefix fork teammates. */
+  readonly forkProvider?: string
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/tool-agent-team -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-ask-user -->
 <a id="qilin-agenttool-ask-user"></a>
 
@@ -4663,6 +4663,7 @@ export interface Config {
 | `@qilin-agent/client-ui-account` | — | [`packages/client/ui-account/src/index.ts`](../packages/client/ui-account/src/index.ts) |
 | `@qilin-agent/client-ui-agent-opens` | — | [`packages/client/ui-agent-opens/src/index.ts`](../packages/client/ui-agent-opens/src/index.ts) |
 | `@qilin-agent/client-ui-agent-preset` | — | [`packages/client/ui-agent-preset/src/index.ts`](../packages/client/ui-agent-preset/src/index.ts) |
+| `@qilin-agent/client-ui-agent-team` | — | [`packages/client/ui-agent-team/src/index.ts`](../packages/client/ui-agent-team/src/index.ts) |
 | `@qilin-agent/client-ui-approval` | — | [`packages/client/ui-approval/src/index.ts`](../packages/client/ui-approval/src/index.ts) |
 | `@qilin-agent/client-ui-attachment` | — | [`packages/client/ui-attachment/src/index.ts`](../packages/client/ui-attachment/src/index.ts) |
 | `@qilin-agent/client-ui-brand` | — | [`packages/client/ui-brand/src/index.ts`](../packages/client/ui-brand/src/index.ts) |
@@ -4725,7 +4726,6 @@ export interface Config {
 | `@qilin-agent/deepseek-llm-api-extensions` | — | [`packages/llm/deepseek-llm-api-extensions/src/index.ts`](../packages/llm/deepseek-llm-api-extensions/src/index.ts) |
 | `@qilin-agent/deliverable-file-references` | `systemPrompt` | [`packages/deliverables/deliverable-file-references/src/index.ts`](../packages/deliverables/deliverable-file-references/src/index.ts) |
 | `@qilin-agent/experimental-auto-review` | `approval` · `llm` · `permissionPresets` · `sessions` · `tools` · `workingDirectory` | [`packages/experimental/auto-review/src/index.ts`](../packages/experimental/auto-review/src/index.ts) |
-| `@qilin-agent/experimental-client-ui-agent-team` | — | [`packages/experimental/client-ui-agent-team/src/index.ts`](../packages/experimental/client-ui-agent-team/src/index.ts) |
 | `@qilin-agent/experimental-client-ui-claude-code-mods` | — | [`packages/experimental/client-ui-claude-code-mods/src/index.ts`](../packages/experimental/client-ui-claude-code-mods/src/index.ts) |
 | `@qilin-agent/experimental-client-ui-voice-input` | — | [`packages/experimental/client-ui-voice-input/src/index.ts`](../packages/experimental/client-ui-voice-input/src/index.ts) |
 | `@qilin-agent/experimental-computer-use-cua-driver-native` | `computerUse` · `tools` · `systemPrompt` | [`packages/experimental/computer-use-cua-driver-native/src/index.ts`](../packages/experimental/computer-use-cua-driver-native/src/index.ts) |
@@ -4797,6 +4797,7 @@ export interface Config {
 | `package` | `inject` | `source` |
 | --- | --- | --- |
 | `@qilin-agent/agent-loop-testkit` | — | [`packages/test-support/agent-loop-testkit/src/index.ts`](../packages/test-support/agent-loop-testkit/src/index.ts) |
+| `@qilin-agent/agent-team-profile` | — | [`packages/team/agent-team-profile/src/index.ts`](../packages/team/agent-team-profile/src/index.ts) |
 | `@qilin-agent/anonymous-user-id` | — | [`packages/identity/anonymous-user-id/src/index.ts`](../packages/identity/anonymous-user-id/src/index.ts) |
 | `@qilin-agent/app-boot` | — | [`packages/boot/app-boot/src/index.ts`](../packages/boot/app-boot/src/index.ts) |
 | `@qilin-agent/atomic-write` | — | [`packages/util/atomic-write/src/index.ts`](../packages/util/atomic-write/src/index.ts) |
@@ -4814,7 +4815,6 @@ export interface Config {
 | `@qilin-agent/cmdline` | — | [`packages/boot/cmdline/src/index.ts`](../packages/boot/cmdline/src/index.ts) |
 | `@qilin-agent/deque` | — | [`packages/util/deque/src/index.ts`](../packages/util/deque/src/index.ts) |
 | `@qilin-agent/dsh-compat` | — | [`packages/util/dsh-compat/src/index.ts`](../packages/util/dsh-compat/src/index.ts) |
-| `@qilin-agent/experimental-agent-team-profile` | — | [`packages/experimental/agent-team-profile/src/index.ts`](../packages/experimental/agent-team-profile/src/index.ts) |
 | `@qilin-agent/experimental-badge-skill-bundle` | — | [`packages/experimental/badge-skill-bundle/src/index.ts`](../packages/experimental/badge-skill-bundle/src/index.ts) |
 | `@qilin-agent/experimental-browser-use-runtime` | — | [`packages/experimental/browser-use-runtime/src/index.ts`](../packages/experimental/browser-use-runtime/src/index.ts) |
 | `@qilin-agent/experimental-cot-translation-bundle` | — | [`packages/experimental/cot-translation-bundle/src/index.ts`](../packages/experimental/cot-translation-bundle/src/index.ts) |

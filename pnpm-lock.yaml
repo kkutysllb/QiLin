@@ -412,9 +412,9 @@ importers:
       '@qilin-agent/compaction-tool-result-pruner':
         specifier: workspace:*
         version: link:../../packages/compaction/compaction-tool-result-pruner
-      '@qilin-agent/experimental-agent-team-profile':
+      '@qilin-agent/agent-team-profile':
         specifier: workspace:*
-        version: link:../../packages/experimental/agent-team-profile
+        version: link:../../packages/team/agent-team-profile
       '@qilin-agent/experimental-auto-review':
         specifier: workspace:*
         version: link:../../packages/experimental/auto-review
@@ -656,9 +656,9 @@ importers:
       '@qilin-agent/deepseek-llm-api-extensions':
         specifier: workspace:*
         version: link:../../packages/llm/deepseek-llm-api-extensions
-      '@qilin-agent/experimental-agent-team':
+      '@qilin-agent/agent-team':
         specifier: workspace:*
-        version: link:../../packages/experimental/agent-team
+        version: link:../../packages/team/agent-team
       '@qilin-agent/experimental-hooks-claude-code':
         specifier: workspace:*
         version: link:../../packages/experimental/hooks-claude-code
@@ -668,9 +668,9 @@ importers:
       '@qilin-agent/experimental-ptc-runtime-python':
         specifier: workspace:*
         version: link:../../packages/experimental/ptc-runtime-python
-      '@qilin-agent/experimental-tool-agent-team':
+      '@qilin-agent/tool-agent-team':
         specifier: workspace:*
-        version: link:../../packages/experimental/tool-agent-team
+        version: link:../../packages/team/tool-agent-team
       '@qilin-agent/experimental-webhook':
         specifier: workspace:*
         version: link:../../packages/experimental/webhook
@@ -7996,7 +7996,7 @@ importers:
         specifier: workspace:*
         version: link:../../core/session
 
-  packages/experimental/agent-team:
+  packages/team/agent-team:
     dependencies:
       '@qilin-agent/brand':
         specifier: workspace:*
@@ -8051,15 +8051,15 @@ importers:
         specifier: workspace:*
         version: link:../../typert/protocol
 
-  packages/experimental/agent-team-profile:
+  packages/team/agent-team-profile:
     dependencies:
-      '@qilin-agent/experimental-agent-team':
+      '@qilin-agent/agent-team':
         specifier: workspace:*
         version: link:../agent-team
-      '@qilin-agent/experimental-client-ui-agent-team':
+      '@qilin-agent/client-ui-agent-team':
         specifier: workspace:*
-        version: link:../client-ui-agent-team
-      '@qilin-agent/experimental-tool-agent-team':
+        version: link:../../client/ui-agent-team
+      '@qilin-agent/tool-agent-team':
         specifier: workspace:*
         version: link:../tool-agent-team
     devDependencies:
@@ -8519,7 +8519,7 @@ importers:
         specifier: workspace:*
         version: link:../../session/working-directory
 
-  packages/experimental/client-ui-agent-team:
+  packages/client/ui-agent-team:
     devDependencies:
       '@qilin-agent/api-remotes':
         specifier: workspace:*
@@ -8557,9 +8557,9 @@ importers:
       '@qilin-agent/client-ui-workspace':
         specifier: workspace:*
         version: link:../../client/ui-workspace
-      '@qilin-agent/experimental-agent-team':
+      '@qilin-agent/agent-team':
         specifier: workspace:*
-        version: link:../agent-team
+        version: link:../../team/agent-team
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -9772,7 +9772,7 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2
 
-  packages/experimental/tool-agent-team:
+  packages/team/tool-agent-team:
     dependencies:
       '@qilin-agent/schemastery':
         specifier: link:../../../vendor/schemastery
@@ -9787,7 +9787,7 @@ importers:
       '@qilin-agent/agent-loop-testkit':
         specifier: workspace:*
         version: link:../../test-support/agent-loop-testkit
-      '@qilin-agent/experimental-agent-team':
+      '@qilin-agent/agent-team':
         specifier: workspace:*
         version: link:../agent-team
       '@qilin-agent/kylin':

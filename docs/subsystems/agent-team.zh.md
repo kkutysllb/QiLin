@@ -2,7 +2,7 @@
 
 [English](agent-team.md) | 中文
 
-实验性隐式 Root Team 领域、模型工具与宿主适配器共享的类型。[Agent Teams Agent Note](../../.agents/notes/implemented/feature/2026-08-05-agent-teams.zh.md)负责身份、mailbox、task 与共享 checkout 决策；本页记录 [`packages/experimental/agent-team/src/types.ts`](../../packages/experimental/agent-team/src/types.ts) 中的持久与客户端可见形式。
+实验性隐式 Root Team 领域、模型工具与宿主适配器共享的类型。[Agent Teams Agent Note](../../.agents/notes/implemented/feature/2026-08-05-agent-teams.zh.md)负责身份、mailbox、task 与共享 checkout 决策；本页记录 [`packages/team/agent-team/src/types.ts`](../../packages/team/agent-team/src/types.ts) 中的持久与客户端可见形式。
 
 ## 身份与 roster
 
@@ -25,7 +25,7 @@ interface TeamMemberSnapshot {
 
 ## 消息与历史 mailbox
 
-新的发送在 inbox 接收或拒绝后返回铸出的 Team 消息身份。target 保存既有的 `team-message` source，携带真实发送者 Session id 与发送者名前缀；Team 没有新消息 outbox，也不对重发去重。[包约定](../../packages/experimental/agent-team/README.zh.md#understand-the-implementation)定义持久化行为。下列 mailbox 类型仍可读取，因此历史 Lead 日志仍可回放；Team 不会投递其中 pending 的记录。
+新的发送在 inbox 接收或拒绝后返回铸出的 Team 消息身份。target 保存既有的 `team-message` source，携带真实发送者 Session id 与发送者名前缀；Team 没有新消息 outbox，也不对重发去重。[包约定](../../packages/team/agent-team/README.zh.md#understand-the-implementation)定义持久化行为。下列 mailbox 类型仍可读取，因此历史 Lead 日志仍可回放；Team 不会投递其中 pending 的记录。
 
 ```ts type-equiv
 /** One peer message recorded by the historical Team mailbox. */
@@ -122,7 +122,7 @@ interface TeamProjection {
 
 ## 回放
 
-`agentTeam` Session 投影把一个 Root Session 回放成 roster、任务板与历史 queued-minus-delivered mailbox。它按 `TeamId` 选取记录，因此普通 fork 继承的 event 保留 ancestor id，绝不会进入新 Root 的状态。Session event 的 `seq` 与 `time` 继续负责顺序和时间记录，Team snapshot 不再重复保存它们。roster 与 task 读取以 view 形式到达调用方，而 pending 邮件不暴露给调用方。包 [README](../../packages/experimental/agent-team/README.zh.md)负责 operation、authorization、recovery 和限制行为。
+`agentTeam` Session 投影把一个 Root Session 回放成 roster、任务板与历史 queued-minus-delivered mailbox。它按 `TeamId` 选取记录，因此普通 fork 继承的 event 保留 ancestor id，绝不会进入新 Root 的状态。Session event 的 `seq` 与 `time` 继续负责顺序和时间记录，Team snapshot 不再重复保存它们。roster 与 task 读取以 view 形式到达调用方，而 pending 邮件不暴露给调用方。包 [README](../../packages/team/agent-team/README.zh.md)负责 operation、authorization、recovery 和限制行为。
 
 <!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
@@ -251,5 +251,5 @@ tryMembership(agent: Agent): TeamMembership | undefined
 
 Types: [Agent](core.zh.md)
 
-Source: [`packages/experimental/agent-team/src/index.ts`](../../packages/experimental/agent-team/src/index.ts)
+Source: [`packages/team/agent-team/src/index.ts`](../../packages/team/agent-team/src/index.ts)
 <!-- END GENERATED kylin-surface -->

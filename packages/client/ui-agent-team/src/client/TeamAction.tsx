@@ -1,0 +1,309 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import type { SessionId } from '@qilin-agent/session/types'
+import type {
+  TeamMemberProjection,
+  TeamTaskView as TeamTask,
+} from '@qilin-agent/agent-team/client'
+import type {} from '@qilin-agent/api-session-controller/client'
+import {
+  IconChevronDownOutlineRegular,
+  IconUserOutlineRegular, StateDot, Tag, Tooltip,
+  useAnchoredPosition, useDismissOnOutsidePointer,
+} from '@qilin-agent/client-ui-primitives'
+import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { TranslateNS } from '@qilin-agent/client-ui-slots'
+import type {} from '@qilin-agent/client-ui-conversation/client'
+import {
+  memberDotState,
+  memberStatusKey,
+} from './team-model.ts'
+import { useMemberFacts } from './member-facts.ts'
+import { TaskCardHead, TaskFacts } from './TaskCardParts.tsx'
+import { NS } from './locales.ts'
+import css from './TeamAction.module.css'
+
+/** Business actions injected by the browser plugin. */
+export interface TeamActionInjected {
+  /** Open a roster Session from the current conversation. */
+  openTeammate: (sessionId: SessionId, childSessionId: SessionId) => void
+}
+
+/** Full props of the Team conversation-header action. */
+export type TeamActionProps =
+  PropsRuntime<'conversation.session.header.actions'> & TeamActionInjected & PropsLocale<typeof NS>
+
+type TeamMemberRowProps = Pick<TeamActionProps,
+  'sessionId' | 'useSessions' | 'useSessionStatus' | 'openTeammate' | 't'
+> & {
+  member: TeamMemberProjection
+  memberCount: number
+  onError: (message: string) => void
+}
+
+function TeamMemberRow({
+  member, memberCount, sessionId, useSessions, useSessionStatus, openTeammate, onError, t,
+}: TeamMemberRowProps) {
+  const { model, status, isCurrent } = useMemberFacts(member, sessionId, { useSessions, useSessionStatus })
+  const highlightCurrent = isCurrent && memberCount > 1
+  const inert = isCurrent || status === 'failed' || status === 'provisioning'
+
+  return (
+    <Tooltip label={t('open')} side="bottom" disabled={inert}>
+      <button
+        type="button"
+        className={highlightCurrent ? `${css.member} ${css.memberCurrent}` : css.member}
+        disabled={inert}
+        onClick={() => {
+          try {
+            openTeammate(sessionId, member.id)
+          } catch (reason) {
+            onError(String(reason))
+          }
+        }}
+      >
+        <span className={css.memberDot}>
+          {status === 'inactive'
+            ? <IconUserOutlineRegular size={14} className={css.inactiveIcon} />
+            : <StateDot state={memberDotState(status)} />}
+        </span>
+        <span className={css.memberText}>
+          <span className={css.memberName}>
+            <span className={css.memberNameText}>{member.name}</span>
+            {isCurrent && <Tag tone="info" className={css.currentTag}>{t('current')}</Tag>}
+          </span>
+          <small>
+            {t(memberStatusKey(status))}
+            {model !== undefined && (
+              <span className={css.memberModel}>{` · ${t('model')}: ${model}`}</span>
+            )}
+          </small>
+          {member.error !== undefined && <small className={css.diagnostic}>{member.error}</small>}
+        </span>
+      </button>
+    </Tooltip>
+  )
+}
+
+/** Task card with a two-line description clamp expanded from a toggle in the meta row. */
+function TaskCard({ task, t }: { task: TeamTask; t: TranslateNS<typeof NS> }) {
+  const [expanded, setExpanded] = useState(false)
+  const [clamped, setClamped] = useState(false)
+  const textRef = useRef<HTMLParagraphElement>(null)
+  useLayoutEffect(() => {
+    if (expanded) return
+    const paragraph = textRef.current
+    /* v8 ignore next -- the paragraph mounts in the same commit as the effect. */
+    if (paragraph === null) return
+    const measure = (): void => { setClamped(paragraph.scrollHeight > paragraph.clientHeight + 1) }
+    measure()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(measure)
+    observer.observe(paragraph)
+    return () => { observer.disconnect() }
+  }, [task.description, expanded])
+  return (
+    <article className={css.task}>
+      <TaskCardHead task={task} styles={css} t={t} />
+      <p ref={textRef} className={expanded ? undefined : css.clampedDescription}>{task.description}</p>
+      <div className={css.meta}>
+        {(clamped || expanded) && (
+          <button
+            type="button"
+            className={css.expandToggle}
+            aria-expanded={expanded}
+            onClick={() => { setExpanded(current => !current) }}
+          >
+            {t(expanded ? 'task.collapse' : 'task.expand')}
+            <IconChevronDownOutlineRegular size={12} className={expanded ? css.expandToggleOpen : undefined} />
+          </button>
+        )}
+        <span>{task.id}</span>
+        <span>{t('owner')}: {task.ownerName ?? t('unowned')}</span>
+        <TaskFacts task={task} styles={css} t={t} />
+      </div>
+    </article>
+  )
+}
+
+/** Render the Team roster and read-only task board. */
+export function TeamAction({
+  sessionId, useSession, useSessions, useSessionStatus, openTeammate, t,
+}: TeamActionProps) {
+  const [open, setOpen] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const triggerLabelRef = useRef<HTMLSpanElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const position = useAnchoredPosition({
+    open, anchorRef: triggerRef, panelRef, gap: 5, margin: 16,
+  })
+  const positioned = position !== null
+  const leadSessionId = useSession(snapshot => snapshot.subagent?.address.parentSessionId) ?? sessionId
+  const team = useSessions(state => state.projectionsBySession[leadSessionId]?.values.agentTeam)
+  const opening = useSession(snapshot => snapshot.openState === 'loading')
+  const listing = useSessions(state => state.phase === 'pending')
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const pinnedRef = useRef(false)
+
+  const cancelHoverChange = (): void => {
+    clearTimeout(hoverTimer.current)
+    hoverTimer.current = undefined
+  }
+
+  useEffect(() => {
+    cancelHoverChange()
+    pinnedRef.current = false
+    setOpen(false)
+    setError(null)
+  }, [sessionId])
+
+  useEffect(() => cancelHoverChange, [])
+
+  useLayoutEffect(() => {
+    if (open && positioned && pinnedRef.current) panelRef.current?.focus()
+  }, [open, positioned])
+
+  const changeOpen = (next: boolean): void => {
+    cancelHoverChange()
+    if (!next) pinnedRef.current = false
+    setOpen(next)
+  }
+
+  const scheduleHoverOpen = (): void => {
+    cancelHoverChange()
+    if (open) return
+    const label = triggerLabelRef.current
+    /* v8 ignore next -- the label mounts with the trigger that received the hover. */
+    if (label === null) return
+    // Icon-only trigger (label collapsed by the header container query):
+    // hover-open would surprise on such a small target, so only click opens.
+    if (getComputedStyle(label).display === 'none') return
+    hoverTimer.current = setTimeout(() => {
+      hoverTimer.current = undefined
+      changeOpen(true)
+    }, 150)
+  }
+
+  const scheduleHoverClose = (): void => {
+    cancelHoverChange()
+    if (pinnedRef.current) return
+    hoverTimer.current = setTimeout(() => {
+      hoverTimer.current = undefined
+      changeOpen(false)
+    }, 120)
+  }
+
+  useDismissOnOutsidePointer(rootRef, open, changeOpen, panelRef)
+
+  useEffect(() => {
+    if (!open) return
+    const dismiss = (event: KeyboardEvent): void => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      cancelHoverChange()
+      pinnedRef.current = false
+      setOpen(false)
+      if (panelRef.current?.contains(document.activeElement)) triggerRef.current?.focus()
+    }
+    document.addEventListener('keydown', dismiss)
+    return () => { document.removeEventListener('keydown', dismiss) }
+  }, [open])
+
+  const compact = team !== undefined && team.members.length === 1 && team.tasks.length === 0
+
+  return (
+    <div
+      ref={rootRef}
+      className={css.root}
+      data-team-action
+      onMouseLeave={scheduleHoverClose}
+    >
+      <button
+        type="button"
+        ref={triggerRef}
+        onMouseEnter={scheduleHoverOpen}
+        className={css.trigger}
+        aria-label={t('trigger')}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => {
+          cancelHoverChange()
+          pinnedRef.current = true
+          if (!open) changeOpen(true)
+          else panelRef.current?.focus()
+        }}
+      >
+        <IconUserOutlineRegular size={14} />
+        <span ref={triggerLabelRef} className={css.triggerLabel}>{t('trigger')}</span>
+      </button>
+      {open && createPortal(
+        <div
+          ref={panelRef}
+          className={compact ? `${css.panel} ${css.panelCompact}` : css.panel}
+          style={position ?? { visibility: 'hidden', left: 0, top: 0 }}
+          role="dialog"
+          tabIndex={-1}
+          aria-label={t('trigger')}
+          data-team-panel
+          onMouseEnter={cancelHoverChange}
+          onMouseLeave={scheduleHoverClose}
+        >
+          <div className={css.body}>
+            {error !== null && (
+              <div className={css.error} role="alert"><StateDot state="error" />{error}</div>
+            )}
+            {team === undefined && (
+              <div className={css.notice} role="status">
+                <StateDot state={opening || listing ? 'ongoing' : 'warning'} />
+                {t(opening || listing ? 'loading' : 'unavailable')}
+              </div>
+            )}
+            {team !== undefined && (
+              <>
+                {team.failure !== undefined && (
+                  <div className={css.error} role="alert"><StateDot state="error" />{t('failure', { message: team.failure })}</div>
+                )}
+                <section>
+                  <h3>
+                    {t('roster')}
+                    {team.members.length > 1 && <span className={css.count}>{team.members.length}</span>}
+                  </h3>
+                  <div className={css.roster}>
+                    {team.members.map(member => (
+                      <TeamMemberRow
+                        key={member.id}
+                        member={member}
+                        memberCount={team.members.length}
+                        sessionId={sessionId}
+                        useSessions={useSessions}
+                        useSessionStatus={useSessionStatus}
+                        openTeammate={openTeammate}
+                        onError={setError}
+                        t={t}
+                      />
+                    ))}
+                  </div>
+                </section>
+                <section>
+                  {team.tasks.length === 0
+                    ? <p className={css.emptyNotice}>{t('empty')}</p>
+                    : (
+                      <>
+                        <h3>{t('tasks')}<span className={css.count}>{team.tasks.length}</span></h3>
+                        <div className={css.tasks}>
+                          {team.tasks.map(task => <TaskCard key={task.id} task={task} t={t} />)}
+                        </div>
+                      </>
+                    )}
+                </section>
+              </>
+            )}
+          </div>
+        </div>,
+        document.body,
+      )}
+    </div>
+  )
+}
