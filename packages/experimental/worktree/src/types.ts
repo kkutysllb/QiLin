@@ -40,6 +40,24 @@ export interface RestoreWorktreeRequest {
   repositoryRoot: string
 }
 
+/**
+ * Request to remove one retained worktree: its checkout directory leaves the
+ * filesystem and its registration, and the branch follows when asked and it
+ * carries no unmerged commits.
+ */
+export interface RemoveWorktreeRequest extends RestoreWorktreeRequest {
+  /** Delete the branch after the checkout is gone; an unmerged branch is kept and reported. */
+  deleteBranch?: boolean
+}
+
+/** Outcome of one removal. */
+export interface RemovedWorktree {
+  /** Checkout directory the call addressed. */
+  path: string
+  /** Whether the branch was deleted after the checkout left. */
+  branchDeleted: boolean
+}
+
 /** Outcome of one restoration. */
 export interface RestoredWorktree {
   /** Checkout directory, present again. */

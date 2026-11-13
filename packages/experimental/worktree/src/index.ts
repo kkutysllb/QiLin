@@ -12,9 +12,15 @@ import { PREPARE_DIRECTORY } from './directory.ts'
 import { generatedWorktreeName } from './name.ts'
 import { runCommand } from './process.ts'
 import type { ProcessConfig } from './process.ts'
-import type { CreatedWorktree, CreateWorktreePhase, CreateWorktreeRequest, RestoredWorktree, RestoreWorktreeRequest } from './types.ts'
+import type {
+  CreatedWorktree, CreateWorktreePhase, CreateWorktreeRequest, RemovedWorktree, RemoveWorktreeRequest,
+  RestoredWorktree, RestoreWorktreeRequest,
+} from './types.ts'
 
-export type { CreatedWorktree, CreateWorktreePhase, CreateWorktreeRequest, RestoredWorktree, RestoreWorktreeRequest } from './types.ts'
+export type {
+  CreatedWorktree, CreateWorktreePhase, CreateWorktreeRequest, RemovedWorktree, RemoveWorktreeRequest,
+  RestoredWorktree, RestoreWorktreeRequest,
+} from './types.ts'
 export { generatedWorktreeName } from './name.ts'
 
 /** Worktree location, generated names, executables, and subprocess resource limits. */
@@ -156,6 +162,87 @@ export class WorktreeService extends Service {
     } finally {
       this.pending.delete(operation)
     }
+  }
+
+  /**
+   * Remove one retained worktree: its checkout directory and registration leave
+   * the filesystem, and its branch follows when `deleteBranch` is set and Git
+   * reports it as merged. A checkout with uncommitted or untracked files stays:
+   * Git refuses the removal without force, so no work is discarded implicitly,
+   * and the caller keeps its files. Validation matches {@link restore}: a
+   * canonical target inside the configured pool, a source checkout root, a
+   * relative branch name, and a full base commit.
+   * @param agent - caller whose sandbox policy confines the commands.
+   * @param request - recorded directory, branch, base commit, source repository root, and branch intent.
+   * @param signal - cancellation of the removal.
+   * @param onPhase - receives each stage before it begins; it must not throw.
+   * @returns the addressed directory and whether the branch was deleted.
+   */
+  async remove(
+    agent: Agent,
+    request: RemoveWorktreeRequest,
+    signal?: AbortSignal,
+    onPhase?: (phase: CreateWorktreePhase) => void,
+  ): Promise<RemovedWorktree> {
+    const operationSignal = signal === undefined ? this.lifetime.signal : AbortSignal.any([this.lifetime.signal, signal])
+    operationSignal.throwIfAborted()
+    const operation = this.removeCheckout(agent, request, operationSignal, onPhase)
+    this.pending.add(operation)
+    try {
+      return await operation
+    } finally {
+      this.pending.delete(operation)
+    }
+  }
+
+  private async removeCheckout(
+    agent: Agent,
+    { path, branch, baseCommit, repositoryRoot, deleteBranch = false }: RemoveWorktreeRequest,
+    signal: AbortSignal,
+    onPhase: ((phase: CreateWorktreePhase) => void) | undefined,
+  ): Promise<RemovedWorktree> {
+    onPhase?.('prepare')
+    const policy = this.ctx.sandboxPolicy.resolve({ session: agent.session })
+    const run = this.gitRunner(policy, signal)
+    const root = await this.ctx.fs.resolve(repositoryRoot, { signal })
+    const pool = await this.ctx.fs.resolve(this.config.directory, { cwd: repositoryRoot, signal })
+    const target = await this.ctx.fs.resolve(path, { cwd: repositoryRoot, signal })
+    if (this.ctx.fs.processPath(root) !== repositoryRoot || this.ctx.fs.processPath(target) !== path
+      || !this.ctx.fs.contains(root, pool) || !this.ctx.fs.contains(pool, target) || pool.targetKey === target.targetKey) {
+      throw new Error('worktree removal must use a canonical directory inside the configured pool')
+    }
+    if (!relativePath(branch) || branch.startsWith('-')) throw new Error('worktree branch must be a relative Git branch name')
+    if (!/^(?:[a-f\d]{40}|[a-f\d]{64})$/i.test(baseCommit)) throw new Error('worktree baseCommit must be a full commit object name')
+    await run(repositoryRoot, ['check-ref-format', 'refs/heads/' + branch])
+    const top = await run(repositoryRoot, ['rev-parse', '--show-toplevel'])
+    const actualRoot = await this.ctx.fs.resolve(top.stdout.replace(/\r?\n$/, ''), { cwd: repositoryRoot, signal })
+    if (actualRoot.targetKey !== root.targetKey) throw new Error('worktree repositoryRoot must be the source checkout root')
+    const registered = await run(repositoryRoot, ['worktree', 'list', '--porcelain', '-z'])
+    let found = false
+    for (const entry of registered.stdout.split(String.fromCharCode(0, 0))) {
+      const fields = entry.split(String.fromCharCode(0))
+      const recordedPath = fields.find(field => field.startsWith('worktree '))?.slice('worktree '.length)
+      if (recordedPath === undefined) continue
+      const recorded = await this.ctx.fs.resolve(recordedPath, { cwd: repositoryRoot, signal })
+      if (recorded.targetKey !== target.targetKey) continue
+      found = true
+      if (fields.some(field => field === 'locked' || field.startsWith('locked '))) throw new Error('worktree is locked: ' + path)
+      // Without --force Git keeps a dirty checkout (uncommitted or untracked
+      // files) and fails, so the caller keeps its work.
+      await run(repositoryRoot, ['worktree', 'remove', '--', path])
+    }
+    if (!found && await this.ctx.fs.lstat(path, undefined, signal) !== undefined) {
+      throw new Error('worktree is not registered: ' + path)
+    }
+    let branchDeleted = false
+    if (deleteBranch) {
+      const removed = await run(repositoryRoot, ['branch', '-d', '--', branch], [0, 1])
+      branchDeleted = removed.exitCode === 0
+      if (!branchDeleted) {
+        throw new Error('worktree branch ' + branch + ' still carries unmerged commits; the checkout is removed and the branch kept')
+      }
+    }
+    return { path, branchDeleted }
   }
 
   private resolve(agent: Agent, request: CreateWorktreeRequest): WorktreeSpec {

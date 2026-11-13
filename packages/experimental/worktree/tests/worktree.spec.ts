@@ -23,6 +23,77 @@ async function repo(): Promise<string> {
   return root
 }
 
+describe('removing retained worktrees', () => {
+  it('removes the checkout and registration, keeps the branch unless asked, and stays out of the working directory', async () => {
+    const root = await repo()
+    ctx = await harness(root)
+    const agent = testAgent(ctx, root)
+    const created = await ctx.worktrees.create(agent, { name: 'topic' })
+    await ctx.workingDirectory.set(agent, root)
+
+    const removed = await ctx.worktrees.remove(agent, created)
+
+    expect(removed).toEqual({ path: created.path, branchDeleted: false })
+    await expect(access(created.path)).rejects.toMatchObject({ code: 'ENOENT' })
+    expect(await git(root, 'branch', '--list', 'topic')).toContain('topic')
+    expect(await git(root, 'worktree', 'list', '--porcelain')).not.toContain(created.path)
+    expect(ctx.workingDirectory.get(agent.session)).toBe(root)
+  })
+
+  it('deletes the branch when asked, once the checkout is gone', async () => {
+    const root = await repo()
+    ctx = await harness(root)
+    const agent = testAgent(ctx, root)
+    const created = await ctx.worktrees.create(agent, { name: 'topic' })
+    await ctx.workingDirectory.set(agent, root)
+
+    const removed = await ctx.worktrees.remove(agent, { ...created, deleteBranch: true })
+
+    expect(removed.branchDeleted).toBe(true)
+    expect(await git(root, 'branch', '--list', 'topic')).toBe('')
+  })
+
+  it('keeps a checkout with uncommitted work and the branch that carries it', async () => {
+    const root = await repo()
+    ctx = await harness(root)
+    const agent = testAgent(ctx, root)
+    const created = await ctx.worktrees.create(agent, { name: 'topic' })
+    await writeFile(join(created.path, 'tracked.txt'), 'edited\n')
+    await ctx.workingDirectory.set(agent, root)
+
+    await expect(ctx.worktrees.remove(agent, { ...created, deleteBranch: true })).rejects.toThrow()
+
+    expect(await contents(join(created.path, 'tracked.txt'))).toBe('edited\n')
+    expect(await git(root, 'branch', '--list', 'topic')).toContain('topic')
+  })
+
+  it('refuses a locked registration without touching its files', async () => {
+    const root = await repo()
+    ctx = await harness(root)
+    const agent = testAgent(ctx, root)
+    const created = await ctx.worktrees.create(agent, { name: 'topic' })
+    await git(root, 'worktree', 'lock', created.path)
+    await ctx.workingDirectory.set(agent, root)
+
+    await expect(ctx.worktrees.remove(agent, created)).rejects.toThrow(`worktree is locked: ${created.path}`)
+
+    expect(existsSync(join(created.path, 'tracked.txt'))).toBe(true)
+    expect(await git(root, 'branch', '--list', 'topic')).toContain('topic')
+  })
+
+  it('rejects a recorded directory outside the configured pool before running any command', async () => {
+    const root = await repo()
+    ctx = await harness(root)
+    const agent = testAgent(ctx, root)
+    const request: RestoreWorktreeRequest = { path: join(root, 'elsewhere'), branch: 'topic', baseCommit: 'f'.repeat(40), repositoryRoot: root }
+    const spawn = vi.spyOn(ctx.subprocess, 'spawn')
+
+    await expect(ctx.worktrees.remove(agent, request)).rejects.toThrow('worktree removal must use a canonical directory inside the configured pool')
+
+    expect(spawn).not.toHaveBeenCalled()
+  })
+})
+
 describe('creating and entering retained worktrees', () => {
   it('pins HEAD, preserves source edits and index, enters the new branch, and ignores its new pool', async () => {
     const root = await repo()
