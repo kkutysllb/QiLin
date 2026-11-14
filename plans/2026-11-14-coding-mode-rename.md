@@ -91,7 +91,13 @@
 | 文档 | 子系统页 `docs/subsystems/coding-runtime.md`（+zh）改名；`type-equiv` 文档块与源码 JSDoc 同步；配置目录重生成；受影响的中英 README 与 Agent Notes 重新配对 |
 | 未改（留存词汇） | 事件类型 `tool/ptc-dispatch*`（持久化词汇）、类型名 `CodingRuntime`/`CodingRunRequest`/`CodingRunResult`、文件 `packages/core/tools/src/coding.ts`、README 正文里的 `coding` 概念词、历史 Agent Note 的文件名与正文——改名只覆盖包名/服务名/呈现取值 |
 
-### 7.6 风险
+### 7.6 残留收口与发布安排（2026-11-14 续）
+
+- **残留收口已落地**：公开类型名 `PtcRuntime`/`PtcRunRequest`/`PtcRunResult` 等改为 `Coding*`；`packages/core/tools/src/ptc.ts` → `coding.ts`（含 spec 与演示脚本 `scripts/demo-coding.mjs`、根脚本 `demo:coding`）；README 与子系统文档里的 PTC 措辞改为 coding mode / coding runtime；472 个 `type-equiv` 文档块随源码同源更新。
+- **仍保留**：持久化事件类型 `tool/ptc-dispatch*` 与扩展点 `tools/ptc-dispatch-log`（属格式/扩展词汇，改名需再进位一次会话格式）；`.agents/notes/**` 历史记录的正文与文件名（只更新了指向已移动文件的链接）。
+- **发布安排（用户裁决）**：等其余计划全部完成后再发布；版本号暂定 **3.1.12**（patch），不做大版本跨越；发布时再打 tag 并写 release notes，同时把 v7 记录里的 `source: tag qilin-v3.2.0` 改为实际使用的 tag。
+
+### 7.7 风险
 
 - **发布家族**：改名等于新包名首发，版本号与 release notes 必须同批；`release:verify-published` 会要求新名在 registry 上存在。
 - **服务名**：`ctx.codingRuntime` 是 seam 名，改名后引用旧名的外部插件失效（仓库内全同步改；外部消费者属预发布 API，允许破坏）。
