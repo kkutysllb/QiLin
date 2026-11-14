@@ -98,6 +98,19 @@ export async function forkPoint(git: Git, inspection: Inspection, created: Forge
 }
 
 /**
+ * One commit argument the diff pipeline accepts: a full or abbreviated object
+ * name. Revisions such as `HEAD` or ranges are refused, so the scope cannot read
+ * something other than the commit it names.
+ * @param commit - commit object name from the scope.
+ * @returns the same name.
+ * @throws when the value is not a hexadecimal object name.
+ */
+function commitSha(commit: string): string {
+  if (!/^[a-f\d]{7,64}$/i.test(commit)) throw new Error('forge-panel: a commit scope names a hexadecimal commit object')
+  return commit
+}
+
+/**
  * Read changes at `root` with command-local clean/process filter overrides and without
  * submodule working-tree inspection. Git's built-in newline, ident, and encoding conversions still apply.
  * @param ctx - context that provides `fs`, `subprocess`, `sandbox`, and `sandboxPolicy`.
@@ -130,12 +143,15 @@ export async function localDiff(
     case 'uncommitted': range = [await headOrEmptyTree(git)]; break
     case 'unstaged': range = []; break
     case 'staged': range = ['--cached', await headOrEmptyTree(git)]; break
+    case 'commit': range = [`${commitSha(scope.commit)}^`, commitSha(scope.commit)]; break
     /* v8 ignore next -- closed ForgeLocalScope union exhaustiveness guard */
     default: return assertNever(scope, 'ForgeLocalScope.kind')
   }
   const overrides = await diffFilterOverrides(git)
   const tracked = parseDiff((await bounded(git('diff', [...DIFF, ...range, '--'], undefined, overrides))).stdout)
-  if (scope.kind === 'staged') return { base: null, files: tracked, omitted: 0 }
+  // The index and a commit carry their own content; only working-tree scopes
+  // list untracked files.
+  if (scope.kind === 'staged' || scope.kind === 'commit') return { base: null, files: tracked, omitted: 0 }
   const untracked = await untrackedFiles(ctx, config, git, root, signal)
   return { base: fork === null || scope.kind !== 'branch' ? null : fork.label, files: [...tracked, ...untracked.files], omitted: untracked.omitted }
 }
@@ -164,9 +180,10 @@ export async function localText(
 ): Promise<string> {
   if (!insideCheckout(path)) throw new Error(`forge-panel: ${JSON.stringify(path)} is not a path inside the checkout`)
   let text: string | undefined
-  if (scope.kind === 'staged') {
+  if (scope.kind === 'staged' || scope.kind === 'commit') {
     const git = gitIn(ctx, { ...config, maxOutputBytes: config.maxDiffBytes }, session, root, signal)
-    const shown = (await bounded(git('show', ['show', `:${path}`]))).stdout
+    const object = scope.kind === 'staged' ? `:${path}` : `${commitSha(scope.commit)}:${path}`
+    const shown = (await bounded(git('show', ['show', object]))).stdout
     text = shown.slice(0, BINARY_PROBE).includes('\0') ? undefined : shown
   } else {
     text = decodeText(await readFile(ctx, config, root, path, signal))

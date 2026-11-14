@@ -91,6 +91,8 @@ type ChangesData =
     readonly files: readonly ForgeDiffFile[]
     /** Scope the files were read in. */
     readonly scope: ScopeKind
+    /** Commit the `commit` scope read, or null for the other scopes. */
+    readonly commit: string | null
     /** Untracked files left out. */
     readonly omitted: number
   }
@@ -127,12 +129,14 @@ const SCOPE_LABEL: Record<ScopeKind, ForgePanelKey> = {
   uncommitted: 'diff.scope.uncommitted',
   unstaged: 'diff.scope.unstaged',
   staged: 'diff.scope.staged',
+  commit: 'diff.scope.commit',
 }
 
 const SCOPE_NOTE: Record<Exclude<ScopeKind, 'branch'>, ForgePanelKey> = {
   uncommitted: 'diff.scopeNote.uncommitted',
   unstaged: 'diff.scopeNote.unstaged',
   staged: 'diff.scopeNote.staged',
+  commit: 'diff.scopeNote.commit',
 }
 
 /** Failures with their own message; any other failure offers a retry. */
@@ -146,13 +150,19 @@ const FAILURE: Partial<Record<string, ForgePanelKey>> = {
 async function readChanges(
   source: ChangesSource,
   scope: ScopeKind,
+  commit: string | null,
   reads: Pick<ChangesTabInjected, 'localDiff' | 'changeRequestDiff'>,
   signal: AbortSignal,
 ): Promise<RemoteResult<ChangesData>> {
   if (source.kind === 'local') {
-    const result = await reads.localDiff({ kind: scope }, signal)
+    // The menu offers the commit scope only with a checkout commit; a stale
+    // selection without one reads the branch instead of failing the tab.
+    const target: ForgeLocalScope = scope === 'commit'
+      ? commit === null ? { kind: 'branch' } : { kind: 'commit', commit }
+      : { kind: scope }
+    const result = await reads.localDiff(target, signal)
     if (!result.ok) return result
-    return { ok: true, value: { kind: 'local', files: result.value.files, scope, omitted: result.value.omitted } }
+    return { ok: true, value: { kind: 'local', files: result.value.files, scope, commit, omitted: result.value.omitted } }
   }
   const result = await reads.changeRequestDiff(source.url, signal)
   if (!result.ok) return result
@@ -243,8 +253,9 @@ function LocalHeader({ state, scope, createChangeRequest, t }: {
   )
 }
 
-function ScopeMenu({ scope, choose, t }: {
+function ScopeMenu({ scope, commit, choose, t }: {
   readonly scope: ScopeKind
+  readonly commit: string | null
   readonly choose: (scope: ScopeKind) => void
   readonly t: Translate
 }): ReactNode {
@@ -253,6 +264,8 @@ function ScopeMenu({ scope, choose, t }: {
     { id: 'uncommitted', label: t(SCOPE_LABEL.uncommitted) },
     { id: 'unstaged', label: t(SCOPE_LABEL.unstaged) },
     { id: 'staged', label: t(SCOPE_LABEL.staged) },
+    // Without a readable checkout commit there is no commit to show.
+    ...commit === null ? [] : [{ id: 'commit', label: t(SCOPE_LABEL.commit) }],
     { type: 'separator', id: 'separator' },
     { id: 'branch', label: t(SCOPE_LABEL.branch) },
   ]
@@ -394,6 +407,9 @@ export function ChangesTab({
   // also waits for its first status, which names the head, unless no provider serves it or its first poll failed.
   const pending = entry !== undefined && entry.ref !== null && entry.update === null
   const head = entry?.snapshot?.headSha ?? (pending ? null : '')
+  // The commit the checkout stands on: the only commit the tab can show by
+  // itself, without a picker this view does not have.
+  const checkoutCommit = state !== null && state.checkout.state === 'ready' ? state.checkout.checkout.commit : null
   const version = state === null ? null : source.kind === 'local' ? `${scope}\n${JSON.stringify(state.local)}` : head
   const dataKey = source.kind === 'local' ? scope : 'change'
   const [loaded, setLoaded] = useState<{ readonly key: string; readonly data: ChangesData } | null>(null)
@@ -404,7 +420,7 @@ export function ChangesTab({
   useEffect(() => {
     if (!tab.visible || read === null || read === finished) return
     const controller = new AbortController()
-    void readChanges(source, scope, { localDiff, changeRequestDiff }, controller.signal).then((result) => {
+    void readChanges(source, scope, checkoutCommit, { localDiff, changeRequestDiff }, controller.signal).then((result) => {
       if (controller.signal.aborted) return
       setFinished(read)
       if (result.ok) {
@@ -415,7 +431,7 @@ export function ChangesTab({
       }
     })
     return () => { controller.abort() }
-  }, [tab.visible, read, source, scope, dataKey, localDiff, changeRequestDiff])
+  }, [tab.visible, read, source, scope, checkoutCommit, dataKey, localDiff, changeRequestDiff])
   const data = loaded !== null && loaded.key === dataKey ? loaded.data : null
   const files = useMemo(() => filesInTreeOrder(changedFileTree(data?.files ?? [])), [data])
   // The centered loader marks a first read; the toolbar's glyph turns only while shown changes are read again.
@@ -456,7 +472,14 @@ export function ChangesTab({
     update(owner, value => ({ ...value, open: { ...value.open, [path]: new Set([...value.open[path] ?? [], index]) } }))
     if (current.texts[path] !== undefined) return
     update(owner, value => ({ ...value, texts: { ...value.texts, [path]: 'loading' } }))
-    const reading = owner.kind === 'local' ? localText({ kind: owner.scope }, path) : changeRequestText(owner.url, owner.headSha, path)
+    const local: ForgeLocalScope = owner.kind !== 'local'
+      ? { kind: 'branch' }
+      : owner.scope === 'commit'
+        ? owner.commit === null ? { kind: 'branch' } : { kind: 'commit', commit: owner.commit }
+        : { kind: owner.scope }
+    const reading = owner.kind === 'local'
+      ? localText(local, path)
+      : changeRequestText(owner.url, owner.headSha, path)
     void reading.then((result) => {
       const lines = result.ok ? textLines(result.value) : undefined
       if (lines !== undefined && matchesHunks(lines, file.hunks)) {
@@ -648,7 +671,9 @@ export function ChangesTab({
       </div>}
       {!reviewOpen && reviewError !== null && reviewState.uncertain === null && <Notice>{reviewError}</Notice>}
       <div className={css.toolbar}>
-        {tab.visible && source.kind === 'local' && <ScopeMenu scope={scope} choose={(next) => { actions.scoped(tab.id, next) }} t={t} />}
+        {tab.visible && source.kind === 'local' && (
+          <ScopeMenu scope={scope} commit={checkoutCommit} choose={(next) => { actions.scoped(tab.id, next) }} t={t} />
+        )}
         {tab.visible && <ChangedFilesMenu {...navigator} visible />}
         {files.length > 0 && <span className={css.totals}><Counts file={{ additions, deletions, binary: false }} t={t} /></span>}
         <span className={css.tools}>

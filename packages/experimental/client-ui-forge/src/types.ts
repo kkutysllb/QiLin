@@ -231,6 +231,12 @@ export type ForgeLocalScope =
   | { readonly kind: 'unstaged' }
   /** The index against HEAD. */
   | { readonly kind: 'staged' }
+  /**
+   * One commit against its parent, as the commit changed it: the files that
+   * commit touched, with its own content as the new side. Untracked files do not
+   * join this scope, and a root commit with no parent cannot be read.
+   */
+  | { readonly kind: 'commit'; readonly commit: string }
 
 /** One hunk of a file diff. */
 export interface ForgeDiffHunk {

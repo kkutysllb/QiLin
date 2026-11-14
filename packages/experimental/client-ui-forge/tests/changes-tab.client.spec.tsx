@@ -418,6 +418,20 @@ describe('ChangesTab local reads', () => {
     expect(m.section('lib/b.txt').querySelector(`.${css.code}`)).toBeNull()
   })
 
+  it('reads the checkout commit against its parent, and hides that scope without a commit', async () => {
+    const m = mount()
+    await settle()
+    fireEvent.click(m.view.getByRole('button', { name: 'Branch' }))
+    fireEvent.click(m.view.getByRole('menuitem', { name: 'This commit' }))
+    expect(m.store.getSnapshot().byTab[TAB]?.scope).toBe('commit')
+    expect(m.faces.localDiff).toHaveBeenLastCalledWith({ kind: 'commit', commit: '0a1b2c3' }, expect.any(AbortSignal))
+    cleanup()
+    const pending = mount({ state: ready({ checkout: { state: 'pending' } }) })
+    await settle()
+    fireEvent.click(pending.view.getByRole('button', { name: 'Branch' }))
+    expect(pending.view.getAllByRole('menuitem').map(item => item.textContent)).not.toContain('This commit')
+  })
+
   it('names the old path of a file that only moved to another directory', async () => {
     const moved = file('src/b.txt', { status: 'renamed', previousPath: 'lib/b.txt' })
     const m = mount({ setup: (faces) => { faces.localDiff.mockResolvedValue(ok({ base: BASE, files: [moved], omitted: 0 })) } })
@@ -430,7 +444,8 @@ describe('ChangesTab local reads', () => {
     const m = mount()
     await settle()
     fireEvent.click(m.view.getByRole('button', { name: 'Branch' }))
-    expect(m.view.getAllByRole('menuitem').map(item => item.textContent)).toEqual(['Uncommitted', 'Unstaged', 'Staged', 'Branch'])
+    expect(m.view.getAllByRole('menuitem').map(item => item.textContent))
+      .toEqual(['Uncommitted', 'Unstaged', 'Staged', 'This commit', 'Branch'])
     fireEvent.keyDown(document.activeElement ?? document.body, { key: 'Escape' })
     expect(m.view.queryAllByRole('menuitem')).toEqual([])
 

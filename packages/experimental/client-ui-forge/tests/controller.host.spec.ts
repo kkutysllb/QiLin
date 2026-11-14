@@ -1142,6 +1142,29 @@ describe('forgePanel worktree requests during a creation', () => {
   })
 })
 
+describe('forgePanel local scopes', () => {
+  it('reads one commit against its parent, with its own content as the new side', async () => {
+    const { repo } = await project()
+    const opened = await open(repo)
+    const sha = await commitAt(repo, 'later.txt', '2026-05-01T00:00:00Z')
+
+    const diff = await opened.ctx.forgePanel.localDiff(opened.session, { kind: 'commit', commit: sha }, signal)
+
+    expect(diff.files.map(file => file.path)).toEqual(['later.txt'])
+    expect(diff.base).toBeNull()
+    const text = await opened.ctx.forgePanel.localText(opened.session, { kind: 'commit', commit: sha }, 'later.txt', signal)
+    expect(text).toBe('later.txt\n')
+  })
+
+  it('refuses a revision that is not a commit object name', async () => {
+    const { repo } = await project()
+    const opened = await open(repo)
+
+    await expect(opened.ctx.forgePanel.localDiff(opened.session, { kind: 'commit', commit: 'HEAD' }, signal))
+      .rejects.toThrow('a commit scope names a hexadecimal commit object')
+  })
+})
+
 describe('forgePanel removing worktrees', () => {
   it('removes the created checkout, moves the Session back to the source checkout, and clears the projection', async () => {
     const { repo } = await project()
