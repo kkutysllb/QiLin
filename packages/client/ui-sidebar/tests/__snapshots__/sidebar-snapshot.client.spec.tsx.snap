@@ -51,6 +51,10 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
         xmlns="http://www.w3.org/2000/svg"
       />
     </button>
+    <nav
+      aria-label="Global panels"
+      class="panelList"
+    />
     <div
       class="regionArea"
     >
@@ -170,27 +174,37 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
         />
       </button>
     </div>
-    <button
-      aria-label="New session"
-      class="newSession"
-      type="button"
+    <nav
+      aria-label="Global panels"
+      class="panelList"
     >
-      <svg
-        aria-hidden="true"
-        data-content="47b5e433"
-        fill="none"
-        height="14"
-        stroke-width="1"
-        viewBox="0 0 16 16"
-        width="14"
-        xmlns="http://www.w3.org/2000/svg"
-      />
-      <span
-        class="newSessionLabel wide"
+      <button
+        aria-label="New session"
+        class="panelRow newSessionRow"
+        type="button"
       >
-        New Session
-      </span>
-    </button>
+        <span
+          aria-hidden="true"
+          class="panelGlyph"
+        >
+          <svg
+            aria-hidden="true"
+            data-content="47b5e433"
+            fill="none"
+            height="16"
+            stroke-width="1"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          />
+        </span>
+        <span
+          class="panelTitle wide"
+        >
+          New Session
+        </span>
+      </button>
+    </nav>
     <div
       class="regionArea"
     >
@@ -300,6 +314,10 @@ exports[`sidebar shell snapshots > renders the collapsed rail after the crossfad
         xmlns="http://www.w3.org/2000/svg"
       />
     </button>
+    <nav
+      aria-label="Global panels"
+      class="panelList"
+    />
     <div
       class="regionArea"
     >
@@ -419,27 +437,37 @@ exports[`sidebar shell snapshots > renders the expanded column (wordmark, capsul
         />
       </button>
     </div>
-    <button
-      aria-label="New session"
-      class="newSession"
-      type="button"
+    <nav
+      aria-label="Global panels"
+      class="panelList"
     >
-      <svg
-        aria-hidden="true"
-        data-content="47b5e433"
-        fill="none"
-        height="14"
-        stroke-width="1"
-        viewBox="0 0 16 16"
-        width="14"
-        xmlns="http://www.w3.org/2000/svg"
-      />
-      <span
-        class="newSessionLabel wide"
+      <button
+        aria-label="New session"
+        class="panelRow newSessionRow"
+        type="button"
       >
-        New Session
-      </span>
-    </button>
+        <span
+          aria-hidden="true"
+          class="panelGlyph"
+        >
+          <svg
+            aria-hidden="true"
+            data-content="47b5e433"
+            fill="none"
+            height="16"
+            stroke-width="1"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          />
+        </span>
+        <span
+          class="panelTitle wide"
+        >
+          New Session
+        </span>
+      </button>
+    </nav>
     <div
       class="regionArea"
     >
@@ -559,27 +587,37 @@ exports[`sidebar shell snapshots > renders the expanded column in the default lo
         />
       </button>
     </div>
-    <button
-      aria-label="新建会话"
-      class="newSession"
-      type="button"
+    <nav
+      aria-label="全局面板"
+      class="panelList"
     >
-      <svg
-        aria-hidden="true"
-        data-content="47b5e433"
-        fill="none"
-        height="14"
-        stroke-width="1"
-        viewBox="0 0 16 16"
-        width="14"
-        xmlns="http://www.w3.org/2000/svg"
-      />
-      <span
-        class="newSessionLabel wide"
+      <button
+        aria-label="新建会话"
+        class="panelRow newSessionRow"
+        type="button"
       >
-        新会话
-      </span>
-    </button>
+        <span
+          aria-hidden="true"
+          class="panelGlyph"
+        >
+          <svg
+            aria-hidden="true"
+            data-content="47b5e433"
+            fill="none"
+            height="16"
+            stroke-width="1"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
+          />
+        </span>
+        <span
+          class="panelTitle wide"
+        >
+          新会话
+        </span>
+      </button>
+    </nav>
     <div
       class="regionArea"
     >

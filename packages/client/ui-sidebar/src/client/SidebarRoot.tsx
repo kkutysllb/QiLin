@@ -411,93 +411,118 @@ export function SidebarRoot({
 
       {/* Expanded, the button carries its own label — tooltip only on the rail.
           The inline keys fade in on hover/focus so the label keeps its width. */}
-      <Tooltip label={t('session.new.label')} shortcutKeys={newShortcut?.keys} delayMs={500} disabled={wide}>
-        <button
-          type="button"
-          className={css.newSession}
-          aria-label={t('session.new.label')}
-          aria-keyshortcuts={newShortcut?.aria}
-          onClick={openNewSession}
-        >
-          <IconNewChatOutlineRegular size={wide ? 14 : windowsTitlebar ? 16 : 18} />
-          {wide && <span className={clsx(css.newSessionLabel, css.wide)}>{t('session.new')}</span>}
-          {wide && newShortcut !== undefined && newShortcut.keys.length > 0 && <span className={css.newSessionShortcut} aria-hidden="true">
-            <ShortcutKeys keys={newShortcut.keys} />
-          </span>}
-        </button>
-      </Tooltip>
+      {/* The rail keeps a fixed New Session control; the expanded column renders it
+          as the first row of the panel list, so one menu-item geometry covers both. */}
+      {!wide && (
+        <Tooltip label={t('session.new.label')} shortcutKeys={newShortcut?.keys} delayMs={500}>
+          <button
+            type="button"
+            className={css.newSession}
+            aria-label={t('session.new.label')}
+            aria-keyshortcuts={newShortcut?.aria}
+            onClick={openNewSession}
+          >
+            <IconNewChatOutlineRegular size={windowsTitlebar ? 16 : 18} />
+          </button>
+        </Tooltip>
+      )}
 
-      {panels.length > 0 && (
-        <nav className={css.panelList} aria-label={t('panels.label')}>
-          {panels.filter(({ id }) => id === FIXED_PANEL_ID || !unpinned.includes(id)).map(({ id, label, section }, index, visible) => {
-            const sectionFolded = section !== undefined && foldedSections.has(section)
-            return (
-              <Fragment key={id}>
-                {/* A header opens a section and never repeats inside it. Rows
+      {(() => {
+        const newSessionRow = wide
+          ? (
+            <Tooltip label={t('session.new.label')} shortcutKeys={newShortcut?.keys} delayMs={500} disabled>
+              <button
+                type="button"
+                className={clsx(css.panelRow, css.newSessionRow)}
+                aria-label={t('session.new.label')}
+                aria-keyshortcuts={newShortcut?.aria}
+                onClick={openNewSession}
+              >
+                <span className={css.panelGlyph} aria-hidden="true">
+                  <IconNewChatOutlineRegular size={16} />
+                </span>
+                <span className={clsx(css.panelTitle, css.wide)}>{t('session.new')}</span>
+                {newShortcut !== undefined && newShortcut.keys.length > 0 && <span className={css.newSessionKeys} aria-hidden="true">
+                  <ShortcutKeys keys={newShortcut.keys} />
+                </span>}
+              </button>
+            </Tooltip>
+          )
+          : null
+        return (
+          <nav className={css.panelList} aria-label={t('panels.label')}>
+            {panels.length === 0 && newSessionRow}
+            {panels.filter(({ id }) => id === FIXED_PANEL_ID || !unpinned.includes(id)).map(({ id, label, section }, index, visible) => {
+              const sectionFolded = section !== undefined && foldedSections.has(section)
+              return (
+                <Fragment key={id}>
+                  {/* A header opens a section and never repeats inside it. Rows
                     without a section render header-less, so a host that never
                     sets one keeps the original flat list exactly. Foldable
                     when wide (the rail's header is just a divider). */}
-                {section !== undefined && section !== visible[index - 1]?.section ? (
-                  <div
-                    className={clsx(css.panelSection, wide && css.wide)}
-                    aria-hidden={!wide}
-                    {...(wide
-                      ? {
-                        role: 'button',
-                        tabIndex: 0,
-                        'aria-expanded': !foldedSections.has(section),
-                        onClick: () => { toggleSection(section) },
-                        onKeyDown: (event: ReactKeyboardEvent) => {
-                          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleSection(section) }
-                        },
-                      }
-                      : {})}
-                  >
-                    {wide ? section : <span className={css.panelSectionRail} />}
-                    {wide && (
-                      <span
-                        className={clsx(css.sectionCaret, foldedSections.has(section) && css.sectionCaretFolded)}
-                        aria-hidden="true"
-                      >
-                        <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6.5 8 10.5 12 6.5" /></svg>
-                      </span>
-                    )}
-                  </div>
-                ) : null}
-                {section === undefined || !sectionFolded ? (
-                  <PanelRow
-                    id={id}
-                    label={label}
-                    wide={wide}
-                    usePanelInfo={usePanelInfo}
-                    selectPanel={selectPanel}
-                    trackEntryClick={trackEntryClick}
-                    renderSlot={renderSlot}
-                  />
-                ) : null}
-              </Fragment>
-            )
-          })}
-          {hasEntryActions && (
-            <PanelMoreMenu
-              wide={wide}
-              label={t('panels.more')}
-              entries={panels.filter(({ id }) => id !== FIXED_PANEL_ID)
-                .map(({ id, label }) => ({ id, label, pinned: !unpinned.includes(id), active: id === activePanelId }))}
-              onOpen={(id) => {
-                const entry = officialEntry(id)
-                if (entry !== undefined) trackEntryClick({ menu_name: entry, position: 'sidebar_more' })
-                const panel = panels.find(candidate => candidate.id === id)
-                /* v8 ignore next -- the menu ids come from this same panels list, so a selection always resolves a panel. */
-                if (panel !== undefined) selectPanel(panel.id)
-              }}
-              onPinnedChange={setPinned}
-              trackEntryClick={trackEntryClick}
-              renderSlot={renderSlot}
-            />
-          )}
-        </nav>
-      )}
+                  {section !== undefined && section !== visible[index - 1]?.section ? (
+                    <div
+                      className={clsx(css.panelSection, wide && css.wide)}
+                      aria-hidden={!wide}
+                      {...(wide
+                        ? {
+                          role: 'button',
+                          tabIndex: 0,
+                          'aria-expanded': !foldedSections.has(section),
+                          onClick: () => { toggleSection(section) },
+                          onKeyDown: (event: ReactKeyboardEvent) => {
+                            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleSection(section) }
+                          },
+                        }
+                        : {})}
+                    >
+                      {wide ? section : <span className={css.panelSectionRail} />}
+                      {wide && (
+                        <span
+                          className={clsx(css.sectionCaret, foldedSections.has(section) && css.sectionCaretFolded)}
+                          aria-hidden="true"
+                        >
+                          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6.5 8 10.5 12 6.5" /></svg>
+                        </span>
+                      )}
+                    </div>
+                  ) : null}
+                  {index === 0 && newSessionRow}
+                  {section === undefined || !sectionFolded ? (
+                    <PanelRow
+                      id={id}
+                      label={label}
+                      wide={wide}
+                      usePanelInfo={usePanelInfo}
+                      selectPanel={selectPanel}
+                      trackEntryClick={trackEntryClick}
+                      renderSlot={renderSlot}
+                    />
+                  ) : null}
+                </Fragment>
+              )
+            })}
+            {hasEntryActions && (
+              <PanelMoreMenu
+                wide={wide}
+                label={t('panels.more')}
+                entries={panels.filter(({ id }) => id !== FIXED_PANEL_ID)
+                  .map(({ id, label }) => ({ id, label, pinned: !unpinned.includes(id), active: id === activePanelId }))}
+                onOpen={(id) => {
+                  const entry = officialEntry(id)
+                  if (entry !== undefined) trackEntryClick({ menu_name: entry, position: 'sidebar_more' })
+                  const panel = panels.find(candidate => candidate.id === id)
+                  /* v8 ignore next -- the menu ids come from this same panels list, so a selection always resolves a panel. */
+                  if (panel !== undefined) selectPanel(panel.id)
+                }}
+                onPinnedChange={setPinned}
+                trackEntryClick={trackEntryClick}
+                renderSlot={renderSlot}
+              />
+            )}
+          </nav>
+        )
+      })()}
 
       {/* The browsing region fills the column between the controls and the
           foot in both states; its rail icon column rides the same slot. */}

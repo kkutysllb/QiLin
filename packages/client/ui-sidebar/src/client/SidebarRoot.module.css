@@ -715,3 +715,25 @@
 :global([data-sidebar-collapsed]):has([class*='_headerLeading']) .topStripFixed {
   display: none;
 }
+
+/* The expanded New Session row: one panel-row item whose inline shortcut keys
+   fade in on hover/focus so the label keeps its full width. */
+.newSessionRow {
+  position: relative;
+}
+
+.newSessionKeys {
+  position: absolute;
+  right: calc(var(--qilin-sidebar-row-padding) - var(--qilin-sidebar-paint-inset));
+  display: inline-flex;
+  flex: none;
+  pointer-events: none;
+  opacity: 0;
+  font-weight: 400;
+}
+
+.newSessionRow:focus-visible .newSessionKeys { opacity: 1; }
+
+@media (hover: hover) {
+  .newSessionRow:hover .newSessionKeys { opacity: 1; }
+}
