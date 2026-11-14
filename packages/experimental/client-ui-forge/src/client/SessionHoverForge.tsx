@@ -27,8 +27,8 @@ export type SessionHoverForgeProps =
 /**
  * Render the forge section of a Session's hover card.
  * @param props - the row's Session, the shared hooks, and copy.
- * @returns the section, or null for a Session whose listed values hold a worktree
- *   fact and no change requests.
+ * @returns the section, or null for a Session that reports an explicit `null`
+ *   worktree and binds no change request.
  */
 export function SessionHoverForge({ sessionId, useSessions, useStates, t }: SessionHoverForgeProps): ReactNode {
   const facts = useSessionForgeFacts(useSessions, useStates, sessionId)

@@ -107,8 +107,16 @@ describe('sessionForgeFacts', () => {
 })
 
 describe('SessionRowForge', () => {
-  it('shows nothing for a Session without a worktree or change requests', () => {
-    expect(renderRow(undefined).view.container.innerHTML).toBe('')
+  it('shows nothing for a Session that works outside its worktree and has no change requests', () => {
+    expect(renderRow({ forgeWorktree: null, forgeChangeRequests: [] }).view.container.innerHTML).toBe('')
+  })
+
+  it('marks a row whose listed values omit the worktree, labelled with when it shows', () => {
+    renderRow(undefined)
+
+    const mark = screen.getByRole('img', { name: en['list.worktreeUnknown'] })
+    expect(mark.getAttribute('data-forge-row-worktree')).toBe('unknown')
+    expect(mark.getAttribute('title')).toBe(en['list.worktreeUnknown'])
   })
 
   it('shows the worktree the Session works in and the state of its most urgent change request with its checks', () => {
@@ -121,25 +129,26 @@ describe('SessionRowForge', () => {
   })
 
   it('names only the state of a finished or unpolled change request, without a checks dot', () => {
-    const merged = renderRow({ forgeChangeRequests: [binding(1)] }, statesOf(state(1, { state: 'merged', checksRollup: 'failure' })))
+    const merged = renderRow({ forgeWorktree: null, forgeChangeRequests: [binding(1)] }, statesOf(state(1, { state: 'merged', checksRollup: 'failure' })))
     const glyph = screen.getByRole('img', { name: 'Change request state: Merged' })
     expect(glyph.getAttribute('data-forge-row-change')).toBe('merged')
     expect(glyph.querySelector(`.${css.dot}`)).toBeNull()
     expect(screen.queryByRole('img', { name: en['list.worktree'] })).toBeNull()
+    expect(screen.queryByRole('img', { name: en['list.worktreeUnknown'] })).toBeNull()
     merged.view.unmount()
 
-    renderRow({ forgeChangeRequests: [binding(2)] })
+    renderRow({ forgeWorktree: null, forgeChangeRequests: [binding(2)] })
     expect(screen.getByRole('img', { name: 'Change request state: Unknown' }).querySelector(`.${css.dot}`)).toBeNull()
   })
 
   it('follows the listed values and the polled states as they change', () => {
-    const { sessions, changeRequests } = renderRow({ forgeChangeRequests: [binding(1)] })
+    const { sessions, changeRequests } = renderRow({ forgeWorktree: null, forgeChangeRequests: [binding(1)] })
     screen.getByRole('img', { name: 'Change request state: Unknown' })
 
     act(() => { changeRequests.set({ state: statesOf(state(1, { mergeability: 'conflicting' })), disconnected: false }) })
     screen.getByRole('img', { name: 'Change request state: Needs attention · Checks passed' })
 
-    act(() => { sessions.set(listed({ forgeChangeRequests: [binding(1, true)] })) })
+    act(() => { sessions.set(listed({ forgeWorktree: null, forgeChangeRequests: [binding(1, true)] })) })
     expect(screen.queryByRole('img')).toBeNull()
   })
 
@@ -158,9 +167,25 @@ describe('SessionHoverForge', () => {
   it('says the worktree shows after opening while the listed values omit it', () => {
     const { container } = renderHover(undefined)
 
-    expect(container.querySelector('[data-forge-session-hover-worktree]')?.getAttribute('data-forge-session-hover-worktree')).toBe('unknown')
-    screen.getByText(en['list.worktreeUnknown'])
+    const note = container.querySelector('[data-forge-session-hover-worktree]')
+    expect(note?.getAttribute('data-forge-session-hover-worktree')).toBe('unknown')
+    expect(note?.textContent).toBe(en['list.worktreeUnknown'])
     expect(container.querySelectorAll('[data-forge-session-hover-change]')).toHaveLength(0)
+  })
+
+  it('keeps the note beside the change requests a Session binds, and drops it once the worktree fact is listed', () => {
+    const { container } = renderHover({ forgeChangeRequests: [binding(1)] }, statesOf(state(1)))
+
+    expect(container.querySelector('[data-forge-session-hover-worktree]')?.textContent).toBe(en['list.worktreeUnknown'])
+    expect(container.querySelectorAll('[data-forge-session-hover-change]')).toHaveLength(1)
+    cleanup()
+
+    const known = renderHover({ forgeWorktree: null, forgeChangeRequests: [binding(1)] }, statesOf(state(1)))
+    expect(known.container.querySelector('[data-forge-session-hover-worktree]')).toBeNull()
+  })
+
+  it('drops the note for a Session working in the worktree it created', () => {
+    expect(renderHover({ forgeWorktree: created() }).container.querySelector('[data-forge-session-hover-worktree]')).toBeNull()
   })
 
   it('names the worktree branch and what it started from, the requested base or else the short base commit', () => {

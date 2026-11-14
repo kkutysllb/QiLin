@@ -6,6 +6,7 @@
 
 import { SESSION_FORMAT_VERSION, SessionLogOffset, SessionSeq } from '@qilin-agent/session'
 import { describe, expect, it, vi } from 'vitest'
+import { z } from 'zod'
 import { Context } from '@qilin-agent/kylin'
 import SessionStore from '@qilin-agent/session'
 import AgentRegistry from '@qilin-agent/agent'
@@ -28,6 +29,15 @@ import {
   createSessionTestRemote,
   testSessionPersistence,
 } from './test-remote.ts'
+
+declare module '@qilin-agent/session-projection/types' {
+  interface SessionProjectionStateMap {
+    'cold-list-test/worktree': { branch: string | null }
+  }
+  interface SessionProjectionMap {
+    'cold-list-test/worktree': { branch: string | null }
+  }
+}
 
 const sid = (id: string): SessionId => id as SessionId
 
@@ -197,40 +207,47 @@ describe('sessions.list cold merge', () => {
     const ctx = new Context()
     await ctx.plugin(SessionStore)
     providePersistence(ctx, { list: () => Promise.resolve([header('worktree-cold', 100)]) })
-    // The forge worktree fact travels in the summary block like any other
-    // client-visible key, including a key outside this compilation face.
-    const created = {
-      path: '/proj/.agents/worktrees/qilin-0a1b2c3d',
-      branch: 'qilin-0a1b2c3d',
-      from: null,
-      baseCommit: '2'.repeat(40),
-      repositoryRoot: '/proj',
-    }
+    // A client-visible unit stands in for the forge worktree fact: the list must
+    // ask the cache for every summary key, whatever compilation face declared it.
+    const worktree = { branch: 'qilin-0a1b2c3d' }
     const served: { block?: { asOfSeq: number; values: Record<string, unknown> } } = {}
-    const cacheCalls: number[] = []
+    const askedKeys: string[][] = []
     ctx.provide('sessionProjectionCache', {
-      cachedSnapshot: () => {
-        cacheCalls.push(served.block?.asOfSeq ?? -1)
+      cachedSnapshot: (_meta: unknown, keys?: readonly string[]) => {
+        askedKeys.push([...(keys ?? [])])
         return served.block
       },
       cachedPredecessorTitle: () => undefined,
     } as never)
     const remote = createSessionTestRemote(ctx, { defaultModelSelection: () => ({ provider: 'p', model: 'm' }), cwd: '/tmp' })
+    ctx.sessionProjections.register({
+      key: 'cold-list-test/worktree',
+      stateSchema: z.object({ branch: z.string().nullable() }),
+      init: () => ({ branch: null }),
+      apply: state => state,
+      wire: {
+        viewSchema: z.object({ branch: z.string() }),
+        view: state => ({ branch: state.branch ?? '' }),
+      },
+      stateVersion: 1,
+    })
 
     const first = await remote.list(request({}))
     if (!first.ok) throw new Error('list failed')
     // A Session last checkpointed before the worktree existed shows the fact it has: none.
     expect(first.value.items[0]?.projections).toBeUndefined()
+    expect(askedKeys[0]).toContain('cold-list-test/worktree')
 
-    served.block = { asOfSeq: 7, values: { forgeWorktree: created } }
+    served.block = { asOfSeq: 7, values: { 'cold-list-test/worktree': worktree } }
     const second = await remote.list(request({}))
     if (!second.ok) throw new Error('list failed')
 
-    expect(cacheCalls).toEqual([-1, 7])
+    expect(askedKeys).toHaveLength(2)
+    expect(askedKeys[1]).toContain('cold-list-test/worktree')
     expect(second.value.items).toEqual([
       expect.objectContaining({
         sessionId: sid('worktree-cold'),
-        projections: { kind: 'cached', asOfSeq: 7, values: { forgeWorktree: created } },
+        projections: { kind: 'cached', asOfSeq: 7, values: { 'cold-list-test/worktree': worktree } },
       }),
     ])
   })

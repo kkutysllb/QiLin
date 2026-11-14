@@ -167,23 +167,23 @@ V5 是产品功能批次而不是纯样式批次：它要动 worktree 服务、f
 
 | 方案 1 改动点 | 实际状态 | 证据 |
 |---|---|---|
-| Host 列表项带逐键投影 | 已有：`SessionSummary.projections`（`{ kind, asOfSeq, values }`，`values: Partial<SessionProjectionMap>`）由 `ApiSessionList.projectionsFor` 填充；运行中会话取 live 注册表（`sequenced`），未打开会话用 `sessionProjectionCache.cachedSnapshot` 零 I/O 读持久检查点（`cached`） | `src/list.ts`、`src/types.ts` 的 `SessionProjectionHints` |
-| 线协议透传 | 已有，随 `SessionSummary` 走 | `client/contract/sessions.ts` |
+| Host 列表项带逐键投影 | 已有：`SessionSummary.projections`（`{ kind, asOfSeq, values }`，`values: SessionProjectionValues`，即 `Partial<SessionProjectionMap>` 加本编译面对未知的 JSON 键）由 `ApiSessionList.projectionsFor` 填充；Host 已附加的会话取 live 注册表（`sequenced`，空闲与运行同一条路径），未打开会话用 `sessionProjectionCache.cachedSnapshot` 零 I/O 读持久检查点（`cached`） | `src/list.ts`、`src/types.ts` 的 `SessionProjectionHints` |
+| 线协议透传 | 已有，随 `SessionSummary` 走；客户端行类型在 `SessionListEntry.projectionValues` | `src/types.ts`、`client/sessions/service.ts`、`client/sessions/lineage.ts` |
 | 客户端填充 `projectionValues` | 已有：`SessionManager.applyListBlock` 按 kind 落进 `ProjectionValueStore`（`sequenced` 高 seq 胜出，`cached` 只填没有 sequenced 行的键），`buildListSnapshot` 读出到 `SessionListEntry.projectionValues` | `client/sessions/manager.ts`、`projection-store.ts` |
 | 控制帧覆盖列表值 | 已有：控制基线 `seed` 先丢弃全部 cached 行，再按 seq 落值 | `projection-store.ts` 的 `seed` |
-| forge 补「打开后可见」 | 本次落地：列表值没有 `forgeWorktree` 键时行内事实标为「未知」，悬浮卡片写「工作树：打开后可见」；有值时仍是行内分支图标 + 悬浮卡分支名 | `src/client/session-list.ts`、`SessionHoverForge.tsx`、`locales.ts` |
+| forge 补「打开后可见」 | 本次落地：列表值没有 `forgeWorktree` 键时事实标为未知，行内显示变淡的分支图标（可访问名与 tooltip 即「工作树：打开后可见」），悬浮卡片再写一行同文案；有值时仍是行内分支图标 + 悬浮卡分支名 | `src/client/session-list.ts`、`SessionRowForge.tsx`、`SessionHoverForge.tsx`、`locales.ts` |
 
 验收条目对应：
 
 | 条目 | 结果 |
 |---|---|
 | 数据来源 | 已交付（同上），并有测试固定：冷行逐次读取缓存（`session-cold.host.spec.ts`），摘要键含 `forgeWorktree` 且值等于面板事实（`controller.host.spec.ts`） |
-| 未打开会话的显示 | 有值 → 行内分支图标（既有）+ 悬浮卡分支名；无值 → 悬浮卡「工作树：打开后可见」。**「行内显示分支名」与「行内显示文案」未按字面实现**：行内只有一格图标位（与状态圆点共用），文案落在该行自己的悬浮卡上；改用占位图标会让未打开的老会话都挂一个易误读的分支图标 |
+| 未打开会话的显示 | 有值 → 行内分支图标（既有）+ 悬浮卡分支名；无值 → 行内变淡分支图标（标注「工作树：打开后可见」）+ 悬浮卡同文案，行内不留空。**「行内显示分支名」仍未按字面实现**：行内只有一格图标位（与状态圆点共用，见 `ui-workspace` 行的 leading 座位），分支名留在悬浮卡；行内文案以图标的可访问名与 tooltip 出现，而不是行内文字 |
 | 缓存 | 服务端不折叠：列表读的是持久检查点视图，键由检查点自身的 `seq` 表达；写入点是创建、`turn/end`、计数阈值与 detach（缓存包测试已覆盖） |
-| 失效信号 | 运行中会话走 live 注册表（事件即时生效）；未打开会话以 detach/轮次检查点为准，每次列表刷新重读（测试固定） |
+| 失效信号 | 已附加会话走 live 注册表（事件即时生效）；未打开会话以 detach/轮次检查点为准，每次列表请求重读（测试固定；客户端只在连接建立与启动重试时发起列表请求） |
 | 上限 / 退化 | 不适用：列表路径零 I/O、不折叠日志，没有可超的折叠预算；无检查点记录（缺失、被淘汰、版本不符）即「无值」，由文案覆盖 |
 | 不变量 | 行内事实与面板读同一投影：`summaryKeys()` 含 `forgeWorktree`，其值与面板 `created` 相同、离开 worktree 后为 `null`（测试固定） |
-| 测试 | 未打开有工作树 → 行内事实（`session-list.client.spec.tsx` 既有）；无缓存值 → 文案（新增 2 条）；打开后与面板一致（新增 1 条）；列表随检查点刷新（新增 1 条）；超阈值退化 —— 不适用 |
+| 测试 | 行渲染只读列出的值（`session-list.client.spec.tsx`）；「列出的块 → `projectionValues`」由 `session-controller` 规格固定（冷行请求摘要键、逐次读缓存、控制基线丢弃 cached 行）；「缓存块 → 行」这一跨包接缝没有单一集成测试，两段分别固定。无缓存值 → 行内标记 + 悬浮卡文案（新增 3 条）；打开后与面板一致（新增 1 条）；超阈值退化 —— 不适用 |
 
 ## 3. 依赖与顺序
 

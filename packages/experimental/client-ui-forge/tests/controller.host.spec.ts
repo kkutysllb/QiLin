@@ -839,7 +839,7 @@ describe('forgePanel worktree requests', () => {
     expect(opened.provider.probes).toEqual(['fake.test'])
   })
 
-  it('carries the created worktree in the Session summary a list row reads, and drops it while the Session works elsewhere', async () => {
+  it('registers forgeWorktree as a summary key whose value follows the panel and turns null while the Session works elsewhere', async () => {
     const { repo } = await project()
     const opened = await open(repo, {}, { worktrees: true })
     const follower = reader(opened)
@@ -852,8 +852,9 @@ describe('forgePanel worktree requests', () => {
     const created = worktreeState(opened)?.created ?? null
     expect(created).not.toBeNull()
 
-    // The Session list asks the summary keys for an attached Session, so the
-    // row and the panel must read one projection, not two states.
+    // A Session list asks the summary keys for an attached Session, so the row
+    // and the panel read one projection. The list-side composition itself is
+    // pinned by api-session-controller's cold-list spec.
     const keys = opened.ctx.sessionProjections.summaryKeys()
     expect(keys).toContain('forgeWorktree')
     expect(opened.ctx.sessionProjections.snapshot(opened.session, keys).values.forgeWorktree).toEqual(created)

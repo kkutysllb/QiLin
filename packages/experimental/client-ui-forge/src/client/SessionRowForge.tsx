@@ -1,12 +1,14 @@
 /**
  * Session row icons after the time label: a branch glyph while the Session
- * works in the worktree the panel created for it, and the state glyph of its
- * most urgent change request. Glyphs of open change requests stay in the
- * row's subdued color with a dot for their checks; merged and closed ones keep
- * their state color.
+ * works in the worktree the panel created for it, a dimmed one labelled
+ * "visible once opened" while the listed values hold no worktree fact, and
+ * the state glyph of its most urgent change request. Glyphs of open change
+ * requests stay in the row's subdued color with a dot for their checks; merged
+ * and closed ones keep their state color.
  */
 
 import type { ReactNode } from 'react'
+import clsx from 'clsx'
 import { IconBranchOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 // Type-only: pulls the ui-workspace SlotMap merge (the Session row seats).
@@ -57,7 +59,8 @@ export type SessionRowForgeProps =
 /**
  * Render a Session row's forge icons.
  * @param props - the row's Session, the shared hooks, and copy.
- * @returns the icons, or nothing for a Session without a worktree or change requests.
+ * @returns the icons, or nothing for a Session with no change request and a
+ *   worktree fact that says it works outside its worktree.
  */
 export function SessionRowForge({ sessionId, useSessions, useStates, t }: SessionRowForgeProps): ReactNode {
   const facts = useSessionForgeFacts(useSessions, useStates, sessionId)
@@ -66,6 +69,17 @@ export function SessionRowForge({ sessionId, useSessions, useStates, t }: Sessio
     <>
       {facts.worktree !== null && (
         <span className={css.icon} role="img" aria-label={t('list.worktree')} data-forge-row-worktree="">
+          <IconBranchOutlineRegular size={13} />
+        </span>
+      )}
+      {facts.worktreeUnknown && (
+        <span
+          className={clsx(css.icon, css.unknown)}
+          role="img"
+          aria-label={t('list.worktreeUnknown')}
+          title={t('list.worktreeUnknown')}
+          data-forge-row-worktree="unknown"
+        >
           <IconBranchOutlineRegular size={13} />
         </span>
       )}

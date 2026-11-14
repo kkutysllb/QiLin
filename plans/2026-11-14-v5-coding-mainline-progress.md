@@ -30,11 +30,14 @@ current code disagree about.
 
 ### Task 1: forge unknown-value copy
 
-Task 1: Ruling: the plan's 「行内显示分支名」 and 「行内显示"打开后可见"」 cannot both be literal —
-the row's leading seat is one icon cell shared with the status dot, and its
-`aria-label` is the whole row-level text. The branch name stays in the hover card (existing
-layout decision); the unknown copy lands there too, as a row-level explanation line, instead of a
-placeholder glyph that would mark ordinary old Sessions with a misleading branch icon.
+Task 1: Ruling (first pass, superseded by the review round below): put the unknown copy only in the
+hover card, on the grounds that the row's leading seat is one 16px icon cell shared with the status
+dot. The review rejected the waiver — the plan asks for an in-row disclosure and the suite was
+pinning a blank row for the unknown case.
+Task 1: Ruling (final): the row shows a dimmed branch mark for the unknown case
+(`SessionRowForge.tsx`, `.unknown` in `SessionList.module.css`), whose accessible name and
+`title` are the copy, so the row is no longer blank without a layout change in `ui-workspace`;
+the branch NAME stays in the hover card because the 16px leading cell admits no text.
 Task 1: complete (tests: npx vitest run packages/experimental/client-ui-forge/tests/session-list.client.spec.tsx → 13 passed; package suite 785 passed, 2 known sandbox-exec failures from handoff §6)
 
 ### Task 2: session-controller cold-list transport tests
@@ -51,6 +54,38 @@ Task 3: Finding: also a characterization test — the panel's registration alrea
 worktree and turns `null` once the Session works elsewhere. Pins the plan's 不变量 (the row and
 the panel read one projection).
 Task 3: complete (tests: npx vitest run packages/experimental/client-ui-forge/tests/controller.host.spec.ts -t 'carries the created worktree' → 1 passed)
+
+### Review round (fresh subagent, whole slice)
+
+Findings taken:
+
+1. Blocker — row was blank for the unknown case and the suite pinned that. Accepted: dimmed
+   in-row mark added, tests rewritten, plan/handoff wording corrected.
+2. Handoff head claimed a fixed unpushed count. Fixed: no count in the header; §9 says how to
+   read it.
+3. Handoff §3 kept the superseded recon (store only from control frames; the four planned file
+   changes). Fixed: §3.1 marked as disproven with the corrected mechanism, §3.2 as planned but not
+   executed.
+4. Cold-list test ignored the `keys` argument, so it could not catch a list that asks the cache
+   for no keys. Fixed: the test registers a client-visible unit and asserts the requested key set
+   on both reads.
+5. Hover test missed unknown-with-change-requests and had no negative case for a known worktree.
+   Fixed: both added, and the note is asserted by text.
+6. Two citations were wrong (`client/contract/sessions.ts` has no projection field; the wire type
+   is `SessionProjectionValues`, not `Partial<SessionProjectionMap>`). Fixed in the plan.
+7. The new Host test was named for the Session list but reads the registry. Renamed to what it
+   pins, with a note that the list-side composition is pinned elsewhere.
+8. The plan overstated the row evidence as covering a cold block. Fixed: the plan now says the two
+   halves are pinned separately and no single cross-package integration test exists.
+9. The note can appear for an opened Session right after a reconnect clears the stores. Documented
+   in the forge README (en+zh) rather than adding client state.
+10. Plan wording said "running" for the live registry (it is every attached Session) and "每次刷新"
+    for list reads (the client only lists on connect and boot retry). Fixed in the plan.
+11. `SessionHoverForge` `@returns` was wrong for non-null worktrees. Fixed.
+12. The S2-stale "Changes scopes" doc fix is out of S4's scope but correct and isolated in its own
+    commit; reported rather than folded in.
+13. The first ruling's premise was partly wrong (the row's text is not only the icon label). The
+    final ruling records the real constraints.
 
 ### Task 4: documentation
 
@@ -69,7 +104,7 @@ corrected here rather than shipped as a neighbouring lie.)
 Task 5: complete
 - `pnpm run test:gui` → 10858 passed, 1 skipped (the lane is `packages/client` + `packages/host`
   only, so it does not cover the forge package; unchanged by this slice)
-- `npx vitest run packages/experimental/client-ui-forge` → 786 passed, 2 failed = the known
+- `npx vitest run packages/experimental/client-ui-forge` → 789 passed, 2 failed = the known
   `sandbox-exec` environment failures from the handoff §6
 - `npx vitest run packages/api/session-controller` → 875 passed
 - `npx tsc -b tsconfig.host.json` and `npx tsc -b tsconfig.client.json` → no output
