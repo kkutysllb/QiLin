@@ -109,6 +109,18 @@ Task 6: complete
 - Docs: workspace-controller and ui-workspace READMEs (en+zh) describe the classification and the
   two headings; plan §2.5 and the handoff status record the slice.
 
+Task 6 (follow-up, collapse): each heading is a plain `<button aria-expanded>` flat among the
+rows, not a `treeitem` and not wrapped in a `role="group"`: the first pass made headings treeitems
+and ten row-enumerating tests (focus order, watermarks, drag targets) legitimately changed with it,
+and a group wrapper broke the drag tests that resolve a Workspace section by walking to the tree
+child. The persisted state is `collapsedSections` in the same browser view store, read defensively
+because a state saved before the sections existed carries no map; revealing a Session in a
+collapsed heading expands it first.
+Task 6 (follow-up): Ruling: the section headings are product categories, not the technical fact, so
+they read 「编码项目」/「普通项目」 per the user's wording while the wire fact stays `kind:
+'repository' | 'directory'` and the discriminator stays "inside a Git work tree". Locale keys renamed
+to `section.coding`/`section.ordinary`; README (en+zh), plan §2.5 and the test copy follow.
+
 ## Review round 1 (fresh subagent, whole slice)
 
 Findings taken:

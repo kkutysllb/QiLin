@@ -24,6 +24,12 @@ type WorkspaceViewState = {
   orderBy: SessionOrderBy
   /** Explicit group expansion keyed by Workspace identity, including descendants in tree mode. */
   groupExpansion: Record<string, boolean>
+  /**
+   * Collapsed project summary sections, keyed by Workspace directory kind.
+   * Absent means expanded; the field itself is absent in a viewing state saved
+   * before the sections existed, which reads as all-expanded.
+   */
+  collapsedSections?: Record<string, boolean>
   /** Saved manual order per Workspace group plus the browser-local flat-list account. */
   sessionOrderByAccount: Record<string, string[]>
 }
@@ -48,6 +54,7 @@ type WorkspaceViewActions = {
     initialOrders: Readonly<Record<string, readonly string[]>>,
   ) => void
   setGroupExpanded: (draft: WorkspaceViewState, key: string, expanded: boolean) => void
+  setSectionCollapsed: (draft: WorkspaceViewState, section: string, collapsed: boolean) => void
   retainAccountKeys: (draft: WorkspaceViewState, workspaceKeys: readonly string[]) => void
   syncSessionOrders: (
     draft: WorkspaceViewState,
@@ -87,6 +94,7 @@ export function createWorkspaceViewStore(): EngineStoreHandle<WorkspaceViewState
       groupBy: 'workspace',
       orderBy: 'updated',
       groupExpansion: {},
+      collapsedSections: {},
       sessionOrderByAccount: {},
     }),
     persist: 'qilin.workspace.view.v5',
@@ -98,6 +106,12 @@ export function createWorkspaceViewStore(): EngineStoreHandle<WorkspaceViewState
         d.orderBy = mode
       },
       setGroupExpanded: (d, key: string, expanded: boolean) => { d.groupExpansion[key] = expanded },
+      setSectionCollapsed: (d, section: string, collapsed: boolean) => {
+        // Index assignment in a fresh object rather than delete: the map stays a
+        // plain fast-mode record, and a state persisted before the sections
+        // existed simply contributes no entry.
+        d.collapsedSections = { ...d.collapsedSections, [section]: collapsed }
+      },
       retainAccountKeys: (d, workspaceKeys: readonly string[]) => {
         const retained = new Set(workspaceKeys)
         d.groupExpansion = Object.fromEntries(

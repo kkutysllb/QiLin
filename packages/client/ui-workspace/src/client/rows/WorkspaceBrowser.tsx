@@ -13,7 +13,7 @@ import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useStat
 import clsx from 'clsx'
 import {
   AnimatedRows, Button, IconCloseFillRegular, IconPersonalizationOutlineRegular,
-  IconProjectAddOutlineRegular, IconSearchOutlineRegular, Menu, Modal, Tooltip,
+  IconProjectAddOutlineRegular, IconSearchOutlineRegular, IconTriangleRightFillRegular, Menu, Modal, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type {
   SessionListState, SessionSearchResultItem,
@@ -221,6 +221,8 @@ type SessionTreeProps = Pick<
   groupExpansion: Readonly<Record<string, boolean>>
   /** Persist one Workspace group's expansion. */
   setGroupExpanded: (key: string, expanded: boolean) => void
+  collapsedSections: Readonly<Record<string, boolean>>
+  setSectionCollapsed: (section: string, collapsed: boolean) => void
   /** Save a drag order and select Manual. */
   setSessionOrder: (accountKey: string, order: readonly string[]) => void
   /** Registry-global archive set (hidden rows). */
@@ -259,7 +261,7 @@ function SessionTree({
   workspaceReady, usePanelInfo,
   onRenameRequest, onDeleteRequest, onSessionRename, onSessionArchive,
   insertWorkspaceBefore,
-  nestWorkspaces, groupExpansion, setGroupExpanded,
+  nestWorkspaces, groupExpansion, setGroupExpanded, collapsedSections, setSectionCollapsed,
   setSessionOrder, home, t, renderSlot, menu,
   revealSessionId, onSessionRevealed, animationResetKey,
 }: SessionTreeProps) {
@@ -324,6 +326,15 @@ function SessionTree({
       }
     }
   }, [groupExpansion, parents, revealGroup, setGroupExpanded])
+  // Revealing a Session inside a collapsed section expands that section first,
+  // the way an ancestor Workspace expands for the same reveal.
+  useEffect(() => {
+    if (revealGroup === undefined) return
+    const target = groups.find(group => group.key === revealGroup)
+    if (target?.section !== undefined && collapsedSections[target.section] === true) {
+      setSectionCollapsed(target.section, false)
+    }
+  }, [collapsedSections, groups, revealGroup, setSectionCollapsed])
   const baselines = new Map(groups.map(group => [group.key, Math.max(SESSION_WATERMARK_BASE, requiredWatermark(
     group.sessions,
     current,
@@ -637,24 +648,35 @@ function SessionTree({
     )
   }
 
-  // Two summary sections head the project tree: Git repositories, then plain
-  // directories, each keeping the caller's own project order. The ungrouped
-  // bucket belongs to neither section and trails both.
+  // Two summary sections head the project tree: coding projects — those inside
+  // a Git work tree — then other projects, each keeping the caller's own
+  // project order. The ungrouped bucket belongs to neither and trails both.
   const projectRows: ReactNode[] = []
   let section: WorkspaceDirectoryKind | undefined
   for (const group of rootGroups) {
     if (group.section !== undefined && group.section !== section) {
       section = group.section
-      rowKeys.push(`section:${group.section}`)
+      const kind = group.section
+      const collapsed = collapsedSections[kind] === true
+      const label = t(kind === 'repository' ? 'section.coding' : 'section.ordinary')
+      rowKeys.push(`section:${kind}`)
       projectRows.push((
-        <div
-          key={`section:${group.section}`}
+        <button
+          key={`section:${kind}`}
+          type="button"
           className={css.projectSection}
-          data-workspace-section={group.section}
+          aria-expanded={!collapsed}
+          data-row-key={`section:${kind}`}
+          data-workspace-section={kind}
+          onClick={() => { setSectionCollapsed(kind, !collapsed) }}
         >
-          {t(group.section === 'repository' ? 'section.repositories' : 'section.directories')}
-        </div>
+          <IconTriangleRightFillRegular
+            className={clsx(css.sectionChevron, !collapsed && css.sectionChevronOpen)}
+          />
+          <span>{label}</span>
+        </button>
       ))
+      if (collapsed) continue
     }
     projectRows.push(renderGroup(group, 0))
   }
@@ -950,6 +972,8 @@ export function WorkspaceBrowser({
   const groupBy = useStore(s => s.groupBy)
   const orderBy = useStore(s => s.orderBy)
   const groupExpansion = useStore(s => s.groupExpansion)
+  // A state saved before the sections existed carries no map.
+  const collapsedSections = useStore(s => s.collapsedSections) ?? {}
   const sessionOrderByAccount = useStore(s => s.sessionOrderByAccount)
   const workspaceReady = workspacePhase === 'ready' && workspaceStreamState !== 'loading'
   const mainSessionId = Object.values(list.byId)
@@ -1532,6 +1556,8 @@ export function WorkspaceBrowser({
                 nestWorkspaces={groupBy === 'workspace-tree'}
                 groupExpansion={groupExpansion}
                 setGroupExpanded={actions.setGroupExpanded}
+                collapsedSections={collapsedSections}
+                setSectionCollapsed={actions.setSectionCollapsed}
                 setSessionOrder={saveSessionOrder}
                 archivedSessionIds={archivedSessionIds}
                 pinnedSessionIds={pinnedSessionIds}

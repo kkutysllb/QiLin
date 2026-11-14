@@ -155,7 +155,33 @@ function rerender(b: ReturnType<typeof mount>, overrides: Partial<WorkspaceBrows
 }
 
 describe('WorkspaceBrowser', () => {
-  it('heads the projects with a Git repository section and a plain directory section, marking each project by kind', () => {
+  it('collapses and expands a project section from its heading and remembers it across mounts', () => {
+    localStorage.clear()
+    const shown = () => [...document.querySelectorAll('[data-workspace-icon]')].map(row => row.getAttribute('data-workspace-icon'))
+    const b = mount({
+      useSessions: hook(sessionState([])),
+      useWorkspaces: hook(workspaceState([workspace('plain', []), workspace('repo', [], 'repo', 'repository')])),
+    })
+    const coding = document.querySelector('[data-workspace-section="repository"]') as HTMLElement
+    expect(coding.getAttribute('aria-expanded')).toBe('true')
+    expect(shown()).toEqual(['repository', 'folder'])
+
+    fireEvent.click(coding)
+    expect(coding.getAttribute('aria-expanded')).toBe('false')
+    expect(shown()).toEqual(['folder'])
+    // The other section keeps its own state.
+    expect(document.querySelector('[data-workspace-section="directory"]')?.getAttribute('aria-expanded')).toBe('true')
+
+    b.view.unmount()
+    mount({
+      useSessions: hook(sessionState([])),
+      useWorkspaces: hook(workspaceState([workspace('plain', []), workspace('repo', [], 'repo', 'repository')])),
+    })
+    expect(document.querySelector('[data-workspace-section="repository"]')?.getAttribute('aria-expanded')).toBe('false')
+    expect(shown()).toEqual(['folder'])
+  })
+
+  it('heads the projects with a coding-project section and an other-project section, marking each project by kind', () => {
     mount({
       useSessions: hook(sessionState([])),
       useWorkspaces: hook(workspaceState([
@@ -166,7 +192,7 @@ describe('WorkspaceBrowser', () => {
 
     const sections = [...document.querySelectorAll('[data-workspace-section]')]
     expect(sections.map(section => section.getAttribute('data-workspace-section'))).toEqual(['repository', 'directory'])
-    expect(sections.map(section => section.textContent)).toEqual([zh['section.repositories'], zh['section.directories']])
+    expect(sections.map(section => section.textContent)).toEqual([zh['section.coding'], zh['section.ordinary']])
     // Repositories lead even though the Host listed the plain directory first.
     const rows = [...document.querySelectorAll('[data-workspace-icon]')]
     expect(rows.map(row => row.getAttribute('data-workspace-icon'))).toEqual(['repository', 'folder'])
@@ -591,7 +617,7 @@ describe('WorkspaceBrowser', () => {
     expect(Array.from(
       screen.getByRole('tree', { name: '会话' }).querySelectorAll('[data-row-key]'),
       row => row.getAttribute('data-row-key'),
-    )).toEqual(['workspace:alpha', 'session:session-1'])
+    )).toEqual(['section:directory', 'workspace:alpha', 'session:session-1'])
     b.store.actions.setGroupBy('flat')
     rerender(b, {})
     expect(Array.from(
