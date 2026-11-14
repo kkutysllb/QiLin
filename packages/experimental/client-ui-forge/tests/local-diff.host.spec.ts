@@ -154,6 +154,19 @@ describe('localDiff', () => {
     ])
   })
 
+  it('marks the files an LFS attribute covers and leaves other files unmarked', async () => {
+    const root = await directory()
+    const { repo } = await forked(root)
+    const ctx = await context(repo)
+    const session = plainSession(repo)
+    await writeFile(join(repo, '.gitattributes'), 'tracked.txt filter=lfs\n')
+
+    const diff = await localDiff(ctx, CONFIG, session, repo, null, { kind: 'uncommitted' }, signal)
+
+    expect(diff.files.find(file => file.path === 'tracked.txt')?.filtered).toBe('lfs')
+    expect(diff.files.find(file => file.path === 'untracked.txt')?.filtered).toBeUndefined()
+  })
+
   it('refuses the branch scope without a fork point', async () => {
     const { repo } = await forked(await directory())
 

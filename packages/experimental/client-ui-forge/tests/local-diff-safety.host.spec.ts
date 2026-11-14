@@ -56,7 +56,8 @@ describe('diff helper restrictions', () => {
     try {
       await localDiff(b.ctx, CONFIG, b.session, b.repo, null, { kind: 'unstaged' }, b.signal)
       await localChanges(b.ctx, CONFIG, b.session, b.inspection, null, b.signal)
-      const diffs = spawn.mock.calls.map(([spec]) => spec).filter(spec => spec.argv.includes('diff'))
+      // The comparison, not the attribute query, which names `diff` as an attribute.
+      const diffs = spawn.mock.calls.map(([spec]) => spec).filter(spec => spec.argv.includes('diff') && !spec.argv.includes('check-attr'))
       expect(diffs).toHaveLength(2)
       for (const spec of diffs) {
         const overrides = Array.from({ length: Number(spec.env?.GIT_CONFIG_COUNT) }, (_, index) => [
@@ -67,7 +68,8 @@ describe('diff helper restrictions', () => {
           ['filter.demo.clean', ''], ['filter.demo.process', ''], ['filter.demo.required', 'false'],
         ]))
       }
-      expect(b.record.calls.filter(call => call.argv.includes('diff')).map(call => call.policy.mode)).toEqual([mode, mode])
+      expect(b.record.calls.filter(call => call.argv.includes('diff') && !call.argv.includes('check-attr')).map(call => call.policy.mode))
+        .toEqual([mode, mode])
       await expect(access(b.marker)).rejects.toThrow()
     } finally { spawn.mockRestore() }
   })

@@ -98,6 +98,33 @@ export async function forkPoint(git: Git, inspection: Inspection, created: Forge
 }
 
 /**
+ * Read which changed tracked files an attribute covers: `lfs` when a filter or
+ * diff attribute names the LFS driver, `filter` for another driver, absent
+ * otherwise. One `git check-attr` names every path, so the read costs a single
+ * command.
+ * @param git - the confined Git runner.
+ * @param files - the changed files.
+ * @returns the attribute per path, without entries for unmarked files.
+ */
+async function filteredFiles(git: Git, files: readonly ForgeDiffFile[]): Promise<Map<string, 'lfs' | 'filter'>> {
+  const paths = files.filter(file => !file.untracked).map(file => file.path)
+  if (paths.length === 0) return new Map()
+  const result = await git('check-attr', ['check-attr', '-z', 'filter', 'diff', '--', ...paths], [0, 1, 128])
+  const fields = result.stdout.split('\0')
+  const marked = new Map<string, 'lfs' | 'filter'>()
+  for (let index = 0; index + 2 < fields.length; index += 3) {
+    const path = fields[index]
+    const attribute = fields[index + 1]
+    const value = fields[index + 2]
+    if (path === undefined || attribute === undefined) continue
+    if (value === undefined || value === 'unspecified' || value === 'unset') continue
+    if (value === 'lfs') marked.set(path, 'lfs')
+    else if (attribute === 'filter') marked.set(path, 'filter')
+  }
+  return marked
+}
+
+/**
  * One commit argument the diff pipeline accepts: a full or abbreviated object
  * name. Revisions such as `HEAD` or ranges are refused, so the scope cannot read
  * something other than the commit it names.
@@ -152,11 +179,17 @@ export async function localDiff(
   }
   const overrides = await diffFilterOverrides(git)
   const tracked = parseDiff((await bounded(git('diff', [...DIFF, ...range, '--'], undefined, overrides))).stdout)
+  const marked = await filteredFiles(git, tracked)
+  const withMarks = (files: readonly ForgeDiffFile[]): ForgeDiffFile[] =>
+    files.map((file) => {
+      const filtered = marked.get(file.path)
+      return filtered === undefined ? file : { ...file, filtered }
+    })
   // The index and a commit carry their own content; only working-tree scopes
   // list untracked files.
-  if (scope.kind === 'staged' || scope.kind === 'commit') return { base: null, files: tracked, omitted: 0 }
+  if (scope.kind === 'staged' || scope.kind === 'commit') return { base: null, files: withMarks(tracked), omitted: 0 }
   const untracked = await untrackedFiles(ctx, config, git, root, signal)
-  return { base: fork === null || scope.kind !== 'branch' ? null : fork.label, files: [...tracked, ...untracked.files], omitted: untracked.omitted }
+  return { base: fork === null || scope.kind !== 'branch' ? null : fork.label, files: [...withMarks(tracked), ...untracked.files], omitted: untracked.omitted }
 }
 
 /**

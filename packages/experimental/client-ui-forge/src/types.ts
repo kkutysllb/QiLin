@@ -278,6 +278,13 @@ export interface ForgeDiffFile {
   readonly oversized: boolean
   /** Whether Git does not track the file yet; only local diffs list such files. */
   readonly untracked: boolean
+  /**
+   * The Git attribute that covers the file's content, absent when none does:
+   * `lfs` for a filter or diff attribute set to `lfs` (the content is a pointer),
+   * `filter` for another filter driver. Local diffs mark tracked files only, so
+   * the view can explain content that Git shows as a pointer rather than a change.
+   */
+  readonly filtered?: 'lfs' | 'filter'
   /** Lines added. */
   readonly additions: number
   /** Lines deleted. */

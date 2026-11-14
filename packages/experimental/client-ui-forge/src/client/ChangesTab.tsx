@@ -202,6 +202,8 @@ function badgeOf(file: ForgeDiffFile, data: ChangesData, t: Translate): string {
   else if (file.status === 'deleted') parts.push(t('diff.deletedFile'))
   else if (file.status === 'renamed' && file.previousPath !== null) parts.push(t('diff.renamed', { from: renamedFrom(file.previousPath, file.path) }))
   if (file.untracked && data.kind === 'local' && data.scope === 'branch') parts.push(t('diff.badgeUncommitted'))
+  if (file.filtered === 'lfs') parts.push(t('diff.badgeLfs'))
+  else if (file.filtered === 'filter') parts.push(t('diff.badgeFiltered'))
   return parts.join(' · ')
 }
 
