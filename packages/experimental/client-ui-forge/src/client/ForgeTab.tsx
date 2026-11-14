@@ -2,7 +2,8 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
 import {
-  Button, IconBranchOutlineRegular, IconCopyOutlineRegular, IconFolderCloseRegular, IconWarningTriangleOutlineRegular, StateDot, Tooltip,
+  Button, IconBranchOutlineRegular, IconCopyOutlineRegular, IconFolderCloseRegular, IconTrashOutlineRegular,
+  IconWarningTriangleOutlineRegular, Modal, StateDot, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type { RemoteHostFacts } from '@qilin-agent/api-remotes/client'
@@ -45,6 +46,12 @@ export interface ForgeTabInjected {
   readonly readChecks: NonNullable<ChangeRequestActions['readChecks']>
   /** Check the removed worktree of the Session out again, reporting the outcome. */
   readonly restore: () => void
+  /**
+   * Remove the created worktree; the Session moves back to the source checkout.
+   * @param deleteBranch - whether the branch follows the checkout.
+   * @returns the failure text, or undefined once it is removed.
+   */
+  readonly removeWorktree: (deleteBranch: boolean) => Promise<string | undefined>
   /** Open a URL outside the app. */
   readonly openLink: (url: string) => void
   /** Copy text to the clipboard and report the outcome. */
@@ -65,13 +72,17 @@ export type ForgeTabProps =
 
 type Translate = ForgeTabProps['t']
 
-function Checkout({ state, home, restore, copyPath, t }: {
+function Checkout({ state, home, restore, removeWorktree, copyPath, t }: {
   readonly state: ForgePanelState
   readonly home: string | undefined
   readonly restore: () => void
+  readonly removeWorktree: (deleteBranch: boolean) => Promise<string | undefined>
   readonly copyPath: (path: string) => void
   readonly t: Translate
 }): ReactNode {
+  const [removing, setRemoving] = useState<'idle' | 'confirming' | 'busy'>('idle')
+  const [deleteBranch, setDeleteBranch] = useState(false)
+  const [failure, setFailure] = useState<string | undefined>(undefined)
   const checkout = state.checkout
   const label = checkoutLabel(state, home, t)
   if (label === undefined) {
@@ -115,6 +126,53 @@ function Checkout({ state, home, restore, copyPath, t }: {
           {t('checkout.restore')}
         </Button>
       )}
+      {label.worktree && !label.missing && (
+        <Tooltip label={t('checkout.removeWorktree')} side="bottom">
+          <button
+            type="button"
+            className={css.iconButton}
+            aria-label={t('checkout.removeWorktree')}
+            onClick={() => { setFailure(undefined); setRemoving('confirming') }}
+          >
+            <IconTrashOutlineRegular size={14} />
+          </button>
+        </Tooltip>
+      )}
+      <Modal
+        open={removing !== 'idle'}
+        onClose={() => { if (removing !== 'busy') setRemoving('idle') }}
+        title={t('checkout.removeWorktreeTitle')}
+        description={t('checkout.removeWorktreeBody')}
+        closeLabel={t('checkout.removeWorktreeCancel')}
+        footer={(
+          <>
+            <Button variant="outline" disabled={removing === 'busy'} onClick={() => { setRemoving('idle') }}>
+              {t('checkout.removeWorktreeCancel')}
+            </Button>
+            <Button
+              variant="primary"
+              disabled={removing === 'busy'}
+              onClick={() => {
+                setRemoving('busy')
+                void removeWorktree(deleteBranch).then((message) => {
+                  if (message === undefined) { setRemoving('idle'); return }
+                  setFailure(message)
+                  setRemoving('confirming')
+                })
+              }}
+            >
+              {t('checkout.removeWorktreeConfirm')}
+            </Button>
+          </>
+        )}
+      >
+        <label className={css.removeOption}>
+          <input type="checkbox" checked={deleteBranch} disabled={removing === 'busy'}
+            onChange={(event) => { setDeleteBranch(event.currentTarget.checked) }} />
+          {t('checkout.removeWorktreeBranch')}
+        </label>
+        {failure !== undefined && <p role="alert" className={css.removeFailure}>{failure}</p>}
+      </Modal>
     </div>
   )
 }
@@ -158,7 +216,7 @@ function SignIn({ state, copyText, t }: {
  */
 export function ForgeTab({
   useTabInfo, sessionId, usePanel, useHost, useLocale, reconnect, refresh, remove, markReady, merge, readChecks, restore,
-  openLink, copyText, copyPath,
+  removeWorktree, openLink, copyText, copyPath,
   reportVisible, createChangeRequest, t,
 }: ForgeTabProps): ReactNode {
   const snapshot = usePanel(current => current)
@@ -205,7 +263,7 @@ export function ForgeTab({
   return (
     <div className={css.root} data-forge-panel="">
       {disconnected}
-      <Checkout state={state} home={home} restore={restore} copyPath={copyPath} t={t} />
+      <Checkout state={state} home={home} restore={restore} removeWorktree={removeWorktree} copyPath={copyPath} t={t} />
       {local !== null && (
         <LocalChangesCard
           local={local}

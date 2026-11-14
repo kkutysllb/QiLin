@@ -1153,7 +1153,7 @@ describe('forgePanel removing worktrees', () => {
     await follower.until(state => state.directory === created.path && state.checkout.state === 'ready')
 
     const cleared = follower.next(state => state.worktree.created === null)
-    await opened.ctx.forgePanel.removeWorktree(opened.session, signal)
+    await opened.ctx.forgePanel.removeWorktree(opened.session, false, signal)
     await opened.agent.whenIdle()
     const after = await cleared
 
@@ -1175,7 +1175,7 @@ describe('forgePanel removing worktrees', () => {
     await commitAt(created.path, 'later.txt', '2026-05-01T00:00:00Z')
     await follower.until(state => state.directory === created.path && state.checkout.state === 'ready')
 
-    await expect(opened.ctx.forgePanel.removeWorktree(opened.session, signal, true))
+    await expect(opened.ctx.forgePanel.removeWorktree(opened.session, true, signal))
       .rejects.toMatchObject({ code: 'forgePanel/remove-failed' })
 
     await expect(access(created.path)).rejects.toMatchObject({ code: 'ENOENT' })
@@ -1186,7 +1186,7 @@ describe('forgePanel removing worktrees', () => {
     const { repo } = await project()
     const opened = await open(repo)
 
-    await expect(opened.ctx.forgePanel.removeWorktree(opened.session, signal))
+    await expect(opened.ctx.forgePanel.removeWorktree(opened.session, false, signal))
       .rejects.toMatchObject({ code: 'forgePanel/no-worktree' })
   })
 })

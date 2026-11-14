@@ -192,6 +192,12 @@ function registerUi(ctx: Context): void {
           if (message !== undefined) notices.report('toast.restoreFailed', { params: { message } })
         })
       },
+      removeWorktree: async (deleteBranch) => {
+        const result = await ctx.remote.forgePanel.removeWorktree(sessionId, deleteBranch)
+        if (!result.ok) return result.error.message
+        notices.report('toast.worktreeRemoved', { tone: 'success' })
+        return undefined
+      },
       openLink,
       copyText,
       copyPath,

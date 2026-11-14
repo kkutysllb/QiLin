@@ -554,3 +554,18 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Removal dialog: the branch choice and a failed attempt's reason. */
+.removeOption {
+  display: flex;
+  align-items: center;
+  gap: var(--qilin-space-2);
+  font-size: var(--qilin-text-md);
+  color: var(--qilin-alias-label-secondary);
+}
+
+.removeFailure {
+  margin: var(--qilin-space-3) 0 0;
+  color: var(--qilin-alias-state-error-primary);
+  font-size: var(--qilin-text-base);
+}

@@ -500,7 +500,7 @@ export class ForgePanelController extends TypertRemoteService {
    * has other work; `forgePanel/remove-failed` when Git refuses or fails.
    */
   @Remote
-  async removeWorktree(session: Session, signal: AbortSignal, deleteBranch = false): Promise<void> {
+  async removeWorktree(session: Session, deleteBranch: boolean, signal: AbortSignal): Promise<void> {
     signal.throwIfAborted()
     const created = this.createdWorktree(session)
     const worktrees = this.home.get('worktrees')

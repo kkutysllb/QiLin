@@ -56,6 +56,7 @@ function tab(state: ForgePanelState | null, options: { disconnected?: boolean; v
   const merge = vi.fn<(entry: ForgePanelChangeRequest, request: MergeRequest) => Promise<void>>(async () => {})
   const readChecks = vi.fn<ForgeTabProps['readChecks']>(async () => snapshot(1))
   const restore = vi.fn<() => void>()
+  const removeWorktree = vi.fn<ForgeTabProps['removeWorktree']>(async () => undefined)
   const openLink = vi.fn<(url: string) => void>()
   const copyText = vi.fn<(text: string) => void>()
   const copyPath = vi.fn<(path: string) => void>()
@@ -68,13 +69,14 @@ function tab(state: ForgePanelState | null, options: { disconnected?: boolean; v
     usePanel: bindSnapshotSelector(panel),
     useHost: bindSnapshotSelector(host),
     useLocale: bindSnapshotSelector(createSnapshotStore<string>('en')),
-    reconnect, refresh, remove, markReady, merge, readChecks, restore, openLink, copyText, copyPath, reportVisible, createChangeRequest,
+    reconnect, refresh, remove, markReady, merge, readChecks, restore, removeWorktree, openLink, copyText, copyPath,
+    reportVisible, createChangeRequest,
     t,
   }
   const view = render(<ForgeTab {...props} />)
   return {
-    view, panel, visibility, reconnect, refresh, remove, markReady, merge, readChecks, restore, openLink, copyText, copyPath, reportVisible,
-    createChangeRequest, openResource,
+    view, panel, visibility, reconnect, refresh, remove, markReady, merge, readChecks, restore, removeWorktree, openLink, copyText,
+    copyPath, reportVisible, createChangeRequest, openResource,
   }
 }
 
@@ -207,6 +209,34 @@ describe('ForgeTab checkout', () => {
     // A removed worktree still offers the path it was created at.
     fireEvent.click(within(row).getByRole('button', { name: en['checkout.copyWorktreePath'] }))
     expect(b.copyPath).toHaveBeenCalledWith('/work/repo-dsh')
+  })
+
+  it('removes the created worktree after confirmation, keeping the branch unless asked', async () => {
+    const b = tab(ready({ directory: '/work/repo-dsh', worktree: worktree({ created: created({ path: '/work/repo-dsh' }) }) },
+      { root: '/work/repo-dsh', branch: 'other', linked: true }))
+    const row = checkoutRow(b.view)
+    if (row === null) throw new Error('no checkout row')
+    fireEvent.click(within(row).getByRole('button', { name: en['checkout.removeWorktree'] }))
+    expect(b.view.getByRole('dialog', { name: en['checkout.removeWorktreeTitle'] })).toBeTruthy()
+    await act(async () => {
+      fireEvent.click(b.view.getByRole('button', { name: en['checkout.removeWorktreeConfirm'] }))
+    })
+    expect(b.removeWorktree).toHaveBeenCalledWith(false)
+  })
+
+  it('asks for the branch too and reports a refusal without closing the dialog', async () => {
+    const b = tab(ready({ directory: '/work/repo-dsh', worktree: worktree({ created: created({ path: '/work/repo-dsh' }) }) },
+      { root: '/work/repo-dsh', branch: 'other', linked: true }))
+    b.removeWorktree.mockResolvedValueOnce('branch has unmerged commits')
+    const row = checkoutRow(b.view)
+    if (row === null) throw new Error('no checkout row')
+    fireEvent.click(within(row).getByRole('button', { name: en['checkout.removeWorktree'] }))
+    fireEvent.click(b.view.getByRole('checkbox'))
+    await act(async () => {
+      fireEvent.click(b.view.getByRole('button', { name: en['checkout.removeWorktreeConfirm'] }))
+    })
+    expect(b.removeWorktree).toHaveBeenCalledWith(true)
+    expect(b.view.getByRole('alert').textContent).toBe('branch has unmerged commits')
   })
 
   it('turns the restore button into a disabled spinner while a restoration runs', () => {
