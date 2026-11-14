@@ -23,8 +23,8 @@ export interface SnapshotCorpusGenerationSummary {
 
 const RETAINED_BASELINE_VERSION = 3
 // One adjacent-migration role per retained historical generation, plus the fixed
-// v0 coverage set and the retired-tools pin: v1–v6 adjacent roles and six v0 roles.
-const MAX_RETAINED_ROLES = 13
+// v0 coverage set and the retired-tools pin: v1–v7 adjacent roles and six v0 roles.
+const MAX_RETAINED_ROLES = 14
 const REQUIRED_V0_COVERAGE = new Set([
   'multi-hop',
   'packed-row',
@@ -32,6 +32,20 @@ const REQUIRED_V0_COVERAGE = new Set([
   'shipped-profile',
 ])
 const REQUIRED_ADJACENT_COVERAGE = new Set(['adjacent-migration'])
+
+/**
+ * Scenarios whose stored fixture keeps raw job ids.
+ *
+ * Replay feeds the recorded model text through the loop verbatim, so a job id
+ * recorded as `{{id:N}}` cannot be rehydrated into a live job and the scenario
+ * has no current-generation fixture to select. They stay on their recorded
+ * generation until the replay path rehydrates job ids; each entry is listed by
+ * key so the writer migration that makes them current can delete it.
+ */
+const RAW_JOB_ID_SCENARIOS = new Set([
+  'session/background-confinement-failure',
+  'session/background-job-admission',
+])
 
 /**
  * Require a baseline/current majority and direct coverage of each historical migration source.
@@ -54,6 +68,11 @@ export function assertSnapshotCorpusPolicy(
       throw new Error(`${scenario.key}: scenario owns no selected Session role`)
     }
     if (scenario.retained === undefined) {
+      if (RAW_JOB_ID_SCENARIOS.has(scenario.key)) {
+        // A raw job id cannot be replayed from a tokenized fixture, so this
+        // scenario's recorded generation is the only one it can select.
+        continue
+      }
       const outside = scenario.selectedVersions.find(version => version !== RETAINED_BASELINE_VERSION
         && version !== SESSION_FORMAT_VERSION)
       if (outside !== undefined) {

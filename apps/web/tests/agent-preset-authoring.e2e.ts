@@ -72,8 +72,8 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
   it('offers the roster with copy as the only way to create', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-preset-authoring-section'))
     const dialog = await openSettings(page)
-    await dialog.getByRole('button', { name: 'Agent 预设' }).click()
-    await dialog.getByRole('heading', { name: 'Agent 预设' }).waitFor({ timeout: 10_000 })
+    await dialog.getByRole('button', { name: 'Agent 管理' }).click()
+    await dialog.getByRole('heading', { name: 'Agent 管理' }).waitFor({ timeout: 10_000 })
     // The intro copy also names 编码模式. Wait for the roster's own action so
     // the snapshot cannot land between the section shell and its cards.
     await dialog.getByRole('button', { name: '查看: 编码模式', exact: true }).waitFor({ timeout: 10_000 })
@@ -81,8 +81,6 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     const snapshot = await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd)
 
     await compareOrRefreshGolden(SECTION_EXPECTED, snapshot, MODE)
-    const toggle = dialog.getByRole('switch', { name: '允许切换agent模式' })
-    expect(await toggle.getAttribute('aria-checked')).toBe('true')
     // The intro states the copy path directly, and the shipped rows offer
     // view/copy but never delete or a location — their
     // install is overwritten by upgrades and is not the user's to manage.
@@ -194,7 +192,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     // The section reads the roster when it mounts; hop away and back.
     const dialog = settingsDialog()
     await dialog.getByRole('button', { name: '通用设置' }).click()
-    await dialog.getByRole('button', { name: 'Agent 预设' }).click()
+    await dialog.getByRole('button', { name: 'Agent 管理' }).click()
     await dialog.getByText('加载失败').first().waitFor({ timeout: 10_000 })
 
     const snapshot = await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd, {
@@ -248,7 +246,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     await settingsDialog().getByRole('button', { name: '关闭' }).last().click()
     await connectFreshWorkspaceZh(page, scaffold.workspaceCwd)
     const dialog = await openSettings(page)
-    await dialog.getByRole('button', { name: 'Agent 预设' }).click()
+    await dialog.getByRole('button', { name: 'Agent 管理' }).click()
     await dialog.getByRole('button', { name: '让 Agent 起草自定义预设' }).click()
 
     // Leaving settings is part of the gesture: the flow lands on the

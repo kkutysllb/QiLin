@@ -175,7 +175,6 @@ export function apply(ctx: ClientContext): void {
     // self-referential preset and land a new session on it. Nothing reaches
     // the model here — the draft the visitor typed stays until it is sent.
     const startCreatorDraft = (): void => {
-      if (!section.store.getSnapshot().showPicker) return
       // Navigation opens another blank when the main blank lists a different
       // preset, so that blank is not staged.
       const listed = mainBlank(scope)?.projectionValues?.agentPreset
@@ -248,7 +247,6 @@ export function apply(ctx: ClientContext): void {
     confirmDelete: (id: string | null) => { section.confirmDelete(id) },
     remove: () => section.remove(),
     makeDefault: (id: string) => section.makeDefault(id, captureBlankSessionSync()),
-    setPickerVisible: (showPicker: boolean) => section.setPickerVisible(showPicker, captureBlankSessionSync()),
   })
 
   // Ordered after Models: choosing a model is routine, and composing an

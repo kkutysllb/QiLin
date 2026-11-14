@@ -13,4 +13,4 @@
 - id: tools
   name: '@qilin-agent/tools'
   config:
-    mode: ptc
+    mode: coding

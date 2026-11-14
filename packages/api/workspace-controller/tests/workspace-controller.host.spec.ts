@@ -8,7 +8,12 @@ import Storage from '@qilin-agent/storage'
 import { DomainFacility } from '@qilin-agent/storage-domain'
 import { RemoteError } from '@qilin-agent/typert-protocol'
 import LocalFileSystem from '@qilin-agent/fs-local'
-import WorkspaceRegistry from '@qilin-agent/workspace'
+import WorkspaceRegistry, {
+  WorkspaceActiveSessionError,
+  WorkspaceLiveSessionDeleteError,
+  WorkspaceUnarchivedSessionDeleteError,
+} from '@qilin-agent/workspace'
+import { SessionPersistenceDeletionUnsupportedError } from '@qilin-agent/session-persistence'
 import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import WorkspaceController from '../src/index.ts'
 import { WorkspaceFeed } from '../src/feed.ts'
@@ -54,7 +59,7 @@ async function harness() {
   const storageDomain = new DomainFacility(ctx, { backend: 'memory', routes: {} })
   ctx.storage.mount('domain', storageDomain)
   ctx.provide('storageDomain', storageDomain)
-  ctx.provide('sessionPersistence', { list: () => Promise.resolve([]) } as never)
+  ctx.provide('sessionPersistence', { list: () => Promise.resolve([]), delete: () => Promise.resolve() } as never)
   await ctx.plugin(WorkspaceRegistry)
   const dispose = (): void => {}
   ctx.provide('typert', {
@@ -159,6 +164,34 @@ describe('WorkspaceController commands', () => {
     await expect(controller.unarchiveSession({ sessionId: SessionId('session') }))
       .rejects.toBe(unarchiveFailure)
 
+    // Deleting an archived Session owns five stable refusals.
+    const notArchived = new WorkspaceUnarchivedSessionDeleteError(SessionId('session'))
+    vi.spyOn(ctx.workspaceRegistry, 'deleteArchivedSession').mockRejectedValueOnce(notArchived)
+    await expect(controller.deleteArchivedSession({ sessionId: SessionId('session') }))
+      .rejects.toMatchObject({ code: 'session/not-archived' })
+
+    const live = new WorkspaceLiveSessionDeleteError(SessionId('session'))
+    vi.spyOn(ctx.workspaceRegistry, 'deleteArchivedSession').mockRejectedValueOnce(live)
+    await expect(controller.deleteArchivedSession({ sessionId: SessionId('session') }))
+      .rejects.toMatchObject({ code: 'session/live' })
+
+    const active = new WorkspaceActiveSessionError(SessionId('session'), [{ kind: 'schedule' }], 'delete')
+    vi.spyOn(ctx.workspaceRegistry, 'deleteArchivedSession').mockRejectedValueOnce(active)
+    await expect(controller.deleteArchivedSession({ sessionId: SessionId('session') }))
+      .rejects.toMatchObject({ code: 'session/active', details: { activity: ['schedule'] } })
+
+    const busy = new (await import('@qilin-agent/session-persistence')).SessionPersistenceBusyError(
+      SessionId('session'), 'delete',
+    )
+    vi.spyOn(ctx.workspaceRegistry, 'deleteArchivedSession').mockRejectedValueOnce(busy)
+    await expect(controller.deleteArchivedSession({ sessionId: SessionId('session') }))
+      .rejects.toMatchObject({ code: 'session/delete-busy' })
+
+    const unsupported = new SessionPersistenceDeletionUnsupportedError(SessionId('session'))
+    vi.spyOn(ctx.workspaceRegistry, 'deleteArchivedSession').mockRejectedValueOnce(unsupported)
+    await expect(controller.deleteArchivedSession({ sessionId: SessionId('session') }))
+      .rejects.toMatchObject({ code: 'session/delete-unsupported' })
+
     // Only the two mapped pin failures fold; every other registry fault stays live.
     const pinFailure = new Error('pin storage failed')
     vi.spyOn(ctx.workspaceRegistry, 'pinSession').mockRejectedValueOnce(pinFailure)
@@ -236,7 +269,6 @@ describe('WorkspaceController commands', () => {
       .rejects.toMatchObject({ code: 'session/not-found' })
     await expect(controller.unarchiveSession({ sessionId: session.id }))
       .resolves.toEqual({ archivedSessionIds: [] })
-    // Unarchive is idempotent: an id that is not archived is not an error.
     await expect(controller.unarchiveSession({ sessionId: session.id }))
       .resolves.toEqual({ archivedSessionIds: [] })
 
@@ -254,6 +286,15 @@ describe('WorkspaceController commands', () => {
       .resolves.toEqual({ pinnedSessionIds: [] })
     await expect(controller.unpinSession({ sessionId: session.id }))
       .resolves.toEqual({ pinnedSessionIds: [] })
+
+    // Deleting runs last: it forgets the session, so nothing may name it again.
+    await controller.archiveSession({ sessionId: session.id })
+    // A live Session is refused; deletion targets the archived, closed state.
+    vi.spyOn(ctx.sessions, 'get').mockReturnValue(undefined)
+    await expect(controller.deleteArchivedSession({ sessionId: session.id }))
+      .resolves.toEqual({ archivedSessionIds: [] })
+    await expect(controller.archiveSession({ sessionId: session.id }))
+      .rejects.toMatchObject({ code: 'session/not-found' })
   })
 })
 

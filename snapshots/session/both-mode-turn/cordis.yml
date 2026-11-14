@@ -1,4 +1,4 @@
-# Both mode adds `ctx.ptcRuntime` while keeping native tools on the wire and
+# Both mode adds `ctx.codingRuntime` while keeping native tools on the wire and
 # adding `run_code` plus its generated TypeScript SDK prompt. Recording applies
 # this profile patch; replay applies its sibling patch.
 - id: agent-default-model
@@ -21,7 +21,7 @@
 - id: tools
   name: '@qilin-agent/tools'
   config:
-    mode: ptc
+    mode: coding
 
 - id: system-prompt
   name: '@qilin-agent/system-prompt'

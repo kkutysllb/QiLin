@@ -153,7 +153,7 @@ class FakeSessions implements ISessions {
   declare readonly using: ISessions['using']
   declare readonly retainInfo: ISessions['retainInfo']
   declare readonly searchResultLimit: ISessions['searchResultLimit']
-  declare readonly refresh: ISessions['refresh']
+  readonly refresh = vi.fn<ISessions['refresh']>(() => Promise.resolve())
   declare readonly search: ISessions['search']
   declare readonly scope: ISessions['scope']
   declare readonly scopeOf: ISessions['scopeOf']
@@ -171,6 +171,8 @@ class FakeWorkspaces implements IWorkspaces {
   readonly list: MutableSource<WorkspaceSnapshot>
   readonly archiveCalls: SessionId[] = []
   readonly unarchiveCalls: SessionId[] = []
+  /** Delete requests recorded by the face. */
+  readonly deleteCalls: SessionId[] = []
   onArchive: IWorkspaces['archiveSession'] = async (sessionId) => {
     this.list.update(state => ({
       ...state,
@@ -179,6 +181,14 @@ class FakeWorkspaces implements IWorkspaces {
   }
 
   onUnarchive: IWorkspaces['unarchiveSession'] = async (sessionId) => {
+    this.list.update(state => ({
+      ...state,
+      archivedSessionIds: state.archivedSessionIds.filter(id => id !== sessionId),
+    }))
+  }
+
+  /** Delete records the id and drops it from the archive set. */
+  onDelete: IWorkspaces['deleteArchivedSession'] = async (sessionId) => {
     this.list.update(state => ({
       ...state,
       archivedSessionIds: state.archivedSessionIds.filter(id => id !== sessionId),
@@ -218,6 +228,11 @@ class FakeWorkspaces implements IWorkspaces {
   unarchiveSession(sessionId: SessionId): Promise<void> {
     this.unarchiveCalls.push(sessionId)
     return this.onUnarchive(sessionId)
+  }
+
+  deleteArchivedSession(sessionId: SessionId): Promise<void> {
+    this.deleteCalls.push(sessionId)
+    return this.onDelete(sessionId)
   }
 
   pinSession(sessionId: SessionId): Promise<void> {
@@ -675,6 +690,22 @@ describe('UiWorkspaceService', () => {
     b.workspaces.onUnarchive = () => Promise.reject(new Error('unarchive rejected'))
     await expect(b.uiWorkspace.unarchiveSession(idle)).rejects.toThrow('unarchive rejected')
     expect(b.workspaces.unarchiveCalls).toEqual([idle, idle])
+  })
+
+  it('deletes an archived session, re-pulls the Host list, and preserves failures', async () => {
+    const archived = sid('archived')
+    const b = bench()
+
+    await b.uiWorkspace.deleteArchivedSession(archived)
+    expect(b.workspaces.deleteCalls).toEqual([archived])
+    // No live Session reports a cold-log deletion, so the client re-pulls.
+    expect(b.sessions.refresh).toHaveBeenCalledOnce()
+
+    b.workspaces.onDelete = () => Promise.reject(new Error('delete rejected'))
+    await expect(b.uiWorkspace.deleteArchivedSession(archived)).rejects.toThrow('delete rejected')
+    expect(b.workspaces.deleteCalls).toEqual([archived, archived])
+    // A refusal changes nothing on screen: no extra pull runs.
+    expect(b.sessions.refresh).toHaveBeenCalledOnce()
   })
 
   it('passes directory operations to the Host and preserves structured browse failures', async () => {

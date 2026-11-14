@@ -62,7 +62,7 @@ const qilinBin = join(repoRoot, 'apps/cli/src/bin.ts')
 const tsconfigPath = join(repoRoot, 'tsconfig.json')
 const editingCordisSkill = join(
   repoRoot,
-  'packages/preset/agent-presets/presets/ptc/skills/editing-cordis-compositions/SKILL.md',
+  'packages/preset/agent-presets/presets/coding/skills/editing-cordis-compositions/SKILL.md',
 )
 
 type SnapshotMode = 'replay' | 'record' | 'refresh'
@@ -1235,6 +1235,11 @@ describe('headless recorded-session snapshots', () => {
       const expectedStderr = stderrFromSession(stderrLog)
       const actualContext = contextOf(actualLogs.map(log => log.content))
 
+      // The run's own final text: refresh rewrites `fixtures` with normalized
+      // identities (job ids become tokens), so the rewritten copy no longer
+      // spells what this run's stdout emitted. Compare against what the run
+      // read, which is the fixture set before the rewrite.
+      const stdoutFixture = fixtures[0]
       if (writesCurrentSessionFixtures(scenario.manifest, mode)) {
         fixtures = await writeSessionFixtures(
           scenario,
@@ -1249,7 +1254,7 @@ describe('headless recorded-session snapshots', () => {
       }
       if (mode !== 'replay') await writeHeaderSidecars(scenario, actualLogs, actualContext)
 
-      expect(result.stdout).toBe(`${finalTextFromSession(fixtures[0] as string)}\n`)
+      expect(result.stdout).toBe(`${finalTextFromSession(stdoutFixture as string)}\n`)
       expect(withoutModelListingDiagnostics(result.stderr)).toBe(expectedStderr)
       expect(actualLogs, `${scenario.name}: persisted session count`).toHaveLength(fixtures.length)
       const writerFiles = (await readdir(scenario.dir)).filter(name => /^writer(?:\.[1-9]\d*)?\.expected\.jsonl$/u.test(name)).sort()

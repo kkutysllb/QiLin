@@ -620,9 +620,10 @@ describe('JsonlSessionPersistence: stored-format refusals', () => {
 
   it('points a future-generation refusal at the selected raw log path', async () => {
     const m = meta('newer-format', '/work')
-    const path = generationLogPath(root, m.cwd, m.id, 7, 'none')
+    const future = SESSION_FORMAT_VERSION + 1
+    const path = generationLogPath(root, m.cwd, m.id, future, 'none')
     await mkdir(dirname(path), { recursive: true })
-    await writeFile(path, `${JSON.stringify({ ...toHeaderLine(m), version: 7 })}\n`)
+    await writeFile(path, `${JSON.stringify({ ...toHeaderLine(m), version: future })}\n`)
     const failure = await ctx.sessionPersistence.open(m.id, 'read').then(() => undefined, (error: unknown) => error as Error)
     expect(failure?.name).toBe('SessionFormatUnsupportedError')
     expect(failure?.message).toContain(`(raw log: ${path})`)
@@ -2738,6 +2739,22 @@ describe('JsonlSessionPersistence: edge cases', () => {
     // Reload the backend so the shared afterEach dispose stays valid.
     ctx = new Context()
     await ctx.plugin(JsonlSessionPersistence, { root, compression: 'none' })
+  })
+
+  it('delete removes every retained generation of one session and leaves other sessions', async () => {
+    const m = meta('delete-dir')
+    const keep = meta('delete-keep')
+    await writeLog(ctx.sessionPersistence, m, oneTurnLog())
+    await writeLog(ctx.sessionPersistence, keep, oneTurnLog())
+    const directory = sessionDir(root, m.cwd, m.id)
+
+    await ctx.sessionPersistence.delete(m.id)
+
+    await expect(readdir(directory)).rejects.toThrow(/ENOENT/)
+    expect(await ctx.sessionPersistence.stat(m.id)).toBeUndefined()
+    expect(await ctx.sessionPersistence.stat(keep.id)).toBeDefined()
+    // An absent id resolves without an error.
+    await ctx.sessionPersistence.delete(m.id)
   })
 
   it('accepts well-formed JSON values (null, booleans, nested arrays/objects)', async () => {

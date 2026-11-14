@@ -51,7 +51,7 @@
         workflowEngine: true
       config:
         - id: optional-ralph-workflow
-          name: '@qilin-agent/workflow-ptc'
+          name: '@qilin-agent/workflow-coding'
           config:
             provider: spawn
         - id: tool-ralph

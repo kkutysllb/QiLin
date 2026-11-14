@@ -9,7 +9,7 @@ type View =
   | { readonly kind: 'item'; readonly id: string }
   | { readonly kind: 'row'; readonly name: string; readonly rowId: string; readonly from?: 'more' }
 
-/** `installed` is the page's own tab; any other value is the id of a `plugins.tab` entry. */
+/** The page's own category ids and contributed `plugins.tab` ids share this field. */
 type NavigationState = { view: View; tab: string }
 type NavigationActions = {
   setView: (draft: NavigationState, view: View) => void
@@ -22,7 +22,7 @@ type NavigationActions = {
  */
 export function createNavigationStore(): EngineStoreHandle<NavigationState, NavigationActions> {
   return defineStore({
-    init: (): NavigationState => ({ view: { kind: 'list' }, tab: 'installed' }),
+    init: (): NavigationState => ({ view: { kind: 'list' }, tab: 'builtin' }),
     actions: {
       setView: (draft, view: View) => { draft.view = view },
       setTab: (draft, tab: string) => { draft.tab = tab },

@@ -232,8 +232,23 @@ function renderTab(
   }
 }
 
+/** Open one of the page's own category tabs by its label. */
+function openTab(label: string): void {
+  fireEvent.click(screen.getByRole('tab', { name: label }))
+}
+
+/** Open the category tab that holds `name`'s card, when the card is not already on screen. */
+function showPackage(name: string): void {
+  if (document.querySelector(`[data-plugin-package="${name}"]`) !== null) return
+  // By position: the three category tabs come first, whatever the UI language.
+  for (const tab of screen.getAllByRole('tab').slice(0, 3)) {
+    fireEvent.click(tab)
+    if (document.querySelector(`[data-plugin-package="${name}"]`) !== null) return
+  }
+}
+
 describe('PluginManagerPage', () => {
-  it('shows no tabs without contributions, and switches between Installed and a contributed tab', () => {
+  it('shows the three plugin tabs and switches to a contributed one', () => {
     const { actions, navigation, setTabs, set } = renderTab({ packages: [pkg()] }, {}, {
       'plugins.tab:discover': (_view, owner) => {
         const tab = owner as PluginTabProps
@@ -245,12 +260,18 @@ describe('PluginManagerPage', () => {
         )
       },
     })
-    expect(screen.queryByRole('tablist')).toBeNull()
-    setTabs([{ id: 'discover', label: 'Discover' }])
-    expect(screen.getByRole('tab', { name: en.installedTab }).getAttribute('aria-selected')).toBe('true')
+    // Built-in is the landing tab, and the other two categories sit beside it.
+    expect(screen.getByRole('tab', { name: en.builtinTab }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole('tab', { name: en.experimentalTab })).toBeTruthy()
+    expect(screen.getByRole('tab', { name: en.thirdpartyTab })).toBeTruthy()
     // The tabs stay in the pinned page bar with the title; the tab panel scrolls in the page body.
     expect(screen.getByRole('tablist').closest('[data-plugin-bar]')).not.toBeNull()
+    // Installed third-party packages live on their own tab.
+    expect(document.querySelector('[data-plugin-group="bundles"]')).toBeNull()
+    openTab(en.thirdpartyTab)
+    expect(navigation.getSnapshot().tab).toBe('thirdparty')
     expect(document.querySelector('[data-plugin-group="bundles"]')).not.toBeNull()
+    setTabs([{ id: 'discover', label: 'Discover' }])
     fireEvent.click(screen.getByRole('tab', { name: 'Discover' }))
     expect(navigation.getSnapshot().tab).toBe('discover')
     expect(screen.getByRole('tabpanel').getAttribute('aria-labelledby')).toBe(screen.getByRole('tab', { name: 'Discover' }).id)
@@ -260,21 +281,21 @@ describe('PluginManagerPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Discover install' }))
     expect(actions.installFrom).toHaveBeenCalledWith({ spec: 'dsh-a@1.0.0', registry: 'https://r.example/', title: 'Alpha', version: '1.0.0' })
     fireEvent.click(screen.getByRole('button', { name: 'Discover open' }))
-    expect(navigation.getSnapshot()).toEqual({ tab: 'installed', view: { kind: 'package', name: 'dsh-better-sidebar' } })
+    expect(navigation.getSnapshot()).toEqual({ tab: 'thirdparty', view: { kind: 'package', name: 'dsh-better-sidebar' } })
     expect(document.querySelector('[data-plugin-detail="dsh-better-sidebar"]')).not.toBeNull()
-    // A detail page hides the tabs; a contributed tab that leaves the ledger falls back to Installed.
+    // A detail page hides the tabs; a contributed tab that leaves the ledger falls back to the built-in list.
     expect(screen.queryByRole('tablist')).toBeNull()
     act(() => { navigation.actions.setView({ kind: 'list' }); navigation.actions.setTab('discover') })
     setTabs([])
-    expect(document.querySelector('[data-plugin-group="bundles"]')).not.toBeNull()
-    expect(navigation.getSnapshot().tab).toBe('installed')
-    // Enabling a bundle an install added highlights its card, so the page shows Installed.
+    expect(document.querySelector('[data-plugin-group="basic"]')).not.toBeNull()
+    expect(navigation.getSnapshot().tab).toBe('builtin')
+    // Enabling a bundle an install added highlights its card, so the page shows the third-party tab.
     setTabs([{ id: 'discover', label: 'Discover' }])
     fireEvent.click(screen.getByRole('tab', { name: 'Discover' }))
     expect(screen.getByRole('tabpanel', { name: 'Discover' })).toBeTruthy()
     set({ highlight: 'dsh-better-sidebar' })
-    expect(navigation.getSnapshot().tab).toBe('installed')
-    expect(screen.getByRole('tabpanel', { name: en.installedTab })).toBeTruthy()
+    expect(navigation.getSnapshot().tab).toBe('thirdparty')
+    expect(screen.getByRole('tabpanel', { name: en.thirdpartyTab })).toBeTruthy()
   })
 
   it('keeps the header controls in the scrolling page without remounting them', () => {
@@ -294,27 +315,32 @@ describe('PluginManagerPage', () => {
     expect(document.querySelector('[data-plugin-bar]')).toBeNull()
   })
 
-  it('keeps the Installed tab panel through loading and the More list out of the tabs', () => {
+  it('keeps a category tab panel through loading and opens the More list under its own header', () => {
     const worktree = '@qilin-agent/experimental-tool-worktree'
-    const { navigation, set } = renderTab({ status: 'loading', packages: [] }, {}, {
+    const { set } = renderTab({ status: 'loading', packages: [] }, {}, {
       'plugins.tab:discover': (_view, owner) => (
         <button type="button" onClick={() => { (owner as PluginTabProps).openPackage(worktree) }}>Discover open</button>
       ),
     }, {}, [{ id: 'discover', label: 'Discover' }])
-    const installed = screen.getByRole('tab', { name: en.installedTab })
-    expect(document.getElementById(installed.getAttribute('aria-controls') as string)?.getAttribute('role')).toBe('tabpanel')
+    const builtin = screen.getByRole('tab', { name: en.builtinTab })
+    expect(document.getElementById(builtin.getAttribute('aria-controls') as string)?.getAttribute('role')).toBe('tabpanel')
     set({ status: 'ready', packages: [] })
-    expect(screen.getByRole('tabpanel', { name: en.installedTab }).textContent).toBe(en.empty)
+    expect(screen.getByRole('tabpanel', { name: en.builtinTab }).textContent).toContain(en.builtinEmpty)
+    // The held-back experimental bundles live behind the experimental tab's More entry.
     set({ packages: [pkg({ name: worktree, official: true, optional: true, installed: false, enabled: false })] })
-    act(() => { navigation.actions.setView({ kind: 'more' }) })
+    fireEvent.click(screen.getByRole('tab', { name: en.experimentalTab }))
+    openTab(en.experimentalTab)
+    fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
     expect(screen.queryByRole('tablist')).toBeNull()
     expect(screen.queryByRole('tabpanel')).toBeNull()
-    act(() => { navigation.actions.setView({ kind: 'list' }) })
+    fireEvent.click(screen.getByRole('button', { name: en.backToList }))
+    expect(screen.getByRole('tab', { name: en.experimentalTab }).getAttribute('aria-selected')).toBe('true')
     fireEvent.click(screen.getByRole('tab', { name: 'Discover' }))
     fireEvent.click(screen.getByRole('button', { name: 'Discover open' }))
     expect(document.querySelector(`[data-plugin-detail="${worktree}"]`)).not.toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: en.backToPackage.replace('{name}', en.moreTitle) }))
-    expect(screen.getByRole('heading', { name: en.moreTitle, level: 1 })).toBeTruthy()
+    // A detail opened from a contributed tab returns to that tab's list, not to the More view.
+    fireEvent.click(screen.getByRole('button', { name: en.backToList }))
+    expect(screen.getByRole('tab', { name: en.thirdpartyTab }).getAttribute('aria-selected')).toBe('true')
   })
 
   it('shows a confirmed version by name above its spec, as a check and a refusal with retry, without the spec form or another registry', () => {
@@ -462,6 +488,7 @@ describe('PluginManagerPage', () => {
     expect(document.querySelector('[data-plugin-detail="dsh-better-sidebar"]')).not.toBeNull()
     act(() => { b.navigation.actions.setView({ kind: 'package', name: 'missing' }) })
     expect(document.querySelector('[data-plugin-detail]')).toBeNull()
+    showPackage('dsh-better-sidebar')
     expect(document.querySelector('[data-plugin-package="dsh-better-sidebar"]')).not.toBeNull()
   })
 
@@ -516,7 +543,8 @@ describe('PluginManagerPage', () => {
     fireEvent.click(screen.getByRole('button', { name: en.refresh }))
     expect(actions.refresh).toHaveBeenCalledTimes(2)
     set({ status: 'ready' })
-    expect(screen.getByText(en.empty)).toBeTruthy()
+    openTab(en.thirdpartyTab)
+    expect(screen.getByText(en.thirdpartyEmpty)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: en.addPlugin }))
     expect(actions.openInstall).toHaveBeenCalledTimes(1)
   })
@@ -527,6 +555,7 @@ describe('PluginManagerPage', () => {
     set({ status: 'loading' })
     expect(screen.getByRole('status', { name: en.loading })).toBeTruthy()
     set({ status: 'ready', packages: [pkg()] })
+    showPackage('dsh-better-sidebar')
     expect(screen.queryByRole('status', { name: en.loading })).toBeNull()
     expect(document.querySelector('[data-plugin-panel]')?.getAttribute('aria-busy')).toBe('false')
     fireEvent.click(screen.getByRole('button', { name: en.refresh }))
@@ -539,6 +568,7 @@ describe('PluginManagerPage', () => {
 
   it('shows refresh progress on the disabled button while preserving cards, then restores it without a toast', () => {
     const { actions, set } = renderTab({ packages: [pkg()] })
+    showPackage('dsh-better-sidebar')
     const refresh = screen.getByRole('button', { name: en.refresh })
     const detailName = en.openDetail.replace('{name}', 'dsh-better-sidebar')
     const card = screen.getByRole('button', { name: detailName })
@@ -566,6 +596,7 @@ describe('PluginManagerPage', () => {
 
   it.each(['list', 'detail'] as const)('keeps cached %s content with one localized refresh toast and no inline retry', (view) => {
     const { set, setLanguage } = renderTab({ packages: [pkg()] })
+    showPackage('dsh-better-sidebar')
     if (view === 'detail') fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-better-sidebar') }))
     const content = document.querySelector(view === 'detail' ? '[data-plugin-detail]' : '[data-plugin-package]')
     for (const dict of [en, zh]) {
@@ -651,6 +682,7 @@ describe('PluginManagerPage', () => {
 
   it('keeps the read failure and its retry visible while a detail page is open', () => {
     const { actions, set } = renderTab({ packages: [pkg()] })
+    showPackage('dsh-better-sidebar')
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-better-sidebar') }))
     expect(screen.queryByRole('alert')).toBeNull()
     set({ status: 'error' })
@@ -661,7 +693,7 @@ describe('PluginManagerPage', () => {
     expect(document.querySelector('[data-plugin-detail]')).not.toBeNull()
   })
 
-  it('lists the installed bundles as cards, the installation\'s offered ones as official, and tags a problem the Host reports', () => {
+  it('lists third-party installs on their own tab and keeps the always-on layers off the page', () => {
     const { actions } = renderTab({
       packages: [
         pkg({ meta: { description: { en: 'A sidebar.' } } }),
@@ -671,23 +703,23 @@ describe('PluginManagerPage', () => {
         pkg({ name: '@acme/dsh-tool', enabled: false }),
         // Selected by the profile but not a bundle: a problem the person can switch off, in the profile's own group.
         pkg({ name: 'dsh-selected', installed: false, error: { code: 'not-bundle' } }),
-        pkg({ name: '@qilin-agent/agent-team-profile', installed: false, optional: true, removable: false, enabled: false }),
+        // The always-on automation tasks layer: the page filters it out.
+        pkg({ name: '@qilin-agent/experimental-schedule-bundle', installed: false, optional: true, removable: false, enabled: true }),
       ],
       busy: ['dsh-protected'],
     })
+    // No package card belongs to the built-in tab: its layers have no page control.
+    expect(screen.queryAllByRole('listitem')).toEqual([])
+    openTab(en.thirdpartyTab)
     const cards = screen.getAllByRole('listitem')
-    // Offered extensions precede installed bundles.
     expect(cards.map(card => card.getAttribute('data-plugin-package'))).toEqual([
-      '@qilin-agent/agent-team-profile', 'dsh-better-sidebar', 'dsh-broken', 'dsh-protected', '@acme/dsh-tool', 'dsh-selected',
+      'dsh-better-sidebar', 'dsh-broken', 'dsh-protected', '@acme/dsh-tool', 'dsh-selected',
     ])
-    expect(cards.map(card => card.getAttribute('data-plugin-status'))).toEqual(['disabled', 'running', 'problem', 'running', 'disabled', 'problem'])
-    // Group titles have no counts; a promoted bundle carries no experimental marker.
-    expect(screen.getByRole('heading', { name: en.bundlesTitle })).toBeTruthy()
-    // No experimental bundle is offered, so the grid and the More link that opens it stay out of the page.
-    expect(screen.queryByRole('heading', { name: en.extensionsTitle })).toBeNull()
+    expect(cards.map(card => card.getAttribute('data-plugin-status'))).toEqual(['running', 'problem', 'running', 'disabled', 'problem'])
+    // No experimental bundle is offered, so its tab holds no More entry either.
     expect(screen.queryByRole('button', { name: en.moreAction })).toBeNull()
     expect(document.querySelector('[data-plugin-count]')).toBeNull()
-    expect(screen.queryAllByText(en.statusBeta)).toHaveLength(0)
+    expect(within(cards[0]?.closest('ul') as HTMLElement).queryAllByText(en.statusBeta)).toHaveLength(0)
     expect(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', '@acme/dsh-tool') })).toHaveProperty('disabled', false)
     expect(screen.getByText('A sidebar.')).toBeTruthy()
     expect(screen.getAllByText(en.statusProblem)).toHaveLength(2)
@@ -700,7 +732,7 @@ describe('PluginManagerPage', () => {
     expect(locked.getAttribute('title')).toBe(en.reasonManagementRequired)
   })
 
-  it('omits built-in profile dependencies while retaining optional and third-party bundles', () => {
+  it('omits built-in profile dependencies and the always-on layers while retaining third-party bundles', () => {
     renderTab({
       packages: [
         ...[
@@ -713,12 +745,13 @@ describe('PluginManagerPage', () => {
         ].map(name => pkg({ name })),
         pkg({ name: '@acme/dsh-base', readOnlyReason: 'management-required' }),
         pkg({ name: 'dsh-better-sidebar' }),
-        pkg({ name: '@qilin-agent/agent-team-profile', installed: false, optional: true, removable: false }),
+        pkg({ name: '@qilin-agent/experimental-schedule-bundle', installed: false, optional: true, removable: false }),
       ],
     })
-    expect(screen.getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package'))).toEqual([
-      '@qilin-agent/agent-team-profile', '@acme/dsh-base', 'dsh-better-sidebar',
-    ])
+    expect(screen.queryAllByRole('listitem')).toEqual([])
+    openTab(en.thirdpartyTab)
+    expect(screen.getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')))
+      .toEqual(['@acme/dsh-base', 'dsh-better-sidebar'])
     expect(document.querySelector('[data-plugin-count]')).toBeNull()
   })
 
@@ -728,7 +761,8 @@ describe('PluginManagerPage', () => {
         name, installed, error: { code: 'operation-error', diagnostic: 'Unreadable bundle' },
       })),
     })
-    expect(screen.getByText(en.empty)).toBeTruthy()
+    openTab(en.thirdpartyTab)
+    expect(screen.getByText(en.thirdpartyEmpty)).toBeTruthy()
     expect(screen.queryAllByRole('listitem')).toHaveLength(0)
     expect(document.querySelectorAll('[data-plugin-count]')).toHaveLength(0)
   })
@@ -737,6 +771,7 @@ describe('PluginManagerPage', () => {
     const { actions } = renderTab({
       packages: [pkg({ name: 'dsh-retired', installed: false, removable: true, error: { code: 'operation-error', diagnostic: 'cannot resolve' } })],
     })
+    showPackage('dsh-retired')
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-retired') }))
     const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
     fireEvent.click(within(detail).getByRole('button', { name: en.uninstallLabel.replace('{name}', 'dsh-retired') }))
@@ -744,20 +779,20 @@ describe('PluginManagerPage', () => {
   })
 
   it('opens a promoted official bundle\'s page without the beta tag and switches it on', () => {
-    const title = 'Agent Teams'
+    const title = 'Office tools'
+    const name = '@acme/new-official'
     const { actions } = renderTab({
-      packages: [pkg({ name: '@qilin-agent/agent-team-profile', meta: { title }, installed: false, optional: true, removable: false, enabled: false })],
+      packages: [pkg({ name, meta: { title }, installed: false, optional: true, removable: false, enabled: false })],
     })
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', title) }))
     const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
     expect(within(detail).queryByText(en.statusBeta)).toBeNull()
     expect(within(detail).queryByRole('button', { name: en.uninstallLabel.replace('{name}', title) })).toBeNull()
     fireEvent.click(within(detail).getByRole('switch', { name: en.enableToggle.replace('{name}', title) }))
-    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith('@qilin-agent/agent-team-profile', true)
+    expect(actions.setEnabled).toHaveBeenCalledExactlyOnceWith(name, true)
   })
 
   it.each([
-    ['@qilin-agent/agent-team-profile', false],
     ['@qilin-agent/experimental-auto-review', true],
     ['@qilin-agent/experimental-fixture-input', false],
     ['@acme/dsh-local-tools', false],
@@ -769,6 +804,7 @@ describe('PluginManagerPage', () => {
     const title = (dict: typeof en): string => dict === zh ? meta.title.zh : meta.title.en
     const description = (dict: typeof en): string => dict === zh ? meta.description.zh : meta.description.en
     const { actions, set, setLanguage } = renderTab({ packages: [pkg({ name, meta, description: 'Original metadata.' })] })
+    showPackage(name)
     const assertCard = (dict: typeof en) => {
       const card = screen.getByRole('button', { name: dict.openDetail.replace('{name}', title(dict)) })
       expect(card.textContent).toBe(title(dict))
@@ -777,7 +813,7 @@ describe('PluginManagerPage', () => {
       expect(screen.getByRole('switch', { name: dict.enableToggle.replace('{name}', title(dict)) })).toBeTruthy()
       expect(screen.queryByText('Original metadata.')).toBeNull()
       // The badge follows official-bundle admission: a name outside that list carries none, whatever its prefix.
-      expect(screen.queryByText(dict.statusBeta) !== null).toBe(beta)
+      expect(within(card.closest('li') as HTMLElement).queryByText(dict.statusBeta) !== null).toBe(beta)
     }
     assertCard(en)
     setLanguage(zh)
@@ -807,6 +843,7 @@ describe('PluginManagerPage', () => {
     const updatedIcon = 'data:image/png;base64,cG5n'
     const bundle = pkg({ meta: { icon }, rows: [row({ meta: { icon } }), row({ entryId: 'plain' as PluginEntryId, rowId: 'plain', moduleName: 'plain' })] })
     const { set } = renderTab({ packages: [bundle] })
+    showPackage('dsh-better-sidebar')
     const image = () => document.querySelector<HTMLImageElement>('[data-plugin-package] img, [data-plugin-detail] img')!
     expect(image().getAttribute('src')).toBe(icon)
     expect(image().getAttribute('alt')).toBe('')
@@ -833,6 +870,7 @@ describe('PluginManagerPage', () => {
   it('shows a known bundle preview in its details before activation, follows the UI language, and survives decode failure', () => {
     const name = '@qilin-agent/experimental-badge-skill-bundle'
     const { actions, setLanguage } = renderTab({ packages: [pkg({ name, enabled: false }), pkg()] })
+    showPackage(name)
     expect(screen.queryByRole('img')).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: `View ${name}` }))
     const english = screen.getByRole('img', { name: en.previewAlt.replace('{name}', name) }).getAttribute('src')
@@ -852,6 +890,7 @@ describe('PluginManagerPage', () => {
 
   it('shows no preview for bundles without one', () => {
     renderTab({ packages: [pkg()] })
+    showPackage('dsh-better-sidebar')
     fireEvent.click(screen.getByRole('button', { name: 'View dsh-better-sidebar' }))
     expect(screen.queryByRole('img')).toBeNull()
   })
@@ -860,6 +899,7 @@ describe('PluginManagerPage', () => {
     const name = '@qilin-agent/experimental-voice-input-bundle'
     const description = 'Turn speech into local notes.'
     const { setLanguage } = renderTab({ packages: [pkg({ name, enabled: false, meta: { description }, rows: [row()] })] })
+    showPackage(name)
     fireEvent.click(screen.getByRole('button', { name: `View ${name}` }))
     const image = screen.getByRole('img')
     expect(image.getAttribute('src')).toMatch(/voice-input-preview\.svg$/u)
@@ -876,6 +916,7 @@ describe('PluginManagerPage', () => {
     const { actions, set, setLanguage } = renderTab({
       packages: [pkg({ enabled: false, description: 'Legacy description.', meta: { error } })],
     })
+    showPackage('dsh-better-sidebar')
     expect(screen.getByText(en.metadataError.replace('{error}', error))).toBeTruthy()
     expect(screen.queryByText('Legacy description.')).toBeNull()
     const enable = screen.getByRole('switch', { name: en.enableToggle.replace('{name}', 'dsh-better-sidebar') })
@@ -918,6 +959,7 @@ describe('PluginManagerPage', () => {
     },
   ])('resolves bundle $field independently and hides empty descriptions on cards and details', ({ meta, englishTitle, chineseTitle, englishDescription, chineseDescription }) => {
     const { setLanguage } = renderTab({ packages: [pkg({ name: '@acme/dsh-sidebar', meta })] })
+    showPackage('@acme/dsh-sidebar')
     const languages = [
       { dict: en, title: englishTitle, description: englishDescription },
       { dict: zh, title: chineseTitle, description: chineseDescription },
@@ -959,6 +1001,7 @@ describe('PluginManagerPage', () => {
     const { actions, setLanguage } = renderTab(
       { packages: [pkg({ meta: { title: 'Bundle title', description: 'Bundle description.' }, rows })] },
     )
+    showPackage('dsh-better-sidebar')
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'Bundle title') }))
     expect(screen.getByRole('switch', { name: en.partToggle.replace('{name}', '@acme/dsh-sidebar/navigation') })).toBeTruthy()
     expect(screen.getByRole('switch', { name: en.partToggle.replace('{name}', '@acme/dsh-theme') })).toBeTruthy()
@@ -978,6 +1021,7 @@ describe('PluginManagerPage', () => {
     const { setLanguage } = renderTab(
       { packages: [pkg({ rows: [row({ moduleName, meta: { title: { en: 'Sidebar component', zh: 'sidebar' } } })] })] },
     )
+    showPackage('dsh-better-sidebar')
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-better-sidebar') }))
     const listed = document.querySelector('[data-plugin-row="include:sidebar"]') as HTMLElement
     expect(within(listed).getByText('Sidebar component')).toBeTruthy()
@@ -1004,6 +1048,7 @@ describe('PluginManagerPage', () => {
     const { actions, setLanguage } = renderTab(
       { packages: [pkg({ meta: { title: { en: 'Personal tools', zh: '个人工具' } }, rows })] },
     )
+    showPackage('dsh-better-sidebar')
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'Personal tools') }))
     setLanguage(zh)
     const search = screen.getByRole('searchbox', { name: zh.partsFilter })
@@ -1030,12 +1075,12 @@ describe('PluginManagerPage', () => {
       'plugins.bundle.config:dsh-better-sidebar': view => view === 'page' ? <form aria-label="sidebar form" /> : null,
     }
 
-    it('keeps configuration and installed plugins on the main list and shows the experimental bundles on the secondary page', () => {
-      const team = '@qilin-agent/agent-team-profile'
+    it('separates built-in, experimental and third-party plugins into tabs', () => {
+      const team = '@acme/team-official'
       renderTab(
         { packages: [
           pkg({ name: '@qilin-agent/experimental-badge-skill-bundle', official: true, enabled: false }),
-          pkg({ name: '@qilin-agent/agent-team-profile', installed: false, optional: true, removable: false, enabled: false }),
+          pkg({ name: '@acme/team-official', installed: false, optional: true, removable: false, enabled: false }),
           pkg({ name: '@qilin-agent/experimental-tool-worktree', official: true, enabled: false }),
           pkg({ name: '@acme/new-official', official: true }),
           pkg(),
@@ -1043,53 +1088,58 @@ describe('PluginManagerPage', () => {
         { items: [{ id: 'bash', label: 'Shell' }] },
         bodies,
       )
-      const basic = document.querySelector('[data-plugin-group="basic"]') as HTMLElement
-      const extensions = document.querySelector('[data-plugin-group="extensions"]') as HTMLElement
-      expect(document.querySelector('[data-plugin-group="more"]')).toBeNull()
-      expect([...document.querySelectorAll('[data-plugin-group]')].map(group => group.getAttribute('data-plugin-group')))
-        .toEqual(['basic', 'extensions', 'bundles'])
+      const group = (name: 'basic' | 'extensions' | 'bundles' | 'more'): HTMLElement =>
+        document.querySelector(`[data-plugin-group="${name}"]`) as HTMLElement
+      // Built-in: the configuration entries and the promoted official bundles, with no other tab's cards.
+      const basic = group('basic')
+      expect(document.querySelector('[data-plugin-group="extensions"]')).toBeNull()
+      expect(document.querySelector('[data-plugin-group="bundles"]')).toBeNull()
       expect(within(basic).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-item')).filter(Boolean)).toEqual(['bash'])
-      // A main-list bundle outside EXPERIMENTAL_BUNDLES joins the built-in group and carries no badge.
       expect(within(basic).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')).filter(Boolean))
         .toEqual([team, '@acme/new-official'])
       expect(within(basic).queryByText(en.statusBeta)).toBeNull()
-      expect(within(extensions).getByRole('heading', { name: en.extensionsTitle })).toBeTruthy()
-      expect(within(extensions).getByRole('button', { name: en.moreAction }).textContent).toBe(en.moreAction)
-      // No experimental main-list bundle is selected, so the More entry trails an empty grid.
-      expect(within(extensions).queryAllByRole('listitem')).toHaveLength(0)
-      expect(within(extensions).queryAllByText(en.statusBeta)).toHaveLength(0)
-      const extensionList = within(extensions).getByRole('list')
-      expect(extensionList.lastElementChild?.getAttribute('role')).toBe('presentation')
-      expect(within(extensions).getByRole('button', { name: en.moreAction }).closest('li')).toBe(extensionList.lastElementChild)
       // A card's switch belongs to the card end: it toggles without opening the page.
       const promotedCard = within(basic).getAllByRole('listitem')
         .find(card => card.getAttribute('data-plugin-package') === team) as HTMLElement
       fireEvent.click(within(promotedCard).getByRole('switch'))
       expect(document.querySelector('[data-plugin-detail]')).toBeNull()
-      expect(document.querySelector('[data-plugin-group="extensions"]')).not.toBeNull()
-      expect(document.querySelector('[data-plugin-count]')).toBeNull()
       expect(within(basic).getByText('Limits every command.')).toBeTruthy()
       expect(within(basic).queryByRole('switch', { name: en.enableToggle.replace('{name}', 'Shell') })).toBeNull()
+      // Experimental: no pinned bundle, so the grid is empty and the More entry opens the held-back ones.
+      openTab(en.experimentalTab)
+      const extensions = group('extensions')
+      expect(document.querySelector('[data-plugin-group="basic"]')).toBeNull()
+      expect(within(extensions).queryAllByRole('listitem')).toHaveLength(0)
+      expect(within(extensions).getByRole('button', { name: en.moreAction }).textContent).toBe(en.moreAction)
+      // Third-party: the profile's own install, on its tab alone.
+      openTab(en.thirdpartyTab)
+      expect(document.querySelector('[data-plugin-group="bundles"]')).not.toBeNull()
+      expect(document.querySelector('[data-plugin-package="dsh-better-sidebar"]')).not.toBeNull()
+      expect(document.querySelector('[data-plugin-group="basic"]')).toBeNull()
+      expect(document.querySelector('[data-plugin-count]')).toBeNull()
+      // A built-in card's page opens from the built-in tab.
+      openTab(en.builtinTab)
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', team) }))
       fireEvent.click(screen.getByRole('button', { name: en.backToList }))
       expect(screen.getByRole('heading', { name: en.title, level: 1 })).toBeTruthy()
+      // The More list replaces the tabs with its own header and holds the badged bundles only.
+      openTab(en.experimentalTab)
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
       expect(screen.getByRole('heading', { name: en.moreTitle, level: 1 })).toBeTruthy()
       expect(screen.queryByRole('heading', { name: en.moreTitle, level: 3 })).toBeNull()
-      expect([...document.querySelectorAll('[data-plugin-group]')].map(group => group.getAttribute('data-plugin-group')))
+      expect([...document.querySelectorAll('[data-plugin-group]')].map(item => item.getAttribute('data-plugin-group')))
         .toEqual(['more'])
-      const more = document.querySelector('[data-plugin-group="more"]') as HTMLElement
-      // A promoted bundle keeps its main-list place instead, so the secondary page holds the experimental ones alone.
+      const more = group('more')
       expect(within(more).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')))
         .toEqual(['@qilin-agent/experimental-tool-worktree', '@qilin-agent/experimental-badge-skill-bundle'])
       expect(within(more).queryByText(team)).toBeNull()
-      expect(document.querySelector('[data-plugin-package="dsh-better-sidebar"]')).toBeNull()
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', '@qilin-agent/experimental-tool-worktree') }))
       fireEvent.click(screen.getByRole('button', { name: en.backToPackage.replace('{name}', en.moreTitle) }))
       expect(screen.getByRole('heading', { name: en.moreTitle, level: 1 })).toBeTruthy()
       fireEvent.click(screen.getByRole('button', { name: en.backToList }))
       expect(document.querySelector('[data-plugin-group="more"]')).toBeNull()
-      expect(document.querySelector('[data-plugin-package="dsh-better-sidebar"]')).not.toBeNull()
+      expect(document.querySelector('[data-plugin-group="extensions"]')).not.toBeNull()
+      openTab(en.builtinTab)
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'Shell') }))
       const detail = document.querySelector('[data-plugin-item-detail="bash"]') as HTMLElement
       expect(within(detail).getByRole('heading', { level: 3 }).textContent).toBe('Shell')
@@ -1097,12 +1147,13 @@ describe('PluginManagerPage', () => {
       expect(within(detail).getByRole('form', { name: 'bash form' })).toBeTruthy()
       fireEvent.click(within(detail).getByRole('button', { name: en.backToList }))
       expect(document.querySelector('[data-plugin-item-detail]')).toBeNull()
-      expect(screen.getByRole('heading', { name: en.basicTitle })).toBeTruthy()
+      expect(screen.getByRole('tab', { name: en.builtinTab }).getAttribute('aria-selected')).toBe('true')
     })
 
     it('returns from package details to the secondary page and retains it across React remounts', () => {
       const name = '@qilin-agent/experimental-terminal-bundle'
       const b = renderTab({ packages: [pkg({ name, official: true, enabled: false })] })
+      openTab(en.experimentalTab)
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
       expect(screen.getByRole('heading', { name: en.moreTitle, level: 1 })).toBeTruthy()
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', name) }))
@@ -1116,8 +1167,8 @@ describe('PluginManagerPage', () => {
       expect(document.querySelector(`[data-plugin-package="${name}"]`)).toBeNull()
     })
 
-    it('pins a bundle the profile picks onto the main list, in its full-list place', () => {
-      const team = '@qilin-agent/agent-team-profile'
+    it('pins a bundle the profile picks onto its tab, in its full-list place', () => {
+      const team = '@acme/team-official'
       const first = '@qilin-agent/experimental-tool-worktree'
       const second = '@qilin-agent/experimental-cot-translation-bundle'
       const entry = (name: string, enabled: boolean): PackageView => pkg({ name, official: true, enabled })
@@ -1126,24 +1177,27 @@ describe('PluginManagerPage', () => {
         const list = document.querySelector(`[data-plugin-group="${group}"]`) as HTMLElement
         return within(list).queryAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')).filter(Boolean)
       }
-      // The promoted bundle sits in the built-in group; the Experimental grid and the secondary page hold badged
-      // bundles only.
+      // The promoted bundle sits on the built-in tab; the experimental tab holds badged bundles only.
       expect(cards('basic')).toEqual([team])
+      openTab(en.experimentalTab)
       expect(cards('extensions')).toEqual([second])
+      openTab(en.experimentalTab)
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
       expect(cards('more')).toEqual([first, second])
       fireEvent.click(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', first) }))
       expect(b.actions.setEnabled).toHaveBeenCalledWith(first, true)
       b.set({ packages: [entry(second, true), entry(team, true), entry(first, true)] })
       expect(cards('more')).toEqual([first, second])
+      // Enabling it pins it to the experimental tab without moving it in the tab's order.
       fireEvent.click(screen.getByRole('button', { name: en.backToList }))
-      expect(cards('basic')).toEqual([team])
       expect(cards('extensions')).toEqual([first, second])
       fireEvent.click(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', first) }))
       expect(b.actions.setEnabled).toHaveBeenCalledWith(first, false)
       b.set({ packages: [entry(second, true), entry(team, true), entry(first, false)] })
-      expect(cards('basic')).toEqual([team])
       expect(cards('extensions')).toEqual([second])
+      openTab(en.builtinTab)
+      expect(cards('basic')).toEqual([team])
+      openTab(en.experimentalTab)
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
       expect(cards('more')).toEqual([first, second])
     })
@@ -1151,6 +1205,7 @@ describe('PluginManagerPage', () => {
     it('returns a held-back bundle opened outside the lists to the list that shows it', () => {
       const name = '@qilin-agent/experimental-terminal-bundle'
       const b = renderTab({ packages: [pkg({ name, official: true, enabled: false })] })
+      openTab(en.experimentalTab)
       act(() => { b.navigation.actions.setView({ kind: 'package', name }) })
       expect(document.querySelector(`[data-plugin-detail="${name}"]`)).toBeTruthy()
       fireEvent.click(screen.getByRole('button', { name: en.backToPackage.replace('{name}', en.moreTitle) }))
@@ -1164,12 +1219,12 @@ describe('PluginManagerPage', () => {
     it('starts on the main list when the navigation store is recreated', () => {
       const first = createNavigationStore().create()
       first.actions.setView({ kind: 'more' })
-      expect(createNavigationStore().create().getSnapshot()).toEqual({ tab: 'installed', view: { kind: 'list' } })
+      expect(createNavigationStore().create().getSnapshot()).toEqual({ tab: 'builtin', view: { kind: 'list' } })
     })
 
-    it('counts an official plugin as content: the empty line waits for a page with nothing at all', () => {
+    it('counts a configuration entry as built-in content: its tab never shows the empty line', () => {
       renderTab({ packages: [] }, { items: [{ id: 'bash', label: 'Shell' }] }, bodies)
-      expect(screen.queryByText(en.empty)).toBeNull()
+      expect(screen.queryByText(en.builtinEmpty)).toBeNull()
       expect(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'Shell') })).toBeTruthy()
     })
 
@@ -1182,6 +1237,7 @@ describe('PluginManagerPage', () => {
 
     it('renders a bundle\'s own configuration on its page', () => {
       renderTab({ packages: [pkg({ rows: [row()] })] }, { bundles: new Set(['dsh-better-sidebar']) }, bodies)
+      showPackage('dsh-better-sidebar')
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-better-sidebar') }))
       const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
       expect(within(detail).getByRole('form', { name: 'sidebar form' })).toBeTruthy()
@@ -1193,6 +1249,7 @@ describe('PluginManagerPage', () => {
           ? <span>Row summary</span>
           : <div>Row form</div>,
       })
+      showPackage('dsh-better-sidebar')
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-better-sidebar') }))
       // Only a row the ledger names gets the configure control.
       fireEvent.click(screen.getByRole('button', { name: en.configureRow.replace('{name}', 'dsh-better-sidebar') }))
@@ -1215,6 +1272,7 @@ describe('PluginManagerPage', () => {
       }, {
         [`plugins.row.config:${name}#sidebar`]: view => view === 'summary' ? <span>Row summary</span> : <div>Row form</div>,
       })
+      openTab(en.experimentalTab)
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', name) }))
       fireEvent.click(screen.getByRole('button', { name: en.configureRow.replace('{name}', 'sidebar') }))
@@ -1257,6 +1315,7 @@ describe('PluginManagerPage', () => {
         { items: [{ id: 'bash', label: 'Shell' }] },
         bodies,
       )
+      showPackage('dsh-better-sidebar')
       // The cards carry none of it.
       expect(screen.queryByRole('button', { name: /^act / })).toBeNull()
 
@@ -1278,6 +1337,7 @@ describe('PluginManagerPage', () => {
 
       fireEvent.click(screen.getByRole('button', { name: en.backToList }))
 
+      openTab(en.builtinTab)
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'Shell') }))
       const item = document.querySelector('[data-plugin-item-detail="bash"]') as HTMLElement
       expect(within(item).getByRole('button', { name: 'act item bash' })).toBeTruthy()
@@ -1289,6 +1349,7 @@ describe('PluginManagerPage', () => {
     it('leaves the version out of a bundle the Host reports none for', () => {
       const unversioned: PackageView = { name: 'dsh-better-sidebar', installed: true, official: false, availability: 'profile', optional: false, removable: true, enabled: true, updatable: false, rows: [] }
       renderTab({ packages: [unversioned] }, {}, bodies)
+      showPackage('dsh-better-sidebar')
       fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-better-sidebar') }))
       expect(subjects.at(-1)).toEqual({ kind: 'bundle', pkg: { name: 'dsh-better-sidebar', installed: true, official: false, availability: 'profile', enabled: true, rows: [] } })
     })
@@ -1298,6 +1359,7 @@ describe('PluginManagerPage', () => {
     const name = '@acme/dsh-agent-team-profile'
     const { setLanguage } = renderTab({ packages: [pkg({ name, meta: { description: { en: 'Third-party description.' } } })] })
     setLanguage(zh)
+    showPackage(name)
     fireEvent.click(screen.getByRole('button', { name: zh.openDetail.replace('{name}', name) }))
     expect(screen.getByRole('heading', { level: 3 }).textContent).toBe(name)
     expect(screen.getByText('Third-party description.')).toBeTruthy()
@@ -1357,6 +1419,7 @@ describe('PluginManagerPage', () => {
         rows: [row(), row({ rowId: 'theme', moduleName: 'dsh-better-sidebar/theme', entryId: 'include:theme' as PluginEntryId, enabled: false, phase: null })],
       })],
     })
+    showPackage('dsh-better-sidebar')
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-better-sidebar') }))
     const detail = document.querySelector('[data-plugin-detail="dsh-better-sidebar"]') as HTMLElement
     expect(within(detail).getByRole('heading', { level: 3 }).textContent).toBe('dsh-better-sidebar')
@@ -1402,7 +1465,8 @@ describe('PluginManagerPage', () => {
     expect(screen.queryByText(en.versionTag.replace('{version}', '0.16.0'))).toBeNull()
     set({ packages: [] })
     expect(document.querySelector('[data-plugin-detail]')).toBeNull()
-    expect(screen.getByText(en.empty)).toBeTruthy()
+    openTab(en.thirdpartyTab)
+    expect(screen.getByText(en.thirdpartyEmpty)).toBeTruthy()
   })
 
   it('switches the rows of a bundle that is on, filters a long list, and locks what the Host will not address', () => {
@@ -1420,6 +1484,7 @@ describe('PluginManagerPage', () => {
       return { ...unmounted, enabled: false, phase: null }
     })
     const { actions, set } = renderTab({ packages: [pkg({ rows })], busy: [rowKey('include:row-5')] })
+    showPackage('dsh-better-sidebar')
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', 'dsh-better-sidebar') }))
     const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
     const toggle = (id: string): HTMLElement => within(detail.querySelector<HTMLElement>(`[data-plugin-row="${id}"]`)!)
@@ -2228,10 +2293,12 @@ describe('PluginManagerPage', () => {
         pkg({ name: '@qilin-agent/experimental-ralph-bundle', official: true, enabled: false }),
       ] })
       expect(document.querySelector(`[data-plugin-package="${name}"]`)).toBeNull()
+      openTab(en.experimentalTab)
       set({ highlight: name })
       expect(screen.getByRole('heading', { name: en.title, level: 1 })).toBeTruthy()
       expect(scrollIntoView).not.toHaveBeenCalled()
       set({ highlight: null })
+      openTab(en.experimentalTab)
       fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
       set({ highlight: name })
       expect(screen.getByRole('heading', { name: en.moreTitle, level: 1 })).toBeTruthy()
@@ -2391,7 +2458,10 @@ it.each([false, true])('opens activation guidance details and returns to the ori
     [`plugins.bundle.activation:${name}`]: (_view, owner) => <button onClick={(owner as PluginActivationOwnerProps).onOpenDetails}>Go to setup</button>,
     [`plugins.bundle.config:${name}`]: () => <div>Bundle setup</div>,
   })
-  if (fromMore) fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
+  if (fromMore) {
+    openTab(en.experimentalTab)
+    fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
+  } else showPackage(name)
   expect(screen.queryByText('Go to setup')).toBeNull()
   set({ packages: [bundle] })
   expect(screen.queryByText('Go to setup')).toBeNull()
@@ -2414,6 +2484,7 @@ it('dismisses activation guidance until the user enables the bundle again', () =
   const { set } = renderTab({ packages: [pkg({ enabled: false })] }, {}, {
     [`plugins.bundle.activation:${name}`]: (_view, owner) => <button onClick={(owner as PluginActivationOwnerProps).onDismiss}>Later</button>,
   })
+  showPackage(name)
   fireEvent.click(screen.getByRole('switch'))
   set({ packages: [pkg()] })
   fireEvent.click(screen.getByText('Later'))
@@ -2453,6 +2524,7 @@ describe('on-demand Official bundles', () => {
     const entry = catalog()
     const { actions, set } = renderTab({ packages: [entry] })
     expect(document.querySelector(`[data-plugin-package="${name}"]`)).toBeNull()
+    openTab(en.experimentalTab)
     fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
     const assertOfficial = () => {
       expect(document.querySelectorAll(`[data-plugin-package="${name}"]`)).toHaveLength(1)
@@ -2475,6 +2547,7 @@ describe('on-demand Official bundles', () => {
       status: 'accepted', kind: 'registry', name, version: '2.0.0', spec: `${name}@2.0.0`, registry: null,
       bundle: true, selection: true, saveExact: true,
     } } })
+    openTab(en.experimentalTab)
     fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
     expect(screen.getByRole('switch', { name: en.enableToggle.replace('{name}', title) }).hasAttribute('disabled')).toBe(true)
   })
@@ -2482,6 +2555,7 @@ describe('on-demand Official bundles', () => {
   it('offers an explicit update and displays installed and target versions', () => {
     const entry = { ...catalog(), installed: true, availability: 'profile' as const, removable: true, version: '1.0.0' }
     const { actions } = renderTab({ packages: [entry] })
+    openTab(en.experimentalTab)
     fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
     expect(screen.getByText(en.statusUpdateAvailable)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', title) }))
@@ -2494,6 +2568,7 @@ describe('on-demand Official bundles', () => {
 
   it.each([undefined, `${name}@1.0.0`])('retains dependency source=%s beside unavailable status and the update action', (source) => {
     renderTab({ packages: [{ ...catalog(), ...source === undefined ? {} : { source }, installed: true, removable: true, error: { code: 'operation-error', diagnostic: 'Unreadable package files' } }] })
+    openTab(en.experimentalTab)
     fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
     expect(screen.getByText(en.statusMissingFiles)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', title) }))
@@ -2515,6 +2590,7 @@ describe('on-demand Official bundles', () => {
     const entry: PackageView = { ...catalog(), installed: true, availability: 'profile', removable: true, version: '2.0.0',
       installTarget: { spec, version: '2.0.0' }, ...source === undefined ? {} : { source } }
     renderTab({ packages: [entry] })
+    openTab(en.experimentalTab)
     fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
     expect(screen.queryByText(en.statusUpdateAvailable) !== null).toBe(expected)
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', title) }))
@@ -2528,6 +2604,7 @@ describe('on-demand Official bundles', () => {
     const { installTarget: _target, ...entry } = catalog()
     const { actions, set } = renderTab({ packages: [{ ...entry, enabled: true,
       error: { code: 'operation-error', diagnostic: 'Source package is not built' } }] })
+    openTab(en.experimentalTab)
     fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
     const toggle = screen.getByRole('switch', { name: en.enableToggle.replace('{name}', title) })
     expect(toggle.hasAttribute('disabled')).toBe(false)
@@ -2539,6 +2616,7 @@ describe('on-demand Official bundles', () => {
 
   it('does not present an absent catalog package as built in or as an empty loaded component list', () => {
     renderTab({ packages: [catalog()] })
+    openTab(en.experimentalTab)
     fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
     fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', title) }))
     const detail = document.querySelector('[data-plugin-detail]') as HTMLElement
@@ -2575,6 +2653,7 @@ describe('registry versions and updates', () => {
     ]
     const check = listed(versions, [{ registry: null, problem: 'network', reason: 'ETIMEDOUT' }, { registry: MIRROR }])
     const { actions, navigation } = renderTab({ packages: [updatable()], versions: { 'dsh-better-sidebar': check } })
+    showPackage('dsh-better-sidebar')
     expect(screen.getByText(en.statusUpdateAvailable)).toBeTruthy()
     open(navigation)
     expect(actions.ensureVersions).toHaveBeenCalledWith('dsh-better-sidebar')

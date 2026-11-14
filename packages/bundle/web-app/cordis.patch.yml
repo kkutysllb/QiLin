@@ -30,10 +30,10 @@
 
 - id: tools
   config:
-    # QILIN_TOOLS_MODE (native|ptc) overrides the process-wide fallback for
+    # QILIN_TOOLS_MODE (native|coding) overrides the process-wide fallback for
     # scopes that carry no tool-presentation choice of their own. It defaults to
     # the shipped default preset's presentation: `standard` carries no
-    # tool-presentation row and inherits this native fallback, while `ptc`
+    # tool-presentation row and inherits this native fallback, while `coding`
     # declares its own coding row. An unset environment therefore behaves like the
     # composition this bundle ships. The seam stays TEMPORARY upstream: a
     # per-session choice retires it.
@@ -444,7 +444,7 @@
 
     # The preset surface: the hero picker, the General-settings default and
     # roster section, the session-header label, and the create-plugin menu item.
-    # The deployment ships two presets (standard and ptc), so the surface stays
+    # The deployment ships two presets (standard and coding), so the surface stays
     # mounted; a deployment that ships one preset hides it with its own patch.
     - id: ui-agent-preset
       name: '@qilin-agent/client-ui-agent-preset'
@@ -604,3 +604,20 @@
       name: '@qilin-agent/agent-presets'
       config:
         default: standard
+
+# ── the always-on automation surface ────────────────────────────────────────
+
+# The Schedule service, its time-context companion, and its task page are part
+# of this composition rather than an optional bundle: automation tasks are on
+# in every Web profile, and no UI switch offers to turn them off. `time-context`
+# supplies the current time, browser zone, and elapsed time the model needs to
+# resolve an unqualified date or time.
+- insert:
+    - id: time-context
+      name: '@qilin-agent/time-context'
+
+    - id: schedule
+      name: '@qilin-agent/schedule'
+
+    - id: ui-schedule
+      name: '@qilin-agent/client-ui-schedule'

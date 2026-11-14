@@ -85,6 +85,22 @@ async create( agent: Agent, request: CreateWorktreeRequest = {}, signal?: AbortS
  * @returns the directory and whether the branch was created again.
  */
 async restore( agent: Agent, request: RestoreWorktreeRequest, signal?: AbortSignal, onPhase?: (phase: CreateWorktreePhase) => void, ): Promise<RestoredWorktree>
+
+/**
+ * Remove one retained worktree: its checkout directory and registration leave
+ * the filesystem, and its branch follows when `deleteBranch` is set and Git
+ * reports it as merged. A checkout with uncommitted or untracked files stays:
+ * Git refuses the removal without force, so no work is discarded implicitly,
+ * and the caller keeps its files. Validation matches {@link restore}: a
+ * canonical target inside the configured pool, a source checkout root, a
+ * relative branch name, and a full base commit.
+ * @param agent - caller whose sandbox policy confines the commands.
+ * @param request - recorded directory, branch, base commit, source repository root, and branch intent.
+ * @param signal - cancellation of the removal.
+ * @param onPhase - receives each stage before it begins; it must not throw.
+ * @returns the addressed directory and whether the branch was deleted.
+ */
+async remove( agent: Agent, request: RemoveWorktreeRequest, signal?: AbortSignal, onPhase?: (phase: CreateWorktreePhase) => void, ): Promise<RemovedWorktree>
 ```
 
 Types: [Agent](core.zh.md)

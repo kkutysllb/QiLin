@@ -408,6 +408,27 @@ abstract stat(id: SessionId, options?: SessionPersistenceStatOptions): Promise<S
  * @returns one snapshot per stored session.
  */
 abstract list(options?: SessionPersistenceListOptions): Promise<readonly SessionPersistenceSnapshot[]>
+
+/**
+ * Remove one stored session and every artifact the backend owns for it: every
+ * retained generation, the backend's ownership record, and any derived file
+ * written beside them. The durable log is gone and the identity can be
+ * created again afterwards.
+ *
+ * Deletion refuses while this process holds any handle for the session
+ * ({@link SessionPersistenceBusyError}), because a reader that outlives the
+ * removal would observe a torn artifact. A session that does not exist
+ * resolves without an error, so a repeated delete is a no-op.
+ *
+ * A backend that cannot remove artifacts refuses with
+ * {@link SessionPersistenceDeletionUnsupportedError} rather than reporting a
+ * removal it did not perform; the shipped JSONL backend implements it.
+ * @param id - the stored session to remove.
+ * @param _options - optional cancellation observed before backend work starts; the base backend refuses before it reads them.
+ * @throws {SessionPersistenceBusyError} while this process holds a handle for the session.
+ * @throws {SessionPersistenceDeletionUnsupportedError} when the backend cannot delete at all.
+ */
+delete(id: SessionId, _options?: SessionPersistenceDeleteOptions): Promise<void>
 ```
 
 Types: [SessionId](core.zh.md)

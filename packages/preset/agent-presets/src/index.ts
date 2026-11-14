@@ -78,18 +78,15 @@ function validatePresetId(value: string, field: 'agentPreset' | 'from'): void {
   }
 }
 
-/** Resolved preset-selection settings; the registration base supplies both fields. */
+/** Resolved preset-selection settings; the registration base supplies the field. */
 export interface AgentPresetSettings {
-  /** Saved default used when mode selection is enabled. */
+  /** Saved default every unnamed new session composes. */
   default: string
-  /** Whether visible mode selection and the saved user default govern unnamed new sessions. */
-  modeSelectionEnabled: boolean
 }
 
 /** Runtime schema for the user-writable slice. */
 export const AgentPresetSettingsSchema: z<AgentPresetSettings> = z.object({
   default: z.string(),
-  modeSelectionEnabled: z.boolean(),
 })
 
 export { COMPOSITION_FILE, discoverPresets, scanRoot, SHIPPED_PRESET_ROOT } from './discovery.ts'
@@ -123,7 +120,6 @@ export class AgentPresets extends TypertRemoteService {
   /** Runtime schema for the preset roster. */
   static Config = z.object({
     default: z.string().required().volatile(),
-    modeSelectionEnabled: z.boolean().default(true).volatile(),
     roots: z.array(z.object({
       path: z.string().required(),
       trust: z.union(['system', 'user'] as const).default('user'),
@@ -228,18 +224,7 @@ export class AgentPresets extends TypertRemoteService {
    * every running session on the preset it was composed from.
    */
   get defaultId(): string {
-    // Hiding the picker is also the product's safe-default boundary: a stale
-    // user choice from an older build must not silently compose a non-standard
-    // new session while there is no control that reports that choice.
-    return retiredPresetAlias(this.selectionPolicy().defaultId)
-  }
-
-  /** Read one internally consistent snapshot of the selection policy. */
-  private selectionPolicy(): { enabled: boolean; defaultId: string } {
-    return {
-      enabled: this.config.modeSelectionEnabled.get(),
-      defaultId: this.config.default.get(),
-    }
+    return retiredPresetAlias(this.config.default.get())
   }
 
   /**
@@ -268,21 +253,20 @@ export class AgentPresets extends TypertRemoteService {
    */
   @Remote('list')
   async remoteExportList(): Promise<AgentPresetRoster> {
-    // Keep the visible policy and marked default from the same settings
-    // snapshot even when discovery yields while settings are hot-reloaded.
-    const policy = this.selectionPolicy()
+    // Read the marked default once, even when discovery yields while settings
+    // are hot-reloaded.
+    const defaultId = this.defaultId
     const presets = await this.list()
     return {
       presets: presets.map(preset => ({
         id: preset.id,
         trust: preset.trust,
-        isDefault: preset.id === policy.defaultId,
+        isDefault: preset.id === defaultId,
         ...preset.name === undefined ? {} : { name: preset.name },
         ...preset.description === undefined ? {} : { description: preset.description },
         ...preset.broken === undefined ? {} : { broken: preset.broken },
       })),
       authorable: this.authorable,
-      modeSelectionEnabled: policy.enabled,
     }
   }
 
@@ -354,7 +338,7 @@ export class AgentPresets extends TypertRemoteService {
    * @throws when no configured root supplies that id.
    */
   async resolve(id?: string): Promise<AgentPreset> {
-    const wanted = retiredPresetAlias(id ?? this.selectionPolicy().defaultId)
+    const wanted = retiredPresetAlias(id ?? this.defaultId)
     const presets = await this.list()
     const found = presets.find(preset => preset.id === wanted)
     if (found === undefined) {

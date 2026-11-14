@@ -1,5 +1,5 @@
 ---
-description: "Web 设置中的 MCP 服务器页面：经 mcpServers Remote 列出、新增、编辑、启停与删除用户补丁层声明的服务器。"
+description: "从 Web 侧边栏打开的 MCP 服务器工作区面板：经 mcpServers Remote 列出、新增、编辑、启停与删除用户补丁层声明的服务器。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-MCP 服务器页面是设置中的一个分区。它渲染 home 级用户补丁层声明的服务器——每个都带传输方式、命令行或端点、以及启用状态。新增、编辑、启停与删除全部经 \`mcpServers\` Remote 写入，它只改写定位到某一个服务器的补丁节点；本页面从不自己拼装补丁文件，也从不重新推导 Host 已经给出的答案。
+MCP 服务器页面是侧边栏「通用」分组里的一个工作区面板，而不是设置中的一个分区。它渲染 home 级用户补丁层声明的服务器——每个都带传输方式、命令行或端点、以及启用状态。新增、编辑、启停与删除全部经 \`mcpServers\` Remote 写入，它只改写定位到某一个服务器的补丁节点；本页面从不自己拼装补丁文件，也从不重新推导 Host 已经给出的答案。
 
 ## 目录
 
@@ -25,7 +25,7 @@ MCP 服务器页面是设置中的一个分区。它渲染 home 级用户补丁�
 <a id="use-this-package"></a>
 ## 使用本包
 
-打开设置并选择 MCP 服务器。页面在挂载时加载一份快照，并渲染两块内容：已配置服务器，以及正在新增或修改的服务器所用的编辑器。
+在 workspace 侧边栏的「通用」分组里选择 MCP 服务器。面板占据中央栏，在挂载时加载一份快照，并渲染两块内容：已配置服务器，以及正在新增或修改的服务器所用的编辑器。
 
 ### 已配置服务器
 
@@ -49,7 +49,8 @@ MCP 服务器页面是设置中的一个分区。它渲染 home 级用户补丁�
 
 - [\`@qilin-agent/mcp-servers\`](../../mcp/mcp-servers/README.zh.md)——本页面读写的 Host 服务，以及一次写入遵循的补丁层保真规则。
 - [\`@qilin-agent/mcp-client\`](../../mcp/mcp-client/README.zh.md)——每个被写入的条目实际挂载了什么，以及它的服务器产生的工具名。
-- [\`@qilin-agent/client-ui-settings\`](../ui-settings/README.zh.md)——声明本页面注册所用分区槽位的设置外壳。
+- [\`@qilin-agent/client-ui-sidebar\`](../ui-sidebar/README.zh.md)——声明面板列表、并把本行归入「通用」分组的侧边栏。
+- [\`@qilin-agent/client-ui-layout\`](../ui-layout/README.zh.md)——声明面板所渲染的 keyed \`main\` 槽位的外壳。
 
 <a id="model-experience"></a>
 ## 模型体验

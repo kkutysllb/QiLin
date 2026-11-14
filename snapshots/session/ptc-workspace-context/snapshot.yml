@@ -11,4 +11,4 @@ header:
 replay:
   override: true
 environment:
-  QILIN_TOOLS_MODE: ptc
+  QILIN_TOOLS_MODE: coding

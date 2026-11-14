@@ -23,6 +23,10 @@ import type {} from '@qilin-agent/api-remotes/client'
 // Type-only: the forwarded events' own declaration (`$on`'s key face resolves
 // through the owning package's client-safe types subpath).
 import type {} from '@qilin-agent/plugin-manager/types'
+import { isExperimentalBundle } from '@qilin-agent/official-bundles'
+// Type-only: the `conversation.session.header.utilities` seat the Agent Teams
+// switch registers into, declared by the conversation package.
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import { PluginManagerPage } from './PluginManagerPage.tsx'
 import { createPluginHeaderRef } from './header-scroll.ts'
 import { PluginRefreshToast, type PluginRefreshToastFace } from './PluginRefreshToast.tsx'
@@ -30,6 +34,9 @@ import { configLedgerSource } from './config-ledger.ts'
 import { tabLedgerSource } from './tab-ledger.ts'
 import { PluginManagerController } from './manager-store.ts'
 import { en, zh, type PluginManagerLocaleKey } from './locales.ts'
+import { AgentTeamSwitch } from './AgentTeamSwitch.tsx'
+import type { AgentTeamSwitchInjected } from './AgentTeamSwitch.tsx'
+import { AgentTeamSwitchController } from './agent-team-switch-store.ts'
 import { createNavigationStore } from './navigation-store.ts'
 import type {} from './slot-contract.ts'
 
@@ -116,6 +123,22 @@ export function apply(ctx: ClientContext): void {
       dismissNotice: face.dismissNotice,
     }),
   }, PluginRefreshToast))
+  // The Agent Teams bundle is switched from the Session header rather than the
+  // Plugins page, so its control sits beside the Open locally action.
+  const agentTeamSwitch = new AgentTeamSwitchController(ctx)
+  ctx.slots.inject('conversation.session.header.utilities', () => ctx.slots.register({
+    name: 'conversation.session.header.utilities',
+    id: 'agent-team-switch',
+    // Left of Open locally (order -10).
+    order: -20,
+    locale: NS,
+    inject: (): AgentTeamSwitchInjected => ({
+      hooks: { agentTeamSwitch: agentTeamSwitch.store },
+      load: () => agentTeamSwitch.load(),
+      toggle: (next: boolean) => { void agentTeamSwitch.toggle(next) },
+    }),
+  }, AgentTeamSwitch))
+
   // The section's store and the cross-plugin navigation share one handle, so a
   // request that arrives before the shell mounts still aims the next open.
   const handle = createNavigationStore(), instance = handle.create()
@@ -145,15 +168,23 @@ export function apply(ctx: ClientContext): void {
   // Cross-plugin navigation reveals the section first, then aims the shared
   // store at the requested list or bundle. The provider belongs to this plugin's
   // fiber, not to the shell's section cell, so it outlives a shell remount.
+  // A bundle the page lists belongs to one category tab; an unknown name (an
+  // install target the Host has not reported yet) opens among the third-party
+  // installs, where its card will land.
+  const tabForBundle = (packageName: string): string => {
+    const pkg = face.hooks.pluginManager.getSnapshot().packages.find(item => item.name === packageName)
+    if (pkg?.official !== true) return 'thirdparty'
+    return isExperimentalBundle(packageName) ? 'experimental' : 'builtin'
+  }
   ctx.effect(() => ctx.reflect.provide('pluginNavigation', {
     openList: () => {
       ctx.get('settingsShell')?.open(PANEL_ID)
-      instance.actions.setTab('installed')
+      instance.actions.setTab('builtin')
       instance.actions.setView({ kind: 'list' })
     },
     openBundle: (packageName: string) => {
       ctx.get('settingsShell')?.open(PANEL_ID)
-      instance.actions.setTab('installed')
+      instance.actions.setTab(tabForBundle(packageName))
       instance.actions.setView({ kind: 'package', name: packageName })
     },
   }), 'ui-plugin-manager: navigation')

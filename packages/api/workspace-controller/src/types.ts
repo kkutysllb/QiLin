@@ -41,6 +41,16 @@ declare module '@qilin-agent/typert-protocol' {
     'workspace/invalid-path': { readonly path: string }
     /** Another Workspace already uses the requested name. */
     'workspace/name-conflict': { readonly name: string }
+    /** Deletion applies only to archived Sessions; this one is on a grouping surface. */
+    'session/not-archived': { readonly sessionId: SessionId }
+    /** The Session is live in the Host process, so its log cannot be removed safely. */
+    'session/live': { readonly sessionId: SessionId }
+    /** A provider reports running work; it must stop before the log is removed. */
+    'session/active': { readonly sessionId: SessionId; readonly activity: readonly string[] }
+    /** This process still holds a storage handle for the Session. */
+    'session/delete-busy': { readonly sessionId: SessionId }
+    /** The composed storage backend cannot delete stored Sessions. */
+    'session/delete-unsupported': { readonly sessionId: SessionId }
     /** The Session or its anchor is not in the Workspace's manual order. */
     'workspace/move-invalid': {
       readonly workspaceId: WorkspaceId
@@ -110,6 +120,11 @@ export interface WorkspaceInsertSessionBeforeRequest {
 
 /** Session requested for archival from Workspace grouping surfaces. */
 export interface WorkspaceArchiveSessionRequest {
+  readonly sessionId: SessionId
+}
+
+/** Archived Session requested for permanent deletion to free its disk space. */
+export interface WorkspaceDeleteArchivedSessionRequest {
   readonly sessionId: SessionId
 }
 

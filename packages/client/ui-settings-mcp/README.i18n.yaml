@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-settings-mcp/README.md
 /:
-  en: 0b5850d01be805fc
-  zh: 9c82426a055cb122
+  en: f9ae7946709b194d
+  zh: 8dcf38d942960c88
 /qilin-agent-client-ui-settings-mcp:
   en: 7718225d80016527
   zh: cb68fdb96637ebc0
 /qilin-agent-client-ui-settings-mcp/summary:
-  en: 264355764c3d2b1a
-  zh: 014135eba2e4c16e
+  en: 3b9b86364e54921f
+  zh: fdca2acc90e77ea2
 /qilin-agent-client-ui-settings-mcp/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-client-ui-settings-mcp/use-this-package:
-  en: 7b7930e53b4eee46
-  zh: 4839aaceb871230f
+  en: 56b403e6ec3dd1e9
+  zh: b09ca5d4a308ef88
 /qilin-agent-client-ui-settings-mcp/use-this-package/configured-servers:
   en: 44131cc40f03c38b
   zh: f5772a7dafff2dc3
@@ -24,11 +24,11 @@
   en: ca56db83fb01e75f
   zh: 817c290913ef8a63
 /qilin-agent-client-ui-settings-mcp/understand-the-implementation:
-  en: 5fd0aa8e7ae562c7
+  en: caa11a6b5b88cc0d
   zh: 3b003dac8a003b80
 /qilin-agent-client-ui-settings-mcp/further-exploration:
-  en: 63304d4d5ff542c2
-  zh: b426e45c4a6c928a
+  en: ce3089fada8b57a4
+  zh: d1b4e17e3f312232
 /qilin-agent-client-ui-settings-mcp/model-experience:
   en: df6db7dd4f472f25
   zh: 816196313e81bbc4

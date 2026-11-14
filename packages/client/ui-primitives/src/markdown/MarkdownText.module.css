@@ -320,9 +320,17 @@
   cursor: pointer;
 }
 
+/* An anchor to a file path is a hyperlink, not a badge: it keeps the link
+   color and weight the sheet gives anchors, and drops the mention pill so the
+   text reads inline instead of sitting in a background. Declared after
+   `.fileMention` because one element carries both classes. */
 .fileLink {
   max-width: 100%;
   text-align: inherit;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: none;
 }
 
 .fileMention:hover,

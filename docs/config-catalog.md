@@ -193,8 +193,6 @@ export interface Config {
 export interface Config {
   /** Preset id mounted when a caller names none. Missing at mount time fails loud. */
   default: Volatile<string>
-  /** Whether the picker and the saved user default govern unnamed new sessions. */
-  modeSelectionEnabled: Volatile<boolean>
   /** Scanned roots in precedence order; an earlier root wins a duplicate id. */
   roots: PresetRoot[]
   /**
@@ -745,6 +743,54 @@ export type Density = typeof DENSITIES[number]
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/client-ui-theme -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/coding-runtime-node -->
+<a id="qilin-agentcoding-runtime-node"></a>
+
+## `@qilin-agent/coding-runtime-node`
+
+- `inject`: `fs` · `subprocess` · `sandbox` · `sandboxPolicy`
+- `source`: [`packages/coding-runtime/coding-runtime-node/src/config.ts:7`](../packages/coding-runtime/coding-runtime-node/src/config.ts)
+
+```ts config-catalog
+/** Deployment-varying runtime bounds and launch choices. */
+export interface Config {
+  /** Worker invocation in the subprocess world; omitted selects the local carrier. */
+  launch?: LaunchConfig
+  /** per-call starts fresh processes; persistent-in-memory retains a REPL per owner under the same file policy. */
+  executionMode?: 'per-call' | 'persistent-in-memory'
+  /** Default elapsed deadline, including nested tool and approval waits. */
+  timeoutMs?: number
+  /** Maximum numeric elapsed budget accepted by resolve. */
+  maxTimeoutMs?: number
+  /** Combined serialized logs, completion and diagnostic byte cap. */
+  maxOutputBytes?: number
+  /** V8 old-generation heap limit in MiB; native allocations are excluded. */
+  maxOldGenerationSizeMb?: number
+  /** Maximum control frame, outstanding argument and queued control-output bytes. */
+  maxMessageBytes?: number
+  /** Maximum simultaneous host binding calls accepted from a program. */
+  maxPendingCalls?: number
+  /** Managed process termination and output-drain grace in milliseconds. */
+  graceMs?: number
+}
+
+/** Deployment-owned worker invocation in the subprocess execution world. */
+export type LaunchConfig = {
+  /** Start a separately installed Node executable and JavaScript bootstrap. */
+  kind: 'node-script'
+  /** Executable name or path resolved by the subprocess provider. */
+  executable: string
+  /** Absolute preinstalled bootstrap; omitted maps this package's bootstrap into the execution world. */
+  bootstrapPath?: string
+} | {
+  /** Start the private coding worker embedded in a packaged executable. */
+  kind: 'embedded'
+  /** Packaged executable name or path resolved by the subprocess provider. */
+  executable: string
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/coding-runtime-node -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/compaction-basic -->
 <a id="qilin-agentcompaction-basic"></a>
 
@@ -989,7 +1035,7 @@ export interface CotTranslationPreferences {
 ## `@qilin-agent/experimental-client-ui-forge`
 
 - `inject`: `forge` · `forgeSession` · `sessionProjections` · `workingDirectory` · `fs` · `subprocess` · `sandbox` · `sandboxPolicy` · `agents`
-- `source`: [`packages/experimental/client-ui-forge/src/types.ts:318`](../packages/experimental/client-ui-forge/src/types.ts)
+- `source`: [`packages/experimental/client-ui-forge/src/types.ts:342`](../packages/experimental/client-ui-forge/src/types.ts)
 
 ```ts config-catalog
 /** Host settings of the forge panel Remote. */
@@ -1020,6 +1066,75 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-client-ui-forge -->
+
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-coding-runtime-python -->
+<a id="qilin-agentexperimental-coding-runtime-python"></a>
+
+## `@qilin-agent/experimental-coding-runtime-python`
+
+- `inject`: `sandbox` · `sandboxPolicy`
+- `source`: [`packages/experimental/coding-runtime-python/src/index.ts:45`](../packages/experimental/coding-runtime-python/src/index.ts)
+
+```ts config-catalog
+/** Plugin config: every cap, changeable from `cordis.yml` (no hardcoded tunables). */
+export interface Config {
+  /**
+   * RLIMIT_CPU in whole seconds (a positive integer — `setrlimit` in the child
+   * rejects a float). The child sets the soft limit to `cpuSeconds` and the
+   * hard limit to `cpuSeconds + 1`: the kernel delivers SIGXCPU at the soft
+   * limit, which the host classifies as a `timeout`; the +1s hard limit is a
+   * SIGKILL backstop for a program that traps SIGXCPU. Granularity is whole seconds.
+   */
+  cpuSeconds?: number
+  /** Wall-clock ceiling in milliseconds; backstops CPU time for programs awaiting a promise nobody resolves. */
+  maxWallMs?: number
+  /**
+   * RLIMIT_AS in mebibytes; caps address space so a runaway allocation fails
+   * cleanly. Not applied on Darwin, where the dyld shared cache mapped into
+   * every process at exec exceeds any practical cap and the kernel rejects
+   * the call; `cpuSeconds` and `maxWallMs` still bound the run there. Bounds
+   * `maxLogBytes`/`maxValueBytes` at load on EVERY platform (this static check
+   * runs on Darwin too, where only the runtime `setrlimit` is skipped): each
+   * budget times a worst-case Unicode expansion must fit this byte count minus a
+   * fixed interpreter baseline, so a near-budget output cannot breach the address
+   * space during the child's build-and-encode.
+   */
+  addressSpaceMb?: number
+  /**
+   * Shared byte budget for captured log text (host-side ledger). Bounded at load
+   * against `addressSpaceMb`: the child builds and encodes a near-budget entry
+   * under RLIMIT_AS with several copies live at once, so this cap times the
+   * worst-case Unicode expansion must fit the address space left after the
+   * interpreter baseline (see `addressSpaceMb`) — a load-time rejection, not a
+   * runtime clamp. Also bounded at load by the host's configured heap like
+   * `maxValueBytes` (see its JSDoc): the effective frame cap minus the frame
+   * envelope.
+   */
+  maxLogBytes?: number
+  /**
+   * Byte cap for the completion value. Bounded at load against `addressSpaceMb`
+   * the same way `maxLogBytes` is: the child builds and encodes a near-budget
+   * value under RLIMIT_AS with several copies live at once, so this cap times the
+   * worst-case Unicode expansion must fit the address space left after the
+   * interpreter baseline. Both budgets are ALSO bounded at load by the host's
+   * configured heap: the effective frame cap (the protocol cap, or a lower
+   * heap-derived ceiling when the host heap cannot safely parse a near-cap
+   * frame — see `hostFrameParseCeiling`) minus the frame envelope, so a budget
+   * whose honest frame could OOM the host's own JSON.parse is rejected up
+   * front.
+   */
+  maxValueBytes?: number
+  /** SIGTERM→SIGKILL grace period on kill, matching bash-local's default. */
+  graceMs?: number
+  /**
+   * Absolute path, relative path, or basename of a CPython 3.10+ interpreter.
+   * Resolved and validated once at plugin load under a five-second force-kill
+   * deadline; a basename searches `PATH`.
+   */
+  pythonBin?: string
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-coding-runtime-python -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-computer-use-cua-driver-mcp -->
 <a id="qilin-agentexperimental-computer-use-cua-driver-mcp"></a>
@@ -1188,75 +1303,6 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-hooks-codex -->
-
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-coding-runtime-python -->
-<a id="qilin-agentexperimental-coding-runtime-python"></a>
-
-## `@qilin-agent/experimental-coding-runtime-python`
-
-- `inject`: `sandbox` · `sandboxPolicy`
-- `source`: [`packages/experimental/coding-runtime-python/src/index.ts:45`](../packages/experimental/coding-runtime-python/src/index.ts)
-
-```ts config-catalog
-/** Plugin config: every cap, changeable from `cordis.yml` (no hardcoded tunables). */
-export interface Config {
-  /**
-   * RLIMIT_CPU in whole seconds (a positive integer — `setrlimit` in the child
-   * rejects a float). The child sets the soft limit to `cpuSeconds` and the
-   * hard limit to `cpuSeconds + 1`: the kernel delivers SIGXCPU at the soft
-   * limit, which the host classifies as a `timeout`; the +1s hard limit is a
-   * SIGKILL backstop for a program that traps SIGXCPU. Granularity is whole seconds.
-   */
-  cpuSeconds?: number
-  /** Wall-clock ceiling in milliseconds; backstops CPU time for programs awaiting a promise nobody resolves. */
-  maxWallMs?: number
-  /**
-   * RLIMIT_AS in mebibytes; caps address space so a runaway allocation fails
-   * cleanly. Not applied on Darwin, where the dyld shared cache mapped into
-   * every process at exec exceeds any practical cap and the kernel rejects
-   * the call; `cpuSeconds` and `maxWallMs` still bound the run there. Bounds
-   * `maxLogBytes`/`maxValueBytes` at load on EVERY platform (this static check
-   * runs on Darwin too, where only the runtime `setrlimit` is skipped): each
-   * budget times a worst-case Unicode expansion must fit this byte count minus a
-   * fixed interpreter baseline, so a near-budget output cannot breach the address
-   * space during the child's build-and-encode.
-   */
-  addressSpaceMb?: number
-  /**
-   * Shared byte budget for captured log text (host-side ledger). Bounded at load
-   * against `addressSpaceMb`: the child builds and encodes a near-budget entry
-   * under RLIMIT_AS with several copies live at once, so this cap times the
-   * worst-case Unicode expansion must fit the address space left after the
-   * interpreter baseline (see `addressSpaceMb`) — a load-time rejection, not a
-   * runtime clamp. Also bounded at load by the host's configured heap like
-   * `maxValueBytes` (see its JSDoc): the effective frame cap minus the frame
-   * envelope.
-   */
-  maxLogBytes?: number
-  /**
-   * Byte cap for the completion value. Bounded at load against `addressSpaceMb`
-   * the same way `maxLogBytes` is: the child builds and encodes a near-budget
-   * value under RLIMIT_AS with several copies live at once, so this cap times the
-   * worst-case Unicode expansion must fit the address space left after the
-   * interpreter baseline. Both budgets are ALSO bounded at load by the host's
-   * configured heap: the effective frame cap (the protocol cap, or a lower
-   * heap-derived ceiling when the host heap cannot safely parse a near-cap
-   * frame — see `hostFrameParseCeiling`) minus the frame envelope, so a budget
-   * whose honest frame could OOM the host's own JSON.parse is rejected up
-   * front.
-   */
-  maxValueBytes?: number
-  /** SIGTERM→SIGKILL grace period on kill, matching bash-local's default. */
-  graceMs?: number
-  /**
-   * Absolute path, relative path, or basename of a CPython 3.10+ interpreter.
-   * Resolved and validated once at plugin load under a five-second force-kill
-   * deadline; a basename searches `PATH`.
-   */
-  pythonBin?: string
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/experimental-coding-runtime-python -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-session-title-all-prompts-llm -->
 <a id="qilin-agentexperimental-session-title-all-prompts-llm"></a>
@@ -1487,7 +1533,7 @@ export interface Config {
 ## `@qilin-agent/experimental-worktree`
 
 - `inject`: `workingDirectory` · `fs` · `subprocess` · `sandbox` · `sandboxPolicy`
-- `source`: [`packages/experimental/worktree/src/index.ts:21`](../packages/experimental/worktree/src/index.ts)
+- `source`: [`packages/experimental/worktree/src/index.ts:27`](../packages/experimental/worktree/src/index.ts)
 
 ```ts config-catalog
 /** Worktree location, generated names, executables, and subprocess resource limits. */
@@ -2618,54 +2664,6 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/plugin-package-inventory-deepseek -->
-
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/coding-runtime-node -->
-<a id="qilin-agentcoding-runtime-node"></a>
-
-## `@qilin-agent/coding-runtime-node`
-
-- `inject`: `fs` · `subprocess` · `sandbox` · `sandboxPolicy`
-- `source`: [`packages/coding-runtime/coding-runtime-node/src/config.ts:7`](../packages/coding-runtime/coding-runtime-node/src/config.ts)
-
-```ts config-catalog
-/** Deployment-varying runtime bounds and launch choices. */
-export interface Config {
-  /** Worker invocation in the subprocess world; omitted selects the local carrier. */
-  launch?: LaunchConfig
-  /** per-call starts fresh processes; persistent-in-memory retains a REPL per owner under the same file policy. */
-  executionMode?: 'per-call' | 'persistent-in-memory'
-  /** Default elapsed deadline, including nested tool and approval waits. */
-  timeoutMs?: number
-  /** Maximum numeric elapsed budget accepted by resolve. */
-  maxTimeoutMs?: number
-  /** Combined serialized logs, completion and diagnostic byte cap. */
-  maxOutputBytes?: number
-  /** V8 old-generation heap limit in MiB; native allocations are excluded. */
-  maxOldGenerationSizeMb?: number
-  /** Maximum control frame, outstanding argument and queued control-output bytes. */
-  maxMessageBytes?: number
-  /** Maximum simultaneous host binding calls accepted from a program. */
-  maxPendingCalls?: number
-  /** Managed process termination and output-drain grace in milliseconds. */
-  graceMs?: number
-}
-
-/** Deployment-owned worker invocation in the subprocess execution world. */
-export type LaunchConfig = {
-  /** Start a separately installed Node executable and JavaScript bootstrap. */
-  kind: 'node-script'
-  /** Executable name or path resolved by the subprocess provider. */
-  executable: string
-  /** Absolute preinstalled bootstrap; omitted maps this package's bootstrap into the execution world. */
-  bootstrapPath?: string
-} | {
-  /** Start the private coding worker embedded in a packaged executable. */
-  kind: 'embedded'
-  /** Packaged executable name or path resolved by the subprocess provider. */
-  executable: string
-}
-```
-<!-- END GENERATED config-catalog:@qilin-agent/coding-runtime-node -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/pwsh-local -->
 <a id="qilin-agentpwsh-local"></a>
@@ -4004,6 +4002,23 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/tool-lsp -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-office-read -->
+<a id="qilin-agenttool-office-read"></a>
+
+## `@qilin-agent/tool-office-read`
+
+- `inject`: `tools` · `fs`
+- `source`: [`packages/document/tool-office-read/src/index.ts:20`](../packages/document/tool-office-read/src/index.ts)
+
+```ts config-catalog
+/** Deployment-varying bounds; every field has a default a deployment may narrow. */
+export interface Config {
+  /** Largest document the tool reads, in bytes. */
+  maxBytes: number
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/tool-office-read -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/tool-present -->
 <a id="qilin-agenttool-present"></a>
 
@@ -4322,7 +4337,7 @@ export interface Config {
 }
 
 /** How the registry presents its tools to the model (see {@link Config.mode}). */
-export type ToolPresentationMode = 'native' | 'ptc'
+export type ToolPresentationMode = 'native' | 'coding'
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/tools -->
 
@@ -4776,13 +4791,13 @@ Abstract service classes — a deployment loads a concrete implementation packag
 | `package` | `class` | `inject` | `source` |
 | --- | --- | --- | --- |
 | `@qilin-agent/attachment` | `AttachmentStore` | — | [`packages/attachment/attachment/src/index.ts`](../packages/attachment/attachment/src/index.ts) |
+| `@qilin-agent/coding-runtime` | `CodingRuntime` | — | [`packages/coding-runtime/coding-runtime/src/index.ts`](../packages/coding-runtime/coding-runtime/src/index.ts) |
 | `@qilin-agent/compaction` | `CompactionEngine` | — | [`packages/compaction/compaction/src/index.ts`](../packages/compaction/compaction/src/index.ts) |
 | `@qilin-agent/credentials` | `CredentialProvider` | — | [`packages/credentials/credentials/src/index.ts`](../packages/credentials/credentials/src/index.ts) |
 | `@qilin-agent/file-reference` | `FileReferenceService` | — | [`packages/context/file-reference/src/index.ts`](../packages/context/file-reference/src/index.ts) |
 | `@qilin-agent/fs` | `FileSystem` | — | [`packages/fs/fs/src/index.ts`](../packages/fs/fs/src/index.ts) |
 | `@qilin-agent/host-directory-picker` | `DirectoryPicker` | — | [`packages/host/directory-picker/src/index.ts`](../packages/host/directory-picker/src/index.ts) |
 | `@qilin-agent/jobs` | `JobRegistry` | — | [`packages/jobs/jobs/src/index.ts`](../packages/jobs/jobs/src/index.ts) |
-| `@qilin-agent/coding-runtime` | `CodingRuntime` | — | [`packages/coding-runtime/coding-runtime/src/index.ts`](../packages/coding-runtime/coding-runtime/src/index.ts) |
 | `@qilin-agent/sandbox` | `SandboxProvider` | — | [`packages/sandbox/sandbox/src/index.ts`](../packages/sandbox/sandbox/src/index.ts) |
 | `@qilin-agent/session-persistence` | `SessionPersistence` | — | [`packages/session/session-persistence/src/index.ts`](../packages/session/session-persistence/src/index.ts) |
 | `@qilin-agent/session-query` | `SessionQueryEngine` | — | [`packages/session-query/session-query/src/index.ts`](../packages/session-query/session-query/src/index.ts) |
@@ -4842,6 +4857,7 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 | `@qilin-agent/llm-mock-server` | — | [`packages/test-support/llm-mock-server/src/index.ts`](../packages/test-support/llm-mock-server/src/index.ts) |
 | `@qilin-agent/loader-smoke` | — | [`packages/test-support/loader-smoke/src/index.ts`](../packages/test-support/loader-smoke/src/index.ts) |
 | `@qilin-agent/native-command` | — | [`packages/util/native-command/src/index.ts`](../packages/util/native-command/src/index.ts) |
+| `@qilin-agent/office-read` | — | [`packages/document/office-read/src/index.ts`](../packages/document/office-read/src/index.ts) |
 | `@qilin-agent/official-bundles` | — | [`packages/util/official-bundles/src/index.ts`](../packages/util/official-bundles/src/index.ts) |
 | `@qilin-agent/output-retention` | — | [`packages/util/output-retention/src/index.ts`](../packages/util/output-retention/src/index.ts) |
 | `@qilin-agent/package-manifest` | — | [`packages/util/package-manifest/src/index.ts`](../packages/util/package-manifest/src/index.ts) |
@@ -4862,6 +4878,7 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 | `@qilin-agent/session-format-v4-to-v5` | — | [`packages/session/session-format-v4-to-v5/src/index.ts`](../packages/session/session-format-v4-to-v5/src/index.ts) |
 | `@qilin-agent/session-format-v5-to-v6` | — | [`packages/session/session-format-v5-to-v6/src/index.ts`](../packages/session/session-format-v5-to-v6/src/index.ts) |
 | `@qilin-agent/session-format-v6-to-v7` | — | [`packages/session/session-format-v6-to-v7/src/index.ts`](../packages/session/session-format-v6-to-v7/src/index.ts) |
+| `@qilin-agent/session-format-v7-to-v8` | — | [`packages/session/session-format-v7-to-v8/src/index.ts`](../packages/session/session-format-v7-to-v8/src/index.ts) |
 | `@qilin-agent/session-snapshot` | — | [`packages/test-support/session-snapshot/src/index.ts`](../packages/test-support/session-snapshot/src/index.ts) |
 | `@qilin-agent/session-telemetry` | — | [`packages/session/session-telemetry/src/index.ts`](../packages/session/session-telemetry/src/index.ts) |
 | `@qilin-agent/session-title-llm` | — | [`packages/session/session-title-llm/src/index.ts`](../packages/session/session-title-llm/src/index.ts) |

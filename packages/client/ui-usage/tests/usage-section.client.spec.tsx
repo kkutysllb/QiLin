@@ -1,15 +1,41 @@
 // @vitest-environment jsdom
 /** The usage page: what it draws, what folding a series does, and what it says when the read fails. */
 
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { UsageSection, type UsageSectionComponentProps } from '../src/client/UsageSection.tsx'
 import { en } from '../src/client/locales.ts'
 
+/** jsdom has no ResizeObserver; the measured plot box is what this chart draws into. */
+class ResizeObserverStub {
+  constructor(private readonly callback: ResizeObserverCallback) {}
+
+  observe(target: Element): void {
+    const size = { inlineSize: 640, blockSize: 232 }
+    this.callback([{
+      target,
+      borderBoxSize: [size],
+      contentBoxSize: [size],
+      devicePixelContentBoxSize: [size],
+      contentRect: new DOMRect(0, 0, size.inlineSize, size.blockSize),
+    }], this)
+  }
+
+  unobserve(): void {}
+
+  disconnect(): void {}
+}
+
+beforeEach(() => {
+  vi.stubGlobal('ResizeObserver', ResizeObserverStub)
+  vi.spyOn(Element.prototype, 'clientWidth', 'get').mockReturnValue(640)
+})
+
 afterEach(() => {
   cleanup()
   vi.unstubAllGlobals()
+  vi.restoreAllMocks()
   vi.useRealTimers()
 })
 
@@ -64,10 +90,10 @@ describe('usage settings section', () => {
     expect(card(en.month)).toContain('430')
     expect(card(en.all)).toContain('1.3k')
     expect(card(en['metric.turns'])).toContain('9')
-    // The month so far is one bar per day — quiet days included — each drawn with
-    // three bands plus a transparent hit area.
-    expect(container.querySelectorAll('g').length).toBe(daysThisMonth())
-    expect(container.querySelectorAll('rect').length).toBe(daysThisMonth() * 4)
+    // The month so far is one column per day — quiet days included — each drawn
+    // with three bands.
+    expect(container.querySelectorAll('g[data-day]').length).toBe(daysThisMonth())
+    expect(container.querySelectorAll('[data-series]').length).toBe(daysThisMonth() * 3)
     // Every series is foldable, and the per-session table names the session.
     for (const label of [en['metric.input'], en['metric.output'], en['metric.cacheRead'], en['metric.hitRate']]) {
       expect(screen.getByRole('button', { name: label })).toBeTruthy()
@@ -84,15 +110,15 @@ describe('usage settings section', () => {
     const { container } = render(<UsageSection {...props()} />)
     const fold = await screen.findByRole('button', { name: en['metric.input'] })
     expect(fold.getAttribute('aria-pressed')).toBe('true')
-    expect(container.querySelectorAll('rect').length).toBe(daysThisMonth() * 4)
+    expect(container.querySelectorAll('[data-series]').length).toBe(daysThisMonth() * 3)
 
     fireEvent.click(fold)
 
     expect(fold.getAttribute('aria-pressed')).toBe('false')
     // The folded series leaves the stack instead of being drawn invisible.
-    expect(container.querySelectorAll('rect').length).toBe(daysThisMonth() * 3)
+    expect(container.querySelectorAll('[data-series]').length).toBe(daysThisMonth() * 2)
     fireEvent.click(screen.getByRole('button', { name: en['metric.hitRate'] }))
-    expect(container.querySelector('path')).toBeNull()
+    expect(container.querySelector('path[class*="rateLine"]')).toBeNull()
   })
 
   it('reads one day back to the reader when its bar is focused or hovered', async () => {
@@ -104,16 +130,18 @@ describe('usage settings section', () => {
     const { container } = render(<UsageSection {...props()} />)
     await screen.findByRole('heading', { name: en.title })
     // The record was reported today, which is the last bar of the month so far.
-    const bars = container.querySelectorAll('g')
+    const bars = container.querySelectorAll('g[data-day]')
     const bar = bars[bars.length - 1]
     expect(bar).not.toBeUndefined()
     fireEvent.mouseOver(bar as Element)
-    // 300 of 400 prompt tokens came from cache; the card names the day and lists
+    // 300 of 400 prompt tokens came from cache; the readout names the day and
     // every series as its own row.
-    expect(screen.getAllByText(new RegExp(`${en['metric.hitRate']} 75%`, 'u')).length).toBeGreaterThan(0)
-    expect(screen.getByText(/^\d{4}-\d{2}-\d{2}$/u)).toBeTruthy()
+    const tooltip = screen.getByRole('tooltip')
+    expect(within(tooltip).getByText(en['metric.hitRate'])).toBeTruthy()
+    expect(within(tooltip).getByText('75%')).toBeTruthy()
+    expect(within(tooltip).getByText(/^\d{4}-\d{2}-\d{2}$/u)).toBeTruthy()
     fireEvent.mouseOut(bar as Element)
-    expect(screen.queryAllByText(new RegExp(`${en['metric.hitRate']} 75%`, 'u'))).toHaveLength(0)
+    expect(screen.queryByRole('tooltip')).toBeNull()
   })
 
   it('shows the administrator every account and the deployment total', async () => {
@@ -205,34 +233,38 @@ describe('usage settings section', () => {
     })
     const { container } = render(<UsageSection {...props()} />)
     await screen.findByRole('heading', { name: en.title })
-    const bars = Array.from(container.querySelectorAll('g'))
+    const bars = Array.from(container.querySelectorAll('g[data-day]'))
     const last = bars[bars.length - 1]
     if (last === undefined) throw new Error('the chart drew no bar')
+    const hitRateRow = (): string => {
+      const tooltip = screen.queryByRole('tooltip')
+      return tooltip === null ? '' : tooltip.textContent ?? ''
+    }
 
     fireEvent.mouseOver(last)
-    expect(screen.getByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeTruthy()
+    expect(hitRateRow()).toContain('29%')
     fireEvent.mouseOut(last)
-    expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeNull()
+    expect(hitRateRow()).toBe('')
 
     // A focused bar reads its own day, and keeps reading it when the pointer leaves.
-    act(() => { last.focus() })
-    expect(screen.getByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeTruthy()
+    act(() => { (last as SVGElement).focus() })
+    expect(hitRateRow()).toContain('29%')
     // The readout follows the latest gesture: the pointer leaving clears it.
     fireEvent.mouseOver(last)
     fireEvent.mouseOut(last)
-    expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeNull()
+    expect(hitRateRow()).toBe('')
 
     fireEvent.keyDown(last, { key: 'ArrowLeft' })
     expect(document.activeElement).toBe(bars[bars.length - 2])
     fireEvent.keyDown(bars[bars.length - 2] as Element, { key: 'ArrowRight' })
     expect(document.activeElement).toBe(last)
     fireEvent.keyDown(last, { key: 'Escape' })
-    expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeNull()
+    expect(hitRateRow()).toBe('')
 
     fireEvent.keyDown(last, { key: 'ArrowRight' })
     expect(document.activeElement).toBe(last)
-    act(() => { last.blur() })
-    expect(screen.queryByText(new RegExp(`${en['metric.hitRate']} 29%`, 'u'))).toBeNull()
+    act(() => { (last as SVGElement).blur() })
+    expect(hitRateRow()).toBe('')
   })
 
   it.skipIf(daysThisMonth() === 1)('reads a quiet day whose bar draws no band', async () => {
@@ -245,7 +277,7 @@ describe('usage settings section', () => {
     await screen.findByRole('heading', { name: en.title })
     // The first day of the month carried no tokens, so its bar has no band and
     // the tooltip falls back to the chart baseline instead of a stacked top.
-    const first = container.querySelector('g')
+    const first = container.querySelector('g[data-day]')
     expect(first).not.toBeNull()
     fireEvent.mouseOver(first as Element)
     expect(screen.getByText(/^\d{4}-\d{2}-01$/u)).toBeTruthy()
@@ -264,10 +296,10 @@ describe('usage settings section', () => {
     }
     // With no visible series a bar keeps no band, so the readout anchors at the
     // baseline instead of a stacked top.
-    const bars = container.querySelectorAll('g')
+    const bars = container.querySelectorAll('g[data-day]')
     expect(bars.length).toBeGreaterThan(0)
     fireEvent.mouseOver(bars[bars.length - 1] as Element)
-    expect(screen.getByText(/^\d{4}-\d{2}-\d{2}$/u)).toBeTruthy()
+    expect(within(screen.getByRole('tooltip')).getByText(/^\d{4}-\d{2}-\d{2}$/u)).toBeTruthy()
   })
 
   it('reports nothing for a read its own unmount aborted', async () => {

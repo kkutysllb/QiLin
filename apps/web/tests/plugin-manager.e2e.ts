@@ -90,23 +90,22 @@ describe('web e2e: plugin manager', () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-plugin-manager-list'))
     const panel = await openPluginsPanel()
 
+    // The page opens on the built-in category: the installation's official
+    // plugins that registered their configuration. Agent Teams is switched from
+    // the Session header, and the automation tasks layer is always on with no
+    // control at all, so neither appears as a card.
+    expect(await panel.locator('[data-plugin-group="basic"] [data-plugin-item]').count()).toBe(4)
+    expect(await panel.locator('[data-plugin-group="basic"] [data-plugin-package]').count()).toBe(0)
+    // The Experimental category holds the badged bundles alone.
+    await panel.getByRole('tab', { name: '实验插件', exact: true }).click()
+    expect(await panel.locator('[data-plugin-group="extensions"] [data-plugin-package]').count()).toBe(3)
+    expect(await panel.locator('[data-plugin-group="extensions"]').getByText('实验性', { exact: true }).count()).toBe(3)
+    // The Third-party category holds the profile's own installs.
+    await panel.getByRole('tab', { name: '第三方插件', exact: true }).click()
+    expect(await panel.locator('[data-plugin-group="bundles"] [data-plugin-package]').count()).toBe(2)
     await panel.getByText('@fixture/bundle', { exact: true }).waitFor({ timeout: 20_000 })
     const toggle = panel.getByRole('switch', { name: '启用 @fixture/bundle' })
     expect(await toggle.getAttribute('aria-checked')).toBe('false')
-    // The profile's own group holds the layers the shipped template composes
-    // (base, web-app, and the built-in animations pack); the installation's
-    // optional bundles fill the built-in group (Agent Teams and automation tasks,
-    // which the catalogue no longer marks Experimental) and the Experimental grid
-    // (voice input, Auto review, and the change-request worktree), followed by the
-    // official plugins that registered their configuration, and its other bundles
-    // stay off the page.
-    expect(await panel.locator('[data-plugin-group="bundles"] [data-plugin-package]').count()).toBe(2)
-    expect(await panel.locator('[data-plugin-group="extensions"] [data-plugin-package]').count()).toBe(3)
-    expect(await panel.locator('[data-plugin-group="basic"] [data-plugin-item]').count()).toBe(4)
-    // A promoted bundle joins the built-in group and never reaches the Experimental tag or grid.
-    expect(await panel.locator('[data-plugin-group="basic"] [data-plugin-package]').count()).toBe(2)
-    // Only the Experimental grid tags its bundles.
-    expect(await panel.getByText('实验性', { exact: true }).count()).toBe(3)
     // A bundle that is off still shows the rows its patch declares, without switches.
     await panel.getByRole('button', { name: '查看 @fixture/bundle' }).click()
     await panel.locator('[data-plugin-row]', { hasText: 'fixture-row' }).waitFor({ timeout: 10_000 })
@@ -118,6 +117,7 @@ describe('web e2e: plugin manager', () => {
     const snapshot = await captureStableAria(page, '[data-plugin-panel]', scaffold.workspaceCwd)
     await compareOrRefreshGolden(MANAGER_EXPECTED, snapshot, MODE)
     // The secondary page lists the Experimental bundles alone, so a promoted bundle never reaches it.
+    await panel.getByRole('tab', { name: '实验插件', exact: true }).click()
     await panel.getByRole('button', { name: '更多', exact: true }).click()
     await panel.getByRole('heading', { name: '实验性插件', level: 1 }).waitFor({ timeout: 10_000 })
     expect(await panel.getByRole('button', { name: '查看 智能体团队', exact: true }).count()).toBe(0)
@@ -131,10 +131,11 @@ describe('web e2e: plugin manager', () => {
   it('updates built-in names and descriptions when the UI language changes', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-plugin-manager-locale'))
     const panel = await openPluginsPanel()
-    await panel.getByRole('button', { name: '查看 智能体团队', exact: true }).click()
+    await panel.getByRole('tab', { name: '实验插件', exact: true }).click()
+    await panel.getByRole('button', { name: '查看 自动授权审查', exact: true }).click()
     const packageName = panel.locator('[data-plugin-name]')
-    expect(await packageName.textContent()).toBe('@qilin-agent/agent-team-profile')
-    expect(await panel.getByText('启用团队协作、团队工具、成员列表和共享任务看板。').count()).toBe(1)
+    expect(await packageName.textContent()).toBe('@qilin-agent/experimental-auto-review')
+    expect(await panel.getByText('提供自动审查权限模式，由模型在每次工具调用前判断是否授权。').count()).toBe(1)
     try {
       // The dialog is modal, so the scenario leaves it, switches the language
       // from the account menu, and comes back; the tab remounts, so the bundle
@@ -154,11 +155,12 @@ describe('web e2e: plugin manager', () => {
         await englishPanel.getByRole('button', { name: /^Back/ }).first().click()
       }
       await englishPanel.getByRole('heading', { name: 'Plugins', exact: true }).waitFor({ timeout: 10_000 })
-      await englishPanel.getByRole('button', { name: 'View Agent Teams', exact: true }).click()
-      expect(await packageName.textContent()).toBe('@qilin-agent/agent-team-profile')
-      expect(await englishPanel.getByText('Enable team collaboration, team tools, the member roster, and the shared task board.').count()).toBe(1)
+      await englishPanel.getByRole('tab', { name: 'Experimental', exact: true }).click()
+      await englishPanel.getByRole('button', { name: 'View Auto Authorization Review', exact: true }).click()
+      expect(await packageName.textContent()).toBe('@qilin-agent/experimental-auto-review')
+      expect(await englishPanel.getByText('Add an Auto review permission mode that uses the model to assess authorization before each tool call.').count()).toBe(1)
       await englishPanel.getByRole('button', { name: 'Back to plugins', exact: true }).click()
-      for (const title of ['Agent Teams']) {
+      for (const title of ['Auto Authorization Review']) {
         await englishPanel.getByRole('button', { name: `View ${title}`, exact: true }).waitFor()
         expect(await englishPanel.getByRole('switch', { name: `Enable ${title}`, exact: true }).count()).toBe(1)
       }
@@ -172,7 +174,8 @@ describe('web e2e: plugin manager', () => {
       await page.getByRole('menuitem', { name: 'Language', exact: true }).click()
       await page.getByRole('menuitem', { name: '中文', exact: true }).click()
       const zhPanel = await openPluginsPanel()
-      await zhPanel.getByRole('button', { name: '查看 智能体团队', exact: true }).waitFor()
+      await zhPanel.getByRole('tab', { name: '实验插件', exact: true }).click()
+      await zhPanel.getByRole('button', { name: '查看 自动授权审查', exact: true }).waitFor()
     } finally {
       await restoreBrowserLocale()
     }
@@ -182,6 +185,7 @@ describe('web e2e: plugin manager', () => {
   it('checks a spec before installing it and words what the check refused', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-plugin-manager-install'))
     const panel = await openPluginsPanel()
+    await panel.getByRole('tab', { name: '第三方插件', exact: true }).click()
     await panel.getByRole('button', { name: '添加插件', exact: true }).click()
     const dialog = page.getByRole('dialog', { name: '添加插件' })
     await dialog.waitFor({ timeout: 10_000 })
@@ -220,6 +224,7 @@ describe('web e2e: plugin manager', () => {
   it('enables a bundle into the profile manifest, mounts its rows live, and switches one of them', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-plugin-manager-enable'))
     const panel = await openPluginsPanel()
+    await panel.getByRole('tab', { name: '第三方插件', exact: true }).click()
     const toggle = panel.getByRole('switch', { name: '启用 @fixture/bundle' })
     await toggle.waitFor({ timeout: 20_000 })
     const mounted = () => [...scaffold.ctx.loader.entries()].find(entry => entry.options.id === 'fixture-row')

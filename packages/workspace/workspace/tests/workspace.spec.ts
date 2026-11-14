@@ -14,10 +14,13 @@ import { SessionPersistenceRevision } from '@qilin-agent/session-persistence'
 import type { SessionPersistenceSnapshot } from '@qilin-agent/session-persistence'
 import { MemoryMediaPool, MemoryStorageBackend } from '../../../storage/storage-domain/tests/helpers/memory-backend.ts'
 import WorkspaceRegistry, {
+  WorkspaceLiveSessionDeleteError,
+  WorkspaceUnarchivedSessionDeleteError,
   WorkspaceId,
   type workspaceDomainState,
   WorkspaceMoveInvalidError,
   WorkspaceOrderInvalidError,
+  WorkspaceUnknownSessionError,
 } from '../src/index.ts'
 import type { WorkspaceDomainState, WorkspaceRecord } from '../src/index.ts'
 import { defaultWorkspaceTitle, fullyQualifiedWorkspacePath } from '../src/paths.ts'
@@ -55,7 +58,8 @@ async function harness(options: HarnessOptions = {}) {
     listed.map(header => ({ header, revision: SessionPersistenceRevision(`rev-${header.id}`) })))
   const open = vi.fn(() => { throw new Error('event bodies must not be opened') })
   const stat = vi.fn(() => { throw new Error('per-session stat must not be needed') })
-  ctx.provide('sessionPersistence', { list, open, stat } as never)
+  const remove = vi.fn(async (_id: SessionId): Promise<void> => {})
+  ctx.provide('sessionPersistence', { list, open, stat, delete: remove } as never)
 
   if (options.sessionStore === true) {
     await ctx.plugin(SessionStore)
@@ -82,6 +86,7 @@ async function harness(options: HarnessOptions = {}) {
     list,
     open,
     stat,
+    remove,
     setSessions: (headers: SessionHeader[]) => { listed = headers },
   }
 }
@@ -1115,6 +1120,77 @@ describe('registry-global session unarchive', () => {
 
     const second = await harness({ pool, sessions })
     expect(second.registry.archivedSessionIds).toEqual(['kept'])
+  })
+})
+
+describe('archived session deletion', () => {
+  it('deletes the stored log of an archived session and drops its registry entries', async () => {
+    const dir = await makeDir('delete-home')
+    const result = await harness({ sessions: [header('gone', dir, 100), header('kept', dir, 200)] })
+    await result.registry.archiveSession(SessionId('gone'))
+    await result.registry.archiveSession(SessionId('kept'))
+
+    await result.registry.deleteArchivedSession(SessionId('gone'))
+
+    expect(result.remove).toHaveBeenCalledWith('gone')
+    // Deletion is not unarchival: the surviving entry keeps its archive slot.
+    expect(result.registry.archivedSessionIds).toEqual(['kept'])
+    expect(storedState(result.pool).archivedSessionIds).toEqual(['kept'])
+    expect(result.registry.pinnedSessionIds).toEqual([])
+  })
+
+  it('forgets the deleted session, so a later archive cannot resurrect it', async () => {
+    const dir = await makeDir('delete-forget')
+    const result = await harness({ sessions: [header('gone', dir, 100), header('kept', dir, 200)] })
+    await result.registry.archiveSession(SessionId('gone'))
+    await result.registry.deleteArchivedSession(SessionId('gone'))
+    // The stored list is the Host's durable truth and no longer holds it.
+    result.setSessions([header('kept', dir, 200)])
+
+    await expect(result.registry.archiveSession(SessionId('gone')))
+      .rejects.toBeInstanceOf(WorkspaceUnknownSessionError)
+    // A known surviving session still archives normally.
+    await expect(result.registry.archiveSession(SessionId('kept'))).resolves.toBeUndefined()
+  })
+
+  it('refuses a session that is not archived without touching storage', async () => {
+    const dir = await makeDir('delete-unarchived')
+    const result = await harness({ sessions: [header('visible', dir, 100)] })
+
+    await expect(result.registry.deleteArchivedSession(SessionId('visible')))
+      .rejects.toBeInstanceOf(WorkspaceUnarchivedSessionDeleteError)
+    expect(result.remove).not.toHaveBeenCalled()
+    expect(result.registry.archivedSessionIds).toEqual([])
+  })
+
+  it('refuses a live session and a provider-reported active session before deleting', async () => {
+    const dir = await makeDir('delete-active')
+    const result = await harness({
+      sessions: [header('busy', dir, 100), header('running', dir, 200)],
+      liveSessions: [header('busy', dir, 100)],
+    })
+    await result.registry.archiveSession(SessionId('busy'))
+    await result.registry.archiveSession(SessionId('running'))
+    result.ctx.on('workspace/session-activity', () => Promise.resolve([{ kind: 'schedule' as const }]))
+
+    await expect(result.registry.deleteArchivedSession(SessionId('busy')))
+      .rejects.toBeInstanceOf(WorkspaceLiveSessionDeleteError)
+    await expect(result.registry.deleteArchivedSession(SessionId('running')))
+      .rejects.toThrow(/cannot delete session 'running': the session is active \(schedule\)/)
+    expect(result.remove).not.toHaveBeenCalled()
+    // Both refusals leave the archive set untouched.
+    expect(result.registry.archivedSessionIds).toEqual(['busy', 'running'])
+  })
+
+  it('propagates a storage refusal and keeps the archive set', async () => {
+    const dir = await makeDir('delete-busy')
+    const result = await harness({ sessions: [header('held', dir, 100)] })
+    await result.registry.archiveSession(SessionId('held'))
+    const failure = new Error('session "held": cannot delete while a handle is open')
+    result.remove.mockRejectedValueOnce(failure)
+
+    await expect(result.registry.deleteArchivedSession(SessionId('held'))).rejects.toBe(failure)
+    expect(result.registry.archivedSessionIds).toEqual(['held'])
   })
 })
 

@@ -33,7 +33,6 @@ const ROSTER_ONE = {
   value: {
     presets: [{ id: 'standard', trust: 'system', isDefault: true }],
     authorable: true,
-    modeSelectionEnabled: true,
   },
 }
 
@@ -46,7 +45,6 @@ const ROSTER_AUTHORED = {
       { id: 'mine', trust: 'user', isDefault: false },
     ],
     authorable: true,
-    modeSelectionEnabled: true,
   },
 }
 
@@ -59,17 +57,6 @@ const ROSTER_MOVED = {
       { id: 'minimal', trust: 'system', isDefault: true },
     ],
     authorable: true,
-    modeSelectionEnabled: true,
-  },
-}
-
-/** The deployment after reconnect, with mode selection disabled. */
-const ROSTER_HIDDEN = {
-  ok: true as const,
-  value: {
-    presets: [{ id: 'standard', trust: 'system', isDefault: true }],
-    authorable: true,
-    modeSelectionEnabled: false,
   },
 }
 
@@ -79,7 +66,7 @@ async function bench(options: {
   const ctx = new Context()
   // The host's answer, mutable so a spec can move the default the way the
   // settings surface does and watch who re-reads it.
-  let ROSTER: typeof ROSTER_ONE | typeof ROSTER_MOVED | typeof ROSTER_AUTHORED | typeof ROSTER_HIDDEN = ROSTER_ONE
+  let ROSTER: typeof ROSTER_ONE | typeof ROSTER_MOVED | typeof ROSTER_AUTHORED = ROSTER_ONE
   const moveDefault = (): void => { ROSTER = ROSTER_MOVED }
   await ctx.plugin(SlotRegistry).await()
   const locale = new LocaleRuntime(ctx)
@@ -87,7 +74,6 @@ async function bench(options: {
   ctx.provide('locale', locale)
   const calls: string[] = []
   let savedDefault = 'standard'
-  let selectionEnabled = true
   // The row reads `describe` to learn whether this browser may write at all,
   // and its default write is the one op this spec records.
   const settings = {
@@ -96,7 +82,7 @@ async function bench(options: {
       ok: true as const,
       value: { writable: true, hasDocument: true, namespaces: [] },
     }),
-    update: (_ns: string, patch: { default?: unknown; modeSelectionEnabled?: unknown }) => {
+    update: (_ns: string, patch: { default?: unknown }) => {
       calls.push(`settings:${JSON.stringify(patch)}`)
       if (options.failSettingsUpdate === true) {
         return Promise.resolve({
@@ -107,12 +93,7 @@ async function bench(options: {
       if (typeof patch.default === 'string') {
         savedDefault = patch.default
       }
-      if (typeof patch.modeSelectionEnabled === 'boolean') {
-        selectionEnabled = patch.modeSelectionEnabled
-      }
-      ROSTER = !selectionEnabled
-        ? ROSTER_HIDDEN
-        : savedDefault === 'minimal' ? ROSTER_MOVED : ROSTER_ONE
+      ROSTER = savedDefault === 'minimal' ? ROSTER_MOVED : ROSTER_ONE
       return Promise.resolve({ ok: true as const, value: {} })
     },
     openAgentPresetDirectory: (agentPreset: string) => {
@@ -121,9 +102,8 @@ async function bench(options: {
     },
   }
   const remote = new TestRemote(ctx, { settings })
-  // The roster and the switch are the AgentPresets Remote namespace; the
-  // shared double carries no generated namespaces, so this spec stages its
-  // own. Registered twice on purpose: the nested key satisfies the plugin's
+  // The roster is the AgentPresets Remote namespace; the shared double
+  // carries no generated namespaces, so this spec stages its own. Registered twice on purpose: the nested key satisfies the plugin's
   // `inject`, and the property is what `ctx.remote.agentPresets` reads,
   // because the double is a plain provided object rather than a Service.
   const agentPresets = {
@@ -264,7 +244,7 @@ describe('ui-agent-preset apply', () => {
     expect(section.component).toBe(AgentPresetSection)
     expect(section.options).toMatchObject({ id: 'agent-presets', order: 20 })
     // The nav label is a locale-following thunk; owners resolve it at read time.
-    expect(resolveSlotLabel(section.options.label)).toBe('Agent 预设')
+    expect(resolveSlotLabel(section.options.label)).toBe('Agent 管理')
   })
 
   it('registers into a declaration that arrives after apply', async () => {
@@ -521,46 +501,11 @@ describe('ui-agent-preset apply', () => {
     expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('minimal')
     sessionState.byId.s1.projectionValues.agentPreset = 'minimal'
 
-    await section.setPickerVisible(false)
-    expect(calls.filter(call => call.startsWith('select:'))).toEqual([
-      'select:minimal', 'select:standard',
-    ])
-    expect(section.hooks.agentPresetSection.getSnapshot().showPicker).toBe(false)
-    expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('standard')
-    sessionState.byId.s1.projectionValues.agentPreset = 'standard'
-
-    await section.setPickerVisible(true)
-    expect(calls.filter(call => call.startsWith('select:'))).toEqual([
-      'select:minimal', 'select:standard', 'select:minimal',
-    ])
-    expect(section.hooks.agentPresetSection.getSnapshot().showPicker).toBe(true)
-    expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('minimal')
-    sessionState.byId.s1.projectionValues.agentPreset = 'minimal'
-
+    // A running session keeps the preset it composed from.
     sessionState.byId.s1.blank = false
     await section.makeDefault('standard')
-    expect(calls.filter(call => call.startsWith('select:'))).toEqual([
-      'select:minimal', 'select:standard', 'select:minimal',
-    ])
+    expect(calls.filter(call => call.startsWith('select:'))).toEqual(['select:minimal'])
     conversation()
-  })
-
-  it('reloads Host truth after a picker-policy save failure', async () => {
-    const { ctx, slots, calls } = await bench({ failSettingsUpdate: true })
-    ctx.provide('sessions', sessionsDouble(ctx, { byId: {} }) as never)
-    declareRoot(slots)
-    await ctx.plugin({ inject: [...inject], apply }).await()
-    const section = (slots.entries('settings.section')[0]!
-      .inject as unknown as () => AgentPresetSectionInjected)()
-    await section.load()
-    expect(section.hooks.agentPresetSection.getSnapshot().showPicker).toBe(true)
-
-    await section.setPickerVisible(false)
-
-    expect(calls.filter(call => call === 'list')).toHaveLength(2)
-    expect(section.hooks.agentPresetSection.getSnapshot()).toMatchObject({
-      showPicker: true, policySaving: false, error: 'settings write disconnected',
-    })
   })
 
   it('offers a just-authored preset on the new-session chip', async () => {
@@ -715,10 +660,6 @@ describe('ui-agent-preset apply', () => {
     const seat = injectSeat()
 
     await section.load()
-    await section.setPickerVisible(false)
-    section.startCreatorDraft?.()
-    expect(uiWorkspace.starts).toHaveLength(0)
-    await section.setPickerVisible(true)
     section.startCreatorDraft?.()
 
     // The pick is staged on the chip's own controller — the session the

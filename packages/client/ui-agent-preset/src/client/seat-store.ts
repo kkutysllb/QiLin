@@ -21,8 +21,6 @@ import type { AgentPresetOption } from './settings-store.ts'
 
 /** Hero-chip snapshot. */
 export interface AgentPresetSeatState {
-  /** Whether the new-session surface exposes preset selection. */
-  showPicker: boolean
   /** Presets the deployment supplies; empty means the chip renders nothing. */
   options: readonly AgentPresetOption[]
   /** The staged choice, empty until the roster loads. */
@@ -38,9 +36,7 @@ export interface AgentPresetSeatState {
   introduce: boolean
 }
 
-const INITIAL: AgentPresetSeatState = {
-  showPicker: false, options: [], current: '', error: null, busy: false, introduce: false,
-}
+const INITIAL: AgentPresetSeatState = { options: [], current: '', error: null, busy: false, introduce: false }
 
 /** Mutable one-shot preset choice shared across Provider-bound seat controllers. */
 export interface AgentPresetStage {
@@ -92,15 +88,10 @@ export class AgentPresetSeatController {
       if (typeof error !== 'object' || error === null) this.set({ error: roster.error })
       return
     }
-    const { presets, modeSelectionEnabled } = roster.value
-    if (!modeSelectionEnabled) {
-      this.staged.id = undefined
-      this.staged.introduce = false
-    }
+    const { presets } = roster.value
     this.fallback = presets.find(preset => preset.isDefault)?.id ?? presets[0]?.id ?? ''
     const session = this.currentSession()
     this.set({
-      showPicker: modeSelectionEnabled,
       options: presetOptions(presets),
       // Staged pick first, then the composition the current session
       // already carries, then the Host-effective default. The middle term is
@@ -110,7 +101,7 @@ export class AgentPresetSeatController {
       // apply() already composed it.
       current: this.staged.id ?? (session === undefined ? this.fallback : presetOf(session) ?? ''),
       error: typeof error === 'object' ? error : null,
-      introduce: modeSelectionEnabled && this.staged.introduce,
+      introduce: this.staged.introduce,
     })
     await this.apply()
   }

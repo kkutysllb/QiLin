@@ -95,12 +95,12 @@ describe('application entrypoints', () => {
 
   it('rejects a classified demo wrapper that launches a package entry', () => {
     const root = fixture()
-    write(root, 'package.json', JSON.stringify({ scripts: { 'demo:ptc': 'node scripts/demo-ptc.mjs' } }))
-    write(root, 'scripts/demo-ptc.mjs', "spawn('node', ['packages/example/app/src/bin.ts'])\n")
+    write(root, 'package.json', JSON.stringify({ scripts: { 'demo:coding': 'node scripts/demo-coding.mjs' } }))
+    write(root, 'scripts/demo-coding.mjs', "spawn('node', ['packages/example/app/src/bin.ts'])\n")
 
     expect(applicationEntrypointViolations(root)).toEqual([
-      'scripts/demo-ptc.mjs: application demo wrapper must launch apps/cli/src/bin.ts',
-      'scripts/demo-ptc.mjs: application demo wrapper must not launch a package entry directly',
+      'scripts/demo-coding.mjs: application demo wrapper must launch apps/cli/src/bin.ts',
+      'scripts/demo-coding.mjs: application demo wrapper must not launch a package entry directly',
     ])
   })
 

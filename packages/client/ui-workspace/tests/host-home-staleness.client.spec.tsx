@@ -42,7 +42,7 @@ async function bench() {
   // list stub shape matches apply.client.spec.ts.
   const agentPresets = {
     select: vi.fn(async () => ({ ok: true as const, value: 'coding' })),
-    list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
+    list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false } })),
   }
   const { remote } = runtime
   remote.provideNamespaces({ directoryPicker, agentPresets })

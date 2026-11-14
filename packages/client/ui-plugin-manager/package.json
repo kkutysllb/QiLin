@@ -63,6 +63,7 @@
     "@qilin-agent/client-schema-form": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
     "@qilin-agent/client-ui-layout": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",
     "@qilin-agent/client-ui-renderer": "workspace:*",

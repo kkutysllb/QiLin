@@ -67,6 +67,7 @@ import * as StagehandBrowserTools from '@qilin-agent/experimental-browser-use-st
 import type TeamService from '@qilin-agent/agent-team'
 import * as ToolTeam from '@qilin-agent/tool-agent-team'
 import * as ToolTodo from '@qilin-agent/tool-todo'
+import * as ToolOfficeRead from '@qilin-agent/tool-office-read'
 import * as ToolWorkingDirectory from '@qilin-agent/tool-working-directory'
 import * as ToolWorktree from '@qilin-agent/experimental-tool-worktree'
 import type PluginManager from '@qilin-agent/plugin-manager'
@@ -287,7 +288,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     toolsConfig: { mode: 'coding' },
     async mount() {},
     note:
-      'Owned by the tool registry as a reserved transport outside filterable capability layers under `mode: ptc` / `mode: both` (see the coding mode Agent Note). Under `ptc` it is the registry\'s only wire contribution; the other visible capabilities are declared in a generated SDK section in the loaded runtime\'s language, and a program calls them through bindings scheduled under the native concurrency contract (submission-ordered starts and policy; concurrency-safe bodies overlap up to `maxParallelSubCalls`) that re-enter the complete guarded tool pipeline and link each nested execution to this outer result.',
+      'Owned by the tool registry as a reserved transport outside filterable capability layers under `mode: coding` (see the coding mode Agent Note). Under `coding` it is the registry\'s only wire contribution; the other visible capabilities are declared in a generated SDK section in the loaded runtime\'s language, and a program calls them through bindings scheduled under the native concurrency contract (submission-ordered starts and policy; concurrency-safe bodies overlap up to `maxParallelSubCalls`) that re-enter the complete guarded tool pipeline and link each nested execution to this outer result.',
   },
   {
     pkg: '@qilin-agent/plan-mode',
@@ -694,6 +695,16 @@ const TOOL_PACKAGES: ToolPackage[] = [
     async mount(ctx) {
       // Schema harvest never prepares a payload; the directory need not exist.
       await ctx.plugin(ToolWorkspaceDependencies, { source: resolve(root, '.tmp/tool-catalog/primary-runtime') })
+    },
+  },
+  {
+    pkg: '@qilin-agent/tool-office-read',
+    dir: 'tool-office-read',
+    source: 'packages/document/tool-office-read/src/index.ts',
+    requires: ['ctx.tools', 'ctx.fs'],
+    writes: ['tool/call', 'tool/result'],
+    async mount(ctx) {
+      await ctx.plugin(ToolOfficeRead)
     },
   },
   {

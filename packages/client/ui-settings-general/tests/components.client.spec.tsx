@@ -47,7 +47,10 @@ describe('GeneralSection', () => {
     const renderSlot = vi.fn(
       ((key: string) => <div data-testid={`slot-${key}`} />) as GeneralSectionComponentProps['renderSlot'],
     )
-    const useItems = vi.fn((selector: (value: readonly { id: string }[]) => unknown) => selector([{ id: 'permission' }, { id: 'appearance' }])) as unknown as GeneralSectionComponentProps['useItems']
+    const useItems: GeneralSectionComponentProps['useItems'] = selector => selector([
+      { id: 'permission', order: 0 },
+      { id: 'appearance', order: 1 },
+    ])
     const props: GeneralSectionComponentProps = { ...kit, renderSlot, close: vi.fn(), t, useItems }
     const view = render(<GeneralSection {...props} />)
     return { view, renderSlot }

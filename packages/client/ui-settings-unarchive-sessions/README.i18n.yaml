@@ -3,14 +3,14 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-settings-unarchive-sessions/README.md
 /:
-  en: cf17e23609461ff5
-  zh: d9bf8dec044aec4b
+  en: 2dc7a312ce9dd6a4
+  zh: 032a65c9978c8d22
 /qilin-agent-client-ui-settings-unarchive-sessions:
   en: 825d1923cf600d31
   zh: b7279c8f3adb8d63
 /qilin-agent-client-ui-settings-unarchive-sessions/summary:
-  en: 8c95a9f635f0482e
-  zh: 93c557a88f421637
+  en: 2abb6fb21b81352c
+  zh: c8f9ae02d4b54689
 /qilin-agent-client-ui-settings-unarchive-sessions/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -21,20 +21,23 @@
   en: 5445c5c721b8db17
   zh: 167ccf94c562ec95
 /qilin-agent-client-ui-settings-unarchive-sessions/use-this-package/restoring-a-session:
-  en: 00960eb756b7e659
-  zh: edcd2d869ec61f49
+  en: 3d6badacbc3596b1
+  zh: 7bc5f164e3f7b0b7
+/qilin-agent-client-ui-settings-unarchive-sessions/use-this-package/deleting-a-session-permanently:
+  en: f66734f9ca0a263a
+  zh: 92c17d68efae4832
 /qilin-agent-client-ui-settings-unarchive-sessions/understand-the-implementation:
-  en: 3f8be000388c56e3
-  zh: 30edbe6915f5198c
+  en: 676103798dde1fd5
+  zh: bd017e2cf133094e
 /qilin-agent-client-ui-settings-unarchive-sessions/understand-the-implementation/registration-and-data-sources:
-  en: 797fe2512150ef8f
-  zh: 26c26ebebd288527
+  en: e9049a6722938ffb
+  zh: 276f95f392860290
 /qilin-agent-client-ui-settings-unarchive-sessions/understand-the-implementation/row-derivation:
   en: b1085dd5b11f6493
   zh: 7ab004a94b29f34c
 /qilin-agent-client-ui-settings-unarchive-sessions/understand-the-implementation/source-map:
-  en: 282c196c6771ed5b
-  zh: 44c0795cfb20100d
+  en: c37c7b047bcb2238
+  zh: b9fe3bc29e4b1842
 /qilin-agent-client-ui-settings-unarchive-sessions/further-exploration:
   en: 912d4348dff075c6
   zh: 31cd0904b3f2f07a
@@ -45,8 +48,8 @@
   en: ca75c51c89c2c9b0
   zh: de54f3467ef3b9be
 /qilin-agent-client-ui-settings-unarchive-sessions/known-limitations-and-deferred-work:
-  en: a5e85bc8f04a6f95
-  zh: 096b2fb4c52e4e43
+  en: e35bf0c4ca28941b
+  zh: 094674567f2e3c42
 /qilin-agent-client-ui-settings-unarchive-sessions/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

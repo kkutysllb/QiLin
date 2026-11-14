@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-agent-team-profile` enables [Agent Teams](../agent-team/README.md) collaboration, tools, and Web UI with one bundle. Delegate work to teammates and view members, shared tasks, and teammate sessions in Web. Ordinary subagent delegation and overlapping global child controls are disabled; Workflow can still create fresh children. The bundle ships with qilin switched off. Enable it from the Plugins page or add it to an initialized profile.
+`qilin-agent-team-profile` enables [Agent Teams](../agent-team/README.md) collaboration, tools, and Web UI with one bundle. Delegate work to teammates and view members, shared tasks, and teammate sessions in Web. Ordinary subagent delegation and overlapping global child controls are disabled; Workflow can still create fresh children. The bundle ships selected by the browser profile templates, so Web and Desktop start with Agent Teams on; the switch in the Session header, beside Open locally, turns it off and on again. The Plugins page leaves the bundle out, and a headless profile adds it explicitly.
 
 ## Table of Contents
 
@@ -36,7 +36,7 @@ qilin --profile headless "Use Agent Teams to split this task between two teammat
 
 The profile must already contain `@qilin-agent/base`, whose Subagent services and provider rows this layer consumes. Removing the package with `qilin plugin --profile <name> remove @qilin-agent/agent-team-profile` removes the bundle from the profile's ordered layer list.
 
-Enable Agent Teams on the Web or Desktop Plugins page to activate both tools and UI. For a CLI Web profile, use:
+Enable Agent Teams with the Session header switch on Web or Desktop, or add it to a CLI Web profile with:
 
 ```sh
 qilin plugin --profile web add @qilin-agent/agent-team-profile

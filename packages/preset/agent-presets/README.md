@@ -52,7 +52,7 @@ The plugin needs a `default` preset id and scans `roots` for presets:
 
 | Field | Default | Meaning |
 |---|---|---|
-| `default` | required | Deployment fallback preset id, used while mode selection is disabled or no user default overrides it |
+| `default` | required | Deployment fallback preset id; a saved user default overrides it for sessions created later |
 | `roots` | `[]` | Scanned directories in precedence order; each supplies `path` (a leading `~` expands) and `trust` (defaults to `user`) |
 | `includeShippedRoot` | `true` | Prepend the package's bundled presets as a `system` root before every configured root |
 | `includeUserRoot` | `true` | Append `<qilinHome>/.agent-presets` as a `user` root, after every configured root |
@@ -61,17 +61,16 @@ The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agen
 
 The shipped root is prepended before every configured root, so the built-in set remains available and wins duplicate ids even when a patch replaces the roster configuration. `includeShippedRoot: false` drops that built-in set for deployments that supply all presets themselves. `includeUserRoot: false` drops the derived writable root; tests that pin an exact roster disable both derived roots.
 
-### Showing the picker and choosing its default
+### Choosing the default preset
 
-The required `default` config sets the deployment default. When a settings provider is composed, this plugin registers the `agent-presets` namespace with `{ default: config.default, modeSelectionEnabled: true }` as its base, so the existing new-session picker remains visible unless a user turns it off. The Host reads both fields on every default resolution: while `modeSelectionEnabled` is false, an omitted preset resolves to `config.default` even if the user document retains another `default`; while it is true, a user default may override the deployment value:
+The required `default` config sets the deployment default. When a settings provider is composed, this plugin registers the `agent-presets` namespace whose `default` field carries the user's saved choice, and the Host reads that field on every default resolution: a saved user default overrides the deployment value, and a session created without a named preset composes the effective default:
 
 ```yaml
 agent-presets:
-  modeSelectionEnabled: true
   default: coding
 ```
 
-A client shows or hides selection by writing only `modeSelectionEnabled`; the [Web GUI settings switch](../../client/ui-agent-preset/README.md) does exactly that. The deployment default governs while selection is hidden; re-enabling it restores the saved user `default`, or keeps the deployment default when none has been saved. While mode selection stays enabled, choosing a default writes a user override for sessions created later. Because the Host owns the policy, it applies to every subsequently created session whose caller omits a preset, including Web, CLI, SDK, and headless callers; an explicitly named preset and every existing session remain unchanged.
+Preset selection itself is always available: [the Web GUI's new-session chip](../../client/ui-agent-preset/README.md) offers every healthy preset, and its management page writes the same `default` field. Because the Host owns that field, the choice governs every subsequently created session whose caller omits a preset, including Web, CLI, SDK, and headless callers; an explicitly named preset and every existing session remain unchanged.
 
 ### Authoring presets
 

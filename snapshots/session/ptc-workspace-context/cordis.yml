@@ -1,4 +1,4 @@
-# PTC mode agent-instructions snapshot recording overlay. The default filesystem
+# coding mode agent-instructions snapshot recording overlay. The default filesystem
 # tools trigger nested instruction discovery after a read.
 - insert:
     - id: literal-sdk
@@ -24,7 +24,7 @@
 - id: tools
   name: '@qilin-agent/tools'
   config:
-    mode: ptc
+    mode: coding
 
 - id: system-prompt
   name: '@qilin-agent/system-prompt'

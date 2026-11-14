@@ -18,7 +18,13 @@
       "path": "../locale"
     },
     {
+      "path": "../ui-layout"
+    },
+    {
       "path": "../ui-settings"
+    },
+    {
+      "path": "../ui-sidebar"
     },
     {
       "path": "../ui-primitives"

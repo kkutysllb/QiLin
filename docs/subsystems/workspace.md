@@ -376,6 +376,13 @@ Host service backing the generated `ctx.remote.workspace` namespace.
 @Remote('unarchiveSession') unarchiveSession(request: WorkspaceUnarchiveSessionRequest): Promise<WorkspaceArchiveValue>
 
 /**
+ * Delete one archived Session and its stored log, freeing the disk space it holds.
+ * @param request - Archived Session identity to delete.
+ * @returns the complete resulting archive set.
+ */
+@Remote('deleteArchivedSession') deleteArchivedSession(request: WorkspaceDeleteArchivedSessionRequest): Promise<WorkspaceArchiveValue>
+
+/**
  * Surface one known unarchived Session ahead of unpinned Sessions.
  * @param request - Session identity to pin.
  * @returns the complete resulting pin set, most recently pinned first.
@@ -906,6 +913,29 @@ archiveSession(sessionId: SessionId, options: ArchiveSessionOptions = {}): Promi
  * @returns resolution after durability.
  */
 unarchiveSession(sessionId: SessionId): Promise<void>
+
+/**
+ * Delete one archived session and its stored log, freeing the disk space the
+ * session holds. Only the archive set can be deleted from: a session on a
+ * grouping surface must be archived first, so deleting never removes work the
+ * user is still looking at. The session must own no running work (the
+ * `workspace/session-activity` waterfall is asked once, like archiving) and
+ * must not be live in this process; both refusals happen before any write or
+ * removal, so a refusal leaves the log intact.
+ *
+ * Storage removal runs first and owns its own refusals — a backend that keeps
+ * a handle open, or cannot delete at all, refuses with its own error and the
+ * archive set stays untouched. After removal the archive and pin entries are
+ * dropped durably in one write; the session's cached projections are
+ * relinquished best-effort because they are derived data.
+ * @param sessionId - The archived session to delete.
+ * @returns resolution after the stored log and registry entries are gone.
+ * @throws {WorkspaceUnarchivedSessionDeleteError} when the session is not archived.
+ * @throws {WorkspaceLiveSessionDeleteError} when the session is live in this process.
+ * @throws {WorkspaceActiveSessionError} when a provider reports running work.
+ * @throws {SessionPersistenceBusyError} when this process holds a session handle.
+ */
+deleteArchivedSession(sessionId: SessionId): Promise<void>
 
 /**
  * Pin one session durably, prepending it to the registry-global pin set.

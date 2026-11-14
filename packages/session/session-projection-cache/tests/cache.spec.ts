@@ -380,6 +380,25 @@ describe('SessionProjectionCache listing read', () => {
     )).toThrow('unseeded projection-cache identity inherited event count must be 0')
   })
 
+  it('forgets one session checkpoint without touching another, and tolerates an absent id', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'qilin-projcache-'))
+    roots.push(root)
+    for (const id of ['forget-me', 'keep-me']) {
+      await seedRecord(root, id, {
+        'cache-test/marks': { ver: 1, seq: SessionSeq(2), val: { marks: ['primary'] } },
+      })
+    }
+    const { cache } = await harness({ root })
+    expect(cache.cachedSnapshot(headerOf(SessionId('forget-me')))).toBeDefined()
+
+    await cache.forget(SessionId('forget-me'))
+
+    expect(cache.cachedSnapshot(headerOf(SessionId('forget-me')))).toBeUndefined()
+    expect(cache.cachedSnapshot(headerOf(SessionId('keep-me')))).toBeDefined()
+    // Deleting an id the cache never held is a no-op, not a failure.
+    await expect(cache.forget(SessionId('never-cached'))).resolves.toBeUndefined()
+  })
+
   it('serves rows with differing watermarks as one block at the lowest served watermark', async () => {
     const root = await mkdtemp(join(tmpdir(), 'qilin-projcache-'))
     roots.push(root)

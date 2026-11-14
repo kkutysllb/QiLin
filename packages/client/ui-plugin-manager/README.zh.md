@@ -25,13 +25,13 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-从导航打开**插件**页。页面首次打开时通过 `api-remotes` 读取清单与组合包；没有受管 profile 的 Host 上页面显示为不可用。**官方**排在前面，列出安装随附、供开启的组合包——开启前保持关闭、没有卸载、属于 beta 功能的带 **Beta** 标签——其后是注册了配置页的官方插件；**已安装**列出 profile 持有的组合包。卡片按名称排序，启停组合包不会挪动它的卡片。没有组合包 patch 的依赖不是插件，除非 profile 选中了它才会带异常标签列出。全局配置仍由本视图承载的配置页编辑。
+从导航打开**插件**页。页面首次打开时通过 `api-remotes` 读取清单与组合包；没有受管 profile 的 Host 上页面显示为不可用。三个分类标签把清单拆开：**内置插件**列出注册了配置页的官方插件与转正的官方组合包；**实验插件**列出安装随附、供开启的组合包——开启前保持关闭、没有卸载、属于 beta 功能的带 **Beta** 标签——并以**更多**入口收纳目录里暂未推出的实验项；**第三方插件**列出 profile 持有的组合包。卡片按名称排序，启停组合包不会挪动它的卡片。没有组合包 patch 的依赖不是插件，除非 profile 选中了它才会带异常标签列出。全局配置仍由本视图承载的配置页编辑。
 
 页面条与「更多」列表的返回标题行保持固定：主标题栏与列表共用一个滚动容器，因此标题栏的控件随滚动位置移动，到达收缩位置后沿同一组坐标返回。标题栏保留展开态的高度，移动控件不会改变列表的滚动范围，只滚动一点的列表可以在标题栏完全收缩前停下。有标签页时，副标题与标题滚出视野，标签页在空间允许时停在「刷新」与「添加插件」旁；窄页面上标签页与图标操作在放得下时共处标题下方一行，放不下时标签页保持在操作之上。收缩态在控件下方保留 16px，macOS 叠加窗口标题栏留白，仅在侧栏收起时额外在其上方保留 8px。详情页的标题行随内容一起滚动。
 
 组合包页面在其各部分中首先显示该组合包的详细介绍文档，不带单独的标题：以当前界面语言、带图片的 Markdown 显示该组合包的详细介绍。该文档是组合包 `locale/<language>.json` 中 `meta.detail` 指定的 Markdown 文件，没有时为组合包的 README，由 [`pluginManager.readBundleDetail`](../../boot/plugin-manager/README.zh.md#bundle-detail-documents) 按 [`plugin-detail` 的文档顺序](../../util/plugin-detail/README.zh.md#document-order)读取；不读取组合包声明的仓库。已安装组合包的文档来自其自身文件，不访问网络；按需官方组合包的文档按其提供的版本从 npm 文件 CDN 读取。文档加载期间，该部分显示三行骨架屏；没有文档的组合包不显示该部分；读取失败时说明原因，并提供**重试**。原始 HTML 会被省略，相对路径的图片从 Host 上该文档旁的位置加载，相对链接保持为文本，文档高度超过该部分的高度上限时在该部分内滚动。文件未安装的组合包（例如按需官方组合包）从 npm 文件 CDN 读取：读取前先询问 Host 的注册表比较，npmmirror 响应最快时，先从 npmmirror 读取该文档及其图片。已安装组合包的读取不等待该比较。任何 profile 变化和连接重置都会重新读取已显示的文档。
 
-Agent Teams、Agent Teams Web UI 和 Auto Authorization Review 三个包使用随界面语言切换的本地化名称和描述。详情页保留完整 npm 包名；其他包显示简写包名和原始描述。
+Agent Teams Web UI 与 Auto Authorization Review 使用随界面语言切换的本地化名称和描述；Agent Teams 本身由会话标题栏的开关控制，本页不列出它的组合包。详情页保留完整 npm 包名；其他包显示简写包名和原始描述。
 
 ### 安装一个组合包
 
@@ -86,7 +86,7 @@ ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
 <a id="understand-the-implementation"></a>
 ## 理解实现
 
-页面两个列表与其「实验性」徽标都读取安装方的 bundle 准入，来源是 [`@qilin-agent/official-bundles`](../../util/official-bundles/README.zh.md)：主列表始终持有的可选 bundle、留待 profile 启用后由「更多」列表排在最后的那些、页面隐藏的内建 profile 层，以及带徽标的 bundle。「更多」列表只放带徽标的 bundle，而名单不再标记为实验性的 bundle 一律留在主列表的「内置插件配置」组里——转正就是从该集合删除一个名字。因此安装方提供的 bundle 从同一个共享包到达页面，而不是靠客户端的包名副本。
+页面两个列表与其「实验性」徽标都读取安装方的 bundle 准入，来源是 [`@qilin-agent/official-bundles`](../../util/official-bundles/README.zh.md)：主列表始终持有的可选 bundle、留待 profile 启用后由「更多」列表排在最后的那些、页面隐藏的内建 profile 层，以及带徽标的 bundle。「更多」列表只放带徽标的 bundle，而名单不再标记为实验性的 bundle 一律留在「内置插件」标签里——转正就是从该集合删除一个名字。因此安装方提供的 bundle 从同一个共享包到达页面，而不是靠客户端的包名副本。
 
 插件管理依据 profile 的依赖记录：已安装组合包可启停、可移除，随安装提供的组合包保持锁定。profile 与安装都不持有的选中组合包同样提供卸载，且仅把它从 profile 的组合包列表移除。这一区分不决定启动失败策略。
 

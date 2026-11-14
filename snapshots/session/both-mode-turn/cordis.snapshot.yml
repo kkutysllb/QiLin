@@ -23,7 +23,7 @@
 - id: tools
   name: '@qilin-agent/tools'
   config:
-    mode: ptc
+    mode: coding
 
 - id: system-prompt
   name: '@qilin-agent/system-prompt'

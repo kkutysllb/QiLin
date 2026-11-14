@@ -7,6 +7,7 @@ import type {
   WorkspaceArchiveValue,
   WorkspaceCreateRequest,
   WorkspaceCreateValue,
+  WorkspaceDeleteArchivedSessionRequest,
   WorkspaceDeleteRequest,
   WorkspaceDeleteValue,
   WorkspaceFollowFrame,
@@ -98,6 +99,10 @@ class FakeWorkspaceRemote implements WorkspaceRemote {
     request: WorkspaceUnarchiveSessionRequest,
   ) => Promise<RemoteResult<WorkspaceArchiveValue>> = request =>
     Promise.resolve(remoteOk({ archivedSessionIds: [request.sessionId] }))
+  onDeleteArchivedSession: (
+    _request: WorkspaceDeleteArchivedSessionRequest,
+  ) => Promise<RemoteResult<WorkspaceArchiveValue>> = () =>
+    Promise.resolve(remoteOk({ archivedSessionIds: [] }))
   onPinSession: (
     request: WorkspacePinSessionRequest,
   ) => Promise<RemoteResult<WorkspacePinValue>> = request =>
@@ -140,6 +145,11 @@ class FakeWorkspaceRemote implements WorkspaceRemote {
   unarchiveSession(request: WorkspaceUnarchiveSessionRequest): Promise<RemoteResult<WorkspaceArchiveValue>> {
     this.record('unarchiveSession', request)
     return this.onUnarchiveSession(request)
+  }
+
+  deleteArchivedSession(request: WorkspaceDeleteArchivedSessionRequest): Promise<RemoteResult<WorkspaceArchiveValue>> {
+    this.record('deleteArchivedSession', request)
+    return this.onDeleteArchivedSession(request)
   }
 
   pinSession(request: WorkspacePinSessionRequest): Promise<RemoteResult<WorkspacePinValue>> {

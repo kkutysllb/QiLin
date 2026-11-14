@@ -9,4 +9,4 @@ header:
   systemPromptSource: ptc-turn
   toolSchemasSource: ptc-turn
 environment:
-  QILIN_TOOLS_MODE: ptc
+  QILIN_TOOLS_MODE: coding

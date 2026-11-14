@@ -41,8 +41,11 @@ const handle = await ctx.sessionPersistence.open(id, 'write')  // claim single-w
 const reader = await ctx.sessionPersistence.open(id, 'read')   // observe without ownership
 const snap = await ctx.sessionPersistence.stat(id)             // header + revision (+ eventCount / sizeBytes) without a log read
 const all = await ctx.sessionPersistence.list()                // one snapshot per visible stored session
+await ctx.sessionPersistence.delete(id)                        // remove one stored session and every artifact the backend owns for it
 await ctx.sessionPersistence.flush()                           // backend-wide durability barrier over every active write handle
 ```
+
+`delete(id)` 移除持久日志以释放空间：包含全部保留代次、后端的归属记录，以及写在其旁的任何派生文件。当本进程仍持有该会话的句柄时以 `SessionPersistenceBusyError` 拒绝，因为比移除更长寿的读者会观察到撕裂的产物；不存在的会话直接完成而不报错，因此重复删除是空操作。无法移除产物的后端以 `SessionPersistenceDeletionUnsupportedError` 拒绝，而不是报告一次它并未执行的移除；交付的 JSONL 后端实现了删除。
 
 服务级 `flush()` 排空每个活跃写句柄已路由的事件并把其会话实体化，效果与各句柄自己的 `flush` 完全相同；失败按会话聚合为一个 `AggregateError` 而不中途放弃清扫，清扫途中被关闭的句柄视同已 flush，因为 close 本身会持久排空。
 

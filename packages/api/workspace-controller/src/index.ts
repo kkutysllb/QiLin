@@ -11,6 +11,7 @@ import type {
   WorkspaceArchiveValue,
   WorkspaceCreateRequest,
   WorkspaceCreateValue,
+  WorkspaceDeleteArchivedSessionRequest,
   WorkspaceDeleteRequest,
   WorkspaceDeleteValue,
   WorkspaceFollowFrame,
@@ -125,6 +126,16 @@ export class WorkspaceController extends TypertRemoteService {
   @Remote('unarchiveSession')
   unarchiveSession(request: WorkspaceUnarchiveSessionRequest): Promise<WorkspaceArchiveValue> {
     return this.commands.unarchiveSession(request)
+  }
+
+  /**
+   * Delete one archived Session and its stored log, freeing the disk space it holds.
+   * @param request - Archived Session identity to delete.
+   * @returns the complete resulting archive set.
+   */
+  @Remote('deleteArchivedSession')
+  deleteArchivedSession(request: WorkspaceDeleteArchivedSessionRequest): Promise<WorkspaceArchiveValue> {
+    return this.commands.deleteArchivedSession(request)
   }
 
   /**

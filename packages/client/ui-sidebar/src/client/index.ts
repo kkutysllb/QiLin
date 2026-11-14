@@ -138,7 +138,7 @@ export function apply(ctx: ClientContext): void {
   ctx.slots.inject('sidebar.section.assignments', () => ctx.slots.register({
     name: 'sidebar.section.assignments',
     id: 'ok-desktop-sections',
-    inject: () => ({ assignments: { plugins: t('section.general'), schedules: t('section.general') } }),
+    inject: () => ({ assignments: { plugins: t('section.general'), schedules: t('section.general'), mcp: t('section.general') } }),
   }, () => null))
   syncPanels()
 }

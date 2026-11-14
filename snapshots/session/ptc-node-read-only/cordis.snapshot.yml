@@ -1,4 +1,4 @@
-# Keyless PTC mode combines the runtime/registry changes with the
+# Keyless coding mode combines the runtime/registry changes with the
 # DeepSeek-to-replay swap in one profile patch.
 - insert:
     - id: literal-sdk
@@ -30,7 +30,7 @@
 - id: tools
   name: '@qilin-agent/tools'
   config:
-    mode: ptc
+    mode: coding
 
 - id: system-prompt
   name: '@qilin-agent/system-prompt'

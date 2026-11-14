@@ -112,10 +112,14 @@ describe('web e2e: plugin configuration pages', () => {
     // provider, after the two official bundles the installation ships switched off.
     await panel.getByRole('button', { name: '查看 网页搜索', exact: true }).waitFor({ timeout: 20_000 })
     // Bundled entries the catalogue still marks Experimental: voice input, Auto
-    // review, and the change-request worktree. Agent Teams and the automation tasks
-    // bundle are promoted, so they sit in the built-in group above.
+    // review, and the change-request worktree live on their own category tab.
+    await panel.getByRole('tab', { name: '实验插件', exact: true }).click()
     const extensions = panel.locator('[data-plugin-group="extensions"]')
     expect(await extensions.locator('[data-plugin-package]').count()).toBe(3)
+    // The built-in tab holds the configuration pages alone: Agent Teams is switched
+    // from the Session header, and the automation tasks layer is always on with no
+    // card of its own.
+    await panel.getByRole('tab', { name: '内置插件', exact: true }).click()
     const items = panel.locator('[data-plugin-group="basic"]')
     expect(await items.locator('[data-plugin-item]').count()).toBe(4)
     for (const title of ['终端', 'Agent 循环', 'Subagent', '网页搜索']) {

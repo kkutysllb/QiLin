@@ -49,8 +49,6 @@ describe('release families', () => {
     expect(members
       .filter(member => member.directory.startsWith('packages/experimental/'))
       .map(member => member.name)).toEqual([
-      '@qilin-agent/agent-team-profile',
-      '@qilin-agent/agent-team',
       '@qilin-agent/experimental-api-speech-to-text',
       '@qilin-agent/experimental-auto-review',
       '@qilin-agent/experimental-badge-skill-bundle',
@@ -59,11 +57,11 @@ describe('release families', () => {
       '@qilin-agent/experimental-browser-use-runtime',
       '@qilin-agent/experimental-browser-use-stagehand-native',
       '@qilin-agent/experimental-claude-code-mods',
-      '@qilin-agent/client-ui-agent-team',
       '@qilin-agent/experimental-client-ui-claude-code-mods',
       '@qilin-agent/experimental-client-ui-cot-translation',
       '@qilin-agent/experimental-client-ui-forge',
       '@qilin-agent/experimental-client-ui-voice-input',
+      '@qilin-agent/experimental-coding-runtime-python',
       '@qilin-agent/experimental-computer-use-cua-driver-mcp',
       '@qilin-agent/experimental-computer-use-cua-driver-native',
       '@qilin-agent/experimental-cot-translation-bundle',
@@ -77,7 +75,6 @@ describe('release families', () => {
       '@qilin-agent/experimental-hooks-claude-code',
       '@qilin-agent/experimental-hooks-codex',
       '@qilin-agent/experimental-plugin-market-bundle',
-      '@qilin-agent/experimental-coding-runtime-python',
       '@qilin-agent/experimental-ralph-bundle',
       '@qilin-agent/experimental-schedule-bundle',
       '@qilin-agent/experimental-session-search',
@@ -87,7 +84,6 @@ describe('release families', () => {
       '@qilin-agent/experimental-speech-to-text-sensevoice',
       '@qilin-agent/experimental-speech-to-text',
       '@qilin-agent/experimental-terminal-bundle',
-      '@qilin-agent/tool-agent-team',
       '@qilin-agent/experimental-tool-ralph',
       '@qilin-agent/experimental-tool-session-query',
       '@qilin-agent/experimental-tool-terminal',

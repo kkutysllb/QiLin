@@ -838,7 +838,6 @@ describe('the default preset as a user setting', () => {
   })
 
   it('composes an unnamed session from the stored default, not the composed one', async () => {
-    expect((await defaultCtx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
     expect(defaultCtx.agentPresets.defaultId).toBe('standard')
 
     await defaultCtx.settings.update(SETTINGS_NAMESPACE, { default: LEAN_ID })

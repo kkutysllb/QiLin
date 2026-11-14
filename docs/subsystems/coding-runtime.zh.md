@@ -212,7 +212,7 @@ interface CodingRunFailure {
 
 Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm run verify-kylin-catalog` in doc-sync; regenerate with `pnpm run gen-kylin-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../kylin-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [kylin-api/inherited.md](../kylin-api/inherited.md).
 
-<a id="ctxptcruntime--ptcruntime-abstract-seam"></a>
+<a id="ctxcodingruntime--codingruntime-abstract-seam"></a>
 
 ### `ctx.codingRuntime` — `CodingRuntime` (abstract seam)
 

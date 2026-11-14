@@ -52,7 +52,6 @@
     "@qilin-agent/experimental-cot-translation-bundle": "workspace:*",
     "@qilin-agent/experimental-forge-bundle": "workspace:*",
     "@qilin-agent/experimental-ralph-bundle": "workspace:*",
-    "@qilin-agent/experimental-schedule-bundle": "workspace:*",
     "@qilin-agent/experimental-session-search": "workspace:*",
     "@qilin-agent/experimental-session-titles-bundle": "workspace:*",
     "@qilin-agent/experimental-terminal-bundle": "workspace:*",

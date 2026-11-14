@@ -1,5 +1,5 @@
 ---
-description: "Per-account token usage in Settings: daily stacked bars with a foldable legend, a cache-hit-rate area, and a per-session table."
+description: "Per-account token usage in Settings: daily stacked columns with a foldable legend, a cache-hit-rate line, and a per-session table."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The Usage settings section answers what one account spent. It reads that account's usage from its own runtime and draws the current month as one stacked bar per day — uncached input, output, and cache reads — with the share of prompt tokens served from cache drawn as an area behind the bars. Each legend entry folds its series out of the chart, hovering or focusing a bar reads back that day, and a table breaks the month down by session. All-time figures come from the ledger's own totals.
+The Usage settings section answers what one account spent. It reads that account's usage from its own runtime and draws the current month as one stacked column per day — cache reads, uncached input, and output — with the share of prompt tokens served from cache drawn as a thin line over them. Each legend entry folds its series out of the chart, hovering or focusing a bar reads back that day, and a table breaks the month down by session. All-time figures come from the ledger's own totals.
 
 ## Table of Contents
 
@@ -30,8 +30,8 @@ Open Settings and choose **Usage**. The page needs no configuration; it reads `G
 | Part | What it shows |
 |---|---|
 | Cards | Today, this month, all time, and all-time Turns and sessions, each with the cache hit rate of the traffic it covers |
-| Chart | One stacked bar per day of the current month, with the hit-rate area behind them |
-| Legend | One entry per bar series plus the area; selecting an entry folds that series out of the chart |
+| Chart | One stacked column per day of the current month, with the hit-rate line over it |
+| Legend | One entry per column series plus the line; selecting an entry folds that series out of the chart |
 | Table | This month by session: input, output, cache reads, hit rate, and total |
 
 An administrator's page reads the deployment instead of one account: the same chart summed over every account, and the table breaking the month down by account rather than by session.
@@ -41,7 +41,7 @@ The chart is keyboard-reachable: each bar takes focus, left and right move betwe
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 
-`src/client/chart.ts` holds the page's arithmetic as pure functions: bucketing records into browser-local days (quiet days included, because a chart that closed a gap would draw a quiet week as a busy one), the cache hit rate, the fold state, and the layout of stacked bands, gridlines, and the area path. `UsageSection.tsx` holds the state a reader drives and renders those values; it draws no chart library and no literal colors.
+`src/client/chart.ts` holds the page's arithmetic as pure functions: bucketing records into browser-local days (quiet days included, because a chart that closed a gap would draw a quiet week as a busy one), the cache hit rate, the fold state, and the pixel layout of stacked bands, both axes, and the rate path. Layout takes the measured plot size, so column corners, gridlines, and the line keep their proportions at any width instead of stretching a percentage grid. A day that billed no prompt token carries no rate point, so the line joins the days that did and never spikes to zero across a quiet stretch. `UsageSection.tsx` holds the state a reader drives and renders those values; it draws no chart library and no literal colors.
 
 <a id="further-exploration"></a>
 ## Further Exploration

@@ -1,4 +1,5 @@
-/* Usage page styling: semantic aliases only, no literal colors. */
+/* Usage page styling: semantic aliases only, no literal colors. The chart is a
+ * measured pixel canvas, so every rule here sizes text and marks in pixels. */
 
 .page {
   display: flex;
@@ -26,8 +27,8 @@
 }
 
 .card {
-  border: 1px solid var(--qilin-alias-border-l3);
-  border-radius: var(--qilin-radius-md);
+  border: 1px solid var(--qilin-alias-border-l2);
+  border-radius: var(--qilin-radius-lg);
   padding: 10px 12px;
   background: var(--qilin-alias-bg-layer-2);
 }
@@ -48,143 +49,163 @@
 }
 
 .chart {
-  position: relative;
-  border: 1px solid var(--qilin-alias-border-l3);
-  border-radius: var(--qilin-radius-md);
-  padding: 12px 12px 6px;
+  border: 1px solid var(--qilin-alias-border-l2);
+  border-radius: var(--qilin-radius-lg);
+  padding: 14px 16px 8px;
   background: var(--qilin-alias-bg-layer-2);
+}
+
+.chartHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .chartTitle {
   margin: 0 0 2px;
   font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .caption {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 0.75rem;
-  color: var(--qilin-alias-label-secondary);
-}
-
-.plotRow {
-  display: flex;
-  gap: 6px;
-}
-
-.tickColumn {
-  position: relative;
-  width: 34px;
-  height: 220px;
-}
-
-.tickLabel {
-  position: absolute;
-  right: 0;
-  transform: translateY(-50%);
   color: var(--qilin-alias-label-tertiary);
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
 }
 
-.plotArea {
+.chartNote {
+  flex: none;
+  color: var(--qilin-alias-label-tertiary);
+  font-size: 0.72rem;
+}
+
+.chartFrame {
   position: relative;
-  flex: 1;
-  min-width: 0;
+  margin-top: 6px;
 }
 
 .plot {
   display: block;
   width: 100%;
-  height: 220px;
   overflow: visible;
 }
 
 .grid {
-  stroke: var(--qilin-alias-border-l2);
-  stroke-width: 0.25;
+  stroke: var(--qilin-alias-border-l1);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.tickText {
+  fill: var(--qilin-alias-label-tertiary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rateTickText {
+  fill: var(--qilin-alias-label-tertiary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+
+.column {
+  outline: none;
+}
+
+.hoverColumn {
+  fill: transparent;
+  transition: fill 120ms ease;
+}
+
+.column:hover .hoverColumn,
+.column:focus-visible .hoverColumn {
+  fill: var(--qilin-alias-interactive-bg-hover);
 }
 
 .band {
   transition: opacity 120ms ease;
 }
 
-.bar:focus-visible {
-  outline: none;
+.column:hover .band,
+.column:focus-visible .band {
+  opacity: 0.86;
 }
 
-.bar:hover .band {
-  filter: brightness(1.06);
-}
-
-.bar:focus-visible .band {
-  opacity: 0.7;
-}
-
-/* The hit rate reads as one thin line over a soft gradient, never a filled
-   block: 96% cache coverage would otherwise paint the whole plot. */
+/* A thin line over the columns, never a filled block: 96% cache coverage would
+   otherwise paint the whole plot. Quiet days carry no point, so the line only
+   joins days that actually billed prompt tokens. */
 .rateLine {
   fill: none;
-  stroke: var(--qilin-alias-brand-primary);
-  stroke-width: 2;
+  stroke: var(--qilin-alias-state-business-primary);
+  stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.9;
+  opacity: 0.55;
+}
+
+.rateDot {
+  fill: var(--qilin-alias-bg-layer-2);
+  stroke: var(--qilin-alias-state-business-primary);
+  stroke-width: 1.5;
 }
 
 .legend {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 10px;
+  border-top: 1px solid var(--qilin-alias-border-l1);
+  padding-top: 8px;
 }
 
 .legendButton {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid var(--qilin-alias-border-l3);
-  border-radius: 999px;
-  /* Full-round pill: the smoothing token must not reshape it. */
-  corner-shape: round;
-  padding: 3px 10px;
+  border: 0;
+  border-radius: var(--qilin-radius-sm);
+  padding: 2px 6px;
   background: transparent;
   color: var(--qilin-alias-label-secondary);
   font-size: 0.72rem;
   cursor: pointer;
+  transition: background 120ms ease, opacity 120ms ease;
+}
+
+.legendButton:hover {
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .legendButton[aria-pressed='false'] {
   color: var(--qilin-alias-label-tertiary);
+  opacity: 0.55;
   text-decoration: line-through;
 }
 
 .swatch {
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 2px;
 }
 
-.xAxis {
-  position: relative;
-  height: 16px;
-  margin-top: 2px;
-}
-
-.xLabel {
-  position: absolute;
-  transform: translateX(-50%);
-  color: var(--qilin-alias-label-tertiary);
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+.rateSwatch {
+  border-radius: 50%;
+  /* A full-round radius states the corner algorithm so the theme's dot shape
+     is not inherited from a neighbouring rule. */
+  corner-shape: round;
+  background: var(--qilin-alias-state-business-primary);
+  opacity: 0.55;
 }
 
 .tooltip {
   position: absolute;
-  transform: translate(-50%, calc(-100% - 8px));
-  min-width: 170px;
-  border: 0;
-  border-radius: var(--qilin-radius-sm);
+  z-index: 1;
+  transform: translate(-50%, -100%);
+  min-width: 168px;
+  /* Elevated surface: the elevation shadow owns the edge, so no border. */
+  border-radius: var(--qilin-radius-md);
   padding: 8px 10px;
   background: var(--qilin-alias-bg-layer-3);
   box-shadow: var(--qilin-elevation-panel);
@@ -221,8 +242,8 @@
 }
 
 .tableWrap {
-  border: 1px solid var(--qilin-alias-border-l3);
-  border-radius: var(--qilin-radius-md);
+  border: 1px solid var(--qilin-alias-border-l2);
+  border-radius: var(--qilin-radius-lg);
   background: var(--qilin-alias-bg-layer-2);
   /* Elevated surface that scrolls: its thumb takes the l2 pair (ui-theme
      styles/scrollbar.css owns the rebinding contract). */
@@ -241,7 +262,7 @@
 .table td {
   padding: 6px 10px;
   text-align: right;
-  border-bottom: 1px solid var(--qilin-alias-border-l2);
+  border-bottom: 1px solid var(--qilin-alias-border-l1);
   font-variant-numeric: tabular-nums;
 }
 

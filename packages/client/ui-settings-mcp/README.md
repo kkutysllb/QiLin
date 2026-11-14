@@ -1,5 +1,5 @@
 ---
-description: "MCP servers page in Web Settings: lists, adds, edits, enables, disables, and deletes the servers the user patch layer declares, through the mcpServers Remote."
+description: "MCP servers workspace panel opened from the Web sidebar: lists, adds, edits, enables, disables, and deletes the servers the user patch layer declares, through the mcpServers Remote."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The MCP servers page is one Settings section. It renders the servers the home-level user patch layer declares — each with its transport, command line or endpoint, and enablement. Adding, editing, enabling, disabling, and deleting all write through the \`mcpServers\` Remote, which rewrites only the patch nodes that address one server; the page never composes a patch file itself and never re-derives what the Host answered with.
+The MCP servers page is one workspace panel opened from the sidebar's General section. It renders the servers the home-level user patch layer declares — each with its transport, command line or endpoint, and enablement. Adding, editing, enabling, disabling, and deleting all write through the \`mcpServers\` Remote, which rewrites only the patch nodes that address one server; the page never composes a patch file itself and never re-derives what the Host answered with.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ The MCP servers page is one Settings section. It renders the servers the home-le
 <a id="use-this-package"></a>
 ## Use this package
 
-Open Settings and choose MCP servers. The page loads one snapshot on mount and renders two areas: the configured servers and the editor for the server being added or changed.
+Choose MCP servers in the workspace sidebar (General section). The panel takes the centre column, loads one snapshot on mount, and renders two areas: the configured servers and the editor for the server being added or changed.
 
 ### Configured servers
 
@@ -37,7 +37,7 @@ Two failures have their own presentation. A patch layer that cannot be read is r
 
 ## Understand the implementation
 
-One store instance is created in \`apply\` and handed to the section through its inject face; every mount shares it, and the page reads it through the \`useSnapshot\` hook the UI renderer binds from the store's bare observable. Each mutation replaces the whole snapshot from the Host's answer, so no local state is ever the source of a row.
+One store instance is created in \`apply\` and handed to the panel through its inject face; every mount shares it, and the page reads it through the \`useSnapshot\` hook the UI renderer binds from the store's bare observable. Each mutation replaces the whole snapshot from the Host's answer, so no local state is ever the source of a row.
 
 A superseded read is cancelled and its answer discarded: the store keeps a generation counter and an \`AbortController\` per call, so a slow first load can never land after a newer one.
 
@@ -47,7 +47,8 @@ Form fields are plain strings. The submitted draft is built at the boundary: arg
 
 - [\`@qilin-agent/mcp-servers\`](../../mcp/mcp-servers/README.md) — the Host service this page reads and writes, and the patch-layer fidelity rules a write follows.
 - [\`@qilin-agent/mcp-client\`](../../mcp/mcp-client/README.md) — what each written entry mounts, and the tool names its servers produce.
-- [\`@qilin-agent/client-ui-settings\`](../ui-settings/README.md) — the settings shell that declares the section slot this page registers into.
+- [\`@qilin-agent/client-ui-sidebar\`](../ui-sidebar/README.md) — the sidebar that declares the panel list this page registers a row into and assigns it to the General section.
+- [\`@qilin-agent/client-ui-layout\`](../ui-layout/README.md) — the shell that declares the keyed \`main\` slot the panel renders into.
 
 ## Model Experience
 

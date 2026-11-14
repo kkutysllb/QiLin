@@ -3,12 +3,19 @@
 import type { Context } from '@qilin-agent/kylin'
 import type { Workspace } from '@qilin-agent/workspace'
 import {
+  WorkspaceActiveSessionError,
   WorkspaceArchivedSessionPinError,
   WorkspaceId,
+  WorkspaceLiveSessionDeleteError,
   WorkspaceMoveInvalidError,
   WorkspaceOrderInvalidError,
+  WorkspaceUnarchivedSessionDeleteError,
   WorkspaceUnknownSessionError,
 } from '@qilin-agent/workspace'
+import {
+  SessionPersistenceBusyError,
+  SessionPersistenceDeletionUnsupportedError,
+} from '@qilin-agent/session-persistence'
 import { RemoteError, remoteErrorOf } from '@qilin-agent/typert-protocol'
 import { workspaceView } from './feed.ts'
 import type { WorkspaceKinds } from './kinds.ts'
@@ -17,6 +24,7 @@ import type {
   WorkspaceArchiveValue,
   WorkspaceCreateRequest,
   WorkspaceCreateValue,
+  WorkspaceDeleteArchivedSessionRequest,
   WorkspaceDeleteRequest,
   WorkspaceDeleteValue,
   WorkspaceInsertBeforeRequest,
@@ -189,6 +197,45 @@ export class WorkspaceCommands {
    */
   async unarchiveSession(request: WorkspaceUnarchiveSessionRequest): Promise<WorkspaceArchiveValue> {
     await this.ctx.workspaceRegistry.unarchiveSession(request.sessionId)
+    return { archivedSessionIds: [...this.ctx.workspaceRegistry.archivedSessionIds] }
+  }
+
+  /**
+   * Delete one archived Session and its stored log.
+   *
+   * Every refusal names what still holds the Session: a grouping-surface
+   * Session is not archived, a live Session or an open storage handle outlives
+   * the removal, a provider's activity has to stop first, and a backend that
+   * cannot delete refuses instead of reporting a removal it did not perform.
+   * A refusal leaves the log intact and the archive set unchanged.
+   * @param request - Archived Session to delete.
+   * @returns the complete resulting archive set.
+   */
+  async deleteArchivedSession(request: WorkspaceDeleteArchivedSessionRequest): Promise<WorkspaceArchiveValue> {
+    const { sessionId } = request
+    try {
+      await this.ctx.workspaceRegistry.deleteArchivedSession(sessionId)
+    } catch (error) {
+      if (error instanceof WorkspaceUnarchivedSessionDeleteError) {
+        throw new RemoteError('session/not-archived', error.message, { sessionId }, { cause: error })
+      }
+      if (error instanceof WorkspaceLiveSessionDeleteError) {
+        throw new RemoteError('session/live', error.message, { sessionId }, { cause: error })
+      }
+      if (error instanceof WorkspaceActiveSessionError) {
+        throw new RemoteError('session/active', error.message, {
+          sessionId,
+          activity: error.activity.map(entry => entry.kind),
+        }, { cause: error })
+      }
+      if (error instanceof SessionPersistenceBusyError) {
+        throw new RemoteError('session/delete-busy', error.message, { sessionId }, { cause: error })
+      }
+      if (error instanceof SessionPersistenceDeletionUnsupportedError) {
+        throw new RemoteError('session/delete-unsupported', error.message, { sessionId }, { cause: error })
+      }
+      throw error
+    }
     return { archivedSessionIds: [...this.ctx.workspaceRegistry.archivedSessionIds] }
   }
 

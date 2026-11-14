@@ -26,7 +26,6 @@ import { bindScopeParent, createScope, scopeOf } from '@qilin-agent/scope'
 /** The plugin-config input face the roster accepts from a composition row. */
 type RosterInput = {
   default?: string
-  modeSelectionEnabled?: boolean
   roots?: PresetRoot[]
   includeShippedRoot?: boolean
   includeUserRoot?: boolean

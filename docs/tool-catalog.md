@@ -20,7 +20,7 @@ This table connects model-visible tool names to the plugin package and service s
 | `@qilin-agent/mcp-resources` | `list_mcp_resource_templates`, `list_mcp_resources`, `read_mcp_resource` | `ctx.tools`, `ctx.mcpResources` | `tool/call`, `tool/result` | - | - |
 | `@qilin-agent/experimental-browser-use-stagehand-native` | `stagehand_act`, `stagehand_extract`, `stagehand_navigate`, `stagehand_observe`, `stagehand_screenshot`, `stagehand_tabs` | `ctx.browserUse`, `ctx.agents`, `ctx.tools`, `ctx.systemPrompt` | `tool/call`, `tool/result` | - | - |
 | `@qilin-agent/tool-ask-user` | `ask_user_question` | `ctx.tools`, `ctx.userQuestions` | `tool/call`, `tool/result after a UI/provider answers the question` | - | ask_user_question pauses the tool call until the active UI provider returns a human answer. |
-| `@qilin-agent/tools` | `run_code` | `ctx.workingDirectory (Agent executions)`, `ctx.tools`, `ctx.codingRuntime (execution time)`, `ctx.systemPrompt` | `tool/call`, `one tool/ptc-dispatch-start + tool/ptc-dispatch pair per bridged sub-call`, `tool/result` | - | Owned by the tool registry as a reserved transport outside filterable capability layers under `mode: coding` / `mode: both` (see the coding mode Agent Note). Under `coding` it is the registry's only wire contribution; the other visible capabilities are declared in a generated SDK section in the loaded runtime's language, and a program calls them through bindings scheduled under the native concurrency contract (submission-ordered starts and policy; concurrency-safe bodies overlap up to `maxParallelSubCalls`) that re-enter the complete guarded tool pipeline and link each nested execution to this outer result. |
+| `@qilin-agent/tools` | `run_code` | `ctx.workingDirectory (Agent executions)`, `ctx.tools`, `ctx.codingRuntime (execution time)`, `ctx.systemPrompt` | `tool/call`, `one tool/ptc-dispatch-start + tool/ptc-dispatch pair per bridged sub-call`, `tool/result` | - | Owned by the tool registry as a reserved transport outside filterable capability layers under `mode: coding` (see the coding mode Agent Note). Under `coding` it is the registry's only wire contribution; the other visible capabilities are declared in a generated SDK section in the loaded runtime's language, and a program calls them through bindings scheduled under the native concurrency contract (submission-ordered starts and policy; concurrency-safe bodies overlap up to `maxParallelSubCalls`) that re-enter the complete guarded tool pipeline and link each nested execution to this outer result. |
 | `@qilin-agent/plan-mode` | `exit_plan_mode` | `ctx.tools`, `ctx.systemPrompt`, `ctx.userQuestions (execution time, opportunistic)` | `tool/call`, `plan/mode inactive on an approved review`, `tool/result` | - | exit_plan_mode stays in the model-facing schema while planning is inactive so transitions add no tool-catalog churn on top of the plan-policy change. Its execute path rejects calls outside plan mode; in plan mode it presents the plan over the user-questions seam (approve / keep planning with feedback), and approval logs plan mode inactive at the step boundary. |
 | `@qilin-agent/tool-bash` | `bash` | `ctx.tools`, `ctx.shell`, `ctx.systemPrompt`, `ctx.shellEnv`, `ctx.jobs at call time for run_in_background` | `tool/call`, `tool/result` | - | The bash tool is the model-facing consumer of the bash executor seam. A `run_in_background` run registers with the generic `ctx.jobs` runtime and is collected/stopped through the `job_*` tools from `@qilin-agent/tool-jobs`; the `enableRunInBackground` config (default true) removes the parameter entirely when disabled. |
 | `@qilin-agent/tool-present` | `present` | `ctx.workingDirectory`, `ctx.tools`, `ctx.fs`, `ctx.sessionProjections` | `tool/call`, `deliverables/presented after a successful final result`, `tool/result` | - | Deliveries belong to the calling Session; Web ui-deliverables supplies source-file opening and cards. |
@@ -47,6 +47,7 @@ This table connects model-visible tool names to the plugin package and service s
 | `@qilin-agent/experimental-tool-worktree` | `create_worktree` | `ctx.tools`, `ctx.worktrees`, `a calling Agent (exec.agent selects the source repository)` | `tool/call`, `working-directory/change on success`, `tool/result` | - | Creates and enters a new Git branch and checkout under the calling Session file policy; the checkout and branch are retained after leaving. |
 | `@qilin-agent/tool-workflow` | `workflow` | `ctx.tools`, `ctx.workflowEngine`, `ctx.systemPrompt`, `a calling Agent (exec.agent parents the script children)` | `tool/call`, `tool/result` | - | - |
 | `@qilin-agent/tool-workspace-dependencies` | `load_workspace_dependencies` | `ctx.tools` | `tool/call`, `tool/result` | - | - |
+| `@qilin-agent/tool-office-read` | `office_read` | `ctx.tools`, `ctx.fs` | `tool/call`, `tool/result` | - | - |
 | `@qilin-agent/tool-web` | `web_fetch`, `web_search` | `ctx.tools`, `ctx.web`, `ctx.systemPrompt` | `tool/call`, `tool/result` | - | web_search and web_fetch keep provider selection behind ctx.web so model-visible schemas stay stable across backend swaps. |
 | `@qilin-agent/sidebar-opens` | `sidebar_open` | `ctx.tools`, `ctx.fs` | `tool/call`, `one Remote sidebarOpens.watch request per open`, `tool/result` | - | A Host package tool: the request leaves for the browser half (`@qilin-agent/client-ui-agent-opens`) as a Remote stream instead of a session event, so what the model asked for stays in the log while no page load replays an old open. The per-Session pending queue is bounded by the `maxQueued` Config (default 16); a request a view already consumed is never replayed. |
 
@@ -615,9 +616,9 @@ Execute a TypeScript program against the available tools. Takes two required arg
 }
 ```
 
-Source: [`packages/core/tools/src/coding.ts`](../packages/core/tools/src/coding.ts)
+Source: [`packages/core/tools/src/ptc.ts`](../packages/core/tools/src/ptc.ts)
 
-Owned by the tool registry as a reserved transport outside filterable capability layers under `mode: coding` / `mode: both` (see the coding mode Agent Note). Under `coding` it is the registry's only wire contribution; the other visible capabilities are declared in a generated SDK section in the loaded runtime's language, and a program calls them through bindings scheduled under the native concurrency contract (submission-ordered starts and policy; concurrency-safe bodies overlap up to `maxParallelSubCalls`) that re-enter the complete guarded tool pipeline and link each nested execution to this outer result.
+Owned by the tool registry as a reserved transport outside filterable capability layers under `mode: coding` (see the coding mode Agent Note). Under `coding` it is the registry's only wire contribution; the other visible capabilities are declared in a generated SDK section in the loaded runtime's language, and a program calls them through bindings scheduled under the native concurrency contract (submission-ordered starts and policy; concurrency-safe bodies overlap up to `maxParallelSubCalls`) that re-enter the complete guarded tool pipeline and link each nested execution to this outer result.
 
 <a id="qilin-agentplan-mode"></a>
 
@@ -2651,6 +2652,44 @@ Get absolute paths to bundled Python and library directories, plus bundled Pytho
 ```
 
 Source: [`packages/skill/tool-workspace-dependencies/src/index.ts`](../packages/skill/tool-workspace-dependencies/src/index.ts)
+
+<a id="qilin-agenttool-office-read"></a>
+
+## `@qilin-agent/tool-office-read`
+
+### `office_read`
+
+Read a DOCX, XLSX, or PPTX document and return its text: paragraphs with heading levels, tables, spreadsheet cells, or slide text. Use this instead of converting the document or installing a parser when you need the content. The result is text, not a rendered page; styles, comments, charts, and embedded objects are excluded.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "file_path": {
+      "type": "string",
+      "description": "Path to the Office document, resolved by the filesystem backend."
+    },
+    "format": {
+      "type": "string",
+      "description": "Document format when the path extension does not name it.",
+      "enum": [
+        "docx",
+        "xlsx",
+        "pptx"
+      ]
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Largest number of paragraphs, rows per sheet, or slides to return."
+    }
+  },
+  "required": [
+    "file_path"
+  ]
+}
+```
+
+Source: [`packages/document/tool-office-read/src/index.ts`](../packages/document/tool-office-read/src/index.ts)
 
 <a id="qilin-agenttool-web"></a>
 

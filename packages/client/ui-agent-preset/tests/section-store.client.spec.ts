@@ -7,6 +7,7 @@
  */
 
 import { describe, expect, it } from 'vitest'
+import { Context } from '@qilin-agent/kylin'
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import { RemoteError } from '@qilin-agent/client-test-runtime'
 import { AgentPresetSectionController, draftBlocker } from '../src/client/section-store.ts'
@@ -40,12 +41,6 @@ interface FakeOptions {
   failCapability?: string
   /** Hold `remove` until this resolves, to observe the in-flight state. */
   holdRemove?: Promise<void>
-  /** Initial new-session picker visibility. */
-  showPicker?: boolean
-  /** Mutable Host policy used when a Settings write is reflected by the roster. */
-  pickerPolicy?: { enabled: boolean }
-  /** Simulate a concurrent Host write winning after this client's policy write. */
-  ignorePickerWrite?: boolean
   /** Throw from the Settings transport instead of returning a Remote failure. */
   throwSettings?: unknown
 }
@@ -69,7 +64,8 @@ function fakeCtx(
 ): ClientContext {
   const record = (method: string, payload: unknown): void => { options.calls?.push({ method, payload }) }
   let listCount = 0
-  return {
+  const ctx = new Context()
+  Object.assign(ctx, {
     remote: {
       agentPresets: {
         list: () => {
@@ -79,15 +75,12 @@ function fakeCtx(
             && (options.failListAt === undefined || options.failListAt === listCount)) {
             return remoteFail(options.failList)
           }
-          const selectionEnabled = options.pickerPolicy?.enabled ?? options.showPicker ?? true
-          const effectiveDefault = selectionEnabled ? defaultId.id : 'standard'
           return remoteOk({
             presets: [...presets].map(([id, preset]) => ({
-              id, trust: preset.trust, isDefault: id === effectiveDefault,
+              id, trust: preset.trust, isDefault: id === defaultId.id,
               ...preset.name === undefined ? {} : { name: preset.name },
             })),
             authorable: options.authorable ?? true,
-            modeSelectionEnabled: selectionEnabled,
           })
         },
         read: (agentPreset: string) => {
@@ -132,15 +125,11 @@ function fakeCtx(
         },
       },
       settings: {
-        update: (ns: string, patch: { default?: unknown; modeSelectionEnabled?: unknown }) => {
+        update: (ns: string, patch: { default?: unknown }) => {
           record('settings.update', { ns, patch })
           if (options.throwSettings !== undefined) throw options.throwSettings
           if (options.failSettings !== undefined) return remoteFail(options.failSettings)
           if (typeof patch.default === 'string') defaultId.id = patch.default
-          if (typeof patch.modeSelectionEnabled === 'boolean' && !options.ignorePickerWrite) {
-            const policy = options.pickerPolicy ?? { enabled: options.showPicker ?? true }
-            policy.enabled = patch.modeSelectionEnabled
-          }
           return remoteOk({})
         },
         canOpenAgentPresetDirectory: () => {
@@ -158,7 +147,8 @@ function fakeCtx(
         },
       },
     },
-  } as unknown as ClientContext
+  })
+  return ctx
 }
 
 function seed(): Map<string, FakePreset> {
@@ -173,14 +163,13 @@ function harness(options: FakeOptions = {}) {
   const defaultId = { id: 'standard' }
   const calls: Recorded[] = []
   let rosterChanges = 0
-  const pickerPolicy = options.pickerPolicy ?? { enabled: options.showPicker ?? true }
-  const wired = { ...options, pickerPolicy, calls: options.calls ?? calls }
+  const wired = { ...options, calls: options.calls ?? calls }
   const controller = new AgentPresetSectionController(
     fakeCtx(presets, defaultId, wired),
     () => { rosterChanges += 1 },
   )
   return {
-    controller, presets, defaultId, pickerPolicy, calls,
+    controller, presets, defaultId, calls,
     rosterChanges: () => rosterChanges,
   }
 }
@@ -599,7 +588,7 @@ describe('the default preset', () => {
     })
   })
 
-  it('restores the policy lock after a thrown default write', async () => {
+  it('restores the write lock after a thrown default write', async () => {
     const { controller } = harness({ throwSettings: 'settings transport unavailable' })
     await controller.load()
 
@@ -608,114 +597,6 @@ describe('the default preset', () => {
     expect(controller.store.getSnapshot()).toMatchObject({
       error: 'settings transport unavailable', policySaving: false,
     })
-  })
-
-})
-
-describe('the new-session picker preference', () => {
-  it('ignores policy writes until the section is ready', async () => {
-    const { controller, calls } = harness({ showPicker: true })
-
-    await controller.setPickerVisible(false)
-
-    expect(calls.some(call => call.method === 'settings.update')).toBe(false)
-  })
-
-  it('uses Standard while disabled and restores the saved default when re-enabled', async () => {
-    const { controller, calls, defaultId } = harness({
-      showPicker: true, failList: 'connection moved', failListAt: 2,
-    })
-    const synced: string[] = []
-    const sync = (id: string): Promise<undefined> => {
-      synced.push(id)
-      return Promise.resolve(undefined)
-    }
-    defaultId.id = 'mine'
-    await controller.load()
-    expect(controller.store.getSnapshot().rows.find(row => row.isDefault)?.id).toBe('mine')
-
-    await controller.setPickerVisible(false, sync)
-    expect(calls.filter(call => call.method === 'settings.update')[0]?.payload)
-      .toEqual({ ns: 'agent-presets', patch: { modeSelectionEnabled: false } })
-
-    expect(controller.store.getSnapshot()).toMatchObject({
-      showPicker: false, policySaving: false,
-    })
-    expect(controller.store.getSnapshot().rows.find(row => row.isDefault)?.id).toBe('standard')
-
-    await controller.setPickerVisible(true, sync)
-    expect(calls.filter(call => call.method === 'settings.update')[1]?.payload)
-      .toEqual({ ns: 'agent-presets', patch: { modeSelectionEnabled: true } })
-    expect(controller.store.getSnapshot()).toMatchObject({
-      showPicker: true, policySaving: false,
-    })
-    expect(controller.store.getSnapshot().rows.find(row => row.isDefault)?.id).toBe('mine')
-    expect(synced).toEqual(['standard', 'mine'])
-  })
-
-  it('reloads Host truth and reports a refused visibility write', async () => {
-    const { controller } = harness({ showPicker: true, failSettings: 'read-only settings' })
-    await controller.load()
-
-    await controller.setPickerVisible(false)
-
-    expect(controller.store.getSnapshot()).toMatchObject({
-      showPicker: true, error: 'read-only settings', policySaving: false,
-    })
-  })
-
-  it('reloads Host truth when another policy value wins the write', async () => {
-    const { controller } = harness({ showPicker: true, ignorePickerWrite: true })
-    await controller.load()
-
-    await controller.setPickerVisible(false)
-
-    expect(controller.store.getSnapshot()).toMatchObject({ showPicker: true, policySaving: false })
-  })
-
-  it('reloads a roster that cannot mark an effective default', async () => {
-    const { controller, defaultId } = harness({ showPicker: false })
-    defaultId.id = 'missing'
-    await controller.load()
-
-    await controller.setPickerVisible(true)
-
-    expect(controller.store.getSnapshot()).toMatchObject({ showPicker: true, policySaving: false })
-    expect(controller.store.getSnapshot().rows.every(row => !row.isDefault)).toBe(true)
-  })
-
-  it('keeps a blank-task sync failure on the page', async () => {
-    const { controller } = harness({ showPicker: true })
-    await controller.load()
-
-    await controller.setPickerVisible(
-      false,
-      () => Promise.resolve('blank session rejected the policy'),
-    )
-
-    expect(controller.store.getSnapshot()).toMatchObject({
-      error: 'blank session rejected the policy', policySaving: false,
-    })
-  })
-
-  it('reloads Host truth after a thrown visibility write', async () => {
-    const { controller } = harness({ showPicker: true, throwSettings: new Error('connection lost') })
-    await controller.load()
-
-    await controller.setPickerVisible(false)
-
-    expect(controller.store.getSnapshot()).toMatchObject({
-      showPicker: true, error: 'connection lost', policySaving: false,
-    })
-  })
-
-  it('ignores default writes while mode selection is disabled', async () => {
-    const { controller, calls } = harness({ showPicker: false })
-    await controller.load()
-
-    await controller.makeDefault('mine')
-
-    expect(calls.some(call => call.method === 'settings.update')).toBe(false)
   })
 
 })

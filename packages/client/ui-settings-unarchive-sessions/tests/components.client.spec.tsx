@@ -5,7 +5,10 @@ import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-
 import type { WorkspaceSnapshot, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import { ArchivedSessionsSection } from '../src/client/ArchivedSessionsSection.tsx'
-import type { ArchivedSessionsSectionProps } from '../src/client/ArchivedSessionsSection.tsx'
+import type {
+  ArchivedSessionDeleteResult,
+  ArchivedSessionsSectionProps,
+} from '../src/client/ArchivedSessionsSection.tsx'
 import { en, type ArchivedSessionsLocaleKey } from '../src/client/locales.ts'
 
 afterEach(cleanup)
@@ -52,13 +55,15 @@ function props(options: {
   sessions: SessionListState
   workspaces: WorkspaceSnapshot
   unarchive?: (sessionId: SessionId) => Promise<void>
+  deleteArchivedSession?: (sessionId: SessionId) => Promise<ArchivedSessionDeleteResult>
 }): ArchivedSessionsSectionProps {
   return {
     t,
     unarchive: options.unarchive ?? (async () => {}),
+    deleteArchivedSession: options.deleteArchivedSession ?? (async () => ({ ok: true })),
     useSessions: ((select: (state: SessionListState) => unknown) => select(options.sessions)),
     useWorkspaces: ((select: (state: WorkspaceSnapshot) => unknown) => select(options.workspaces)),
-  } as unknown as ArchivedSessionsSectionProps
+  } as ArchivedSessionsSectionProps
 }
 
 /** Two archived sessions in one Workspace, archived oldest first. */
@@ -82,6 +87,7 @@ describe('ArchivedSessionsSection', () => {
     ])
     expect(screen.getAllByRole('button', { name: /^Unarchive/ }).map(button => button.getAttribute('aria-label')))
       .toEqual(['Unarchive Newer session', 'Unarchive Older session'])
+    expect(screen.getByText('2 archived')).toBeTruthy()
   })
 
   it('labels a session outside every Workspace and hides an entry whose session is gone', () => {
@@ -154,5 +160,34 @@ describe('ArchivedSessionsSection', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Unarchive Older session' }))
     await waitFor(() => { expect(warn).toHaveBeenCalledWith('session unarchive rejected:', failure) })
     warn.mockRestore()
+  })
+
+  it('asks for an acknowledgement before deleting the chosen row', async () => {
+    const remove = vi.fn(async (): Promise<ArchivedSessionDeleteResult> => ({ ok: true }))
+    render(<ArchivedSessionsSection {...twoRows()} deleteArchivedSession={remove} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete Newer session' }))
+    expect(screen.getByRole('dialog', { name: en.deleteTitle })).toBeTruthy()
+    const confirm = screen.getByRole('button', { name: en.deleteConfirm }) as HTMLButtonElement
+    expect(confirm.disabled).toBe(true)
+
+    fireEvent.click(screen.getByRole('checkbox', { name: en.deleteAcknowledge }))
+    expect(confirm.disabled).toBe(false)
+    fireEvent.click(confirm)
+
+    await waitFor(() => { expect(remove).toHaveBeenCalledWith('newer') })
+    await waitFor(() => { expect(screen.queryByRole('dialog')).toBeNull() })
+  })
+
+  it('explains a refused delete and keeps the row on screen', async () => {
+    const remove = vi.fn(async (): Promise<ArchivedSessionDeleteResult> => ({ ok: false, reason: 'live' }))
+    render(<ArchivedSessionsSection {...twoRows()} deleteArchivedSession={remove} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete Newer session' }))
+    fireEvent.click(screen.getByRole('checkbox', { name: en.deleteAcknowledge }))
+    fireEvent.click(screen.getByRole('button', { name: en.deleteConfirm }))
+
+    await waitFor(() => { expect(screen.getByText(en['deleteFailed.live'])).toBeTruthy() })
+    expect(screen.getAllByRole('listitem')).toHaveLength(2)
   })
 })

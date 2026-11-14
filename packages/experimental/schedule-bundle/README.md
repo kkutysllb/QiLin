@@ -25,7 +25,7 @@ This optional bundle inserts the three Schedule rows the shipped Web composition
 <a id="use-this-package"></a>
 ## Use this package
 
-Open Plugins in the Web sidebar and enable Automation tasks, marked by an alarm clock icon. A live root Agent then receives `schedule_create`, `schedule_list`, `schedule_view`, and `schedule_edit`, the Session header shows its reminder catalog, the sidebar's Automation tasks entry opens the task-management page and the right Sidebar holds the selected task's detail, and each eligible step appends one clock reading with the current time, the browser zone attached to the open request, and the elapsed time since the preceding model-visible message. The bundle's page lists Time awareness, Task scheduling, and Task interface with their state. Disabling the bundle restores the shipped composition; stored tasks remain on disk.
+The browser profile templates select this bundle, so Automation tasks is on in Web and Desktop and has no switch anywhere. A live root Agent receives `schedule_create`, `schedule_list`, `schedule_view`, and `schedule_edit`, the Session header shows its reminder catalog, the sidebar's Automation tasks entry opens the task-management page and the right Sidebar holds the selected task's detail, and each eligible step appends one clock reading with the current time, the browser zone attached to the open request, and the elapsed time since the preceding model-visible message. The bundle's page lists Time awareness, Task scheduling, and Task interface with their state. The bundle has no page in Plugins; stored tasks remain on disk.
 
 -----
 

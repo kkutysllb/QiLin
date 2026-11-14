@@ -65,18 +65,18 @@ describe('ui-plugin-manager browser plugin', () => {
     const entry = b.slots.entries('settings.section')[0]!
     assert(entry.store && 'create' in entry.store)
     const navigation = entry.store.create()
-    expect(navigation.getSnapshot()).toEqual({ tab: 'installed', view: { kind: 'list' } })
+    expect(navigation.getSnapshot()).toEqual({ tab: 'builtin', view: { kind: 'list' } })
     b.ctx.pluginNavigation.openBundle('dsh-navigation-test')
     expect(b.openSettings).toHaveBeenLastCalledWith(PANEL_ID)
-    expect(navigation.getSnapshot()).toEqual({ tab: 'installed', view: { kind: 'package', name: 'dsh-navigation-test' } })
+    expect(navigation.getSnapshot()).toEqual({ tab: 'thirdparty', view: { kind: 'package', name: 'dsh-navigation-test' } })
     b.ctx.pluginNavigation.openList()
     expect(b.openSettings).toHaveBeenLastCalledWith(PANEL_ID)
-    expect(navigation.getSnapshot()).toEqual({ tab: 'installed', view: { kind: 'list' } })
+    expect(navigation.getSnapshot()).toEqual({ tab: 'builtin', view: { kind: 'list' } })
     removeRoot()
     // A removed shell leaves the navigation call harmless: the view still moves,
     // so a later open shows the requested place.
     b.ctx.pluginNavigation.openBundle('dsh-navigation-test')
-    expect(navigation.getSnapshot()).toEqual({ tab: 'installed', view: { kind: 'package', name: 'dsh-navigation-test' } })
+    expect(navigation.getSnapshot()).toEqual({ tab: 'thirdparty', view: { kind: 'package', name: 'dsh-navigation-test' } })
   })
 
   it('shares refresh failures with the overlay after navigation and releases both registrations across reloads', async () => {
@@ -126,7 +126,7 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(b.openSettings).toHaveBeenLastCalledWith(PANEL_ID)
     const entry = b.slots.entries('settings.section')[0]!
     assert(entry.store && 'create' in entry.store)
-    expect(entry.store.create().getSnapshot()).toEqual({ tab: 'installed', view: { kind: 'package', name: 'dsh-navigation-test' } })
+    expect(entry.store.create().getSnapshot()).toEqual({ tab: 'thirdparty', view: { kind: 'package', name: 'dsh-navigation-test' } })
     expect(entry.component).toBe(PluginManagerPage)
     // The nav row names the section with the page's own title and keeps its order.
     expect(entry.options).toMatchObject({ id: PANEL_ID, order: 15 })

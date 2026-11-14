@@ -3,4 +3,4 @@
     executionMode: persistent-in-memory
 - id: tools
   config:
-    mode: ptc
+    mode: coding

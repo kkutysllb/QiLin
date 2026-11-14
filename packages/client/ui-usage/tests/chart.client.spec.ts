@@ -70,48 +70,66 @@ describe('usage chart data', () => {
     expect(toggleSeries(['cacheReadTokens'], 'inputTokens')).toEqual(['inputTokens', 'cacheReadTokens'])
   })
 
-  it('stacks the visible series into bars and folds a series out of them', () => {
+  it('stacks the visible series into pixel columns and folds a series out of them', () => {
     const start = midnight(Date.parse('2026-03-01T00:00:00'))
     const days = usageByDay([
       record(start.getTime(), 100, 50, 50),
       record(start.getTime() + DAY, 200, 0, 0),
     ], start, new Date(start.getTime() + DAY))
 
-    const chart = usageChart(days, { height: 0, baseline: 100 })
+    const chart = usageChart(days, { width: 600, height: 232 })
     expect(chart.bars).toHaveLength(2)
     expect(chart.bars[0]?.bands.map(band => band.series)).toEqual([...USAGE_SERIES])
-    // The tallest day fills the plot: 200 uncached input, nothing else.
+    // The tallest day sets a round peak: 200 reads as 200, so the axis labels
+    // stay whole numbers.
     expect(chart.peakTokens).toBe(200)
-    expect(chart.bars[1]?.bands[0]?.height).toBeCloseTo(100)
+    // Plot box: axis padding is reserved, the rest is the drawing area.
+    expect(chart.plot).toEqual({ left: 46, top: 8, right: 560, bottom: 208, width: 514, height: 200 })
     // Bands stack upward from the baseline, bottom band lowest.
-    const [input, output] = chart.bars[1]?.bands ?? []
-    expect((input?.y ?? 0) + (input?.height ?? 0)).toBeCloseTo(chart.baseline)
+    const [input, output, cache] = chart.bars[1]?.bands ?? []
+    expect((input?.y ?? 0) + (input?.height ?? 0)).toBeCloseTo(chart.plot.bottom)
     expect((output?.y ?? 0) + (output?.height ?? 0)).toBeCloseTo(input?.y ?? 0)
-    expect(chart.area.startsWith('M 0 100')).toBe(true)
+    expect((cache?.y ?? 0) + (cache?.height ?? 0)).toBeCloseTo(output?.y ?? 0)
+    // A 200-token day fills the plot; the 100-token input band is half of it.
+    expect(input?.height).toBeCloseTo(200)
+    // The bar caps at a readable width and stays centered in its day's step.
+    expect(chart.bars[1]?.barWidth).toBe(24)
+    expect((chart.bars[1]?.barX ?? 0) + (chart.bars[1]?.barWidth ?? 0) / 2)
+      .toBeCloseTo((chart.bars[1]?.x ?? 0) + (chart.bars[1]?.width ?? 0) / 2)
     expect(chart.ticks.map(tick => tick.label)).toEqual(['0', '50', '100', '150', '200'])
-    // The width caps at a readable bar: two days read as two slim columns, not
-    // two half-plot slabs, and the hit-rate line crosses both.
-    expect(chart.bars[1]?.width).toBe(6.5)
-    expect((chart.bars[1]?.x ?? 0) + (chart.bars[1]?.width ?? 0) / 2).toBeCloseTo(75)
-    expect(chart.line).toContain('L')
+    expect(chart.rateTicks.map(tick => tick.label)).toEqual(['0%', '50%', '100%'])
+    // Both days billed prompt tokens, so the rate line joins both.
+    expect(chart.ratePoints).toHaveLength(2)
+    expect(chart.ratePath.split(' ')[0]).toBe('M')
+    expect(chart.xLabels.map(label => label.day)).toEqual(['2026-03-01', '2026-03-02'])
 
-    // A sparse range caps the bar width and centers each bar in its step, so one
-    // quiet day never paints half the plot.
-    const sparse = usageChart(days.slice(0, 1), { height: 0, baseline: 100 })
-    expect(sparse.bars[0]?.width).toBe(6.5)
-    expect((sparse.bars[0]?.x ?? 0) + (sparse.bars[0]?.width ?? 0) / 2).toBeCloseTo(50)
+    // A quiet day carries no rate point: the line skips it rather than dropping
+    // a spike to zero percent.
+    const quiet = usageChart(usageByDay(records(), start, new Date(start.getTime() + 2 * DAY)), { width: 600, height: 232 })
+    expect(quiet.ratePoints).toHaveLength(2)
+    expect(quiet.ratePath.match(/M /g)).toHaveLength(2)
 
     // Folding a series drops its band and rescales what remains.
-    const folded = usageChart(days, { height: 0, baseline: 100, hidden: ['outputTokens'] })
+    const folded = usageChart(days, { width: 600, height: 232, hidden: ['outputTokens'] })
     expect(folded.bars[1]?.bands.map(band => band.series)).toEqual(['inputTokens', 'cacheReadTokens'])
     expect(folded.peakTokens).toBe(200)
   })
 
+  /** Three days: two with prompt traffic around one quiet day. */
+  function records(): UsageRecord[] {
+    return [
+      record(midnight(Date.parse('2026-03-01T00:00:00')).getTime(), 100, 10, 100),
+      record(midnight(Date.parse('2026-03-03T00:00:00')).getTime(), 100, 10, 100),
+    ]
+  }
+
   it('draws an empty range as an empty chart rather than a broken path', () => {
-    const chart = usageChart([], { height: 0, baseline: 100 })
+    const chart = usageChart([], { width: 600, height: 232 })
     expect(chart.bars).toEqual([])
-    expect(chart.area).toBe('')
+    expect(chart.ratePath).toBe('')
+    expect(chart.ratePoints).toEqual([])
     expect(chart.peakTokens).toBe(1)
+    expect(chart.xLabels).toEqual([])
   })
 
   it('shortens a token count for a card, a tick, or a cell', () => {

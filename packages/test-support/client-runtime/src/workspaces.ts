@@ -144,6 +144,23 @@ export class TestWorkspaces implements IWorkspaces {
   }
 
   /**
+   * Delete an archived session (recorded). The default mirrors the production
+   * face's observable effect: the id leaves the list state's archive set.
+   * @param sessionId - archived session to delete.
+   */
+  async deleteArchivedSession(sessionId: SessionId): Promise<void> {
+    this.calls.push({ method: 'deleteArchivedSession', args: [sessionId] })
+    const stub = this.stubs.get('deleteArchivedSession')
+    if (stub !== undefined) {
+      await (stub(sessionId) as Promise<void>)
+      return
+    }
+    await this.update((draft) => {
+      draft.archivedSessionIds = draft.archivedSessionIds.filter(id => id !== sessionId)
+    })
+  }
+
+  /**
    * Unarchive a session (recorded). The default mirrors the production face's
    * observable effect: the id leaves the list state's archive set.
    * @param sessionId - session to unarchive.

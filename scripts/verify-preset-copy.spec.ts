@@ -12,14 +12,14 @@ import {
 
 const DISPLAY = [
   'const BUILT_IN_PRESET_KEYS = {',
-  "  ptc: { name: 'presetPtcName', description: 'presetPtcDescription' },",
+  "  coding: { name: 'presetCodingName', description: 'presetCodingDescription' },",
   '}',
 ].join('\n')
 
 const DICTIONARY = [
   'export const zh = {',
-  "  presetPtcName: '编码模式',",
-  "  presetPtcDescription: '功能完整的编码 Agent。',",
+  "  presetCodingName: '编码模式',",
+  "  presetCodingDescription: '功能完整的编码 Agent。',",
   "  builtIn: '内置',",
   '}',
 ].join('\n')
@@ -34,7 +34,7 @@ const corpus = (overrides: Partial<Parameters<typeof checkPresetCopy>[0]> = {}) 
 describe('parsing', () => {
   it('reads the display map rows', () => {
     expect(parseDisplayRows(DISPLAY)).toEqual([
-      { id: 'coding', nameKey: 'presetPtcName', descriptionKey: 'presetPtcDescription' },
+      { id: 'coding', nameKey: 'presetCodingName', descriptionKey: 'presetCodingDescription' },
     ])
   })
 
@@ -44,14 +44,14 @@ describe('parsing', () => {
   })
 
   it('maps copy keys back to preset ids', () => {
-    expect(copyKeyPresetIds(['presetPtcName', 'presetPtcDescription', 'builtIn'])).toEqual(['coding', 'coding'])
+    expect(copyKeyPresetIds(['presetCodingName', 'presetCodingDescription', 'builtIn'])).toEqual(['coding', 'coding'])
   })
 })
 
 describe('checkPresetContractProse', () => {
   it('rejects a retired id named as a preset in prose', () => {
     expect(checkPresetContractProse('docs/user/guide/x.md', 'The Session selects the `cordis` agent preset.\n'))
-      .toEqual(['docs/user/guide/x.md:1 names a retired preset id where presets are documented; the deployment ships `standard` and `ptc`'])
+      .toEqual(['docs/user/guide/x.md:1 names a retired preset id where presets are documented; the deployment ships `standard` and `coding`'])
   })
 
   it('rejects a retired id used as the recorded preset of a lane fixture', () => {
@@ -59,14 +59,18 @@ describe('checkPresetContractProse', () => {
     expect(checkPresetContractProse('lane.e2e.ts', "      projections: { values: { agentPreset: 'minimal' } },\n")).toHaveLength(1)
   })
 
-  it('accepts both shipped presets, and a retired id that names something other than a preset', () => {
+  it('accepts the shipped presets and a retired id that names something other than a preset', () => {
     expect(checkPresetContractProse('x.md', [
       'The Session selects the `standard` agent preset.',
-      'The Session selects the `ptc` agent preset.',
+      'The Session selects the `coding` agent preset.',
       'The `cordis` loader reads `cordis.patch.yml` and never names a preset.',
       'Standard input and standard output are unrelated.',
       '',
     ].join('\n'))).toEqual([])
+  })
+
+  it('rejects the retired ptc id named as a preset', () => {
+    expect(checkPresetContractProse('x.md', 'The Session selects the `ptc` agent preset.\n')).toHaveLength(1)
   })
 })
 
@@ -82,7 +86,7 @@ describe('checkPresetCopy', () => {
 
   it('rejects a mapping for a preset the deployment does not ship', () => {
     expect(checkPresetCopy(corpus({ shippedIds: [] }))).toEqual([
-      'packages/preset/agent-presets/src/display.ts maps `ptc`, which is not a shipped preset',
+      'packages/preset/agent-presets/src/display.ts maps `coding`, which is not a shipped preset',
     ])
   })
 
@@ -96,32 +100,32 @@ describe('checkPresetCopy', () => {
 
   it('rejects a dictionary that lost a copy key', () => {
     const failures = checkPresetCopy(corpus({
-      dictionaryKeys: { 'locales.ts': ['presetPtcName', 'builtIn'] },
+      dictionaryKeys: { 'locales.ts': ['presetCodingName', 'builtIn'] },
     }))
-    expect(failures).toEqual(['locales.ts is missing copy key `presetPtcDescription`'])
+    expect(failures).toEqual(['locales.ts is missing copy key `presetCodingDescription`'])
   })
 
   it('rejects retired copy left behind in a dictionary', () => {
     const failures = checkPresetCopy(corpus({
-      dictionaryKeys: { 'locales.ts': ['presetPtcName', 'presetPtcDescription', 'presetCordisName'] },
+      dictionaryKeys: { 'locales.ts': ['presetCodingName', 'presetCodingDescription', 'presetCordisName'] },
     }))
     expect(failures).toContain('locales.ts carries preset copy key `presetCordisName`, which no shipped preset maps')
     expect(failures).toContain('locales.ts carries copy for the retired preset id `cordis`')
   })
 
-  it('accepts the restored standard preset beside ptc', () => {
+  it('accepts the restored standard preset beside coding', () => {
     const twoPresets = [
       'const BUILT_IN_PRESET_KEYS = {',
       "  standard: { name: 'presetStandardName', description: 'presetStandardDescription' },",
-      "  ptc: { name: 'presetPtcName', description: 'presetPtcDescription' },",
+      "  coding: { name: 'presetCodingName', description: 'presetCodingDescription' },",
       '}',
     ].join('\n')
     const dictionary = [
       'export const zh = {',
       "  presetStandardName: '普通模式',",
       "  presetStandardDescription: '功能完整的编码 Agent。',",
-      "  presetPtcName: '编码模式',",
-      "  presetPtcDescription: '功能完整的编码 Agent。',",
+      "  presetCodingName: '编码模式',",
+      "  presetCodingDescription: '功能完整的编码 Agent。',",
       '}',
     ].join('\n')
     expect(checkPresetCopy({
@@ -134,7 +138,7 @@ describe('checkPresetCopy', () => {
 
 describe('shippedPresetIds', () => {
   it('reads preset directory names from either platform separator', () => {
-    const posix = 'packages/preset/agent-presets/presets/ptc/preset.yml'
+    const posix = 'packages/preset/agent-presets/presets/coding/preset.yml'
     const windows = 'packages\\preset\\agent-presets\\presets\\standard\\preset.yml'
     expect(shippedPresetIds([posix, windows])).toEqual(['coding', 'standard'])
   })

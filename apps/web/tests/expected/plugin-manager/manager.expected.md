@@ -5,49 +5,17 @@
 - group "添加插件":
   - button "添加插件"
   - button "选择添加插件方式"
-- heading "内置插件配置" [level=3]
-- list:
-  - listitem:
-    - button "查看 终端": 终端
-    - text: 限制 agent 运行的每一条命令。
-  - listitem:
-    - button "查看 Agent 循环": Agent 循环
-    - text: Agent 如何派发工具调用。
-  - listitem:
-    - button "查看 Subagent": Subagent
-    - text: 设置 Subagent 的递归层级、数量和模型。
-  - listitem:
-    - button "查看 网页搜索": 网页搜索
-    - text: 设置 DeepSeek 的搜索提供方。
-  - listitem:
-    - button "查看 智能体团队": 智能体团队
-    - text: 启用团队协作、团队工具、成员列表和共享任务看板。
-    - switch "启用 智能体团队"
-  - listitem:
-    - button "查看 自动化任务": 自动化任务
-    - text: 按设定的时间或周期，在会话中自动执行任务。
-    - switch "启用 自动化任务"
-- heading "实验性插件" [level=3]
-- list:
-  - listitem:
-    - button "查看 语音输入": 语音输入
-    - text: 实验性 在本机使用 SenseVoice 转写录音；首次使用需安装依赖
-    - switch "启用 语音输入"
-  - listitem:
-    - button "查看 自动授权审查": 自动授权审查
-    - text: 实验性 提供自动审查权限模式，由模型在每次工具调用前判断是否授权。
-    - switch "启用 自动授权审查"
-  - listitem:
-    - button "查看 变更请求与工作树": 变更请求与工作树
-    - text: 实验性 在会话侧栏集中跟踪关联的 GitHub PR：查看检查状态、评审意见与代码差异，并把修改建议交给智能体继续处理。也可查看本地改动，用独立工作树隔离任务。GitHub 功能需要本机安装 gh 并登录。
-    - switch "启用 变更请求与工作树"
-  - button "更多"
-- heading "已安装插件" [level=3]
-- list:
-  - listitem:
-    - button "查看 @fixture/bundle": "@fixture/bundle"
-    - text: "Web e2e fixture: a bundle whose one row is an inert plugin."
-    - switch "启用 @fixture/bundle"
-  - listitem:
-    - button "查看 qilin-web-scaffold-defaults": qilin-web-scaffold-defaults
-    - switch "启用 qilin-web-scaffold-defaults" [checked]
+- tablist "插件分类":
+  - tab "内置插件"
+  - tab "实验插件"
+  - tab "第三方插件" [selected]
+- tabpanel "第三方插件":
+  - paragraph: 你自行安装的插件，来自 npm 包、Git 仓库或本地目录。
+  - list:
+    - listitem:
+      - button "查看 @fixture/bundle": "@fixture/bundle"
+      - text: "Web e2e fixture: a bundle whose one row is an inert plugin."
+      - switch "启用 @fixture/bundle"
+    - listitem:
+      - button "查看 qilin-web-scaffold-defaults": qilin-web-scaffold-defaults
+      - switch "启用 qilin-web-scaffold-defaults" [checked]

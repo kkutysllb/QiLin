@@ -19,7 +19,7 @@
 
 - id: tools
   config:
-    mode: ptc
+    mode: coding
 
 - id: system-prompt
   config:

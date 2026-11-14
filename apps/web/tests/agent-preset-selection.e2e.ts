@@ -220,7 +220,7 @@ describe('web e2e: agent-preset selection', () => {
   it('reports the ordinary preset as the new-task default beside the coding preset', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-agent-preset-settings'))
     const dialog = await openSettings(page, { menu: 'Settings', dialog: 'Settings' })
-    await dialog.getByRole('button', { name: 'Agent presets' }).click()
+    await dialog.getByRole('button', { name: 'Agent management' }).click()
     // The roster carries both shipped presets, localized through the shared
     // display fold rather than by their file metadata, and the host names
     // `standard` the default new tasks compose from.
@@ -228,8 +228,6 @@ describe('web e2e: agent-preset selection', () => {
     await dialog.getByRole('button', { name: 'View: Coding mode' }).waitFor({ timeout: 10_000 })
     // The coding preset documents the program-composition optimization it adds.
     await dialog.getByText(/custom program composition wraps coding tasks/).waitFor({ timeout: 10_000 })
-    const toggle = dialog.getByRole('switch', { name: 'Allow switching Agent modes' })
-    expect(await toggle.getAttribute('aria-checked')).toBe('true')
     await dialog.getByRole('button', { name: 'Close' }).last().click()
   }, 60_000)
 

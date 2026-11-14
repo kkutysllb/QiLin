@@ -27,7 +27,6 @@ import type {} from '@qilin-agent/agent-presets/types'
 /** The plugin-config input face the roster accepts from a composition row. */
 type RosterInput = {
   default?: string
-  modeSelectionEnabled?: boolean
   roots?: PresetRoot[]
   includeShippedRoot?: boolean
   includeUserRoot?: boolean
@@ -126,7 +125,6 @@ describe('the roster a client reads', () => {
     const roster = await ctx.agentPresets.remoteExportList()
 
     expect(roster.authorable).toBe(true)
-    expect(roster.modeSelectionEnabled).toBe(true)
     expect(roster.presets).toEqual([
       { id: 'minimal', trust: 'system', isDefault: true },
       { id: 'standard', trust: 'system', isDefault: false },
@@ -162,7 +160,7 @@ describe('the roster a client reads', () => {
 
     // Composing no presets is a valid deployment: every session then shares
     // the host composition, and nothing can be written either.
-    expect(roster).toEqual({ presets: [], authorable: false, modeSelectionEnabled: true })
+    expect(roster).toEqual({ presets: [], authorable: false })
   })
 })
 

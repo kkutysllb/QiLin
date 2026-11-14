@@ -191,6 +191,19 @@ export class SessionProjectionCache extends Service {
   }
 
   /**
+   * Drop one session's cached checkpoint after its stored log is removed.
+   *
+   * The cache is derived data, so forgetting is fail-soft and never throws for
+   * an absent record. A session whose durable log still exists refolds from it
+   * and repopulates the cache on the next cold read, which is why forgetting
+   * must accompany log deletion rather than replace a repair.
+   * @param sessionId - the session whose cached rows are discarded.
+   */
+  async forget(sessionId: SessionId): Promise<void> {
+    await this.requireTable().delete(sessionId)
+  }
+
+  /**
    * Read only a predecessor checkpoint's title as a zero-I/O listing hint.
    *
    * The authoritative Session header supplies the lifecycle identity. A cache

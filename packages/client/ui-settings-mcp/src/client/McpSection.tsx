@@ -7,7 +7,7 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Button, Input, Switch, Tag } from '@qilin-agent/client-ui-primitives'
-import type { InjectFace, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { InjectFace } from '@qilin-agent/client-ui-slots'
 import type { McpServerDraft, McpServerView } from '@qilin-agent/mcp-servers/types'
 import type { McpServersStore } from './store.ts'
 import type { en } from './locales.ts'
@@ -25,8 +25,8 @@ export interface McpSectionInjected {
   t: (key: keyof typeof en) => string
 }
 
-/** Props the renderer binds for this section. */
-export type McpSectionProps = PropsRuntime<'settings.section'> & InjectFace<McpSectionInjected>
+/** Props the renderer binds for this page: its inject face carries every dependency. */
+export type McpSectionProps = InjectFace<McpSectionInjected>
 
 /** One editor draft, as the strings the form binds to. */
 interface Draft {

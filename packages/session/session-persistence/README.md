@@ -41,8 +41,11 @@ const handle = await ctx.sessionPersistence.open(id, 'write')  // claim single-w
 const reader = await ctx.sessionPersistence.open(id, 'read')   // observe without ownership
 const snap = await ctx.sessionPersistence.stat(id)             // header + revision (+ eventCount / sizeBytes) without a log read
 const all = await ctx.sessionPersistence.list()                // one snapshot per visible stored session
+await ctx.sessionPersistence.delete(id)                        // remove one stored session and every artifact the backend owns for it
 await ctx.sessionPersistence.flush()                           // backend-wide durability barrier over every active write handle
 ```
+
+`delete(id)` removes the durable log so the space is freed: every retained generation, the backend's ownership record, and any derived file written beside them. It refuses with `SessionPersistenceBusyError` while this process holds a handle for the session, because a reader that outlives the removal would observe a torn artifact, and a session that does not exist resolves without an error so a repeated delete is a no-op. A backend that cannot remove artifacts refuses with `SessionPersistenceDeletionUnsupportedError` instead of reporting a removal it did not perform; the shipped JSONL backend implements deletion.
 
 Service-level `flush()` drains every active write handle's routed events and materializes its session, exactly as each handle's own `flush` would; failures aggregate per session as an `AggregateError` without abandoning the sweep, and a handle closed mid-sweep counts as flushed because close itself drains durably.
 

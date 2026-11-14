@@ -6,14 +6,14 @@
  */
 
 import { describe, expect, it } from 'vitest'
+import { Context } from '@qilin-agent/kylin'
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type { RemoteErrorCode } from '@qilin-agent/api-remotes/client'
 import { RemoteError } from '@qilin-agent/client-test-runtime'
 import type { SessionSummary } from '@qilin-agent/api-session-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import {
-  AGENT_PRESET_SETTINGS_NS, AgentPresetSettingsController,
-  writeDefaultPreset, writeModeSelectionEnabled,
+  AGENT_PRESET_SETTINGS_NS, AgentPresetSettingsController, writeDefaultPreset,
 } from '../src/client/settings-store.ts'
 
 /** The roster store over a scripted context. */
@@ -33,10 +33,10 @@ function fakeRoster(
     failList?: string
     failListCode?: RemoteErrorCode
     settings?: object
-    showPicker?: boolean
   } = {},
 ): ClientContext {
-  return {
+  const ctx = new Context()
+  Object.assign(ctx, {
     remote: {
       ...options.settings === undefined ? {} : { settings: options.settings },
       agentPresets: {
@@ -44,9 +44,7 @@ function fakeRoster(
           return Promise.resolve(options.failList === undefined
             ? {
               ok: true as const,
-              value: {
-                presets, authorable: true, modeSelectionEnabled: options.showPicker ?? true,
-              },
+              value: { presets, authorable: true },
             }
             : {
               ok: false as const,
@@ -55,7 +53,8 @@ function fakeRoster(
         },
       },
     },
-  } as unknown as ClientContext
+  })
+  return ctx
 }
 
 /** A context whose roster and settings write outcome the test controls. */
@@ -68,7 +67,7 @@ function fakeApi(
   } = {},
 ): ClientContext {
   const settings = {
-    update: (ns: string, patch: { default?: unknown; modeSelectionEnabled?: unknown }) => {
+    update: (ns: string, patch: { default?: unknown }) => {
       options.writes?.push({ ns, ops: patch })
       if (options.failWrite !== undefined) {
         return Promise.resolve({ ok: false as const, error: new RemoteError('gateway/internal', options.failWrite, {}) })
@@ -175,16 +174,6 @@ describe('the agent-preset roster store', () => {
     expect(await writeDefaultPreset(ctx, 'minimal')).toBe('read-only settings')
   })
 
-  it('writeModeSelectionEnabled writes only the picker policy field', async () => {
-    const writes: Recorded[] = []
-
-    expect(await writeModeSelectionEnabled(fakeApi([], { writes }), false)).toBeUndefined()
-    expect(writes).toEqual([{
-      ns: AGENT_PRESET_SETTINGS_NS,
-      ops: { modeSelectionEnabled: false },
-    }])
-  })
-
   it('surfaces a roster failure without claiming the deployment has no presets', async () => {
     const controller = derivedController(fakeApi([], { failList: 'host down' }))
 
@@ -217,7 +206,6 @@ describe('the new-session chip controller', () => {
       failSelect?: string
       failList?: string
       failListCode?: RemoteErrorCode
-      showPicker?: boolean
       list?: () => Promise<Awaited<ReturnType<typeof remoteRoster>> | { readonly ok: false; readonly error: RemoteError }>
       select?: () => Promise<never>
     } = {},
@@ -229,9 +217,7 @@ describe('the new-session chip controller', () => {
             return Promise.resolve(options.failList === undefined
               ? {
                 ok: true as const,
-                value: {
-                  presets, authorable: true, modeSelectionEnabled: options.showPicker ?? true,
-                },
+                value: { presets, authorable: true },
               }
               : {
                 ok: false as const,
@@ -278,7 +264,7 @@ describe('the new-session chip controller', () => {
     ])
   })
 
-  it('takes picker visibility from the newest Host roster truth', async () => {
+  it('takes the newest Host roster truth', async () => {
     const first = Promise.withResolvers<ReturnType<typeof remoteRoster>>()
     const second = Promise.withResolvers<ReturnType<typeof remoteRoster>>()
     const replies = [first.promise, second.promise]
@@ -286,14 +272,12 @@ describe('the new-session chip controller', () => {
 
     const older = controller.load()
     const newer = controller.load()
-    second.resolve(remoteRoster(false))
+    second.resolve(remoteRoster('minimal'))
     await newer
-    first.resolve(remoteRoster(true))
+    first.resolve(remoteRoster('standard'))
     await older
 
-    expect(controller.store.getSnapshot()).toMatchObject({
-      showPicker: false, current: 'standard', error: null,
-    })
+    expect(controller.store.getSnapshot()).toMatchObject({ current: 'minimal', error: null })
   })
 
   it('shows the first preset when the roster marks none default', async () => {
@@ -479,26 +463,6 @@ describe('the new-session chip controller', () => {
     expect(controller.store.getSnapshot().current).toBe('minimal')
   })
 
-  it('clears an unconsumed stage when the Host hides the picker', async () => {
-    const writes: Recorded[] = []
-    const controller = chip(ROSTER, {
-      id: 's1' as SessionId,
-      blank: false,
-      projectionValues: { agentPreset: 'standard' },
-    }, { writes, showPicker: false })
-    controller.stage('minimal', true)
-
-    await controller.load()
-    await controller.apply()
-
-    expect(writes).toEqual([])
-    expect(controller.store.getSnapshot()).toMatchObject({
-      showPicker: false,
-      current: 'standard',
-      introduce: false,
-    })
-  })
-
   it('reports a refused roster read without emptying the chip', async () => {
     const controller = chip(ROSTER, undefined, { failList: 'host down' })
 
@@ -515,7 +479,7 @@ describe('the new-session chip controller', () => {
       failSelect: 'already started',
       list: () => Promise.resolve(fail
         ? { ok: false as const, error: new RemoteError('gateway/internal', 'host down', {}) }
-        : remoteRoster(true)),
+        : remoteRoster('standard')),
     })
     await controller.load()
     await controller.select('minimal')
@@ -580,13 +544,15 @@ describe('the new-session chip controller', () => {
 
 })
 
-function remoteRoster(modeSelectionEnabled: boolean) {
+function remoteRoster(defaultId: string) {
   return {
     ok: true as const,
     value: {
-      presets: [{ id: 'standard', trust: 'system' as const, isDefault: true }],
+      presets: [
+        { id: 'standard', trust: 'system' as const, isDefault: defaultId === 'standard' },
+        { id: 'minimal', trust: 'system' as const, isDefault: defaultId === 'minimal' },
+      ],
       authorable: true,
-      modeSelectionEnabled,
     },
   }
 }

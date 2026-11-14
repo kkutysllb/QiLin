@@ -671,13 +671,13 @@ export type ToolPresentationMode = 'native' | 'coding'
 /** Plugin config: how the registered tools are presented to the model. */
 export interface Config {
   /**
-   * Model presentation. `native` (default) sends every visible schema; `ptc`
+   * Model presentation. `native` (default) sends every visible schema; `coding`
    * sends only `run_code` plus a generated SDK prompt and collapses the
    * executor to the same surface (a model-direct call may only name
    * `run_code`; `run_code` SDK sub-dispatches keep every visible tool).
    * coding mode requires a `ctx.codingRuntime` whose `language`
    * has a registered SDK renderer (TypeScript or Python) and fail prompt
-   * assembly when it is absent or has no renderer. Under `ptc`, native names
+   * assembly when it is absent or has no renderer. Under `coding`, native names
    * in `toolOrder` are invalid.
    */
   mode?: ToolPresentationMode

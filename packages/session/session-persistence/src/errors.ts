@@ -36,6 +36,30 @@ export class SessionAlreadyOwnedError extends Error {
   }
 }
 
+/**
+ * A backend cannot remove stored sessions at all, so a deleting consumer must
+ * refuse instead of pretending the artifacts are gone.
+ */
+export class SessionPersistenceDeletionUnsupportedError extends Error {
+  /** @param sessionId - the session whose removal was requested. */
+  constructor(readonly sessionId: SessionId) {
+    super(`session "${sessionId}": this storage backend cannot delete stored sessions`)
+    this.name = 'SessionPersistenceDeletionUnsupportedError'
+  }
+}
+
+/** `delete` found the session bound to a handle this process still has open. */
+export class SessionPersistenceBusyError extends Error {
+  /**
+   * @param sessionId - the session the open handle observes.
+   * @param operation - the refused deleting operation name.
+   */
+  constructor(readonly sessionId: SessionId, operation: string) {
+    super(`session "${sessionId}": cannot ${operation} while a handle is open`)
+    this.name = 'SessionPersistenceBusyError'
+  }
+}
+
 /** A mutation (`append`/`flush`) was called on a read handle. */
 export class SessionReadOnlyError extends Error {
   /**

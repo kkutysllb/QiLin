@@ -22,7 +22,6 @@ const READY: AgentPresetSectionState = {
   error: null,
   authorable: true,
   hasDocument: true,
-  showPicker: true,
   policySaving: false,
   rows: [
     { id: 'coding', trust: 'system', isDefault: true, name: '标准模式', description: '完整的编码 agent。' },
@@ -61,7 +60,6 @@ function renderSection(
     confirmDelete: vi.fn(),
     remove: vi.fn(() => Promise.resolve()),
     makeDefault: vi.fn(() => Promise.resolve()),
-    setPickerVisible: vi.fn(() => Promise.resolve()),
   }
   const props = {
     ...actions,
@@ -113,41 +111,6 @@ describe('the preset list', () => {
     expect(within(standard).getByText(en.inUse)).toBeTruthy()
     expect(within(standard).queryByText(en.setDefault)).toBeNull()
     expect(within(rowFor('mine')).getByText(en.userTrust)).toBeTruthy()
-  })
-
-  it('explains and reverses a Host-disabled picker without offering preset changes', () => {
-    const actions = renderSection({
-      showPicker: false,
-      error: 'settings write disconnected',
-      rows: [
-        ...READY.rows,
-        { id: 'coding', trust: 'system', isDefault: false, name: '创造模式' },
-      ],
-    })
-
-    const toggle = screen.getByRole('switch', { name: en.showPicker })
-    expect(toggle.getAttribute('aria-checked')).toBe('false')
-    fireEvent.click(toggle)
-    expect(actions.setPickerVisible).toHaveBeenCalledWith(true)
-    expect(screen.getByRole('alert').textContent).toBe('settings write disconnected')
-
-    const creator = screen.getByRole('button', { name: en.creatorDraft })
-    expect(creator).toHaveProperty('disabled', true)
-    expect(creator.getAttribute('title')).toBe(en.enablePickerToCreate)
-
-    const standard = within(rowFor('coding')).getByRole('button', {
-      name: `${en.selectionOffDefault}: ${en.presetCodingName}`,
-    })
-    expect(standard.getAttribute('title')).toBe(en.selectionOffDefault)
-    expect(within(rowFor('coding')).getByText(en.selectionOffDefault)).toBeTruthy()
-
-    const mine = within(rowFor('mine')).getByRole('button', {
-      name: `${en.enablePickerToSetDefault}: mine`,
-    })
-    expect(mine).toHaveProperty('disabled', true)
-    expect(mine.getAttribute('title')).toBe(en.enablePickerToSetDefault)
-    fireEvent.click(mine)
-    expect(actions.makeDefault).not.toHaveBeenCalled()
   })
 
   it('separates built-in presets from custom ones', () => {

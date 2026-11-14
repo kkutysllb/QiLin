@@ -16,7 +16,7 @@ import { SessionSeq, SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/sess
 import type { SessionEvent, SessionHeader } from '@qilin-agent/session'
 import { MessageId, freezeMessage } from '@qilin-agent/llm'
 import {
-  SessionAlreadyExistsError,
+  SessionAlreadyExistsError, SessionPersistenceBusyError,
   SessionAlreadyOwnedError,
   SessionFormatUnsupportedError,
   SessionHandleClosedError,
@@ -574,6 +574,33 @@ export function runPersistenceContract(name: string, make: () => Promise<Contrac
         }
       } finally {
         await backend.dispose()
+      }
+    })
+
+    it('deletes a stored session, refuses while a handle is open, and is idempotent', async () => {
+      const { persistence, dispose } = await make()
+      try {
+        const m = meta('delete-session', '/work')
+        const writer = await persistence.create(m)
+        await writer.append(oneTurnLog())
+        await writer.flush()
+
+        // A reader that outlives the removal would see a torn artifact.
+        const reader = await persistence.open(m.id, 'read')
+        await expect(persistence.delete(m.id)).rejects.toBeInstanceOf(SessionPersistenceBusyError)
+        await reader.close()
+        await expect(persistence.delete(m.id)).rejects.toBeInstanceOf(SessionPersistenceBusyError)
+        await writer.close()
+
+        await persistence.delete(m.id)
+        expect(await persistence.stat(m.id)).toBeUndefined()
+        expect((await persistence.list()).some(snapshot => snapshot.header.id === m.id)).toBe(false)
+        // A removed id is free again, and a repeated delete is a no-op.
+        await persistence.delete(m.id)
+        const recreated = await persistence.create(m)
+        await recreated.close()
+      } finally {
+        await dispose()
       }
     })
 

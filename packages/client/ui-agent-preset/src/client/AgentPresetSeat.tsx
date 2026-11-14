@@ -113,15 +113,6 @@ export function AgentPresetSeat({
     } else setToast(null)
   }, [state.error])
 
-  // The component stays registered while hidden, so clear local disclosure
-  // state explicitly; otherwise an external off/on edit can revive an old
-  // menu or refusal banner.
-  useEffect(() => {
-    if (state.showPicker) return
-    setOpen(false)
-    setToast(null)
-  }, [state.showPicker])
-
   const chosen = state.options.find(option => option.id === state.current)
   const chosenText = chosen === undefined ? undefined : presetDisplayText(chosen, t)
   const label = chosenText?.name ?? state.current
@@ -172,7 +163,7 @@ export function AgentPresetSeat({
 
   return (
     <>
-      {state.showPicker && ready && (
+      {ready && (
         <Menu
           open={open}
           onClose={() => { setOpen(false) }}

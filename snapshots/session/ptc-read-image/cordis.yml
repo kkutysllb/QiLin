@@ -1,4 +1,4 @@
-# PTC mode image overlay: mounts the worker runtime and durable attachment
+# coding mode image overlay: mounts the worker runtime and durable attachment
 # store so a nested read_image result can cross the generic rich-result bridge.
 # The live config selects the shipped vision route for manual use.
 - id: agent-default-model
@@ -21,7 +21,7 @@
 - id: tools
   name: '@qilin-agent/tools'
   config:
-    mode: ptc
+    mode: coding
 
 - id: system-prompt
   name: '@qilin-agent/system-prompt'

@@ -8,7 +8,7 @@ export type AgentPresetSettingsKey =
   | 'presetCodingName' | 'presetCodingDescription'
   | 'duplicate' | 'duplicateUnavailable' | 'delete' | 'presetId' | 'presetIdPlaceholder' | 'copyOf'
   | 'displayName' | 'displayNamePlaceholder'
-  | 'inUse' | 'selectionOffDefault' | 'noDescription' | 'builtInGroup' | 'customGroup'
+  | 'inUse' | 'noDescription' | 'builtInGroup' | 'customGroup'
   | 'brokenBadge' | 'brokenNoCopy' | 'switchRefused'
   | 'composition' | 'cancel' | 'close' | 'retry'
   | 'copyTitle' | 'copyIntro' | 'create' | 'creating' | 'creatorDraft'
@@ -16,8 +16,6 @@ export type AgentPresetSettingsKey =
   | 'openLocation' | 'showLocation' | 'revealedPathLabel'
   | 'idRequired' | 'idInvalid' | 'idTaken'
   | 'deleteTitle' | 'deleteDescription' | 'deleteConfirm' | 'deleting'
-  | 'showPicker' | 'showPickerBeta' | 'showPickerDescription'
-  | 'enablePickerToSetDefault' | 'enablePickerToCreate'
 
 /** English copy. */
 export const en: Record<AgentPresetSettingsKey, string> = {
@@ -25,7 +23,7 @@ export const en: Record<AgentPresetSettingsKey, string> = {
   userTrust: 'Custom',
   seatHint: 'Agent preset for the session you are about to start',
   headerHint: 'The agent preset this session runs, fixed when it started',
-  nav: 'Agent presets',
+  nav: 'Agent management',
   sectionIntro:
     'A preset is the plugin composition one session\'s agent runs — its tools, prompt, and capabilities. '
     + 'Duplicate an existing one and make it yours, or let the agent draft one for you.',
@@ -46,7 +44,6 @@ export const en: Record<AgentPresetSettingsKey, string> = {
   displayName: 'Name',
   displayNamePlaceholder: 'Shown in the picker; defaults to the identifier',
   inUse: 'New task default',
-  selectionOffDefault: 'Default',
   builtInGroup: 'Built-in',
   customGroup: 'Custom',
   noDescription: 'No description.',
@@ -81,12 +78,6 @@ export const en: Record<AgentPresetSettingsKey, string> = {
     'The preset directory is deleted. Sessions already running on it keep working; new sessions cannot select it.',
   deleteConfirm: 'Delete',
   deleting: 'Deleting…',
-  showPicker: 'Allow switching Agent modes',
-  showPickerBeta: 'Beta',
-  showPickerDescription:
-    'When enabled, new tasks can choose among the available modes. When disabled, all new tasks use the default mode (configurable). Only affects new tasks.',
-  enablePickerToSetDefault: 'Turn on Agent mode selection to choose a default',
-  enablePickerToCreate: 'Turn on Agent mode selection to draft a preset with the agent',
 }
 
 /** Simplified Chinese copy. */
@@ -95,7 +86,7 @@ export const zh: Record<AgentPresetSettingsKey, string> = {
   userTrust: '自定义',
   seatHint: '即将开始的这个会话所用的 Agent 预设',
   headerHint: '本会话运行的 Agent 预设，开始时即固定',
-  nav: 'Agent 预设',
+  nav: 'Agent 管理',
   sectionIntro: '预设即一个会话的 Agent 所运行的插件组装 —— 它的工具、提示词与能力。复制一份既有预设改成自己的，或让 Agent 帮你创建。',
   builtIn: '内置',
   setDefault: '设为默认',
@@ -112,7 +103,6 @@ export const zh: Record<AgentPresetSettingsKey, string> = {
   displayName: '名称',
   displayNamePlaceholder: '选择器中显示的名字，缺省用标识符',
   inUse: '新任务默认',
-  selectionOffDefault: '默认',
   builtInGroup: '内置',
   customGroup: '自定义',
   noDescription: '暂无描述。',
@@ -144,11 +134,6 @@ export const zh: Record<AgentPresetSettingsKey, string> = {
   deleteDescription: '预设目录将被删除。已在其上运行的会话不受影响；新会话将无法再选择它。',
   deleteConfirm: '删除',
   deleting: '正在删除…',
-  showPicker: '允许切换agent模式',
-  showPickerBeta: 'beta',
-  showPickerDescription: '开启后，新任务可在可选模式中选择；关闭后统一使用默认模式（可自定义）。仅影响新任务。',
-  enablePickerToSetDefault: '请先开启 Agent 模式选择，再设置默认模式',
-  enablePickerToCreate: '请先开启 Agent 模式选择，再让 Agent 起草预设',
 }
 
 // The resolution itself is the shared fold in `qilin-agent-presets/display`,

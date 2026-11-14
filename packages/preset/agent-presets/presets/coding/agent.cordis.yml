@@ -293,7 +293,7 @@
 - id: tool-presentation
   name: '@qilin-agent/agent-tool-presentation'
   config:
-    mode: ptc
+    mode: coding
 
 - id: present
   name: '@qilin-agent/tool-present'

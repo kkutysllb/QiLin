@@ -11,7 +11,7 @@ import { resolve } from 'node:path'
 const root = resolve(import.meta.dirname, '..')
 
 /** Preset ids the product no longer ships. */
-const RETIRED_PRESET_IDS: readonly string[] = ['cordis', 'minimal']
+const RETIRED_PRESET_IDS: readonly string[] = ['cordis', 'minimal', 'ptc']
 
 const PRESETS_DIR = 'packages/preset/agent-presets/presets'
 
@@ -47,17 +47,17 @@ const NAMES_PRESETS = /\bpresets?\b|agentPreset/u
  * longer name, so `cordis.patch.yml` and `cordis-composition-reference` are
  * other things.
  */
-const RETIRED_ID = String.raw`\b(?:cordis|minimal)\b(?![-.\w])`
+const RETIRED_ID = String.raw`\b(?:cordis|minimal|ptc)\b(?![-.\w])`
 /** How far apart a retired id and the word "preset" may stand on one line. */
 const RETIRED_PRESET_GAP = String.raw`[^\n]{0,20}`
 const RETIRED_PRESET_NAME = new RegExp([
   `${RETIRED_ID}${RETIRED_PRESET_GAP}\\bpresets?\\b`,
   `\\bpresets?\\b${RETIRED_PRESET_GAP}${RETIRED_ID}`,
-  String.raw`\bagentPreset: *['"]?(?:cordis|minimal)\b`,
+  String.raw`\bagentPreset: *['"]?(?:cordis|minimal|ptc)\b`,
 ].join('|'), 'u')
 
 /** Every retired preset id one line writes as code. */
-const RETIRED_CODE_IDS = /`(?:cordis|minimal)`/gu
+const RETIRED_CODE_IDS = /`(?:cordis|minimal|ptc)`/gu
 
 /**
  * Find retired preset ids one contract file still names as presets.

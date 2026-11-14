@@ -1354,6 +1354,25 @@ export const IconArchiveOutlineMedium = (props: IconProps) => (
   <IconArchiveOutlineArtwork {...props} strokeWidth={ICON_MEDIUM_STROKE} />
 )
 
+const IconChartOutlineArtwork = ({ size = 16, className, strokeWidth }: WeightedIconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={strokeWidth}>
+    <path d="M2.5 13.5H13.5" stroke="currentColor" />
+    <path d="M4.75 13.5V8.5" stroke="currentColor" />
+    <path d="M8 13.5V4.5" stroke="currentColor" />
+    <path d="M11.25 13.5V6.75" stroke="currentColor" />
+  </svg>
+)
+
+/** Regular one-pixel IconChartOutline artwork. */
+export const IconChartOutlineRegular = (props: IconProps) => (
+  <IconChartOutlineArtwork {...props} strokeWidth={ICON_REGULAR_STROKE} />
+)
+
+/** Medium IconChartOutline artwork with a 1.3px stroke. */
+export const IconChartOutlineMedium = (props: IconProps) => (
+  <IconChartOutlineArtwork {...props} strokeWidth={ICON_MEDIUM_STROKE} />
+)
+
 const IconWrapLinesOutlineArtwork = ({ size = 16, className, strokeWidth }: WeightedIconProps) => (
   <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={strokeWidth}>
     <path d="M2.3457 3.19299H13.6541" stroke="currentColor" />

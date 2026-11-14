@@ -125,6 +125,12 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/client-ui-workflow-run` | no | Durable workflow-run Conversation Node and nested member disclosure for qilin web |
 | `@qilin-agent/client-ui-workspace` | no | Workspace picker plugin: one WorkspacePicker registered into the sidebar and empty-state workspace slots |
 
+## coding-runtime
+
+| Package | Config | Description |
+|---|---|---|
+| `@qilin-agent/coding-runtime-node` | yes | Node coding-mode execution with per-call sandboxed processes or in-memory REPL state |
+
 ## compaction
 
 | Package | Config | Description |
@@ -182,6 +188,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | Package | Config | Description |
 |---|---|---|
 | `@qilin-agent/office-to-pdf` | yes | Shared Office-to-PDF conversion with bounded queues and caching |
+| `@qilin-agent/tool-office-read` | yes | Model-facing office_read tool over the read-only Office document reader |
 
 ## experimental
 
@@ -197,6 +204,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-client-ui-cot-translation` | yes | Optional machine translation of expanded reasoning, preserving original Session text |
 | `@qilin-agent/experimental-client-ui-forge` | yes | Sidebar panel for a Session's change requests, with a worktree option for new Sessions and its Host Remote |
 | `@qilin-agent/experimental-client-ui-voice-input` | no | Record speech and insert editable text into the conversation draft |
+| `@qilin-agent/experimental-coding-runtime-python` | yes | CPython subprocess implementation of the QiLin coding-mode execution seam |
 | `@qilin-agent/experimental-computer-use-cua-driver-mcp` | yes | Experimental computer use through an installed Cua Driver MCP executable |
 | `@qilin-agent/experimental-computer-use-cua-driver-native` | no | Experimental computer-use provider embedding the Cua Driver native npm SDK |
 | `@qilin-agent/experimental-cua-macos` | yes | macOS native provider for shared Computer Use application and window objects |
@@ -205,7 +213,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-forge-session` | yes | Binds change requests to the Session that created, pushed, or tracked them |
 | `@qilin-agent/experimental-hooks-claude-code` | yes | Bridge plugin: run a Claude Code hooks.json / settings hook config on the QiLin interception seams |
 | `@qilin-agent/experimental-hooks-codex` | yes | Bridge plugin: run a Codex hooks.json hook config on the QiLin interception seams |
-| `@qilin-agent/experimental-coding-runtime-python` | yes | CPython subprocess implementation of the QiLin coding-mode execution seam |
 | `@qilin-agent/experimental-session-title-all-prompts-llm` | yes | All-user-messages LLM provider plugin for QiLin session titles |
 | `@qilin-agent/experimental-skill-badge` | no | Bundled qilin badge skill provider for QiLin |
 | `@qilin-agent/experimental-speech-to-text` | yes | Experimental speech recognition with independently selectable providers |
@@ -339,12 +346,6 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 |---|---|---|
 | `@qilin-agent/agent-presets` | yes | Per-session agent composition from preset cordis.yml files for the QiLin |
 | `@qilin-agent/persona` | yes | Composition-authored deployment persona section for the QiLin |
-
-## coding-runtime
-
-| Package | Config | Description |
-|---|---|---|
-| `@qilin-agent/coding-runtime-node` | yes | Node coding-mode execution with per-call sandboxed processes or in-memory REPL state |
 
 ## sandbox
 

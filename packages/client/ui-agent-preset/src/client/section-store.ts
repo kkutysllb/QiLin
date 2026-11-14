@@ -18,7 +18,7 @@ import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: pulls the ctx.remote merge into this program.
 import type {} from '@qilin-agent/api-remotes/client'
 import { createSnapshotStore, type SnapshotStore } from '@qilin-agent/client-store'
-import { beginRosterRead, writeDefaultPreset, writeModeSelectionEnabled } from './settings-store.ts'
+import { beginRosterRead, writeDefaultPreset } from './settings-store.ts'
 
 /** Ids a preset directory may be named, mirroring the host's own rule. */
 const PRESET_ID = /^[a-z0-9][a-z0-9-]*$/
@@ -81,9 +81,7 @@ export interface AgentPresetSectionState {
   authorable: boolean
   /** Whether the host can open a preset directory on a native desktop. */
   hasDocument: boolean
-  /** Whether new-session surfaces expose preset selection. */
-  showPicker: boolean
-  /** Whether a mode-selection policy write is in flight. */
+  /** Whether a default write is in flight. */
   policySaving: boolean
   /** Every preset the deployment currently supplies. */
   rows: readonly PresetRow[]
@@ -107,7 +105,6 @@ const INITIAL: AgentPresetSectionState = {
   error: null,
   authorable: false,
   hasDocument: false,
-  showPicker: false,
   policySaving: false,
   rows: [],
   copy: null,
@@ -164,46 +161,12 @@ export class AgentPresetSectionController {
   }
 
   /** Read back and reflect the Host-effective default after a policy write. */
-  private async confirmEffectiveDefault(showPicker: boolean): Promise<string | undefined> {
+  private async confirmEffectiveDefault(): Promise<string | undefined> {
     await this.load()
     if (this.store.getSnapshot().status === 'error') await this.load()
     const state = this.store.getSnapshot()
-    if (state.status !== 'ready' || state.showPicker !== showPicker) return undefined
+    if (state.status !== 'ready') return undefined
     return state.rows.find(row => row.isDefault)?.id
-  }
-
-  /**
-   * Show or hide new-session preset selection without changing the saved
-   * default. The Host roster resolves that saved default while selection is
-   * shown and the deployment default while it is hidden.
-   * @param showPicker - whether the new-session picker should be exposed.
-   * @param syncBlankSession - optional current-blank-task sync kept inside the saving state.
-   * @returns once the Host state and optional blank-task sync settle.
-   */
-  async setPickerVisible(
-    showPicker: boolean,
-    syncBlankSession?: (id: string) => Promise<string | undefined>,
-  ): Promise<void> {
-    const state = this.store.getSnapshot()
-    if (state.status !== 'ready' || state.policySaving || state.showPicker === showPicker) return
-    this.set({ policySaving: true, error: null })
-    try {
-      const failure = await writeModeSelectionEnabled(this.ctx, showPicker)
-      if (failure !== undefined) {
-        await this.load()
-        this.set({ error: failure })
-        return
-      }
-      const effectiveDefault = await this.confirmEffectiveDefault(showPicker)
-      if (effectiveDefault === undefined) return
-      const syncFailure = await syncBlankSession?.(effectiveDefault)
-      if (syncFailure !== undefined) this.set({ error: syncFailure })
-    } catch (error: unknown) {
-      await this.load()
-      this.set({ error: errorMessage(error) })
-    } finally {
-      this.set({ policySaving: false })
-    }
   }
 
   private patchCopy(patch: Partial<CopyDraft>): void {
@@ -246,12 +209,12 @@ export class AgentPresetSectionController {
     // A refused describe leaves the reveal-the-path path, which needs no opener.
     const described = await opener
     if (roster === undefined) return
-    const { presets, authorable, modeSelectionEnabled: showPicker } = roster
+    const { presets, authorable } = roster
     const hasDocument = described.ok && described.value
     if (presets.length === 0) {
       // Nothing to manage leaves nothing to keep a dialog open over.
       this.set({
-        status: 'unavailable', rows: [], authorable, hasDocument, showPicker, copy: null, view: null,
+        status: 'unavailable', rows: [], authorable, hasDocument, copy: null, view: null,
       })
       return
     }
@@ -265,7 +228,6 @@ export class AgentPresetSectionController {
       error: null,
       authorable,
       hasDocument,
-      showPicker,
       rows: presets.map(preset => ({ ...preset })),
       revealedPaths: kept,
     })
@@ -414,7 +376,7 @@ export class AgentPresetSectionController {
     syncBlankSession?: (id: string) => Promise<string | undefined>,
   ): Promise<void> {
     const state = this.store.getSnapshot()
-    if (!state.showPicker || state.policySaving) return
+    if (state.policySaving) return
     this.set({ policySaving: true, error: null })
     try {
       const failure = await writeDefaultPreset(this.ctx, id)
@@ -422,7 +384,7 @@ export class AgentPresetSectionController {
         this.set({ error: failure })
         return
       }
-      const effectiveDefault = await this.confirmEffectiveDefault(true)
+      const effectiveDefault = await this.confirmEffectiveDefault()
       if (effectiveDefault === undefined) return
       const syncFailure = await syncBlankSession?.(effectiveDefault)
       if (syncFailure !== undefined) this.set({ error: syncFailure })

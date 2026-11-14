@@ -49,7 +49,7 @@ async function createRuntime(): Promise<SlotTestRuntime> {
   // list stub shape matches apply.client.spec.ts.
   const agentPresets = {
     select: vi.fn(async () => ({ ok: true as const, value: 'coding' })),
-    list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
+    list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false } })),
   }
   runtime.remote.provideNamespaces({ directoryPicker, agentPresets })
   const locale = new LocaleRuntime(runtime.ctx)

@@ -6,4 +6,4 @@ recording: authored
 header:
   class: skill
 session:
-  source: ../../session/skill-load/session.v7.jsonl
+  source: ../../session/skill-load/session.v8.jsonl

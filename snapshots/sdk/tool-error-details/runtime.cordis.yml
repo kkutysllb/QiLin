@@ -1,5 +1,5 @@
 - insert:
-    - id: ptc-runtime
-      name: '@qilin-agent/ptc-runtime-node'
+    - id: coding-runtime
+      name: '@qilin-agent/coding-runtime-node'
     - id: structured-denial-fixture
       name: './deny.mjs'

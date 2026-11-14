@@ -23,14 +23,17 @@ describe('Plugins page placement lists', () => {
     }
   })
 
-  it('keeps the promoted Agent Teams and Schedule bundles off the Experimental badge', () => {
-    for (const name of ['@qilin-agent/agent-team-profile', '@qilin-agent/experimental-schedule-bundle']) {
-      expect(EXTENSION_BUNDLES).toContain(name)
-      expect(isExperimentalBundle(name)).toBe(false)
-    }
-    // Schedule follows Agent Teams on the main list, which is the order the page renders.
-    expect(EXTENSION_BUNDLES.indexOf('@qilin-agent/experimental-schedule-bundle'))
-      .toBe(EXTENSION_BUNDLES.indexOf('@qilin-agent/agent-team-profile') + 1)
+  it('keeps the always-on layers off the page and the offered bundles on it', () => {
+    // Agent Teams is switched from the Session header; the automation tasks rows
+    // are part of the shipped Web composition, so its package is retired. Both
+    // stay out of the page's lists.
+    expect(isHiddenBundle('@qilin-agent/agent-team-profile')).toBe(true)
+    expect(EXTENSION_BUNDLES).not.toContain('@qilin-agent/agent-team-profile')
+    expect(RETIRED_BUNDLES.has('@qilin-agent/experimental-schedule-bundle')).toBe(true)
+    expect(isHiddenBundle('@qilin-agent/experimental-schedule-bundle')).toBe(true)
+    expect(EXTENSION_BUNDLES).not.toContain('@qilin-agent/experimental-schedule-bundle')
+    expect(EXTENSION_BUNDLES).toContain('@qilin-agent/experimental-voice-input-bundle')
+    expect(isExperimentalBundle('@qilin-agent/experimental-voice-input-bundle')).toBe(true)
   })
 
   it('keeps the built-in profile layers out of every offered list', () => {
@@ -76,8 +79,11 @@ describe('Superseded bundles', () => {
 })
 
 describe('Retired bundles', () => {
-  it('names the removed Developer Tools bundle and keeps it out of every offered list', () => {
-    expect([...RETIRED_BUNDLES]).toEqual(['@qilin-agent/experimental-inspector-profile'])
+  it('names the removed bundles and keeps them out of every offered list', () => {
+    expect([...RETIRED_BUNDLES]).toEqual([
+      '@qilin-agent/experimental-inspector-profile',
+      '@qilin-agent/experimental-schedule-bundle',
+    ])
     for (const name of RETIRED_BUNDLES) {
       expect(EXTENSION_BUNDLES).not.toContain(name)
       expect(MORE_BUNDLES).not.toContain(name)

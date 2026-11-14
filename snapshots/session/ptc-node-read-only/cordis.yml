@@ -1,4 +1,4 @@
-# PTC mode adds `ctx.ptcRuntime` and changes the registry to one wire tool,
+# coding mode adds `ctx.codingRuntime` and changes the registry to one wire tool,
 # `run_code`, plus its generated TypeScript SDK prompt. The demo and snapshot
 # recorder apply this profile patch; replay applies its sibling patch.
 - insert:
@@ -25,7 +25,7 @@
 - id: tools
   name: '@qilin-agent/tools'
   config:
-    mode: ptc
+    mode: coding
 
 - id: system-prompt
   name: '@qilin-agent/system-prompt'

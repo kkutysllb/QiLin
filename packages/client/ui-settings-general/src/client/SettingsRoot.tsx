@@ -17,7 +17,7 @@ import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import {
   ConnectionIndicator,
-  IconAgentPresetOutlineMedium, IconArchiveOutlineMedium, IconChevronLeftOutlineMedium,
+  IconAgentPresetOutlineMedium, IconArchiveOutlineMedium, IconChartOutlineMedium, IconChevronLeftOutlineMedium,
   IconDataOutlineMedium, IconPersonalization,
   IconQuestionOutlineMedium, IconSettings, QilinSeal, useModalLayer,
 } from '@qilin-agent/client-ui-primitives'
@@ -129,6 +129,8 @@ function navIcon(id: string) {
   if (id === 'plugins') return <IconPersonalization size={16} />
   // 20-native glyph in the rail's 16px icon slot, as on the Session row menu.
   if (id === 'archived-sessions') return <IconArchiveOutlineMedium size={16} />
+  // Usage is a distinct glyph from the generic settings gear the unnamed rows fall back to.
+  if (id === 'usage') return <IconChartOutlineMedium size={16} />
   if (id === 'about') return <IconQuestionOutlineMedium size={16} />
   return <IconSettings size={16} />
 }

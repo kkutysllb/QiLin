@@ -9,4 +9,4 @@ replay:
   override: true
 platform: posix
 environment:
-  QILIN_TOOLS_MODE: ptc
+  QILIN_TOOLS_MODE: coding

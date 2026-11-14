@@ -458,6 +458,25 @@ export class JsonlBackendTracker {
   }
 
   /**
+   * Whether this process still holds a handle or a write claim for one session.
+   * @param id - the session to test.
+   * @returns true while any read or write handle names the id.
+   */
+  hasHandleFor(id: SessionId): boolean {
+    if (this.writers.has(id)) return true
+    for (const handle of this.openHandles) if (handle.id === id) return true
+    return false
+  }
+
+  /**
+   * Drop the created-but-unmaterialized entry of a session being deleted.
+   * @param id - the session whose pending entry is discarded.
+   */
+  discardPending(id: SessionId): void {
+    this.pending.delete(id)
+  }
+
+  /**
    * Iterate the pending sessions for listing.
    * @returns the pending entries, keyed by session id.
    */

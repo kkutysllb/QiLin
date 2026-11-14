@@ -90,6 +90,11 @@ export interface UiWorkspace {
    */
   unarchiveSession(sessionId: SessionId): Promise<void>
   /**
+   * Delete one archived Session and its stored log, freeing its disk space.
+   * @param sessionId - Archived Session to delete.
+   */
+  deleteArchivedSession(sessionId: SessionId): Promise<void>
+  /**
    * Pin a Session on the Host and front its saved position in every account that owns it.
    * @param sessionId - Session to pin.
    */
@@ -289,6 +294,13 @@ class UiWorkspaceService extends Service implements UiWorkspace {
 
   async unarchiveSession(sessionId: SessionId): Promise<void> {
     await this.workspaces.unarchiveSession(sessionId)
+  }
+
+  async deleteArchivedSession(sessionId: SessionId): Promise<void> {
+    await this.workspaces.deleteArchivedSession(sessionId)
+    // No live Session reports this removal: the Host removed a cold log, so
+    // re-pull the authoritative list instead of waiting for a lifecycle frame.
+    await this.sessions.refresh()
   }
 
   async pinSession(sessionId: SessionId): Promise<void> {

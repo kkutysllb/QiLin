@@ -877,8 +877,44 @@ const FAILURE_KIND_KEYS = {
   'unknown': 'installFailureGeneric',
 } satisfies Record<PluginInstallFailureKind, PluginManagerLocaleKey>
 
-/** The navigation value of the page's own tab; contributed tabs use their registration ids. */
-const INSTALLED_TAB = 'installed'
+/** The page's own tabs, in display order; contributed tabs render after them. */
+const TAB_IDS = ['builtin', 'experimental', 'thirdparty'] as const
+
+/** One of the page's own tabs. */
+type PageTab = typeof TAB_IDS[number]
+
+/** The list group each own tab shows, kept as the data attribute tests and the anatomy use. */
+const TAB_GROUP: Record<PageTab, string> = {
+  builtin: 'basic',
+  experimental: 'extensions',
+  thirdparty: 'bundles',
+}
+
+/** Whether a stored navigation value names one of the page's own tabs. */
+function isPageTab(value: string): value is PageTab {
+  return (TAB_IDS as readonly string[]).includes(value)
+}
+
+/** Tab labels, in the same order as {@link PAGE_TABS}. */
+const TAB_LABEL_KEYS: Record<PageTab, PluginManagerLocaleKey> = {
+  builtin: 'builtinTab',
+  experimental: 'experimentalTab',
+  thirdparty: 'thirdpartyTab',
+}
+
+/** One line saying what each tab holds. */
+const TAB_HINT_KEYS: Record<PageTab, PluginManagerLocaleKey> = {
+  builtin: 'builtinHint',
+  experimental: 'experimentalHint',
+  thirdparty: 'thirdpartyHint',
+}
+
+/** What each tab says when it holds nothing. */
+const TAB_EMPTY_KEYS: Record<PageTab, PluginManagerLocaleKey> = {
+  builtin: 'builtinEmpty',
+  experimental: 'experimentalEmpty',
+  thirdparty: 'thirdpartyEmpty',
+}
 
 /** The heading of each screen past the spec. */
 const SCREEN_TITLE_KEYS = {
@@ -1554,11 +1590,21 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const bundleDetails = props.useBundleDetails(snapshot => snapshot)
   const language = props.useLocale(snapshot => snapshot.active)
   const selectedTab = props.useStore(state => state.tab)
-  // A contributed tab that left the ledger falls back to Installed, and stays there when it returns.
-  const tab = tabs.some(item => item.id === selectedTab) ? selectedTab : INSTALLED_TAB
+  // A contributed tab that left the ledger, or an unknown value, falls back to the built-in list.
+  const contributed = tabs.some(item => item.id === selectedTab)
+  const tab = contributed || isPageTab(selectedTab) ? selectedTab : 'builtin'
+  const ownTab = isPageTab(tab) ? tab : undefined
   useEffect(() => { if (tab !== selectedTab) setTab(tab) }, [tab, selectedTab, setTab])
-  // A bundle an install just enabled is shown where its card is.
-  useEffect(() => { if (state.highlight !== null) setTab(INSTALLED_TAB) }, [state.highlight, setTab])
+  // A bundle an install just enabled is shown where its card is: an experimental
+  // bundle on its tab, a promoted official one among the built-in cards, and
+  // anything else among the third-party installs.
+  useEffect(() => {
+    if (state.highlight === null) return
+    const target = state.packages.find(pkg => pkg.name === state.highlight)
+    setTab(target?.official === true
+      ? isExperimentalBundle(state.highlight) ? 'experimental' : 'builtin'
+      : 'thirdparty')
+  }, [state.highlight, state.packages, setTab])
   const tabsId = useId()
   const [activation, setActivation] = useState<string | null>(null)
   const [headerRef] = useState(props.createHeaderRef)
@@ -1602,13 +1648,11 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const openRow = view.kind === 'row' && openPkg !== undefined
     ? openPkg.rows.find(row => row.rowId === view.rowId)
     : undefined
-  const onInstalled = tab === INSTALLED_TAB
-  const showsCards = !onInstalled || (openPkg === undefined && openItem === undefined)
-  const detailFromMore = (view.kind === 'package' || view.kind === 'row')
+  const showsCards = ownTab === undefined || (openPkg === undefined && openItem === undefined)
+  const detailFromMore = ownTab === 'experimental' && (view.kind === 'package' || view.kind === 'row')
     && (view.from === 'more' || (MORE_BUNDLES.includes(view.name) && !pinned.has(view.name)))
-  const showsMoreList = onInstalled && showsCards && (view.kind === 'more' || detailFromMore)
+  const showsMoreList = ownTab === 'experimental' && showsCards && (view.kind === 'more' || detailFromMore)
   const showsMainList = showsCards && !showsMoreList
-  const installedCards = onInstalled && showsCards
   const openPkgInMore = openPkg !== undefined && openPkg.official && detailFromMore
   // A row's configure control opens that row's page; only a registered
   // plugins.row.config entry gives the row one.
@@ -1616,10 +1660,6 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
     has: row => ledger.rows.has(rowConfigKey(pkg.name, row.rowId)),
     open: (row) => { setView({ kind: 'row', name: pkg.name, rowId: row.rowId, ...openPkgInMore ? { from: 'more' as const } : {} }) },
   })
-  // The Installed tab's panel, whatever it currently shows; the More list is not a tab panel.
-  const installedPanel = tabs.length === 0 || showsMoreList
-    ? {}
-    : { role: 'tabpanel', id: `${tabsId}-${INSTALLED_TAB}-panel`, 'aria-labelledby': `${tabsId}-${INSTALLED_TAB}` }
   const activated = listed.find(pkg => pkg.name === activation && pkg.enabled && !state.busy.includes(pkg.name))
   const setRowEnabled = (row: PackageRow, enabled: boolean): void => {
     /* v8 ignore next -- a row without a live entry has its switch disabled */
@@ -1646,27 +1686,28 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const basicCards = ledger.items.map(item => (
     <ItemCard key={`item:${item.id}`} item={item} t={t} renderSlot={renderSlot} onOpen={() => { setView({ kind: 'item', id: item.id }) }} />
   ))
-  const renderGroup = (id: 'basic' | 'extensions' | 'bundles', heading: string, cards: readonly ReactNode[]): ReactNode => {
-    // The More entry trails the experimental grid as a light link rather than a card of its own.
-    const tail = id === 'extensions' && more.length > 0
-      ? (
-        <li role="presentation" className={css.cardsMore}>
-          <Button size="sm" className={css.groupMore} onClick={() => { setView({ kind: 'more' }) }}>
-            {t('moreAction')}<IconChevronRightOutlineRegular size={14} aria-hidden="true" />
-          </Button>
-        </li>
-      )
-      : undefined
-    if (cards.length === 0 && tail === undefined) return null
-    return (
-      <section className={css.group} data-plugin-scope="global" data-plugin-group={id}>
-        <div className={css.groupHead}>
-          <h3 className={css.groupTitle}>{heading}</h3>
-        </div>
-        <ul className={css.cards}>{cards}{tail}</ul>
-      </section>
-    )
-  }
+  // The page's own tabs always come first, so the list is never empty.
+  const tabItems = TAB_IDS.map(value => ({
+    value: value as string,
+    label: t(TAB_LABEL_KEYS[value]),
+    id: `${tabsId}-${value}`,
+    panelId: `${tabsId}-${value}-panel`,
+  })).concat(tabs.map(item => ({
+    value: item.id,
+    label: item.label,
+    id: `${tabsId}-${item.id}`,
+    panelId: `${tabsId}-${item.id}-panel`,
+  })))
+
+  // The active own tab's cards. Each tab owns one kind of entry, so the tab
+  // label is the list's heading rather than a section title repeated below it.
+  const tabCards: readonly ReactNode[] = ownTab === 'builtin'
+    ? [...basicCards, ...promoted.map(pkg => packageCard(pkg))]
+    : ownTab === 'experimental'
+      ? extensions.map(pkg => packageCard(pkg, t('statusBeta')))
+      : ownTab === 'thirdparty'
+        ? mine.map(pkg => packageCard(pkg))
+        : []
 
   return (
     <section className={css.page} data-plugin-panel aria-busy={state.status === 'loading' || refreshing}>
@@ -1682,7 +1723,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
       <div className={css.pageBody} data-plugin-body>
         {showsMainList
           ? (
-            <div className={`${css.pageBar}${tabs.length > 0 ? ` ${css.pageBarWithTabs}` : ''}`} data-plugin-bar ref={headerRef}>
+            <div className={`${css.pageBar} ${css.pageBarWithTabs}`} data-plugin-bar ref={headerRef}>
               <header className={css.pageHead} data-window-drag>
                 <div className={css.pageHeading}>
                   <h1 className={css.pageTitle} data-plugin-header-part="title">{t('title')}</h1>
@@ -1695,7 +1736,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
                     </Tooltip>
                   </div>
                 </div>
-                <div className={css.toolbar} data-plugin-toolbar data-plugin-header-part="toolbar" hidden={!onInstalled}>
+                <div className={css.toolbar} data-plugin-toolbar data-plugin-header-part="toolbar" hidden={ownTab === undefined}>
                   {updates === undefined ? null : <span className={css.updatesNote} data-tone={updates.tone}>{updates.text}</span>}
                   <Tooltip label={t('refresh')} delayMs={500} focusDelayMs={500} side="bottom" portal disabled={!loaded || refreshing}>
                     <Button variant="outline" size="sm" className={css.addButton} aria-label={t('refresh')} aria-busy={refreshing}
@@ -1710,38 +1751,31 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
                       {t('installViewTask')}
                     </Button>}
                 </div>
-                {tabs.length > 0
-                  ? (
-                    <div className={css.pageTabs} data-plugin-header-part="tabs">
-                      <SegmentedTabs
-                        className={css.pageTabList}
-                        label={t('tabsLabel')}
-                        value={tab}
-                        onChange={(next) => { setTab(next) }}
-                        items={[
-                          { value: INSTALLED_TAB, label: t('installedTab'), id: `${tabsId}-${INSTALLED_TAB}`, panelId: `${tabsId}-${INSTALLED_TAB}-panel` },
-                          ...tabs.map(item => ({ value: item.id, label: item.label, id: `${tabsId}-${item.id}`, panelId: `${tabsId}-${item.id}-panel` })),
-                        ]}
-                      />
-                    </div>
-                  )
-                  : null}
+                <div className={css.pageTabs} data-plugin-header-part="tabs">
+                  <SegmentedTabs
+                    className={css.pageTabList}
+                    label={t('tabsLabel')}
+                    value={tab}
+                    onChange={(next) => { setTab(next) }}
+                    items={tabItems as [typeof tabItems[number], ...(typeof tabItems[number])[]]}
+                  />
+                </div>
               </header>
             </div>
           )
           : null}
-        {!onInstalled
+        {ownTab === undefined
           ? (
             <div role="tabpanel" id={`${tabsId}-${tab}-panel`} aria-labelledby={`${tabsId}-${tab}`} className={css.tabPanel}>
               {renderSlot('plugins.tab', {
                 install: props.installFrom,
-                openPackage: (name) => { setTab(INSTALLED_TAB); setView({ kind: 'package', name }) },
+                openPackage: (name) => { setTab('thirdparty'); setView({ kind: 'package', name }) },
               }, { only: tab })}
             </div>
           )
           : null}
-        {installedCards && !loaded ? (
-          <div className={css.installedPanel} {...installedPanel}>
+        {ownTab !== undefined && !loaded ? (
+          <div role="tabpanel" id={`${tabsId}-${tab}-panel`} aria-labelledby={`${tabsId}-${tab}`} className={css.tabPanel}>
             {state.status === 'loading' ? <ListSkeleton label={t('loading')} /> : null}
             {state.status === 'unavailable' ? (
               <p className={`${css.status} ${css.statusWithDot}`} role="status">
@@ -1771,7 +1805,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             </div>
           )
           : null}
-        {onInstalled && loaded && openPkg !== undefined && openRow === undefined
+        {ownTab !== undefined && loaded && openPkg !== undefined && openRow === undefined
           ? (
             <PackageDetail
               pkg={openPkg}
@@ -1800,7 +1834,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             />
           )
           : null}
-        {onInstalled && loaded && openPkg !== undefined && openRow !== undefined
+        {ownTab !== undefined && loaded && openPkg !== undefined && openRow !== undefined
           ? (
             <RowDetail
               pkg={openPkg}
@@ -1813,39 +1847,54 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
             />
           )
           : null}
-        {onInstalled && loaded && openItem !== undefined
+        {ownTab !== undefined && loaded && openItem !== undefined
           ? <ItemDetail form={formFor(openItem.id)} item={openItem} t={t} renderSlot={renderSlot} onBack={() => { setView({ kind: 'list' }) }} />
           : null}
-        {loaded && installedCards
-          ? basicCards.length === 0 && official.length === 0 && mine.length === 0 && state.status !== 'error'
-            ? <div className={css.installedPanel} {...installedPanel}><p className={css.empty}>{t('empty')}</p></div>
-            : (
-              <div className={css.installedPanel} {...installedPanel}>
-                {showsMoreList ? (
-                  <section className={css.group} data-plugin-scope="global" data-plugin-group="more">
-                    <ul className={css.cards}>{more.map(pkg => packageCard(pkg))}</ul>
-                  </section>
-                ) : (
+        {ownTab !== undefined && loaded && showsCards
+          ? (
+            <div
+              className={css.tabPanel}
+              data-plugin-group={showsMoreList ? 'more' : TAB_GROUP[ownTab]}
+              /* The More list is a sub-view under its own back header, not a tab panel:
+                 the tab bar is hidden there and no tab would label it. */
+              {...showsMoreList
+                ? {}
+                : { role: 'tabpanel' as const, id: `${tabsId}-${tab}-panel`, 'aria-labelledby': `${tabsId}-${tab}` }}
+            >
+              {showsMoreList
+                ? <ul className={css.cards}>{more.map(pkg => packageCard(pkg))}</ul>
+                : (
                   <>
-                    {renderGroup('basic', t('basicTitle'), [...basicCards, ...promoted.map(pkg => packageCard(pkg))])}
-                    {renderGroup('extensions', t('extensionsTitle'), extensions.map(pkg => packageCard(pkg, t('statusBeta'))))}
-                    {renderGroup('bundles', t('bundlesTitle'), mine.map(pkg => packageCard(pkg)))}
+                    <p className={css.tabHint}>{t(TAB_HINT_KEYS[ownTab])}</p>
+                    {tabCards.length === 0
+                      ? <p className={css.empty}>{t(TAB_EMPTY_KEYS[ownTab])}</p>
+                      : <ul className={css.cards}>{tabCards}</ul>}
+                    {/* The held-back experimental bundles live one click away rather than mixed into the tab. */}
+                    {ownTab === 'experimental' && more.length > 0
+                      ? (
+                        <div className={css.groupMoreRow}>
+                          <Button size="sm" className={css.groupMore} onClick={() => { setView({ kind: 'more' }) }}>
+                            {t('moreAction')}<IconChevronRightOutlineRegular size={14} aria-hidden="true" />
+                          </Button>
+                        </div>
+                      )
+                      : null}
                   </>
                 )}
-                {/* A failed package read trails the groups it left incomplete: right under the groups on a
-                  first-load failure, and after the kept cards when a refresh fails over stale data. */}
-                {state.status === 'error' && !refreshing
-                  ? (
-                    <div className={css.failure}>
-                      <p className={css.statusWithDot} role="alert">
-                        <StateDot state="error" />{t(state.refreshStatus === 'failed' ? 'refreshError' : 'error')}
-                      </p>
-                      <Button variant="outline" size="sm" onClick={props.refresh}>{t('retry')}</Button>
-                    </div>
-                  )
-                  : null}
-              </div>
-            )
+              {/* A failed package read trails the cards it left incomplete: right under them on a
+                first-load failure, and after the kept cards when a refresh fails over stale data. */}
+              {state.status === 'error' && !refreshing
+                ? (
+                  <div className={css.failure}>
+                    <p className={css.statusWithDot} role="alert">
+                      <StateDot state="error" />{t(state.refreshStatus === 'failed' ? 'refreshError' : 'error')}
+                    </p>
+                    <Button variant="outline" size="sm" onClick={props.refresh}>{t('retry')}</Button>
+                  </div>
+                )
+                : null}
+            </div>
+          )
           : null}
         {showsCards && activated !== undefined && !state.install.open
           ? renderSlot('plugins.bundle.activation', {

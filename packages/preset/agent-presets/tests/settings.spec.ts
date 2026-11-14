@@ -47,30 +47,17 @@ const toolNames = (ctx: Context, agent?: unknown): string[] =>
   ctx.tools.schemas(agent as never).map(schema => schema.name).sort()
 
 describe('the default preset as a live composition field', () => {
-  it('shows mode selection on the composition default by default', async () => {
+  it('exposes only the default, with no selection policy beside it', async () => {
     const { ctx, live } = await harness()
 
-    expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
+    const roster = await ctx.agentPresets.remoteExportList()
+    expect(roster).not.toHaveProperty('modeSelectionEnabled')
     expect(ctx.agentPresets.defaultId).toBe('standard')
-
-    await live.update({ modeSelectionEnabled: false })
-    expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(false)
-    // The flag governs the picker, not the default: the live field IS the default.
-    expect(ctx.agentPresets.defaultId).toBe('standard')
-  })
-
-  it('moves the default and the picker flag independently', async () => {
-    const { ctx, live } = await harness()
 
     await live.update({ default: 'minimal' })
     expect(ctx.agentPresets.defaultId).toBe('minimal')
-
-    await live.update({ modeSelectionEnabled: false })
-    expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(false)
-    expect(ctx.agentPresets.defaultId).toBe('minimal')
-
-    await live.update({ modeSelectionEnabled: true })
-    expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
+    expect((await ctx.agentPresets.remoteExportList()).presets
+      .filter(preset => preset.isDefault).map(preset => preset.id)).toEqual(['minimal'])
   })
 
   it('composes a new session from the live default', async () => {
@@ -103,11 +90,6 @@ describe('the default preset as a live composition field', () => {
 
       expect(ctx.agentPresets.defaultId).toBe('minimal')
       expect(toolNames(ctx, running.agent)).toEqual(['alpha'])
-
-      await live.update({ modeSelectionEnabled: false })
-
-      expect(ctx.agentPresets.defaultId).toBe('minimal')
-      expect(toolNames(ctx, running.agent)).toEqual(['alpha'])
     } finally {
       await running.dispose()
     }
@@ -118,9 +100,8 @@ describe('the default preset as a live composition field', () => {
     await live.update({ default: 'minimal' })
     expect(ctx.agentPresets.defaultId).toBe('minimal')
 
-    await live.replace({ default: 'standard', modeSelectionEnabled: true })
+    await live.replace({ default: 'standard' })
 
-    expect((await ctx.agentPresets.remoteExportList()).modeSelectionEnabled).toBe(true)
     expect(ctx.agentPresets.defaultId).toBe('standard')
   })
 
@@ -133,7 +114,7 @@ describe('the default preset as a live composition field', () => {
     // re-inherited rather than left pointing at nothing.
     const settings = ctx.get('settings')
     expect(settings).toBeUndefined()
-    await live.replace({ default: 'standard', modeSelectionEnabled: true })
+    await live.replace({ default: 'standard' })
     expect(ctx.agentPresets.defaultId).toBe('standard')
   })
 

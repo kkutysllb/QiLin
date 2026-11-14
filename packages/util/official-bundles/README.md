@@ -26,7 +26,7 @@ English | [中文](README.zh.md)
 
 ### Place an official bundle on the Plugins page
 
-`EXTENSION_BUNDLES` names the optional bundles the main list always holds, in order; `MORE_BUNDLES` names the Experimental ones held back until the profile enables them, which the More list ranks last; `HIDDEN_BUNDLES` names the built-in profile layers with no page of their own. The page derives placement from these lists, so a new optional bundle joins `EXTENSION_BUNDLES` here rather than in a package-local copy. Placement reads admission as well: the More list holds the Experimental bundles alone, and every optional bundle outside `EXPERIMENTAL_BUNDLES` stays on the main list, so removing a name from that set promotes it there.
+`EXTENSION_BUNDLES` names the optional bundles the main list always holds, in order; `MORE_BUNDLES` names the Experimental ones held back until the profile enables them, which the More list ranks last; `HIDDEN_BUNDLES` names the layers with no page of their own: the built-in profile layers, the Agent Teams bundle the Session header switches, and the automation tasks layer that is always on. The page derives placement from these lists, so a new optional bundle joins `EXTENSION_BUNDLES` here rather than in a package-local copy. Placement reads admission as well: the More list holds the Experimental bundles alone, and every optional bundle outside `EXPERIMENTAL_BUNDLES` stays on the main list, so removing a name from that set promotes it there.
 
 ### Ask whether a bundle is Experimental, hidden, or on demand
 

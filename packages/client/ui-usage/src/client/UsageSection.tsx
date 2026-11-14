@@ -1,6 +1,10 @@
-/** The usage page: metric cards, a foldable stacked bar chart with a hit-rate area, and a per-session table. */
+/**
+ * The usage page: metric cards, a stacked column chart with a hit-rate line,
+ * and a per-session table. The chart is measured in pixels so column corners,
+ * gridlines, labels, and the rate line keep their proportions at any width.
+ */
 
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import css from './UsageSection.module.css'
 import {
@@ -30,14 +34,14 @@ interface UsageAnswer {
   readonly truncated?: boolean
 }
 
-/** Baseline of the plot in canvas units; the top of the plot is zero. */
-const BASELINE = 100
+/** Rendered height of the plot box, axis labels included. */
+const CHART_HEIGHT = 232
 
-/** Fill of each stacked band, and of the hit-rate area. */
+/** Fill of each stacked band. Tokens only: the palette follows the theme. */
 const BAND_FILL: Record<UsageSeries, string> = {
-  inputTokens: 'var(--qilin-alias-brand-primary)',
-  outputTokens: 'var(--qilin-alias-state-success-secondary)',
-  cacheReadTokens: 'var(--qilin-alias-state-business-primary)',
+  inputTokens: 'var(--qilin-alias-state-business-primary)',
+  outputTokens: 'var(--qilin-alias-state-success-primary)',
+  cacheReadTokens: 'var(--qilin-alias-state-business-tertiary)',
 }
 
 /** Share of some prompt traffic served from cache, as a percentage. */
@@ -63,9 +67,9 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
   const [hidden, setHidden] = useState<readonly UsageSeries[]>([])
   const [areaHidden, setAreaHidden] = useState(false)
   const [active, setActive] = useState<string | undefined>(undefined)
+  const [frameWidth, setFrameWidth] = useState(0)
+  const frame = useRef<HTMLDivElement | null>(null)
   const bars = useRef<(SVGGElement | null)[]>([])
-  // One gradient instance per page: the id must survive React's useId punctuation.
-  const gradientId = `usage-rate-${useId().replace(/[^a-zA-Z0-9-]/g, '')}`
 
   useEffect(() => {
     const controller = new AbortController()
@@ -84,13 +88,26 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
     return () => { controller.abort() }
   }, [])
 
+  // The plot draws in whole pixels: a percentage view box would stretch column
+  // corners and the rate line as the pane resizes. Re-run once the read lands,
+  // because the measured frame mounts with the chart rather than at first render.
+  useLayoutEffect(() => {
+    const element = frame.current
+    if (element === null) return
+    const measure = (): void => { setFrameWidth(Math.floor(element.clientWidth)) }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(element)
+    return () => { observer.disconnect() }
+  }, [answer, failed])
+
   if (failed) return <p className={css.state}>{t('unavailable')}</p>
   if (answer === undefined) return <p className={css.state}>{t('loading')}</p>
 
   const now = new Date()
   const records = answer.records ?? []
   const days = usageByDay(records, monthStart(now), now)
-  const chart = usageChart(days, { height: 0, baseline: BASELINE, hidden })
+  const chart = usageChart(days, { width: frameWidth, height: CHART_HEIGHT, hidden })
   const todayTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
   const month = summarize(records)
   const today = summarize(records.filter(record => record.at >= todayTime))
@@ -113,17 +130,9 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
     outputTokens: t('metric.output'),
     cacheReadTokens: t('metric.cacheRead'),
   }
-  const activeDay = days.find(entry => entry.day === active)
-  // Sparse day labels: about every eighth bar, plus the last day of the range.
-  // days always covers the month: usageByDay() enumerates every local day from
-  // monthStart(now) to now inclusive, and localDays() yields at least the month's
-  // first day for every clock (month, year, DST, and leap boundaries included).
-  /* v8 ignore next -- the range is monthStart(now)..now, which can never be empty */
-  const stepPercent = days.length === 0 ? 0 : 100 / days.length
-  const labelStep = Math.max(1, Math.ceil(days.length / 8))
-  const xLabels = days
-    .map((day, index) => ({ day: day.day, x: (index + 0.5) * stepPercent, index }))
-    .filter(({ index }) => index % labelStep === 0 || index === days.length - 1)
+  const activeIndex = active === undefined ? -1 : days.findIndex(entry => entry.day === active)
+  const activeDay = activeIndex < 0 ? undefined : days[activeIndex]
+  const activeBar = chart.bars[activeIndex]
 
   return (
     <div className={css.page}>
@@ -148,43 +157,82 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
       </div>
 
       <section className={css.chart}>
-        <h3 className={css.chartTitle}>{t('chart.title')}</h3>
-        <p className={css.caption}>{t('chart.caption')}</p>
-        {answer.truncated === true ? <p className={css.cardNote}>{t('truncated')}</p> : null}
+        <header className={css.chartHeader}>
+          <div>
+            <h3 className={css.chartTitle}>{t('chart.title')}</h3>
+            <p className={css.caption}>{t('chart.caption')}</p>
+          </div>
+          {answer.truncated === true ? <span className={css.chartNote}>{t('truncated')}</span> : null}
+        </header>
         {records.length === 0
           ? <p className={css.state}>{t('chart.empty')}</p>
           : (
-            <div className={css.plotRow}>
-              <div className={css.tickColumn} aria-hidden="true">
-                {chart.ticks.map(tick => (
-                  <span key={tick.label + String(tick.y)} className={css.tickLabel} style={{ top: `${String(tick.y)}%` }}>{tick.label}</span>
-                ))}
-              </div>
-              <div className={css.plotArea}>
-                <svg className={css.plot} viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label={t('chart.title')}>
-                  <defs>
-                    <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--qilin-alias-brand-primary)" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="var(--qilin-alias-brand-primary)" stopOpacity={0.02} />
-                    </linearGradient>
-                  </defs>
+            <div className={css.chartFrame} ref={frame}>
+              {frameWidth > 0 ? (
+                <svg
+                  className={css.plot}
+                  width={frameWidth}
+                  height={CHART_HEIGHT}
+                  viewBox={`0 0 ${String(frameWidth)} ${String(CHART_HEIGHT)}`}
+                  role="img"
+                  aria-label={t('chart.title')}
+                >
                   {chart.ticks.map(tick => (
-                    <line key={tick.label + String(tick.y)} className={css.grid} x1={0} x2={100} y1={tick.y} y2={tick.y} />
+                    <line
+                      key={`grid-${String(tick.y)}`}
+                      className={css.grid}
+                      x1={chart.plot.left}
+                      x2={chart.plot.right}
+                      y1={tick.y}
+                      y2={tick.y}
+                    />
+                  ))}
+                  {chart.ticks.map(tick => (
+                    <text
+                      key={`tick-${String(tick.y)}`}
+                      className={css.tickText}
+                      x={chart.plot.left - 8}
+                      y={tick.y}
+                      textAnchor="end"
+                      dominantBaseline="middle"
+                    >
+                      {tick.label}
+                    </text>
+                  ))}
+                  {chart.rateTicks.map(tick => (
+                    <text
+                      key={`rate-${tick.label}`}
+                      className={css.rateTickText}
+                      x={chart.plot.right + 8}
+                      y={tick.y}
+                      dominantBaseline="middle"
+                    >
+                      {tick.label}
+                    </text>
                   ))}
                   {areaHidden ? null : (
                     <>
-                      <path className={css.rateArea} d={chart.area} fill={`url(#${gradientId})`} />
-                      <path className={css.rateLine} d={chart.line} vectorEffect="non-scaling-stroke" />
+                      <path className={css.rateLine} d={chart.ratePath} />
+                      {chart.ratePoints.map(point => (
+                        <circle
+                          key={`dot-${String(point.x)}`}
+                          className={css.rateDot}
+                          cx={point.x}
+                          cy={point.y}
+                          r={2.5}
+                        />
+                      ))}
                     </>
                   )}
                   {chart.bars.map((bar, index) => (
                     <g
                       key={bar.day}
                       ref={(element) => { bars.current[index] = element }}
-                      className={css.bar}
+                      className={css.column}
+                      data-day={bar.day}
                       tabIndex={0}
                       role="button"
-                      aria-label={`${bar.day} ${label.cacheReadTokens}`}
+                      aria-label={`${bar.day} · ${label.cacheReadTokens} ${formatTokens(days[index]?.cacheReadTokens ?? 0)}`}
                       onMouseEnter={() => { setActive(bar.day) }}
                       onMouseLeave={() => { setActive(undefined) }}
                       onFocus={() => { setActive(bar.day) }}
@@ -195,66 +243,90 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
                         if (event.key === 'Escape') setActive(undefined)
                       }}
                     >
-                      <rect x={bar.x} y={0} width={bar.width} height={BASELINE} fill="transparent" />
-                      {/* Top band first so a lower band's upward padding covers the
-                          rounding of the band above it; the top band keeps its own
-                          rounded crown and every lower seam stays hidden. */}
-                      {[...bar.bands].reverse().map((band, drawIndex) => {
-                        const isTop = drawIndex === 0
-                        const radius = Math.min(1.2, bar.width / 2, band.height / 2)
-                        const drop = isTop ? 0 : Math.min(radius, band.height)
-                        return (
-                          <rect
-                            key={band.series}
-                            className={css.band}
-                            x={bar.x}
-                            y={band.y - drop}
-                            width={bar.width}
-                            height={band.height + drop}
-                            rx={radius}
-                            fill={BAND_FILL[band.series]}
-                          />
-                        )
+                      <rect
+                        className={css.hoverColumn}
+                        x={bar.x}
+                        y={chart.plot.top}
+                        width={bar.width}
+                        height={chart.plot.height}
+                        rx={4}
+                      />
+                      {bar.bands.map((band, bandIndex) => {
+                        const isTop = bandIndex === bar.bands.length - 1
+                        return isTop
+                          ? (
+                            <path
+                              key={band.series}
+                              className={css.band}
+                              data-series={band.series}
+                              fill={BAND_FILL[band.series]}
+                              d={barPath(bar.barX, band.y, bar.barWidth, band.height)}
+                            />
+                          )
+                          : (
+                            <rect
+                              key={band.series}
+                              className={css.band}
+                              data-series={band.series}
+                              fill={BAND_FILL[band.series]}
+                              x={bar.barX}
+                              y={band.y}
+                              width={bar.barWidth}
+                              height={Math.max(0, band.height)}
+                            />
+                          )
                       })}
                     </g>
                   ))}
-                </svg>
-                <div className={css.xAxis} aria-hidden="true">
-                  {xLabels.map(({ day, x }) => (
-                    <span key={day} className={css.xLabel} style={{ left: `${x.toFixed(2)}%` }}>{day.slice(5)}</span>
+                  {chart.xLabels.map(({ day, x }) => (
+                    <text
+                      key={`label-${day}`}
+                      className={css.tickText}
+                      x={x}
+                      y={CHART_HEIGHT - 6}
+                      textAnchor="middle"
+                    >
+                      {day.slice(5)}
+                    </text>
                   ))}
-                </div>
-                {activeDay === undefined ? null : (
-                  <div
-                    className={css.tooltip}
-                    style={{
-                      left: `${((days.findIndex(entry => entry.day === activeDay.day) + 0.5) * (100 / Math.max(1, days.length))).toFixed(2)}%`,
-                      top: `${Math.max(12, chart.bars[days.findIndex(entry => entry.day === activeDay.day)]?.bands[0]?.y ?? BASELINE)}%`,
-                    }}
-                  >
-                    <div className={css.tooltipDay}>{activeDay.day}</div>
-                    <div className={css.tooltipRow}>
-                      <span className={css.tooltipDot} style={{ background: BAND_FILL.inputTokens }} />
-                      {label.inputTokens}
-                      <span className={css.tooltipValue}>{formatTokens(activeDay.inputTokens)}</span>
-                    </div>
-                    <div className={css.tooltipRow}>
-                      <span className={css.tooltipDot} style={{ background: BAND_FILL.outputTokens }} />
-                      {label.outputTokens}
-                      <span className={css.tooltipValue}>{formatTokens(activeDay.outputTokens)}</span>
-                    </div>
-                    <div className={css.tooltipRow}>
-                      <span className={css.tooltipDot} style={{ background: BAND_FILL.cacheReadTokens }} />
-                      {label.cacheReadTokens}
-                      <span className={css.tooltipValue}>{formatTokens(activeDay.cacheReadTokens)}</span>
-                    </div>
-                    <div className={css.tooltipRow}>
-                      <span className={css.tooltipDot} style={{ background: 'var(--qilin-alias-brand-primary)' }} />
-                      <span className={css.tooltipValue}>{`${t('metric.hitRate')} ${rate(cacheHitRate(activeDay.cacheReadTokens, activeDay.inputTokens))}`}</span>
-                    </div>
+                </svg>
+              ) : null}
+              {activeDay === undefined || activeBar === undefined ? null : (
+                <div
+                  role="tooltip"
+                  className={css.tooltip}
+                  style={{
+                    left: `${String(Math.min(Math.max(activeBar.x + activeBar.width / 2, 96), Math.max(96, frameWidth - 96)))}px`,
+                    top: `${String(Math.max(8, activeBar.top - 10))}px`,
+                  }}
+                >
+                  <div className={css.tooltipDay}>{activeDay.day}</div>
+                  <div className={css.tooltipRow}>
+                    <span className={css.tooltipDot} style={{ background: BAND_FILL.inputTokens }} />
+                    {label.inputTokens}
+                    <span className={css.tooltipValue}>{formatTokens(activeDay.inputTokens)}</span>
                   </div>
-                )}
-              </div>
+                  <div className={css.tooltipRow}>
+                    <span className={css.tooltipDot} style={{ background: BAND_FILL.outputTokens }} />
+                    {label.outputTokens}
+                    <span className={css.tooltipValue}>{formatTokens(activeDay.outputTokens)}</span>
+                  </div>
+                  <div className={css.tooltipRow}>
+                    <span className={css.tooltipDot} style={{ background: BAND_FILL.cacheReadTokens }} />
+                    {label.cacheReadTokens}
+                    <span className={css.tooltipValue}>{formatTokens(activeDay.cacheReadTokens)}</span>
+                  </div>
+                  <div className={css.tooltipRow}>
+                    <span className={css.tooltipDot} style={{ background: 'var(--qilin-alias-state-business-primary)' }} />
+                    {t('metric.hitRate')}
+                    <span className={css.tooltipValue}>
+                      {activeDay.inputTokens + activeDay.cacheReadTokens === 0
+                        ? '—'
+                        : rate(cacheHitRate(activeDay.cacheReadTokens, activeDay.inputTokens))}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         <div className={css.legend}>
@@ -277,7 +349,7 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
             aria-pressed={!areaHidden}
             onClick={() => { setAreaHidden(!areaHidden) }}
           >
-            <span className={css.swatch} style={{ background: 'var(--qilin-alias-brand-primary)' }} />
+            <span className={`${css.swatch} ${css.rateSwatch}`} />
             {t('metric.hitRate')}
           </button>
         </div>
@@ -313,6 +385,23 @@ export function UsageSection({ t }: UsageSectionComponentProps) {
       )}
     </div>
   )
+}
+
+/** The rounded-top column a stacked bar paints. */
+function barPath(x: number, top: number, width: number, height: number): string {
+  if (height <= 0) return ''
+  const radius = Math.max(0, Math.min(3, width / 2, height))
+  const bottom = top + height
+  const right = x + width
+  return [
+    `M ${x.toFixed(2)} ${bottom.toFixed(2)}`,
+    `L ${x.toFixed(2)} ${(top + radius).toFixed(2)}`,
+    `Q ${x.toFixed(2)} ${top.toFixed(2)} ${(x + radius).toFixed(2)} ${top.toFixed(2)}`,
+    `L ${(right - radius).toFixed(2)} ${top.toFixed(2)}`,
+    `Q ${right.toFixed(2)} ${top.toFixed(2)} ${right.toFixed(2)} ${(top + radius).toFixed(2)}`,
+    `L ${right.toFixed(2)} ${bottom.toFixed(2)}`,
+    'Z',
+  ].join(' ')
 }
 
 /** One row of the per-session table: a key to name it and the buckets it spent. */

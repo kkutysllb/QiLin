@@ -22,11 +22,11 @@ import { createHash, randomBytes } from 'node:crypto'
 import {
   SessionPersistence, SessionPersistenceRevision, SessionFormatUnsupportedError,
   SessionPersistenceCorruptionError,
-  SessionAlreadyExistsError, SessionPersistenceNotFoundError,
+  SessionAlreadyExistsError, SessionPersistenceBusyError, SessionPersistenceNotFoundError,
   assertStoredId, materializeCreateHeader, sessionFormatVersionRefusal, validateStoredEvents,
   type SessionAccess, type SessionHandle,
   type SessionHandleReadResult,
-  type SessionLocation, type SessionPersistenceCreateOptions,
+  type SessionLocation, type SessionPersistenceCreateOptions, type SessionPersistenceDeleteOptions,
   type SessionPersistenceListOptions, type SessionPersistenceOpenOptions,
   type SessionPersistenceSnapshot, type SessionPersistenceStatOptions,
   type SessionPersistenceRevision as PersistenceRevision,
@@ -540,6 +540,31 @@ class JsonlSessionPersistence extends SessionPersistence {
     }
     signal?.throwIfAborted()
     return snapshots
+  }
+
+  /**
+   * Remove one stored session and every artifact this backend owns for it.
+   * @param id - the stored session to remove.
+   * @param options - optional cancellation.
+   * @throws {SessionPersistenceBusyError} while a handle or write claim for the session is open here.
+   */
+  override async delete(id: SessionId, options?: SessionPersistenceDeleteOptions): Promise<void> {
+    options?.signal?.throwIfAborted()
+    await this.ensureRootEncoding()
+    options?.signal?.throwIfAborted()
+    if (this.tracker.hasHandleFor(id)) throw new SessionPersistenceBusyError(id, 'delete')
+    const selected = await this.findLog(id, options?.signal)
+    options?.signal?.throwIfAborted()
+    if (selected !== undefined) {
+      // The directory holds every retained generation beside the current one,
+      // so removing it frees the whole session; nothing outside it is ours.
+      await rm(dirname(selected.currentPath), { recursive: true, force: true })
+    }
+    this.tracker.discardPending(id)
+    this.coldLogMemo.delete(id)
+    const preparation = this.migrationPreparations.get(id)
+    this.migrationPreparations.delete(id)
+    preparation?.controller.abort()
   }
 
   // --- handle-facing storage internals (package-private via the handle class below) ---

@@ -498,7 +498,7 @@
   "packages/client/ui-agent-preset/tests/apply.client.spec.ts": {
     "b2fb53c6878d75d54e2d39be30f77cd5e08810261e513fe15f3d687e2313fbd7": 2,
     "c2369bc12a9476816900a58b06dd52c2f53bc92658559a076cdd70ae3d15f30b": 8,
-    "c595e4648d474f3a9538ab1e2140c25255bb4675c6e7bae8043adf9158915b69": 14,
+    "c595e4648d474f3a9538ab1e2140c25255bb4675c6e7bae8043adf9158915b69": 13,
     "ddca8a18cd7755688ea48674c48c3c8a6107186815ea91f516424bbed0e1c518": 1
   },
   "packages/client/ui-agent-preset/tests/components.client.spec.tsx": {
@@ -508,15 +508,9 @@
   "packages/client/ui-agent-preset/tests/create-plugin-menu-item.client.spec.tsx": {
     "a62583d485a1cce1f41cfec29fdfac32f399b5ab6798d7a238b4ee6e99403410": 1
   },
-  "packages/client/ui-agent-preset/tests/section-store.client.spec.ts": {
-    "23e04af2a900d7a905ff7657de842e9833384a2d4c4afba33964477e43d8ba52": 1
-  },
   "packages/client/ui-agent-preset/tests/section.client.spec.tsx": {
     "4cc9284f9e4d9df997ed042df717f143f3763130fdfb9e142226da4b5b4c60e6": 1,
     "67694f8f44eb8347cb38c39d368f4f0ce1b78bd33a6a57a55cf4664f3eaa7f98": 1
-  },
-  "packages/client/ui-agent-preset/tests/settings-store.client.spec.ts": {
-    "d6a04d954aef7a8edd403910851015c0ce1597f6f300292b5158a8bf993fc1d8": 1
   },
   "packages/client/ui-approval/tests/ui-approval.client.spec.tsx": {
     "3e392ff0165a51a6ac716515b99af35ec152f89607cff72080cb9afbcff63f46": 1
@@ -746,12 +740,11 @@
     "d0d7b677da65df97240f713995e20d0642ef32cf056864b11f2f4879a0d9e878": 1
   },
   "packages/client/ui-settings-general/tests/shell-entry.client.spec.tsx": {
-    "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 3,
+    "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 2,
     "2e536f4bb9adc27095accdbf573d990240306c0bf7331363f8ad59471ad7914f": 1
   },
   "packages/client/ui-settings-mcp/tests/section.client.spec.tsx": {
-    "9cd156eee40c68500adf25181fab70a243b2b12311ff19393cb29ba4dd40a49b": 1,
-    "a838174ce19ca84a80f7ec559db75f3b506211ddce7391eefa54f5281a2719cf": 1
+    "9cd156eee40c68500adf25181fab70a243b2b12311ff19393cb29ba4dd40a49b": 1
   },
   "packages/client/ui-settings-mcp/tests/store.client.spec.ts": {
     "aeef0ad7c8deb2367dc97b2f5ba035f58ac2957886ee64d876be02cef05ead6d": 1
@@ -795,9 +788,6 @@
   },
   "packages/client/ui-settings-unarchive-sessions/tests/browser-plugin.client.spec.tsx": {
     "04984a2ce1486250236e638e0197da0a1a840855ed3975c59130a85358c7e5fe": 1
-  },
-  "packages/client/ui-settings-unarchive-sessions/tests/components.client.spec.tsx": {
-    "1146777416bccb44175e64f81d984c795a00fe90a5cad84f88cbf51b35ca6940": 1
   },
   "packages/client/ui-settings/tests/schema.client.spec.ts": {
     "0584be4cde4cd33049ef7c02e9d1562a30ec48ef2176f2f22b328b5be2903407": 1

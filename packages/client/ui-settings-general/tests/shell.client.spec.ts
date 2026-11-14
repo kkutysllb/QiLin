@@ -34,14 +34,13 @@ const CHILD_NAMES = Object.keys(CHILD_SPECS) as Array<keyof typeof CHILD_SPECS>
 
 /**
  * Section ids the web-app roster registers: this package (general and about),
- * ui-agent-preset, ui-settings-models, ui-settings-plugins, ui-settings-mcp,
- * ui-settings-skills, ui-settings-unarchive-sessions, and client-ui-usage. A
- * plugin adding a section changes this list. The mcp section shares order 20
- * with the models default ordering, so the projection order within the pair
- * follows registration.
+ * ui-agent-preset, ui-settings-models, ui-settings-plugins, ui-settings-skills,
+ * ui-settings-unarchive-sessions, and client-ui-usage. A plugin adding a
+ * section changes this list. MCP servers are a workspace sidebar panel, not a
+ * Settings section.
  */
 const PRODUCT_SECTIONS: readonly string[] = [
-  'general', 'models', 'plugins', 'mcp', 'agent-presets', 'usage', 'archived-sessions', 'skills', 'about',
+  'general', 'models', 'plugins', 'agent-presets', 'usage', 'archived-sessions', 'skills', 'about',
 ]
 /** Onboarding steps the web-app roster registers; ui-settings-models owns the only one. */
 const PRODUCT_ONBOARDING: readonly { id: string; order: number }[] = [

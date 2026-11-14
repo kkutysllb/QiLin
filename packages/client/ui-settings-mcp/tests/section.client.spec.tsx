@@ -11,7 +11,7 @@ import type { ReactElement } from 'react'
 import { McpSection } from '../src/client/McpSection.tsx'
 import type { McpSectionProps } from '../src/client/McpSection.tsx'
 import { McpServersStore, type McpPageState } from '../src/client/store.ts'
-import { apply, inject, NS } from '../src/client/index.ts'
+import { apply, inject, MCP_PANEL_ID, NS } from '../src/client/index.ts'
 import { apply as hostApply } from '../src/index.ts'
 import { en } from '../src/client/locales.ts'
 
@@ -247,7 +247,7 @@ describe('ui-settings-mcp browser plugin', () => {
     expect(inject).toEqual(['slots', 'locale', 'remote', 'remote.mcpServers'])
   })
 
-  it('registers one localized MCP section and reads nothing until it mounts', async () => {
+  it('registers one sidebar panel and reads nothing until it mounts', async () => {
     const ctx = new Context()
     await ctx.plugin(SlotRegistry).await()
     const locale = new LocaleRuntime(ctx)
@@ -267,36 +267,38 @@ describe('ui-settings-mcp browser plugin', () => {
     slots.register({
       name: 'root',
       children: {
-        'settings.section': { kind: 'list', scope: 'root' },
-        'settings.section.icon': { kind: 'list', scope: 'root', inline: true },
+        main: { kind: 'keyed', scope: 'root' },
+        'sidebar.panellist': { kind: 'list', scope: 'root' },
       },
     } as never, () => null)
 
     await ctx.plugin({ inject: [...inject], apply }).await()
 
-    const entry = slots.entries('settings.section')[0]
-    expect(entry?.options.id).toBe('mcp')
-    expect(entry?.options.order).toBe(20)
-    expect(resolveSlotLabel(entry!.options.label)).toBe('MCP servers')
+    // The page is a workspace panel, not a Settings section.
+    expect(slots.entries('settings.section')).toHaveLength(0)
+    const panel = slots.entries('main')[0]
+    expect(panel?.options.key).toBe(MCP_PANEL_ID)
     expect(NS).toBe('settings.mcp')
     expect(list).not.toHaveBeenCalled()
     // The registry keeps the inject factory beside the registration options.
-    const face = (entry as unknown as {
-      inject?: () => { controller: unknown; t: (key: keyof typeof en) => string }
-    }).inject?.()
+    const face = panel?.inject?.() as { controller: unknown; t: (key: keyof typeof en) => string } | undefined
     expect(face?.controller).toBeInstanceOf(McpServersStore)
     expect(face?.t('nav')).toBe('MCP servers')
     expect(new McpServersStore(ctx).store.getSnapshot().status).toBe('idle')
-    // The nav glyph shares the section id, so the shell seats it on this row.
-    const icon = slots.entries('settings.section.icon')[0]
-    expect(icon?.options.id).toBe('mcp')
-    const draw = (active: boolean): ReactElement<{ size: number }> => (icon!.component as (
+    // One sidebar row addresses the panel and draws its protocol mark.
+    const row = slots.entries('sidebar.panellist')[0]
+    expect(row?.options.id).toBe(MCP_PANEL_ID)
+    expect(row?.options.order).toBe(20)
+    expect(resolveSlotLabel(row!.options.label)).toBe('MCP servers')
+    const draw = (active: boolean): ReactElement<{ size: number }> => (row!.component as (
       props: { size: number; active: boolean },
     ) => ReactElement<{ size: number }>)({ size: 16, active })
     expect(draw(false).props.size).toBe(16)
     expect(draw(true).props.size).toBe(16)
     expect(draw(true).type).not.toBe(draw(false).type)
     await ctx.fiber.dispose()
-    expect(slots.entries('settings.section.icon')).toHaveLength(0)
+    expect(slots.entries('main')).toHaveLength(0)
+    expect(slots.entries('sidebar.panellist')).toHaveLength(0)
   })
+
 })

@@ -9,8 +9,8 @@
   en: dd81e27c4521158a
   zh: 01417e2b5c61928a
 /tool-schema-catalog/tool-package-map:
-  en: 73226719350fc5b4
-  zh: 05745420437aa618
+  en: f0aa6540a4f1a0a7
+  zh: fb850c65ea3c85b1
 /tool-schema-catalog/qilin-agent-plugin-manager:
   en: 45c8b03d92db06ad
   zh: 45c8b03d92db06ad
@@ -66,8 +66,8 @@
   en: 3c5021cae5c63c12
   zh: 3c5021cae5c63c12
 /tool-schema-catalog/qilin-agent-tools/run-code:
-  en: 0b09f2da071bc90d
-  zh: e5324c96dd5e4f95
+  en: 72d6f9767da179db
+  zh: ec74b484d5616f5f
 /tool-schema-catalog/qilin-agent-plan-mode:
   en: bc5f4eaa8fada891
   zh: bc5f4eaa8fada891
@@ -318,8 +318,14 @@
   en: 520432d371ed364b
   zh: 520432d371ed364b
 /tool-schema-catalog/qilin-agent-tool-workspace-dependencies/load-workspace-dependencies:
-  en: c68df6c69ec1fa53
-  zh: e22c74674424b448
+  en: aa1430e2420bf178
+  zh: 90a2912be8a44670
+/tool-schema-catalog/qilin-agent-tool-office-read:
+  en: f64758228125a057
+  zh: f64758228125a057
+/tool-schema-catalog/qilin-agent-tool-office-read/office-read:
+  en: d91bef64f8329b40
+  zh: 1a0f6441924d06fa
 /tool-schema-catalog/qilin-agent-tool-web:
   en: 65dca0692b139b9a
   zh: 65dca0692b139b9a

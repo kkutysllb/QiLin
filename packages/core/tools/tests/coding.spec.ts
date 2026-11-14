@@ -570,7 +570,7 @@ describe('mode-aware wire contribution', () => {
   it('degrades the run_code flavor to TypeScript when no runtime is mounted', async () => {
     // Any reader of the definition without a mounted runtime uses this fallback; the
     // shipped one is the tool-catalog generator, which boots the registry under
-    // `mode: ptc` and reads run_code's schema WITHOUT a runtime. peekRuntime
+    // `mode: coding` and reads run_code's schema WITHOUT a runtime. peekRuntime
     // returns undefined there, so the flavor getter degrades to the TS default
     // rather than throwing. None of those readers feeds a model: assembly goes
     // through wireSchemas, which requires a runtime first.

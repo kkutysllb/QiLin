@@ -20,20 +20,20 @@
 - id: tools
   name: '@qilin-agent/tools'
   config:
-    mode: ptc
+    mode: coding
 
-- id: ptc-runtime
+- id: coding-runtime
   disabled: true
 
-- id: workflow-ptc
+- id: workflow-coding
   disabled: true
 
 - id: tool-workflow
   disabled: true
 
 - insert:
-    - id: ptc-runtime-python
-      name: '@qilin-agent/experimental-ptc-runtime-python'
+    - id: coding-runtime-python
+      name: '@qilin-agent/experimental-coding-runtime-python'
 
 - id: system-prompt
   name: '@qilin-agent/system-prompt'

@@ -6,8 +6,11 @@
 
 /**
  * Built-in profile layers and bundles with no page of their own. Their Host
- * availability and activation stay intact; the Plugins page leaves them out
- * because switching the composition they build would strand the session.
+ * availability and activation stay intact; the Plugins page leaves them out.
+ * An enabled layer would strand the session if switched from a card list.
+ * Agent Teams is switched from the Session header instead, beside Open locally,
+ * and the automation tasks layer is always on and has no switch at all, so the
+ * page keeps no control for either.
  */
 export const HIDDEN_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/base',
@@ -16,6 +19,10 @@ export const HIDDEN_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/sdk-app',
   '@qilin-agent/acp-app',
   '@qilin-agent/sdk-minimal',
+  '@qilin-agent/agent-team-profile',
+  // Retired below, but kept out of the page: an installed profile still lists it
+  // in dependencies, so it would otherwise surface as an unrecognized plugin.
+  '@qilin-agent/experimental-schedule-bundle',
 ])
 
 /**
@@ -24,8 +31,6 @@ export const HIDDEN_BUNDLES: ReadonlySet<string> = new Set([
  * on the main list.
  */
 export const EXTENSION_BUNDLES: readonly string[] = [
-  '@qilin-agent/agent-team-profile',
-  '@qilin-agent/experimental-schedule-bundle',
   '@qilin-agent/experimental-voice-input-bundle',
   '@qilin-agent/experimental-auto-review',
 ]
@@ -71,6 +76,9 @@ export const EXPERIMENTAL_BUNDLES: ReadonlySet<string> = new Set([
  */
 export const RETIRED_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/experimental-inspector-profile',
+  // Its three rows (time-context, schedule, ui-schedule) joined the default Web
+  // composition, so the always-on automation surface no longer needs a bundle.
+  '@qilin-agent/experimental-schedule-bundle',
 ])
 
 /**

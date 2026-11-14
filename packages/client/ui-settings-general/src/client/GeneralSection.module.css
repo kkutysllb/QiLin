@@ -18,7 +18,7 @@
 
 .title {
   margin: 0;
-  font-size: 24px;
+  font-size: calc(var(--qilin-text-2xl) + 2px);
   font-weight: 620;
   line-height: 32px;
   letter-spacing: -0.015em;
@@ -28,7 +28,7 @@
 .description {
   margin: 0;
   max-width: 60ch;
-  font-size: 13px;
+  font-size: var(--qilin-text-base);
   line-height: 20px;
   color: var(--qilin-alias-label-tertiary);
 }
@@ -53,7 +53,7 @@
 
 .cardTitle {
   margin: var(--qilin-space-3) 0 var(--qilin-space-1);
-  font-size: 12px;
+  font-size: var(--qilin-text-sm);
   font-weight: 560;
   letter-spacing: 0.06em;
   color: var(--qilin-alias-label-tertiary);

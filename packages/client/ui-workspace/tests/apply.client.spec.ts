@@ -83,7 +83,7 @@ async function bench() {
   const directoryPicker = { pick: pickDirectory }
   const agentPresets = {
     select: vi.fn(async () => ({ ok: true as const, value: 'coding' })),
-    list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
+    list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false } })),
   }
   Object.assign(new TestRemote(ctx), { directoryPicker, agentPresets })
   ctx.provide('remote.directoryPicker', directoryPicker as never)

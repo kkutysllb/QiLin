@@ -29,7 +29,6 @@ const ROSTER_READY: AgentPresetSettingsState = {
 }
 
 const SEAT_READY: AgentPresetSeatState = {
-  showPicker: true,
   current: 'coding',
   options: [
     { id: 'coding', trust: 'system', name: '标准模式', description: '完整的编码 agent。' },
@@ -101,12 +100,6 @@ function renderLabel(
 }
 
 describe('the new-session chip', () => {
-  it('renders nothing while the picker is disabled', () => {
-    renderSeat({ showPicker: false })
-
-    expect(screen.queryByRole('button')).toBeNull()
-  })
-
   it('renders only for a Session retained by the main view', () => {
     renderSeat({}, undefined, {
       id: 's1', retainInfo: { referenceCount: 1, retainedBy: { mainView: 1 } },

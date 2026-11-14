@@ -679,6 +679,43 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'codingRuntime',
+    summary: 'Registers one `ctx.codingRuntime` implementation.',
+    description: 'Registers one `ctx.codingRuntime` implementation. Program, budget, abort, and substrate failures resolve in CodingRunResult; only Service Definition contract misuse rejects. Implementations bridge structured-cloneable bindings, materialize each declared namespace rejection class, treat programs as hostile peers, isolate distinct state owners, and terminate and await in-flight runs during disposal.',
+    methods: [
+      {
+        signature: 'abstract readonly language: string',
+        description: 'The source language run expects `program` to be written in, as a lowercase identifier. Informational, not gating — a consumer that generates language-specific presentation (typed SDK stubs, usage instructions) switches on it and fails loud on a language it cannot present. Well-known values: `\'typescript\'` and `\'python\'`, those `qilin-tools` presents; the TypeScript backend is released, the Python backend is experimental and private (not published).',
+        parameters: [],
+      },
+      {
+        signature: 'abstract readonly isolation: string',
+        description: 'The execution substrate, as a lowercase identifier. Informational, not gating — a descriptor so deployments and diagnostics can tell backends apart, not a security claim. Well-known values: `\'worker-thread\'`, `\'process\'`, `\'container\'`.',
+        parameters: [],
+      },
+      {
+        signature: 'release(owner: object): Promise<void>',
+        description: 'Release an owner\'s retained environment and await its execution resources. Stateless providers have no retained resources to release.',
+        parameters: [{ name: 'owner', description: 'The exact object supplied as the request\'s state owner.' }],
+        returns: 'Completion after all owned execution resources have been released.',
+        throws: ['When managed resource cleanup fails.'],
+      },
+      {
+        signature: 'abstract resolve(request: CodingRunRequest): CodingRunSpec',
+        description: 'Resolve supported options and provider defaults before execution.',
+        parameters: [{ name: 'request', description: 'Program, bindings, cancellation and optional execution choices.' }],
+        returns: 'Complete directory, deadline and supported authority for run.',
+        throws: ['When an explicit choice is invalid or unsupported by this provider.'],
+      },
+      {
+        signature: 'abstract run(spec: CodingRunSpec): Promise<CodingRunResult>',
+        description: 'Execute resolved inputs; program outcomes resolve as result fields.',
+        parameters: [{ name: 'spec', description: 'directory, deadline, program, bindings, cancellation and supported policy.' }],
+        returns: 'Captured output and the execution outcome.',
+      },
+    ],
+  },
+  {
     key: 'commands',
     summary: 'Human-command registry.',
     description: 'Human-command registry. Plain-context definitions are global; definitions registered through a command-injected child of an agent context shadow globals for that agent.',
@@ -1298,6 +1335,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Make another attempt, with a new branch name, at the worktree a message of the Session waits for after a failed or stopped attempt.',
         parameters: [{ name: 'session', description: 'Session whose message waits.' }, { name: 'signal', description: 'request cancellation.' }],
         throws: ['`forgePanel/not-waiting` when no message waits or an attempt is running.'],
+      },
+      {
+        signature: '@Remote async removeWorktree(session: Session, deleteBranch: boolean, signal: AbortSignal): Promise<void>',
+        description: 'Remove the created worktree of a Session at its recorded directory: the checkout leaves the filesystem and its registration, the Session moves to the source checkout first so no working directory points at a removed path, and the recorded projection clears. Without `deleteBranch` the branch stays. Runs as Agent maintenance; a checkout with uncommitted or untracked files is kept and reported. Changes that were never committed are lost with a removed checkout.',
+        parameters: [{ name: 'session', description: 'Session whose worktree leaves.' }, { name: 'signal', description: 'request cancellation, which aborts the removal.' }, { name: 'deleteBranch', description: 'whether the branch follows the checkout.' }],
+        throws: ['`forgePanel/no-worktree` without a created worktree; `forgePanel/worktrees-unavailable` without a worktree service; `forgePanel/session-busy` while the Session\'s Agent is not loaded or has other work; `forgePanel/remove-failed` when Git refuses or fails.'],
       },
       {
         signature: '@Remote async restoreWorktree(session: Session, signal: AbortSignal): Promise<void>',
@@ -2140,43 +2183,6 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
-    key: 'codingRuntime',
-    summary: 'Registers one `ctx.codingRuntime` implementation.',
-    description: 'Registers one `ctx.codingRuntime` implementation. Program, budget, abort, and substrate failures resolve in CodingRunResult; only Service Definition contract misuse rejects. Implementations bridge structured-cloneable bindings, materialize each declared namespace rejection class, treat programs as hostile peers, isolate distinct state owners, and terminate and await in-flight runs during disposal.',
-    methods: [
-      {
-        signature: 'abstract readonly language: string',
-        description: 'The source language run expects `program` to be written in, as a lowercase identifier. Informational, not gating — a consumer that generates language-specific presentation (typed SDK stubs, usage instructions) switches on it and fails loud on a language it cannot present. Well-known values: `\'typescript\'` and `\'python\'`, those `qilin-tools` presents; the TypeScript backend is released, the Python backend is experimental and private (not published).',
-        parameters: [],
-      },
-      {
-        signature: 'abstract readonly isolation: string',
-        description: 'The execution substrate, as a lowercase identifier. Informational, not gating — a descriptor so deployments and diagnostics can tell backends apart, not a security claim. Well-known values: `\'worker-thread\'`, `\'process\'`, `\'container\'`.',
-        parameters: [],
-      },
-      {
-        signature: 'release(owner: object): Promise<void>',
-        description: 'Release an owner\'s retained environment and await its execution resources. Stateless providers have no retained resources to release.',
-        parameters: [{ name: 'owner', description: 'The exact object supplied as the request\'s state owner.' }],
-        returns: 'Completion after all owned execution resources have been released.',
-        throws: ['When managed resource cleanup fails.'],
-      },
-      {
-        signature: 'abstract resolve(request: CodingRunRequest): CodingRunSpec',
-        description: 'Resolve supported options and provider defaults before execution.',
-        parameters: [{ name: 'request', description: 'Program, bindings, cancellation and optional execution choices.' }],
-        returns: 'Complete directory, deadline and supported authority for run.',
-        throws: ['When an explicit choice is invalid or unsupported by this provider.'],
-      },
-      {
-        signature: 'abstract run(spec: CodingRunSpec): Promise<CodingRunResult>',
-        description: 'Execute resolved inputs; program outcomes resolve as result fields.',
-        parameters: [{ name: 'spec', description: 'directory, deadline, program, bindings, cancellation and supported policy.' }],
-        returns: 'Captured output and the execution outcome.',
-      },
-    ],
-  },
-  {
     key: 'remoteAccess',
     summary: 'Registry of access policies, the Gateway\'s access decisions, list filtering, and the per-Peer access snapshot.',
     description: 'Registry of access policies, the Gateway\'s access decisions, list filtering, and the per-Peer access snapshot. Every composition that mounts the Gateway mounts this service too.',
@@ -2605,6 +2611,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         parameters: [{ name: 'options', description: 'optional cancellation.' }],
         returns: 'one snapshot per stored session.',
       },
+      {
+        signature: 'delete(id: SessionId, _options?: SessionPersistenceDeleteOptions): Promise<void>',
+        description: 'Remove one stored session and every artifact the backend owns for it: every retained generation, the backend\'s ownership record, and any derived file written beside them. The durable log is gone and the identity can be created again afterwards.\n\nDeletion refuses while this process holds any handle for the session (SessionPersistenceBusyError), because a reader that outlives the removal would observe a torn artifact. A session that does not exist resolves without an error, so a repeated delete is a no-op.\n\nA backend that cannot remove artifacts refuses with SessionPersistenceDeletionUnsupportedError rather than reporting a removal it did not perform; the shipped JSONL backend implements it.',
+        parameters: [{ name: 'id', description: 'the stored session to remove.' }, { name: '_options', description: 'optional cancellation observed before backend work starts; the base backend refuses before it reads them.' }],
+        throws: ['{SessionPersistenceBusyError} while this process holds a handle for the session.', '{SessionPersistenceDeletionUnsupportedError} when the backend cannot delete at all.'],
+      },
     ],
   },
   {
@@ -2617,6 +2629,11 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'The zero-I/O listing read: whole values viewed straight from the stored rows (version-matching keys only) of the record bound to the caller\'s lifecycle. The header is the only identity witness a listing holds, so this face matches the lifecycle identity (`formatVersion`, `createdAt`, `cwd`, `isSeeded`) and not the inherited cut: within one format generation the cut is fixed at fork time, so it distinguishes no lifecycle the other fields do not, and a viewed value never seeds a fold. The view is as stale as the last durable checkpoint but never wrong and never from an unrelated log. Its `asOfSeq` is the lowest watermark among the served rows: the stored record\'s own position, which the header cannot relate to the log the caller later opens. The Session list therefore labels the block as cached, and the client lets every value the connected Session produces supersede it whatever this number says.',
         parameters: [{ name: 'meta', description: 'the listed session\'s header (identity witness; no log read).' }, { name: 'keys', description: 'optional projection keys required by the caller\'s audience.' }],
         returns: 'the viewed block, or `undefined` when no usable row exists for this lifecycle at the current Session format.',
+      },
+      {
+        signature: 'async forget(sessionId: SessionId): Promise<void>',
+        description: 'Drop one session\'s cached checkpoint after its stored log is removed.\n\nThe cache is derived data, so forgetting is fail-soft and never throws for an absent record. A session whose durable log still exists refolds from it and repopulates the cache on the next cold read, which is why forgetting must accompany log deletion rather than replace a repair.',
+        parameters: [{ name: 'sessionId', description: 'the session whose cached rows are discarded.' }],
       },
       {
         signature: 'cachedPredecessorTitle(meta: SessionHeader): ProjectionSnapshot | undefined',
@@ -4283,6 +4300,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'the complete resulting archive set.',
       },
       {
+        signature: '@Remote(\'deleteArchivedSession\') deleteArchivedSession(request: WorkspaceDeleteArchivedSessionRequest): Promise<WorkspaceArchiveValue>',
+        description: 'Delete one archived Session and its stored log, freeing the disk space it holds.',
+        parameters: [{ name: 'request', description: 'Archived Session identity to delete.' }],
+        returns: 'the complete resulting archive set.',
+      },
+      {
         signature: '@Remote(\'pinSession\') pinSession(request: WorkspacePinSessionRequest): Promise<WorkspacePinValue>',
         description: 'Surface one known unarchived Session ahead of unpinned Sessions.',
         parameters: [{ name: 'request', description: 'Session identity to pin.' }],
@@ -4570,6 +4593,13 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'resolution after durability.',
       },
       {
+        signature: 'deleteArchivedSession(sessionId: SessionId): Promise<void>',
+        description: 'Delete one archived session and its stored log, freeing the disk space the session holds. Only the archive set can be deleted from: a session on a grouping surface must be archived first, so deleting never removes work the user is still looking at. The session must own no running work (the `workspace/session-activity` waterfall is asked once, like archiving) and must not be live in this process; both refusals happen before any write or removal, so a refusal leaves the log intact.\n\nStorage removal runs first and owns its own refusals — a backend that keeps a handle open, or cannot delete at all, refuses with its own error and the archive set stays untouched. After removal the archive and pin entries are dropped durably in one write; the session\'s cached projections are relinquished best-effort because they are derived data.',
+        parameters: [{ name: 'sessionId', description: 'The archived session to delete.' }],
+        returns: 'resolution after the stored log and registry entries are gone.',
+        throws: ['{WorkspaceUnarchivedSessionDeleteError} when the session is not archived.', '{WorkspaceLiveSessionDeleteError} when the session is live in this process.', '{WorkspaceActiveSessionError} when a provider reports running work.', '{SessionPersistenceBusyError} when this process holds a session handle.'],
+      },
+      {
         signature: 'pinSession(sessionId: SessionId): Promise<void>',
         description: 'Pin one session durably, prepending it to the registry-global pin set. The session must exist (live or in session persistence) and must not be archived. An already pinned id resolves without writing or reordering.',
         parameters: [{ name: 'sessionId', description: 'The session to pin.' }],
@@ -4605,6 +4635,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Check out a removed worktree again at its recorded directory: its branch when the branch still exists, otherwise a new branch of the same name at `baseCommit`. Only the missing target\'s unlocked registration is removed, and an existing directory fails. Changes that were never committed are not recovered. Checkout disables configured clean, smudge, and process filters, as creation does. The calling Session\'s working directory does not change. Failures may retain newly allocated Git/filesystem artifacts.',
         parameters: [{ name: 'agent', description: 'caller whose sandbox policy confines the commands.' }, { name: 'request', description: 'recorded directory, branch, base commit, and source repository root.' }, { name: 'signal', description: 'cancellation of the restoration.' }, { name: 'onPhase', description: 'receives each stage before it begins; it must not throw.' }],
         returns: 'the directory and whether the branch was created again.',
+      },
+      {
+        signature: 'async remove( agent: Agent, request: RemoveWorktreeRequest, signal?: AbortSignal, onPhase?: (phase: CreateWorktreePhase) => void, ): Promise<RemovedWorktree>',
+        description: 'Remove one retained worktree: its checkout directory and registration leave the filesystem, and its branch follows when `deleteBranch` is set and Git reports it as merged. A checkout with uncommitted or untracked files stays: Git refuses the removal without force, so no work is discarded implicitly, and the caller keeps its files. Validation matches restore: a canonical target inside the configured pool, a source checkout root, a relative branch name, and a full base commit.',
+        parameters: [{ name: 'agent', description: 'caller whose sandbox policy confines the commands.' }, { name: 'request', description: 'recorded directory, branch, base commit, source repository root, and branch intent.' }, { name: 'signal', description: 'cancellation of the removal.' }, { name: 'onPhase', description: 'receives each stage before it begins; it must not throw.' }],
+        returns: 'the addressed directory and whether the branch was deleted.',
       },
     ],
   },
@@ -5350,7 +5386,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'AgentPresetRoster',
-    declaration: 'export interface AgentPresetRoster {\n    readonly presets: readonly AgentPresetRow[];\n    readonly authorable: boolean;\n    readonly modeSelectionEnabled: boolean;\n}',
+    declaration: 'export interface AgentPresetRoster {\n    readonly presets: readonly AgentPresetRow[];\n    readonly authorable: boolean;\n}',
   },
   {
     name: 'AgentPresetRow',
@@ -5505,6 +5541,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type AttachmentId = Branded<\'AttachmentId\'>;',
   },
   {
+    name: 'Attributes',
+    declaration: 'export type Attributes = Readonly<Record<string, string>>;',
+  },
+  {
     name: 'AuthorizationEntry',
     declaration: 'export interface AuthorizationEntry {\n    key: CredentialKey;\n    label: string;\n    methods: readonly AuthorizationMethod[];\n    inFlight: boolean;\n}',
   },
@@ -5651,6 +5691,46 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ClientArtifactBaseline',
     declaration: 'export interface ClientArtifactBaseline {\n    readonly path: string;\n    readonly mtimeMs: number;\n    readonly size: number;\n}',
+  },
+  {
+    name: 'CodingBindingErrorClass',
+    declaration: 'export interface CodingBindingErrorClass {\n    name: string;\n    memberNameProperty: string;\n}',
+  },
+  {
+    name: 'CodingBindingFunction',
+    declaration: 'export type CodingBindingFunction = (args: unknown) => Promise<CodingJsonValue>;',
+  },
+  {
+    name: 'CodingBindingNamespace',
+    declaration: 'export interface CodingBindingNamespace {\n    global: string;\n    functions: Record<string, CodingBindingFunction>;\n    errorClass?: CodingBindingErrorClass;\n}',
+  },
+  {
+    name: 'CodingDispatchLog',
+    declaration: 'export interface CodingDispatchLog {\n    readonly exec: ToolExecution;\n    readonly agent?: Agent;\n    readonly subCallId: ToolCallId;\n    readonly name: string;\n    readonly isError: boolean;\n    readonly content: ContentBlock[];\n}',
+  },
+  {
+    name: 'CodingJsonValue',
+    declaration: 'export type CodingJsonValue = null | boolean | number | string | CodingJsonValue[] | {\n    [key: string]: CodingJsonValue;\n};',
+  },
+  {
+    name: 'CodingRunFailure',
+    declaration: 'export interface CodingRunFailure {\n    kind: \'exception\' | \'timeout\' | \'abort\' | \'worker-exit\' | \'invalid-output\' | \'output-limit\' | \'protocol\' | \'sandbox-unavailable\';\n    message: string;\n}',
+  },
+  {
+    name: 'CodingRunRequest',
+    declaration: 'export interface CodingRunRequest {\n    program: string;\n    stateOwner?: object;\n    bindings: CodingBindingNamespace[];\n    cwd?: string;\n    timeoutMs?: number | null;\n    sandboxPolicy?: SandboxExecutionPolicy;\n    signal?: AbortSignal;\n}',
+  },
+  {
+    name: 'CodingRunResult',
+    declaration: 'export interface CodingRunResult {\n    sandbox?: CodingRunSandbox;\n    value?: CodingJsonValue;\n    logs: string[];\n    error?: CodingRunFailure;\n}',
+  },
+  {
+    name: 'CodingRunSandbox',
+    declaration: 'export interface CodingRunSandbox {\n    mode: SandboxMode;\n    denied: boolean;\n    enforcement?: SandboxEnforcement;\n}',
+  },
+  {
+    name: 'CodingRunSpec',
+    declaration: 'export interface CodingRunSpec extends CodingRunRequest {\n    cwd: string;\n    timeoutMs: number | null;\n}',
   },
   {
     name: 'CollectedOutput',
@@ -6154,7 +6234,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ForgeDiffFile',
-    declaration: 'export interface ForgeDiffFile {\n    readonly path: string;\n    readonly previousPath: string | null;\n    readonly status: ForgeDiffStatus;\n    readonly binary: boolean;\n    readonly oversized: boolean;\n    readonly untracked: boolean;\n    readonly additions: number;\n    readonly deletions: number;\n    readonly hunks: readonly ForgeDiffHunk[];\n}',
+    declaration: 'export interface ForgeDiffFile {\n    readonly path: string;\n    readonly previousPath: string | null;\n    readonly status: ForgeDiffStatus;\n    readonly binary: boolean;\n    readonly oversized: boolean;\n    readonly untracked: boolean;\n    readonly filtered?: \'lfs\' | \'filter\';\n    readonly additions: number;\n    readonly deletions: number;\n    readonly hunks: readonly ForgeDiffHunk[];\n}',
   },
   {
     name: 'ForgeDiffHunk',
@@ -6182,7 +6262,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ForgeLocalScope',
-    declaration: 'export type ForgeLocalScope = {\n    readonly kind: \'branch\';\n} | {\n    readonly kind: \'uncommitted\';\n} | {\n    readonly kind: \'unstaged\';\n} | {\n    readonly kind: \'staged\';\n};',
+    declaration: 'export type ForgeLocalScope = {\n    readonly kind: \'branch\';\n} | {\n    readonly kind: \'uncommitted\';\n} | {\n    readonly kind: \'unstaged\';\n} | {\n    readonly kind: \'staged\';\n} | {\n    readonly kind: \'commit\';\n    readonly commit: string;\n} | {\n    readonly kind: \'last-turn\';\n};',
   },
   {
     name: 'ForgeMissingWorktree',
@@ -6194,7 +6274,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ForgePanelState',
-    declaration: 'export interface ForgePanelState {\n    readonly directory: string;\n    readonly checkout: ForgeCheckoutState;\n    readonly repository: ForgeRepository | null;\n    readonly readiness: ForgeReadiness | null;\n    readonly changeRequests: readonly ForgePanelChangeRequest[];\n    readonly worktree: ForgePanelWorktree;\n    readonly local: ForgeLocalChanges | null;\n}',
+    declaration: 'export interface ForgePanelState {\n    readonly directory: string;\n    readonly checkout: ForgeCheckoutState;\n    readonly repository: ForgeRepository | null;\n    readonly readiness: ForgeReadiness | null;\n    readonly changeRequests: readonly ForgePanelChangeRequest[];\n    readonly worktree: ForgePanelWorktree;\n    readonly local: ForgeLocalChanges | null;\n    readonly lastTurn: number | null;\n}',
   },
   {
     name: 'ForgePanelWorktree',
@@ -7393,46 +7473,6 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface PruneResult {\n    readonly pruned: readonly PrunedEntry[];\n    readonly charsRemoved: number;\n}',
   },
   {
-    name: 'CodingBindingErrorClass',
-    declaration: 'export interface CodingBindingErrorClass {\n    name: string;\n    memberNameProperty: string;\n}',
-  },
-  {
-    name: 'CodingBindingFunction',
-    declaration: 'export type CodingBindingFunction = (args: unknown) => Promise<CodingJsonValue>;',
-  },
-  {
-    name: 'CodingBindingNamespace',
-    declaration: 'export interface CodingBindingNamespace {\n    global: string;\n    functions: Record<string, CodingBindingFunction>;\n    errorClass?: CodingBindingErrorClass;\n}',
-  },
-  {
-    name: 'CodingDispatchLog',
-    declaration: 'export interface CodingDispatchLog {\n    readonly exec: ToolExecution;\n    readonly agent?: Agent;\n    readonly subCallId: ToolCallId;\n    readonly name: string;\n    readonly isError: boolean;\n    readonly content: ContentBlock[];\n}',
-  },
-  {
-    name: 'CodingJsonValue',
-    declaration: 'export type CodingJsonValue = null | boolean | number | string | CodingJsonValue[] | {\n    [key: string]: CodingJsonValue;\n};',
-  },
-  {
-    name: 'CodingRunFailure',
-    declaration: 'export interface CodingRunFailure {\n    kind: \'exception\' | \'timeout\' | \'abort\' | \'worker-exit\' | \'invalid-output\' | \'output-limit\' | \'protocol\' | \'sandbox-unavailable\';\n    message: string;\n}',
-  },
-  {
-    name: 'CodingRunRequest',
-    declaration: 'export interface CodingRunRequest {\n    program: string;\n    stateOwner?: object;\n    bindings: CodingBindingNamespace[];\n    cwd?: string;\n    timeoutMs?: number | null;\n    sandboxPolicy?: SandboxExecutionPolicy;\n    signal?: AbortSignal;\n}',
-  },
-  {
-    name: 'CodingRunResult',
-    declaration: 'export interface CodingRunResult {\n    sandbox?: CodingRunSandbox;\n    value?: CodingJsonValue;\n    logs: string[];\n    error?: CodingRunFailure;\n}',
-  },
-  {
-    name: 'CodingRunSandbox',
-    declaration: 'export interface CodingRunSandbox {\n    mode: SandboxMode;\n    denied: boolean;\n    enforcement?: SandboxEnforcement;\n}',
-  },
-  {
-    name: 'CodingRunSpec',
-    declaration: 'export interface CodingRunSpec extends CodingRunRequest {\n    cwd: string;\n    timeoutMs: number | null;\n}',
-  },
-  {
     name: 'QilinEnvironment',
     declaration: 'export type QilinEnvironment = Readonly<Record<QilinEnvironmentKey, string>>;',
   },
@@ -7555,6 +7595,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'RemoteEventHostInfo',
     declaration: 'export interface RemoteEventHostInfo {\n    readonly home: string;\n}',
+  },
+  {
+    name: 'RemovedWorktree',
+    declaration: 'export interface RemovedWorktree {\n    path: string;\n    branchDeleted: boolean;\n}',
+  },
+  {
+    name: 'RemoveWorktreeRequest',
+    declaration: 'export interface RemoveWorktreeRequest extends RestoreWorktreeRequest {\n    deleteBranch?: boolean;\n}',
   },
   {
     name: 'RenderedDocumentBytes',
@@ -8175,6 +8223,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'SessionPersistenceCreateOptions',
     declaration: 'export interface SessionPersistenceCreateOptions {\n    readonly signal?: AbortSignal;\n    readonly inheritedEventCount?: SessionLogOffset;\n}',
+  },
+  {
+    name: 'SessionPersistenceDeleteOptions',
+    declaration: 'export interface SessionPersistenceDeleteOptions {\n    readonly signal?: AbortSignal;\n}',
   },
   {
     name: 'SessionPersistenceListOptions',
@@ -9214,7 +9266,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ToolPresentationMode',
-    declaration: 'export type ToolPresentationMode = \'native\' | \'ptc\';',
+    declaration: 'export type ToolPresentationMode = \'native\' | \'coding\';',
   },
   {
     name: 'ToolProviderResult',
@@ -9701,6 +9753,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface WorkspaceCreateValue {\n    readonly workspace: WorkspaceView;\n    readonly created: boolean;\n}',
   },
   {
+    name: 'WorkspaceDeleteArchivedSessionRequest',
+    declaration: 'export interface WorkspaceDeleteArchivedSessionRequest {\n    readonly sessionId: SessionId;\n}',
+  },
+  {
     name: 'WorkspaceDeleteRequest',
     declaration: 'export interface WorkspaceDeleteRequest {\n    readonly workspaceId: WorkspaceId;\n}',
   },
@@ -9715,6 +9771,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'WorkspaceDirectoryEntry',
     declaration: 'export interface WorkspaceDirectoryEntry {\n    readonly name: string;\n    readonly type: \'file\' | \'directory\' | \'other\';\n    readonly size?: number;\n    readonly symlink?: boolean;\n}',
+  },
+  {
+    name: 'WorkspaceDirectoryKind',
+    declaration: 'export type WorkspaceDirectoryKind = \'repository\' | \'directory\';',
   },
   {
     name: 'WorkspaceDirectoryListing',
@@ -9818,7 +9878,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'WorkspaceView',
-    declaration: 'export interface WorkspaceView {\n    readonly workspaceId: WorkspaceId;\n    readonly path: string;\n    readonly title: string;\n    readonly sessionIds: readonly SessionId[];\n    readonly createdAt: string;\n    readonly updatedAt: string;\n}',
+    declaration: 'export interface WorkspaceView {\n    readonly workspaceId: WorkspaceId;\n    readonly path: string;\n    readonly kind: WorkspaceDirectoryKind;\n    readonly title: string;\n    readonly sessionIds: readonly SessionId[];\n    readonly createdAt: string;\n    readonly updatedAt: string;\n}',
   },
 ]
 

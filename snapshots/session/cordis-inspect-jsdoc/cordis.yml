@@ -1,4 +1,4 @@
-# Add PTC mode and Cordis tools to the base spawn/workflow stack, exercising
+# Add coding mode and Cordis tools to the base spawn/workflow stack, exercising
 # all four boundaries in one ACP snapshot.
 - id: agent-default-model
   name: '@qilin-agent/agent-default-model'

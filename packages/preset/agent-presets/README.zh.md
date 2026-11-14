@@ -61,17 +61,16 @@ kind: "package-reference"
 
 随附根目录前置在全部已配置根目录之前，因此即使补丁替换 roster 配置，内置集合仍然可用并赢得重复 id。`includeShippedRoot: false` 会为完全自行提供 preset 的部署移除内置集合。`includeUserRoot: false` 会移除推导出的可写根目录；钉住确切 roster 的测试会同时关闭两个推导根目录。
 
-### 显示选择器并选择默认 preset
+### 选择默认 preset
 
-必填的 `default` 配置设定部署默认值。当组装中存在 settings 提供方时，本插件会注册 `agent-presets` 命名空间，并以 `{ default: config.default, modeSelectionEnabled: true }` 作为 base，因此既有的新建会话选择器会保持显示，除非用户主动关闭。Host 每次解析默认值都会读取这两个字段：`modeSelectionEnabled` 为 `false` 时，未显式指定 preset 的会话解析为 `config.default`，即使用户文档还保留其他 `default` 也会忽略它；该字段为 `true` 时，用户默认值才可覆盖部署值：
+必填的 `default` 配置设定部署默认值。当组装中存在 settings 提供方时，本插件会注册 `agent-presets` 命名空间，其中 `default` 字段承载用户保存的选择；Host 每次解析默认值都会读取该字段：已保存的用户默认值覆盖部署值，未指名 preset 的会话按生效默认值组装：
 
 ```yaml
 agent-presets:
-  modeSelectionEnabled: true
   default: coding
 ```
 
-客户端只需写入 `modeSelectionEnabled` 即可显示或隐藏选择，[Web GUI 设置开关](../../client/ui-agent-preset/README.zh.md)正是这样做的。选择器隐藏期间由部署默认值生效；再次开启时恢复已保存的用户 `default`，尚未保存时则继续使用部署默认值。模式选择保持开启时，选择默认模式会写入用户覆盖值，仅供此后创建的会话使用。由于该策略归 Host 所有，它适用于 Web、CLI、SDK 与 headless 调用方此后创建的全部未显式指定 preset 的会话；显式指定的 preset 与任何既有会话均不受影响。
+preset 选择本身始终可用：[Web GUI 的新建会话 chip](../../client/ui-agent-preset/README.zh.md)提供全部健康 preset，其管理页面写入同一个 `default` 字段。由于该字段归 Host 所有，它适用于 Web、CLI、SDK 与 headless 调用方此后创建的全部未显式指定 preset 的会话；显式指定的 preset 与任何既有会话均不受影响。
 
 ### 创作 preset
 

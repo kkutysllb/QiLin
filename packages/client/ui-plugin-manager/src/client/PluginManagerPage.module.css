@@ -523,11 +523,10 @@
 }
 
 /* The More entry trails the experimental grid as a light link, not a card. */
-.cardsMore {
-  grid-column: 1 / -1;
+.groupMoreRow {
   display: flex;
   align-items: center;
-  min-height: 36px;
+  min-height: 32px;
   padding-inline: 4px;
 }
 
@@ -1848,11 +1847,12 @@ label.registryOption {
   }
 }
 
-/* The Installed groups keep the page's row gap inside their tab panel. */
-.installedPanel {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
+/* One line saying what the open category holds, above its cards. */
+.tabHint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .tabPanel {

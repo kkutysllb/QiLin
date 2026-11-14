@@ -54,8 +54,6 @@ export interface PresetRoot {
 export interface Config {
   /** Preset id mounted when a caller names none. Missing at mount time fails loud. */
   default: Volatile<string>
-  /** Whether the picker and the saved user default govern unnamed new sessions. */
-  modeSelectionEnabled: Volatile<boolean>
   /** Scanned roots in precedence order; an earlier root wins a duplicate id. */
   roots: PresetRoot[]
   /**

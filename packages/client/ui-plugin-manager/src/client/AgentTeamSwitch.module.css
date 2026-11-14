@@ -1,0 +1,16 @@
+/* Agent Teams switch: its name and the control, in the Session header's utilities row. */
+
+.control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin-inline-end: 4px;
+}
+
+.label {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--qilin-alias-label-secondary);
+  white-space: nowrap;
+}

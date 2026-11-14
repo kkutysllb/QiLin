@@ -65,8 +65,12 @@ export class WorkspaceActiveSessionError extends Error {
    * @param sessionId - The active session id.
    * @param activity - The reported activity, in listener order.
    */
-  constructor(readonly sessionId: SessionId, readonly activity: readonly SessionActivity[]) {
-    super(`cannot archive session '${sessionId}': the session is active (${activity.map(entry => entry.kind).join(', ')})`)
+  constructor(
+    readonly sessionId: SessionId,
+    readonly activity: readonly SessionActivity[],
+    verb: 'archive' | 'delete' = 'archive',
+  ) {
+    super(`cannot ${verb} session '${sessionId}': the session is active (${activity.map(entry => entry.kind).join(', ')})`)
     this.name = 'WorkspaceActiveSessionError'
   }
 }
@@ -79,6 +83,24 @@ export class WorkspaceArchivedSessionPinError extends Error {
   constructor(readonly sessionId: SessionId) {
     super(`cannot pin session '${sessionId}': the session is archived`)
     this.name = 'WorkspaceArchivedSessionPinError'
+  }
+}
+
+/** A deleteArchivedSession request named a session this process still holds live. */
+export class WorkspaceLiveSessionDeleteError extends Error {
+  /** @param sessionId - The live session the caller asked to delete. */
+  constructor(readonly sessionId: SessionId) {
+    super(`cannot delete session '${sessionId}': the session is open in this process; close it first`)
+    this.name = 'WorkspaceLiveSessionDeleteError'
+  }
+}
+
+/** A deleteArchivedSession request named a session outside the archive set. */
+export class WorkspaceUnarchivedSessionDeleteError extends Error {
+  /** @param sessionId - The session the caller asked to delete. */
+  constructor(readonly sessionId: SessionId) {
+    super(`cannot delete session '${sessionId}': deletion only applies to archived sessions`)
+    this.name = 'WorkspaceUnarchivedSessionDeleteError'
   }
 }
 
@@ -401,6 +423,62 @@ export class WorkspaceRegistry extends Service {
       await this.setState({
         ...state,
         archivedSessionIds: state.archivedSessionIds.filter(id => id !== sessionId),
+      })
+    })
+  }
+
+  /**
+   * Delete one archived session and its stored log, freeing the disk space the
+   * session holds. Only the archive set can be deleted from: a session on a
+   * grouping surface must be archived first, so deleting never removes work the
+   * user is still looking at. The session must own no running work (the
+   * `workspace/session-activity` waterfall is asked once, like archiving) and
+   * must not be live in this process; both refusals happen before any write or
+   * removal, so a refusal leaves the log intact.
+   *
+   * Storage removal runs first and owns its own refusals — a backend that keeps
+   * a handle open, or cannot delete at all, refuses with its own error and the
+   * archive set stays untouched. After removal the archive and pin entries are
+   * dropped durably in one write; the session's cached projections are
+   * relinquished best-effort because they are derived data.
+   * @param sessionId - The archived session to delete.
+   * @returns resolution after the stored log and registry entries are gone.
+   * @throws {WorkspaceUnarchivedSessionDeleteError} when the session is not archived.
+   * @throws {WorkspaceLiveSessionDeleteError} when the session is live in this process.
+   * @throws {WorkspaceActiveSessionError} when a provider reports running work.
+   * @throws {SessionPersistenceBusyError} when this process holds a session handle.
+   */
+  deleteArchivedSession(sessionId: SessionId): Promise<void> {
+    return this.enqueueOperation(async () => {
+      const state = this.requireState()
+      if (!state.archivedSessionIds.includes(sessionId)) {
+        throw new WorkspaceUnarchivedSessionDeleteError(sessionId)
+      }
+      if (this.ctx.get('sessions')?.get(sessionId) !== undefined) {
+        throw new WorkspaceLiveSessionDeleteError(sessionId)
+      }
+      const activity = await this.ctx.waterfall(
+        'workspace/session-activity', { sessionId }, () => Promise.resolve([]),
+      )
+      if (activity.length > 0) throw new WorkspaceActiveSessionError(sessionId, activity, 'delete')
+      await this.ctx.sessionPersistence.delete(sessionId)
+      // Optional peer: the derived-data cache lives in its own package, and a
+      // deployment may compose without it. Its only operation this package
+      // needs is dropping one session's checkpoint.
+      const cache = this.ctx.get('sessionProjectionCache') as
+        { forget(cacheSessionId: SessionId): Promise<void> } | undefined
+      await cache?.forget(sessionId)
+      // The startup/live header index is this package's only session-existence
+      // witness. Forgetting the row keeps a later archive or pin from
+      // resurrecting a session whose log is gone, and drops it from every
+      // Workspace projection that filters by a known header.
+      this.headers.delete(sessionId)
+      this.sessionPaths.delete(sessionId)
+      this.invalidSessionPaths.delete(sessionId)
+      await this.setState({
+        ...state,
+        archivedSessionIds: state.archivedSessionIds.filter(id => id !== sessionId),
+        pinnedSessionIds: state.pinnedSessionIds.filter(id => id !== sessionId),
       })
     })
   }

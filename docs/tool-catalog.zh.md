@@ -24,7 +24,7 @@
 | `@qilin-agent/mcp-resources` | `list_mcp_resource_templates`, `list_mcp_resources`, `read_mcp_resource` | `ctx.tools`, `ctx.mcpResources` | `tool/call`, `tool/result` | - | - |
 | `@qilin-agent/experimental-browser-use-stagehand-native` | `stagehand_act`、`stagehand_extract`、`stagehand_navigate`、`stagehand_observe`、`stagehand_screenshot`、`stagehand_tabs` | `ctx.browserUse`、`ctx.agents`、`ctx.tools`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | - |
 | `@qilin-agent/tool-ask-user` | `ask_user_question` | `ctx.tools`、`ctx.userQuestions` | `tool/call`、`tool/result after a UI/provider answers the question` | - | ask_user_question 会暂停工具调用，直到当前 UI 提供方返回人类答案。 |
-| `@qilin-agent/tools` | `run_code` | `ctx.tools`、`ctx.codingRuntime (execution time)`、`ctx.systemPrompt` | `tool/call`、`one tool/ptc-dispatch-start + tool/ptc-dispatch pair per bridged sub-call`、`tool/result` | - | 在 `mode: coding`／`mode: both` 下，它由工具注册表所有，作为可过滤能力层之外的保留传输机制（参见 coding mode Agent Note）。在 `coding` 下，它是注册表对协议格式（wire format）的唯一贡献；其他可见能力在使用已加载运行时语言生成的 SDK 章节中声明。程序通过 binding 调用这些能力，调用按照原生并发约定调度：启动顺序和策略遵循提交顺序，并发安全的函数体最多重叠执行 `maxParallelSubCalls` 个。调用会重新进入完整且受守卫保护的工具流水线，并将每个嵌套执行关联到此外层结果。 |
+| `@qilin-agent/tools` | `run_code` | `ctx.tools`、`ctx.codingRuntime (execution time)`、`ctx.systemPrompt` | `tool/call`、`one tool/ptc-dispatch-start + tool/ptc-dispatch pair per bridged sub-call`、`tool/result` | - | 在 `mode: coding` 下，它由工具注册表所有，作为可过滤能力层之外的保留传输机制（参见 coding mode Agent Note）。在 `coding` 下，它是注册表对协议格式（wire format）的唯一贡献；其他可见能力在使用已加载运行时语言生成的 SDK 章节中声明。程序通过 binding 调用这些能力，调用按照原生并发约定调度：启动顺序和策略遵循提交顺序，并发安全的函数体最多重叠执行 `maxParallelSubCalls` 个。调用会重新进入完整且受守卫保护的工具流水线，并将每个嵌套执行关联到此外层结果。 |
 | `@qilin-agent/plan-mode` | `exit_plan_mode` | `ctx.tools`、`ctx.systemPrompt`、`ctx.userQuestions (execution time, opportunistic)` | `tool/call`、`plan/mode inactive on an approved review`、`tool/result` | - | 规划未激活时，exit_plan_mode 仍保留在面向模型的 schema 中，这样状态转换不会在规划策略变更之外额外造成工具目录变动。其执行路径会拒绝规划模式之外的调用；在规划模式下，它通过用户交互 seam 提交计划（批准／根据反馈继续规划），批准后会在步骤边界记录规划模式已停用。 |
 | `@qilin-agent/tool-bash` | `bash` | `ctx.tools`、`ctx.shell`、`ctx.systemPrompt`、`ctx.shellEnv`、`ctx.jobs at call time for run_in_background` | `tool/call`、`tool/result` | - | bash 工具是 bash 执行器 seam 面向模型的消费方。使用 `run_in_background` 的运行会注册到通用 `ctx.jobs` 运行时，并通过 `job_*` 工具（来自 `@qilin-agent/tool-jobs`）收集／停止；禁用 `enableRunInBackground` 配置（默认为 true）后，该参数会被完全移除。 |
 | `@qilin-agent/tool-present` | `present` | `ctx.tools`, `ctx.fs`, `ctx.sessionProjections` | `tool/call`, `deliverables/presented 在成功的最终结果之后`, `tool/result` | - | 交付归调用方 Session 所有；Web ui-deliverables 提供源文件打开与卡片。 |
@@ -51,6 +51,7 @@
 | `@qilin-agent/experimental-tool-worktree` | `create_worktree` | `ctx.tools`、`ctx.worktrees`、`a calling Agent (exec.agent selects the source repository)` | `tool/call`、`working-directory/change on success`、`tool/result` | - | 在发起调用的 Session 文件策略下创建并进入新的 Git 分支与检出目录；离开后检出目录与分支会保留。 |
 | `@qilin-agent/tool-workflow` | `workflow` | `ctx.tools`、`ctx.workflowEngine`、`ctx.systemPrompt`、`a calling Agent (exec.agent parents the script children)` | `tool/call`、`tool/result` | - | - |
 | `@qilin-agent/tool-workspace-dependencies` | `load_workspace_dependencies` | `ctx.tools` | `tool/call`、`tool/result` | - | - |
+| `@qilin-agent/tool-office-read` | `office_read` | `ctx.tools`、`ctx.fs` | `tool/call`、`tool/result` | - | - |
 | `@qilin-agent/tool-web` | `web_fetch`、`web_search` | `ctx.tools`、`ctx.web`、`ctx.systemPrompt` | `tool/call`、`tool/result` | - | web_search 和 web_fetch 将提供方选择置于 ctx.web 之后，使模型可见 schema 在更换后端时保持稳定。 |
 | `@qilin-agent/sidebar-opens` | `sidebar_open` | `ctx.tools`、`ctx.fs` | `tool/call`、`one Remote sidebarOpens.watch request per open`、`tool/result` | - | 宿主包工具：请求以 Remote 流而非会话事件的形式发往浏览器半边（`@qilin-agent/client-ui-agent-opens`），因此模型请求查看的内容留在日志中，而任何页面加载都不会重放旧的打开请求。每个会话的待处理队列由 `maxQueued` 配置限定（默认 16）；已被视图消费的请求绝不重放。 |
 
@@ -619,9 +620,9 @@ ask_user_question 会暂停工具调用，直到当前 UI 提供方返回人类�
 }
 ```
 
-来源：[`packages/core/tools/src/coding.ts`](../packages/core/tools/src/coding.ts)
+来源：[`packages/core/tools/src/coding.ts`](../packages/core/tools/src/ptc.ts)
 
-在 `mode: coding`／`mode: both` 下，它由工具注册表所有，作为可过滤能力层之外的保留传输机制（参见 coding mode Agent Note）。在 `coding` 下，它是注册表对协议格式的唯一贡献；其他可见能力在使用已加载运行时语言生成的 SDK 章节中声明。程序通过 binding 调用这些能力，调用按照原生并发约定调度：启动顺序和策略遵循提交顺序，并发安全的函数体最多重叠执行 `maxParallelSubCalls` 个。调用会重新进入完整且受守卫保护的工具流水线，并将每个嵌套执行关联到此外层结果。
+在 `mode: coding` 下，它由工具注册表所有，作为可过滤能力层之外的保留传输机制（参见 coding mode Agent Note）。在 `coding` 下，它是注册表对协议格式的唯一贡献；其他可见能力在使用已加载运行时语言生成的 SDK 章节中声明。程序通过 binding 调用这些能力，调用按照原生并发约定调度：启动顺序和策略遵循提交顺序，并发安全的函数体最多重叠执行 `maxParallelSubCalls` 个。调用会重新进入完整且受守卫保护的工具流水线，并将每个嵌套执行关联到此外层结果。
 
 <a id="qilin-agentplan-mode"></a>
 
@@ -2662,7 +2663,46 @@ todo_write 是会话所有的状态；UI 将最新的 todo/write 事件渲染为
 
 来源：[`packages/skill/tool-workspace-dependencies/src/index.ts`](../packages/skill/tool-workspace-dependencies/src/index.ts)
 
+<a id="qilin-agenttool-office-read"></a>
+
+## `@qilin-agent/tool-office-read`
+
+### `office_read`
+
+读取 DOCX、XLSX 或 PPTX 文档并返回其文本：带标题级别的段落、表格、电子表格单元格或幻灯片文本。需要文档内容时用它，而不是转换文档或安装解析器。结果是文本，不是渲染后的页面；样式、批注、图表与嵌入对象不包含在内。
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "file_path": {
+      "type": "string",
+      "description": "Path to the Office document, resolved by the filesystem backend."
+    },
+    "format": {
+      "type": "string",
+      "description": "Document format when the path extension does not name it.",
+      "enum": [
+        "docx",
+        "xlsx",
+        "pptx"
+      ]
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Largest number of paragraphs, rows per sheet, or slides to return."
+    }
+  },
+  "required": [
+    "file_path"
+  ]
+}
+```
+
+来源：[`packages/document/tool-office-read/src/index.ts`](../packages/document/tool-office-read/src/index.ts)
+
 <a id="qilin-agenttool-web"></a>
+
 
 ## `@qilin-agent/tool-web`
 

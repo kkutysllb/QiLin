@@ -320,13 +320,13 @@ export const PROFILE_TEMPLATES: Record<string, ProfileTemplate> = {
     bundles: ['@qilin-agent/base', '@qilin-agent/acp-app'],
   },
   web: {
-    bundles: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'],
+    bundles: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile'],
   },
   headless: {
     bundles: ['@qilin-agent/base', '@qilin-agent/headless'],
   },
   qilin: {
-    bundles: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'],
+    bundles: ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile'],
   },
   sdk: {
     bundles: ['@qilin-agent/base', '@qilin-agent/sdk-app'],
@@ -357,15 +357,15 @@ export const DEFAULT_PROFILE_BUNDLES: readonly string[] = ['@qilin-agent/base']
  * The bundles the qilin installation ships for a person to switch on: each a
  * runtime dependency of the installation that declares `qilin.bundle.patch`,
  * an `icon`, and `./locale/*.json` display metadata, selected by no shipped
- * template, and offered switched off by the plugin manager
+ * template, and offered switched off by the plugin manager. Agent Teams is a
+ * shipped default layer (the browser templates select it) rather than an
+ * optional one, because the Session header switch owns its selection
  * ([rationale](../../../../.agents/notes/implemented/process/2026-09-15-shipped-optional-bundles.md),
  * [admission](../../../../.agents/notes/implemented/architecture/2026-09-21-experimental-capabilities-as-optional-bundles.md)).
  */
 export const OPTIONAL_BUNDLES: readonly string[] = [
-  '@qilin-agent/agent-team-profile',
   '@qilin-agent/experimental-voice-input-bundle',
   '@qilin-agent/experimental-auto-review',
-  '@qilin-agent/experimental-schedule-bundle',
   '@qilin-agent/experimental-forge-bundle',
   '@qilin-agent/experimental-tool-worktree',
   '@qilin-agent/experimental-session-search',

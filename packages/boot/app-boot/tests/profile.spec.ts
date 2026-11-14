@@ -455,6 +455,7 @@ describe('current profile patch layers', () => {
       '@qilin-agent/base': { patch: '[]\n' },
       '@qilin-agent/web-app': { patch: '[]\n' },
       '@qilin-agent/web-brand': { patch: '[]\n' },
+      '@qilin-agent/agent-team-profile': { patch: '[]\n' },
     })
     const home = tmp()
     const dir = resolveProfileDir('web', home)
@@ -465,7 +466,7 @@ describe('current profile patch layers', () => {
     })
     const profile = loadProfile('t', 'web', anchor, home)
     expect(profile.layers.map(layer => layer.packageName))
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile'])
     expect(readProfileManifest('t', dir)).not.toHaveProperty('dependencies')
   })
 })
@@ -634,9 +635,9 @@ describe('loadProfile', () => {
     // the browser templates no longer seed the retired animations bundle, and
     // both compose the QiLin product layer.
     expect(PROFILE_TEMPLATES.web?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile'])
     expect(PROFILE_TEMPLATES.qilin?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile'])
     expect(PROFILE_TEMPLATES.acp).toEqual({
       bundles: ['@qilin-agent/base', '@qilin-agent/acp-app'],
     })
@@ -692,6 +693,7 @@ describe('loadProfile', () => {
       '@qilin-agent/base': { patch: '[]\n' },
       '@qilin-agent/web-app': { patch: '[]\n' },
       '@qilin-agent/web-brand': { patch: '[]\n' },
+      '@qilin-agent/agent-team-profile': { patch: '[]\n' },
       'dsh-animations': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
@@ -701,14 +703,14 @@ describe('loadProfile', () => {
     initProfile(web, ['@qilin-agent/base', '@qilin-agent/web-app', 'dsh-animations'])
     loadProfile('t', 'web', anchor, home)
     expect(readProfileManifest('t', web).qilin?.profile?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile'])
 
     const qilinHome = tmp()
     const qilin = resolveProfileDir('qilin', qilinHome)
     initProfile(qilin, ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'dsh-animations'])
     loadProfile('t', 'qilin', anchor, qilinHome)
     expect(readProfileManifest('t', qilin).qilin?.profile?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile'])
 
     // A list its owner extended keeps the additions and still loses the
     // retired layer.
@@ -717,7 +719,7 @@ describe('loadProfile', () => {
     initProfile(custom, ['@qilin-agent/base', '@qilin-agent/web-app', 'dsh-animations', 'custom-bundle'])
     loadProfile('t', 'web', anchor, customHome)
     expect(readProfileManifest('t', custom).qilin?.profile?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'custom-bundle'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile', '@qilin-agent/experimental-schedule-bundle', 'custom-bundle'])
     // Loading again writes nothing: the restored list converges.
     const settled = readProfileManifest('t', custom)
     loadProfile('t', 'web', anchor, customHome)
@@ -809,6 +811,7 @@ describe('loadProfile', () => {
       '@qilin-agent/base': { patch: '[]\n' },
       '@qilin-agent/web-app': { patch: '[]\n' },
       '@qilin-agent/web-brand': { patch: '[]\n' },
+      '@qilin-agent/agent-team-profile': { patch: '[]\n' },
       'dsh-animations': { patch: '[]\n' },
     })
     // A profile dependency says the plugin channel installed this copy, so the
@@ -820,7 +823,7 @@ describe('loadProfile', () => {
     writeProfileManifest(installed, { ...owned, dependencies: { ...owned.dependencies, 'dsh-animations': '^1.2.4' } })
     loadProfile('t', 'web', anchor, installedHome)
     expect(readProfileManifest('t', installed).qilin?.profile?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'dsh-animations'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile', '@qilin-agent/experimental-schedule-bundle', 'dsh-animations'])
 
     // An audiences record without the dependency says the owner manages the
     // layer through the plugin manager; it keeps the layer too.
@@ -834,7 +837,7 @@ describe('loadProfile', () => {
     })
     loadProfile('t', 'web', anchor, recordedHome)
     expect(readProfileManifest('t', recorded).qilin?.profile?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', 'dsh-animations'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile', '@qilin-agent/experimental-schedule-bundle', 'dsh-animations'])
   })
 
   it('brands a web profile that an older installation initialized without the product layer', () => {
@@ -842,6 +845,7 @@ describe('loadProfile', () => {
       '@qilin-agent/base': { patch: '[]\n' },
       '@qilin-agent/web-app': { patch: '[]\n' },
       '@qilin-agent/web-brand': { patch: '[]\n' },
+      '@qilin-agent/agent-team-profile': { patch: '[]\n' },
     })
     // The 3.0.x web template seeded two layers; the template floor restores
     // the product layer on the next load without touching owner additions.
@@ -850,7 +854,7 @@ describe('loadProfile', () => {
     initProfile(dir, ['@qilin-agent/base', '@qilin-agent/web-app'])
     loadProfile('t', 'web', anchor, home)
     expect(readProfileManifest('t', dir).qilin?.profile?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile'])
   })
 
   it('restores a lost template layer for a template with no recorded retired tuple', () => {
