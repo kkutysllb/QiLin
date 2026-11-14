@@ -220,6 +220,15 @@
   line-height: 18px;
 }
 
+/* The composer-level hold line: why this message has not been sent yet. */
+.hold {
+  margin: 0 0 0 22px;
+  color: var(--dsw-alias-label-primary);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
 .error {
   color: var(--dsw-alias-state-error-primary);
   overflow-wrap: anywhere;

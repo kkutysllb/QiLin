@@ -138,6 +138,21 @@ Task 7: complete
 - Docs: terminal README (en+zh) body sentence and the limitation that said a failed chunk needs a page
   reload; plan §2.6 and the handoff status record the slice.
 
+## Slice S6 (plan §2.7): hold UI at the composer
+
+Task 8: complete
+- Both cards that sit above the composer now name the hold whenever a message waits: the creation card
+  and the removed-worktree card render 「等待工作树就绪」 (`data-forge-hold` per phase). The gate is
+  `worktree.waiting === 'creation'` or a held creation, and `waiting === 'restoration'` — a creation
+  whose message already entered the Session shows no hold line.
+  Ruling: no new banner component. The existing cards already sit in the composer dock and already
+  carry the way out (cancel / retry / withdraw / restore / continue), so the missing piece was the
+  explicit statement, not another surface; a second banner would duplicate the same actions.
+- Tests: `worktree-progress.client.spec.tsx` (+3 assertions across two cases: hold line beside the
+  stop, hold line beside restore/continue, absent when nothing waits).
+- Docs: forge README (en+zh) creation-card sentence and the waiting-message limitation, which no
+  longer says the composer offers nothing; plan §2.7 and the handoff status record the slice.
+
 ## Review round 1 (fresh subagent, whole slice)
 
 Findings taken:

@@ -101,6 +101,8 @@ describe('WorktreeProgress running creation', () => {
     ])
     expect(details(b.view)).toBeNull()
     expect(actions(b.view)).toEqual([en['creation.cancel']])
+    // The composer names the hold next to the stop that releases the message.
+    expect(within(region).getByText(en['hold.waiting']).getAttribute('data-forge-hold')).toBe('creation')
 
     b.publish(requested('release', { creation: creation({ from: 'release', phase: 'checkout' }) }))
     expect(b.root()?.getAttribute('data-forge-creation')).toBe('checkout')
@@ -119,6 +121,7 @@ describe('WorktreeProgress running creation', () => {
     expect(b.root()?.getAttribute('data-forge-creation')).toBe('prepare')
     expect(b.view.getByRole('region', { name: en['creation.title'] }).getAttribute('aria-busy')).toBe('true')
     expect(actions(b.view)).toEqual([])
+    expect(b.view.queryByText(en['hold.waiting'])).toBeNull()
     expect(b.view.getByRole('button', { name: en['creation.details'] })).toBeTruthy()
   })
 
@@ -302,11 +305,17 @@ describe('WorktreeProgress removed worktree', () => {
 
   it('says that a waiting message goes on once the worktree is restored or left', () => {
     const waiting = card(removed(true, true))
-    expect(within(waiting.view.getByRole('region', { name: en['missing.title'] })).getByText(en['missing.waiting'])).toBeTruthy()
+    const region = waiting.view.getByRole('region', { name: en['missing.title'] })
+    expect(within(region).getByText(en['missing.waiting'])).toBeTruthy()
+    // The composer names the hold, and both ways out of it stay reachable.
+    expect(within(region).getByText(en['hold.waiting']).getAttribute('data-forge-hold')).toBe('restoration')
+    expect(within(region).getByRole('button', { name: en['missing.restore'] })).toBeTruthy()
+    expect(within(region).getByRole('button', { name: en['missing.leave'] })).toBeTruthy()
     waiting.view.unmount()
 
     const idle = card(removed())
     expect(idle.view.queryByText(en['missing.waiting'])).toBeNull()
+    expect(idle.view.queryByText(en['hold.waiting'])).toBeNull()
   })
 
   it('continues in the project', () => {

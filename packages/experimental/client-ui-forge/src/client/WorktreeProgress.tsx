@@ -138,8 +138,10 @@ const CREATION_TITLE: Record<CreationView['state'], ForgePanelKey> = {
   stopped: 'creation.stopped',
 }
 
-function CreationCard({ creation, stop, retry, withdraw, t }: {
+function CreationCard({ creation, waiting, stop, retry, withdraw, t }: {
   readonly creation: CreationView
+  /** Whether a message of the Session waits for this attempt or for another one. */
+  readonly waiting: boolean
   readonly stop: WorktreeProgressInjected['stop']
   readonly retry: WorktreeProgressInjected['retry']
   readonly withdraw: WorktreeProgressInjected['withdraw']
@@ -157,6 +159,7 @@ function CreationCard({ creation, stop, retry, withdraw, t }: {
           <span className={css.title}>{title}</span>
           {creation.branch !== null && <span className={css.branch}>{creation.branch}</span>}
         </div>
+        {waiting && <p className={css.hold} data-forge-hold="creation">{t('hold.waiting')}</p>}
         {creation.state !== 'stopped' && <Steps steps={CREATION_STEPS} phase={creation.phase} failed={failed} t={t} />}
         {(open || failed) && <Details creation={creation} t={t} />}
         {!running && <p className={css.note}>{t('creation.waiting')}</p>}
@@ -236,6 +239,7 @@ function MissingCard({ created, missing, restoration, waiting, restore, leave, t
           <span className={css.branch}>{created.branch}</span>
         </div>
         <p className={css.note}>{t(missing.branchExists === null ? 'missing.unknown' : missing.branchExists ? 'missing.kept' : 'missing.recreated', { branch: created.branch })}</p>
+        {waiting && <p className={css.hold} data-forge-hold="restoration">{t('hold.waiting')}</p>}
         {waiting && <p className={css.note}>{t('missing.waiting')}</p>}
         {error !== null && <p className={css.error}>{error}</p>}
         <div className={css.footer}>
@@ -264,7 +268,18 @@ export function WorktreeProgress({ usePanel, stop, retry, withdraw, restore, lea
   const worktree = usePanel(snapshot => snapshot.state?.worktree ?? null)
   if (worktree === null) return null
   const creation = creationOf(worktree)
-  if (creation !== undefined) return <CreationCard creation={creation} stop={stop} retry={retry} withdraw={withdraw} t={t} />
+  if (creation !== undefined) {
+    return (
+      <CreationCard
+        creation={creation}
+        waiting={worktree.waiting === 'creation' || creation.held}
+        stop={stop}
+        retry={retry}
+        withdraw={withdraw}
+        t={t}
+      />
+    )
+  }
   if (worktree.missing === null || worktree.created === null) return null
   return (
     <MissingCard
