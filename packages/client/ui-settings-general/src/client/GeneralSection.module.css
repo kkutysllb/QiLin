@@ -33,7 +33,7 @@
   color: var(--qilin-alias-label-tertiary);
 }
 
-.grid {
+.columns {
   display: block;
   column-count: 2;
   column-gap: var(--qilin-space-4);
@@ -75,7 +75,19 @@
 }
 
 @media (max-width: 900px) {
-  .grid {
+  .columns {
     column-count: 1;
   }
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qilin-space-4);
+}
+
+/* A full-width bar: the rows still separate with hairlines, but the card spends
+ * its width on the content instead of a second empty column. */
+.cardFull .rows > * {
+  padding: var(--qilin-space-4) 0;
 }
