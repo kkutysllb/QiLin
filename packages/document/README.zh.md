@@ -27,6 +27,8 @@ kind: "package-group"
 | 包 | 职责 | ctx 键 |
 |---|---|---|
 | [office-to-pdf](office-to-pdf/README.zh.md) | 将已授权 Office 字节转换为完整 PDF，并提供有界队列和缓存 | `ctx.officeToPdf` |
+| [office-read](office-read/README.zh.md) | 在进程内只读 DOCX、XLSX、PPTX 内容，无需转换器 | 无（库） |
+| [tool-office-read](tool-office-read/README.zh.md) | 基于该读取器的模型工具 `office_read` | 无（工具） |
 
 -----
 
@@ -38,6 +40,8 @@ kind: "package-group"
 - [文档转换](../../docs/subsystems/office-to-pdf.zh.md) — 共享操作和生成的服务参考。
 - [独立 kit 所有权](../../.agents/notes/implemented/architecture/2026-09-14-independent-libreoffice-kit.zh.md) — 引擎分发与应用集成。
 - [工作区文件](../api/workspace-files/README.zh.md) — 已授权的有界源文件读取。
+- [Office 技能](../skill/skill-office/README.zh.md) — 创作、渲染与重算工作流；`office_read` 负责读取内容。
+- [文档预览](../client/ui-sidebar-documentpreview/README.zh.md) — 宿主转换结果渲染为预览正文。
 
 <a id="dev-note"></a>
 ## 开发备注

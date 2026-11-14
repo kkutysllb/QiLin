@@ -74,6 +74,7 @@ Excel 数据和公式任务跳过视觉检查；涉及格式、排版、图表�
 - [skill 注册表](../skill/README.zh.md)——发现与优先级。
 - [skill 工具](../tool-skill/README.zh.md)——模型可见目录与正文。
 - [文件交付](../../deliverables/tool-present/README.zh.md)——当前源路径交付。
+- [Office 读取](../../document/tool-office-read/README.zh.md)——无需转换器的 `office_read` 工具；本技能负责创作与渲染。
 
 -----
 

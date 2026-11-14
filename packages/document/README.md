@@ -27,6 +27,8 @@ Each package owns its configuration and lifetime rules; the subsystem reference 
 | Package | Role | ctx key |
 |---|---|---|
 | [office-to-pdf](office-to-pdf/README.md) | Authorized Office bytes to complete PDFs with bounded queues and caching | `ctx.officeToPdf` |
+| [office-read](office-read/README.md) | Read-only DOCX, XLSX, and PPTX content in process, without a converter | none (library) |
+| [tool-office-read](tool-office-read/README.md) | The model-facing `office_read` tool over the reader | none (tool) |
 
 -----
 
@@ -38,6 +40,8 @@ Consumers own source authorization and presentation.
 - [Document conversion](../../docs/subsystems/office-to-pdf.md) — shared operation and generated service reference.
 - [Independent kit ownership](../../.agents/notes/implemented/architecture/2026-09-14-independent-libreoffice-kit.md) — engine distribution and application integration.
 - [Workspace Files](../api/workspace-files/README.md) — authorized bounded source reads.
+- [Office skills](../skill/skill-office/README.md) — authoring, rendering, and recalculation workflows; `office_read` covers reading content.
+- [Document preview](../client/ui-sidebar-documentpreview/README.md) — Host conversion rendered as the preview body.
 
 <a id="dev-note"></a>
 ## Dev Note
