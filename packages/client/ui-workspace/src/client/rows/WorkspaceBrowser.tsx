@@ -671,6 +671,7 @@ function SessionTree({
           onClick={() => { setSectionCollapsed(kind, !collapsed) }}
         >
           <IconTriangleRightFillRegular
+            size={10}
             className={clsx(css.sectionChevron, !collapsed && css.sectionChevronOpen)}
           />
           <span>{label}</span>
