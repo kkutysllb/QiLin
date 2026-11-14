@@ -6,8 +6,8 @@ import { resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import { Rolldown } from 'tsdown'
 
-const GUEST_ENTRY = 'packages/workflow/workflow-ptc/src/guest.ts'
-const GUEST_SOURCE = 'packages/workflow/workflow-ptc/src/guest-source.ts'
+const GUEST_ENTRY = 'packages/workflow/workflow-coding/src/guest.ts'
+const GUEST_SOURCE = 'packages/workflow/workflow-coding/src/guest-source.ts'
 
 /**
  * Bundle typed guest sources without depending on workspace build outputs.

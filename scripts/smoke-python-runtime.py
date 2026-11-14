@@ -256,7 +256,7 @@ def write_advanced_profile_patch(root: Path, name: str, sessions: Path) -> Path:
             },
         },
         {"insert": [
-            {"id": "ptc-runtime", "name": "@qilin-agent/ptc-runtime-node"},
+            {"id": "coding-runtime", "name": "@qilin-agent/coding-runtime-node"},
             {"id": "kylin-host-runner", "name": "@qilin-agent/kylin-host-runner"},
             {"id": "cordis-tool", "name": "@qilin-agent/tool-kylin"},
         ]},

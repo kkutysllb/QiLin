@@ -616,9 +616,9 @@ importers:
       '@qilin-agent/web-brand':
         specifier: workspace:*
         version: link:../../packages/bundle/web-brand
-      '@qilin-agent/workflow-ptc':
+      '@qilin-agent/workflow-coding':
         specifier: workspace:*
-        version: link:../../packages/workflow/workflow-ptc
+        version: link:../../packages/workflow/workflow-coding
       commander:
         specifier: ^15.0.0
         version: 15.0.0
@@ -665,9 +665,9 @@ importers:
       '@qilin-agent/experimental-hooks-codex':
         specifier: workspace:*
         version: link:../../packages/experimental/hooks-codex
-      '@qilin-agent/experimental-ptc-runtime-python':
+      '@qilin-agent/experimental-coding-runtime-python':
         specifier: workspace:*
-        version: link:../../packages/experimental/ptc-runtime-python
+        version: link:../../packages/experimental/coding-runtime-python
       '@qilin-agent/experimental-webhook':
         specifier: workspace:*
         version: link:../../packages/experimental/webhook
@@ -2327,9 +2327,9 @@ importers:
       '@qilin-agent/plugin-package-inventory-deepseek':
         specifier: workspace:*
         version: link:../../llm/plugin-package-inventory-deepseek
-      '@qilin-agent/ptc-runtime-node':
+      '@qilin-agent/coding-runtime-node':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime-node
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/pwsh-sandbox':
         specifier: workspace:*
         version: link:../../shell/pwsh-sandbox
@@ -2498,9 +2498,9 @@ importers:
       '@qilin-agent/web-search-deepseek':
         specifier: workspace:*
         version: link:../../web/web-search-deepseek
-      '@qilin-agent/workflow-ptc':
+      '@qilin-agent/workflow-coding':
         specifier: workspace:*
-        version: link:../../workflow/workflow-ptc
+        version: link:../../workflow/workflow-coding
       '@qilin-agent/working-directory':
         specifier: workspace:*
         version: link:../../session/working-directory
@@ -6794,9 +6794,9 @@ importers:
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -7777,9 +7777,9 @@ importers:
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/scope':
         specifier: workspace:*
         version: link:../scope
@@ -7861,9 +7861,9 @@ importers:
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -8135,9 +8135,9 @@ importers:
       '@qilin-agent/permission-presets':
         specifier: workspace:*
         version: link:../../interaction/permission-presets
-      '@qilin-agent/ptc-runtime-node':
+      '@qilin-agent/coding-runtime-node':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime-node
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -8328,9 +8328,9 @@ importers:
       '@qilin-agent/mcp-resources':
         specifier: workspace:*
         version: link:../../mcp/mcp-resources
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -9059,12 +9059,12 @@ importers:
       '@qilin-agent/llm-deepseek':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
-      '@qilin-agent/ptc-runtime-node':
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime-node
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox-local':
         specifier: workspace:*
         version: link:../../sandbox/sandbox-local
@@ -9162,12 +9162,12 @@ importers:
       '@qilin-agent/llm-deepseek':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
-      '@qilin-agent/ptc-runtime-node':
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime-node
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox-local':
         specifier: workspace:*
         version: link:../../sandbox/sandbox-local
@@ -9479,7 +9479,7 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2
 
-  packages/experimental/ptc-runtime-python:
+  packages/experimental/coding-runtime-python:
     dependencies:
       '@qilin-agent/schemastery':
         specifier: link:../../../vendor/schemastery
@@ -9488,9 +9488,9 @@ importers:
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -9518,9 +9518,9 @@ importers:
       '@qilin-agent/experimental-tool-ralph':
         specifier: workspace:*
         version: link:../tool-ralph
-      '@qilin-agent/workflow-ptc':
+      '@qilin-agent/workflow-coding':
         specifier: workspace:*
-        version: link:../../workflow/workflow-ptc
+        version: link:../../workflow/workflow-coding
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~
@@ -9746,9 +9746,9 @@ importers:
       '@qilin-agent/workflow':
         specifier: workspace:*
         version: link:../../workflow/workflow
-      '@qilin-agent/workflow-ptc':
+      '@qilin-agent/workflow-coding':
         specifier: workspace:*
-        version: link:../../workflow/workflow-ptc
+        version: link:../../workflow/workflow-coding
 
   packages/experimental/tool-session-query:
     dependencies:
@@ -10596,9 +10596,9 @@ importers:
       '@qilin-agent/llm-deepseek-api-key':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek-api-key
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -12024,9 +12024,9 @@ importers:
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/scope':
         specifier: workspace:*
         version: link:../../core/scope
@@ -12083,9 +12083,9 @@ importers:
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -12182,7 +12182,7 @@ importers:
         specifier: workspace:*
         version: link:../../core/system-prompt
 
-  packages/ptc-runtime/ptc-runtime:
+  packages/coding-runtime/coding-runtime:
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~
@@ -12191,7 +12191,7 @@ importers:
         specifier: workspace:*
         version: link:../../sandbox/sandbox
 
-  packages/ptc-runtime/ptc-runtime-node:
+  packages/coding-runtime/coding-runtime-node:
     dependencies:
       '@qilin-agent/schemastery':
         specifier: link:../../../vendor/schemastery
@@ -12209,9 +12209,9 @@ importers:
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../ptc-runtime
+        version: link:../coding-runtime
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -12442,9 +12442,9 @@ importers:
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/schedule':
         specifier: workspace:*
         version: link:../schedule
@@ -14103,12 +14103,12 @@ importers:
       '@qilin-agent/output-retention':
         specifier: workspace:*
         version: link:../../util/output-retention
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
-      '@qilin-agent/ptc-runtime-node':
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime-node
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox-local':
         specifier: workspace:*
         version: link:../../sandbox/sandbox-local
@@ -14220,9 +14220,9 @@ importers:
       '@qilin-agent/lsp-stdio':
         specifier: workspace:*
         version: link:../../lsp/lsp-stdio
-      '@qilin-agent/ptc-runtime-node':
+      '@qilin-agent/coding-runtime-node':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime-node
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -14286,12 +14286,12 @@ importers:
       '@qilin-agent/node-addon-system':
         specifier: workspace:*
         version: link:../../../native/system/packages/entry
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
-      '@qilin-agent/ptc-runtime-node':
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime-node
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -16125,9 +16125,9 @@ importers:
       '@qilin-agent/workflow':
         specifier: workspace:*
         version: link:../workflow
-      '@qilin-agent/workflow-ptc':
+      '@qilin-agent/workflow-coding':
         specifier: workspace:*
-        version: link:../workflow-ptc
+        version: link:../workflow-coding
 
   packages/workflow/workflow:
     devDependencies:
@@ -16147,7 +16147,7 @@ importers:
         specifier: workspace:*
         version: link:../../core/session
 
-  packages/workflow/workflow-ptc:
+  packages/workflow/workflow-coding:
     dependencies:
       '@qilin-agent/brand':
         specifier: workspace:*
@@ -16186,12 +16186,12 @@ importers:
       '@qilin-agent/llm-deepseek-api-key':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek-api-key
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime
-      '@qilin-agent/ptc-runtime-node':
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
         specifier: workspace:*
-        version: link:../../ptc-runtime/ptc-runtime-node
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -16445,12 +16445,12 @@ importers:
       '@qilin-agent/plugin-package-inventory-deepseek':
         specifier: workspace:^
         version: link:../../packages/llm/plugin-package-inventory-deepseek
-      '@qilin-agent/ptc-runtime':
+      '@qilin-agent/coding-runtime':
         specifier: workspace:^
-        version: link:../../packages/ptc-runtime/ptc-runtime
-      '@qilin-agent/ptc-runtime-node':
+        version: link:../../packages/coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
         specifier: workspace:^
-        version: link:../../packages/ptc-runtime/ptc-runtime-node
+        version: link:../../packages/coding-runtime/coding-runtime-node
       '@qilin-agent/pwsh-local':
         specifier: workspace:^
         version: link:../../packages/shell/pwsh-local
@@ -16688,9 +16688,9 @@ importers:
       '@qilin-agent/workflow':
         specifier: workspace:^
         version: link:../../packages/workflow/workflow
-      '@qilin-agent/workflow-ptc':
+      '@qilin-agent/workflow-coding':
         specifier: workspace:^
-        version: link:../../packages/workflow/workflow-ptc
+        version: link:../../packages/workflow/workflow-coding
       '@qilin-agent/working-directory':
         specifier: workspace:^
         version: link:../../packages/session/working-directory

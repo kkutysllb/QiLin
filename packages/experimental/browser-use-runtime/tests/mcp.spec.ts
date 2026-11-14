@@ -10,7 +10,7 @@ import BrowserUse from '@qilin-agent/browser-use'
 import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
 import Tools from '@qilin-agent/tools'
 import McpResources from '@qilin-agent/mcp-resources'
-import { PtcRuntime } from '@qilin-agent/ptc-runtime'
+import { PtcRuntime } from '@qilin-agent/coding-runtime'
 import Llm, { LlmAdapter, ToolCallId, createUserMessage } from '@qilin-agent/llm'
 import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
 import Sessions, { SessionId } from '@qilin-agent/session'
@@ -421,7 +421,7 @@ describe('Session MCP Loader composition', () => {
       sessionId: SessionId('ptc-first-request'), agentOptions: { provider: 'fixture', model: 'fixture' },
       setup: (inner, agent) => {
         initializing = agent
-        inner.tools.presentAs('ptc')
+        inner.tools.presentAs('coding')
         inner.on('agent/created', () => {
           agent.followup(createUserMessage({ content: [{ type: 'text', text: 'Describe the available browser tools.' }], source: { kind: 'user' } }))
         }, { prepend: true })

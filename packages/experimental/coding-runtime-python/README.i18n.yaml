@@ -1,0 +1,61 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/coding-runtime-python/README.md
+/:
+  en: d24529dde294f36b
+  zh: b01f8b76f6292f9f
+/qilin-agent-experimental-coding-runtime-python:
+  en: 57da6d2c16410ce0
+  zh: 30fa9a7202aeb9d0
+/qilin-agent-experimental-coding-runtime-python/summary:
+  en: a52b031cb33401cd
+  zh: 9266a2344a562556
+/qilin-agent-experimental-coding-runtime-python/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-agent-experimental-coding-runtime-python/use-this-package:
+  en: 5b66887006f9bb7b
+  zh: d28252cd8f375855
+/qilin-agent-experimental-coding-runtime-python/use-this-package/what-you-get:
+  en: ca7b9cc958069c7f
+  zh: 8a4ac72d02ad76eb
+/qilin-agent-experimental-coding-runtime-python/use-this-package/the-wire:
+  en: e690628dc6197c3b
+  zh: 2b9cdad8b41dcde5
+/qilin-agent-experimental-coding-runtime-python/use-this-package/what-can-go-wrong:
+  en: d43927c607a9855f
+  zh: e1dd1643bebfd647
+/qilin-agent-experimental-coding-runtime-python/understand-the-implementation:
+  en: 7824816505e2b844
+  zh: 3603d1c332c2ed5d
+/qilin-agent-experimental-coding-runtime-python/understand-the-implementation/design-concept:
+  en: 9339b0800d70be48
+  zh: 71a9a3d3eea86050
+/qilin-agent-experimental-coding-runtime-python/understand-the-implementation/wire-contract:
+  en: 586d320cd7ef9974
+  zh: ccf4e4f9fb230eb8
+/qilin-agent-experimental-coding-runtime-python/understand-the-implementation/lossless-json-crossing:
+  en: 6252e86fa10e9dd0
+  zh: 9b95b033ea0b5463
+/qilin-agent-experimental-coding-runtime-python/understand-the-implementation/mirror-alignment:
+  en: 167a08a71870f227
+  zh: 43f671b45104849f
+/qilin-agent-experimental-coding-runtime-python/understand-the-implementation/source-map:
+  en: 4f322d79bbf578f6
+  zh: 7f7f9187f49af439
+/qilin-agent-experimental-coding-runtime-python/further-exploration:
+  en: 6d9796513938019c
+  zh: 6bcdd49032c45c0b
+/qilin-agent-experimental-coding-runtime-python/model-experience:
+  en: ff25dfde207ca818
+  zh: 2987fdb26e7128cc
+/qilin-agent-experimental-coding-runtime-python/model-experience/kv-cache-effect:
+  en: 40294c1c31b74824
+  zh: d805c6bd7270505e
+/qilin-agent-experimental-coding-runtime-python/known-limitations-and-deferred-work:
+  en: 03458e4cc3d12056
+  zh: 352434eccc7ecd46
+/qilin-agent-experimental-coding-runtime-python/known-limitations-and-deferred-work/dev-note:
+  en: e67f633dc6fe7773
+  zh: 3bb0c20c93f16f98

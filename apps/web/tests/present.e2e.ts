@@ -54,7 +54,7 @@ fs.appendFileSync(${JSON.stringify(openLog)}, JSON.stringify({ path, action, con
     await mkdir(DIR, { recursive: true })
     scaffold = await launchWebScaffold({
       extraOverlayPath: fileURLToPath(new URL('./present.overlay.yml', import.meta.url)),
-      agentPresets: { roots: [], default: 'ptc' }, compareReplaySession: true,
+      agentPresets: { roots: [], default: 'coding' }, compareReplaySession: true,
       ...(MODE === 'record' ? {} : { replayFixture: FIXTURE }),
     })
     disposeApproval = scaffold.ctx.on('approval/request', () => Promise.resolve('allowed-once'), { prepend: true })

@@ -93,7 +93,7 @@ kind: "package-reference"
 
 - [工作流子系统](../../../docs/subsystems/workflow.zh.md)——固定循环背后的 seam 约定。
 - [工作流 seam](../../workflow/workflow/README.zh.md)——运行与结果词汇。
-- [PTC 工作流引擎](../../workflow/workflow-ptc/README.zh.md)——执行固定脚本的引擎。
+- [PTC 工作流引擎](../../workflow/workflow-coding/README.zh.md)——执行固定脚本的引擎。
 - [subagent seam](../../subagent/subagent/README.zh.md)——全新子 agent 的提供方约定。
 - [goal 组](../../goal/goal/README.zh.md)——面向普通长期目标的同会话 goal 工具。
 - [Harness 层目标式执行 Agent Note](../../../.agents/notes/implemented/feature/2026-07-16-harness-level-loop.zh.md)——策略、提供方要求与暂缓事项。

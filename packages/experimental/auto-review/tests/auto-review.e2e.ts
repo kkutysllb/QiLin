@@ -7,7 +7,7 @@ import type { Agent } from '@qilin-agent/agent'
 import AgentLoop from '@qilin-agent/agent-loop'
 import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
 import { SandboxBashExecutor } from '@qilin-agent/bash-sandbox'
-import { NodePtcRuntime } from '@qilin-agent/ptc-runtime-node'
+import { NodePtcRuntime } from '@qilin-agent/coding-runtime-node'
 import * as FsObservationPolicy from '@qilin-agent/fs-observation-policy'
 import { SandboxedFileSystem } from '@qilin-agent/fs-sandbox'
 import {
@@ -135,7 +135,7 @@ async function mount(ctx: Context, workspace: string, qilinHome: string): Promis
   await ctx.plugin(SandboxedFileSystem, { cwd: workspace })
   await ctx.plugin(FsObservationPolicy)
   await mountAgentLoopTestDependencies(ctx, {
-    workingDirectory: true, systemPrompt: {}, tools: { mode: 'ptc' },
+    workingDirectory: true, systemPrompt: {}, tools: { mode: 'coding' },
   })
   // No reasoning or output-budget override: use each shipped model's defaults.
   await ctx.plugin(LlmDeepSeek, { retryPolicy: { mode: 'normal', maxRetries: 0 } })

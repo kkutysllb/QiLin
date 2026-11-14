@@ -80,7 +80,7 @@
     "@qilin-agent/util-workspace-path": "workspace:*",
     "@qilin-agent/attachment": "workspace:*",
     "clsx": "^2.0.0",
-    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/coding-runtime": "workspace:*",
     "@qilin-agent/user-questions": "workspace:*"
   },
   "files": [

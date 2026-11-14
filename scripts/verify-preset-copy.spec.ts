@@ -25,7 +25,7 @@ const DICTIONARY = [
 ].join('\n')
 
 const corpus = (overrides: Partial<Parameters<typeof checkPresetCopy>[0]> = {}) => ({
-  shippedIds: ['ptc'],
+  shippedIds: ['coding'],
   displayRows: parseDisplayRows(DISPLAY),
   dictionaryKeys: { 'packages/client/example/src/client/locales.ts': parseDictionaryKeys(DICTIONARY) },
   ...overrides,
@@ -34,7 +34,7 @@ const corpus = (overrides: Partial<Parameters<typeof checkPresetCopy>[0]> = {}) 
 describe('parsing', () => {
   it('reads the display map rows', () => {
     expect(parseDisplayRows(DISPLAY)).toEqual([
-      { id: 'ptc', nameKey: 'presetPtcName', descriptionKey: 'presetPtcDescription' },
+      { id: 'coding', nameKey: 'presetPtcName', descriptionKey: 'presetPtcDescription' },
     ])
   })
 
@@ -44,7 +44,7 @@ describe('parsing', () => {
   })
 
   it('maps copy keys back to preset ids', () => {
-    expect(copyKeyPresetIds(['presetPtcName', 'presetPtcDescription', 'builtIn'])).toEqual(['ptc', 'ptc'])
+    expect(copyKeyPresetIds(['presetPtcName', 'presetPtcDescription', 'builtIn'])).toEqual(['coding', 'coding'])
   })
 })
 
@@ -76,7 +76,7 @@ describe('checkPresetCopy', () => {
   })
 
   it('rejects a shipped preset with no copy mapping', () => {
-    expect(checkPresetCopy(corpus({ shippedIds: ['ptc', 'extra'] })))
+    expect(checkPresetCopy(corpus({ shippedIds: ['coding', 'extra'] })))
       .toEqual(['shipped preset `extra` has no copy mapping in packages/preset/agent-presets/src/display.ts'])
   })
 
@@ -125,7 +125,7 @@ describe('checkPresetCopy', () => {
       '}',
     ].join('\n')
     expect(checkPresetCopy({
-      shippedIds: ['ptc', 'standard'],
+      shippedIds: ['coding', 'standard'],
       displayRows: parseDisplayRows(twoPresets),
       dictionaryKeys: { 'locales.ts': parseDictionaryKeys(dictionary) },
     })).toEqual([])
@@ -136,6 +136,6 @@ describe('shippedPresetIds', () => {
   it('reads preset directory names from either platform separator', () => {
     const posix = 'packages/preset/agent-presets/presets/ptc/preset.yml'
     const windows = 'packages\\preset\\agent-presets\\presets\\standard\\preset.yml'
-    expect(shippedPresetIds([posix, windows])).toEqual(['ptc', 'standard'])
+    expect(shippedPresetIds([posix, windows])).toEqual(['coding', 'standard'])
   })
 })

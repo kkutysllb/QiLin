@@ -457,11 +457,11 @@ describe('UiWorkspaceService', () => {
     })
     await expect(b.uiWorkspace.connectWorkspace(wid('a'))).resolves.toBe(sid('creator'))
     await expect(b.uiWorkspace.connectWorkspace(wid('a'), { agentPreset: 'standard' })).resolves.toBe(sid('plain'))
-    await expect(b.uiWorkspace.connectWorkspace(wid('a'), { agentPreset: 'ptc' })).resolves.toBe(sid('created-a'))
+    await expect(b.uiWorkspace.connectWorkspace(wid('a'), { agentPreset: 'coding' })).resolves.toBe(sid('created-a'))
     expect(b.sessions.create.mock.calls).toEqual([
       [{ workspaceId: wid('a'), sessionId: sid('creator') }],
       [{ workspaceId: wid('a'), sessionId: sid('plain'), agentPreset: 'standard' }],
-      [{ workspaceId: wid('a'), agentPreset: 'ptc' }],
+      [{ workspaceId: wid('a'), agentPreset: 'coding' }],
     ])
   })
 
@@ -470,7 +470,7 @@ describe('UiWorkspaceService', () => {
       // Sessions stay pending so the boot reconcile cannot run its own
       // connect: this test drives the reuse path explicitly.
       sessions: sessionState([
-        summary('blank', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'ptc' } }),
+        summary('blank', { blank: true, cwd: '/w/a', projectionValues: { agentPreset: 'coding' } }),
       ], 'pending'),
       workspaces: workspaceState([workspace('a', [sid('blank')])]),
     })
@@ -802,8 +802,8 @@ describe('UiWorkspaceService draft initialization', () => {
     const b = draftBench({ workspaces: workspaceState([workspace('a')]) })
     const openWorkspace = vi.spyOn(b.uiWorkspace, 'openWorkspace')
 
-    b.uiWorkspace.startSession(wid('a'), { agentPreset: 'ptc' })
-    expect(openWorkspace).toHaveBeenCalledWith(wid('a'), undefined, { agentPreset: 'ptc' })
+    b.uiWorkspace.startSession(wid('a'), { agentPreset: 'coding' })
+    expect(openWorkspace).toHaveBeenCalledWith(wid('a'), undefined, { agentPreset: 'coding' })
   })
 
   it('fails the draft when the created Session has no binding', async () => {

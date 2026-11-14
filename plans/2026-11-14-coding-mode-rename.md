@@ -51,11 +51,11 @@
 
 | 现名 | 新名 | 说明 |
 |---|---|---|
-| `@qilin-agent/ptc-runtime`（`packages/ptc-runtime/ptc-runtime`） | `@qilin-agent/coding-runtime`（`packages/coding-runtime/coding-runtime`） | 执行 seam 服务 `ctx.ptcRuntime` → `ctx.codingRuntime` |
-| `@qilin-agent/ptc-runtime-node` | `@qilin-agent/coding-runtime-node` | Node 后端实现 |
-| `@qilin-agent/workflow-ptc` | `@qilin-agent/workflow-coding` | 该族的 workflow 工具 |
-| `@qilin-agent/experimental-ptc-runtime-python` | `@qilin-agent/experimental-coding-runtime-python` | 实验性 CPython 后端 |
-| 分组目录 `packages/ptc-runtime/` | `packages/coding-runtime/` | 连同分组 README、`packages/README.md`、根 `AGENTS.md` 布局表 |
+| `@qilin-agent/coding-runtime`（`packages/coding-runtime/coding-runtime`） | `@qilin-agent/coding-runtime`（`packages/coding-runtime/coding-runtime`） | 执行 seam 服务 `ctx.codingRuntime` → `ctx.codingRuntime` |
+| `@qilin-agent/coding-runtime-node` | `@qilin-agent/coding-runtime-node` | Node 后端实现 |
+| `@qilin-agent/workflow-coding` | `@qilin-agent/workflow-coding` | 该族的 workflow 工具 |
+| `@qilin-agent/experimental-coding-runtime-python` | `@qilin-agent/experimental-coding-runtime-python` | 实验性 CPython 后端 |
+| 分组目录 `packages/coding-runtime/` | `packages/coding-runtime/` | 连同分组 README、`packages/README.md`、根 `AGENTS.md` 布局表 |
 | 工具呈现取值 `mode: 'native' | 'ptc'`（`core/tools`、`core/agent-tool-presentation`） | `mode: 'native' | 'coding'` | 默认仍 `native` |
 | 环境变量取值 `QILIN_TOOLS_MODE=native|ptc` | `QILIN_TOOLS_MODE=native|coding` | 变量名不变，只改取值 |
 
@@ -63,9 +63,9 @@
 
 | 目标 | 引用文件数 |
 |---|---|
-| `@qilin-agent/ptc-runtime` | 95 |
-| `@qilin-agent/ptc-runtime-node` | 40 |
-| `@qilin-agent/workflow-ptc` | 32 |
+| `@qilin-agent/coding-runtime` | 95 |
+| `@qilin-agent/coding-runtime-node` | 40 |
+| `@qilin-agent/workflow-coding` | 32 |
 | `mode` 取值（`core/tools` + `agent-tool-presentation` + `bundle`） | 112 处 |
 
 不改的部分（豁免清单）：`.desktop-build`（生成物）、`.agents/notes/implemented|archived`（已冻结）、`docs/persistence-changes/historical-formats`（历史格式事实）、`packages/experimental/cua-macos` 中的派生内容（执行前先判定归属，属生成物则加入豁免）。
@@ -74,7 +74,7 @@
 
 | 片 | 内容 | 验收 |
 |---|---|---|
-| **S6 包改名（机械层）** | `git mv` 三个包目录与分组目录；改 `package.json` 的 `name` 与依赖引用；改全部模块说明符；改 tsconfig `references`；改 cordis 配置 `name:`；`ctx.ptcRuntime` → `ctx.codingRuntime` 及模块增补声明 | `pnpm install` 成功、两套 `tsc -b` 干净、`pnpm run build` 通过、`verify-package-meta` / `verify-package-dependencies` / `publint` 干净 |
+| **S6 包改名（机械层）** | `git mv` 三个包目录与分组目录；改 `package.json` 的 `name` 与依赖引用；改全部模块说明符；改 tsconfig `references`；改 cordis 配置 `name:`；`ctx.codingRuntime` → `ctx.codingRuntime` 及模块增补声明 | `pnpm install` 成功、两套 `tsc -b` 干净、`pnpm run build` 通过、`verify-package-meta` / `verify-package-dependencies` / `publint` 干净 |
 | **S7 呈现方式取值** | `mode` 联合类型与默认值、`QILIN_TOOLS_MODE` 解析、bundle 注释、受影响提示与测试 | 取值只剩 `native`/`coding`；旧值 `ptc` 报未知取值而非静默回落；相关单测与快照更新 |
 
 ### 7.4 追加门禁
@@ -84,5 +84,5 @@
 ### 7.5 风险
 
 - **发布家族**：改名等于新包名首发，版本号与 release notes 必须同批；`release:verify-published` 会要求新名在 registry 上存在。
-- **服务名**：`ctx.ptcRuntime` 是 seam 名，改名后引用旧名的外部插件失效（仓库内全同步改；外部消费者属预发布 API，允许破坏）。
+- **服务名**：`ctx.codingRuntime` 是 seam 名，改名后引用旧名的外部插件失效（仓库内全同步改；外部消费者属预发布 API，允许破坏）。
 - **旧 profile**：`QILIN_TOOLS_MODE=ptc` 的旧配置按「misconfiguration fails loud」报错，并在 §3 的别名机制里同时接受 `ptc`。

@@ -5,7 +5,7 @@
 
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
-import { PtcRuntime } from '@qilin-agent/ptc-runtime'
+import { PtcRuntime } from '@qilin-agent/coding-runtime'
 import { createScope, type Scope } from '@qilin-agent/scope'
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -1106,7 +1106,7 @@ function withPersona(...sections: string[]): string {
 
 /** Schema assembly only: these cases never execute user code. */
 class GuidancePtcRuntime extends PtcRuntime {
-  resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'fake'
@@ -1114,7 +1114,7 @@ class GuidancePtcRuntime extends PtcRuntime {
 }
 
 describe('scope-aware PTC guidance', () => {
-  it.each(['ptc'] as const)('uses capability visibility in %s mode', async (mode) => {
+  it.each(['coding'] as const)('uses capability visibility in %s mode', async (mode) => {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
     await ctx.plugin(GuidancePtcRuntime)
@@ -1126,7 +1126,7 @@ describe('scope-aware PTC guidance', () => {
       const baseline = renderPrompt(await ctx.systemPrompt.assemble({ scope: key }))
       const release = scope.ctx.tools.restrict({ allow: ['read'] })
       const assembly = await ctx.systemPrompt.assemble({ scope: key })
-      expect(assembly.tools.map(tool => tool.name)).toEqual(mode === 'ptc' ? ['run_code'] : ['read', 'run_code'])
+      expect(assembly.tools.map(tool => tool.name)).toEqual(mode === 'coding' ? ['run_code'] : ['read', 'run_code'])
       expect(assembly.sections.filter(section => ['tool:read', 'tool:write', 'tool:edit'].includes(section.name))
         .map(section => section.text).filter(Boolean)).toEqual([originalGuidance.read])
       expect(renderPrompt(assembly)).toContain(originalGuidance.read)

@@ -43,7 +43,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agen
 
 ### What PTC mode requires
 
-Selecting `ptc` or `both` needs a composed PTC runtime (`ctx.ptcRuntime`) whose language has a registered SDK renderer — the TypeScript runtime ships via [`qilin-ptc-runtime-node`](../../ptc-runtime/ptc-runtime-node/README.md), and both the TypeScript and Python SDK renderers are built into `qilin-tools`. A preset that selects a PTC mode against a deployment composing no such runtime refuses to mount, naming this row, so the failure lands where the operator can act instead of at the session's first request.
+Selecting `ptc` or `both` needs a composed PTC runtime (`ctx.codingRuntime`) whose language has a registered SDK renderer — the TypeScript runtime ships via [`qilin-coding-runtime-node`](../../coding-runtime/coding-runtime-node/README.md), and both the TypeScript and Python SDK renderers are built into `qilin-tools`. A preset that selects a PTC mode against a deployment composing no such runtime refuses to mount, naming this row, so the failure lands where the operator can act instead of at the session's first request.
 
 ### One presentation per agent
 
@@ -71,7 +71,7 @@ The tool registry cannot move into a preset: its consumers are all host-plane �
 
 ### Behavior notes
 
-`native` applies immediately. A PTC mode instead waits for `ctx.ptcRuntime`, a host-plane service: a preset selecting PTC mode against a deployment composing no runtime holds this row pending, and `qilin-agent-presets` refuses the mount naming this id. `presentAs` is itself the effect, so the declaration unwinds with this row without a second wrapper owning it.
+`native` applies immediately. A PTC mode instead waits for `ctx.codingRuntime`, a host-plane service: a preset selecting PTC mode against a deployment composing no runtime holds this row pending, and `qilin-agent-presets` refuses the mount naming this id. `presentAs` is itself the effect, so the declaration unwinds with this row without a second wrapper owning it.
 
 </details>
 
@@ -84,7 +84,7 @@ The package-level contract is enough for most consumers; read these when you nee
 
 - [tools package](../tools/README.md) — the tool presentation modes and `presentAs` API.
 - [agent-presets package](../../preset/agent-presets/README.md) — how presets compose agents and their standing mounts.
-- [Node ptc-runtime package](../../ptc-runtime/ptc-runtime-node/README.md) — the TypeScript runtime a PTC mode needs.
+- [Node coding-runtime package](../../coding-runtime/coding-runtime-node/README.md) — the TypeScript runtime a PTC mode needs.
 - [PTC mode executor-collapse note](../../../.agents/notes/implemented/bug-fix/2026-08-07-ptc-executor-collapse.md) — why the announced and callable surfaces stay the same.
 - [Core group map](../README.md) — how the core packages compose.
 

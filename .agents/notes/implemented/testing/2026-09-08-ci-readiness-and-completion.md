@@ -28,7 +28,7 @@ The [ACP disconnect tests](../../../../packages/acp/acp/tests/dispose.spec.ts) a
 
 The [subagent teardown decision](2026-09-07-subagent-teardown-test-budgets.md) owns lifecycle cleanup budgets. The [persistent PowerShell decision](2026-09-07-pwsh-ci-observable-completion.md) owns exact versus inferred terminal readiness; a one-shot process's completion promise has different semantics.
 
-The [sandboxed Node decision](../architecture/2026-09-11-sandboxed-node-ptc-runtime.md) supersedes worker active-time accounting. The [Node runtime suite](../../../../packages/ptc-runtime/ptc-runtime-node/tests/runtime.spec.ts) exercises the replacement elapsed deadline through real managed processes. The other completion observations and fixture lifecycle rules in this note remain in force.
+The [sandboxed Node decision](../architecture/2026-09-11-sandboxed-node-ptc-runtime.md) supersedes worker active-time accounting. The [Node runtime suite](../../../../packages/coding-runtime/coding-runtime-node/tests/runtime.spec.ts) exercises the replacement elapsed deadline through real managed processes. The other completion observations and fixture lifecycle rules in this note remain in force.
 
 The [SDK subagent protocol-error test](../../../../packages/subagent/subagent-qilin-sdk/tests/subagent-qilin-sdk.spec.ts) uses the provider's normal shutdown and exit grace periods and registers disposal before its assertions.
 

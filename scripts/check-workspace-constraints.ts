@@ -169,13 +169,13 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   // The physical-key protocol is a public entry usable without the browser service.
   '@qilin-agent/client-shortcuts': ['lib/protocol.js'],
   // The CPython side ships as source .py files, published as-is rather than built.
-  '@qilin-agent/experimental-ptc-runtime-python': ['py/**/*.py'],
+  '@qilin-agent/experimental-coding-runtime-python': ['py/**/*.py'],
   // The local recognizer reads its revision-pinned model catalog from this
   // runtime file; the Worker bundle and the packaged payload both need it.
   '@qilin-agent/experimental-speech-to-text-sensevoice': ['runtime/assets.json'],
   // The isolated Node bootstrap is a separately launched bundle.
   // The persistent process entry ships beside the one-shot process entry.
-  '@qilin-agent/ptc-runtime-node': ['lib/process.js', 'lib/persistent-process.js'],
+  '@qilin-agent/coding-runtime-node': ['lib/process.js', 'lib/persistent-process.js'],
   // Multi-entry builds: each tsdown entry is a public subpath without an
   // exports row, so the manifest lists them explicitly.
   '@qilin-agent/experimental-cua': ['lib/api.js', 'lib/bridge.js', 'lib/native-client.js', 'lib/protocol.js'],

@@ -91,10 +91,10 @@ it('projects native and PTC submissions into their resolved turns without duplic
     call,
     { type: 'tool/call', data: { turn: 1, step: 1, callId: 'root', name: 'run_code', arguments: '{}' } },
     { type: 'tool/ptc-dispatch-start', data: {
-      rootCallId: 'root', parentCallId: 'root', subCallId: 'ptc', name: 'exit_plan_mode', arguments: { plan: markdown },
+      rootCallId: 'root', parentCallId: 'root', subCallId: 'coding', name: 'exit_plan_mode', arguments: { plan: markdown },
     } },
     { type: 'tool/ptc-dispatch', data: {
-      rootCallId: 'root', parentCallId: 'root', subCallId: 'ptc', name: 'exit_plan_mode', arguments: { plan: markdown },
+      rootCallId: 'root', parentCallId: 'root', subCallId: 'coding', name: 'exit_plan_mode', arguments: { plan: markdown },
       isError: false, content: [],
     } },
     { type: 'turn/end', data: { turn: 1 } },

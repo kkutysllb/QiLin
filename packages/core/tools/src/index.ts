@@ -14,7 +14,7 @@ import type { Agent } from '@qilin-agent/agent'
 import type { UserMessage } from '@qilin-agent/session'
 import { assertNever, deepFreeze, snapshotJsonValue, type JsonValue } from '@qilin-agent/util-values'
 import type { PromptSection, ToolProviderResult } from '@qilin-agent/system-prompt'
-import type { PtcRuntime } from '@qilin-agent/ptc-runtime'
+import type { PtcRuntime } from '@qilin-agent/coding-runtime'
 import type {} from '@qilin-agent/sandbox-policy'
 // Type-only: makes `ctx.get('approval')` resolve to the ApprovalService
 // augmentation. The seam stays optional at runtime — see `serviceAsk`.
@@ -41,7 +41,7 @@ declare module '@qilin-agent/llm' {
 
 /**
  * Language → SDK-section renderer. The registry looks up the loaded
- * `ctx.ptcRuntime.language` in this table when assembling the `tools:sdk`
+ * `ctx.codingRuntime.language` in this table when assembling the `tools:sdk`
  * section under a non-native mode; a runtime whose language is not a key
  * fails the assembly loudly (same idiom as `toolOrder` violations). Adding a
  * new backend language is three parallel edits — a {@link PtcSdkLanguage}
@@ -50,8 +50,8 @@ declare module '@qilin-agent/llm' {
  * at. The `satisfies` clause pins this table's key set to that union, which
  * the flavor table is checked against too, so any of the three left out is a
  * typecheck failure. What no check reaches is the prose that names the values
- * instead of deriving them: the seam's `qilin-ptc-runtime` README pair, its
- * `PtcRuntime.language` JSDoc, and `docs/subsystems/ptc-runtime.md`
+ * instead of deriving them: the seam's `qilin-coding-runtime` README pair, its
+ * `PtcRuntime.language` JSDoc, and `docs/subsystems/coding-runtime.md`
  * with its zh pair, plus this package's own README pair and the
  * {@link Config.mode} JSDoc.
  */
@@ -336,7 +336,7 @@ export interface ToolExecutionInput {
    * mode sets this on SDK sub-dispatches so commit-style observers can wait for
    * the outer `run_code` outcome without receiving its live mutable execution.
    * The token also marks the call as a transport sub-dispatch rather than a
-   * model-direct call: under `mode: 'ptc'`, only calls WITH a parent may
+   * model-direct call: under `mode: 'coding'`, only calls WITH a parent may
    * execute a native tool name — a model-direct call (no parent) is denied as
    * `UNKNOWN_TOOL` before the policy pipeline. See {@link ToolRuntime.execute}.
    */
@@ -666,7 +666,7 @@ function errorInfo(error: unknown): ToolErrorInfo | undefined {
 }
 
 /** How the registry presents its tools to the model (see {@link Config.mode}). */
-export type ToolPresentationMode = 'native' | 'ptc'
+export type ToolPresentationMode = 'native' | 'coding'
 
 /** Plugin config: how the registered tools are presented to the model. */
 export interface Config {
@@ -675,7 +675,7 @@ export interface Config {
    * sends only `run_code` plus a generated SDK prompt and collapses the
    * executor to the same surface (a model-direct call may only name
    * `run_code`; `run_code` SDK sub-dispatches keep every visible tool).
-   * PTC mode requires a `ctx.ptcRuntime` whose `language`
+   * PTC mode requires a `ctx.codingRuntime` whose `language`
    * has a registered SDK renderer (TypeScript or Python) and fail prompt
    * assembly when it is absent or has no renderer. Under `ptc`, native names
    * in `toolOrder` are invalid.
@@ -823,7 +823,7 @@ export class ToolRuntime extends Service {
   static inject = ['systemPrompt']
 
   static Config: z<Config> = z.object({
-    mode: z.union(['native', 'ptc'] as const).default('native'),
+    mode: z.union(['native', 'coding'] as const).default('native'),
     maxParallelSubCalls: z.natural().min(1).default(10),
     maxSubCallsPerMinute: z.natural().min(1).default(1024),
   })
@@ -897,7 +897,7 @@ export class ToolRuntime extends Service {
       order: this.ctx.systemPrompt.getSectionOrder('PTC_ONLY'),
       // The SAME predicate the executor denies by, so the prompt cannot state
       // a rule the registry does not enforce (see `collapses`).
-      text: context => this.modeFor(context.scope) === 'ptc' ? PTC_ONLY_INSTRUCTION : '',
+      text: context => this.modeFor(context.scope) === 'coding' ? PTC_ONLY_INSTRUCTION : '',
     }
   }
 
@@ -979,7 +979,7 @@ export class ToolRuntime extends Service {
       // The language-aware description/parameters getters read the runtime
       // without demanding one, so a native-default process can still project
       // the transport for an agent that chose code.
-      peekRuntime: () => this.ctx.get('ptcRuntime'),
+      peekRuntime: () => this.ctx.get('codingRuntime'),
       maxParallel: this.maxParallelSubCalls,
       maxSubCallsPerMinute: this.maxSubCallsPerMinute,
       shapeDispatchLog: dispatch => this.shapeDispatchLog(dispatch),
@@ -1067,9 +1067,9 @@ export class ToolRuntime extends Service {
    * point it is testable).
    */
   private requirePtcRuntime(mode: ToolPresentationMode): PtcRuntime {
-    const runtime = this.ctx.get('ptcRuntime')
+    const runtime = this.ctx.get('codingRuntime')
     if (!runtime) {
-      throw new Error(`qilin-tools: mode "${mode}" requires a PTC runtime — load a ctx.ptcRuntime implementation (e.g. @qilin-agent/ptc-runtime-node) or set tools mode to "native"`)
+      throw new Error(`qilin-tools: mode "${mode}" requires a PTC runtime — load a ctx.codingRuntime implementation (e.g. @qilin-agent/coding-runtime-node) or set tools mode to "native"`)
     }
     if (!Object.hasOwn(SDK_RENDERERS, runtime.language)) {
       const known = Object.keys(SDK_RENDERERS).map(name => JSON.stringify(name)).join(', ')
@@ -1373,7 +1373,7 @@ export class ToolRuntime extends Service {
    * @param nested - whether the call is a transport sub-dispatch, not a model-direct call.
    */
   private collapses(name: string, scope: ScopeKey | undefined, nested: boolean): boolean {
-    return !nested && this.modeFor(scope) === 'ptc' && name !== RUN_CODE_NAME
+    return !nested && this.modeFor(scope) === 'coding' && name !== RUN_CODE_NAME
   }
 
   /**

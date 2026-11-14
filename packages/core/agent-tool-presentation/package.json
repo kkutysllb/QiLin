@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@qilin-agent/agent": "workspace:*",
-    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/coding-runtime": "workspace:*",
     "@qilin-agent/scope": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",

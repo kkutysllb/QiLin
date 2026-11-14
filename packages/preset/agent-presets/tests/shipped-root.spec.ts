@@ -170,7 +170,7 @@ describe('the shipped preset root', () => {
   it('omits the general workflow tool and its unused engine', async () => {
     const entries = await shippedEntries('coding')
     expect(findEntry(entries, 'tool-workflow')?.disabled).toBe(true)
-    expect(findEntry(entries, 'workflow-ptc')?.disabled).toBe(true)
+    expect(findEntry(entries, 'workflow-coding')?.disabled).toBe(true)
   })
 
   it('carries the runtime-authoring rows the coding preset owns', async () => {
@@ -192,7 +192,7 @@ describe('the shipped preset root', () => {
     // The general workflow tool is available here: it is the model-authored
     // orchestration surface `run_code` replaces under PTC.
     expect(findEntry(entries, 'tool-workflow')?.disabled).not.toBe(true)
-    expect(findEntry(entries, 'workflow-ptc')?.disabled).not.toBe(true)
+    expect(findEntry(entries, 'workflow-coding')?.disabled).not.toBe(true)
   })
 
   it('keeps the ralph tool out of the shipped preset root', async () => {

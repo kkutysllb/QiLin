@@ -31,7 +31,7 @@ describe('third-party plugin bundle', () => {
     // scenario is about.
     scaffold = await launchWebScaffold({
       profile: { packages: [{ dir: FIXTURE, enabled: true }] },
-      toolsMode: 'ptc',
+      toolsMode: 'coding',
     })
     const ctx = scaffold.ctx
     // Process-wide discovery: the fixture's tool is registered beside the

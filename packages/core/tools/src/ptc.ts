@@ -17,7 +17,7 @@ declare module '@qilin-agent/llm' {
 }
 
 import type { ContentBlock, ToolCallId, ToolSchema } from '@qilin-agent/llm'
-import type { PtcBindingFunction, PtcRunResult, PtcRunSandbox, PtcRuntime } from '@qilin-agent/ptc-runtime'
+import type { PtcBindingFunction, PtcRunResult, PtcRunSandbox, PtcRuntime } from '@qilin-agent/coding-runtime'
 import { approveEscalation, ESCALATION_TARGETS, validateEscalationArgs } from '@qilin-agent/sandbox'
 import type { SandboxExecutionPolicy } from '@qilin-agent/sandbox'
 import type { ApprovalService } from '@qilin-agent/user-approval'
@@ -322,10 +322,10 @@ export interface RunCodeBridgeOptions {
   peekApprover: () => ApprovalService | undefined
   /** Resolves standing Session authority only for a runtime that enforces file policy. */
   resolveSandboxPolicy: (exec: ToolRunContext) => SandboxExecutionPolicy
-  /** Resolves `ctx.ptcRuntime` or throws the loud misconfiguration error (shared with the registry's assembly-time checks). */
+  /** Resolves `ctx.codingRuntime` or throws the loud misconfiguration error (shared with the registry's assembly-time checks). */
   requireRuntime: () => PtcRuntime
   /**
-   * Reads `ctx.ptcRuntime` without throwing: `undefined` when none is mounted.
+   * Reads `ctx.codingRuntime` without throwing: `undefined` when none is mounted.
    * Lets schema emission tell "no runtime" (degrade to TS; the readers that
    * reach it are {@link resolveFlavor}'s) apart from "unknown language" (fail
    * loud).

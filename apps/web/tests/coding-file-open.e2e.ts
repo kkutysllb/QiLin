@@ -36,7 +36,7 @@ describe('web e2e: delivered file open in the right column', () => {
     // `kind: 'text'` open a delivered Markdown file does.
     const fixture = (await readFile(join(SNAPSHOT_DIR, 'session.v3.jsonl'), 'utf8'))
       .split('report.txt').join('report.md')
-    await seedSession(scaffold, fixture, 'coding-file-open', 'ptc')
+    await seedSession(scaffold, fixture, 'coding-file-open', 'coding')
     browser = await chromium.launch()
     page = await newEnglishPage(browser)
     tripwire = watchConsole(page)

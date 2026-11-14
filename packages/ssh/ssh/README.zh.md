@@ -45,7 +45,7 @@ kind: "package-reference"
 | `maxPending` | `128` | 普通未完成请求的数量上限；心跳与有界清理请求使用预留容量 |
 | `leaseMs` | `30000` | 辅助进程心跳租期，范围为 3000 至 600000 毫秒 |
 
-将验证后的 `ctx.ssh.ptcLaunch` 作为 [`NodePtcRuntime`](../../ptc-runtime/ptc-runtime-node/README.zh.md) 的 `launch` 配置传入。可执行文件形态自带 worker。脚本形态要使用 PTC 必须提供两个引导字段；仅使用文件系统和 Bash 时可以省略。未配置脚本引导时 getter 会拒绝访问。客户端在就绪前拒绝协议版本、运行时形态或辅助程序摘要不一致的连接。
+将验证后的 `ctx.ssh.ptcLaunch` 作为 [`NodePtcRuntime`](../../coding-runtime/coding-runtime-node/README.zh.md) 的 `launch` 配置传入。可执行文件形态自带 worker。脚本形态要使用 PTC 必须提供两个引导字段；仅使用文件系统和 Bash 时可以省略。未配置脚本引导时 getter 会拒绝访问。客户端在就绪前拒绝协议版本、运行时形态或辅助程序摘要不一致的连接。
 
 -----
 

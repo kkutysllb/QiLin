@@ -758,7 +758,7 @@ describe('qilin web keyless CLI smoke', () => {
           ...process.env,
           DEEPSEEK_API_KEY: 'keyless-web-ptc',
           DEEPSEEK_BASE_URL: `http://127.0.0.1:${address.port}`,
-          QILIN_TOOLS_MODE: 'ptc',
+          QILIN_TOOLS_MODE: 'coding',
           QILIN_HOME: qilinHome,
           QILIN_AGENTS_HOME: join(workspace, '.agents'),
           TSX_TSCONFIG_PATH: join(REPO_ROOT, 'tsconfig.json'),

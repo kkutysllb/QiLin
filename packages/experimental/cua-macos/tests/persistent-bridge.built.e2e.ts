@@ -11,7 +11,7 @@ import LocalAttachmentStore from '@qilin-agent/attachment-local'
 import ComputerUseRegistry from '@qilin-agent/computer-use'
 import FileSystem from '@qilin-agent/fs-local'
 import { LlmAdapter, ToolCallId, type LlmResolvedModelInfo, type StreamChunk } from '@qilin-agent/llm'
-import NodeRuntime from '@qilin-agent/ptc-runtime-node'
+import NodeRuntime from '@qilin-agent/coding-runtime-node'
 import Sandbox from '@qilin-agent/sandbox-local'
 import SandboxPolicy from '@qilin-agent/sandbox-policy'
 import { SessionId } from '@qilin-agent/session'
@@ -22,7 +22,7 @@ import { installNativeFixture, startFixtureHost } from './native-fixture.ts'
 import { Request } from '@qilin-agent/experimental-cua/protocol'
 
 const bridge = fileURLToPath(new URL('../../cua/lib/bridge.js', import.meta.url))
-const bootstrap = join(dirname(fileURLToPath(import.meta.resolve('@qilin-agent/ptc-runtime-node/package.json'))), 'lib/persistent-process.js')
+const bootstrap = join(dirname(fileURLToPath(import.meta.resolve('@qilin-agent/coding-runtime-node/package.json'))), 'lib/persistent-process.js')
 
 class VisualAdapter extends LlmAdapter {
   override resolveModel(provider: string, model: string): Promise<LlmResolvedModelInfo> {
@@ -58,7 +58,7 @@ it.skipIf(process.platform === 'win32' || !existsSync(bridge) || !existsSync(boo
       let count = 0
       let images = 0
       const calls: Array<{ phase: string; method: string }> = []
-      const run = (program: string, phase: string) => ctx.ptcRuntime.run(ctx.ptcRuntime.resolve({
+      const run = (program: string, phase: string) => ctx.codingRuntime.run(ctx.codingRuntime.resolve({
         cwd, program, stateOwner: handle.agent,
         bindings: [{ global: 'tools', functions: { cua: async (args) => {
           const operation = Request.parse(args)

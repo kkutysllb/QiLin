@@ -23,7 +23,7 @@ packages/    @qilin-agent/<pkg> workspaces at packages/<group>/<pkg>/
   subprocess/           child-process management
   ssh/                  SSH execution providers
   terminal/             persistent terminals
-  ptc-runtime/          PTC execution
+  coding-runtime/          PTC execution
   sandbox/              process confinement
   deliverables/         turn deliverables
   fs/                   filesystem access

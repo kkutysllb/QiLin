@@ -735,7 +735,7 @@ describe('draft documents in the input shell', () => {
     const sink = vi.fn(() => Promise.resolve<SubmitOutcome>({ kind: 'success' }))
     const messageSubmitted = vi.fn()
     const state = {
-      runMode: 'plan' as const, running: false, newSession: true, agentPreset: 'ptc', sessionId: 's1' as never,
+      runMode: 'plan' as const, running: false, newSession: true, agentPreset: 'coding', sessionId: 's1' as never,
     }
     const shell = makeShell({ defaultSink: sink, submissionState: () => state, messageSubmitted })
     try {

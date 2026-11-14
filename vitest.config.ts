@@ -32,7 +32,7 @@ const windowsUnsupportedPackages = process.platform === 'win32'
       'packages/shell/tool-bash',
       'packages/hooks/*',
       'packages/terminal/terminal-bash',
-      'packages/experimental/ptc-runtime-python',
+      'packages/experimental/coding-runtime-python',
       'packages/sandbox/sandbox-local',
       // OpenSSH multiplexing and Unix-socket helper streams require POSIX endpoints.
       'packages/ssh/*',
@@ -156,7 +156,7 @@ const processBoundTests = [
   'packages/context/time-context/tests/time-context.spec.ts',
   'packages/llm/llm-pi-ai/tests/adapter.spec.ts',
   'packages/boot/app-boot/tests/app-boot.spec.ts',
-  'packages/workflow/workflow-ptc/tests/workflow-ptc.spec.ts',
+  'packages/workflow/workflow-coding/tests/workflow-coding.spec.ts',
 ]
 
 // Claude Code's test-kit module names, served by the mods bridge's test support so the example mods' tests import them unchanged.
@@ -243,7 +243,7 @@ export default defineConfig({
         // exercised through the modules that import it.
         'packages/*/*/src/*.generated.ts',
         // The built Node entry invokes the independently covered process bootstrap through fd 7.
-        'packages/ptc-runtime/ptc-runtime-node/src/process-entry.ts',
+        'packages/coding-runtime/coding-runtime-node/src/process-entry.ts',
         // Dynamic Host/Client composition is covered by its focused lifecycle
         // tests and assembled application checks rather than per-file coverage.
         'packages/self-modification/*/src/**/*.{ts,tsx}',

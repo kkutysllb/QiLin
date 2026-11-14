@@ -62,7 +62,7 @@ Remote execution delegates to [`subprocess-local`](../../subprocess/subprocess-l
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through Bash, terminal, LSP and ptc-runtime consumers, which present their existing results and remote paths.
+Indirectly, through Bash, terminal, LSP and coding-runtime consumers, which present their existing results and remote paths.
 
 #### KV Cache effect
 

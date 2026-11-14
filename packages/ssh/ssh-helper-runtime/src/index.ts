@@ -31,7 +31,7 @@ export async function runSshHelperRuntime(): Promise<void> {
   Reflect.deleteProperty(process.env, 'QILIN_SUBPROCESS_RUNNER')
   if (process.env.QILIN_PTC_RUNTIME_NODE === '1') {
     Reflect.deleteProperty(process.env, 'QILIN_PTC_RUNTIME_NODE')
-    await import('@qilin-agent/ptc-runtime-node/process')
+    await import('@qilin-agent/coding-runtime-node/process')
   } else if (selection !== undefined) {
     const { runSelectedSubprocessRunner } = await import('@qilin-agent/subprocess-local/runner')
     await runSelectedSubprocessRunner(selection)

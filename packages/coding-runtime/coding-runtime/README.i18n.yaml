@@ -1,0 +1,70 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/coding-runtime/coding-runtime/README.md
+/:
+  en: d753b6563d8a55cb
+  zh: 6a7d60ef61b24563
+/qilin-agent-coding-runtime:
+  en: c9d6f3dd6a475e51
+  zh: 8d9e2823bb0f9220
+/qilin-agent-coding-runtime/summary:
+  en: d5200df6027331b9
+  zh: f63fecccb94b3a6c
+/qilin-agent-coding-runtime/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 09388d293f9be9cb
+/qilin-agent-coding-runtime/use-this-package:
+  en: df763e2d678edbc3
+  zh: f0650a14200b5307
+/qilin-agent-coding-runtime/use-this-package/run-a-program:
+  en: 6f97019cebc2f417
+  zh: c56f18a690dbe814
+/qilin-agent-coding-runtime/use-this-package/choose-a-backend:
+  en: 3af083e5d1475479
+  zh: f7c68a46040d6131
+/qilin-agent-coding-runtime/use-this-package/name-your-bindings-portably:
+  en: 4e46c1672701b8df
+  zh: 0353c5855c9ff6be
+/qilin-agent-coding-runtime/use-this-package/what-can-go-wrong:
+  en: 44f9fdf2c8e2cacc
+  zh: 99dd555a49075f88
+/qilin-agent-coding-runtime/understand-the-implementation:
+  en: 686d570f5e669fa4
+  zh: 2075cf27c30f251a
+/qilin-agent-coding-runtime/understand-the-implementation/design-concept:
+  en: 1826d06fee77e599
+  zh: c1ee37c09de35376
+/qilin-agent-coding-runtime/understand-the-implementation/service-api:
+  en: c567002c6960060a
+  zh: a1323f947b7a2d4c
+/qilin-agent-coding-runtime/understand-the-implementation/vocabulary:
+  en: 855cb8366e3bd293
+  zh: da6d7a0ce51f97fc
+/qilin-agent-coding-runtime/understand-the-implementation/portable-identifiers:
+  en: 77cb0cf02489d96e
+  zh: 7bbf502ee570911c
+/qilin-agent-coding-runtime/understand-the-implementation/source-map:
+  en: 85b65ceb9be0c49f
+  zh: 52df7f06d4e49d6e
+/qilin-agent-coding-runtime/further-exploration:
+  en: 5cae0f9b780e297d
+  zh: 657ab55bcda3f437
+/qilin-agent-coding-runtime/model-experience:
+  en: d892ff107f13572b
+  zh: 162a6d64de2eee23
+/qilin-agent-coding-runtime/model-experience/kv-cache-effect:
+  en: 40294c1c31b74824
+  zh: 081cebc2e2650f03
+/qilin-agent-coding-runtime/known-limitations-and-deferred-work:
+  en: 7f30f78c5d427667
+  zh: 99d21160016deea2
+/qilin-agent-coding-runtime/known-limitations-and-deferred-work/dev-note:
+  en: d56846da29ad869c
+  zh: 0397151a7e29b8ba
+/qilin-agent-coding-runtime/known-limitations-and-deferred-work/dev-note/future-persistent-kernel-backend:
+  en: cfefaae6ed9705d5
+  zh: 3cca5b1bd92445b0
+/qilin-agent-coding-runtime/known-limitations-and-deferred-work/dev-note/future-container-backend:
+  en: 2b94202842f0556c
+  zh: 5aa0311fa621a018

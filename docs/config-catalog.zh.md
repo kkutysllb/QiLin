@@ -1191,13 +1191,13 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/experimental-hooks-codex -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-ptc-runtime-python -->
-<a id="qilin-agentexperimental-ptc-runtime-python"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-coding-runtime-python -->
+<a id="qilin-agentexperimental-coding-runtime-python"></a>
 
-## `@qilin-agent/experimental-ptc-runtime-python`
+## `@qilin-agent/experimental-coding-runtime-python`
 
 - `inject`: `sandbox` · `sandboxPolicy`
-- `source`: [`packages/experimental/ptc-runtime-python/src/index.ts:45`](../packages/experimental/ptc-runtime-python/src/index.ts)
+- `source`: [`packages/experimental/coding-runtime-python/src/index.ts:45`](../packages/experimental/coding-runtime-python/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config: every cap, changeable from `cordis.yml` (no hardcoded tunables). */
@@ -1258,7 +1258,7 @@ export interface Config {
   pythonBin?: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin-agent/experimental-ptc-runtime-python -->
+<!-- END GENERATED config-catalog:@qilin-agent/experimental-coding-runtime-python -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/experimental-session-title-all-prompts-llm -->
 <a id="qilin-agentexperimental-session-title-all-prompts-llm"></a>
@@ -2621,13 +2621,13 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/plugin-package-inventory-deepseek -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/ptc-runtime-node -->
-<a id="qilin-agentptc-runtime-node"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/coding-runtime-node -->
+<a id="qilin-agentcoding-runtime-node"></a>
 
-## `@qilin-agent/ptc-runtime-node`
+## `@qilin-agent/coding-runtime-node`
 
 - `inject`: `fs` · `subprocess` · `sandbox` · `sandboxPolicy`
-- `source`: [`packages/ptc-runtime/ptc-runtime-node/src/config.ts:7`](../packages/ptc-runtime/ptc-runtime-node/src/config.ts)
+- `source`: [`packages/coding-runtime/coding-runtime-node/src/config.ts:7`](../packages/coding-runtime/coding-runtime-node/src/config.ts)
 
 ```ts config-catalog
 /** Deployment-varying runtime bounds and launch choices. */
@@ -2667,7 +2667,7 @@ export type LaunchConfig = {
   executable: string
 }
 ```
-<!-- END GENERATED config-catalog:@qilin-agent/ptc-runtime-node -->
+<!-- END GENERATED config-catalog:@qilin-agent/coding-runtime-node -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/pwsh-local -->
 <a id="qilin-agentpwsh-local"></a>
@@ -4299,7 +4299,7 @@ export interface Config {
    * sends only `run_code` plus a generated SDK prompt and collapses the
    * executor to the same surface (a model-direct call may only name
    * `run_code`; `run_code` SDK sub-dispatches keep every visible tool).
-   * PTC mode requires a `ctx.ptcRuntime` whose `language`
+   * PTC mode requires a `ctx.codingRuntime` whose `language`
    * has a registered SDK renderer (TypeScript or Python) and fail prompt
    * assembly when it is absent or has no renderer. Under `ptc`, native names
    * in `toolOrder` are invalid.
@@ -4577,13 +4577,13 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/web-search-perplexity -->
 
-<!-- BEGIN GENERATED config-catalog:@qilin-agent/workflow-ptc -->
-<a id="qilin-agentworkflow-ptc"></a>
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/workflow-coding -->
+<a id="qilin-agentworkflow-coding"></a>
 
-## `@qilin-agent/workflow-ptc`
+## `@qilin-agent/workflow-coding`
 
-- `inject`: `subagents` · `ptcRuntime` · `sandboxPolicy` · `workingDirectory`
-- `source`: [`packages/workflow/workflow-ptc/src/index.ts:33`](../packages/workflow/workflow-ptc/src/index.ts)
+- `inject`: `subagents` · `codingRuntime` · `sandboxPolicy` · `workingDirectory`
+- `source`: [`packages/workflow/workflow-coding/src/index.ts:33`](../packages/workflow/workflow-coding/src/index.ts)
 
 ```ts config-catalog
 /** Plugin config (all optional — `static Config` supplies the defaults). */
@@ -4600,7 +4600,7 @@ export interface Config {
   syncTimeoutMs?: number
 }
 ```
-<!-- END GENERATED config-catalog:@qilin-agent/workflow-ptc -->
+<!-- END GENERATED config-catalog:@qilin-agent/workflow-coding -->
 
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/working-directory -->
 <a id="qilin-agentworking-directory"></a>
@@ -4784,7 +4784,7 @@ export interface Config {
 | `@qilin-agent/fs` | `FileSystem` | — | [`packages/fs/fs/src/index.ts`](../packages/fs/fs/src/index.ts) |
 | `@qilin-agent/host-directory-picker` | `DirectoryPicker` | — | [`packages/host/directory-picker/src/index.ts`](../packages/host/directory-picker/src/index.ts) |
 | `@qilin-agent/jobs` | `JobRegistry` | — | [`packages/jobs/jobs/src/index.ts`](../packages/jobs/jobs/src/index.ts) |
-| `@qilin-agent/ptc-runtime` | `PtcRuntime` | — | [`packages/ptc-runtime/ptc-runtime/src/index.ts`](../packages/ptc-runtime/ptc-runtime/src/index.ts) |
+| `@qilin-agent/coding-runtime` | `PtcRuntime` | — | [`packages/coding-runtime/coding-runtime/src/index.ts`](../packages/coding-runtime/coding-runtime/src/index.ts) |
 | `@qilin-agent/sandbox` | `SandboxProvider` | — | [`packages/sandbox/sandbox/src/index.ts`](../packages/sandbox/sandbox/src/index.ts) |
 | `@qilin-agent/session-persistence` | `SessionPersistence` | — | [`packages/session/session-persistence/src/index.ts`](../packages/session/session-persistence/src/index.ts) |
 | `@qilin-agent/session-query` | `SessionQueryEngine` | — | [`packages/session-query/session-query/src/index.ts`](../packages/session-query/session-query/src/index.ts) |

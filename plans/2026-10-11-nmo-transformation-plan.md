@@ -15,7 +15,7 @@
 |---|---|
 | `ui-sidebar-coding` 已整体删除（升级期破坏性 feat：编码/通用统一引擎原生右栏） | **C1 决策卡作废关闭**：内容体已按「删」落定；S3 面大幅缩小，不再含内容体删除 |
 | 工作台标签**保留**，新增真实消费者：`ui-plugin-manager/admission.ts` 按 audience×active-tag 的插件准入门 | S3 必须处置 audience 数据模型与 UI（新决策卡 **C6**）；这是标签目前唯一不可直接删的理由 |
-| ptc/cordis 预设随升级刷新：两预设都已引用 `workflow-ptc` 行；ptc 的 `tool-plugin-manager` 现为**无条件 disabled** | S1 合并清单更新；D-A3 的「档位表达式门」落在合并时重定，不再有现成写法可抄 |
+| ptc/cordis 预设随升级刷新：两预设都已引用 `workflow-coding` 行；ptc 的 `tool-plugin-manager` 现为**无条件 disabled** | S1 合并清单更新；D-A3 的「档位表达式门」落在合并时重定，不再有现成写法可抄 |
 | 新增 `QILIN_TOOLS_MODE` 进程级 env 缝（web-app patch tools 行，上游标注 TEMPORARY，等 per-session 选择落地后移除） | 登记为 T9（Native/Minimal 对账：进程级模式缝不外泄）；处置挂 S4，依赖说明见卡片备注 |
 | 会话格式代次推进到 **v4**（新增 session-format-v3-to-v4；v4 扩展身份表含 `agent-preset/selected`） | S2 选型 b 的落点从泛指「下一代」明确为 **v4→v5**；v2→v3 改名先例锚点仍成立 |
 | 升级线收口、工作树干净 | §0 旧「并行升级线协调/让路」条款删除；计划可在净树上直接开工 |
@@ -27,7 +27,7 @@
 | # | 决策 |
 |---|---|
 | D-A1 | 幸存预设 id = `ptc`（不换 id，保 KV 前缀与存量会话头兼容） |
-| D-A2 | workflow 两行（tool-workflow / workflow-ptc）保持禁用——编排统一走 run_code，不并第二个模型可写编排面 |
+| D-A2 | workflow 两行（tool-workflow / workflow-coding）保持禁用——编排统一走 run_code，不并第二个模型可写编排面 |
 | D-A3 | 创造模式三件全并入 ptc：tool-kylin 自省、customSkillDirs 创作技能、persona 创作段；tool-plugin-manager **启用**（C7=a；web 部署档如需关闭走部署 patch，不在预设层关） |
 | D-A4 | 预设不在前端展示；后台运行，前端零预设面 |
 | D-A5 | 存量会话迁移走「迁移入口 + 用户逐条确认」形态，引擎提供机制 |
@@ -49,7 +49,7 @@
 | 事实 | 锚点 |
 |---|---|
 | 出厂预设三件：standard(order 1) / ptc(order 2) / cordis(order 4)；minimal 已删（order 缺 3） | `presets/*/preset.yml:3` |
-| ptc 现有：tool-presentation mode:ptc；tool-plugin-manager **disabled: true**；workflow-ptc 行（无消费者注释）；tool-workflow 行 | `ptc/agent.cordis.yml:268-273, 277-279, 232-234, 240-241` |
+| ptc 现有：tool-presentation mode:ptc；tool-plugin-manager **disabled: true**；workflow-coding 行（无消费者注释）；tool-workflow 行 | `ptc/agent.cordis.yml:268-273, 277-279, 232-234, 240-241` |
 | cordis 独有：tool-kylin；skill-filesystem customSkillDirs→skills/（三个创作技能目录）；tool-plugin-manager **启用**；persona 创作段 | `cordis/agent.cordis.yml:253-254, 265-267, 275-276` + `cordis/skills/` |
 | 工作台标签状态机：默认映射 general→standard / coding→ptc；localStorage key `qilin.workbench.v1`；标签→预设绑定表；`workbenchShows`；rehydrate 只验形状不验 roster | `ui-workbench/workbench.ts:27, 31, 37-40, 57-59, 66-80` |
 | 标签 UI：WorkbenchSwitch 行组件；hero 预设芯片（空白会话换预设） | `ui-workspace/rows/WorkbenchSwitch.tsx` · `ui-workspace/AgentPresetChip.tsx` + `contract/slots.ts:230-251` |
@@ -84,7 +84,7 @@
 封存：§2 锚点快照、S0 表所列 6 条 e2e 车道清单、已知 2 红、audience≠both 的 bundle 清单（S3 处置面盘点）、typecheck 两面。产出基线文件挂本计划旁。不改产品代码。
 
 **S1 预设合并**（引擎侧，2–3 天）
-- `presets/ptc/agent.cordis.yml`：并入 tool-kylin、skill-filesystem customSkillDirs（+skills/ 目录随迁，C5=随预设走）、persona 创作段；tool-plugin-manager **启用**（C7=a，去掉 `disabled: true`）；workflow 两行维持 D-A2 禁用（workflow-ptc 行的「无消费者」注释随状态复核）。
+- `presets/ptc/agent.cordis.yml`：并入 tool-kylin、skill-filesystem customSkillDirs（+skills/ 目录随迁，C5=随预设走）、persona 创作段；tool-plugin-manager **启用**（C7=a，去掉 `disabled: true`）；workflow 两行维持 D-A2 禁用（workflow-coding 行的「无消费者」注释随状态复核）。
 - `presets/ptc/preset.yml`：order→1；显示名按 C3=不显示（预设不上前端，名称只留在文件与日志可读处）。
 - 删 `presets/standard/`、`presets/cordis/`。
 - `web-app/cordis.patch.yml:588` default: standard → ptc。
@@ -177,7 +177,7 @@
 |---|---|
 | `agent-presets` | **201/201** |
 | `ui-workspace` / preset 相邻 7 包 | **236/236** · **737/737** |
-| 全量 `vitest run` | **32489 通过**；257 红全部落在与本片无关的环境面（`ptc-runtime-python` 本机 python 3.9.6 不支持、`boot/hmr watch-config` 监听超时、`subprocess-local`/`windows-shell` 平台、`pdf-license-bundle`、`python-snapshot-workflow-order`）；其中 `apps/cli/tests/windows-shell.spec.ts` 的 2 例为本片引入，已改为单预设并复绿 |
+| 全量 `vitest run` | **32489 通过**；257 红全部落在与本片无关的环境面（`coding-runtime-python` 本机 python 3.9.6 不支持、`boot/hmr watch-config` 监听超时、`subprocess-local`/`windows-shell` 平台、`pdf-license-bundle`、`python-snapshot-workflow-order`）；其中 `apps/cli/tests/windows-shell.spec.ts` 的 2 例为本片引入，已改为单预设并复绿 |
 | GUI 车道（`packages/client packages/host`） | **9106 通过**；本片引入的 3 红（`ui-workspace` 标签重绑断言）已按单预设事实重写并复绿 |
 | 组合树 | `--dump-config` 显示 `agent-presets.default: ptc` |
 | 门 | `verify-translation-pairing`（两文件）· `verify-runtime-closure`（**1 agent presets** + 156 包闭合）· `verify-cordis-config`（435 文件）· `verify-md-links`（2179 文件）· `verify-repository-references` · `rescope-vendor --check`（8464 文件）· `gen-plugin-packages --check` · `tsc -b` 两面 全绿 |

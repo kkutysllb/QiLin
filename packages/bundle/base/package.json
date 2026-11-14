@@ -125,11 +125,11 @@
     "@qilin-agent/web-deepseek-api": "workspace:*",
     "@qilin-agent/web-fetch-http": "workspace:*",
     "@qilin-agent/web-search-deepseek": "workspace:*",
-    "@qilin-agent/workflow-ptc": "workspace:*",
+    "@qilin-agent/workflow-coding": "workspace:*",
     "@qilin-agent/working-directory": "workspace:*",
     "@qilin-agent/tool-working-directory": "workspace:*",
     "@qilin-agent/agent-instructions": "workspace:*",
-    "@qilin-agent/ptc-runtime-node": "workspace:*",
+    "@qilin-agent/coding-runtime-node": "workspace:*",
     "@qilin-agent/plugin-manager": "workspace:*",
     "@qilin-agent/otel": "workspace:*"
   },

@@ -77,7 +77,7 @@ describe('release families', () => {
       '@qilin-agent/experimental-hooks-claude-code',
       '@qilin-agent/experimental-hooks-codex',
       '@qilin-agent/experimental-plugin-market-bundle',
-      '@qilin-agent/experimental-ptc-runtime-python',
+      '@qilin-agent/experimental-coding-runtime-python',
       '@qilin-agent/experimental-ralph-bundle',
       '@qilin-agent/experimental-schedule-bundle',
       '@qilin-agent/experimental-session-search',

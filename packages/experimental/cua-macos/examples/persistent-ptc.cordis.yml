@@ -1,4 +1,4 @@
-- id: ptc-runtime
+- id: coding-runtime
   config:
     executionMode: persistent-in-memory
 - id: tools

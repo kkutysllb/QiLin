@@ -17,7 +17,7 @@
     # independent of the Web preset default: headless mounts no agent presets,
     # so its one-shot agents keep the PTC presentation unless the environment
     # overrides it.
-    mode: !!js process.env.QILIN_TOOLS_MODE ?? 'ptc'
+    mode: !!js process.env.QILIN_TOOLS_MODE ?? 'coding'
 
 - insert:
     - id: headless-startup

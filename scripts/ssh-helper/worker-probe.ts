@@ -4,8 +4,8 @@ import { spawn } from 'node:child_process'
 import { Duplex, type Readable, type Writable } from 'node:stream'
 import { join } from 'node:path'
 import { z } from 'zod'
-import { JsonChannel } from '../../packages/ptc-runtime/ptc-runtime-node/src/channel.ts'
-import { decodePtcJsonWire } from '../../packages/ptc-runtime/ptc-runtime-node/src/json-wire.ts'
+import { JsonChannel } from '../../packages/coding-runtime/coding-runtime-node/src/channel.ts'
+import { decodePtcJsonWire } from '../../packages/coding-runtime/coding-runtime-node/src/json-wire.ts'
 import { SUBPROCESS_CONTROL_ENV, SUBPROCESS_CONTROL_FD } from '../../packages/subprocess/subprocess/src/control.ts'
 
 /**

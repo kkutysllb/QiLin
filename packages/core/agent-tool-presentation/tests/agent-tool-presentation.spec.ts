@@ -10,8 +10,8 @@ import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import { createScope } from '@qilin-agent/scope'
 import SystemPrompt from '@qilin-agent/system-prompt'
-import { PtcRuntime } from '@qilin-agent/ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/ptc-runtime'
+import { PtcRuntime } from '@qilin-agent/coding-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/coding-runtime'
 import ToolRuntime, { RUN_CODE_NAME, defineTool } from '@qilin-agent/tools'
 import type { Agent } from '@qilin-agent/agent'
 import { SessionId } from '@qilin-agent/session'
@@ -19,7 +19,7 @@ import { apply, Config, inject, name } from '@qilin-agent/agent-tool-presentatio
 
 /** A runtime that never runs anything: presentation never dispatches. */
 class StubRuntime extends PtcRuntime {
-  resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'stub'
@@ -71,7 +71,7 @@ describe('the tool-presentation row', () => {
 
   it('gives its own agent PTC mode and leaves the rest native', async () => {
     const ctx = await host()
-    const coded = await mount(ctx, { mode: 'ptc' }, 'coded')
+    const coded = await mount(ctx, { mode: 'coding' }, 'coded')
     const plain = await mount(ctx, { mode: 'native' }, 'plain')
 
     const codedAssembly = await ctx.systemPrompt.assemble({ scope: coded.agent })
@@ -84,7 +84,7 @@ describe('the tool-presentation row', () => {
 
   it('restores the deployment default when the agent unloads', async () => {
     const ctx = await host()
-    const { agent, row } = await mount(ctx, { mode: 'ptc' })
+    const { agent, row } = await mount(ctx, { mode: 'coding' })
 
     await row.dispose()
 
@@ -98,19 +98,19 @@ describe('the tool-presentation row', () => {
   it('waits for a PTC runtime the deployment does not compose', async () => {
     const ctx = await host({ runtime: false })
 
-    const { agent, row } = await mount(ctx, { mode: 'ptc' })
+    const { agent, row } = await mount(ctx, { mode: 'coding' })
 
     // Pending, not applied: `qilin-agent-presets` rejects a mount holding a row
     // that never reached a usable state, naming this id — so the preset fails
     // where the operator can act, instead of at the first request.
-    expect(row.ctx.get('ptcRuntime')).toBeUndefined()
+    expect(row.ctx.get('codingRuntime')).toBeUndefined()
     const assembly = await ctx.systemPrompt.assemble({ scope: agent })
     expect(assembly.tools.map(tool => tool.name)).toEqual(['echo'])
   })
 
   it('applies once the runtime arrives', async () => {
     const ctx = await host({ runtime: false })
-    const { agent } = await mount(ctx, { mode: 'ptc' })
+    const { agent } = await mount(ctx, { mode: 'coding' })
 
     await ctx.plugin(StubRuntime)
 

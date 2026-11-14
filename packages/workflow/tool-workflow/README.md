@@ -90,7 +90,7 @@ Read these pages when the tool-level contract is not enough. They move from the 
 
 - [Workflow subsystem](../../../docs/subsystems/workflow.md) — the seam contract, start request, and event payloads.
 - [Workflow seam](../workflow/README.md) — the run and result vocabulary behind the tool.
-- [PTC workflow engine](../workflow-ptc/README.md) — the engine that executes the scripts.
+- [PTC workflow engine](../workflow-coding/README.md) — the engine that executes the scripts.
 - [subagent tool](../../subagent/tool-subagent/README.md) — the plain-delegation alternative for one or two children.
 - [Group map](../README.md) — the workflow capability family and its packages.
 - [Dynamic workflows Agent Note](../../../.agents/notes/implemented/feature/2026-07-05-dynamic-workflows.md) — the seam design and its decisions.

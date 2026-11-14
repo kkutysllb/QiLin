@@ -250,8 +250,8 @@
         toolName: subagent_fork
         backgroundMode: continuable
 
-    - id: workflow-ptc
-      name: '@qilin-agent/workflow-ptc'
+    - id: workflow-coding
+      name: '@qilin-agent/workflow-coding'
       # No consumer here: `tool-workflow` is off in PTC mode and `tool-ralph`
       # below is off by default. Restore this row together with `tool-ralph`.
       disabled: true
@@ -284,7 +284,7 @@
 
 # ── presentation ────────────────────────────────────────────────────────────
 
-# PTC mode for this agent alone. The row waits for the host's `ptcRuntime`
+# PTC mode for this agent alone. The row waits for the host's `codingRuntime`
 # rather than assuming it: a deployment that composes no TypeScript runtime
 # fails this preset at mount, naming this id, instead of at the first request.
 - id: tool-presentation

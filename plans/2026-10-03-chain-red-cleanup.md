@@ -51,7 +51,7 @@
 
 ### 3. `ci-coverage` 在本机拿不到可信信号
 
-本机全量 `vitest run --coverage` 出现 412 个失败用例（`ptc-runtime-python` 需要 Python ≥ 3.10 而本机是 3.9.6；多处 `EPERM spawn` 是沙箱限制），与「改动过的包 0 失败」的定向口径冲突。coverage 车道的权威只能在 CI 上取；本轮没有据此改任何源码或阈值。
+本机全量 `vitest run --coverage` 出现 412 个失败用例（`coding-runtime-python` 需要 Python ≥ 3.10 而本机是 3.9.6；多处 `EPERM spawn` 是沙箱限制），与「改动过的包 0 失败」的定向口径冲突。coverage 车道的权威只能在 CI 上取；本轮没有据此改任何源码或阈值。
 
 ## 四、发布 3.0.10
 

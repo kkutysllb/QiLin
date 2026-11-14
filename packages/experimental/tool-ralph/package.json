@@ -53,7 +53,7 @@
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/workflow": "workspace:*",
-    "@qilin-agent/workflow-ptc": "workspace:*",
+    "@qilin-agent/workflow-coding": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/session-projection": "workspace:*"
   }

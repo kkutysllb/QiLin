@@ -45,7 +45,7 @@
     "@qilin-agent/agent": "workspace:*",
     "@qilin-agent/agent-presets": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
-    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/coding-runtime": "workspace:*",
     "@qilin-agent/schedule": "workspace:*",
     "@qilin-agent/scope": "workspace:*",
     "@qilin-agent/session": "workspace:*",

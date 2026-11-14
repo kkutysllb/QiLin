@@ -22,7 +22,7 @@ import type {} from '@qilin-agent/system-prompt'
 import type { ToolExecution } from '@qilin-agent/tools'
 import type {} from '@qilin-agent/subprocess'
 import type {} from '@qilin-agent/computer-use'
-import type {} from '@qilin-agent/ptc-runtime'
+import type {} from '@qilin-agent/coding-runtime'
 import type {} from '@qilin-agent/settings'
 import type {} from '@qilin-agent/kylin-plugin-loader'
 
@@ -322,7 +322,7 @@ export function installCua(ctx: Context, config: CuaConfig, backend: CuaBackend)
     })
     yield ctx.systemPrompt.section({
       name: 'computer-use:qilin-cua', order: ctx.systemPrompt.getSectionOrder('TOOL_COMPUTER_USE'),
-      text: () => ctx.get('ptcRuntime')?.programFormat !== 'repl' ? backend.guidance : `${backend.guidance}
+      text: () => ctx.get('codingRuntime')?.programFormat !== 'repl' ? backend.guidance : `${backend.guidance}
 
 Persistent PTC initialization:
 var { connectCua } = await import(${JSON.stringify(new URL('../lib/bridge.js', import.meta.url).href)});

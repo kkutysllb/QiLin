@@ -11,7 +11,7 @@ it('accepts an exact directional exception and rejects it after the profiles con
 
 it('reports unexpected differences in both directions without hiding shared additions', () => {
   expect(() => { assertToolParity('standard', ['read', 'new_shared'], ['new_shared', 'read'], []) }).not.toThrow()
-  expect(() => { assertToolParity('ptc', ['read', 'sdk_extra'], ['read', 'present'], []) }).toThrow(
+  expect(() => { assertToolParity('coding', ['read', 'sdk_extra'], ['read', 'present'], []) }).toThrow(
     'Missing from SDK: present\nOnly in SDK: sdk_extra',
   )
 })

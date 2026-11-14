@@ -49,7 +49,7 @@ Dispatch reads the private selectors before importing anything and then removes 
 ## Further Exploration
 
 - [SSH connection](../ssh/README.md) — authentication, invocation and lifecycle.
-- [PTC Node runtime](../../ptc-runtime/ptc-runtime-node/README.md) — explicit worker launch and execution limits.
+- [PTC Node runtime](../../coding-runtime/coding-runtime-node/README.md) — explicit worker launch and execution limits.
 - [SSH subsystem](../../../docs/subsystems/ssh.md) — remote execution coordinates.
 
 -----

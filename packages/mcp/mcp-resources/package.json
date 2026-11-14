@@ -39,7 +39,7 @@
   "devDependencies": {
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/llm": "workspace:*",
-    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/coding-runtime": "workspace:*",
     "@qilin-agent/scope": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",

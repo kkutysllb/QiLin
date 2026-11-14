@@ -11,7 +11,7 @@ import UserQuestionService, {
   UserQuestionError, type AskUserQuestionAnswer, type AskUserQuestionRequest,
 } from '@qilin-agent/user-questions'
 import CommandRuntime from '@qilin-agent/commands'
-import { PtcRuntime, type PtcRunRequest, type PtcRunResult } from '@qilin-agent/ptc-runtime'
+import { PtcRuntime, type PtcRunRequest, type PtcRunResult } from '@qilin-agent/coding-runtime'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
 import PlanModeController, { EXIT_PLAN_MODE, planProjectionDefinition, resolveConfig } from '../src/index.ts'
@@ -507,10 +507,10 @@ describe('the soft layer', () => {
   })
 
   it('keeps run_code the only wire tool in plan mode under the registry PTC mode; the SDK gains the exit binding', async () => {
-    // Minimal scriptable runtime: the SDK section resolves ctx.ptcRuntime at
+    // Minimal scriptable runtime: the SDK section resolves ctx.codingRuntime at
     // assembly time (the ptc.spec fake's shape).
     class FakeRuntime extends PtcRuntime {
-      resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+      resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
@@ -518,7 +518,7 @@ describe('the soft layer', () => {
     }
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(ToolRuntime, { mode: 'ptc' })
+    await ctx.plugin(ToolRuntime, { mode: 'coding' })
     await ctx.plugin(FakeRuntime)
     await mountProjectionSeam(ctx)
     await ctx.plugin(PlanModeController, PLAN_CONFIG)
@@ -534,7 +534,7 @@ describe('the soft layer', () => {
 
   it('keeps the PTC wire schema and the SDK in step under mode ptc', async () => {
     class FakeRuntime extends PtcRuntime {
-      resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+      resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
@@ -542,7 +542,7 @@ describe('the soft layer', () => {
     }
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(ToolRuntime, { mode: 'ptc' })
+    await ctx.plugin(ToolRuntime, { mode: 'coding' })
     await ctx.plugin(FakeRuntime)
     await mountProjectionSeam(ctx)
     await ctx.plugin(PlanModeController, PLAN_CONFIG)
@@ -559,7 +559,7 @@ describe('the soft layer', () => {
 
   it('keeps the PTC mode SDK byte-identical across mode switches', async () => {
     class FakeRuntime extends PtcRuntime {
-      resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+      resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
@@ -567,7 +567,7 @@ describe('the soft layer', () => {
     }
     const withPlanMode = new Context()
     await withPlanMode.plugin(SystemPrompt)
-    await withPlanMode.plugin(ToolRuntime, { mode: 'ptc' })
+    await withPlanMode.plugin(ToolRuntime, { mode: 'coding' })
     await withPlanMode.plugin(FakeRuntime)
     await mountProjectionSeam(withPlanMode)
     await withPlanMode.plugin(PlanModeController, PLAN_CONFIG)
@@ -583,7 +583,7 @@ describe('the soft layer', () => {
     // with a deployment that does not compose plan mode at all.
     const bare = new Context()
     await bare.plugin(SystemPrompt)
-    await bare.plugin(ToolRuntime, { mode: 'ptc' })
+    await bare.plugin(ToolRuntime, { mode: 'coding' })
     await bare.plugin(FakeRuntime)
     registerNamedTools(bare, ['read', 'write'])
     const bareSdk = (await bare.systemPrompt.assemble({ agent })).sections.find(section => section.name === 'tools:sdk')?.text ?? ''
@@ -934,7 +934,7 @@ describe('exit_plan_mode', () => {
   it('carries the exact plan through a PTC mode review and logs the nested dispatch', async () => {
     const plan = '# PTC mode plan\n\nUse the existing seam.'
     class ExitRuntime extends PtcRuntime {
-      resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+      resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
@@ -946,7 +946,7 @@ describe('exit_plan_mode', () => {
     }
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(ToolRuntime, { mode: 'ptc' })
+    await ctx.plugin(ToolRuntime, { mode: 'coding' })
     await ctx.plugin(ExitRuntime)
     provideWorkingDirectoryFixture(ctx)
     await mountProjectionSeam(ctx)

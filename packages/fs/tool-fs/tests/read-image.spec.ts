@@ -12,8 +12,8 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@qilin-agent/kylin'
-import { PtcRuntime } from '@qilin-agent/ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/ptc-runtime'
+import { PtcRuntime } from '@qilin-agent/coding-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/coding-runtime'
 import { ToolCallId, LlmAdapter, LlmRuntime } from '@qilin-agent/llm'
 import type { GenerateOptions, LlmModelInfo, LlmResolvedModelInfo, Message, StreamChunk } from '@qilin-agent/llm'
 import SystemPrompt from '@qilin-agent/system-prompt'
@@ -72,7 +72,7 @@ class CatalogAdapter extends LlmAdapter {
 
 /** In-process PTC mode seam fake that invokes the real registry bindings. */
 class FakeRuntime extends PtcRuntime {
-  resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'fake'
@@ -109,7 +109,7 @@ async function setup(options: SetupOptions = {}) {
   provideWorkingDirectoryFixture(ctx)
   await ctx.plugin(SystemPrompt)
   await ctx.plugin(ToolRuntime, { mode: options.toolMode ?? 'native' })
-  if (options.toolMode === 'ptc') {
+  if (options.toolMode === 'coding') {
     await ctx.plugin(FakeRuntime)
   }
   await ctx.plugin(LocalFileSystem, { cwd: dir })
@@ -293,8 +293,8 @@ describe('read_image happy path', () => {
 
   it('forwards a nested PTC mode image through the outer run_code context', async () => {
     await writeFile(join(dir, 'red.png'), PNG_1X1)
-    const ctx = await setup({ toolMode: 'ptc' })
-    const runtime = ctx.ptcRuntime as FakeRuntime
+    const ctx = await setup({ toolMode: 'coding' })
+    const runtime = ctx.codingRuntime as FakeRuntime
     runtime.behavior = async (request) => {
       const value = await request.bindings[0]!.functions.read_image!({ file_path: 'red.png' })
       return { logs: [], value }

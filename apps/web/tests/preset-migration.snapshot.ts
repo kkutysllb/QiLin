@@ -35,7 +35,7 @@ describe.skipIf(webSnapshotMode() === 'record')('historical preset restoration t
 
       const reader = await scaffold.ctx.sessionPersistence.open(id, 'read')
       try {
-        expect(reader.header.agentPreset).toBe('ptc')
+        expect(reader.header.agentPreset).toBe('coding')
         await reader.read()
       } finally {
         await reader.close()
@@ -44,20 +44,20 @@ describe.skipIf(webSnapshotMode() === 'record')('historical preset restoration t
 
       const resolved = await scaffold.ctx.sessionController.resolveAgent(id)
       if ('error' in resolved) throw resolved.error
-      expect(scaffold.ctx.agentPresets.composedPreset(resolved.agent.ctx)).toBe('ptc')
-      expect(resolved.agent.session.header.agentPreset).toBe('ptc')
+      expect(scaffold.ctx.agentPresets.composedPreset(resolved.agent.ctx)).toBe('coding')
+      expect(resolved.agent.session.header.agentPreset).toBe('coding')
       expect(resolved.agent.session.snapshotEvents()
         .filter(event => event.type === 'agent-preset/selected')
-        .map(event => event.data.agentPreset)).toEqual(withSelections ? ['ptc', 'ptc', 'ptc'] : [])
+        .map(event => event.data.agentPreset)).toEqual(withSelections ? ['coding', 'coding', 'coding'] : [])
 
       const publishedBytes = await readFile(successor)
       const published = Buffer.concat(scanZstdFrames(publishedBytes).frames
         .map(({ start, end }) => zstdDecompressSync(publishedBytes.subarray(start, end)))).toString('utf8')
       const expected = [
-        { ...header, version: SESSION_FORMAT_VERSION, agentPreset: 'ptc' },
+        { ...header, version: SESSION_FORMAT_VERSION, agentPreset: 'coding' },
         ...rows.map(row => row['type'] === 'agent-preset/selected'
           && ['code', 'standard'].includes((row['data'] as { agentPreset: string }).agentPreset)
-          ? { ...row, data: { agentPreset: 'ptc' } }
+          ? { ...row, data: { agentPreset: 'coding' } }
           : row),
         // Agent activation closes its restored prefix with a fresh seed marker.
         { type: 'session/end-seed', seq: rows.length, time: 0, data: {} },

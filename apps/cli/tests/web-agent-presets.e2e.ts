@@ -77,7 +77,7 @@ async function bootWeb(
    * document, so a test that stores the default must leave this key to the
    * profile layers the settings editor can legitimately override.
    */
-  compositionDefaultPreset: string | null = 'ptc',
+  compositionDefaultPreset: string | null = 'coding',
 ): Promise<Context> {
   const storageRoot = join(dirname(settingsFile), 'storages')
   const overrides: PatchOptions[] = [
@@ -231,7 +231,7 @@ beforeAll(async () => {
   ctx = await bootWeb(settingsFile, [{
     id: 'agent-presets',
     config: {
-      default: 'ptc',
+      default: 'coding',
       // The shipped root is the plugin's own, prepended before this one.
       roots: [{ path: laneRoot, trust: 'user' }],
       includeUserRoot: false,
@@ -285,14 +285,14 @@ describe('the shipped Web composition', () => {
     // the system-trust subset rather than the whole list. The roster orders by
     // the presets' declared `order`: standard (1) before ptc (2).
     expect(listed.filter(preset => preset.trust === 'system').map(preset => preset.id))
-      .toEqual(['standard', 'ptc'])
-    expect(ctx.agentPresets.defaultId).toBe('ptc')
+      .toEqual(['standard', 'coding'])
+    expect(ctx.agentPresets.defaultId).toBe('coding')
   })
 
   it('composes the full agent from `ptc`', async () => {
     const handle = await ctx.agents.create({
       sessionId: SessionId('preset-ptc-catalog'),
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     try {
       // The EXACT catalog, not a spot-check: an omission is this design's
@@ -320,7 +320,7 @@ describe('the shipped Web composition', () => {
     })
     const disabled = await ctx.agents.create({
       sessionId: SessionId('preset-model-selection-disabled'),
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     await ctx.settings.update(SUBAGENT_MODEL_SELECTION_SETTINGS_NAMESPACE, {
       enabled: true,
@@ -328,7 +328,7 @@ describe('the shipped Web composition', () => {
     })
     const enabled = await ctx.agents.create({
       sessionId: SessionId('preset-model-selection-enabled'),
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     try {
       expect(toolNames(ctx, disabled.agent)).not.toContain('list_subagent_models')
@@ -371,7 +371,7 @@ describe('the shipped Web composition', () => {
   it('keeps two differently composed sessions independent', async () => {
     const full = await ctx.agents.create({
       sessionId: SessionId('preset-both-full'),
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     const minimal = await ctx.agents.create({
       sessionId: SessionId('preset-both-lean'),
@@ -394,7 +394,7 @@ describe('the shipped Web composition', () => {
   it('composes the shipped preset with the runtime-authoring toolset', async () => {
     const handle = await ctx.agents.create({
       sessionId: SessionId('preset-authoring-tools'),
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     try {
       const tools = toolNames(ctx, handle.agent)
@@ -421,7 +421,7 @@ describe('the shipped Web composition', () => {
   it('presents the shipped preset as PTC mode without disturbing a session composed elsewhere', async () => {
     const coded = await ctx.agents.create({
       sessionId: SessionId('preset-ptc'),
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     const native = await ctx.agents.create({
       sessionId: SessionId('preset-ptc-native'),
@@ -468,7 +468,7 @@ describe('the shipped Web composition', () => {
     // The preset's skill root is derived from its own `baseUrl`, so the skill
     // travels with the directory wherever the preset is installed.
     const skill = join(
-      SHIPPED_PRESET_ROOT, 'ptc', 'skills', 'editing-cordis-compositions', 'SKILL.md',
+      SHIPPED_PRESET_ROOT, 'coding', 'skills', 'editing-cordis-compositions', 'SKILL.md',
     )
 
     expect((await readFile(skill, 'utf8')).startsWith('---\nname: editing-cordis-compositions')).toBe(true)
@@ -491,7 +491,7 @@ describe('the shipped Web composition', () => {
       // Unique per run: the composition persists into the ambient QILIN home,
       // and a fixed id would collide with a log an earlier run left there.
       sessionId: SessionId(`preset-skills-shipped-${randomUUID()}`),
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     try {
       // The host (global) view carries the deployment-level provider alone:
@@ -543,12 +543,12 @@ describe('the shipped Web composition', () => {
     // agent down disposes its whole subtree. Inherited, that rewrote the
     // shipped composition — truncating it to `[]` the first time a session
     // ended — so `PresetTree` refuses to write at all.
-    const path = join(SHIPPED_PRESET_ROOT, 'ptc', 'agent.cordis.yml')
+    const path = join(SHIPPED_PRESET_ROOT, 'coding', 'agent.cordis.yml')
     const before = await readFile(path, 'utf8')
 
     const handle = await ctx.agents.create({
       sessionId: SessionId('preset-readonly'),
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     await handle.dispose()
     // Slack, not a race the number has to win. The write is driven by the
@@ -566,8 +566,8 @@ describe('a switch survives the session', () => {
   it('records the choice so the log states what the agent runs', async () => {
     const handle = await ctx.agents.create({
       sessionId: SessionId('preset-switch-logged'),
-      meta: { agentPreset: 'ptc' },
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      meta: { agentPreset: 'coding' },
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     try {
       // The api-proxy's select does exactly this pair while the session is blank.
@@ -577,7 +577,7 @@ describe('a switch survives the session', () => {
       expect(ctx.commands.find(handle.agent, 'goal')).toBeUndefined()
 
       // The header keeps the creation fact; the log carries what it runs.
-      expect(handle.agent.session.header.agentPreset).toBe('ptc')
+      expect(handle.agent.session.header.agentPreset).toBe('coding')
       expect(ctx.sessionProjections.stateOf(handle.agent.session, 'agentPreset')).toBe(LEAN_ID)
     } finally {
       await handle.dispose()
@@ -622,8 +622,8 @@ describe('a delegated child', () => {
   it('runs on the composition its parent runs on', async () => {
     const parent = await ctx.agents.create({
       sessionId: SessionId('preset-child-parent'),
-      meta: { agentPreset: 'ptc' },
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      meta: { agentPreset: 'coding' },
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     // Exactly what an in-process subagent driver's creation window does.
     const child = await parent.agent.ctx.agents.create({
@@ -638,7 +638,7 @@ describe('a delegated child', () => {
       // The shipped preset is the whole coding agent; an empty child here is
       // the defect, and equality alone would not catch it.
       expect(toolNames(ctx, child.agent)).toContain('bash')
-      expect(child.agent.session.header.agentPreset).toBe('ptc')
+      expect(child.agent.session.header.agentPreset).toBe('coding')
     } finally {
       await child.dispose()
       await parent.dispose()
@@ -648,8 +648,8 @@ describe('a delegated child', () => {
   it('follows a parent that switched preset while blank', async () => {
     const parent = await ctx.agents.create({
       sessionId: SessionId('preset-child-switch-parent'),
-      meta: { agentPreset: 'ptc' },
-      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+      meta: { agentPreset: 'coding' },
+      setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
     })
     await ctx.agentPresets.recompose(parent.agent.ctx, LEAN_ID)
     const child = await parent.agent.ctx.agents.create({
@@ -696,7 +696,7 @@ describe('a launcher that configures no writable root', () => {
     // writable one is the roster's own default rather than this patch's job.
     derivedCtx = await bootWeb(settingsFile, [{
       id: 'agent-presets',
-      config: { default: 'ptc', includeUserRoot: true },
+      config: { default: 'coding', includeUserRoot: true },
     }])
   }, 120_000)
 
@@ -738,7 +738,7 @@ describe('authoring a preset on the shipped composition', () => {
     authorCtx = await bootWeb(settingsFile, [{
       id: 'agent-presets',
       config: {
-        default: 'ptc',
+        default: 'coding',
         // The root does not exist yet: a deployment whose user has authored
         // nothing is the normal first-run state. The shipped root is the
         // plugin's own, prepended before this.
@@ -749,27 +749,27 @@ describe('authoring a preset on the shipped composition', () => {
   })
 
   it('refuses to copy over or delete a shipped preset', async () => {
-    await expect(authorCtx.agentPresets.copy('ptc', 'ptc')).rejects.toThrow(/already exists/)
-    await expect(authorCtx.agentPresets.remove('ptc')).rejects.toThrow(/ships with the deployment/)
+    await expect(authorCtx.agentPresets.copy('coding', 'coding')).rejects.toThrow(/already exists/)
+    await expect(authorCtx.agentPresets.remove('coding')).rejects.toThrow(/ships with the deployment/)
   })
 
   it.each(['../escape', 'a/b', '/abs', 'Upper'])('refuses the uncontainable id %j', async (id) => {
     // The id becomes a directory name under the user root, so containment is
     // checked on the id rather than on the joined path afterwards.
-    await expect(authorCtx.agentPresets.copy('ptc', id)).rejects.toThrow()
+    await expect(authorCtx.agentPresets.copy('coding', id)).rejects.toThrow()
   })
 
   it('copies a shipped preset a session then really composes from', async () => {
-    await authorCtx.agentPresets.copy('ptc', 'my-agent', '我的模式')
+    await authorCtx.agentPresets.copy('coding', 'my-agent', '我的模式')
 
     // Round-trips through the roster as a `user` row carrying the given name
     // and the source's description, over the source's own composition text.
     const preset = await authorCtx.agentPresets.resolve('my-agent')
-    const source = await authorCtx.agentPresets.resolve('ptc')
+    const source = await authorCtx.agentPresets.resolve('coding')
     expect(preset.trust).toBe('user')
     expect(preset.name).toBe('我的模式')
     expect(preset.description).toBe(source.description)
-    expect(await authorCtx.agentPresets.read('my-agent')).toBe(await authorCtx.agentPresets.read('ptc'))
+    expect(await authorCtx.agentPresets.read('my-agent')).toBe(await authorCtx.agentPresets.read('coding'))
     // Owner-only, in an owner-only directory: a composition is executable
     // configuration on a machine that may have other users.
     expect((await stat(preset.path)).mode & 0o777).toBe(0o600)
@@ -788,7 +788,7 @@ describe('authoring a preset on the shipped composition', () => {
   })
 
   it('deletes what it copied', async () => {
-    await authorCtx.agentPresets.copy('ptc', 'doomed')
+    await authorCtx.agentPresets.copy('coding', 'doomed')
 
     await authorCtx.agentPresets.remove('doomed')
 
@@ -895,7 +895,7 @@ describe('a composition that configures its own preset roots', () => {
     // A workspace-shared root beside the deployment: one preset of its own,
     // plus a directory that claims a shipped id.
     teamRoot = join(home, 'team-presets')
-    for (const id of ['team-spec', 'ptc']) {
+    for (const id of ['team-spec', 'coding']) {
       await mkdir(join(teamRoot, id), { recursive: true })
       await writeFile(join(teamRoot, id, 'agent.cordis.yml'), LEAN_COMPOSITION)
     }
@@ -905,7 +905,7 @@ describe('a composition that configures its own preset roots', () => {
     rootsCtx = await bootWeb(settingsFile, [{
       id: 'agent-presets',
       config: {
-        default: 'ptc',
+        default: 'coding',
         roots: [{ path: teamRoot, trust: 'user' }],
         includeUserRoot: false,
       },
@@ -923,11 +923,11 @@ describe('a composition that configures its own preset roots', () => {
     ])
 
     const listed = await rootsCtx.agentPresets.list()
-    expect(listed.map(preset => preset.id).sort()).toEqual(['ptc', 'standard', 'team-spec'])
+    expect(listed.map(preset => preset.id).sort()).toEqual(['coding', 'standard', 'team-spec'])
     expect(listed.every(preset => preset.broken === undefined)).toBe(true)
     // The shipped root comes first: a configured directory claiming the
     // shipped id is shadowed, never the other way around.
-    expect(listed.find(preset => preset.id === 'ptc')?.trust).toBe('system')
+    expect(listed.find(preset => preset.id === 'coding')?.trust).toBe('system')
     expect(listed.find(preset => preset.id === 'team-spec')?.trust).toBe('user')
   })
 

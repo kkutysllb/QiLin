@@ -6,7 +6,7 @@ import ToolRuntime, { defineTool, type Config as ToolConfig } from '@qilin-agent
 import { ToolCallId } from '@qilin-agent/llm'
 import type { Agent } from '@qilin-agent/agent'
 import { bindScopeParent, createScope, type Scope } from '@qilin-agent/scope'
-import { PtcRuntime, type PtcRunRequest, type PtcRunResult, type PtcRunSpec } from '@qilin-agent/ptc-runtime'
+import { PtcRuntime, type PtcRunRequest, type PtcRunResult, type PtcRunSpec } from '@qilin-agent/coding-runtime'
 import McpResources, { type McpResourceProvider } from '../src/index.ts'
 
 const resourceToolNames = ['list_mcp_resources', 'list_mcp_resource_templates', 'read_mcp_resource']
@@ -63,7 +63,7 @@ function call(ctx: Context, name: string, args: unknown, agent?: Agent) {
 }
 
 describe('MCP resource tools', () => {
-  it.each(['native', 'ptc'] as const)('omits every MCP contribution with no servers in %s mode', async (mode) => {
+  it.each(['native', 'coding'] as const)('omits every MCP contribution with no servers in %s mode', async (mode) => {
     const ctx = await setup(mode)
     expect(visibleResourceTools(ctx)).toEqual([])
     const assembly = await ctx.systemPrompt.assemble()
@@ -196,11 +196,11 @@ describe('MCP resource tools', () => {
   })
 
   it('removes PTC declarations and bindings and rejects a previously materialized call after disposal', async () => {
-    const ctx = await setup('ptc')
+    const ctx = await setup('coding')
     const request = vi.fn<McpResourceProvider['request']>().mockResolvedValue({ resources: [] })
     const remove = ctx.mcpResources.register('docs', { request })
     expect(renderPrompt(await ctx.systemPrompt.assemble())).toContain('list_mcp_resources:')
-    const runtime = ctx.ptcRuntime as BindingProbe
+    const runtime = ctx.codingRuntime as BindingProbe
     runtime.behavior = async (spec) => {
       const binding = spec.bindings[0]!.functions['list_mcp_resources']!
       expect(await binding({ server: 'docs' })).toEqual({ resources: [] })

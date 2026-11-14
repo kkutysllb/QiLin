@@ -91,7 +91,7 @@ if (resource !== undefined) {
   await import('@qilin-agent/sandbox-windows-acl/runner')
 } else if (process.env.QILIN_PTC_RUNTIME_NODE === '1') {
   Reflect.deleteProperty(process.env, 'QILIN_PTC_RUNTIME_NODE')
-  await import('@qilin-agent/ptc-runtime-node/process')
+  await import('@qilin-agent/coding-runtime-node/process')
 } else if (selection === undefined) {
   if (cache !== undefined && existsSync(join(cache, 'primary', 'complete'))) {
     process.env.QILIN_BUNDLED_PRIMARY_RUNTIME = join(cache, 'primary', 'primary-runtime')

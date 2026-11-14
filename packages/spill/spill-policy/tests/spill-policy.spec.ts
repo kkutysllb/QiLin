@@ -30,7 +30,7 @@ import type { PostToolDecision, ToolExecution, ToolExecutionInput, ToolExecution
 import { SpillLocator, SpillStore } from '@qilin-agent/spill'
 import type { SaveTextSpill, SpillRef } from '@qilin-agent/spill'
 import * as SpillPolicy from '@qilin-agent/spill-policy'
-import NodeRuntime, { type Config as NodeRuntimeConfig } from '@qilin-agent/ptc-runtime-node'
+import NodeRuntime, { type Config as NodeRuntimeConfig } from '@qilin-agent/coding-runtime-node'
 import FileSystem from '@qilin-agent/fs-local'
 import Subprocess from '@qilin-agent/subprocess-local'
 import Sandbox from '@qilin-agent/sandbox-local'
@@ -228,7 +228,7 @@ describe('outer PTC mode failure capture', () => {
   it('spills the bounded output-limit diagnostic through the ordinary outer-result policy', async () => {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(ToolRuntime, { mode: 'ptc' })
+    await ctx.plugin(ToolRuntime, { mode: 'coding' })
     await ctx.plugin(StubStore)
     await ctx.plugin(SpillPolicy, { maxInlineTokens: 64 })
     await mountRuntime(ctx, { maxOutputBytes: 500 })
@@ -272,7 +272,7 @@ describe('the durable dispatch-log arm', () => {
   async function runCodeWith(program: string, maxInlineTokens: number, extraTools: ToolDefinition[] = []) {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(ToolRuntime, { mode: 'ptc' })
+    await ctx.plugin(ToolRuntime, { mode: 'coding' })
     await ctx.plugin(StubStore)
     await ctx.plugin(SpillPolicy, { maxInlineTokens })
     await mountRuntime(ctx, {})
@@ -341,7 +341,7 @@ describe('the durable dispatch-log arm', () => {
   it('a slow spill backend never delays the program value or a later dispatch slot', async () => {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(ToolRuntime, { mode: 'ptc' })
+    await ctx.plugin(ToolRuntime, { mode: 'coding' })
     await ctx.plugin(StubStore)
     await ctx.plugin(SpillPolicy, { maxInlineTokens: 40 })
     await mountRuntime(ctx, {})
@@ -394,7 +394,7 @@ describe('the durable dispatch-log arm', () => {
   it('a sustained slow backend backpressures the run instead of accumulating unbounded log tasks', async () => {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(ToolRuntime, { mode: 'ptc', maxParallelSubCalls: 1 })
+    await ctx.plugin(ToolRuntime, { mode: 'coding', maxParallelSubCalls: 1 })
     await ctx.plugin(StubStore)
     await ctx.plugin(SpillPolicy, { maxInlineTokens: 40 })
     await mountRuntime(ctx, {})
@@ -461,7 +461,7 @@ describe('the durable dispatch-log arm', () => {
   it('a saveText failure keeps the complete content in the durable log (best-effort)', async () => {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(ToolRuntime, { mode: 'ptc' })
+    await ctx.plugin(ToolRuntime, { mode: 'coding' })
     await ctx.plugin(StubStore)
     await ctx.plugin(SpillPolicy, { maxInlineTokens: 40 })
     await mountRuntime(ctx, {})

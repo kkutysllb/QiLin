@@ -67,6 +67,6 @@
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/session-projection": "workspace:*",
     "@qilin-agent/scope": "workspace:*",
-    "@qilin-agent/ptc-runtime": "workspace:*"
+    "@qilin-agent/coding-runtime": "workspace:*"
   }
 }

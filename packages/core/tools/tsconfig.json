@@ -12,7 +12,7 @@
       "path": "../../core/session"
     },
     {
-      "path": "../../ptc-runtime/ptc-runtime"
+      "path": "../../coding-runtime/coding-runtime"
     },
     {
       "path": "../../../vendor/cosmokit"

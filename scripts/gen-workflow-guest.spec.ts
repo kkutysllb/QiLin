@@ -7,7 +7,7 @@ import { bundleWorkflowGuest, generateWorkflowGuest } from './gen-workflow-guest
 async function fixture(source: string): Promise<{ root: string; entry: string; output: string }> {
   const root = await mkdtemp(join(tmpdir(), 'qilin-workflow-guest-'))
   onTestFinished(() => rm(root, { recursive: true, force: true }))
-  const directory = join(root, 'packages/workflow/workflow-ptc/src')
+  const directory = join(root, 'packages/workflow/workflow-coding/src')
   await mkdir(directory, { recursive: true })
   await writeFile(join(root, 'tsconfig.base.json'), '{"compilerOptions":{"target":"es2024"}}\n')
   const entry = join(directory, 'guest.ts')

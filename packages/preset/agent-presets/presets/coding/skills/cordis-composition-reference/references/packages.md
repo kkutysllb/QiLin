@@ -205,7 +205,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-forge-session` | yes | Binds change requests to the Session that created, pushed, or tracked them |
 | `@qilin-agent/experimental-hooks-claude-code` | yes | Bridge plugin: run a Claude Code hooks.json / settings hook config on the QiLin interception seams |
 | `@qilin-agent/experimental-hooks-codex` | yes | Bridge plugin: run a Codex hooks.json hook config on the QiLin interception seams |
-| `@qilin-agent/experimental-ptc-runtime-python` | yes | CPython subprocess implementation of the QiLin PTC execution seam |
+| `@qilin-agent/experimental-coding-runtime-python` | yes | CPython subprocess implementation of the QiLin PTC execution seam |
 | `@qilin-agent/experimental-session-title-all-prompts-llm` | yes | All-user-messages LLM provider plugin for QiLin session titles |
 | `@qilin-agent/experimental-skill-badge` | no | Bundled qilin badge skill provider for QiLin |
 | `@qilin-agent/experimental-speech-to-text` | yes | Experimental speech recognition with independently selectable providers |
@@ -340,11 +340,11 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/agent-presets` | yes | Per-session agent composition from preset cordis.yml files for the QiLin |
 | `@qilin-agent/persona` | yes | Composition-authored deployment persona section for the QiLin |
 
-## ptc-runtime
+## coding-runtime
 
 | Package | Config | Description |
 |---|---|---|
-| `@qilin-agent/ptc-runtime-node` | yes | Node PTC execution with per-call sandboxed processes or in-memory REPL state |
+| `@qilin-agent/coding-runtime-node` | yes | Node PTC execution with per-call sandboxed processes or in-memory REPL state |
 
 ## sandbox
 
@@ -521,7 +521,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | Package | Config | Description |
 |---|---|---|
 | `@qilin-agent/tool-workflow` | yes | Model-facing workflow tool: run a JavaScript orchestration script over ctx.workflowEngine |
-| `@qilin-agent/workflow-ptc` | yes | Workflow orchestration in the shared sandboxed Node PTC runtime |
+| `@qilin-agent/workflow-coding` | yes | Workflow orchestration in the shared sandboxed Node PTC runtime |
 
 ## workspace
 

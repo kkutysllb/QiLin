@@ -210,8 +210,8 @@
         toolName: subagent_fork
         backgroundMode: continuable
 
-    - id: workflow-ptc
-      name: '@qilin-agent/workflow-ptc'
+    - id: workflow-coding
+      name: '@qilin-agent/workflow-coding'
       config:
         provider: spawn
 

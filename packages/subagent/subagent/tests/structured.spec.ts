@@ -50,11 +50,11 @@ async function setup(script: Script, options: SetupOptions = {}) {
   await mountAgentLoopTestDependencies(ctx, {
     tools: { mode: options.toolMode ?? 'native' },
   })
-  if (options.toolMode === 'ptc') {
-    ctx.provide('ptcRuntime', {
+  if (options.toolMode === 'coding') {
+    ctx.provide('codingRuntime', {
       language: 'typescript',
       isolation: 'test',
-      resolve: (request: import('@qilin-agent/ptc-runtime').PtcRunRequest) => ({ ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: 120_000 }),
+      resolve: (request: import('@qilin-agent/coding-runtime').PtcRunRequest) => ({ ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: 120_000 }),
       run: options.codeRun ?? (() => Promise.resolve({ logs: [] })),
     } as never)
   }
@@ -147,8 +147,8 @@ describe('in-process structured output', () => {
   it.each([
     { toolMode: 'native', blocked: false },
     { toolMode: 'native', blocked: true },
-    { toolMode: 'ptc', blocked: false },
-    { toolMode: 'ptc', blocked: true },
+    { toolMode: 'coding', blocked: false },
+    { toolMode: 'coding', blocked: true },
   ] as const)('closes input through $toolMode result policy and reopens only after rejection ($blocked)', async ({ toolMode, blocked }) => {
     const { ctx, parent } = await setup(['hang'], {
       toolMode,
@@ -619,7 +619,7 @@ describe('in-process structured output', () => {
     const { ctx, parent, adapter } = await setup([
       toolCallResponse('c1', RUN_CODE_NAME, { code: 'return await tools.structured_output({ answer: 12 })', description: 'Capture the structured answer' }),
     ], {
-      toolMode: 'ptc',
+      toolMode: 'coding',
       codeRun: async (request) => {
         const capture = request.bindings.at(0)?.functions[STRUCTURED_OUTPUT_TOOL]
         if (!capture) throw new Error('structured_output binding missing')
@@ -647,7 +647,7 @@ describe('in-process structured output', () => {
       toolCallResponse('c1', RUN_CODE_NAME, { code: 'await tools.structured_output({ answer: 12 }); throw new Error("boom")', description: 'Capture then fail the program' }),
       textResponse('outer code failed'),
     ], {
-      toolMode: 'ptc',
+      toolMode: 'coding',
       codeRun: async (request) => {
         const capture = request.bindings.at(0)?.functions[STRUCTURED_OUTPUT_TOOL]
         if (!capture) throw new Error('structured_output binding missing')
@@ -676,7 +676,7 @@ describe('in-process structured output', () => {
       toolCallResponse('c1', RUN_CODE_NAME, { code: 'return await tools.structured_output({ answer: 12 })', description: 'Capture the structured answer' }),
       textResponse('outer code was blocked'),
     ], {
-      toolMode: 'ptc',
+      toolMode: 'coding',
       codeRun: async (request) => {
         const capture = request.bindings.at(0)?.functions[STRUCTURED_OUTPUT_TOOL]
         if (!capture) throw new Error('structured_output binding missing')

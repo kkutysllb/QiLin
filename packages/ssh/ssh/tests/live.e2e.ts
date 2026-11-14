@@ -7,7 +7,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { Context } from '@qilin-agent/kylin'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
-import { NodePtcRuntime } from '@qilin-agent/ptc-runtime-node'
+import { NodePtcRuntime } from '@qilin-agent/coding-runtime-node'
 import Lsp from '@qilin-agent/lsp'
 import * as LspStdio from '@qilin-agent/lsp-stdio'
 import { SessionProjectionRegistry } from '@qilin-agent/session-projection'
@@ -253,7 +253,7 @@ describe.skipIf(!enabled)('POSIX SSH runtime acceptance', () => {
     })
     try {
       await fiber
-      const runtime = test.ctx.ptcRuntime
+      const runtime = test.ctx.codingRuntime
       const bindings = [{ global: 'tools', functions: { echo: async (input: unknown) => String(input) } }]
       const policy: SandboxPolicy = { mode: 'workspace-write', workspaceRoot: test.root }
       const result = await runtime.run(runtime.resolve({

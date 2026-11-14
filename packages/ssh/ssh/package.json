@@ -76,7 +76,7 @@
     "@qilin-agent/sandbox-local": "workspace:*",
     "@qilin-agent/sandbox-policy": "workspace:*",
     "@qilin-agent/session-projection": "workspace:*",
-    "@qilin-agent/ptc-runtime-node": "workspace:*",
+    "@qilin-agent/coding-runtime-node": "workspace:*",
     "@qilin-agent/fs-ssh": "workspace:*",
     "@qilin-agent/subprocess-ssh": "workspace:*",
     "@qilin-agent/sandbox-ssh": "workspace:*",

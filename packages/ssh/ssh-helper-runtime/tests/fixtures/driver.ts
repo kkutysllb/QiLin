@@ -9,7 +9,7 @@ import type {} from '@qilin-agent/ssh'
 import type {} from '@qilin-agent/fs-ssh'
 import type {} from '@qilin-agent/subprocess-ssh'
 import type {} from '@qilin-agent/sandbox-ssh'
-import type {} from '@qilin-agent/ptc-runtime-node'
+import type {} from '@qilin-agent/coding-runtime-node'
 
 const [configPath, reportPath, sandbox] = process.argv.slice(2)
 if (configPath === undefined || reportPath === undefined || !['required', 'unavailable', 'portable'].includes(sandbox ?? '')) throw new Error('Artifact driver requires config, report, and expected sandbox availability')
@@ -90,7 +90,7 @@ try {
   } finally { await terminal.terminate(); await terminalRead }
   checks.push('native-pty')
 
-  const runtime = ctx.ptcRuntime
+  const runtime = ctx.codingRuntime
   const bindings = [{ global: 'tools', functions: { echo: async (input: unknown) => String(input) } }]
   const policy = { mode: 'danger-full-access', workspaceRoot: root } as const
   const result = await runtime.run(runtime.resolve({

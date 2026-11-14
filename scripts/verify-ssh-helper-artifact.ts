@@ -91,7 +91,7 @@ export function artifactComposition(connection: { id: string; name: string; conf
     { id: 'sandbox', name: '@qilin-agent/sandbox-ssh' },
   ]
   return rows.map(row => `- ${JSON.stringify(row)}`).join('\n')
-    + '\n- id: ptc\n  name: "@qilin-agent/ptc-runtime-node"\n  inject: [ssh]\n  config:\n    launch: !!js ctx.ssh.ptcLaunch\n'
+    + '\n- id: ptc\n  name: "@qilin-agent/coding-runtime-node"\n  inject: [ssh]\n  config:\n    launch: !!js ctx.ssh.ptcLaunch\n'
 }
 
 /**

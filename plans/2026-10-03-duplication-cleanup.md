@@ -51,6 +51,6 @@
 - `test-support/client-runtime/tests/assembly-test-client.client.spec.ts`：jsdom shim 回收断言；改动前同样红。
 - `test-support/client-runtime/tests/assembly-bundle-roster.client.spec.ts`：`@qilin/client-ui-agent-opens -> @qilin/sidebar-opens` 悬空 inject，即上一轮登记的 `verify-module-graph` 缺两个包。
 - `shell/tool-bash-persistent/tests/loader-composition.spec.ts`「preserves cwd and environment across calls」：改动前同样红。
-- `packages/experimental/ptc-runtime-python` 三个规格（242 例）与 `browser-use-runtime/tests/mcp.spec.ts`：本机 `/usr/bin/python3` 是 CPython 3.9.6，低于该包要求的 3.10（`validatePythonBin` 直接拒绝），属环境前提缺失。
+- `packages/experimental/coding-runtime-python` 三个规格（242 例）与 `browser-use-runtime/tests/mcp.spec.ts`：本机 `/usr/bin/python3` 是 CPython 3.9.6，低于该包要求的 3.10（`validatePythonBin` 直接拒绝），属环境前提缺失。
 - `packages/client/ui-theme/tests/scrollbar-styles.client.spec.ts` 1 例：`ui-deliverables/src/client/SessionChanges.module.css` 在抬升表面滚动却不重绑。本轮 diff 不含任何 `.css`，与该断言无关。
 - `verify-client-domain-graph` 是 `check-all` 车道里的 52 处违规（ui-conversation / ui-sidebar-browser 等既有分层债），本轮新增文件 0 违规。

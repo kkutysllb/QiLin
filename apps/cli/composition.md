@@ -152,9 +152,9 @@ flowchart LR
   cfg --> plugin_qilin_base_tool_subagent
   plugin_qilin_base_tool_subagent_fork["tool-subagent-fork<br/>@qilin-agent/tool-subagent"]
   cfg --> plugin_qilin_base_tool_subagent_fork
-  plugin_qilin_base_ptc_runtime["ptc-runtime<br/>@qilin-agent/ptc-runtime-node"]
+  plugin_qilin_base_ptc_runtime["coding-runtime<br/>@qilin-agent/coding-runtime-node"]
   cfg --> plugin_qilin_base_ptc_runtime
-  plugin_qilin_base_workflow_ptc["workflow-ptc<br/>@qilin-agent/workflow-ptc"]
+  plugin_qilin_base_workflow_ptc["workflow-coding<br/>@qilin-agent/workflow-coding"]
   cfg --> plugin_qilin_base_workflow_ptc
   plugin_qilin_base_tool_workflow["tool-workflow<br/>@qilin-agent/tool-workflow"]
   cfg --> plugin_qilin_base_tool_workflow
@@ -274,8 +274,8 @@ flowchart LR
 | `tool-subagent-list-agents` | `@qilin-agent/tool-subagent-control/list-agents` |
 | `tool-subagent` | `@qilin-agent/tool-subagent` |
 | `tool-subagent-fork` | `@qilin-agent/tool-subagent` |
-| `ptc-runtime` | `@qilin-agent/ptc-runtime-node` |
-| `workflow-ptc` | `@qilin-agent/workflow-ptc` |
+| `coding-runtime` | `@qilin-agent/coding-runtime-node` |
+| `workflow-coding` | `@qilin-agent/workflow-coding` |
 | `tool-workflow` | `@qilin-agent/tool-workflow` |
 | `timeout-policy` | `@qilin-agent/tool-call-timeout-policy` |
 | `spill-local` | `@qilin-agent/spill-local` |

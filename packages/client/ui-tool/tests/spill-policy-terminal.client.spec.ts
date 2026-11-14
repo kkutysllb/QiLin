@@ -2,8 +2,8 @@
 import { Context } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
 import type { ToolResultNode } from '@qilin-agent/client-ui-chat/client'
-import { PtcRuntime } from '@qilin-agent/ptc-runtime'
-import type { PtcRunRequest, PtcRunSpec, PtcRunResult } from '@qilin-agent/ptc-runtime'
+import { PtcRuntime } from '@qilin-agent/coding-runtime'
+import type { PtcRunRequest, PtcRunSpec, PtcRunResult } from '@qilin-agent/coding-runtime'
 import { estimateContent } from '@qilin-agent/token-meter/estimate'
 import { ToolCallId } from '@qilin-agent/llm'
 import { Session, SessionId } from '@qilin-agent/session'
@@ -40,7 +40,7 @@ async function executeShell(text: string, nested: boolean, name = 'bash', maxInl
   const ctx = new Context()
   try {
     await ctx.plugin(SystemPrompt)
-    await ctx.plugin(ToolRuntime, { mode: nested ? 'ptc' : 'native' })
+    await ctx.plugin(ToolRuntime, { mode: nested ? 'coding' : 'native' })
     ctx.provide('workingDirectory', { ensure: async () => process.cwd() })
     await ctx.plugin(MemorySpillStore)
     await ctx.plugin(SpillPolicy, { maxInlineTokens })

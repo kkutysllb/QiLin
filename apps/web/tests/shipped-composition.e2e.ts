@@ -546,7 +546,7 @@ afterEach(async () => {
 })
 
 it('assembles the shipped Web transport, catalog, guidance, and defaults', async () => {
-  scaffold = await launchWebScaffold({ deepSeekMissingCredential: true, toolsMode: 'ptc' })
+  scaffold = await launchWebScaffold({ deepSeekMissingCredential: true, toolsMode: 'coding' })
   expect(existsSync(join(scaffold.harnessHome, 'profiles', 'node_modules'))).toBe(false)
   const ctx = scaffold.ctx
   expect(ctx.llm.listProviders().some(provider => provider.id === 'deepseek-messages')).toBe(false)
@@ -624,7 +624,7 @@ it('assembles the shipped Web transport, catalog, guidance, and defaults', async
     .toEqual(['run_code', 'sidebar_open', 'working_directory'])
   const handle = await ctx.agents.create({
     sessionId: SessionId('shipped-composition'),
-    setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+    setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
   })
   try {
     const names = ctx.tools.schemas(handle.agent).map(schema => schema.name).sort()
@@ -683,7 +683,7 @@ it('ships PTC with run_code but without the general workflow SDK binding under d
   const ctx = scaffold.ctx
   const handle = await ctx.agents.create({
     sessionId: SessionId('shipped-ptc-composition'),
-    setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'ptc').then(() => undefined),
+    setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
   })
   try {
     const assembly = await ctx.systemPrompt.assemble({ scope: handle.agent })
@@ -697,7 +697,7 @@ it('ships PTC with run_code but without the general workflow SDK binding under d
 }, 120_000)
 
 it('lets a preset producer reach the background-job registry', async () => {
-  scaffold = await launchWebScaffold({ toolsMode: 'ptc' })
+  scaffold = await launchWebScaffold({ toolsMode: 'coding' })
   const ctx = scaffold.ctx
   const handle = await ctx.agents.create({
     sessionId: SessionId('shipped-background-job'),
@@ -775,7 +775,7 @@ it('lets a preset producer reach the background-job registry', async () => {
 }, 120_000)
 
 it('routes one browser-authored Auto request through the same model and asks the user after a denial', async () => {
-  scaffold = await launchWebScaffold({ ...AUTO_REVIEW_FIXTURE, toolsMode: 'ptc' })
+  scaffold = await launchWebScaffold({ ...AUTO_REVIEW_FIXTURE, toolsMode: 'coding' })
   const ctx = scaffold.ctx
   const targetPath = join(scaffold.workspaceCwd, 'auto-review-pre-existing.txt')
   await writeFile(targetPath, 'PRE_EXISTING_MUST_REMAIN\n')
@@ -1055,7 +1055,7 @@ it('reviews one-shot, continuable, and cold-resumed in-process child calls indep
 }, 120_000)
 
 it('rolls back a failed shipped Auto initialization before publishing or intercepting tools', async () => {
-  scaffold = await launchWebScaffold({ ...AUTO_REVIEW_FIXTURE, toolsMode: 'ptc' })
+  scaffold = await launchWebScaffold({ ...AUTO_REVIEW_FIXTURE, toolsMode: 'coding' })
   const ctx = scaffold.ctx
   const autoEntry = [...ctx.loader.entries()].find(entry => entry.options.id === 'auto-review')
   if (autoEntry === undefined) throw new Error('shipped Auto review Loader entry is missing')

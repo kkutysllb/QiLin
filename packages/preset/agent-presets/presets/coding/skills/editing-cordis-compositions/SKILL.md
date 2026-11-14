@@ -46,8 +46,8 @@ A preset row that publishes a service needs an `isolate` realm containing both t
   isolate:
     workflowEngine: true
   config:
-    - id: workflow-ptc
-      name: '@qilin-agent/workflow-ptc'
+    - id: workflow-coding
+      name: '@qilin-agent/workflow-coding'
       config:
         provider: spawn
     - id: tool-workflow

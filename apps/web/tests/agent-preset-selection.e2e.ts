@@ -100,7 +100,7 @@ async function seedSubagent(scaffold: WebScaffold, parentId: SessionId): Promise
     parentSession: parentId,
     origin: 'subagent',
     delegationDepth: 1,
-    agentPreset: 'ptc',
+    agentPreset: 'coding',
   }
   const handle = await scaffold.ctx.sessionPersistence.create(header)
   await handle.append([
@@ -183,7 +183,7 @@ describe('web e2e: agent-preset selection', () => {
     // A resumed session runs what it was created with; seeding one that
     // records `ptc` is what makes the header label a claim about the
     // session rather than an echo of the current default.
-    const seededId = await seedSession(scaffold, seedLog(), SEED_ID, 'ptc')
+    const seededId = await seedSession(scaffold, seedLog(), SEED_ID, 'coding')
     await seedSubagent(scaffold, seededId)
     browser = await chromium.launch()
     page = await newEnglishPage(browser)
@@ -240,7 +240,7 @@ describe('web e2e: agent-preset selection', () => {
     await standardChip.click()
     await page.getByRole('menuitem', { name: /Coding mode/ }).click()
     // The host recomposes the still-blank session from `ptc`.
-    await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('ptc')
+    await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('coding')
 
     const codingChip = page.getByRole('button', { name: 'Coding mode', exact: true })
     await codingChip.waitFor({ timeout: 10_000 })

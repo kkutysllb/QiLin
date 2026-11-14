@@ -41,7 +41,7 @@ async function bench() {
   // An empty roster keeps the new-task preset chip out of these flows; the
   // list stub shape matches apply.client.spec.ts.
   const agentPresets = {
-    select: vi.fn(async () => ({ ok: true as const, value: 'ptc' })),
+    select: vi.fn(async () => ({ ok: true as const, value: 'coding' })),
     list: vi.fn(async () => ({ ok: true as const, value: { presets: [], authorable: false, modeSelectionEnabled: false } })),
   }
   const { remote } = runtime

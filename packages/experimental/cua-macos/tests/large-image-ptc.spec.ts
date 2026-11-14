@@ -18,7 +18,7 @@ import { resolveAdapterOptions } from '@qilin-agent/llm-deepseek'
 import { inlineImages, prepareImages } from '@qilin-agent/llm-deepseek/src/images.ts'
 import { serialize } from '@qilin-agent/llm-deepseek/src/serialize.ts'
 import { resolveRequestImageTarget } from '@qilin-agent/llm-deepseek/src/request-pricing.ts'
-import NodePtcRuntime from '@qilin-agent/ptc-runtime-node'
+import NodePtcRuntime from '@qilin-agent/coding-runtime-node'
 import Sandbox from '@qilin-agent/sandbox-local'
 import SandboxPolicy from '@qilin-agent/sandbox-policy'
 import SessionStore, { SessionId } from '@qilin-agent/session'
@@ -72,7 +72,7 @@ it.skipIf(process.platform === 'win32')('delivers a valid PNG larger than 4 MiB 
   }
   const configPath = join(root, 'cordis.yml')
   const configs: Record<string, object> = {
-    tools: { mode: 'ptc' }, attachments: { qilinHome: join(root, 'home') }, workingDirectory: { defaultDirectory: root },
+    tools: { mode: 'coding' }, attachments: { qilinHome: join(root, 'home') }, workingDirectory: { defaultDirectory: root },
     fs: { cwd: root }, sandboxPolicy: { mode: 'danger-full-access', workspaceRoot: root }, cua: { helperPath, allowedApps: [{ 'id': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'name': 'Fixture', 'executablePath': '/fixture/app' }] },
   }
   await writeFile(configPath, Object.keys(modules).flatMap(name => [

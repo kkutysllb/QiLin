@@ -1,7 +1,7 @@
 /** Agent-scoped Schedule tool tests reuse the Host Schedule harness and mount the tools under a scope. */
 import type { Context } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
-import { PtcRuntime } from '@qilin-agent/ptc-runtime'
+import { PtcRuntime } from '@qilin-agent/coding-runtime'
 import { createScope, type Scope } from '@qilin-agent/scope'
 import * as ToolSchedule from '../src/index.ts'
 

@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/workflow.md
 /workflow:
-  en: 52ea617941e9e269
-  zh: e397febe93b3b7a5
+  en: 3db1baf27de2fa57
+  zh: bf0bd5a2a319774a
 /workflow/the-start-request:
   en: 670464068abbdc93
   zh: edadf213e54180a6

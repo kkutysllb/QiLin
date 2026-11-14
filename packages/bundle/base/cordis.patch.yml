@@ -418,11 +418,11 @@
         toolName: subagent_fork
         backgroundMode: one-shot
 
-    - id: ptc-runtime
-      name: '@qilin-agent/ptc-runtime-node'
+    - id: coding-runtime
+      name: '@qilin-agent/coding-runtime-node'
 
-    - id: workflow-ptc
-      name: '@qilin-agent/workflow-ptc'
+    - id: workflow-coding
+      name: '@qilin-agent/workflow-coding'
       config:
         provider: spawn
 

@@ -1,5 +1,5 @@
 /** Exact, directional exceptions to the shipped SDK/Desktop capability comparison. */
-export type ToolMode = 'standard' | 'ptc'
+export type ToolMode = 'standard' | 'coding'
 
 interface Exception {
   tool: string
@@ -15,7 +15,7 @@ interface Exception {
  */
 export const toolParityExceptions: Record<ToolMode, readonly Exception[]> = {
   standard: [],
-  ptc: [],
+  coding: [],
 }
 
 /**

@@ -49,7 +49,7 @@ kind: "package-library"
 ## 进一步探索
 
 - [SSH 连接](../ssh/README.zh.md)——认证、调用与生命周期。
-- [PTC Node 运行时](../../ptc-runtime/ptc-runtime-node/README.zh.md)——显式 worker 启动与执行上限。
+- [PTC Node 运行时](../../coding-runtime/coding-runtime-node/README.zh.md)——显式 worker 启动与执行上限。
 - [SSH 子系统](../../../docs/subsystems/ssh.zh.md)——远端执行坐标。
 
 -----

@@ -15,8 +15,8 @@ import AgentRegistry, { type Agent } from '@qilin-agent/agent'
 import AgentLoop from '@qilin-agent/agent-loop'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
-import { PtcRuntime } from '@qilin-agent/ptc-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/ptc-runtime'
+import { PtcRuntime } from '@qilin-agent/coding-runtime'
+import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/coding-runtime'
 
 declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
@@ -882,7 +882,7 @@ describe('tool-call scheduler: failure quiescence', () => {
 describe('PTC mode native-tool denial through the agent loop', () => {
   /** A minimal in-process PTC runtime for test purposes — never actually runs. */
   class FakePtcRuntime extends PtcRuntime {
-    resolve(request: import('@qilin-agent/ptc-runtime').PtcRunRequest): import('@qilin-agent/ptc-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+    resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
     readonly language = 'typescript'
     readonly isolation = 'fake' as const
@@ -897,7 +897,7 @@ describe('PTC mode native-tool denial through the agent loop', () => {
     await ctx.plugin(SessionStore)
     await ctx.plugin(SessionProjectionRegistry)
     await ctx.plugin(SystemPrompt, { personaPrefix: '' })
-    await ctx.plugin(ToolRuntime, { mode: 'ptc' })
+    await ctx.plugin(ToolRuntime, { mode: 'coding' })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- FakePtcRuntime is an internal test helper with an opaque type shape
     await ctx.plugin(FakePtcRuntime as any)
     await ctx.plugin(AgentRegistry)

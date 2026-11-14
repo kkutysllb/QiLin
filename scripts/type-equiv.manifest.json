@@ -1262,39 +1262,39 @@
       "source": "packages/sandbox/sandbox/src/index.ts"
     },
     {
-      "doc": "docs/subsystems/ptc-runtime.md",
+      "doc": "docs/subsystems/coding-runtime.md",
       "symbol": "PtcJsonValue",
-      "source": "packages/ptc-runtime/ptc-runtime/src/types.ts"
+      "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
-      "doc": "docs/subsystems/ptc-runtime.md",
+      "doc": "docs/subsystems/coding-runtime.md",
       "symbol": "PtcRunRequest",
-      "source": "packages/ptc-runtime/ptc-runtime/src/types.ts"
+      "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
-      "doc": "docs/subsystems/ptc-runtime.md",
+      "doc": "docs/subsystems/coding-runtime.md",
       "symbol": "PtcRunResult",
-      "source": "packages/ptc-runtime/ptc-runtime/src/types.ts"
+      "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
-      "doc": "docs/subsystems/ptc-runtime.md",
+      "doc": "docs/subsystems/coding-runtime.md",
       "symbol": "PtcBindingNamespace",
-      "source": "packages/ptc-runtime/ptc-runtime/src/types.ts"
+      "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
-      "doc": "docs/subsystems/ptc-runtime.md",
+      "doc": "docs/subsystems/coding-runtime.md",
       "symbol": "PtcBindingErrorClass",
-      "source": "packages/ptc-runtime/ptc-runtime/src/types.ts"
+      "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
-      "doc": "docs/subsystems/ptc-runtime.md",
+      "doc": "docs/subsystems/coding-runtime.md",
       "symbol": "PtcBindingFunction",
-      "source": "packages/ptc-runtime/ptc-runtime/src/types.ts"
+      "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
-      "doc": "docs/subsystems/ptc-runtime.md",
+      "doc": "docs/subsystems/coding-runtime.md",
       "symbol": "PtcRunFailure",
-      "source": "packages/ptc-runtime/ptc-runtime/src/types.ts"
+      "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
       "doc": "docs/subsystems/filesystem.md",
@@ -2262,14 +2262,14 @@
       "source": "packages/core/session/src/surface.ts"
     },
     {
-      "doc": "docs/subsystems/ptc-runtime.md",
+      "doc": "docs/subsystems/coding-runtime.md",
       "symbol": "PtcRunSpec",
-      "source": "packages/ptc-runtime/ptc-runtime/src/types.ts"
+      "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
-      "doc": "docs/subsystems/ptc-runtime.md",
+      "doc": "docs/subsystems/coding-runtime.md",
       "symbol": "PtcRunSandbox",
-      "source": "packages/ptc-runtime/ptc-runtime/src/types.ts"
+      "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
       "doc": "docs/subsystems/ssh.md",

@@ -104,7 +104,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
 
     // The real shipped composition, not a golden: the viewer shows whatever
     // the deployment ships, and this lane only asserts it is shown read-only.
-    const shipped = await readFile(join(SHIPPED_PRESETS, 'ptc', 'agent.cordis.yml'), 'utf8')
+    const shipped = await readFile(join(SHIPPED_PRESETS, 'coding', 'agent.cordis.yml'), 'utf8')
     expect(await viewer.locator('pre').textContent()).toBe(shipped)
     expect(await viewer.getByRole('textbox').count()).toBe(0)
     // The header X and the footer button share the 关闭 name; the footer one
@@ -152,12 +152,12 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
     // description rides along for the user to edit in place, and neither the
     // source's name nor its roster order survives into the copy.
     const composition = await readFile(join(userRoot, 'my-agent', 'agent.cordis.yml'), 'utf8')
-    expect(composition).toBe(await readFile(join(SHIPPED_PRESETS, 'ptc', 'agent.cordis.yml'), 'utf8'))
+    expect(composition).toBe(await readFile(join(SHIPPED_PRESETS, 'coding', 'agent.cordis.yml'), 'utf8'))
     const metadata = await readFile(join(userRoot, 'my-agent', 'preset.yml'), 'utf8')
     expect(metadata).toContain('name: 我的模式')
     // The description rides along verbatim from the shipped source; read it from
     // the source so a copy edit does not stale this lane.
-    const shippedDescription = (await readFile(join(SHIPPED_PRESETS, 'ptc', 'preset.yml'), 'utf8'))
+    const shippedDescription = (await readFile(join(SHIPPED_PRESETS, 'coding', 'preset.yml'), 'utf8'))
       .split('\n').find(line => line.startsWith('description: ')) ?? ''
     expect(shippedDescription).not.toBe('')
     expect(metadata).toContain(shippedDescription)

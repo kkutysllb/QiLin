@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@qilin-agent/agent": "workspace:*",
-    "@qilin-agent/ptc-runtime-node": "workspace:*",
+    "@qilin-agent/coding-runtime-node": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/output-retention": "workspace:*",
     "@qilin-agent/session": "workspace:*",
@@ -68,7 +68,7 @@
     "@qilin-agent/mcp-client": "workspace:*",
     "@qilin-agent/spill-local": "workspace:*",
     "@qilin-agent/llm-deepseek": "workspace:*",
-    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/coding-runtime": "workspace:*",
     "@qilin-agent/attachment-local": "workspace:*",
     "@qilin-agent/tool-fs": "workspace:*",
     "sharp": "^0.35.5"

@@ -43,7 +43,7 @@
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/agent": "workspace:*",
-    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/coding-runtime": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/scope": "workspace:*",
     "@qilin-agent/session": "workspace:*",
@@ -61,7 +61,7 @@
   "devDependencies": {
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/agent": "workspace:*",
-    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/coding-runtime": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/scope": "workspace:*",
     "@qilin-agent/session": "workspace:*",

@@ -39,7 +39,7 @@
       "path": "../../util/atomic-write"
     },
     {
-      "path": "../../ptc-runtime/ptc-runtime"
+      "path": "../../coding-runtime/coding-runtime"
     },
     {
       "path": "../../settings/settings"

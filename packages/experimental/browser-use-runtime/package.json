@@ -57,7 +57,7 @@
     "@qilin-agent/session-projection": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/mcp-resources": "workspace:*",
-    "@qilin-agent/ptc-runtime": "workspace:*",
+    "@qilin-agent/coding-runtime": "workspace:*",
     "@qilin-agent/llm": "workspace:*",
     "@qilin-agent/kylin-plugin-loader": "workspace:~",
     "@qilin-agent/kylin-plugin-include": "workspace:~",

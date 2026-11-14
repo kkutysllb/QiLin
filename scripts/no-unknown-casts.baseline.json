@@ -1308,14 +1308,14 @@
   "packages/experimental/hooks-codex/tests/bridge.spec.ts": {
     "bced8a97654435422589a4bdd1b46b5147d4120cd5b496dcf055c453494ce0ab": 1
   },
-  "packages/experimental/ptc-runtime-python/src/index.ts": {
+  "packages/experimental/coding-runtime-python/src/index.ts": {
     "7fe58280287ff63d40e979e72329f975e11015a95e9a8eec207a5a78748d3c89": 1,
     "b121cee14635b00f7891217013e4682493cf96f676710be60722fdf8b862aea3": 1
   },
-  "packages/experimental/ptc-runtime-python/tests/protocol.spec.ts": {
+  "packages/experimental/coding-runtime-python/tests/protocol.spec.ts": {
     "7c9f2ab562fb6b2d2061e3d28680f1cd41b02f4ed644b21edce5b6506090c009": 1
   },
-  "packages/experimental/ptc-runtime-python/tests/runtime.spec.ts": {
+  "packages/experimental/coding-runtime-python/tests/runtime.spec.ts": {
     "fe253828aac689a136be6451c37ff9590ef8c67f7f7e9162686ec4457ff996c9": 2
   },
   "packages/experimental/tool-ralph/src/index.ts": {
@@ -1680,11 +1680,11 @@
   "packages/preset/agent-presets/tests/mount.spec.ts": {
     "92cb9ce1fc5e337381501a17571425bff9c50e31b92c9a8c2460976b652d6283": 3
   },
-  "packages/ptc-runtime/ptc-runtime-node/tests/host-failures.spec.ts": {
+  "packages/coding-runtime/coding-runtime-node/tests/host-failures.spec.ts": {
     "aa5de2d4958ec64219565d53ec5a9d7f40f1f60037a2d52d1a9c3c65db034d73": 1,
     "be027af1ef5cb3bfe41eeb19b54dbb176ec7c23ae367d709059839f9851833d5": 1
   },
-  "packages/ptc-runtime/ptc-runtime-node/tests/output-json.spec.ts": {
+  "packages/coding-runtime/coding-runtime-node/tests/output-json.spec.ts": {
     "8c4c486bbc27559714f4e0aaf376c72c49ac9157539b03c6c12853b8d3fc6e74": 1
   },
   "packages/sandbox/sandbox-local/tests/local.spec.ts": {
@@ -2320,7 +2320,7 @@
   "packages/workflow/tool-workflow/tests/tool-workflow.spec.ts": {
     "061944ebda38f8da144d88cfa668e6336efc68c33441a9fe3215d8c001124526": 2
   },
-  "packages/workflow/workflow-ptc/tests/workflow-ptc.spec.ts": {
+  "packages/workflow/workflow-coding/tests/workflow-coding.spec.ts": {
     "3ddf655a4c4522404be3c2758f0511c7605887c72d9d91cb4ad521433cbdb0b4": 1,
     "f382d714ca5cc4bc76a5e36d3e1e99c535590cce3ca1b04e5374315e9d8f51df": 1
   },

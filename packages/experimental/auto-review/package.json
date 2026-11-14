@@ -59,7 +59,7 @@
     "@qilin-agent/llm-deepseek": "workspace:*",
     "@qilin-agent/llm-deepseek-api-key": "workspace:*",
     "@qilin-agent/permission-presets": "workspace:*",
-    "@qilin-agent/ptc-runtime-node": "workspace:*",
+    "@qilin-agent/coding-runtime-node": "workspace:*",
     "@qilin-agent/sandbox": "workspace:*",
     "@qilin-agent/sandbox-policy": "workspace:*",
     "@qilin-agent/session": "workspace:*",

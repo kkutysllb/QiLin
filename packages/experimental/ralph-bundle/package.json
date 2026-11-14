@@ -33,7 +33,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@qilin-agent/workflow-ptc": "workspace:*",
+    "@qilin-agent/workflow-coding": "workspace:*",
     "@qilin-agent/experimental-tool-ralph": "workspace:*"
   },
   "peerDependencies": {

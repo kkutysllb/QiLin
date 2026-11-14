@@ -388,7 +388,7 @@ function nodeCompatSmokeGates(options: { cliSmoke?: boolean } = {}): Gate[] {
     pnpmExec('source-worker-smoke', [
       'vitest',
       'run',
-      'packages/workflow/workflow-ptc/tests/source-runtime.compat.spec.ts',
+      'packages/workflow/workflow-coding/tests/source-runtime.compat.spec.ts',
     ], { label: 'source worker smoke' }),
     pnpmExec('jsonl-zstd-smoke', [
       'vitest',
@@ -829,8 +829,8 @@ function builtBinSmokeGate(needs: string[] = ['build']): Gate {
     // Built execution consumers: the only automated proof that package-name
     // imports reach their lib/ entrypoints under plain Node. The e2e lane runs
     // unbuilt, so these files self-skip there.
-    'packages/workflow/workflow-ptc/tests/built-runtime.e2e.ts',
-    'packages/ptc-runtime/ptc-runtime-node/tests/built-lib.e2e.ts',
+    'packages/workflow/workflow-coding/tests/built-runtime.e2e.ts',
+    'packages/coding-runtime/coding-runtime-node/tests/built-lib.e2e.ts',
     'packages/session/session-persistence-jsonl/tests/built-migration-worker.e2e.ts',
     'packages/lsp/lsp-stdio/tests/built-lib.e2e.ts',
   ], {

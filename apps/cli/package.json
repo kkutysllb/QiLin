@@ -114,7 +114,7 @@
     "@qilin-agent/tool-workflow": "workspace:*",
     "@qilin-agent/web-app": "workspace:*",
     "@qilin-agent/web-brand": "workspace:*",
-    "@qilin-agent/workflow-ptc": "workspace:*",
+    "@qilin-agent/workflow-coding": "workspace:*",
     "commander": "^15.0.0",
     "js-yaml": "^4.3.2",
     "node-addon-require-builtin": "^0.1.9"
@@ -132,7 +132,7 @@
     "@qilin-agent/agent-team": "workspace:*",
     "@qilin-agent/experimental-hooks-claude-code": "workspace:*",
     "@qilin-agent/experimental-hooks-codex": "workspace:*",
-    "@qilin-agent/experimental-ptc-runtime-python": "workspace:*",
+    "@qilin-agent/experimental-coding-runtime-python": "workspace:*",
     "@qilin-agent/tool-agent-team": "workspace:*",
     "@qilin-agent/experimental-webhook": "workspace:*",
     "@qilin-agent/experimental-webhook-github": "workspace:*",

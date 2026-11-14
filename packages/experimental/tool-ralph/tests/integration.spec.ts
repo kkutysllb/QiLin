@@ -12,10 +12,10 @@ import SubagentRuntime from '@qilin-agent/subagent'
 import { STRUCTURED_OUTPUT_TOOL } from '@qilin-agent/subagent'
 import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import * as spawn from '@qilin-agent/subagent-spawn-in-process'
-import PtcWorkflowEngine from '@qilin-agent/workflow-ptc'
+import PtcWorkflowEngine from '@qilin-agent/workflow-coding'
 import { MockAdapter, maxTokensResponse, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import * as toolRalph from '../src/index.ts'
-import { mountWorkflowRuntime } from '../../../workflow/workflow-ptc/tests/setup.ts'
+import { mountWorkflowRuntime } from '../../../workflow/workflow-coding/tests/setup.ts'
 
 type MockScript = ConstructorParameters<typeof MockAdapter>[0]
 const testToolSignal = new AbortController().signal
