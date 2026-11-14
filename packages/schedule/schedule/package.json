@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/schedule",
   "description": "Host-wide durable reminders with shared management and delivery to existing or new Sessions",
-  "version": "3.1.11",
+  "version": "3.1.12-rc.1",
   "publishConfig": {
     "access": "public"
   },

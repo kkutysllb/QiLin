@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/workflow-coding",
   "description": "Workflow orchestration in the shared sandboxed Node coding runtime",
-  "version": "3.1.11",
+  "version": "3.1.12-rc.1",
   "publishConfig": {
     "access": "public"
   },

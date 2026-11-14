@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/util-code-language",
   "description": "Single file-extension to syntax-highlighting language table shared by Client code surfaces and the Host read card",
-  "version": "3.1.11",
+  "version": "3.1.12-rc.1",
   "publishConfig": {
     "access": "public"
   },

@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/util-error",
   "description": "Dependency-free HarnessError base class with a stable machine-routable code",
-  "version": "3.1.11",
+  "version": "3.1.12-rc.1",
   "publishConfig": {
     "access": "public"
   },

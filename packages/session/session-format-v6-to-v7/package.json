@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/session-format-v6-to-v7",
   "description": "Session V6 to V7 format edge for persisted Team mode",
-  "version": "3.1.11",
+  "version": "3.1.12-rc.1",
   "publishConfig": {
     "access": "public"
   },

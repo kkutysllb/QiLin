@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/office-read",
   "description": "Read-only Office document parsing for DOCX, XLSX, and PPTX without spawning a converter",
-  "version": "3.1.11",
+  "version": "3.1.12-rc.1",
   "publishConfig": {
     "access": "public"
   },
