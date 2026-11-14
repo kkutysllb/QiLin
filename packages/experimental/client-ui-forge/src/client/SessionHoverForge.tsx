@@ -1,7 +1,8 @@
 /**
  * The forge section of a Session row's hover card: the worktree branch while
- * the Session works in the worktree the panel created for it, and its change
- * requests, most urgent first.
+ * the Session works in the worktree the panel created for it, a note that the
+ * worktree shows only after opening while the listed values omit it, and its
+ * change requests, most urgent first.
  */
 
 import type { ReactNode } from 'react'
@@ -26,16 +27,24 @@ export type SessionHoverForgeProps =
 /**
  * Render the forge section of a Session's hover card.
  * @param props - the row's Session, the shared hooks, and copy.
- * @returns the section, or null for a Session without a worktree or change requests.
+ * @returns the section, or null for a Session whose listed values hold a worktree
+ *   fact and no change requests.
  */
 export function SessionHoverForge({ sessionId, useSessions, useStates, t }: SessionHoverForgeProps): ReactNode {
   const facts = useSessionForgeFacts(useSessions, useStates, sessionId)
-  if (facts.worktree === null && facts.changeRequests.length === 0) return null
+  if (facts.worktree === null && !facts.worktreeUnknown && facts.changeRequests.length === 0) return null
   const shown = facts.changeRequests.slice(0, HOVER_CHANGE_REQUEST_LIMIT)
   const omitted = facts.changeRequests.length - shown.length
   const worktree = facts.worktree
   return (
     <div className={css.hover} data-forge-session-hover="">
+      {facts.worktreeUnknown && (
+        <div className={css.hoverItem} data-forge-session-hover-worktree="unknown">
+          <span className={css.hoverBody}>
+            <span className={css.hoverNote}>{t('list.worktreeUnknown')}</span>
+          </span>
+        </div>
+      )}
       {worktree !== null && (
         <div className={css.hoverItem}>
           <span className={css.hoverIcon} aria-hidden="true"><IconBranchOutlineRegular size={12} /></span>

@@ -32,25 +32,38 @@ export interface SessionListChangeRequest {
 export interface SessionForgeFacts {
   /** The worktree the panel created for the Session, while the Session works in it. */
   readonly worktree: ForgeSessionWorktree | null
+  /**
+   * Whether the listed values omit the worktree, so this row knows nothing
+   * about it: a listed Session whose cached summary holds no such value, or
+   * one listed before its block arrives. Distinct from the `null` worktree a
+   * Session working outside it reports.
+   */
+  readonly worktreeUnknown: boolean
   /** Visible change requests, most urgent first; equally urgent ones keep their binding order. */
   readonly changeRequests: readonly SessionListChangeRequest[]
 }
 
 const URGENCY: Record<ChangeRequestTone, number> = { blocked: 0, open: 1, draft: 2, unknown: 3, merged: 4, closed: 5 }
 
-const NO_FACTS: SessionForgeFacts = { worktree: null, changeRequests: [] }
+const NO_FACTS: SessionForgeFacts = { worktree: null, worktreeUnknown: false, changeRequests: [] }
+
+/** The facts of a Session whose listed values carry no worktree fact at all. */
+const UNKNOWN_FACTS: SessionForgeFacts = { worktree: null, worktreeUnknown: true, changeRequests: [] }
 
 /**
  * Derive a Session's facts from its listed projection values.
  * @param values - the Session's projection values in the Session list, undefined before it is listed.
  * @param states - change request states by URL.
- * @returns the facts; a Session without a worktree or change requests shares one empty value.
+ * @returns the facts; a Session whose listed values hold no worktree fact and no
+ *   change request shares the unknown value, and one working outside its
+ *   worktree with no change request shares the empty value.
  */
 export function sessionForgeFacts(
   values: Readonly<Partial<SessionProjectionMap>> | undefined,
   states: ReadonlyMap<string, ForgeChangeRequestListState>,
 ): SessionForgeFacts {
   const worktree = values?.forgeWorktree ?? null
+  const worktreeUnknown = values?.forgeWorktree === undefined
   const changeRequests = (values?.forgeChangeRequests ?? [])
     .filter(binding => !binding.dismissed)
     .map((binding): SessionListChangeRequest => {
@@ -58,7 +71,8 @@ export function sessionForgeFacts(
       return { url: binding.url, state, tone: toneOf(state ?? null) }
     })
     .sort((left, right) => URGENCY[left.tone] - URGENCY[right.tone])
-  return worktree === null && changeRequests.length === 0 ? NO_FACTS : { worktree, changeRequests }
+  if (worktree !== null || changeRequests.length > 0) return { worktree, worktreeUnknown, changeRequests }
+  return worktreeUnknown ? UNKNOWN_FACTS : NO_FACTS
 }
 
 /**

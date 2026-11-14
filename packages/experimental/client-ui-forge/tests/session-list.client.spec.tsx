@@ -67,11 +67,20 @@ function renderHover(values: Values | undefined, states?: ReadonlyMap<string, Fo
 }
 
 describe('sessionForgeFacts', () => {
-  it('shares one empty value for every Session without a worktree or a visible change request', () => {
-    const empty = sessionForgeFacts(undefined, new Map())
+  it('shares one empty value for every Session whose listed values hold no worktree and no visible change request', () => {
+    const empty = sessionForgeFacts({ forgeWorktree: null }, new Map())
 
-    expect(empty).toEqual({ worktree: null, changeRequests: [] })
+    expect(empty).toEqual({ worktree: null, worktreeUnknown: false, changeRequests: [] })
     expect(sessionForgeFacts({ forgeWorktree: null, forgeChangeRequests: [binding(1, true)] }, statesOf(state(1)))).toBe(empty)
+  })
+
+  it('reports a worktree unknown while the listed values omit it, as for a Session whose cached summary predates the worktree', () => {
+    const facts = sessionForgeFacts(undefined, new Map())
+
+    expect(facts).toEqual({ worktree: null, worktreeUnknown: true, changeRequests: [] })
+    expect(sessionForgeFacts({ forgeChangeRequests: [binding(1, true)] }, new Map())).toBe(facts)
+    // A listed value — even the null that means "works outside its worktree" — is knowledge.
+    expect(sessionForgeFacts({ forgeWorktree: null }, new Map()).worktreeUnknown).toBe(false)
   })
 
   it('orders visible change requests by urgency, keeping their binding order among equally urgent ones', () => {
@@ -142,8 +151,16 @@ describe('SessionRowForge', () => {
 })
 
 describe('SessionHoverForge', () => {
-  it('shows nothing for a Session without a worktree or change requests', () => {
+  it('shows nothing for a Session whose listed values hold no worktree or change requests', () => {
     expect(renderHover({ forgeWorktree: null, forgeChangeRequests: [] }).container.innerHTML).toBe('')
+  })
+
+  it('says the worktree shows after opening while the listed values omit it', () => {
+    const { container } = renderHover(undefined)
+
+    expect(container.querySelector('[data-forge-session-hover-worktree]')?.getAttribute('data-forge-session-hover-worktree')).toBe('unknown')
+    screen.getByText(en['list.worktreeUnknown'])
+    expect(container.querySelectorAll('[data-forge-session-hover-change]')).toHaveLength(0)
   })
 
   it('names the worktree branch and what it started from, the requested base or else the short base commit', () => {
