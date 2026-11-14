@@ -115,6 +115,23 @@ Findings taken:
 13. The first ruling's premise was partly wrong (the row's text is not only the icon label). The
     final ruling records the real constraints.
 
+## Follow-up (user decision, after both review rounds)
+
+The user chose the distinct-glyph option for review round 2's nit 4: a new icon rather than the
+dimmed branch.
+
+- `IconBranchQuestion` added to the 24-grid v2 product icon set (`ui-primitives/src/icons/v2/index.tsx`),
+  1.5 stroke on the shared frame, geometry previewed at 48/24/13px before landing; registered in
+  `icons-v2.client.spec.tsx` so the frame contract covers it.
+- `SessionRowForge` now draws the known case with v2 `IconBranch` and the unknown case with
+  `IconBranchQuestion` (both 14px), so a row never mixes the 16-grid and 24-grid branch shapes;
+  the `.unknown` dimming class is gone because the shape now carries the distinction.
+- Docs updated in the same pass: forge README en/zh, plan §2.4.1, handoff §3.
+- Gates after the follow-up: `test:gui` 10858 passed / 1 skipped (covers `ui-primitives` and its
+  v2 icon contract spec), forge package 789 passed with the 2 known `sandbox-exec` failures,
+  both tsc faces clean, `test:docs` 21/21, `pnpm run build` exit 0 with the glyph present in
+  `apps/web/dist`, `verify-client-ui-i18n` clean, oxlint clean.
+
 ## Review round 2 (delta review of the fixes)
 
 Findings taken:

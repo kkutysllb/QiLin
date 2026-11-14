@@ -171,14 +171,14 @@ V5 是产品功能批次而不是纯样式批次：它要动 worktree 服务、f
 | 线协议透传 | 已有，随 `SessionSummary` 走；客户端行类型在 `SessionListEntry.projectionValues` | `src/types.ts`、`client/sessions/service.ts`、`client/sessions/lineage.ts` |
 | 客户端填充 `projectionValues` | 已有：`SessionManager.applyListBlock` 按 kind 落进 `ProjectionValueStore`（`sequenced` 高 seq 胜出，`cached` 只填没有 sequenced 行的键），`buildListSnapshot` 读出到 `SessionListEntry.projectionValues` | `client/sessions/manager.ts`、`projection-store.ts` |
 | 控制帧覆盖列表值 | 已有：控制基线 `seed` 先丢弃全部 cached 行，再按 seq 落值 | `projection-store.ts` 的 `seed` |
-| forge 补「打开后可见」 | 本次落地：列表值没有 `forgeWorktree` 键时事实标为未知，行内显示变淡的分支图标（可访问名与 tooltip 即「工作树：打开后可见」），悬浮卡片再写一行同文案；有值时仍是行内分支图标 + 悬浮卡分支名 | `src/client/session-list.ts`、`SessionRowForge.tsx`、`SessionHoverForge.tsx`、`locales.ts` |
+| forge 补「打开后可见」 | 本次落地：列表值没有 `forgeWorktree` 键时事实标为未知，行内显示「带问号的分支」图标（v2 图标 `IconBranchQuestion`，可访问名与 tooltip 即「工作树：打开后可见」），悬浮卡片再写一行同文案；有值时是行内分支图标 + 悬浮卡分支名。行内两个标记都改用 24 格 v2 图标（`IconBranch` / `IconBranchQuestion`） | `src/client/session-list.ts`、`SessionRowForge.tsx`、`SessionHoverForge.tsx`、`locales.ts`；`ui-primitives/src/icons/v2/index.tsx` |
 
 验收条目对应：
 
 | 条目 | 结果 |
 |---|---|
 | 数据来源 | 已交付（同上），并有测试固定：冷行逐次读取缓存（`session-cold.host.spec.ts`），摘要键含 `forgeWorktree` 且值等于面板事实（`controller.host.spec.ts`） |
-| 未打开会话的显示 | 有值 → 行内分支图标（既有）+ 悬浮卡分支名；无值 → 行内变淡分支图标（标注「工作树：打开后可见」）+ 悬浮卡同文案，行内不留空。**「行内显示分支名」仍未按字面实现**：行内只有一格图标位（与状态圆点共用，见 `ui-workspace` 行的 leading 座位），分支名留在悬浮卡；行内文案以图标的可访问名与 tooltip 出现，而不是行内文字；行本身显示状态（运行、未查看、待处理）时这一格让给状态，说明只留在悬浮卡 |
+| 未打开会话的显示 | 有值 → 行内分支图标 + 悬浮卡分支名；无值 → 行内带问号的分支图标（标注「工作树：打开后可见」）+ 悬浮卡同文案，行内不留空。**「行内显示分支名」仍未按字面实现**：行内只有一格图标位（与状态圆点共用，见 `ui-workspace` 行的 leading 座位），分支名留在悬浮卡；行内文案以图标的可访问名与 tooltip 出现，而不是行内文字；行本身显示状态（运行、未查看、待处理）时这一格让给状态，说明只留在悬浮卡 |
 | 缓存 | 服务端不折叠：列表读的是持久检查点视图，键由检查点自身的 `seq` 表达；写入点是创建、`turn/end`、计数阈值与 detach（缓存包测试已覆盖） |
 | 失效信号 | 已附加会话走 live 注册表（事件即时生效）；未打开会话以 detach/轮次检查点为准，每次列表请求重读（测试固定；客户端只在连接建立与启动重试时发起列表请求） |
 | 上限 / 退化 | 不适用：列表路径零 I/O、不折叠日志，没有可超的折叠预算；无检查点记录（缺失、被淘汰、版本不符）即「无值」，由文案覆盖 |

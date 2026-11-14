@@ -118,6 +118,17 @@ export const IconBranch = (props: IconProps) => (
   </IconFrame>
 )
 
+/** A branch whose state is not known yet. */
+export const IconBranchQuestion = (props: IconProps) => (
+  <IconFrame {...props}>
+    <circle cx="6.5" cy="5.5" r="2.2" />
+    <circle cx="6.5" cy="18.5" r="2.2" />
+    <path d="M6.5 7.7v8.6M6.5 9.4h3.6a3 3 0 0 0 3-3V5.2" />
+    <path d="M15.6 6.2a2 2 0 1 1 2.7 2.4c-.5.2-.8.6-.8 1.1v.3" />
+    <path d="M17.7 12.1v.01" />
+  </IconFrame>
+)
+
 /** Browse the wider web or a global scope. */
 export const IconGlobe = (props: IconProps) => (
   <IconFrame {...props}>

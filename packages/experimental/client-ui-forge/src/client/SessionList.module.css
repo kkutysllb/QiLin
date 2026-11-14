@@ -9,12 +9,6 @@
   color: var(--dsw-alias-label-tertiary);
 }
 
-/* The same mark while the listed values hold no worktree fact: the row has
- * forge facts it cannot show until the Session opens, and the label says so. */
-.unknown {
-  opacity: 0.55;
-}
-
 /* Checks outcome at the glyph's lower right, ringed in the sidebar fill so it parts from the strokes. */
 .dot {
   position: absolute;

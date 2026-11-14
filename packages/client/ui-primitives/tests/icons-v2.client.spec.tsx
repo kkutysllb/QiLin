@@ -7,7 +7,7 @@ afterEach(cleanup)
 
 const V2_EXPORTS = [
   'IconChevronDown', 'IconChevronUp', 'IconChevronRight', 'IconClose', 'IconCheck', 'IconPlus',
-  'IconSearch', 'IconSettings', 'IconSend', 'IconTrash', 'IconEdit', 'IconBranch', 'IconGlobe',
+  'IconSearch', 'IconSettings', 'IconSend', 'IconTrash', 'IconEdit', 'IconBranch', 'IconBranchQuestion', 'IconGlobe',
   'IconDatabase', 'IconApi', 'IconThink', 'IconPlan', 'IconQueue', 'IconBrowse',
   'IconContextInjection', 'IconWarning', 'IconSparkle', 'IconQuestion', 'IconAgentPreset',
   'IconPersonalization',
