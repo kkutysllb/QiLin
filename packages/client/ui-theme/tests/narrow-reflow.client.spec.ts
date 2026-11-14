@@ -37,32 +37,24 @@ function inRule(css: string, rule: string, selector: string): Map<string, string
   return undefined
 }
 
-describe('appearance cubes at a narrow width', () => {
+describe('appearance row at a narrow width', () => {
   const css = sheet('AppearanceRow.module.css')
-  // The cube widths the panel leaves once the 8px gaps come out: three equal
-  // cubes, each losing its own 6px horizontal padding.
-  const cubeWidth = (390 - 2 * 8) / 3
-  const contentWidth = cubeWidth - 2 * 6
 
-  it('breaks the three cubes onto one row by taking a zero basis', () => {
-    // A zero basis means the row never wraps: the cubes split whatever the
-    // panel has instead of each demanding its 180px basis.
-    const cube = inRule(css, NARROW, ":global(html:not([data-windows-titlebar]):not([data-platform='darwin'])) .themeCube")
-    expect(cube?.get('flex')).toBe('1 1 0')
-    expect(cube?.get('padding')).toBe('12px 6px')
-    expect(parseRules(css).find(rule => rule.selectors.includes('.themeCube'))?.declarations).toContainEqual(['flex', '1 1 180px'])
+  it('shares one segmented border across the three theme options', () => {
+    const row = parseRules(css).find(rule => rule.selectors.includes('.cubeRow'))?.declarations
+    expect(row).toContainEqual(['display', 'inline-flex'])
+    expect(row).toContainEqual(['gap', '2px'])
+    expect(row).toContainEqual(['border', '1px solid var(--qilin-alias-border-l2)'])
+    const cube = parseRules(css).find(rule => rule.selectors.includes('.themeCube'))?.declarations
+    expect(cube).toContainEqual(['border', '0'])
+    expect(cube).toContainEqual(['padding', '4px 10px'])
   })
 
-  it('keeps a four-glyph label on one line at a 390px viewport', () => {
-    // "跟随系统" is four CJK glyphs: 4 x 14px = 56px of ink, inside the ~116px
-    // content box the narrow rule leaves in each cube.
-    expect(contentWidth).toBeGreaterThan(4 * 14)
-  })
-
-  it('leaves a native window caption and the desktop shell on the wide rules', () => {
-    // The narrow block is scoped away from a self-drawn Windows caption and the
-    // macOS desktop shell, where the panel keeps its full width.
-    expect(css).toContain("@media (max-width: 767px) {\n  :global(html:not([data-windows-titlebar]):not([data-platform='darwin'])) .themeCube {")
+  it('stacks the label above the controls below the 900px breakpoint', () => {
+    const group = inRule(css, '@media (max-width: 900px)', '.group')
+    expect(group?.get('grid-template-columns')).toBe('minmax(0, 1fr)')
+    const controls = inRule(css, '@media (max-width: 900px)', '.controls')
+    expect(controls?.get('align-items')).toBe('flex-start')
   })
 })
 

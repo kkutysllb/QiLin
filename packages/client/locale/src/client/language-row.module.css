@@ -2,9 +2,10 @@
  * locale (chip geometry mirrors the appearance row's skin chips). */
 
 .group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--qilin-space-5);
   padding: 16px 0;
   border-bottom: 1px solid var(--qilin-alias-border-l2);
 }

@@ -231,8 +231,8 @@ export function apply(ctx: ClientContext): void {
               if (next !== version) {
                 version = next
                 items = ctx.slots.entriesOfSlot('settings.general.item')
-                  .map(entry => ({ id: entry.options.id ?? '' }))
-                  .sort((a, b) => a.id.localeCompare(b.id))
+                  .map(entry => ({ id: entry.options.id ?? '', order: entry.options.order ?? 0 }))
+                  .sort((a, b) => a.order - b.order)
               }
               return items
             },

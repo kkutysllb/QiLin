@@ -58,48 +58,49 @@ export function AppearanceRow({ t, setTheme, setSkin, setDensity, useStore }: Ap
   return (
     <div className={css.group}>
       <div className={css.title}>{t('appearance.title')}</div>
-      <div className={css.cubeRow}>
-        {CUBES.map(({ id, labelKey, Icon }) => (
-          <button
-            key={id}
-            type="button"
-            className={clsx(css.themeCube, preference === id && css.selected)}
-            aria-pressed={preference === id}
-            onClick={() => { setTheme(id) }}
-          >
-            <Icon />
-            {t(labelKey)}
-          </button>
-        ))}
-      </div>
-      {/* One skin is the product's own palette: nothing to choose, so the row stays out. */}
-      {skins.length > 1 && (
-        <div className={css.skinRow} role="group" aria-label={t('appearance.skin')}>
-          {skins.map(option => (
+      <div className={css.controls}>
+        <div className={css.cubeRow}>
+          {CUBES.map(({ id, labelKey, Icon }) => (
             <button
-              key={option.id}
+              key={id}
               type="button"
-              className={clsx(css.skinChip, skin === option.id && css.selected)}
-              aria-pressed={skin === option.id}
-              onClick={() => { setSkin(option.id) }}
+              className={clsx(css.themeCube, preference === id && css.selected)}
+              aria-pressed={preference === id}
+              onClick={() => { setTheme(id) }}
             >
-              {option.label}
+              <Icon />
+              {t(labelKey)}
             </button>
           ))}
         </div>
-      )}
-      <div className={css.skinRow} role="group" aria-label={t('appearance.density')}>
-        {DENSITY_OPTIONS.map(option => (
-          <button
-            key={option.id}
-            type="button"
-            className={clsx(css.skinChip, density === option.id && css.selected)}
-            aria-pressed={density === option.id}
-            onClick={() => { setDensity(option.id) }}
-          >
-            {t(option.labelKey)}
-          </button>
-        ))}
+        {skins.length > 1 && (
+          <div className={css.skinRow} role="group" aria-label={t('appearance.skin')}>
+            {skins.map(option => (
+              <button
+                key={option.id}
+                type="button"
+                className={clsx(css.skinChip, skin === option.id && css.selected)}
+                aria-pressed={skin === option.id}
+                onClick={() => { setSkin(option.id) }}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className={css.skinRow} role="group" aria-label={t('appearance.density')}>
+          {DENSITY_OPTIONS.map(option => (
+            <button
+              key={option.id}
+              type="button"
+              className={clsx(css.skinChip, density === option.id && css.selected)}
+              aria-pressed={density === option.id}
+              onClick={() => { setDensity(option.id) }}
+            >
+              {t(option.labelKey)}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )

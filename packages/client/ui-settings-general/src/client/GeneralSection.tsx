@@ -8,6 +8,8 @@ import css from './GeneralSection.module.css'
 /** One entry the item ledger holds; the shell only needs its identity. */
 export interface GeneralItemRef {
   readonly id: string
+  /** Registration order inside its card. */
+  readonly order: number
 }
 
 /** Registrant-owned injected face: the item ledger, read as a bare observable. */
@@ -64,7 +66,9 @@ export function GeneralSection({ renderSlot, t, useItems }: GeneralSectionCompon
       </header>
       <div className={css.grid}>
         {SECTIONS.map((section) => {
-          const ids = items.filter(item => (SECTION_OF[item.id] ?? 'other') === section.id)
+          const ids = items
+            .filter(item => (SECTION_OF[item.id] ?? 'other') === section.id)
+            .sort((a, b) => a.order - b.order)
           if (ids.length === 0) return null
           const headingId = `settings-group-${section.id}`
           return (
