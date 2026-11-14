@@ -68,6 +68,8 @@ export interface DiffFileProps {
   readonly wrap: boolean
   /** Badge text after the path, or empty for none. */
   readonly badge: string
+  /** Hover text for the badge: why the file carries it, when the badge alone is terse. */
+  readonly badgeTitle: string | undefined
   /** Hover text of the path: both paths of a renamed file, else the path. */
   readonly tooltip: string
   /** Rows of the file's menu. */
@@ -403,7 +405,7 @@ function FileMenu({ name, actions, t }: {
  * @returns the file section.
  */
 export function DiffFile(props: DiffFileProps): ReactNode {
-  const { file, expanded, onToggle, badge, tooltip, actions, sectionRef, t } = props
+  const { file, expanded, onToggle, badge, badgeTitle, tooltip, actions, sectionRef, t } = props
   const name = file.path.slice(file.path.lastIndexOf('/') + 1)
   return (
     <section ref={sectionRef} className={css.file} data-forge-diff-file={file.path} data-expanded={expanded ? '' : undefined}>
@@ -422,7 +424,7 @@ export function DiffFile(props: DiffFileProps): ReactNode {
           <FileLabel path={file.path} tooltip={tooltip} />
         </span>
         <span className={css.fileSpacer} data-forge-path-spacer="" />
-        {badge !== '' && <span className={css.badge}>{badge}</span>}
+        {badge !== '' && <span className={css.badge} title={badgeTitle}>{badge}</span>}
         {!file.binary && <Counts file={file} t={t} />}
         {props.visible && <FileMenu name={name} actions={actions} t={t} />}
       </div>

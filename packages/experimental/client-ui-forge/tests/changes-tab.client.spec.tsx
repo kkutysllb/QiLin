@@ -448,6 +448,14 @@ describe('ChangesTab local reads', () => {
     expect(m.faces.localDiff).toHaveBeenLastCalledWith({ kind: 'last-turn' }, expect.any(AbortSignal))
   })
 
+  it('explains an LFS pointer badge on hover', async () => {
+    const lfs = file('src/blob.bin', { filtered: 'lfs' })
+    const m = mount({ setup: (faces) => { faces.localDiff.mockResolvedValue(ok({ base: BASE, files: [lfs], omitted: 0 })) } })
+    await settle()
+    const badge = within(m.section('src/blob.bin')).getByText('LFS pointer')
+    expect(badge.getAttribute('title')).toContain('pointer')
+  })
+
   it('names the old path of a file that only moved to another directory', async () => {
     const moved = file('src/b.txt', { status: 'renamed', previousPath: 'lib/b.txt' })
     const m = mount({ setup: (faces) => { faces.localDiff.mockResolvedValue(ok({ base: BASE, files: [moved], omitted: 0 })) } })

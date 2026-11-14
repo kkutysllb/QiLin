@@ -195,6 +195,13 @@ function pathTooltipOf(file: ForgeDiffFile, t: Translate): string {
   return file.status === 'renamed' && file.previousPath !== null ? t('diff.renamedPath', { from: file.previousPath, path: file.path }) : file.path
 }
 
+/** Hover text for a file's filter badge, explaining why the content is not the file's text. */
+function badgeTitleOf(file: ForgeDiffFile, t: Translate): string | undefined {
+  if (file.filtered === 'lfs') return t('diff.badgeLfsTitle')
+  if (file.filtered === 'filter') return t('diff.badgeFilteredTitle')
+  return undefined
+}
+
 /** The badge after a path: how the file changed, and whether a branch view's file is untracked. */
 function badgeOf(file: ForgeDiffFile, data: ChangesData, t: Translate): string {
   const parts: string[] = []
@@ -636,6 +643,7 @@ export function ChangesTab({
               split={split}
               wrap={wrap}
               badge={badgeOf(file, data, t)}
+              badgeTitle={badgeTitleOf(file, t)}
               tooltip={pathTooltipOf(file, t)}
               actions={fileActions(data, file)}
               sectionRef={(element) => {
