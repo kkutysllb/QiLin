@@ -26,8 +26,6 @@ function injectedOf(c: TestClient): SettingsRootInjected {
 /** The shell's child declarations (chrome, actions, sections, and onboarding overlays). */
 const CHILD_SPECS = {
   'settings.header': { kind: 'single', scope: 'root' },
-  'settings.action': { kind: 'list', scope: 'root' },
-  'settings.close': { kind: 'single', scope: 'root' },
   'settings.section': { kind: 'list', scope: 'root' },
   'settings.section.icon': { kind: 'list', scope: 'root', inline: true },
   'settings.onboarding': { kind: 'list', scope: 'root' },

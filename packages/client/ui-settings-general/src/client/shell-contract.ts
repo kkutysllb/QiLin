@@ -85,8 +85,6 @@ export type SettingsRootComponentProps =
   & PropsStore<ReturnType<typeof import('./shell-store.ts').createSettingsShellStore>>
   & PropsRenderSlots<
     | 'settings.header'
-    | 'settings.action'
-    | 'settings.close'
     | 'settings.section'
     | 'settings.section.icon'
     | 'settings.onboarding'

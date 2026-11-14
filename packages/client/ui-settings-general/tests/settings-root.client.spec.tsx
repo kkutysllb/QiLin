@@ -39,7 +39,6 @@ let requestMountedOpen: (() => void) | undefined
 /** Slot-content stand-ins: the shell renders whatever the seats contribute. */
 const SEAT_CONTENT: Record<string, string> = {
   'settings.header': 'Settings Title',
-  'settings.close': 'Close',
 }
 
 type AttentionSnapshot = Parameters<Parameters<SettingsRootComponentProps['useSessionStatus']>[0]>[0]
@@ -204,7 +203,8 @@ describe('settings shell open channel', () => {
     b.requestOpen('models')
     expect(screen.getByRole('dialog')).toBeTruthy()
     expect(screen.getByTestId('section-models')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
+    const dialog = screen.getByRole('dialog')
+    fireEvent.click(dialog.parentElement!.firstElementChild!)
     expect(screen.queryByRole('dialog')).toBeNull()
 
     // A request without a section id still reveals the panel.
@@ -325,14 +325,6 @@ describe('SettingsPanel chrome seats', () => {
     expect(screen.getByRole('dialog', { name: 'Settings Title' })).toBeTruthy()
   })
 
-  it('names the close button through the visually-hidden close seat text', () => {
-    mount()
-    openPanel()
-    const close = screen.getByRole('button', { name: 'Close' })
-    expect(close.hasAttribute('aria-label')).toBe(false)
-    expect(close.textContent).toContain('Close')
-  })
-
   it('stands the brand seal in the caption slot beside the dialog', () => {
     mount()
     openPanel()
@@ -346,13 +338,6 @@ describe('SettingsPanel chrome seats', () => {
 })
 
 describe('SettingsPanel close paths', () => {
-  it('closes via the header button', () => {
-    mount()
-    openPanel()
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }))
-    expect(screen.queryByRole('dialog')).toBeNull()
-  })
-
   it('closes via a mask click', () => {
     mount()
     openPanel()

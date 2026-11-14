@@ -27,27 +27,20 @@ import type {
 } from './shell-contract.ts'
 import { createSettingsShellStore } from './shell-store.ts'
 import { SettingsRoot } from './SettingsRoot.tsx'
-import { CloseLabel, HeaderContent } from './chrome.tsx'
+import { HeaderContent } from './chrome.tsx'
 import { AboutSection } from './AboutSection.tsx'
 import { GeneralSection } from './GeneralSection.tsx'
 import { CurrentVersionRow } from './CurrentVersionRow.tsx'
 import { DeveloperToolsRow, type DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
-import { SettingsDocumentAction, type SettingsDocumentActionInjected } from './SettingsDocumentAction.tsx'
-import { SettingsDocumentStore } from './settings-document-store.ts'
 import { HostReleasePrompt, type HostReleasePromptInjected } from './HostReleasePrompt.tsx'
 import { en, zh, type SettingsKey } from './locales.ts'
 
 export type { SettingsShell, SettingsRootInjected } from './shell-contract.ts'
-export type {
-  CloseLabelProps, HeaderContentProps,
-} from './chrome.tsx'
+export type { HeaderContentProps } from './chrome.tsx'
 export type {
   GeneralSectionComponentProps,
 } from './GeneralSection.tsx'
 export type { DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
-export type { SettingsDocumentActionInjected, SettingsDocumentActionProps } from './SettingsDocumentAction.tsx'
-export type { SettingsDocumentState } from './settings-document-store.ts'
-export { SettingsDocumentStore } from './settings-document-store.ts'
 export type { SettingsKey } from './locales.ts'
 
 declare module '@qilin-agent/client-ui-slots' {
@@ -96,25 +89,6 @@ export function apply(ctx: ClientContext): void {
   }, CurrentVersionRow))
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'ui-settings-general: dictionaries')
   const connection = ctx.get('connection') as ConnectionHandle
-
-  // The shared ConfigForm mirror updates after document commits and reconnects.
-  const documentController = ctx.remote.$host.isLoopback
-    ? new SettingsDocumentStore(ctx, ctx.configForms.describe())
-    : undefined
-  ctx.effect(() => () => { documentController?.dispose() }, 'ui-settings-general: document action directory')
-  if (documentController !== undefined) {
-    const documentInjected = (): SettingsDocumentActionInjected => ({
-      controller: documentController,
-      hooks: { snapshot: documentController.store },
-    })
-    ctx.slots.inject('settings.action', () => ctx.slots.register({
-      name: 'settings.action',
-      id: 'open-document',
-      order: 0,
-      locale: NS,
-      inject: documentInjected,
-    }, SettingsDocumentAction))
-  }
 
   // Copy freshness is framework-owned: components read the standard `t`
   // seat, and the nav label is a thunk the owner resolves per render — no
@@ -226,8 +200,6 @@ export function apply(ctx: ClientContext): void {
       store: shellStore,
       children: {
         'settings.header': { kind: 'single', scope: 'root' },
-        'settings.action': { kind: 'list', scope: 'root' },
-        'settings.close': { kind: 'single', scope: 'root' },
         'settings.section': { kind: 'list', scope: 'root' },
         'settings.section.icon': { kind: 'list', scope: 'root', inline: true },
         'settings.onboarding': { kind: 'list', scope: 'root' },
@@ -239,8 +211,6 @@ export function apply(ctx: ClientContext): void {
 
   ctx.slots.inject('settings.header', () =>
     ctx.slots.register({ name: 'settings.header', locale: NS }, HeaderContent))
-  ctx.slots.inject('settings.close', () =>
-    ctx.slots.register({ name: 'settings.close', locale: NS }, CloseLabel))
   ctx.slots.inject('settings.section', () => ctx.slots.register({
     name: 'settings.section',
     id: 'general',

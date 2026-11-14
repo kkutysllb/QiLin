@@ -18,7 +18,7 @@ import clsx from 'clsx'
 import {
   ConnectionIndicator,
   IconAgentPresetOutlineMedium, IconArchiveOutlineMedium, IconChevronLeftOutlineMedium,
-  IconClose, IconDataOutlineMedium, IconPersonalization,
+  IconDataOutlineMedium, IconPersonalization,
   IconQuestionOutlineMedium, IconSettings, QilinSeal, useModalLayer,
 } from '@qilin-agent/client-ui-primitives'
 import type { ConnectionIndicatorState } from '@qilin-agent/client-ui-primitives'
@@ -231,13 +231,6 @@ function SettingsPanel({
           />
         </nav>
         <div className={css.content}>
-          <div className={css.header}>
-            <div className={css.actions}>{renderSlot('settings.action', {})}</div>
-            <button type="button" className={css.close} onClick={onClose}>
-              <IconClose size={14} />
-              <span className={css.hiddenLabel}>{renderSlot('settings.close', {})}</span>
-            </button>
-          </div>
           <div className={css.options}>
             {active !== undefined && (
               <section className={css.sectionColumn} data-section-id={active}>

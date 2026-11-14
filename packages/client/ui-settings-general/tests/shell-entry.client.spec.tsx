@@ -12,10 +12,8 @@ import { TestRemote } from '@qilin-agent/client-test-runtime'
 import { apply as settingsApply, inject as settingsInject } from '@qilin-agent/client-ui-settings/client'
 import { apply, inject } from '../src/client/index.ts'
 import { SettingsRoot } from '../src/client/SettingsRoot.tsx'
-import { SettingsDocumentAction } from '../src/client/SettingsDocumentAction.tsx'
 import { DeveloperToolsRow, type DeveloperToolsRowInjected } from '../src/client/DeveloperToolsRow.tsx'
 import type { SettingsRootInjected } from '../src/client/shell-contract.ts'
-import type { SettingsDocumentActionInjected } from '../src/client/SettingsDocumentAction.tsx'
 
 afterEach(() => { vi.unstubAllGlobals() })
 
@@ -180,18 +178,5 @@ describe('settings shell entry wiring', () => {
     await b.fiber.dispose()
   })
 
-  it('seats the settings-document action only on a loopback host', async () => {
-    const loopback = await bench(true)
-    const entry = loopback.slots.entries('settings.action').find(row => row.options.id === 'open-document')
-    if (entry?.inject === undefined) throw new Error('the document action was not registered')
-    expect(entry.component).toBe(SettingsDocumentAction)
-    const face = (entry.inject as unknown as () => SettingsDocumentActionInjected)()
-    expect(face.hooks.snapshot).toBe(face.controller.store)
-    await loopback.fiber.dispose()
 
-    // A remote browser has no Host document to open, so the seat stays empty.
-    const remote = await bench(false)
-    expect(remote.slots.entries('settings.action').filter(row => row.options.id === 'open-document')).toEqual([])
-    await remote.fiber.dispose()
-  })
 })

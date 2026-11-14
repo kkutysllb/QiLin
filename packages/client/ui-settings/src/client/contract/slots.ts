@@ -19,18 +19,6 @@ declare module '@qilin-agent/client-ui-slots' {
      */
     'settings.header': { kind: 'single'; scope: 'root'; owner: SettingsHeaderOwnerProps }
     /**
-     * Optional actions rendered in the content-column header before Close.
-     * Registrants own visibility, behavior, copy, and failure presentation;
-     * the shell supplies only the ordered render site.
-     */
-    'settings.action': { kind: 'list'; scope: 'root'; owner: SettingsHeaderOwnerProps }
-    /**
-     * The close button's visually-hidden label text (the button itself —
-     * icon, geometry, focus — is shell chrome). Absent contribution leaves
-     * the button without an accessible name (broken-composition state).
-     */
-    'settings.close': { kind: 'single'; scope: 'root'; owner: SettingsHeaderOwnerProps }
-    /**
      * One settings page per list entry. Registrant options carry the nav
      * identity: `id` (section key, drives `only` filtering), `order` (nav
      * position), `label` (registrant-localized display text — the registrant
