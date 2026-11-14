@@ -41,7 +41,7 @@ kind: "package-reference"
 <details>
 <summary>实现细节</summary>
 
-插件向右侧栏注册 `terminal` 类型及正文和标题 seat。开始页入口使用紧凑的黑底终端图标，页签标题保留线条图标。无 React 依赖的终端模型属于 `api-terminal-controller`，通过框架 keyed hooks 暴露状态。`ui-primitives` 的 Menu 与 Button 提供 shell 选择和启动控件，支持键盘导航与选中标记。正文在 terminal 视图挂载时加载包内 `client.terminal.js` chunk，使 xterm.js 与 FitAddon 不进入启动 `client.js`；加载后由它们负责屏幕渲染和视口测量。正文在面板高度内为页签条下方预留 8px 间距。输入原样传到 PTY，包括 Tab 和控制字符。
+插件向右侧栏注册 `terminal` 类型及正文和标题 seat。开始页入口使用紧凑的黑底终端图标，页签标题保留线条图标。无 React 依赖的终端模型属于 `api-terminal-controller`，通过框架 keyed hooks 暴露状态。`ui-primitives` 的 Menu 与 Button 提供 shell 选择和启动控件，支持键盘导航与选中标记。正文在 terminal 视图挂载时加载包内 `client.terminal.js` chunk，使 xterm.js 与 FitAddon 不进入启动 `client.js`；加载后由它们负责屏幕渲染和视口测量。chunk 加载失败时，正文在屏幕位置给出浏览器报告的原因，并提供「重新加载终端面板」：它发起一次新的 chunk 请求，而不是继续持有失败的那次导入。正文在面板高度内为页签条下方预留 8px 间距。输入原样传到 PTY，包括 Tab 和控制字符。
 
 输出流中打印的 http(s) URL 会成为链接：屏幕注册 xterm link provider，逐行扫描出每个 URL 并给出其缓冲区范围。普通点击仍是 xterm 的文本选择手势，只有按住 Ctrl（Windows/Linux）或 Cmd（macOS）才打开目标。插件把它开在终端旁边的侧栏内置浏览器里；该 tab 类型未被组合进来时退回新开浏览器标签页。扫描只认 http(s)，因此打印出的 `file://` 或 `mailto:` URL 保持纯文本，协议白名单在激活时再挡一次。
 
@@ -78,7 +78,7 @@ Session header contribution 查询 Host 终端，只打开没有现有标签关�
 - 补全菜单和内联建议取决于 shell 配置，Web UI 不提供独立补全引擎。
 - 应用的 OSC 颜色覆盖由已挂载的渲染器保留；新打开的渲染器无法从 Host 屏幕快照恢复这些颜色。
 - 终端历史有上限。此功能不向 Agent 发送终端输出，不在单个标签页内拆分终端，也不在 Host 重启后恢复进程。
-- Terminal chunk 加载失败后需要刷新页面，因为 React 会在页面生命周期内缓存被拒绝的 lazy import。
+- Terminal chunk 加载失败时通过「重新加载终端面板」恢复；如果网络仍然拒绝该 chunk，提示会保留，页签内其他内容不会丢失。
 
 <a id="dev-note"></a>
 ### 开发备注

@@ -121,6 +121,23 @@ they read 「编码项目」/「普通项目」 per the user's wording while the
 'repository' | 'directory'` and the discriminator stays "inside a Git work tree". Locale keys renamed
 to `section.coding`/`section.ordinary`; README (en+zh), plan §2.5 and the test copy follow.
 
+## Slice S5 (plan §2.6): terminal narrow screen
+
+Task 7: complete
+- Narrow coverage needed no change: the right panel already fullscreens below 768px for every tab body
+  (`autoFullscreen` in `ui-sidebar-right`), with `seat.client.spec.tsx` covering 767 and 500; the
+  terminal body renders inside that pane. Ruling: do not add a terminal-specific overlay — it would
+  be a second geometry for the same surface.
+- Chunk failure: `LazyTerminalBody` now wraps the body in `TerminalChunkBoundary`, which names the
+  browser's reason and offers 「重新加载终端面板」. Ruling: the retry creates a NEW `lazy()` per
+  attempt, because React keeps a rejected dynamic import for the component's lifetime — resetting an
+  error boundary alone would rethrow the cached rejection. Copy lives in the terminal locale
+  dictionary (zh+en); the boundary is a class component (React error boundaries have no hook form).
+- Tests: `tests/chunk-retry.client.spec.tsx` (+3: notice with the reason and one retry action,
+  retried attempt renders, a retry that fails again keeps the notice).
+- Docs: terminal README (en+zh) body sentence and the limitation that said a failed chunk needs a page
+  reload; plan §2.6 and the handoff status record the slice.
+
 ## Review round 1 (fresh subagent, whole slice)
 
 Findings taken:

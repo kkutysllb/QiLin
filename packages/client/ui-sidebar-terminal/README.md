@@ -41,7 +41,7 @@ The terminal background, default text, cursor, and selection follow the QILIN th
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-This plugin registers the `terminal` type and body/title seats with the right sidebar. The guide uses a compact dark terminal card, while tab titles retain the line glyph. The React-free terminal model belongs to `api-terminal-controller`; keyed framework hooks expose its state. `ui-primitives` Menu and Button provide the shell picker and startup controls, including keyboard navigation and the selected-item marker. The body loads its package-local `client.terminal.js` chunk when a terminal view mounts, keeping xterm.js and FitAddon out of the startup `client.js`; they then render the screen and measure the viewport. The body reserves an 8px gap below the tab strip within the pane height. Input, including Tab and control characters, travels unchanged to the PTY.
+This plugin registers the `terminal` type and body/title seats with the right sidebar. The guide uses a compact dark terminal card, while tab titles retain the line glyph. The React-free terminal model belongs to `api-terminal-controller`; keyed framework hooks expose its state. `ui-primitives` Menu and Button provide the shell picker and startup controls, including keyboard navigation and the selected-item marker. The body loads its package-local `client.terminal.js` chunk when a terminal view mounts, keeping xterm.js and FitAddon out of the startup `client.js`; they then render the screen and measure the viewport. A chunk that fails to load reports the browser's reason in place of the screen and offers Reload the terminal panel, which mounts a fresh chunk request instead of holding the rejected one. The body reserves an 8px gap below the tab strip within the pane height. Input, including Tab and control characters, travels unchanged to the PTY.
 
 An http(s) URL printed in the stream becomes a link: the screen registers an xterm link provider whose per-line scan finds every URL and reports its buffer range. A plain click stays xterm's text-selection gesture, and only Ctrl (Windows/Linux) or Cmd (macOS) opens the target. The plugin opens it in the Sidebar's own browser beside the terminal, and falls back to a new browser tab when that tab type is not composed. The scan reads only http(s), so a printed `file://` or `mailto:` URL stays plain text, and the scheme guard refuses anything else at activation.
 
@@ -78,7 +78,7 @@ None; terminal output travels only between the browser and Host.
 - Completion menus and inline suggestions depend on shell configuration. The Web UI adds no independent completion engine.
 - Application OSC color overrides are retained by the mounted renderer; a newly opened renderer cannot recover them from the Host screen snapshot.
 - Terminal history is bounded. The feature does not send terminal output to the Agent, provide split terminal panes inside a tab, or restore processes after Host restart.
-- A failed terminal chunk load requires a page reload because React caches a rejected lazy import for the page lifetime.
+- A failed terminal chunk load recovers through Reload the terminal panel; a network that refuses the chunk again keeps the notice, and nothing else in the tab is lost.
 
 <a id="dev-note"></a>
 ### Dev Note
