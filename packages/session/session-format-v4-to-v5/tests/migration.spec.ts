@@ -138,10 +138,10 @@ describe('V4 strict restoration through the assembled catalog', () => {
       { ...fact, seq: 3, time: 5 },
     ]
     const restored = restore(rows, { ...header, agentPreset: 'cordis' })
-    expect(restored.header).toEqual({ ...header, version: SESSION_FORMAT_VERSION, agentPreset: 'ptc' })
+    expect(restored.header).toEqual({ ...header, version: SESSION_FORMAT_VERSION, agentPreset: 'coding' })
     expect(restored.events.filter(event => event.type === 'agent-preset/selected')
       .map(event => (event.data as { agentPreset: string }).agentPreset))
-      .toEqual(['standard', 'ptc', 'my-preset'])
+      .toEqual(['standard', 'coding', 'my-preset'])
     expect(restored.inheritedEventCount).toBe(0)
   })
 
@@ -154,7 +154,7 @@ describe('V4 strict restoration through the assembled catalog', () => {
     ]
     const restored = restore(rows, seeded)
     expect(restored.header).toEqual({ ...seeded, version: SESSION_FORMAT_VERSION })
-    expect((restored.events[0]!.data as { agentPreset: string }).agentPreset).toBe('ptc')
+    expect((restored.events[0]!.data as { agentPreset: string }).agentPreset).toBe('coding')
     expect(restored.inheritedEventCount).toBe(1)
   })
 

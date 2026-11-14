@@ -35,7 +35,8 @@ The index is generated from validated snapshots and the current writer constant.
 | 4 | `qilin-v3.1.4-rc.1` | [V4](v4.md) | [JSON](v4.schema.json) | 63 / 606 |
 | 5 | `qilin-v3.1.8-rc.6` | [V5](v5.md) | [JSON](v5.schema.json) | 65 / 615 |
 | 6 | `qilin-v3.1.11` | [V6](v6.md) | [JSON](v6.schema.json) | 65 / 615 |
-| 7 | Current checkout | [Current catalog](../../persistence-catalog.md) | [JSON](../../persistence-schema.json) | 67 / 629 |
+| 7 | `qilin-v3.2.0` | [V7](v7.md) | [JSON](v7.schema.json) | 67 / 628 |
+| 8 | Current checkout | [Current catalog](../../persistence-catalog.md) | [JSON](../../persistence-schema.json) | 67 / 629 |
 
 <!-- persistence-format-index:end -->
 

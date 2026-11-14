@@ -4,7 +4,7 @@
     {
       "key": "SessionHeader",
       "kind": "header",
-      "digest": "3ba034e9590c2ef5f57dbde1742846b7c3776f89aa9285fe6682bf98d6963f18",
+      "digest": "41e7a1d053788f8d385cde23ad47c44ff703e3497e9dc8a02e74b711b479bfd6",
       "schema": {
         "root": 0,
         "nodes": [
@@ -77,7 +77,7 @@
           },
           {
             "kind": "literal",
-            "value": 7
+            "value": 8
           }
         ]
       }
@@ -23746,15 +23746,6 @@
       ]
     },
     {
-      "digest": "3ba034e9590c2ef5f57dbde1742846b7c3776f89aa9285fe6682bf98d6963f18",
-      "names": [
-        "packages/core/session/src/types.ts#SessionHeader"
-      ],
-      "sources": [
-        "packages/core/session/src/types.ts:95"
-      ]
-    },
-    {
       "digest": "3cb3a66322ca883f4a58c829a6eb3709afbef26fe36e7ee4540962d892c85d4e",
       "names": [],
       "sources": []
@@ -23865,6 +23856,15 @@
       "digest": "41c129241748b5f8f352bf9b08642d2c1b83dd4a28770f8fcfdc6f11b47f353b",
       "names": [],
       "sources": []
+    },
+    {
+      "digest": "41e7a1d053788f8d385cde23ad47c44ff703e3497e9dc8a02e74b711b479bfd6",
+      "names": [
+        "packages/core/session/src/types.ts#SessionHeader"
+      ],
+      "sources": [
+        "packages/core/session/src/types.ts:95"
+      ]
     },
     {
       "digest": "422e37db39bb87e7a1202ed6a0bd0d49e357788d0fce1a0b5e036526d16034c9",
@@ -26036,11 +26036,6 @@
       ]
     },
     {
-      "digest": "d7acddd16ab861266fd70bbbd59a32bfabe93379b980caee1f8b1dd3d30b9e00",
-      "names": [],
-      "sources": []
-    },
-    {
       "digest": "d7d256e5fb8b96959e045e5f3e07950d6ece965023cbccc0757b60429936c145",
       "names": [
         "packages/feedback/command-feedback/src/types.ts#FeedbackRecord"
@@ -26051,6 +26046,11 @@
     },
     {
       "digest": "d8dcd0debd46d11dc1f8b35e80cbccd32ac777573069b8048e4baf42396cfe5f",
+      "names": [],
+      "sources": []
+    },
+    {
+      "digest": "d8ff2d2a7c00a14f0a4febfc2cb74e2696cd847a8451c99fedfc2975d5b95a58",
       "names": [],
       "sources": []
     },

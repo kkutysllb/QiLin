@@ -1,0 +1,43 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/session/session-format-v7-to-v8/README.md
+/:
+  en: 680c924e253f1e3d
+  zh: c60cc5e512c09574
+/session-format-v7-to-v8:
+  en: 216f8467c4cd8f44
+  zh: 62af1ad25dcfaeab
+/session-format-v7-to-v8/summary:
+  en: 464807a67072deb7
+  zh: ab6790c780877163
+/session-format-v7-to-v8/table-of-contents:
+  en: f54de905abda1476
+  zh: 615056934ef40dd4
+/session-format-v7-to-v8/use-this-package:
+  en: 26a19d67a7101fa0
+  zh: 17171dce5b814817
+/session-format-v7-to-v8/understand-the-implementation:
+  en: a5ddfb4923ed4c72
+  zh: 923b72fe4a1d9b28
+/session-format-v7-to-v8/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/session-format-v7-to-v8/model-experience/historical-restoration:
+  en: e63dd8ef6de7cf7c
+  zh: f1e356f01b601079
+/session-format-v7-to-v8/model-experience/historical-restoration/what-the-model-sees:
+  en: ecced7fd348da428
+  zh: 3acfe2feea77a243
+/session-format-v7-to-v8/model-experience/historical-restoration/token-effect:
+  en: 694c6a4b1c0d37aa
+  zh: 43d2083bf0be9d56
+/session-format-v7-to-v8/model-experience/historical-restoration/kv-cache-effect:
+  en: 4d71144d686ed1e9
+  zh: 07bd6b18693a8007
+/session-format-v7-to-v8/known-limitations-and-deferred-work:
+  en: 730bf54cead91745
+  zh: eab3c82d64575c1a
+/session-format-v7-to-v8/known-limitations-and-deferred-work/dev-note:
+  en: 0a1253c6f7b5e8b9
+  zh: 9f56528562c7c914

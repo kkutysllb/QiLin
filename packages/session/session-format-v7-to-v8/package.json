@@ -1,0 +1,67 @@
+{
+  "name": "@qilin-agent/session-format-v7-to-v8",
+  "description": "Session V7 to V8 format edge for the coding preset label",
+  "version": "3.1.11",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/session/session-format-v7-to-v8"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "dsh": {
+    "sessionFormatMigration": {
+      "from": 7,
+      "to": 8,
+      "export": ".",
+      "migration": "sessionFormatV7ToV8",
+      "sourceCodec": "releasedV7SessionFormatCodec",
+      "targetCodec": "releasedV8SessionFormatCodec",
+      "targetHeaderValidator": "assertReleasedV8Header",
+      "targetRestorer": "restoreReleasedV8Artifact"
+    }
+  },
+  "dependencies": {
+    "@qilin-agent/session-format": "workspace:*",
+    "@qilin-agent/session-format-v3-to-v4": "workspace:*",
+    "@qilin-agent/session-format-v6-to-v7": "workspace:*"
+  },
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "qilin": {
+    "sessionFormatMigration": {
+      "from": 7,
+      "to": 8,
+      "export": ".",
+      "migration": "sessionFormatV7ToV8",
+      "sourceCodec": "releasedV7SessionFormatCodec",
+      "targetCodec": "releasedV8SessionFormatCodec",
+      "targetHeaderValidator": "assertReleasedV8Header",
+      "targetRestorer": "restoreReleasedV8Artifact"
+    }
+  }
+}

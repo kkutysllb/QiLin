@@ -659,15 +659,15 @@ importers:
       '@qilin-agent/deepseek-llm-api-extensions':
         specifier: workspace:*
         version: link:../../packages/llm/deepseek-llm-api-extensions
+      '@qilin-agent/experimental-coding-runtime-python':
+        specifier: workspace:*
+        version: link:../../packages/experimental/coding-runtime-python
       '@qilin-agent/experimental-hooks-claude-code':
         specifier: workspace:*
         version: link:../../packages/experimental/hooks-claude-code
       '@qilin-agent/experimental-hooks-codex':
         specifier: workspace:*
         version: link:../../packages/experimental/hooks-codex
-      '@qilin-agent/experimental-coding-runtime-python':
-        specifier: workspace:*
-        version: link:../../packages/experimental/coding-runtime-python
       '@qilin-agent/experimental-webhook':
         specifier: workspace:*
         version: link:../../packages/experimental/webhook
@@ -2243,6 +2243,9 @@ importers:
       '@qilin-agent/bash-sandbox':
         specifier: workspace:*
         version: link:../../shell/bash-sandbox
+      '@qilin-agent/coding-runtime-node':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/command-compact':
         specifier: workspace:*
         version: link:../../compaction/command-compact
@@ -2327,9 +2330,6 @@ importers:
       '@qilin-agent/plugin-package-inventory-deepseek':
         specifier: workspace:*
         version: link:../../llm/plugin-package-inventory-deepseek
-      '@qilin-agent/coding-runtime-node':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/pwsh-sandbox':
         specifier: workspace:*
         version: link:../../shell/pwsh-sandbox
@@ -6782,6 +6782,9 @@ importers:
       '@qilin-agent/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/experimental-tool-session-query':
         specifier: workspace:*
         version: link:../../experimental/tool-session-query
@@ -6794,9 +6797,6 @@ importers:
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -7208,6 +7208,61 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+
+  packages/coding-runtime/coding-runtime:
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/sandbox':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox
+
+  packages/coding-runtime/coding-runtime-node:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin-agent/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+    devDependencies:
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../coding-runtime
+      '@qilin-agent/fs':
+        specifier: workspace:*
+        version: link:../../fs/fs
+      '@qilin-agent/fs-local':
+        specifier: workspace:*
+        version: link:../../fs/fs-local
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/sandbox':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox
+      '@qilin-agent/sandbox-local':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-local
+      '@qilin-agent/sandbox-policy':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-policy
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/subprocess':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess
+      '@qilin-agent/subprocess-local':
+        specifier: workspace:*
+        version: link:../../subprocess/subprocess-local
+      '@qilin-agent/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
 
   packages/compaction/command-compact:
     devDependencies:
@@ -7774,12 +7829,12 @@ importers:
       '@qilin-agent/agent':
         specifier: workspace:*
         version: link:../agent
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
       '@qilin-agent/coding-runtime':
         specifier: workspace:*
         version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
       '@qilin-agent/scope':
         specifier: workspace:*
         version: link:../scope
@@ -7855,15 +7910,15 @@ importers:
       '@qilin-agent/agent':
         specifier: workspace:*
         version: link:../agent
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -8108,6 +8163,9 @@ importers:
       '@qilin-agent/bash-sandbox':
         specifier: workspace:*
         version: link:../../shell/bash-sandbox
+      '@qilin-agent/coding-runtime-node':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/compaction':
         specifier: workspace:*
         version: link:../../compaction/compaction
@@ -8135,9 +8193,6 @@ importers:
       '@qilin-agent/permission-presets':
         specifier: workspace:*
         version: link:../../interaction/permission-presets
-      '@qilin-agent/coding-runtime-node':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -8313,6 +8368,9 @@ importers:
       '@qilin-agent/browser-use':
         specifier: workspace:*
         version: link:../../browser-use/browser-use
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -8328,9 +8386,6 @@ importers:
       '@qilin-agent/mcp-resources':
         specifier: workspace:*
         version: link:../../mcp/mcp-resources
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -8870,6 +8925,40 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
 
+  packages/experimental/coding-runtime-python:
+    dependencies:
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+    devDependencies:
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/sandbox':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox
+      '@qilin-agent/sandbox-local':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-local
+      '@qilin-agent/sandbox-policy':
+        specifier: workspace:*
+        version: link:../../sandbox/sandbox-policy
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/timeout':
+        specifier: workspace:*
+        version: link:../../util/timeout
+      '@qilin-agent/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+
   packages/experimental/computer-use-cua-driver-mcp:
     dependencies:
       '@qilin-agent/mcp-client':
@@ -9029,6 +9118,12 @@ importers:
       '@qilin-agent/attachment-local':
         specifier: workspace:*
         version: link:../../attachment/attachment-local
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/computer-use':
         specifier: workspace:*
         version: link:../../computer-use/computer-use
@@ -9059,12 +9154,6 @@ importers:
       '@qilin-agent/llm-deepseek':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
-      '@qilin-agent/coding-runtime-node':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox-local':
         specifier: workspace:*
         version: link:../../sandbox/sandbox-local
@@ -9132,6 +9221,12 @@ importers:
       '@qilin-agent/attachment-local':
         specifier: workspace:*
         version: link:../../attachment/attachment-local
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/computer-use':
         specifier: workspace:*
         version: link:../../computer-use/computer-use
@@ -9162,12 +9257,6 @@ importers:
       '@qilin-agent/llm-deepseek':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
-      '@qilin-agent/coding-runtime-node':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox-local':
         specifier: workspace:*
         version: link:../../sandbox/sandbox-local
@@ -9478,40 +9567,6 @@ importers:
       js-yaml:
         specifier: ^4.3.2
         version: 4.3.2
-
-  packages/experimental/coding-runtime-python:
-    dependencies:
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
-      '@qilin-agent/sandbox':
-        specifier: workspace:*
-        version: link:../../sandbox/sandbox
-      '@qilin-agent/sandbox-local':
-        specifier: workspace:*
-        version: link:../../sandbox/sandbox-local
-      '@qilin-agent/sandbox-policy':
-        specifier: workspace:*
-        version: link:../../sandbox/sandbox-policy
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/session-projection':
-        specifier: workspace:*
-        version: link:../../session/session-projection
-      '@qilin-agent/timeout':
-        specifier: workspace:*
-        version: link:../../util/timeout
-      '@qilin-agent/util-values':
-        specifier: workspace:*
-        version: link:../../util/values
 
   packages/experimental/ralph-bundle:
     dependencies:
@@ -10575,6 +10630,9 @@ importers:
       '@qilin-agent/attachment':
         specifier: workspace:*
         version: link:../../attachment/attachment
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/fs':
         specifier: workspace:*
         version: link:../fs
@@ -10596,9 +10654,6 @@ importers:
       '@qilin-agent/llm-deepseek-api-key':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek-api-key
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -12018,15 +12073,15 @@ importers:
       '@qilin-agent/agent':
         specifier: workspace:*
         version: link:../../core/agent
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/scope':
         specifier: workspace:*
         version: link:../../core/scope
@@ -12074,6 +12129,9 @@ importers:
       '@qilin-agent/agent-loop':
         specifier: workspace:*
         version: link:../../core/agent-loop
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/commands':
         specifier: workspace:*
         version: link:../../interaction/commands
@@ -12083,9 +12141,6 @@ importers:
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
@@ -12181,61 +12236,6 @@ importers:
       '@qilin-agent/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
-
-  packages/coding-runtime/coding-runtime:
-    devDependencies:
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/sandbox':
-        specifier: workspace:*
-        version: link:../../sandbox/sandbox
-
-  packages/coding-runtime/coding-runtime-node:
-    dependencies:
-      '@qilin-agent/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-      '@qilin-agent/util-values':
-        specifier: workspace:*
-        version: link:../../util/values
-    devDependencies:
-      '@qilin-agent/fs':
-        specifier: workspace:*
-        version: link:../../fs/fs
-      '@qilin-agent/fs-local':
-        specifier: workspace:*
-        version: link:../../fs/fs-local
-      '@qilin-agent/kylin':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../coding-runtime
-      '@qilin-agent/sandbox':
-        specifier: workspace:*
-        version: link:../../sandbox/sandbox
-      '@qilin-agent/sandbox-local':
-        specifier: workspace:*
-        version: link:../../sandbox/sandbox-local
-      '@qilin-agent/sandbox-policy':
-        specifier: workspace:*
-        version: link:../../sandbox/sandbox-policy
-      '@qilin-agent/session':
-        specifier: workspace:*
-        version: link:../../core/session
-      '@qilin-agent/session-projection':
-        specifier: workspace:*
-        version: link:../../session/session-projection
-      '@qilin-agent/subprocess':
-        specifier: workspace:*
-        version: link:../../subprocess/subprocess
-      '@qilin-agent/subprocess-local':
-        specifier: workspace:*
-        version: link:../../subprocess/subprocess-local
-      '@qilin-agent/timeout':
-        specifier: workspace:*
-        version: link:../../util/timeout
 
   packages/sandbox/sandbox:
     dependencies:
@@ -12436,15 +12436,15 @@ importers:
       '@qilin-agent/agent-presets':
         specifier: workspace:*
         version: link:../../preset/agent-presets
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
       '@qilin-agent/llm':
         specifier: workspace:*
         version: link:../../llm/llm
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
       '@qilin-agent/schedule':
         specifier: workspace:*
         version: link:../schedule
@@ -12826,6 +12826,9 @@ importers:
       '@qilin-agent/session-format-v6-to-v7':
         specifier: workspace:*
         version: link:../session-format-v6-to-v7
+      '@qilin-agent/session-format-v7-to-v8':
+        specifier: workspace:*
+        version: link:../session-format-v7-to-v8
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~
@@ -12944,6 +12947,22 @@ importers:
       '@qilin-agent/session-format-v5-to-v6':
         specifier: workspace:*
         version: link:../session-format-v5-to-v6
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
+  packages/session/session-format-v7-to-v8:
+    dependencies:
+      '@qilin-agent/session-format':
+        specifier: workspace:*
+        version: link:../session-format
+      '@qilin-agent/session-format-v3-to-v4':
+        specifier: workspace:*
+        version: link:../session-format-v3-to-v4
+      '@qilin-agent/session-format-v6-to-v7':
+        specifier: workspace:*
+        version: link:../session-format-v6-to-v7
     devDependencies:
       '@qilin-agent/kylin':
         specifier: workspace:~
@@ -14082,6 +14101,12 @@ importers:
       '@qilin-agent/attachment-local':
         specifier: workspace:*
         version: link:../../attachment/attachment-local
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/fs':
         specifier: workspace:*
         version: link:../../fs/fs
@@ -14103,12 +14128,6 @@ importers:
       '@qilin-agent/output-retention':
         specifier: workspace:*
         version: link:../../util/output-retention
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
-      '@qilin-agent/coding-runtime-node':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox-local':
         specifier: workspace:*
         version: link:../../sandbox/sandbox-local
@@ -14199,6 +14218,9 @@ importers:
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
+      '@qilin-agent/coding-runtime-node':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/fs':
         specifier: workspace:*
         version: link:../../fs/fs
@@ -14220,9 +14242,6 @@ importers:
       '@qilin-agent/lsp-stdio':
         specifier: workspace:*
         version: link:../../lsp/lsp-stdio
-      '@qilin-agent/coding-runtime-node':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -14259,6 +14278,12 @@ importers:
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/cosmokit':
         specifier: link:../../../vendor/cosmokit
         version: link:../../../vendor/cosmokit
@@ -14286,12 +14311,6 @@ importers:
       '@qilin-agent/node-addon-system':
         specifier: workspace:*
         version: link:../../../native/system/packages/entry
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
-      '@qilin-agent/coding-runtime-node':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -16168,6 +16187,12 @@ importers:
       '@qilin-agent/agent-loop-testkit':
         specifier: workspace:*
         version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
+        specifier: workspace:*
+        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/fs':
         specifier: workspace:*
         version: link:../../fs/fs
@@ -16186,12 +16211,6 @@ importers:
       '@qilin-agent/llm-deepseek-api-key':
         specifier: workspace:*
         version: link:../../llm/llm-deepseek-api-key
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime
-      '@qilin-agent/coding-runtime-node':
-        specifier: workspace:*
-        version: link:../../coding-runtime/coding-runtime-node
       '@qilin-agent/sandbox':
         specifier: workspace:*
         version: link:../../sandbox/sandbox
@@ -16319,6 +16338,12 @@ importers:
       '@qilin-agent/client-file-upload':
         specifier: workspace:^
         version: link:../../packages/client/file-upload
+      '@qilin-agent/coding-runtime':
+        specifier: workspace:^
+        version: link:../../packages/coding-runtime/coding-runtime
+      '@qilin-agent/coding-runtime-node':
+        specifier: workspace:^
+        version: link:../../packages/coding-runtime/coding-runtime-node
       '@qilin-agent/command-compact':
         specifier: workspace:^
         version: link:../../packages/compaction/command-compact
@@ -16445,12 +16470,6 @@ importers:
       '@qilin-agent/plugin-package-inventory-deepseek':
         specifier: workspace:^
         version: link:../../packages/llm/plugin-package-inventory-deepseek
-      '@qilin-agent/coding-runtime':
-        specifier: workspace:^
-        version: link:../../packages/coding-runtime/coding-runtime
-      '@qilin-agent/coding-runtime-node':
-        specifier: workspace:^
-        version: link:../../packages/coding-runtime/coding-runtime-node
       '@qilin-agent/pwsh-local':
         specifier: workspace:^
         version: link:../../packages/shell/pwsh-local

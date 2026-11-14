@@ -43,7 +43,8 @@
     "@qilin-agent/session-format-v3-to-v4": "workspace:*",
     "@qilin-agent/session-format-v4-to-v5": "workspace:*",
     "@qilin-agent/session-format-v5-to-v6": "workspace:*",
-    "@qilin-agent/session-format-v6-to-v7": "workspace:*"
+    "@qilin-agent/session-format-v6-to-v7": "workspace:*",
+    "@qilin-agent/session-format-v7-to-v8": "workspace:*"
   },
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~",

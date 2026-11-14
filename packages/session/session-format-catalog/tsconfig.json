@@ -42,6 +42,9 @@
       "path": "../session-format-v6-to-v7"
     },
     {
+      "path": "../session-format-v7-to-v8"
+    },
+    {
       "path": "../../compaction/compaction-image-offload"
     }
   ]

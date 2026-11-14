@@ -170,7 +170,7 @@ Task 9 (S1 + 别名): complete
   clean, `pnpm run build` clean, `test:docs` 21/21 (including `verify-preset-copy`, which needed its
   hardcoded skills path and copy string updated), `verify-client-ui-i18n`, `oxlint` clean.
 
-Task 10 (S6+S7): complete (`cc7063dd3f`)
+Task 10 (S6+S7): complete
 - Package and doc directories moved, then one scripted sweep (excluding `.agents/notes/**`,
   `docs/persistence-changes/historical-formats/**`, `/lib/`, `snapshots/`) rewrote module
   specifiers, paths, the service name, and the presentation-mode value; a second pass fixed the
