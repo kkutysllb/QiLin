@@ -193,6 +193,48 @@ describe('sessions.list cold merge', () => {
     expect(inspect).not.toHaveBeenCalled()
   })
 
+  it('serves the worktree a cold row\'s cache holds each time the list is read, so a later checkpoint shows up without opening the Session', async () => {
+    const ctx = new Context()
+    await ctx.plugin(SessionStore)
+    providePersistence(ctx, { list: () => Promise.resolve([header('worktree-cold', 100)]) })
+    // The forge worktree fact travels in the summary block like any other
+    // client-visible key, including a key outside this compilation face.
+    const created = {
+      path: '/proj/.agents/worktrees/qilin-0a1b2c3d',
+      branch: 'qilin-0a1b2c3d',
+      from: null,
+      baseCommit: '2'.repeat(40),
+      repositoryRoot: '/proj',
+    }
+    const served: { block?: { asOfSeq: number; values: Record<string, unknown> } } = {}
+    const cacheCalls: number[] = []
+    ctx.provide('sessionProjectionCache', {
+      cachedSnapshot: () => {
+        cacheCalls.push(served.block?.asOfSeq ?? -1)
+        return served.block
+      },
+      cachedPredecessorTitle: () => undefined,
+    } as never)
+    const remote = createSessionTestRemote(ctx, { defaultModelSelection: () => ({ provider: 'p', model: 'm' }), cwd: '/tmp' })
+
+    const first = await remote.list(request({}))
+    if (!first.ok) throw new Error('list failed')
+    // A Session last checkpointed before the worktree existed shows the fact it has: none.
+    expect(first.value.items[0]?.projections).toBeUndefined()
+
+    served.block = { asOfSeq: 7, values: { forgeWorktree: created } }
+    const second = await remote.list(request({}))
+    if (!second.ok) throw new Error('list failed')
+
+    expect(cacheCalls).toEqual([-1, 7])
+    expect(second.value.items).toEqual([
+      expect.objectContaining({
+        sessionId: sid('worktree-cold'),
+        projections: { kind: 'cached', asOfSeq: 7, values: { forgeWorktree: created } },
+      }),
+    ])
+  })
+
 })
 
 describe('attached updatedAt tracks human prompts', () => {

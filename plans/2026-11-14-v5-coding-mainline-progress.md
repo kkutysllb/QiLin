@@ -39,7 +39,18 @@ Task 1: complete (tests: npx vitest run packages/experimental/client-ui-forge/te
 
 ### Task 2: session-controller cold-list transport tests
 
+Task 2: Finding: the new test passed before any source change, because the transport it pins
+already ships. It is a characterization test of the delivered path (a cached block carries a key
+outside the Host compilation face, and every list read re-reads the cache), not a TDD step.
+Task 2: complete (tests: npx vitest run packages/api/session-controller/tests/session-cold.host.spec.ts → 20 passed)
+
 ### Task 3: forge Host summary-block test
+
+Task 3: Finding: also a characterization test — the panel's registration already lands
+`forgeWorktree` in `summaryKeys()`, and the summary block's value already equals the panel's
+worktree and turns `null` once the Session works elsewhere. Pins the plan's 不变量 (the row and
+the panel read one projection).
+Task 3: complete (tests: npx vitest run packages/experimental/client-ui-forge/tests/controller.host.spec.ts -t 'carries the created worktree' → 1 passed)
 
 ### Task 4: documentation
 

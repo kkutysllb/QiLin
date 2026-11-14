@@ -839,6 +839,29 @@ describe('forgePanel worktree requests', () => {
     expect(opened.provider.probes).toEqual(['fake.test'])
   })
 
+  it('carries the created worktree in the Session summary a list row reads, and drops it while the Session works elsewhere', async () => {
+    const { repo } = await project()
+    const opened = await open(repo, {}, { worktrees: true })
+    const follower = reader(opened)
+    await follower.until(ready)
+    await opened.ctx.forgePanel.requestWorktree(opened.session, null, signal)
+
+    startTurn(opened.session, 1)
+    await proposeStep(opened.ctx, opened.agent, { turn: 1, step: 1, messages: [prompt('Fix the bug')] })
+    startStep(opened.session, 1)
+    const created = worktreeState(opened)?.created ?? null
+    expect(created).not.toBeNull()
+
+    // The Session list asks the summary keys for an attached Session, so the
+    // row and the panel must read one projection, not two states.
+    const keys = opened.ctx.sessionProjections.summaryKeys()
+    expect(keys).toContain('forgeWorktree')
+    expect(opened.ctx.sessionProjections.snapshot(opened.session, keys).values.forgeWorktree).toEqual(created)
+
+    await opened.ctx.workingDirectory.set(opened.agent, repo)
+    expect(opened.ctx.sessionProjections.snapshot(opened.session, keys).values.forgeWorktree).toBeNull()
+  })
+
   it('publishes worktree facts only when they change', async () => {
     const { repo } = await project()
     const opened = await open(repo)
