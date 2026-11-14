@@ -15,13 +15,32 @@
     "src/default-workspace.ts"
   ],
   "references": [
-    { "path": "../../../vendor/cordis" },
-    { "path": "../../fs/fs" },
-    { "path": "../../core/session" },
-    { "path": "../../host/directory-picker" },
-    { "path": "../../storage/storage-domain" },
-    { "path": "../../typert/protocol" },
-    { "path": "../../util/deque" },
-    { "path": "../../workspace/workspace" }
+    {
+      "path": "../../../vendor/cordis"
+    },
+    {
+      "path": "../../fs/fs"
+    },
+    {
+      "path": "../../core/session"
+    },
+    {
+      "path": "../../host/directory-picker"
+    },
+    {
+      "path": "../../storage/storage-domain"
+    },
+    {
+      "path": "../../typert/protocol"
+    },
+    {
+      "path": "../../util/deque"
+    },
+    {
+      "path": "../../workspace/workspace"
+    },
+    {
+      "path": "../../fs/fs-local"
+    }
   ]
 }

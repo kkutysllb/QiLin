@@ -91,6 +91,7 @@
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
     "@qilin-agent/fs": "workspace:*",
+    "@qilin-agent/fs-local": "workspace:*",
     "@qilin-agent/host-directory-picker": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/remote-mock": "workspace:*",

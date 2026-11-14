@@ -7,6 +7,7 @@ import SessionStore, { SessionId } from '@qilin-agent/session'
 import Storage from '@qilin-agent/storage'
 import { DomainFacility } from '@qilin-agent/storage-domain'
 import { RemoteError } from '@qilin-agent/typert-protocol'
+import LocalFileSystem from '@qilin-agent/fs-local'
 import WorkspaceRegistry from '@qilin-agent/workspace'
 import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import WorkspaceController from '../src/index.ts'
@@ -437,6 +438,20 @@ describe('WorkspaceKinds', () => {
       value: { items: [{ workspaceId: created.workspace.workspaceId, kind: 'repository' }] },
     })
     abort.abort()
+  })
+
+  it('classifies through the real filesystem service a web Host mounts', async () => {
+    const { controller, ctx, root } = await harness()
+    await ctx.plugin(LocalFileSystem, { cwd: root })
+    const repository = stageDir(root, 'repository')
+    mkdirSync(join(repository, '.git'))
+    const plain = stageDir(root, 'plain')
+
+    const inRepository = await controller.create({ path: repository })
+    const inPlain = await controller.create({ path: plain })
+
+    expect(inRepository.workspace.kind).toBe('repository')
+    expect(inPlain.workspace.kind).toBe('directory')
   })
 
   it('classifies every directory as a plain directory without a filesystem service', async () => {

@@ -1770,6 +1770,9 @@ importers:
       '@qilin-agent/fs':
         specifier: workspace:*
         version: link:../../fs/fs
+      '@qilin-agent/fs-local':
+        specifier: workspace:*
+        version: link:../../fs/fs-local
       '@qilin-agent/host-directory-picker':
         specifier: workspace:*
         version: link:../../host/directory-picker
