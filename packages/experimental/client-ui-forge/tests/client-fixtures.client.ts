@@ -140,6 +140,7 @@ export function ready(overrides: Partial<ForgePanelState> = {}, checkoutOverride
     changeRequests: [],
     worktree: worktree(),
     local: null,
+    lastTurn: 1,
     ...overrides,
   }
 }

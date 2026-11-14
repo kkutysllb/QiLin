@@ -208,6 +208,8 @@ export interface ForgePanelState {
    * outside a checkout, and without a fork point.
    */
   readonly local: ForgeLocalChanges | null
+  /** The last turn that ended, which the `last-turn` scope reads, or null before one ends. */
+  readonly lastTurn: number | null
 }
 
 /** Local branches offered as the base of a new worktree. */

@@ -148,6 +148,7 @@ describe('forgePanel.follow', () => {
       changeRequests: [],
       worktree: UNAVAILABLE,
       local: null,
+      lastTurn: null,
     })
     expect(settled).toEqual({
       directory: repo,
@@ -158,6 +159,7 @@ describe('forgePanel.follow', () => {
       worktree: UNAVAILABLE,
       // The remote was never fetched, so it names no default branch to fork from.
       local: null,
+      lastTurn: null,
     })
     expect(opened.provider.probes).toEqual(['fake.test'])
   })
@@ -832,6 +834,7 @@ describe('forgePanel worktree requests', () => {
       changeRequests: [],
       worktree: { ...UNAVAILABLE, request: { from: null }, created },
       local: { base: created?.baseCommit.slice(0, 7), files: [] },
+      lastTurn: null,
     })
     expect(opened.provider.probes).toEqual(['fake.test'])
   })

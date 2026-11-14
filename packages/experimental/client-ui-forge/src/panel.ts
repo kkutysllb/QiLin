@@ -8,6 +8,7 @@ import type {} from '@qilin-agent/sandbox-policy'
 import { pluginRecordOf } from '@qilin-agent/session'
 import type { Session, SessionEvent } from '@qilin-agent/session'
 import type { ProjectionReader } from './projection-reader.ts'
+import type { ForgeTurnFilesState } from './turn-files.ts'
 import { deadline } from '@qilin-agent/timeout'
 import type {} from '@qilin-agent/working-directory'
 import { gitIn, hasBranch, inspectCheckout } from './git.ts'
@@ -72,6 +73,7 @@ export class SessionPanel {
    * @param config - Git limits and the sign-in probe deadline.
    * @param session - Session the panel describes.
    * @param worktreeStates - reads the `forgeWorktree` projection of the Session.
+   * @param turnFiles - reads the `forgeTurnFiles` projection of the Session.
    * @param creations - reads the running creation and restoration, the last failed creation, and what a message of the
    * Session waits for.
    * @param onIdle - called when the last follower leaves.
@@ -81,6 +83,7 @@ export class SessionPanel {
     private readonly config: PanelConfig,
     readonly session: Session,
     private readonly worktreeStates: ProjectionReader<ForgeWorktreeState>,
+    turnFiles: ProjectionReader<ForgeTurnFilesState>,
     private readonly creations: Pick<WorktreeCreations, 'of' | 'restorationOf' | 'failureOf' | 'waitingOf'>,
     private readonly onIdle: () => void,
   ) {
@@ -92,6 +95,7 @@ export class SessionPanel {
       changeRequests: this.entries(ctx.forgeSession.changeRequests(session)),
       worktree: this.worktree(),
       local: null,
+      lastTurn: turnFiles.stateOf(session)?.turn ?? null,
     }
     this.stopWatching = ctx.forgeSession.watch(session, (changeRequests) => {
       this.publish({ ...this.current, changeRequests: this.entries(changeRequests) })
@@ -145,6 +149,9 @@ export class SessionPanel {
       void this.inspect()
     } else if (event.type === 'turn/start' || event.type === 'step/start' || pluginRecordOf(event)?.type === WORKTREE_RECORD) {
       this.updateWorktree()
+    } else if (event.type === 'turn/end') {
+      // The last-turn scope appears once a turn ends; its projection carries the number.
+      this.publish({ ...this.current, lastTurn: event.data.turn })
     }
   }
 

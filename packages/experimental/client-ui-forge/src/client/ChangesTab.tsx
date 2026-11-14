@@ -255,9 +255,10 @@ function LocalHeader({ state, scope, createChangeRequest, t }: {
   )
 }
 
-function ScopeMenu({ scope, commit, choose, t }: {
+function ScopeMenu({ scope, commit, lastTurn, choose, t }: {
   readonly scope: ScopeKind
   readonly commit: string | null
+  readonly lastTurn: number | null
   readonly choose: (scope: ScopeKind) => void
   readonly t: Translate
 }): ReactNode {
@@ -268,7 +269,7 @@ function ScopeMenu({ scope, commit, choose, t }: {
     { id: 'staged', label: t(SCOPE_LABEL.staged) },
     // Without a readable checkout commit there is no commit to show.
     ...commit === null ? [] : [{ id: 'commit', label: t(SCOPE_LABEL.commit) }],
-    { id: 'last-turn', label: t(SCOPE_LABEL['last-turn']) },
+    ...lastTurn === null ? [] : [{ id: 'last-turn', label: t(SCOPE_LABEL['last-turn']) }],
     { type: 'separator', id: 'separator' },
     { id: 'branch', label: t(SCOPE_LABEL.branch) },
   ]
@@ -590,7 +591,11 @@ export function ChangesTab({
       )
     }
   } else if (data.files.length === 0) {
-    body = <div className={css.files}>{orphanRecords}<div className={css.centered}>{t('diff.empty')}</div></div>
+    body = (
+      <div className={css.files}>{orphanRecords}
+        <div className={css.centered}>{t(scope === 'last-turn' ? 'diff.emptyLastTurn' : 'diff.empty')}</div>
+      </div>
+    )
   } else {
     body = (
       <div ref={scrollport} className={css.files} data-forge-changes-scroll="" role="region"
@@ -675,7 +680,8 @@ export function ChangesTab({
       {!reviewOpen && reviewError !== null && reviewState.uncertain === null && <Notice>{reviewError}</Notice>}
       <div className={css.toolbar}>
         {tab.visible && source.kind === 'local' && (
-          <ScopeMenu scope={scope} commit={checkoutCommit} choose={(next) => { actions.scoped(tab.id, next) }} t={t} />
+          <ScopeMenu scope={scope} commit={checkoutCommit} lastTurn={state?.lastTurn ?? null}
+            choose={(next) => { actions.scoped(tab.id, next) }} t={t} />
         )}
         {tab.visible && <ChangedFilesMenu {...navigator} visible />}
         {files.length > 0 && <span className={css.totals}><Counts file={{ additions, deletions, binary: false }} t={t} /></span>}

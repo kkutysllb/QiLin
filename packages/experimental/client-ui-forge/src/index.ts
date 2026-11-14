@@ -719,11 +719,13 @@ export class ForgePanelController extends TypertRemoteService {
   private panelOf(session: Session): SessionPanel {
     let panel = this.panels.get(session)
     if (panel === undefined) {
-      const created: SessionPanel = new SessionPanel(this.home, this.config, session, this.worktreeStates, this.creations, () => {
-        if (this.panels.get(session) !== created) return
-        this.panels.delete(session)
-        void created.dispose()
-      })
+      const created: SessionPanel = new SessionPanel(
+        this.home, this.config, session, this.worktreeStates, this.turnFiles, this.creations, () => {
+          if (this.panels.get(session) !== created) return
+          this.panels.delete(session)
+          void created.dispose()
+        },
+      )
       panel = created
       this.panels.set(session, panel)
     }

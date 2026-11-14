@@ -432,6 +432,13 @@ describe('ChangesTab local reads', () => {
     expect(pending.view.getAllByRole('menuitem').map(item => item.textContent)).not.toContain('This commit')
   })
 
+  it('hides the last-turn scope before any turn ends', async () => {
+    const m = mount({ state: ready({ lastTurn: null }) })
+    await settle()
+    fireEvent.click(m.view.getByRole('button', { name: 'Branch' }))
+    expect(m.view.getAllByRole('menuitem').map(item => item.textContent)).not.toContain('Last turn')
+  })
+
   it('reads the files the last turn wrote from the deriving scope', async () => {
     const m = mount()
     await settle()
