@@ -725,7 +725,7 @@ describe('ui-agent-preset apply', () => {
     // workspace start produces is what the stage lands on — and exactly one
     // new-session flow began.
     expect(section.startCreatorDraft).toBeDefined()
-    expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('ptc')
+    expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('coding')
     expect(uiWorkspace.starts).toHaveLength(1)
 
     // A cross-screen stage carries the introduce cue; the chip acknowledges
@@ -761,8 +761,8 @@ describe('ui-agent-preset apply', () => {
     await section.load()
     section.startCreatorDraft?.()
 
-    await vi.waitFor(() => { expect(calls).toContain('select:ptc') })
-    expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('ptc')
+    await vi.waitFor(() => { expect(calls).toContain('select:coding') })
+    expect(seat.hooks.agentPresetSeat.getSnapshot().current).toBe('coding')
     expect(uiWorkspace.starts).toHaveLength(1)
     conversation()
   })
@@ -774,7 +774,7 @@ describe('ui-agent-preset apply', () => {
     ctx.provide('conversation', {} as never)
     const sessions = sessionsDouble(ctx, {
       current: 's1',
-      byId: { s1: { id: 's1', blank: true, projectionValues: { agentPreset: 'ptc' } } },
+      byId: { s1: { id: 's1', blank: true, projectionValues: { agentPreset: 'coding' } } },
     })
     ctx.provide('sessions', sessions as never)
     const uiWorkspace = uiWorkspaceDouble()
@@ -787,7 +787,7 @@ describe('ui-agent-preset apply', () => {
 
     // The blank already lists the shipped preset, so only the new-session flow runs.
     expect(uiWorkspace.starts).toHaveLength(1)
-    expect(calls).not.toContain('select:ptc')
+    expect(calls).not.toContain('select:coding')
     conversation()
   })
 
@@ -819,17 +819,17 @@ describe('ui-agent-preset apply', () => {
     sessions.notify()
     const boundSeat = injectSeat(SessionId('s1'))
     await boundSeat.load()
-    await vi.waitFor(() => { expect(calls).toContain('select:ptc') })
+    await vi.waitFor(() => { expect(calls).toContain('select:coding') })
 
     // The chip mounts with the flow's session, so its roster load can land
     // AFTER the stage was consumed; the session's own composition is what
     // the display must keep — not the deployment default.
     state.byId['s1'] = {
-      id: 's1', blank: true, projectionValues: { agentPreset: 'ptc' },
+      id: 's1', blank: true, projectionValues: { agentPreset: 'coding' },
     }
     await boundSeat.load()
 
-    expect(boundSeat.hooks.agentPresetSeat.getSnapshot().current).toBe('ptc')
+    expect(boundSeat.hooks.agentPresetSeat.getSnapshot().current).toBe('coding')
     conversation()
   })
 

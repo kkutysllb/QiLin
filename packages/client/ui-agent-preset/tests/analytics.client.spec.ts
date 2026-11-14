@@ -10,7 +10,7 @@ import { analyticsMode } from '../src/client/analytics.ts'
 describe('analyticsMode', () => {
   it.each([
     ['@qilin-agent/kylin', 'creator'],
-    ['ptc', 'ptc'],
+    ['coding', 'coding'],
     ['minimal', 'minimal'],
     ['standard', 'standard'],
   ] as const)('maps the built-in %s preset id to %s', (id, category) => {

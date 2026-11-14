@@ -25,7 +25,7 @@ const READY: AgentPresetSectionState = {
   showPicker: true,
   policySaving: false,
   rows: [
-    { id: 'ptc', trust: 'system', isDefault: true, name: '标准模式', description: '完整的编码 agent。' },
+    { id: 'coding', trust: 'system', isDefault: true, name: '标准模式', description: '完整的编码 agent。' },
     { id: 'mine', trust: 'user', isDefault: false },
   ],
   copy: null,
@@ -77,8 +77,8 @@ function renderSection(
  * authored with, a shipped preset only its resolved display name.
  */
 function rowFor(id: string): HTMLElement {
-  const shipped = id === 'ptc'
-  const marker = screen.getAllByText(shipped ? en.presetPtcName : id)
+  const shipped = id === 'coding'
+  const marker = screen.getAllByText(shipped ? en.presetCodingName : id)
     .find(node => node.tagName === (shipped ? 'SPAN' : 'CODE'))
   const row = marker?.closest('li') ?? null
   /* v8 ignore next -- every rendered card prints its id or its resolved name */
@@ -98,8 +98,8 @@ describe('the preset list', () => {
 
     // Display copy is what a picker reads; the id stays visible as the key the
     // composition and the session header actually carry.
-    expect(screen.getByText(en.presetPtcName)).toBeTruthy()
-    expect(screen.getByText(en.presetPtcDescription)).toBeTruthy()
+    expect(screen.getByText(en.presetCodingName)).toBeTruthy()
+    expect(screen.getByText(en.presetCodingDescription)).toBeTruthy()
     const mine = rowFor('mine')
     expect(within(mine).getAllByText('mine').length).toBeGreaterThan(0)
     expect(within(mine).getByText(en.noDescription)).toBeTruthy()
@@ -108,7 +108,7 @@ describe('the preset list', () => {
   it('marks trust and the one in use, and offers no "set default" on it', () => {
     renderSection()
 
-    const standard = rowFor('ptc')
+    const standard = rowFor('coding')
     expect(within(standard).getByText(en.builtIn)).toBeTruthy()
     expect(within(standard).getByText(en.inUse)).toBeTruthy()
     expect(within(standard).queryByText(en.setDefault)).toBeNull()
@@ -121,7 +121,7 @@ describe('the preset list', () => {
       error: 'settings write disconnected',
       rows: [
         ...READY.rows,
-        { id: 'ptc', trust: 'system', isDefault: false, name: '创造模式' },
+        { id: 'coding', trust: 'system', isDefault: false, name: '创造模式' },
       ],
     })
 
@@ -135,11 +135,11 @@ describe('the preset list', () => {
     expect(creator).toHaveProperty('disabled', true)
     expect(creator.getAttribute('title')).toBe(en.enablePickerToCreate)
 
-    const standard = within(rowFor('ptc')).getByRole('button', {
-      name: `${en.selectionOffDefault}: ${en.presetPtcName}`,
+    const standard = within(rowFor('coding')).getByRole('button', {
+      name: `${en.selectionOffDefault}: ${en.presetCodingName}`,
     })
     expect(standard.getAttribute('title')).toBe(en.selectionOffDefault)
-    expect(within(rowFor('ptc')).getByText(en.selectionOffDefault)).toBeTruthy()
+    expect(within(rowFor('coding')).getByText(en.selectionOffDefault)).toBeTruthy()
 
     const mine = within(rowFor('mine')).getByRole('button', {
       name: `${en.enablePickerToSetDefault}: mine`,
@@ -167,7 +167,7 @@ describe('the preset list', () => {
     expect(screen.queryByRole('heading', { name: en.customGroup })).toBeNull()
     cleanup()
 
-    renderSection({ rows: [{ id: 'ptc', trust: 'system', isDefault: true }] })
+    renderSection({ rows: [{ id: 'coding', trust: 'system', isDefault: true }] })
     expect(screen.getByRole('heading', { name: en.customGroup })).toBeTruthy()
   })
 
@@ -183,7 +183,7 @@ describe('the preset list', () => {
   it('picks a preset by clicking its card, and the one in use is inert', () => {
     const actions = renderSection()
 
-    const inUse = within(rowFor('ptc')).getByRole('button', { name: `${en.inUse}: ${en.presetPtcName}` })
+    const inUse = within(rowFor('coding')).getByRole('button', { name: `${en.inUse}: ${en.presetCodingName}` })
     expect(inUse).toHaveProperty('disabled', true)
     fireEvent.click(inUse)
 
@@ -198,9 +198,9 @@ describe('the preset list', () => {
     // A shipped preset is the composition a copy starts from — reading it is
     // the point. A custom preset is edited in its files, so its row leads
     // there instead; there is no editor for either.
-    const standard = rowFor('ptc')
-    expect(within(standard).getByRole('button', { name: `${en.view}: ${en.presetPtcName}` })).toBeTruthy()
-    expect(within(standard).queryByRole('button', { name: `${en.openLocation}: ${en.presetPtcName}` })).toBeNull()
+    const standard = rowFor('coding')
+    expect(within(standard).getByRole('button', { name: `${en.view}: ${en.presetCodingName}` })).toBeTruthy()
+    expect(within(standard).queryByRole('button', { name: `${en.openLocation}: ${en.presetCodingName}` })).toBeNull()
     const mine = rowFor('mine')
     expect(within(mine).getByRole('button', { name: `${en.openLocation}: mine` })).toBeTruthy()
     expect(within(mine).queryByRole('button', { name: `${en.view}: mine` })).toBeNull()
@@ -210,13 +210,13 @@ describe('the preset list', () => {
     renderSection()
 
     expect(within(rowFor('mine')).getByRole('button', { name: `${en.delete}: mine` })).toBeTruthy()
-    expect(within(rowFor('ptc')).queryByRole('button', { name: `${en.delete}: ${en.presetPtcName}` })).toBeNull()
+    expect(within(rowFor('coding')).queryByRole('button', { name: `${en.delete}: ${en.presetCodingName}` })).toBeNull()
   })
 
   it('disables duplication when nothing is writable, and says why', () => {
     renderSection({ authorable: false })
 
-    const duplicate = within(rowFor('ptc')).getByRole('button', { name: `${en.duplicate}: ${en.presetPtcName}` })
+    const duplicate = within(rowFor('coding')).getByRole('button', { name: `${en.duplicate}: ${en.presetCodingName}` })
     expect(duplicate).toHaveProperty('disabled', true)
     expect(duplicate.getAttribute('data-tip')).toBe(en.duplicateUnavailable)
   })
@@ -224,7 +224,7 @@ describe('the preset list', () => {
   it('marks a broken custom preset: unselectable, uncopyable, still deletable', () => {
     const actions = renderSection({
       rows: [
-        { id: 'ptc', trust: 'system', isDefault: true },
+        { id: 'coding', trust: 'system', isDefault: true },
         {
           id: 'ghost', trust: 'user', isDefault: false, name: '幽灵预设', description: '我自己写的',
           broken: 'the composition file agent.cordis.yml is missing',
@@ -262,13 +262,13 @@ describe('the preset list', () => {
 
   it('withholds the viewer on a broken shipped preset', () => {
     renderSection({
-      rows: [{ id: 'ptc', trust: 'system', isDefault: false, name: '标准模式', broken: 'the composition is not valid YAML' }],
+      rows: [{ id: 'coding', trust: 'system', isDefault: false, name: '标准模式', broken: 'the composition is not valid YAML' }],
     })
 
     // There is no readable composition to offer; the reason on the card is
     // the whole story a shipped row can tell.
-    const standard = rowFor('ptc')
-    expect(within(standard).queryByRole('button', { name: `${en.view}: ${en.presetPtcName}` })).toBeNull()
+    const standard = rowFor('coding')
+    expect(within(standard).queryByRole('button', { name: `${en.view}: ${en.presetCodingName}` })).toBeNull()
     expect(within(standard).getByRole('alert').textContent).toContain('not valid YAML')
   })
 
@@ -285,7 +285,7 @@ describe('the preset list', () => {
     expect(within(mine).getByText('/home/user/.qilin/.agent-presets/mine')).toBeTruthy()
     expect(within(mine).getByText(en.revealedPathLabel)).toBeTruthy()
     // The reveal belongs to its row alone.
-    expect(within(rowFor('ptc')).queryByText(en.revealedPathLabel)).toBeNull()
+    expect(within(rowFor('coding')).queryByText(en.revealedPathLabel)).toBeNull()
   })
 
   it('routes the row actions to the controller', () => {
@@ -295,17 +295,17 @@ describe('the preset list', () => {
     fireEvent.click(within(rowFor('mine')).getByRole('button', { name: `${en.setDefault}: mine` }))
     fireEvent.click(within(rowFor('mine')).getByRole('button', { name: `${en.openLocation}: mine` }))
     fireEvent.click(within(rowFor('mine')).getByRole('button', { name: `${en.duplicate}: mine` }))
-    fireEvent.click(within(rowFor('ptc')).getByRole('button', { name: `${en.view}: ${en.presetPtcName}` }))
+    fireEvent.click(within(rowFor('coding')).getByRole('button', { name: `${en.view}: ${en.presetCodingName}` }))
 
     expect(actions.makeDefault).toHaveBeenCalledWith('mine')
     expect(actions.openLocation).toHaveBeenCalledWith('mine')
     expect(actions.beginCopy).toHaveBeenCalledWith('mine')
-    expect(actions.view).toHaveBeenCalledWith('ptc')
+    expect(actions.view).toHaveBeenCalledWith('coding')
   })
 
   it('starts a creator-mode draft session and leaves settings', () => {
     const actions = renderSection({
-      rows: [...READY.rows, { id: 'ptc', trust: 'system', isDefault: false, name: '创造模式' }],
+      rows: [...READY.rows, { id: 'coding', trust: 'system', isDefault: false, name: '创造模式' }],
     })
 
     fireEvent.click(screen.getByRole('button', { name: en.creatorDraft }))
@@ -319,8 +319,8 @@ describe('the preset list', () => {
   it('keeps the empty custom group on screen: heading plus the creator entry', () => {
     renderSection({
       rows: [
-        { id: 'ptc', trust: 'system', isDefault: true, name: '标准模式' },
-        { id: 'ptc', trust: 'system', isDefault: false, name: '创造模式' },
+        { id: 'coding', trust: 'system', isDefault: true, name: '标准模式' },
+        { id: 'coding', trust: 'system', isDefault: false, name: '创造模式' },
       ],
     })
 
@@ -378,14 +378,14 @@ describe('the preset list', () => {
 
 describe('the copy dialog', () => {
   const draft: CopyDraft = {
-    from: 'ptc', fromTitle: '标准模式', id: '', name: '', saving: false, error: null,
+    from: 'coding', fromTitle: '标准模式', id: '', name: '', saving: false, error: null,
   }
 
   it('names its source and collects only an id and a display name', () => {
     const actions = renderSection({ copy: draft })
 
     const dialog = screen.getByRole('dialog')
-    expect(dialog.getAttribute('aria-label')).toBe(`${en.copyTitle} · ${en.copyOf} ${en.presetPtcName}`)
+    expect(dialog.getAttribute('aria-label')).toBe(`${en.copyTitle} · ${en.copyOf} ${en.presetCodingName}`)
     expect(within(dialog).getByText(en.copyIntro)).toBeTruthy()
     fireEvent.change(within(dialog).getByPlaceholderText(en.presetIdPlaceholder), { target: { value: 'my-agent' } })
     fireEvent.change(within(dialog).getByPlaceholderText(en.displayNamePlaceholder), { target: { value: '我的模式' } })
@@ -445,10 +445,10 @@ describe('the copy dialog', () => {
 
 describe('the read-only viewer', () => {
   it('shows the composition text under the preset\'s name', () => {
-    renderSection({ view: { id: 'ptc', title: '标准模式', content: '- id: tool-bash\n' } })
+    renderSection({ view: { id: 'coding', title: '标准模式', content: '- id: tool-bash\n' } })
 
     const dialog = screen.getByRole('dialog')
-    expect(dialog.getAttribute('aria-label')).toBe(`${en.view} · ${en.presetPtcName}`)
+    expect(dialog.getAttribute('aria-label')).toBe(`${en.view} · ${en.presetCodingName}`)
     expect(within(dialog).getByText(en.composition)).toBeTruthy()
     expect(within(dialog).getByText(/tool-bash/).textContent).toBe('- id: tool-bash\n')
   })
@@ -460,7 +460,7 @@ describe('the read-only viewer', () => {
   })
 
   it('closes through the controller', () => {
-    const actions = renderSection({ view: { id: 'ptc', title: '标准模式', content: '- id: x\n' } })
+    const actions = renderSection({ view: { id: 'coding', title: '标准模式', content: '- id: x\n' } })
 
     fireEvent.click(within(screen.getByRole('dialog')).getByText(en.close))
 
@@ -468,7 +468,7 @@ describe('the read-only viewer', () => {
   })
 
   it('dismisses on Escape', () => {
-    const actions = renderSection({ view: { id: 'ptc', title: '标准模式', content: '- id: x\n' } })
+    const actions = renderSection({ view: { id: 'coding', title: '标准模式', content: '- id: x\n' } })
 
     fireEvent.keyDown(document, { key: 'Escape' })
 

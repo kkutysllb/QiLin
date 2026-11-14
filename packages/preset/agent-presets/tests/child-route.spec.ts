@@ -41,14 +41,14 @@ function rowById(rows: readonly PresetRow[], id: string): PresetRow | undefined 
 }
 
 describe('shipped preset delegation rows', () => {
-  it.each(['standard', 'ptc'])('enables selection without pinning a route in %s', (presetId) => {
+  it.each(['standard', 'coding'])('enables selection without pinning a route in %s', (presetId) => {
     const row = rowById(compositionOf(presetId), 'tool-subagent')
     expect(row?.name).toBe('@qilin-agent/tool-subagent')
     expect(row?.config).toMatchObject({ toolName: 'subagent', modelSelectionSettings: true })
     expect(row?.config).not.toHaveProperty('agentOptions')
   })
 
-  it.each(['standard', 'ptc'])('keeps the %s fork delegation on the parent route', (presetId) => {
+  it.each(['standard', 'coding'])('keeps the %s fork delegation on the parent route', (presetId) => {
     const row = rowById(compositionOf(presetId), 'tool-subagent-fork')
     expect(row?.config).toMatchObject({ toolName: 'subagent_fork' })
     expect(row?.config).not.toHaveProperty('agentOptions')

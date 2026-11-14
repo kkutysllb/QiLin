@@ -14,9 +14,9 @@ describe('presetDisplayText', () => {
       name: 't:presetStandardName',
       description: 't:presetStandardDescription',
     })
-    expect(presetDisplayText({ id: 'ptc', trust: 'system', name: '编码模式' }, t)).toEqual({
-      name: 't:presetPtcName',
-      description: 't:presetPtcDescription',
+    expect(presetDisplayText({ id: 'coding', trust: 'system', name: '编码模式' }, t)).toEqual({
+      name: 't:presetCodingName',
+      description: 't:presetCodingDescription',
     })
   })
 

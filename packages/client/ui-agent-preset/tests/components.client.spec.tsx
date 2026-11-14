@@ -25,14 +25,14 @@ afterEach(cleanup)
 const ROSTER_READY: AgentPresetSettingsState = {
   status: 'ready',
   error: null,
-  options: [{ id: 'ptc', trust: 'system', name: '标准模式' }, { id: 'mine', trust: 'user' }],
+  options: [{ id: 'coding', trust: 'system', name: '标准模式' }, { id: 'mine', trust: 'user' }],
 }
 
 const SEAT_READY: AgentPresetSeatState = {
   showPicker: true,
-  current: 'ptc',
+  current: 'coding',
   options: [
-    { id: 'ptc', trust: 'system', name: '标准模式', description: '完整的编码 agent。' },
+    { id: 'coding', trust: 'system', name: '标准模式', description: '完整的编码 agent。' },
     { id: 'mine', trust: 'user' },
   ],
   busy: false,
@@ -122,7 +122,7 @@ describe('the new-session chip', () => {
     const actions = renderSeat()
 
     await waitFor(() => { expect(actions.load).toHaveBeenCalledTimes(1) })
-    expect(screen.getByRole('button').textContent).toContain(en.presetPtcName)
+    expect(screen.getByRole('button').textContent).toContain(en.presetCodingName)
     expect(screen.getByRole('button').getAttribute('title')).toBe(en.seatHint)
   })
 
@@ -133,7 +133,7 @@ describe('the new-session chip', () => {
 
     // The id alone never said what a preset does; the description is the
     // whole reason a preset can publish metadata at all.
-    expect(screen.getByText(en.presetPtcDescription)).toBeTruthy()
+    expect(screen.getByText(en.presetCodingDescription)).toBeTruthy()
     // A preset that published none still reads as a row, with its id standing
     // in for the name.
     expect(screen.getByText(en.noDescription)).toBeTruthy()
@@ -327,13 +327,13 @@ describe('the session-header label', () => {
   it('names the preset the session runs, and never offers a switch', async () => {
     const { load } = renderLabel({
       blank: false,
-      projectionValues: { agentPreset: 'ptc' },
+      projectionValues: { agentPreset: 'coding' },
     })
 
     await waitFor(() => { expect(load).toHaveBeenCalledTimes(1) })
     // A control here would promise a switch the host refuses outright.
     expect(screen.queryByRole('button')).toBeNull()
-    expect(screen.getByTitle(en.presetPtcDescription).textContent).toBe(en.presetPtcName)
+    expect(screen.getByTitle(en.presetCodingDescription).textContent).toBe(en.presetCodingName)
   })
 
   it('falls back to the id, and to the generic hint, when metadata is absent', () => {
@@ -345,12 +345,12 @@ describe('the session-header label', () => {
   it('shows the id until the roster resolves it', () => {
     renderLabel({
       blank: false,
-      projectionValues: { agentPreset: 'ptc' },
+      projectionValues: { agentPreset: 'coding' },
     }, { options: [] })
 
     // The session's own summary is the authority on which preset it runs; the
     // roster only supplies the display name, and its arrival is a later frame.
-    expect(screen.getByTitle(en.headerHint).textContent).toBe('ptc')
+    expect(screen.getByTitle(en.headerHint).textContent).toBe('coding')
   })
 
   it('renders nothing, and reads no roster, when the session records no preset', async () => {

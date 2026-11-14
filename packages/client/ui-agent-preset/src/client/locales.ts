@@ -5,7 +5,7 @@ export type AgentPresetSettingsKey =
   | 'error' | 'userTrust' | 'seatHint' | 'headerHint'
   | 'nav' | 'sectionIntro' | 'builtIn' | 'setDefault' | 'view'
   | 'presetStandardName' | 'presetStandardDescription'
-  | 'presetPtcName' | 'presetPtcDescription'
+  | 'presetCodingName' | 'presetCodingDescription'
   | 'duplicate' | 'duplicateUnavailable' | 'delete' | 'presetId' | 'presetIdPlaceholder' | 'copyOf'
   | 'displayName' | 'displayNamePlaceholder'
   | 'inUse' | 'selectionOffDefault' | 'noDescription' | 'builtInGroup' | 'customGroup'
@@ -35,8 +35,8 @@ export const en: Record<AgentPresetSettingsKey, string> = {
   presetStandardName: 'Standard mode',
   presetStandardDescription:
     'A general-purpose agent for everyday and office work — writing, research, files, and spreadsheets — with full coding, shell, skills, planning, and subagent capabilities.',
-  presetPtcName: 'Coding mode',
-  presetPtcDescription:
+  presetCodingName: 'Coding mode',
+  presetCodingDescription:
     'An agent optimized for coding beyond the standard capabilities: a custom program composition wraps coding tasks before they reach the model, cutting calls and context, with deeper coding-focused tool and flow optimizations.',
   duplicate: 'Duplicate',
   duplicateUnavailable: 'This deployment has no writable preset directory',
@@ -102,8 +102,8 @@ export const zh: Record<AgentPresetSettingsKey, string> = {
   view: '查看',
   presetStandardName: '普通模式',
   presetStandardDescription: '面向日常与办公任务的通用 Agent：写作、检索、文件与表格处理都能胜任，也具备完整的编码、Shell、Skills、计划与子代理能力。',
-  presetPtcName: '编码模式',
-  presetPtcDescription: '在普通能力之上为编码任务深度优化的 Agent：以自定义程序组合把编码任务封装后与模型交互，减少调用次数与上下文占用，并针对编码场景做了更深的工具与流程优化。',
+  presetCodingName: '编码模式',
+  presetCodingDescription: '在普通能力之上为编码任务深度优化的 Agent：以自定义程序组合把编码任务封装后与模型交互，减少调用次数与上下文占用，并针对编码场景做了更深的工具与流程优化。',
   duplicate: '复制',
   duplicateUnavailable: '此部署未配置可写的预设目录',
   delete: '删除',

@@ -66,7 +66,7 @@ export type SidebarAnalyticsPosition = 'sidebar' | 'sidebar_more' | 'titlebar'
 export type EntryAnalyticsRegion = 'sidebar' | 'conversation' | 'rightbar'
 
 /** Built-in presets, independent of localized names and custom preset identifiers. */
-export type AnalyticsPreset = 'creator' | 'ptc' | 'minimal' | 'standard'
+export type AnalyticsPreset = 'creator' | 'coding' | 'minimal' | 'standard'
 
 /** Public page names independent of internal onboarding state names. */
 export type OnboardingPage = 'onboarding_welcome' | 'onboarding_recharge' | 'onboarding_use_case' | 'onboarding_process'

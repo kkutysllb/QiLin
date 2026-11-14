@@ -27,13 +27,13 @@ kind: "package-reference"
 
 在需要让每个 agent 会话从 preset 文件获得自己的工具、提示词段落与 skill 的组装中挂载本包。每个会话都会命名一个 preset——显式指定或通过配置的默认值——并据此组装；没有本包时，会话只能回退到宿主组装挂载的内容。
 
-随附 Web 的 `standard` 与 `ptc` preset 包含[显式文件交付](../../client/ui-deliverables/README.zh.md#explicit-deliveries)。
+随附 Web 的 `standard` 与 `coding` preset 包含[显式文件交付](../../client/ui-deliverables/README.zh.md#explicit-deliveries)。
 
 ### preset 给会话带来什么
 
 从 preset 组装的会话会运行该 preset `agent.cordis.yml` 所列插件：它的工具、提示词段落与 skill。加入同一 preset 的会话共享一份已安装的组装，且各会话的状态彼此隔离。subagent 会加入其父方的组装，因此它看到的工具与提示词段落和创建它的 agent 相同。
 
-随附的 `standard` 与 `ptc` preset 只启用面向模型的子代理选择，不固定任何路由：路由默认值归 subagent seam 所有，按「调用方显式路由 → 提供方声明的默认 → 部署的 `childRouteDefaults` 与插件 → Subagent 的默认选择」依次解析。因此 preset 不会把某个提供方的选择带进另一个部署；未指定路由的委派在这些层都没设置时继承父方。
+随附的 `standard` 与 `coding` preset 只启用面向模型的子代理选择，不固定任何路由：路由默认值归 subagent seam 所有，按「调用方显式路由 → 提供方声明的默认 → 部署的 `childRouteDefaults` 与插件 → Subagent 的默认选择」依次解析。因此 preset 不会把某个提供方的选择带进另一个部署；未指定路由的委派在这些层都没设置时继承父方。
 
 可选的 preset 来自三类来源：本包 `presets/` 下随包交付的 preset、已配置的根目录，以及你自己放在 `<qilinHome>/.agent-presets` 下的 preset。选择器会展示每个 preset 的显示名与描述；组装无法加载的 preset 会连同原因一起列出而不是被隐藏，因此你能看到该修什么或删什么。
 
@@ -44,7 +44,7 @@ kind: "package-reference"
 ```yaml
 - name: '@qilin-agent/agent-presets'
   config:
-    default: ptc
+    default: coding
     roots:
       - path: ~/company-presets
         trust: system
@@ -68,7 +68,7 @@ kind: "package-reference"
 ```yaml
 agent-presets:
   modeSelectionEnabled: true
-  default: ptc
+  default: coding
 ```
 
 客户端只需写入 `modeSelectionEnabled` 即可显示或隐藏选择，[Web GUI 设置开关](../../client/ui-agent-preset/README.zh.md)正是这样做的。选择器隐藏期间由部署默认值生效；再次开启时恢复已保存的用户 `default`，尚未保存时则继续使用部署默认值。模式选择保持开启时，选择默认模式会写入用户覆盖值，仅供此后创建的会话使用。由于该策略归 Host 所有，它适用于 Web、CLI、SDK 与 headless 调用方此后创建的全部未显式指定 preset 的会话；显式指定的 preset 与任何既有会话均不受影响。
@@ -178,7 +178,7 @@ agent-presets:
 - **被替代的代际永不回收**——已加入的会话保持其运行所在的代际，而名单没有加入计数可以判断最后一个何时离开，因此整棵子树一直挂到进程结束。代价按代际计而非按会话计，但并非为零：`qilin-skill-filesystem` 默认监听自己的根目录，因此每一轮「编辑后建会话」都会新增一套活的 watcher。
 - **副本从不被实际挂载以校验**——它与来源逐字节相同，因此磁盘上已坏的来源会产出与来源同样损坏的副本；发现过程的健康检查会在下一次读取名单时把两行都标出来，而不是把失败推迟到会话启动。
 - **健康问的是「装没装」，不是「能不能 import」**——发现过程证明组装能以加载器方言解析、由具名行组成，且对于每个能证明会启动的行，其引用的包存在于 harness 基址以上，或引用的文件确实存在；它从不 import 任何一个，因此入口文件缺失的包、在 apply 时抛错的插件、以及永远等待某个服务的插件，都仍在第一个会话处失败。`disabled` 是加载器唯一会插值的条目字段，因此该字段带表达式的行不予检查，而不是仅凭文件作出判断。
-- **副本是会漂移的快照**——升级部署不会更新随附 preset 的副本，本层也没有表达「随附 preset 加一处改动」的 patch 语义；这也是部署只随附一套固定的组合——`standard` 与 `ptc`——而不按能力档位各出一份的原因。
+- **副本是会漂移的快照**——升级部署不会更新随附 preset 的副本，本层也没有表达「随附 preset 加一处改动」的 patch 语义；这也是部署只随附一套固定的组合——`standard` 与 `coding`——而不按能力档位各出一份的原因。
 - **根目录扫描不做监听**——每次读取都实际访问文件系统，这让名单保持新鲜，但每次 `list()` 会对每个根目录产生一次 `readdir`。
 
 <a id="dev-note"></a>

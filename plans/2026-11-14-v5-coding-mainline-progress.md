@@ -153,6 +153,23 @@ Task 8: complete
 - Docs: forge README (en+zh) creation-card sentence and the waiting-message limitation, which no
   longer says the composer offers nothing; plan §2.7 and the handoff status record the slice.
 
+## Coding-mode rename (plan plans/2026-11-14-coding-mode-rename.md)
+
+Task 9 (S1 + 别名): complete
+- Shipped preset directory `presets/ptc` → `presets/coding`; `SHIPPED_PRESET_ID`, the Creator preset
+  constant, the analytics preset union and both mappings, and the display-copy keys
+  (`presetCodingName/Description`) renamed. The shipped copy was already 「编码模式 / Coding mode」, so
+  no user-visible wording changes.
+- Ruling: the read-only alias (`ptc → coding`) landed WITH S1 instead of after S2. Splitting them
+  would leave a window where stored session headers (`agentPreset: 'ptc'`) and saved profile
+  defaults could no longer resolve, i.e. the user's own sessions would fail to open before the
+  format migration existed. `retiredPresetAlias` normalizes `defaultId` and `resolve`; the roster
+  never lists a retired id. S2's format migration will rewrite the data so the alias only serves old
+  profiles.
+- Gates: `test:gui` 10865 passed / 1 skipped, `vitest` preset lanes 392 passed, both `tsc -b`
+  clean, `pnpm run build` clean, `test:docs` 21/21 (including `verify-preset-copy`, which needed its
+  hardcoded skills path and copy string updated), `verify-client-ui-i18n`, `oxlint` clean.
+
 ## Review round 1 (fresh subagent, whole slice)
 
 Findings taken:

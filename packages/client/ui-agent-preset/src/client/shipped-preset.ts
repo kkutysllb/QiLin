@@ -3,4 +3,4 @@
  * ships exactly one preset, and the creator flow stages it so a blank Session
  * can author a composition in conversation.
  */
-export const SHIPPED_PRESET_ID = 'ptc'
+export const SHIPPED_PRESET_ID = 'coding'

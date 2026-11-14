@@ -663,8 +663,8 @@ describe('list lifecycle', () => {
   it('passes an explicit agent preset through to session.create (D3)', async ({ mock, remote }) => {
     remote.session.create.mockResolvedValue(ok({ sessionId: S2 }))
     const manager = makeManager(mock, remote)
-    await manager.create({ agentPreset: 'ptc' })
-    expect(remote.session.create).toHaveBeenCalledWith({ agentPreset: 'ptc' })
+    await manager.create({ agentPreset: 'coding' })
+    expect(remote.session.create).toHaveBeenCalledWith({ agentPreset: 'coding' })
     // An omitted preset sends no field, so the Host resolves its own default.
     await manager.create()
     expect(remote.session.create).toHaveBeenLastCalledWith({})

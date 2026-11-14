@@ -14,9 +14,9 @@ describe('preset display copy', () => {
         zh: { name: zh.presetStandardName, description: zh.presetStandardDescription },
       },
       {
-        id: 'ptc',
-        en: { name: en.presetPtcName, description: en.presetPtcDescription },
-        zh: { name: zh.presetPtcName, description: zh.presetPtcDescription },
+        id: 'coding',
+        en: { name: en.presetCodingName, description: en.presetCodingDescription },
+        zh: { name: zh.presetCodingName, description: zh.presetCodingDescription },
       },
     ]
     for (const { id, en: enCopy, zh: zhCopy } of cases) {
@@ -30,7 +30,7 @@ describe('preset display copy', () => {
     const fileCopy = { name: '我的标准', description: '团队自己的 preset。' }
 
     // User trust wins over the built-in mapping for the same id.
-    expect(presetDisplayText({ id: 'ptc', trust: 'user', ...fileCopy }, translate(en)))
+    expect(presetDisplayText({ id: 'coding', trust: 'user', ...fileCopy }, translate(en)))
       .toEqual(fileCopy)
     expect(presetDisplayText({ id: 'deployment-extra', trust: 'system', ...fileCopy }, translate(en)))
       .toEqual(fileCopy)

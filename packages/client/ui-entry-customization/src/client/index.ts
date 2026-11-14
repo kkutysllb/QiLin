@@ -17,7 +17,7 @@ declare module '@qilin-agent/client-ui-slots' {
 }
 
 /** QiLin's shipped runtime-authoring preset the Creator draft starts under. */
-const CREATOR_PRESET = 'ptc'
+const CREATOR_PRESET = 'coding'
 
 /** Services used by the menu rows' footer actions. */
 export const inject = ['slots', 'locale', 'pluginNavigation', 'uiWorkspace']

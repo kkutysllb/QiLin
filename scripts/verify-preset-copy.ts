@@ -35,7 +35,7 @@ const PRESET_CONTRACT_FILES: readonly string[] = [
   'apps/cli/tests/github-webhook-real.e2e.ts',
   'docs/user/guide/github-review.md',
   'docs/user/guide/github-review.zh.md',
-  'packages/preset/agent-presets/presets/ptc/skills/editing-cordis-compositions/SKILL.md',
+  'packages/preset/agent-presets/presets/coding/skills/editing-cordis-compositions/SKILL.md',
 ]
 
 /** A line that talks about presets at all. */
@@ -72,7 +72,7 @@ export function checkPresetContractProse(path: string, source: string): string[]
     // an enumeration, whatever the surrounding sentence does.
     const enumerated = (line.match(RETIRED_CODE_IDS) ?? []).length > 1
     if (!enumerated && (!NAMES_PRESETS.test(line) || !RETIRED_PRESET_NAME.test(line))) continue
-    failures.push(`${path}:${String(index + 1)} names a retired preset id where presets are documented; the deployment ships \`standard\` and \`ptc\``)
+    failures.push(`${path}:${String(index + 1)} names a retired preset id where presets are documented; the deployment ships \`standard\` and \`coding\``)
   }
   return failures
 }

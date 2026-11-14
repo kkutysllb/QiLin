@@ -1,4 +1,4 @@
-# The `ptc` agent preset: the full coding agent presented through PTC,
+# The `coding` agent preset: the full coding agent presented through PTC,
 # carrying the runtime-authoring capabilities as well.
 #
 # The deployment also ships `standard`, the ordinary mode that presents native

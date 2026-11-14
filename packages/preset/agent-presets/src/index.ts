@@ -51,6 +51,23 @@ export type {
   AgentPresetComposition, AgentPresetCompositionRow, CompositionRowEnablement,
 } from './composition-inventory.ts'
 
+/**
+ * Preset ids stored before the coding-mode rename. They are read-only aliases:
+ * a stored session header, a saved profile default, or a client echo may still
+ * name them, and resolving through one yields the current preset. The roster
+ * never lists one.
+ */
+const RETIRED_PRESET_ALIASES: Readonly<Record<string, string>> = { ptc: 'coding' }
+
+/**
+ * Map one stored preset id to the id the roster publishes today.
+ * @param id - preset id from data, configuration, or a caller.
+ * @returns the current id, or the input when it is not a retired alias.
+ */
+export function retiredPresetAlias(id: string): string {
+  return RETIRED_PRESET_ALIASES[id] ?? id
+}
+
 /** Settings namespace carrying the user's preset-picker preference and chosen default. */
 export const SETTINGS_NAMESPACE = 'agent-presets'
 
@@ -214,7 +231,7 @@ export class AgentPresets extends TypertRemoteService {
     // Hiding the picker is also the product's safe-default boundary: a stale
     // user choice from an older build must not silently compose a non-standard
     // new session while there is no control that reports that choice.
-    return this.selectionPolicy().defaultId
+    return retiredPresetAlias(this.selectionPolicy().defaultId)
   }
 
   /** Read one internally consistent snapshot of the selection policy. */
@@ -337,7 +354,7 @@ export class AgentPresets extends TypertRemoteService {
    * @throws when no configured root supplies that id.
    */
   async resolve(id?: string): Promise<AgentPreset> {
-    const wanted = id ?? this.defaultId
+    const wanted = retiredPresetAlias(id ?? this.selectionPolicy().defaultId)
     const presets = await this.list()
     const found = presets.find(preset => preset.id === wanted)
     if (found === undefined) {

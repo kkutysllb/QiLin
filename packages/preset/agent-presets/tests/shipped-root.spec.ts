@@ -56,7 +56,7 @@ async function roster(config: RosterInput = {}): Promise<Context> {
   ctx.loader.builtins.include = Include
   await ctx.plugin(SessionProjectionRegistry)
   await ctx.plugin(AgentPresets, {
-    default: 'ptc',
+    default: 'coding',
     roots: [],
     includeShippedRoot: true,
     includeUserRoot: true,
@@ -98,7 +98,7 @@ describe('the shipped preset root', () => {
     const ctx = await roster({ includeUserRoot: false })
 
     const listed = await ctx.agentPresets.list()
-    expect(listed.map(preset => preset.id).sort()).toEqual(['ptc', 'standard'])
+    expect(listed.map(preset => preset.id).sort()).toEqual(['coding', 'standard'])
     expect(listed.every(preset => preset.trust === 'system')).toBe(true)
     // Not `broken === undefined`: health asks whether each row's package is
     // installed above the base, and the shipped rows name packages the
@@ -121,12 +121,12 @@ describe('the shipped preset root', () => {
   })
 
   it('wins a duplicate id a configured root claims', async () => {
-    const claiming = join(home, 'claiming-root', 'ptc')
+    const claiming = join(home, 'claiming-root', 'coding')
     await mkdir(claiming, { recursive: true })
     await writeFile(join(claiming, 'agent.cordis.yml'), '[]\n')
     const ctx = await roster({ roots: [{ path: join(home, 'claiming-root'), trust: 'user' }] })
 
-    const ptc = (await ctx.agentPresets.list()).find(preset => preset.id === 'ptc')
+    const ptc = (await ctx.agentPresets.list()).find(preset => preset.id === 'coding')
     expect(ptc?.path.startsWith(SHIPPED_PRESET_ROOT)).toBe(true)
   })
 
@@ -150,12 +150,12 @@ describe('the shipped preset root', () => {
     // mode that adds the runtime-authoring capability.
     expect(listed.map(preset => [preset.id, preset.name, preset.order])).toEqual([
       ['standard', '普通模式', 1],
-      ['ptc', '编码模式', 2],
+      ['coding', '编码模式', 2],
     ])
   })
 
   it('enables web_fetch in each tool-bearing Web app preset', async () => {
-    for (const id of ['standard', 'ptc']) {
+    for (const id of ['standard', 'coding']) {
       const entries = await shippedEntries(id)
       const toolWeb: unknown = entries.find((entry: unknown) =>
         typeof entry === 'object' && entry !== null && 'id' in entry && entry.id === 'tool-web')
@@ -168,13 +168,13 @@ describe('the shipped preset root', () => {
   })
 
   it('omits the general workflow tool and its unused engine', async () => {
-    const entries = await shippedEntries('ptc')
+    const entries = await shippedEntries('coding')
     expect(findEntry(entries, 'tool-workflow')?.disabled).toBe(true)
     expect(findEntry(entries, 'workflow-ptc')?.disabled).toBe(true)
   })
 
   it('carries the runtime-authoring rows the coding preset owns', async () => {
-    const entries = await shippedEntries('ptc')
+    const entries = await shippedEntries('coding')
     expect(findEntry(entries, 'tool-kylin')).toBeDefined()
     expect(findEntry(entries, 'tool-plugin-manager')?.disabled).not.toBe(true)
     const skillRoot = findEntry(entries, 'skill-filesystem')
@@ -198,7 +198,7 @@ describe('the shipped preset root', () => {
   it('keeps the ralph tool out of the shipped preset root', async () => {
     // The ralph capability moved to an experimental package: the shipped presets
     // declare no row for it, so enabling it takes an explicit installation.
-    for (const id of ['standard', 'ptc']) {
+    for (const id of ['standard', 'coding']) {
       expect(findEntry(await shippedEntries(id), 'tool-ralph'), id).toBeUndefined()
     }
   })
