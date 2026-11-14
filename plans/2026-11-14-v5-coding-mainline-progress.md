@@ -10,7 +10,7 @@ current code disagree about.
 - The plan's 方案 1 改动点 (Host `list.ts` field, `types.ts` list-item field, wire contract, client
   `buildListSnapshot`) is **already shipped** as the generic Session-list projection block:
   `SessionSummary.projections` (`SessionProjectionHints` = `{ kind, asOfSeq, values }`,
-  `values: Partial<SessionProjectionMap>`), built by `ApiSessionList.projectionsFor`
+  `values: SessionProjectionValues`), built by `ApiSessionList.projectionsFor`
   (`sequenced` from the live registry, `cached` from `sessionProjectionCache.cachedSnapshot`),
   landed client-side by `SessionManager.applyListBlock` into `ProjectionValueStore` and read by
   `buildListSnapshot` into `SessionListEntry.projectionValues`. `forgeWorktree` is a summary key
@@ -30,22 +30,24 @@ current code disagree about.
 
 ### Task 1: forge unknown-value copy
 
-Task 1: Ruling (first pass, superseded by the review round below): put the unknown copy only in the
-hover card, on the grounds that the row's leading seat is one 16px icon cell shared with the status
-dot. The review rejected the waiver — the plan asks for an in-row disclosure and the suite was
-pinning a blank row for the unknown case.
+Task 1: Ruling (first pass, superseded by review round 1): put the unknown copy only in the hover
+card, on the grounds that the row's leading seat is one 16px icon cell shared with the status dot.
+The review rejected the waiver — the plan asks for an in-row disclosure and the suite was pinning a
+blank row for the unknown case.
 Task 1: Ruling (final): the row shows a dimmed branch mark for the unknown case
 (`SessionRowForge.tsx`, `.unknown` in `SessionList.module.css`), whose accessible name and
-`title` are the copy, so the row is no longer blank without a layout change in `ui-workspace`;
-the branch NAME stays in the hover card because the 16px leading cell admits no text.
-Task 1: complete (tests: npx vitest run packages/experimental/client-ui-forge/tests/session-list.client.spec.tsx → 13 passed; package suite 785 passed, 2 known sandbox-exec failures from handoff §6)
+`title` are the copy, so the row is no longer blank without a layout change in `ui-workspace`.
+Two constraints stay: the branch NAME is hover-only because the 16px leading cell admits no text,
+and the leading cell shows the row's status instead while the row has one (`Rows.tsx` renders the
+seat only when the row's primary status is idle), so those rows carry the note on the hover card.
+Task 1: complete (tests: npx vitest run packages/experimental/client-ui-forge/tests/session-list.client.spec.tsx → 13 passed at this point; 16 after review round 1; package suite 785 → 789 passed, with the 2 known sandbox-exec failures from handoff §6)
 
 ### Task 2: session-controller cold-list transport tests
 
 Task 2: Finding: the new test passed before any source change, because the transport it pins
 already ships. It is a characterization test of the delivered path (a cached block carries a key
 outside the Host compilation face, and every list read re-reads the cache), not a TDD step.
-Task 2: complete (tests: npx vitest run packages/api/session-controller/tests/session-cold.host.spec.ts → 20 passed)
+Task 2: complete (tests: npx vitest run packages/api/session-controller/tests/session-cold.host.spec.ts → 20 passed; strengthened in review round 1 to assert the requested summary key set)
 
 ### Task 3: forge Host summary-block test
 
@@ -53,9 +55,35 @@ Task 3: Finding: also a characterization test — the panel's registration alrea
 `forgeWorktree` in `summaryKeys()`, and the summary block's value already equals the panel's
 worktree and turns `null` once the Session works elsewhere. Pins the plan's 不变量 (the row and
 the panel read one projection).
-Task 3: complete (tests: npx vitest run packages/experimental/client-ui-forge/tests/controller.host.spec.ts -t 'carries the created worktree' → 1 passed)
+Task 3: complete (tests: npx vitest run packages/experimental/client-ui-forge/tests/controller.host.spec.ts -t 'registers forgeWorktree as a summary key' → 1 passed)
 
-### Review round (fresh subagent, whole slice)
+### Task 4: documentation
+
+Task 4: complete (forge README en/zh: Session list bullet gains the unknown-value mark, the
+`Unopened Sessions in the list` limitation rewritten, the S2-obsolete `Changes scopes` deferred
+item removed; `verify-translation-pairing --write` regenerated the pairing record; the plan gained
+§2.4.1 and the handoff §3/§5/§7/§9 record the slice.
+Finding: `test:docs` failed on the repository-references gate before any change of mine — the
+handoff carried commit hashes, which that gate forbids. Removed every hash from the handoff and
+recorded the rule under §7.
+Ruling: the `Changes scopes` limitation was already false when S2 landed, in a list I am editing;
+corrected here rather than shipped as a neighbouring lie.)
+
+### Task 5: gates
+
+Task 5: complete
+- `pnpm run test:gui` → 10858 passed, 1 skipped (the lane is `packages/client` + `packages/host`
+  only, so it does not cover the forge package; unchanged by this slice)
+- `npx vitest run packages/experimental/client-ui-forge` → 789 passed, 2 failed = the known
+  `sandbox-exec` environment failures from the handoff §6
+- `npx vitest run packages/api/session-controller` → 875 passed
+- `npx tsc -b tsconfig.host.json` and `npx tsc -b tsconfig.client.json` → no output
+- `pnpm run test:docs` → 21 passed, 0 failed
+- `pnpm run build` → exit 0, recorded 433 client artifacts
+- `pnpm run verify-client-ui-i18n` → 1097 source files
+- `npx tsx scripts/run-oxlint.ts <changed files>` → 0 errors
+
+## Review round 1 (fresh subagent, whole slice)
 
 Findings taken:
 
@@ -87,27 +115,20 @@ Findings taken:
 13. The first ruling's premise was partly wrong (the row's text is not only the icon label). The
     final ruling records the real constraints.
 
-### Task 4: documentation
+## Review round 2 (delta review of the fixes)
 
-Task 4: complete (forge README en/zh: Session list bullet gains the unknown-value note, the
-`Unopened Sessions in the list` limitation rewritten, the S2-obsolete `Changes scopes` deferred
-item removed; `verify-translation-pairing --write` regenerated the pairing record; the plan gained
-§2.4.1 and the handoff §3/§5/§7/§9 record the slice.
-Finding: `test:docs` failed on the repository-references gate before any change of mine — the
-handoff carried commit hashes, which that gate forbids. Removed every hash from the handoff and
-recorded the rule under §7.
-Ruling: the `Changes scopes` limitation was already false when S2 landed, in a list I am editing;
-corrected here rather than shipped as a neighbouring lie.)
+Findings taken:
 
-### Task 5: gates
-
-Task 5: complete
-- `pnpm run test:gui` → 10858 passed, 1 skipped (the lane is `packages/client` + `packages/host`
-  only, so it does not cover the forge package; unchanged by this slice)
-- `npx vitest run packages/experimental/client-ui-forge` → 789 passed, 2 failed = the known
-  `sandbox-exec` environment failures from the handoff §6
-- `npx vitest run packages/api/session-controller` → 875 passed
-- `npx tsc -b tsconfig.host.json` and `npx tsc -b tsconfig.client.json` → no output
-- `pnpm run test:docs` → 21 passed, 0 failed
-- `pnpm run build` → exit 0, recorded 433 client artifacts
-- `pnpm run verify-client-ui-i18n` → 1097 source files
+1. The README's in-row claim was unconditional although a row showing its status renders no leading
+   seat. Fixed: the README (en+zh), plan §2.4.1 and the Task 1 ruling now name that pre-emption.
+2. Handoff §9 still carried a commit count that had already moved. Fixed: no number; it defers to
+   `git rev-list`.
+3. The handoff named one literal difference where there are two. Fixed: both named.
+4. Nit, kept as a documented choice: the unknown mark is the branch glyph dimmed, so for a Session
+   that never had a worktree the shape still reads as a branch; `aria-label`/`title` and the hover
+   card carry the meaning, and a distinct glyph (branch with a question mark) would be a new shared
+   icon in `ui-primitives`. Recorded here and in the slice report as the follow-up decision.
+5. The reconnect limitation mentioned only the note, not the dimmed mark. Fixed: the limitation now
+   speaks of the listed values.
+6. This ledger's chronology and counts. Fixed: review rounds moved after Task 5, and the Task 1 line
+   records the counts at that point plus the final ones.
