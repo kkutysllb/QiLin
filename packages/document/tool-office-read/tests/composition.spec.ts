@@ -61,14 +61,15 @@ describe('office_read through the Loader', () => {
   it('registers the tool from its config row and reads a mounted document', async () => {
     const ctx = await boot()
     const registry = ctx.get('tools')
-    expect(registry?.schemas().map(schema => schema.name)).toContain('office_read')
+    if (registry === undefined) throw new Error('tools service is not mounted')
+    expect(registry.schemas().map(schema => schema.name)).toContain('office_read')
 
-    const result = await registry!.execute({
+    const result = await registry.execute({
       name: 'office_read',
       callId: ToolCallId('composition-call'),
       arguments: { file_path: 'plan.docx' },
       signal: new AbortController().signal,
-    } as never)
+    })
     expect(result.isError).toBe(false)
     expect(JSON.stringify(result)).toContain('## Plan')
   })

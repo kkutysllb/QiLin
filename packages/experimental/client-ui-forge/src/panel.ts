@@ -95,7 +95,7 @@ export class SessionPanel {
       changeRequests: this.entries(ctx.forgeSession.changeRequests(session)),
       worktree: this.worktree(),
       local: null,
-      lastTurn: turnFiles.stateOf(session)?.turn ?? null,
+      lastTurn: turnFiles.stateOf(session).turn,
     }
     this.stopWatching = ctx.forgeSession.watch(session, (changeRequests) => {
       this.publish({ ...this.current, changeRequests: this.entries(changeRequests) })

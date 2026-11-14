@@ -4,6 +4,7 @@
  */
 
 import { attributeElements, attributesOf, elements, textOf, textOfElements } from './xml.ts'
+import { relationships } from './relationships.ts'
 
 /** One worksheet as the reader exposes it. */
 export interface XlsxSheet {
@@ -43,23 +44,6 @@ function rowIndex(reference: string): number {
 function sharedStrings(part: string | undefined): string[] {
   if (part === undefined) return []
   return elements(part, 'si').map(item => textOfElements(item, 't'))
-}
-
-/**
- * Map a relationship id to the part it targets.
- * @param rels - `xl/_rels/workbook.xml.rels` text.
- * @returns target part paths by relationship id.
- */
-function relationships(rels: string | undefined): ReadonlyMap<string, string> {
-  if (rels === undefined) return new Map()
-  const map = new Map<string, string>()
-  for (const rel of attributeElements(rels, 'Relationship')) {
-    const id = rel['Id']
-    const target = rel['Target']
-    if (id === undefined || target === undefined) continue
-    map.set(id, target.startsWith('/') ? target.slice(1) : 'xl/' + target.replace(/^\.\//u, ''))
-  }
-  return map
 }
 
 /**
@@ -121,7 +105,7 @@ export function readXlsxPackage(
   const workbook = parts.get('xl/workbook.xml')
   if (workbook === undefined) throw new Error('corrupt')
   const shared = sharedStrings(parts.get('xl/sharedStrings.xml') === undefined ? undefined : readText(parts.get('xl/sharedStrings.xml') as Uint8Array))
-  const rels = relationships(parts.get('xl/_rels/workbook.xml.rels') === undefined ? undefined : readText(parts.get('xl/_rels/workbook.xml.rels') as Uint8Array))
+  const rels = relationships(parts.get('xl/_rels/workbook.xml.rels') === undefined ? undefined : readText(parts.get('xl/_rels/workbook.xml.rels') as Uint8Array), 'xl/')
   const sheets: XlsxSheet[] = []
   let truncated = false
   for (const sheet of attributeElements(readText(workbook), 'sheet')) {

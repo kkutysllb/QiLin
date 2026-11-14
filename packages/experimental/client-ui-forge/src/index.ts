@@ -261,7 +261,7 @@ export class ForgePanelController extends TypertRemoteService {
     }
     // The last-turn scope is the working-tree comparison narrowed to the files
     // the projection says the last ended turn touched.
-    const touched = new Set(this.turnFiles.stateOf(session)?.paths ?? [])
+    const touched = new Set(this.turnFiles.stateOf(session).paths)
     const diff = await diffing(localDiff(this.home, this.config, session, root, fork, { kind: 'uncommitted' }, signal))
     const absolute = (path: string): string => path.startsWith('/') ? path : `${root}/${path}`
     return { ...diff, files: diff.files.filter(file => touched.has(absolute(file.path))) }

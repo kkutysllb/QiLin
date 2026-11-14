@@ -109,7 +109,7 @@ const GENERIC_SKIPS: readonly GenericSkip[] = [
   // The preset's own composition: its header comment and its system prompt
   // describe the Cordis dialect (`cordis.yml` rows, the `cordis_inspect_*`
   // tools, the `cordis-plugin-development` skill), none of which is a package.
-  { file: 'packages/preset/agent-presets/presets/ptc/agent.cordis.yml', upstream: ['cordis'] },
+  { file: 'packages/preset/agent-presets/presets/coding/agent.cordis.yml', upstream: ['cordis'] },
   // The preset-roster loop names the `cordis` preset id, not a package.
   { file: 'apps/cli/tests/windows-shell.spec.ts', upstream: ['cordis'] },
   // DSH-era specifiers the compatibility layer recognizes and rewrites itself.
@@ -179,10 +179,10 @@ const POSTCONDITIONS: readonly PostCondition[] = [
   { file: 'vendor/README.md', text: '17. **`@qilin-agent` rescope**', count: 1 },
   { file: 'pnpm-workspace.yaml', text: 'kylin@4.0.0-rc.7', count: 0 },
   // The shipped preset id in this map is product data, not a package name.
-  { file: 'packages/preset/agent-presets/src/display.ts', text: "ptc: { name: 'presetPtcName', description: 'presetPtcDescription' }", count: 1 },
+  { file: 'packages/preset/agent-presets/src/display.ts', text: "coding: { name: 'presetCodingName', description: 'presetCodingDescription' }", count: 1 },
   // The preset id the shipped composition documents to its own model.
-  { file: 'packages/preset/agent-presets/presets/ptc/agent.cordis.yml', text: 'The `ptc` agent preset', count: 1 },
-  { file: 'packages/preset/agent-presets/presets/ptc/agent.cordis.yml', text: 'NEVER edit or delete the shipped preset install', count: 1 },
+  { file: 'packages/preset/agent-presets/presets/coding/agent.cordis.yml', text: 'The `coding` agent preset', count: 1 },
+  { file: 'packages/preset/agent-presets/presets/coding/agent.cordis.yml', text: 'NEVER edit or delete the shipped preset install', count: 1 },
 ]
 
 /**

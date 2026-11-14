@@ -191,6 +191,22 @@ Task 10 (S6+S7): complete
   workflow, and tools suites dies at `mkdtemp` under `$HOME` with `EPERM` — this session's file
   sandbox is workspace-write, and those suites create temp roots in the home directory.
 
+Task 11 (V7 static audit): complete
+- `pnpm run hygiene`: 22/22 (rescope vendor, constraints, application entrypoints, runtime
+  closure, no-new-unknown-casts, and the package/Typert dependency gates).
+- `pnpm run lint`: 0 warnings / 0 errors across 5430 files. Real fixes: dropped two unnecessary
+  assertions/optional chains, replaced an unbound projection method with a reducer closure, and
+  removed an oxlint-disable whose rule no longer fires.
+- `pnpm run typecheck`: both faces clean.
+- `pnpm run duplication`: 26 clones / 0.07% remain, all pre-existing; the one clone this work
+  introduced (the XLSX and PPTX relationship lookup) was extracted to `office-read/src/relationships.ts`.
+- Gate scripts that still assumed the retired `ptc` vocabulary now name the `coding` paths:
+  `rescope-vendor` postconditions, the `demo:coding` launcher classification, the workspace
+  `files` constraint for the two new packages, and the `forge-bundle` files list.
+- Ruling: the `no-unknown-casts` baseline records the nine harness casts this work moved or added
+  (renamed spec paths and the Loader composition spec) and was pruned of retired entries; the
+  gate reports 1499 existing assertions and no new ones.
+
 ## Review round 1 (fresh subagent, whole slice)
 
 Findings taken:

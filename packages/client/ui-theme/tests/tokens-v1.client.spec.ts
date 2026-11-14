@@ -37,7 +37,7 @@ function resolve(name: string, scope: Map<string, string>, seen = 0): string {
   if (reference === null) return value
   const target = reference[1]!
   if (scope.has(target)) return resolve(target, scope, seen + 1)
-  if (reference[2] !== undefined) return resolve(reference[2]!.trim(), scope, seen + 1)
+  if (reference[2] !== undefined) return resolve(reference[2].trim(), scope, seen + 1)
   throw new Error(`missing token ${target}`)
 }
 

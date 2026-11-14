@@ -16,7 +16,7 @@ function event(type: string, data: unknown): SessionEvent {
 const START: ForgeTurnFilesState = { turn: null, paths: [], cwd: CWD, pending: {} }
 
 function fold(events: readonly SessionEvent[], from: ForgeTurnFilesState = START): ForgeTurnFilesState {
-  return events.reduce(forgeTurnFilesProjection.apply, from)
+  return events.reduce((state, event) => forgeTurnFilesProjection.apply(state, event), from)
 }
 
 function call(callId: string, name: string, args: Record<string, unknown>): SessionEvent {

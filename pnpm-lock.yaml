@@ -16657,6 +16657,9 @@ importers:
       '@qilin-agent/tool-kylin':
         specifier: workspace:^
         version: link:../../packages/extensions/tool-kylin
+      '@qilin-agent/tool-office-read':
+        specifier: workspace:*
+        version: link:../../packages/document/tool-office-read
       '@qilin-agent/tool-present':
         specifier: workspace:^
         version: link:../../packages/deliverables/tool-present
@@ -16711,6 +16714,9 @@ importers:
       '@qilin-agent/user-questions':
         specifier: workspace:^
         version: link:../../packages/interaction/user-questions
+      '@qilin-agent/util-error':
+        specifier: workspace:*
+        version: link:../../packages/util/error
       '@qilin-agent/util-time':
         specifier: workspace:^
         version: link:../../packages/util/time

@@ -4,6 +4,7 @@
  */
 
 import { attributeElements, attributeOf, elements, textOf, textOfElements } from './xml.ts'
+import { relationships } from './relationships.ts'
 import { decodeXmlEntities } from './entities.ts'
 
 /** One slide as the reader exposes it. */
@@ -26,23 +27,6 @@ export interface PptxContent {
   readonly slides: readonly PptxSlide[]
   /** Whether a limit stopped the deck before its last slide. */
   readonly truncated: boolean
-}
-
-/**
- * Map a relationship id to the part it targets.
- * @param rels - `ppt/_rels/presentation.xml.rels` text.
- * @returns target part paths by relationship id.
- */
-function relationships(rels: string | undefined): ReadonlyMap<string, string> {
-  if (rels === undefined) return new Map()
-  const map = new Map<string, string>()
-  for (const rel of attributeElements(rels, 'Relationship')) {
-    const id = rel['Id']
-    const target = rel['Target']
-    if (id === undefined || target === undefined) continue
-    map.set(id, target.startsWith('/') ? target.slice(1) : 'ppt/' + target.replace(/^\.\//u, ''))
-  }
-  return map
 }
 
 /**
@@ -83,7 +67,7 @@ export function readPptxPackage(
   const presentation = parts.get('ppt/presentation.xml')
   if (presentation === undefined) throw new Error('corrupt')
   const deck = readText(presentation)
-  const rels = relationships(parts.get('ppt/_rels/presentation.xml.rels') === undefined ? undefined : readText(parts.get('ppt/_rels/presentation.xml.rels') as Uint8Array))
+  const rels = relationships(parts.get('ppt/_rels/presentation.xml.rels') === undefined ? undefined : readText(parts.get('ppt/_rels/presentation.xml.rels') as Uint8Array), 'ppt/')
   const order = attributeElements(elements(deck, 'p:sldIdLst')[0] ?? '', 'p:sldId')
   const slides: PptxSlide[] = []
   let truncated = false

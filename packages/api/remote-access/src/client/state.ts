@@ -7,11 +7,6 @@
 import type { HostObservable } from '@qilin-agent/client-ui-slots'
 import type { RemoteAccessFrame, RemoteAccessGrant, RemoteAccessResource } from '../types.ts'
 
-/* oxlint-disable typescript/no-unnecessary-condition --
- * `TypertResourceKind` is the declare-merge key pattern: the resource map is empty in
- * this compilation unit, so the rule sees `global` alone, while every domain that
- * declares a kind merges its key in. */
-
 /** Actions allowed per resource identity, for one declared resource kind. */
 type KindGrants = ReadonlyMap<string, ReadonlySet<string>>
 

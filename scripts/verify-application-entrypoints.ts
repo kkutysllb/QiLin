@@ -49,7 +49,7 @@ const EXECUTABLE_SOURCE_ALLOWLIST = new Map<string, string>([
 
 /** Root demos are application wrappers and therefore must visibly select qilin. */
 const ROOT_DEMO_POLICIES = new Map<string, DemoPolicy>([
-  ['demo:ptc', { kind: 'qilin-wrapper', wrapper: 'scripts/demo-ptc.mjs' }],
+  ['demo:coding', { kind: 'qilin-wrapper', wrapper: 'scripts/demo-coding.mjs' }],
 ])
 
 const SOURCE_PATTERNS = [
