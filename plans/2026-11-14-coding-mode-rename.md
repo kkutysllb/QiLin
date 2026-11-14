@@ -8,7 +8,7 @@
 
 1. 面向用户与驱动层的**模式标识**由 `ptc` 改为 `coding`：预置 id、默认模式、界面取词、分析事件取值、脚本入口、文档与配置目录全部随之改名。
 2. 界面文案沿用现有中文名「编码模式」，英文用 **Coding mode**；不再出现 PTC 字样。
-3. **运行层暂不改名**：`@qilin-agent/ptc-runtime`、`@qilin-agent/ptc-runtime-node`、`@qilin-agent/workflow-ptc`、`core/tools` 的 `mode: 'native' | 'ptc'`（工具呈现方式）保留现名。理由：包名属于发布家族，改名会牵动依赖图、发布校验与外部消费者；它与「用户选哪个模式」是两个概念。是否再把呈现方式也改名，另开切片（见 §6）。
+3. **运行层一并改名**（2026-11-14 追加裁决）：执行层（包名、服务名、工具呈现方式取值、环境变量取值）全部由 `ptc` 改为 `coding`，见 §7。dsh 的命名不再保留。
 
 ## 2. 影响面（已盘点）
 
@@ -44,5 +44,45 @@
 
 ## 6. 未决（执行前提请确认）
 
-1. **运行层是否也改名**（`ptc-runtime` 包名、`mode: 'native' | 'ptc'`）？本计划建议保留，只改模式层；若要一并改，需要追加 S6（包改名 + 发布家族 + 依赖图 + 全量发布校验）。
-2. **配置别名保留多久**：建议长期保留 `ptc → coding` 的只读别名（成本一行、用户零迁移），并在下个大版本评估移除。
+1. **配置别名保留多久**：建议长期保留 `ptc → coding` 的只读别名（成本一行、用户零迁移），并在下个大版本评估移除。（运行层是否改名已裁决：一并改，见 §7。）
+## 7. 运行层改名（追加裁决：包名一起改）
+
+### 7.1 命名映射
+
+| 现名 | 新名 | 说明 |
+|---|---|---|
+| `@qilin-agent/ptc-runtime`（`packages/ptc-runtime/ptc-runtime`） | `@qilin-agent/coding-runtime`（`packages/coding-runtime/coding-runtime`） | 执行 seam 服务 `ctx.ptcRuntime` → `ctx.codingRuntime` |
+| `@qilin-agent/ptc-runtime-node` | `@qilin-agent/coding-runtime-node` | Node 后端实现 |
+| `@qilin-agent/workflow-ptc` | `@qilin-agent/workflow-coding` | 该族的 workflow 工具 |
+| `@qilin-agent/experimental-ptc-runtime-python` | `@qilin-agent/experimental-coding-runtime-python` | 实验性 CPython 后端 |
+| 分组目录 `packages/ptc-runtime/` | `packages/coding-runtime/` | 连同分组 README、`packages/README.md`、根 `AGENTS.md` 布局表 |
+| 工具呈现取值 `mode: 'native' | 'ptc'`（`core/tools`、`core/agent-tool-presentation`） | `mode: 'native' | 'coding'` | 默认仍 `native` |
+| 环境变量取值 `QILIN_TOOLS_MODE=native|ptc` | `QILIN_TOOLS_MODE=native|coding` | 变量名不变，只改取值 |
+
+### 7.2 影响面（已实测的引用文件数）
+
+| 目标 | 引用文件数 |
+|---|---|
+| `@qilin-agent/ptc-runtime` | 95 |
+| `@qilin-agent/ptc-runtime-node` | 40 |
+| `@qilin-agent/workflow-ptc` | 32 |
+| `mode` 取值（`core/tools` + `agent-tool-presentation` + `bundle`） | 112 处 |
+
+不改的部分（豁免清单）：`.desktop-build`（生成物）、`.agents/notes/implemented|archived`（已冻结）、`docs/persistence-changes/historical-formats`（历史格式事实）、`packages/experimental/cua-macos` 中的派生内容（执行前先判定归属，属生成物则加入豁免）。
+
+### 7.3 执行顺序
+
+| 片 | 内容 | 验收 |
+|---|---|---|
+| **S6 包改名（机械层）** | `git mv` 三个包目录与分组目录；改 `package.json` 的 `name` 与依赖引用；改全部模块说明符；改 tsconfig `references`；改 cordis 配置 `name:`；`ctx.ptcRuntime` → `ctx.codingRuntime` 及模块增补声明 | `pnpm install` 成功、两套 `tsc -b` 干净、`pnpm run build` 通过、`verify-package-meta` / `verify-package-dependencies` / `publint` 干净 |
+| **S7 呈现方式取值** | `mode` 联合类型与默认值、`QILIN_TOOLS_MODE` 解析、bundle 注释、受影响提示与测试 | 取值只剩 `native`/`coding`；旧值 `ptc` 报未知取值而非静默回落；相关单测与快照更新 |
+
+### 7.4 追加门禁
+
+`pnpm run test:gui`、`pnpm run test:snapshot`、两套 SDK 期望输出、`pnpm run doc-sync`、`pnpm run gen-config-catalog`、`pnpm run verify-package-meta`、`pnpm run verify-package-dependencies`、`pnpm run publint`、`pnpm run verify-cordis-config`、`pnpm run verify-translation-pairing --write`（三个包 README 中英 + 分组 README）。
+
+### 7.5 风险
+
+- **发布家族**：改名等于新包名首发，版本号与 release notes 必须同批；`release:verify-published` 会要求新名在 registry 上存在。
+- **服务名**：`ctx.ptcRuntime` 是 seam 名，改名后引用旧名的外部插件失效（仓库内全同步改；外部消费者属预发布 API，允许破坏）。
+- **旧 profile**：`QILIN_TOOLS_MODE=ptc` 的旧配置按「misconfiguration fails loud」报错，并在 §3 的别名机制里同时接受 `ptc`。
