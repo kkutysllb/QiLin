@@ -53,6 +53,8 @@ export type WorktreeRecord =
   | { readonly action: 'restoring' }
   /** The recorded worktree was completely restored. */
   | { readonly action: 'restored' }
+  /** The recorded worktree was removed at the reader's request; its projection clears. */
+  | { readonly action: 'removed' }
 
 /** One open worktree request. */
 export interface ForgeWorktreeRequest {
@@ -359,6 +361,8 @@ declare module '@qilin-agent/typert-protocol' {
     'forgePanel/not-waiting': Record<string, never>
     /** The removed worktree could not be checked out again; the message gives the reason. */
     'forgePanel/restore-failed': Record<string, never>
+    /** The created worktree could not be removed; the message gives the reason. */
+    'forgePanel/remove-failed': Record<string, never>
     /** The URL is not a visible binding of the Session that a provider serves, so the panel does not act on it. */
     'forgePanel/not-bound': Record<string, never>
     /** The change request has new commits since the head the user confirmed, so it was not merged. */

@@ -36,6 +36,7 @@ const recordSchema: z.ZodType<WorktreeRecord> = z.discriminatedUnion('action', [
   z.object({ action: z.literal('created'), worktree: worktreeSchema }).strict(),
   z.object({ action: z.literal('restoring') }).strict(),
   z.object({ action: z.literal('restored') }).strict(),
+  z.object({ action: z.literal('removed') }).strict(),
 ])
 
 const stateSchema: z.ZodType<ForgeWorktreeState> = z.object({
@@ -120,6 +121,8 @@ function applyRecord(state: ForgeWorktreeState, event: SessionEvent): ForgeWorkt
       return !settled || state.restoring ? state : { ...state, restoring: true }
     case 'restored':
       return !state.restoring ? state : { ...state, restoring: false }
+    case 'removed':
+      return settled ? { ...state, created: null, restoring: false } : state
     /* v8 ignore next -- closed WorktreeRecord action union exhaustiveness guard */
     default: return assertNever(data, 'WorktreeRecord.action')
   }
@@ -335,6 +338,34 @@ export class WorktreeCreations {
   stop(session: Session): void {
     const hold = this.holds.get(session)
     if (hold?.kind === 'creation') hold.stop?.abort(new Error('The worktree creation was stopped'))
+  }
+
+  /**
+   * Remove one Session's created worktree through the worktree service and
+   * record the removal on the Session, which clears the projected worktree.
+   * @param agent - Agent of the Session, whose sandbox confines the commands.
+   * @param worktrees - the worktree service.
+   * @param created - the worktree the Session created.
+   * @param signal - cancellation of the removal.
+   * @param deleteBranch - whether the branch follows the checkout.
+   * @param removed - runs after the record, before the call ends, so its
+   * publication sees the cleared projection.
+   * @throws the worktree service's error when the removal is refused; the cancellation reason once `signal` aborts.
+   */
+  async remove(
+    agent: Agent,
+    worktrees: Context['worktrees'],
+    created: ForgeSessionWorktree,
+    signal: AbortSignal,
+    deleteBranch: boolean,
+    removed: () => void,
+  ): Promise<void> {
+    await this.run(signal, async (operation) => {
+      await worktrees.remove(agent, { ...created, deleteBranch }, operation)
+      operation.throwIfAborted()
+      appendPluginRecord(agent.session, WORKTREE_RECORD, { action: 'removed' })
+      removed()
+    })
   }
 
   /**

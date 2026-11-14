@@ -1142,6 +1142,55 @@ describe('forgePanel worktree requests during a creation', () => {
   })
 })
 
+describe('forgePanel removing worktrees', () => {
+  it('removes the created checkout, moves the Session back to the source checkout, and clears the projection', async () => {
+    const { repo } = await project()
+    const opened = await open(repo, {}, { worktrees: true })
+    const follower = reader(opened)
+    await follower.until(ready)
+    const created = await startInWorktree(opened)
+    const tip = await commitAt(created.path, 'later.txt', '2026-05-01T00:00:00Z')
+    await follower.until(state => state.directory === created.path && state.checkout.state === 'ready')
+
+    const cleared = follower.next(state => state.worktree.created === null)
+    await opened.ctx.forgePanel.removeWorktree(opened.session, signal)
+    await opened.agent.whenIdle()
+    const after = await cleared
+
+    await expect(access(created.path)).rejects.toMatchObject({ code: 'ENOENT' })
+    expect(opened.ctx.workingDirectory.get(opened.session)).toBe(repo)
+    expect(after.worktree.created ?? null).toBeNull()
+    expect(worktreeState(opened)?.created ?? null).toBeNull()
+    expect(opened.records).toContainEqual({ action: 'removed' })
+    expect(await git(repo, 'branch', '--list', created.branch)).toContain(created.branch)
+    expect(await git(repo, 'rev-parse', created.branch)).toBe(tip)
+  })
+
+  it('deletes the branch when asked and reports the kept branch when it carries unmerged commits', async () => {
+    const { repo } = await project()
+    const opened = await open(repo, {}, { worktrees: true })
+    const follower = reader(opened)
+    await follower.until(ready)
+    const created = await startInWorktree(opened)
+    await commitAt(created.path, 'later.txt', '2026-05-01T00:00:00Z')
+    await follower.until(state => state.directory === created.path && state.checkout.state === 'ready')
+
+    await expect(opened.ctx.forgePanel.removeWorktree(opened.session, signal, true))
+      .rejects.toMatchObject({ code: 'forgePanel/remove-failed' })
+
+    await expect(access(created.path)).rejects.toMatchObject({ code: 'ENOENT' })
+    expect(await git(repo, 'branch', '--list', created.branch)).toContain(created.branch)
+  })
+
+  it('refuses a Session without a created worktree', async () => {
+    const { repo } = await project()
+    const opened = await open(repo)
+
+    await expect(opened.ctx.forgePanel.removeWorktree(opened.session, signal))
+      .rejects.toMatchObject({ code: 'forgePanel/no-worktree' })
+  })
+})
+
 describe('forgePanel removed worktrees', () => {
   it('shows a removed worktree whose branch remains, and holds the next message until the branch is checked out again', async () => {
     const { repo } = await project()

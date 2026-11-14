@@ -159,6 +159,12 @@ export class SessionPanel {
     this.missing = null
   }
 
+  /** Forget the missing worktree once it was removed at the reader's request; the projection no longer carries it. */
+  removed(): void {
+    this.missing = null
+    this.updateWorktree()
+  }
+
   /** Reinspect the checkout, such as after its directory was created again. */
   reinspect(): void {
     void this.inspect()

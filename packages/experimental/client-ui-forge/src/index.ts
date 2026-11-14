@@ -485,6 +485,40 @@ export class ForgePanelController extends TypertRemoteService {
   }
 
   /**
+   * Remove the created worktree of a Session at its recorded directory: the
+   * checkout leaves the filesystem and its registration, the Session moves to
+   * the source checkout first so no working directory points at a removed path,
+   * and the recorded projection clears. Without `deleteBranch` the branch stays.
+   * Runs as Agent maintenance; a checkout with uncommitted or untracked files is
+   * kept and reported. Changes that were never committed are lost with a
+   * removed checkout.
+   * @param session - Session whose worktree leaves.
+   * @param signal - request cancellation, which aborts the removal.
+   * @param deleteBranch - whether the branch follows the checkout.
+   * @throws `forgePanel/no-worktree` without a created worktree; `forgePanel/worktrees-unavailable`
+   * without a worktree service; `forgePanel/session-busy` while the Session's Agent is not loaded or
+   * has other work; `forgePanel/remove-failed` when Git refuses or fails.
+   */
+  @Remote
+  async removeWorktree(session: Session, signal: AbortSignal, deleteBranch = false): Promise<void> {
+    signal.throwIfAborted()
+    const created = this.createdWorktree(session)
+    const worktrees = this.home.get('worktrees')
+    if (worktrees === undefined) throw new RemoteError('forgePanel/worktrees-unavailable', 'No worktree service is mounted', {})
+    await this.maintain(session, async (agent, work) => {
+      const operation = AbortSignal.any([signal, work])
+      await this.home.workingDirectory.set(agent, created.repositoryRoot, operation)
+      try {
+        await this.creations.remove(agent, worktrees, created, operation, deleteBranch, () => { this.panels.get(session)?.removed() })
+      } catch (error) {
+        operation.throwIfAborted()
+        throw new RemoteError('forgePanel/remove-failed', messageOf(error), {}, { cause: error })
+      }
+    })
+    this.panels.get(session)?.reinspect()
+  }
+
+  /**
    * Check out the created worktree of a Session again at its recorded
    * directory when that directory is gone: its branch when the branch still
    * exists, otherwise a new branch of the same name at the base commit. Changes
