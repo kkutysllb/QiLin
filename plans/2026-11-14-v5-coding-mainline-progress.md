@@ -54,4 +54,25 @@ Task 3: complete (tests: npx vitest run packages/experimental/client-ui-forge/te
 
 ### Task 4: documentation
 
+Task 4: complete (forge README en/zh: Session list bullet gains the unknown-value note, the
+`Unopened Sessions in the list` limitation rewritten, the S2-obsolete `Changes scopes` deferred
+item removed; `verify-translation-pairing --write` regenerated the pairing record; the plan gained
+§2.4.1 and the handoff §3/§5/§7/§9 record the slice.
+Finding: `test:docs` failed on the repository-references gate before any change of mine — the
+handoff carried commit hashes, which that gate forbids. Removed every hash from the handoff and
+recorded the rule under §7.
+Ruling: the `Changes scopes` limitation was already false when S2 landed, in a list I am editing;
+corrected here rather than shipped as a neighbouring lie.)
+
 ### Task 5: gates
+
+Task 5: complete
+- `pnpm run test:gui` → 10858 passed, 1 skipped (the lane is `packages/client` + `packages/host`
+  only, so it does not cover the forge package; unchanged by this slice)
+- `npx vitest run packages/experimental/client-ui-forge` → 786 passed, 2 failed = the known
+  `sandbox-exec` environment failures from the handoff §6
+- `npx vitest run packages/api/session-controller` → 875 passed
+- `npx tsc -b tsconfig.host.json` and `npx tsc -b tsconfig.client.json` → no output
+- `pnpm run test:docs` → 21 passed, 0 failed
+- `pnpm run build` → exit 0, recorded 433 client artifacts
+- `pnpm run verify-client-ui-i18n` → 1097 source files
