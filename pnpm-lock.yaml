@@ -577,6 +577,9 @@ importers:
       '@qilin-agent/tool-kylin':
         specifier: workspace:*
         version: link:../../packages/extensions/tool-kylin
+      '@qilin-agent/tool-office-read':
+        specifier: workspace:*
+        version: link:../../packages/document/tool-office-read
       '@qilin-agent/tool-present':
         specifier: workspace:*
         version: link:../../packages/deliverables/tool-present
@@ -2438,6 +2441,9 @@ importers:
       '@qilin-agent/tool-jobs':
         specifier: workspace:*
         version: link:../../jobs/tool-jobs
+      '@qilin-agent/tool-office-read':
+        specifier: workspace:*
+        version: link:../../document/tool-office-read
       '@qilin-agent/tool-present':
         specifier: workspace:*
         version: link:../../deliverables/tool-present

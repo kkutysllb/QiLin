@@ -91,6 +91,9 @@
 - id: tool-fs
   name: '@qilin-agent/tool-fs'
 
+- id: tool-office-read
+  name: '@qilin-agent/tool-office-read'
+
 - id: tool-fs-search
   name: '@qilin-agent/tool-fs-search'
   config:
