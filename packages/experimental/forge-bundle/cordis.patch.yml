@@ -12,10 +12,6 @@
     - id: optional-forge-panel
       name: cordis:group
       group: true
-      isolate:
-        worktrees: true
       config:
-        - id: forge-worktree
-          name: '@qilin-agent/experimental-worktree'
         - id: forge-panel
           name: '@qilin-agent/experimental-client-ui-forge'
