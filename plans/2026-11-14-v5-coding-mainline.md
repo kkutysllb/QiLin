@@ -161,6 +161,30 @@ V5 是产品功能批次而不是纯样式批次：它要动 worktree 服务、f
 
 开工前需先确认两点（下一步第一件事）：Host 侧投影缓存服务的服务名与读取 API；列表项当前是否已有字段可承载逐键投影值（还是要新加）。
 
+### 2.4.1 落地情况（2026-11-14）
+
+盘点修正（开工时核实）：方案 1 的数据面**已由既有通用机制交付**，不需要再加第二份字段。
+
+| 方案 1 改动点 | 实际状态 | 证据 |
+|---|---|---|
+| Host 列表项带逐键投影 | 已有：`SessionSummary.projections`（`{ kind, asOfSeq, values }`，`values: Partial<SessionProjectionMap>`）由 `ApiSessionList.projectionsFor` 填充；运行中会话取 live 注册表（`sequenced`），未打开会话用 `sessionProjectionCache.cachedSnapshot` 零 I/O 读持久检查点（`cached`） | `src/list.ts`、`src/types.ts` 的 `SessionProjectionHints` |
+| 线协议透传 | 已有，随 `SessionSummary` 走 | `client/contract/sessions.ts` |
+| 客户端填充 `projectionValues` | 已有：`SessionManager.applyListBlock` 按 kind 落进 `ProjectionValueStore`（`sequenced` 高 seq 胜出，`cached` 只填没有 sequenced 行的键），`buildListSnapshot` 读出到 `SessionListEntry.projectionValues` | `client/sessions/manager.ts`、`projection-store.ts` |
+| 控制帧覆盖列表值 | 已有：控制基线 `seed` 先丢弃全部 cached 行，再按 seq 落值 | `projection-store.ts` 的 `seed` |
+| forge 补「打开后可见」 | 本次落地：列表值没有 `forgeWorktree` 键时行内事实标为「未知」，悬浮卡片写「工作树：打开后可见」；有值时仍是行内分支图标 + 悬浮卡分支名 | `src/client/session-list.ts`、`SessionHoverForge.tsx`、`locales.ts` |
+
+验收条目对应：
+
+| 条目 | 结果 |
+|---|---|
+| 数据来源 | 已交付（同上），并有测试固定：冷行逐次读取缓存（`session-cold.host.spec.ts`），摘要键含 `forgeWorktree` 且值等于面板事实（`controller.host.spec.ts`） |
+| 未打开会话的显示 | 有值 → 行内分支图标（既有）+ 悬浮卡分支名；无值 → 悬浮卡「工作树：打开后可见」。**「行内显示分支名」与「行内显示文案」未按字面实现**：行内只有一格图标位（与状态圆点共用），文案落在该行自己的悬浮卡上；改用占位图标会让未打开的老会话都挂一个易误读的分支图标 |
+| 缓存 | 服务端不折叠：列表读的是持久检查点视图，键由检查点自身的 `seq` 表达；写入点是创建、`turn/end`、计数阈值与 detach（缓存包测试已覆盖） |
+| 失效信号 | 运行中会话走 live 注册表（事件即时生效）；未打开会话以 detach/轮次检查点为准，每次列表刷新重读（测试固定） |
+| 上限 / 退化 | 不适用：列表路径零 I/O、不折叠日志，没有可超的折叠预算；无检查点记录（缺失、被淘汰、版本不符）即「无值」，由文案覆盖 |
+| 不变量 | 行内事实与面板读同一投影：`summaryKeys()` 含 `forgeWorktree`，其值与面板 `created` 相同、离开 worktree 后为 `null`（测试固定） |
+| 测试 | 未打开有工作树 → 行内事实（`session-list.client.spec.tsx` 既有）；无缓存值 → 文案（新增 2 条）；打开后与面板一致（新增 1 条）；列表随检查点刷新（新增 1 条）；超阈值退化 —— 不适用 |
+
 ## 3. 依赖与顺序
 
 S1 → S2（都要动 forge Remote 与面板状态，先做破坏性操作把错误码与确认模式定下来）→ S3/S4（读面增强）→ S5（终端独立）→ S6（生命周期语义）。
