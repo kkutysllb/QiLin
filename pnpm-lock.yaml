@@ -8086,6 +8086,12 @@ importers:
         specifier: workspace:*
         version: link:../../core/tools
 
+  packages/document/office-read:
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
   packages/document/office-to-pdf:
     dependencies:
       '@deepseek-ai/libreoffice-kit':

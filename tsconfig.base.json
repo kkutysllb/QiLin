@@ -488,6 +488,7 @@
       "@qilin-agent/message-feedback": ["./packages/feedback/message-feedback/src"],
       "@qilin-agent/native-command": ["./packages/util/native-command/src"],
       "@qilin-agent/office-to-pdf": ["./packages/document/office-to-pdf/src"],
+      "@qilin-agent/office-read": ["./packages/document/office-read/src"],
       "@qilin-agent/official-bundles": ["./packages/util/official-bundles/src"],
       "@qilin-agent/output-retention": ["./packages/util/output-retention/src"],
       "@qilin-agent/package-manifest": ["./packages/util/package-manifest/src"],

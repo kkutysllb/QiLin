@@ -1,0 +1,39 @@
+{
+  "name": "@qilin-agent/office-read",
+  "description": "Read-only Office document parsing for DOCX, XLSX, and PPTX without spawning a converter",
+  "version": "3.1.11",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/document/office-read"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  }
+}
