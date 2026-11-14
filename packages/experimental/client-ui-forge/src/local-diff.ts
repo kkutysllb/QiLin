@@ -144,6 +144,9 @@ export async function localDiff(
     case 'unstaged': range = []; break
     case 'staged': range = ['--cached', await headOrEmptyTree(git)]; break
     case 'commit': range = [`${commitSha(scope.commit)}^`, commitSha(scope.commit)]; break
+    // The Remote narrows this scope to the files its projection names, so the
+    // comparison is the working tree's.
+    case 'last-turn': range = [await headOrEmptyTree(git)]; break
     /* v8 ignore next -- closed ForgeLocalScope union exhaustiveness guard */
     default: return assertNever(scope, 'ForgeLocalScope.kind')
   }

@@ -130,6 +130,7 @@ const SCOPE_LABEL: Record<ScopeKind, ForgePanelKey> = {
   unstaged: 'diff.scope.unstaged',
   staged: 'diff.scope.staged',
   commit: 'diff.scope.commit',
+  'last-turn': 'diff.scope.lastTurn',
 }
 
 const SCOPE_NOTE: Record<Exclude<ScopeKind, 'branch'>, ForgePanelKey> = {
@@ -137,6 +138,7 @@ const SCOPE_NOTE: Record<Exclude<ScopeKind, 'branch'>, ForgePanelKey> = {
   unstaged: 'diff.scopeNote.unstaged',
   staged: 'diff.scopeNote.staged',
   commit: 'diff.scopeNote.commit',
+  'last-turn': 'diff.scopeNote.lastTurn',
 }
 
 /** Failures with their own message; any other failure offers a retry. */
@@ -266,6 +268,7 @@ function ScopeMenu({ scope, commit, choose, t }: {
     { id: 'staged', label: t(SCOPE_LABEL.staged) },
     // Without a readable checkout commit there is no commit to show.
     ...commit === null ? [] : [{ id: 'commit', label: t(SCOPE_LABEL.commit) }],
+    { id: 'last-turn', label: t(SCOPE_LABEL['last-turn']) },
     { type: 'separator', id: 'separator' },
     { id: 'branch', label: t(SCOPE_LABEL.branch) },
   ]

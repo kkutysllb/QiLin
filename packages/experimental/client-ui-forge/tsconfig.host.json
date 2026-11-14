@@ -15,6 +15,7 @@
     "src/patch-cache.ts",
     "src/projection-reader.ts",
     "src/states.ts",
+    "src/turn-files.ts",
     "src/types.ts",
     "src/worktree.ts"
   ],

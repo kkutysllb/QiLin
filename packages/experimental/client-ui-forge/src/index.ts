@@ -21,6 +21,7 @@ import type { Inspection } from './git.ts'
 import { parseDiff } from './diff.ts'
 import { aheadOf, DiffTooLarge, FilterConfigError, forkPoint, localDiff, localText, NoForkPoint } from './local-diff.ts'
 import { missingWorktree, SessionPanel } from './panel.ts'
+import { forgeTurnFilesProjection, type ForgeTurnFilesState } from './turn-files.ts'
 import { PatchCache } from './patch-cache.ts'
 import { ChangeRequestStates, changeRequestStatesDomain } from './states.ts'
 import type { PanelConfig } from './panel.ts'
@@ -80,6 +81,7 @@ export class ForgePanelController extends TypertRemoteService {
   private readonly config: ControllerConfig
   private readonly panels = new Map<Session, SessionPanel>()
   private worktreeStates!: ProjectionReader<ForgeWorktreeState>
+  private turnFiles!: ProjectionReader<ForgeTurnFilesState>
   private creations!: WorktreeCreations
   private readonly patches: PatchCache
   private states: ChangeRequestStates | undefined
@@ -121,6 +123,8 @@ export class ForgePanelController extends TypertRemoteService {
       apply: (scope: Context) => {
         const unregister = scope.sessionProjections.register(forgeWorktreeProjection)
         this.worktreeStates = projectionReader<ForgeWorktreeState>(scope, 'forgeWorktree', unregister)
+        const unregisterFiles = scope.sessionProjections.register(forgeTurnFilesProjection)
+        this.turnFiles = projectionReader<ForgeTurnFilesState>(scope, 'forgeTurnFiles', unregisterFiles)
       },
     })
     await stateOwner
@@ -252,7 +256,15 @@ export class ForgePanelController extends TypertRemoteService {
     const fork = scope.kind === 'branch'
       ? await forkPoint(gitIn(this.home, this.config, session, root, signal), inspection, this.worktreeState(session).created)
       : null
-    return await diffing(localDiff(this.home, this.config, session, root, fork, scope, signal))
+    if (scope.kind !== 'last-turn') {
+      return await diffing(localDiff(this.home, this.config, session, root, fork, scope, signal))
+    }
+    // The last-turn scope is the working-tree comparison narrowed to the files
+    // the projection says the last ended turn touched.
+    const touched = new Set(this.turnFiles.stateOf(session)?.paths ?? [])
+    const diff = await diffing(localDiff(this.home, this.config, session, root, fork, { kind: 'uncommitted' }, signal))
+    const absolute = (path: string): string => path.startsWith('/') ? path : `${root}/${path}`
+    return { ...diff, files: diff.files.filter(file => touched.has(absolute(file.path))) }
   }
 
   /**

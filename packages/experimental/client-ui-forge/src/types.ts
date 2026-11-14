@@ -237,6 +237,13 @@ export type ForgeLocalScope =
    * join this scope, and a root commit with no parent cannot be read.
    */
   | { readonly kind: 'commit'; readonly commit: string }
+  /**
+   * The files the last ended turn touched, read from the `forgeTurnFiles`
+   * projection, shown as their working-tree changes against HEAD. The set is
+   * derived from tool calls, so a writing program the derivation does not
+   * recognize is missing from it.
+   */
+  | { readonly kind: 'last-turn' }
 
 /** One hunk of a file diff. */
 export interface ForgeDiffHunk {
