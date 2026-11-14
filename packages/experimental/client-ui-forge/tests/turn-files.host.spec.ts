@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import { Context } from '@qilin-agent/kylin'
 import type { SessionEvent } from '@qilin-agent/session'
+import SessionProjectionRegistry from '@qilin-agent/session-projection'
+import { projectionReader } from '../src/projection-reader.ts'
+import { plainSession, shellTurn } from './harness.ts'
 import { callPaths, forgeTurnFilesProjection, patchPaths, shellPaths, within } from '../src/turn-files.ts'
 import type { ForgeTurnFilesState } from '../src/turn-files.ts'
 
@@ -64,6 +68,28 @@ describe('callPaths', () => {
     expect(callPaths('move', JSON.stringify({ from: 'src/old.ts', to: 'src/new.ts' }))).toEqual(['src/old.ts', 'src/new.ts'])
     expect(callPaths('apply_patch', JSON.stringify({ patch: '*** Update File: src/c.ts' }))).toEqual(['src/c.ts'])
     expect(callPaths('bash', JSON.stringify({ command: 'echo x > out.txt' }))).toEqual(['out.txt'])
+  })
+})
+
+describe('forgeTurnFiles over a live Session', () => {
+  it('folds a real shell turn into the paths its commands wrote', async () => {
+    const ctx = new Context()
+    await ctx.plugin(SessionProjectionRegistry)
+    const states = projectionReader<ForgeTurnFilesState>(ctx, 'forgeTurnFiles', ctx.sessionProjections.register(forgeTurnFilesProjection))
+    const session = plainSession('/work/repo')
+    try {
+      shellTurn(session, 1, [
+        { callId: 'c1', command: 'rm -f build/old.js', output: '' },
+        { callId: 'c2', command: 'echo done | tee report.md', output: 'done' },
+      ])
+
+      const state = states.stateOf(session)
+
+      expect(state?.turn).toBe(1)
+      expect(state?.paths).toEqual(['/work/repo/build/old.js', '/work/repo/report.md'])
+    } finally {
+      await ctx.fiber.dispose()
+    }
   })
 })
 
