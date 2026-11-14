@@ -12,7 +12,7 @@ import SubagentRuntime from '@qilin-agent/subagent'
 import { STRUCTURED_OUTPUT_TOOL } from '@qilin-agent/subagent'
 import JsonlSessionPersistence from '@qilin-agent/session-persistence-jsonl'
 import * as spawn from '@qilin-agent/subagent-spawn-in-process'
-import PtcWorkflowEngine from '@qilin-agent/workflow-coding'
+import CodingWorkflowEngine from '@qilin-agent/workflow-coding'
 import { MockAdapter, maxTokensResponse, textResponse, toolCallResponse } from '../../../core/agent-loop/tests/mock-adapter.ts'
 import * as toolRalph from '../src/index.ts'
 import { mountWorkflowRuntime } from '../../../workflow/workflow-coding/tests/setup.ts'
@@ -40,7 +40,7 @@ async function mountRalph(script: MockScript, config: toolRalph.Config) {
   await ctx.plugin(AgentLoop, { agents: [] })
   await ctx.plugin(SubagentRuntime)
   await ctx.plugin(spawn, { providerName: 'spawn' })
-  await ctx.plugin(PtcWorkflowEngine, {})
+  await ctx.plugin(CodingWorkflowEngine, {})
   await ctx.plugin(toolRalph, config)
   ctx.llm.registerAdapter(['mock'], adapter)
   const parentHandle = await ctx.agents.create({
@@ -51,7 +51,7 @@ async function mountRalph(script: MockScript, config: toolRalph.Config) {
   return { ctx, adapter, parentHandle, parent: parentHandle.agent }
 }
 
-describe('dsh-tool-ralph over the real spawn and sandboxed PTC stack', () => {
+describe('dsh-tool-ralph over the real spawn and sandboxed coding stack', () => {
   it('uses distinct empty-seed children, shared cwd, and only the prior bounded handoff', { timeout: 90_000 }, async () => {
     const firstReport = {
       status: 'continue',
@@ -78,7 +78,7 @@ describe('dsh-tool-ralph over the real spawn and sandboxed PTC stack', () => {
     await ctx.plugin(AgentLoop, { agents: [] })
     await ctx.plugin(SubagentRuntime)
     await ctx.plugin(spawn, { providerName: 'spawn' })
-    await ctx.plugin(PtcWorkflowEngine, {})
+    await ctx.plugin(CodingWorkflowEngine, {})
     await ctx.plugin(toolRalph, { maxRounds: 2 })
     ctx.llm.registerAdapter(['mock'], adapter)
 

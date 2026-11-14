@@ -87,7 +87,7 @@ changes:
 <a id="compatibility"></a>
 ## 兼容性
 
-工具角色声明会改变十个事件根，因为 inbox 条目、消息事件、compaction 摘要、标题请求、团队消息和 PTC dispatch 嵌入了共享的 `Message` 或 `ContentBlock` 声明。从联合中移除 `tool-result` 并按角色细化消息，会改变这些可达 schema，并非新增十套独立事件协议。`turn/end` 的变更单独记录 forked reason；`SessionHeader` 记录版本递增。
+工具角色声明会改变十个事件根，因为 inbox 条目、消息事件、compaction 摘要、标题请求、团队消息和 coding dispatch 嵌入了共享的 `Message` 或 `ContentBlock` 声明。从联合中移除 `tool-result` 并按角色细化消息，会改变这些可达 schema，并非新增十套独立事件协议。`turn/end` 的变更单独记录 forked reason；`SessionHeader` 记录版本递增。
 
 [原生 V4 校验决策](../../.agents/notes/implemented/architecture/2026-09-17-native-v4-read-validation.zh.md) 负责说明这些当前字段所需的读取接纳规则。
 
@@ -101,7 +101,7 @@ V3-to-V4 迁移将已发布的 user 角色工具结果提升为 tool 角色消�
 
 Developer 事件保留原始角色，并要求处于打开的 step。每个添加块存储 toolName；developer/message.headerSeq 指向更早且已知的 request/header，其中必须恰好包含一个完整同名 ToolSchema。同一事件的所有添加共用该历史请求头版本，仅移除或其他 developer 消息省略 headerSeq。原生与 Session 接纳拒绝缺失、前向、非请求头、未知请求头、歧义、不完整定义及已退役内嵌定义形式，不解释未知且可忽略的记录，也不丢弃无关 JSON 元数据。同名替换、重启、fork、surface 替换和压缩保留历史模式身份，不查询最新请求头或注册表。通用 sourceEventSeqs 保持独立。Developer source 使用与 user source 相同的已记录归属保留策略。可选的 deferLoading 标记独立于添加历史。已提供的 profile 不发出 developer 记录；提供方序列化、自动发出及 UI 支持仍未启用。
 
-PTC 生产者写入 `source.kind: 'ptc-mode'`。V3→V4 迁入边保留 `tools-code-mode` 和 `tools-ptc` 作为历史 plugin 查找键，并将二者映射到该当前 kind。source 策略保留 `ptc-mode`，不允许将其声明为仅用于归属。
+coding 生产者写入 `source.kind: 'ptc-mode'`。V3→V4 迁入边保留 `tools-code-mode` 和 `tools-ptc` 作为历史 plugin 查找键，并将二者映射到该当前 kind。source 策略保留 `ptc-mode`，不允许将其声明为仅用于归属。
 
 <a id="verification"></a>
 ## 验证

@@ -31,7 +31,7 @@ kind: "package-reference"
 
 通过[客户端配置](../mcp-client/README.zh.md#use-this-package)在目标作用域中添加服务器。本包没有配置字段。
 
-调用方没有已配置 MCP 服务器时，在 native 或 PTC 模式下都看不到 MCP 提示词文本或资源工具。配置服务器后会启用三个共享资源工具，包括由其他提供方挂载客户端的服务器，以及没有工具或指令的服务器。只要客户端条目保持激活，连接失败就不会移除共享工具；资源调用会报告连接错误。
+调用方没有已配置 MCP 服务器时，在 native 或 coding 模式下都看不到 MCP 提示词文本或资源工具。配置服务器后会启用三个共享资源工具，包括由其他提供方挂载客户端的服务器，以及没有工具或指令的服务器。只要客户端条目保持激活，连接失败就不会移除共享工具；资源调用会报告连接错误。
 
 ### 发现与读取
 
@@ -87,7 +87,7 @@ kind: "package-reference"
 
 #### 模型看到什么
 
-[生成的工具 schema](../../../docs/tool-catalog.zh.md#qilin-agentmcp-resources)定义了调用方可见的所有已配置服务器共享的三个工具。没有这类服务器时，native schema、PTC 声明与绑定以及服务器名称提示词均不存在。激活的客户端连接、断开或重试时，这些共享工具定义保持不变。挂载系统提示词装配且存在可见提供方时，`MCP resource servers` 段落显示 `Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: <JSON array>.` 名称来自同一作用域注册表，包括既没有工具也没有指令的服务器。注册表为空时不贡献该段落。
+[生成的工具 schema](../../../docs/tool-catalog.zh.md#qilin-agentmcp-resources)定义了调用方可见的所有已配置服务器共享的三个工具。没有这类服务器时，native schema、coding 声明与绑定以及服务器名称提示词均不存在。激活的客户端连接、断开或重试时，这些共享工具定义保持不变。挂载系统提示词装配且存在可见提供方时，`MCP resource servers` 段落显示 `Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: <JSON array>.` 名称来自同一作用域注册表，包括既没有工具也没有指令的服务器。注册表为空时不贡献该段落。
 
 #### Token 影响
 
@@ -95,7 +95,7 @@ kind: "package-reference"
 
 #### KV Cache 影响
 
-添加调用方可见的首个服务器或移除最后一个服务器，会改变后续工具 schema 或 PTC 声明前缀。可见名称变化时更新服务器名称段落；替换同名提供方不会改变该文本。单纯的连接失败不会改变共享定义或名称。
+添加调用方可见的首个服务器或移除最后一个服务器，会改变后续工具 schema 或 coding 声明前缀。可见名称变化时更新服务器名称段落；替换同名提供方不会改变该文本。单纯的连接失败不会改变共享定义或名称。
 
 ### 资源结果
 

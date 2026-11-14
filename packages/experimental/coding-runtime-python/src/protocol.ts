@@ -277,7 +277,7 @@ export function logTruncationMarker(maxBytes: number): string {
 /**
  * Serialize one JSON-parse-produced value without recursion. `JSON.stringify`
  * recurses per nesting level and throws `RangeError` a few thousand levels
- * deep, but the seam's `PtcJsonValue` has no depth limit — an honest deep
+ * deep, but the seam's `CodingJsonValue` has no depth limit — an honest deep
  * completion or binding resolution below the byte budget must cross intact
  * (the worker backend's wire is equally stack-safe). Callers must pass a value
  * produced by `JSON.parse` (or equally JSON-plain): only `null`, finite

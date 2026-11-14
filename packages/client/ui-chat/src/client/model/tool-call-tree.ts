@@ -23,7 +23,7 @@ function sameReferences<T>(
 }
 
 /**
- * Owns PTC dispatch pairing and projects its private parent index into the
+ * Owns coding dispatch pairing and projects its private parent index into the
  * recursive Tool call contract exposed by conversation snapshots.
  */
 export class ToolCallTree {
@@ -51,7 +51,7 @@ export class ToolCallTree {
   }
 
   /**
-   * Fold one event when it belongs to the PTC dispatch lifecycle.
+   * Fold one event when it belongs to coding-mode dispatch lifecycle.
    * @param event - Session event from the current live or history window.
    * @returns Whether the event was consumed as a child-call lifecycle event.
    */

@@ -190,13 +190,13 @@
     "release:publish": "tsx scripts/release/publish.ts",
     "release:verify-published": "tsx scripts/release/verify-published.ts",
     "qilin": "node --import tsx/esm apps/cli/src/bin.ts",
-    "demo:ptc": "node scripts/demo-ptc.mjs",
     "mock:llm": "node --import tsx packages/test-support/llm-mock-server/src/bin.ts",
     "dev:web": "tsx scripts/dev-web.ts --poll",
     "postinstall": "node scripts/install-lefthook.mjs",
     "version:set": "tsx scripts/set-version.ts",
     "repair:links": "tsx scripts/ensure-root-links.ts",
-    "gen-typert": "tsx scripts/generate-typert.ts"
+    "gen-typert": "tsx scripts/generate-typert.ts",
+    "demo:coding": "node scripts/demo-coding.mjs"
   },
   "devDependencies": {
     "@qilin-agent/agent": "workspace:*",

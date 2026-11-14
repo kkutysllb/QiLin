@@ -1,11 +1,11 @@
-# The `coding` agent preset: the full coding agent presented through PTC,
+# The `coding` agent preset: the full coding agent presented through coding,
 # carrying the runtime-authoring capabilities as well.
 #
 # The deployment also ships `standard`, the ordinary mode that presents native
 # tool schemas and is the default for new sessions. This preset is the coding
-# mode: it selects the PTC presentation and adds the runtime-authoring surface,
+# mode: it selects the coding-mode presentation and adds the runtime-authoring surface,
 # so a session that reads, extends, or authors the harness runs here. The
-# general purpose `workflow` tool stays off — PTC uses `run_code` as its
+# general purpose `workflow` tool stays off — coding uses `run_code` as its
 # model-authored composition surface — and the `tool-presentation` row turns
 # the remaining registry into a generated SDK, so a sequence that would be five
 # round trips becomes one.
@@ -252,7 +252,7 @@
 
     - id: workflow-coding
       name: '@qilin-agent/workflow-coding'
-      # No consumer here: `tool-workflow` is off in PTC mode and `tool-ralph`
+      # No consumer here: `tool-workflow` is off in coding mode and `tool-ralph`
       # below is off by default. Restore this row together with `tool-ralph`.
       disabled: true
       config:
@@ -261,7 +261,7 @@
     - id: tool-workflow
       name: '@qilin-agent/tool-workflow'
       # Do not publish a second model-authored orchestration surface beside
-      # `run_code` in PTC mode.
+      # `run_code` in coding mode.
       disabled: true
 
 # ── remaining model-facing rows ─────────────────────────────────────────────
@@ -284,7 +284,7 @@
 
 # ── presentation ────────────────────────────────────────────────────────────
 
-# PTC mode for this agent alone. The row waits for the host's `codingRuntime`
+# coding mode for this agent alone. The row waits for the host's `codingRuntime`
 # rather than assuming it: a deployment that composes no TypeScript runtime
 # fails this preset at mount, naming this id, instead of at the first request.
 - id: tool-presentation

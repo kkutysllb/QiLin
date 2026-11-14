@@ -10974,7 +10974,7 @@
         ]
       },
       "names": [
-        "packages/core/tools/src/types.ts#PtcDispatchEventData"
+        "packages/core/tools/src/types.ts#CodingDispatchEventData"
       ],
       "sources": [
         "packages/core/tools/src/types.ts"

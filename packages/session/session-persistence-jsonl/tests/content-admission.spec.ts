@@ -73,7 +73,7 @@ const carriers: readonly Carrier[] = [{
   ],
   targetData: { ...compaction, shadowedRange: { start: 3, end: 3 }, shadowedSeqs: [3] },
 })), {
-  name: 'PTC dispatch content', path: 'data.content[0]', targetType: 'tool/ptc-dispatch',
+  name: 'coding dispatch content', path: 'data.content[0]', targetType: 'tool/ptc-dispatch',
   rows: block => [
     ...prefix,
     { type: 'assistant/message', surfaceOp: 'append', data: {

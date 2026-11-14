@@ -726,13 +726,13 @@ describe('qilin web keyless CLI smoke', () => {
     const qilinHome = join(workspace, '.qilin')
     prepareDeploymentHome(qilinHome)
 
-    interface PtcModeProviderRequest {
+    interface CodingModeProviderRequest {
       system?: string
       messages?: { role?: string; content?: { type?: string; text?: string }[] }[]
       tools?: { name?: string }[]
     }
-    let resolveProviderRequest!: (request: PtcModeProviderRequest) => void
-    const providerRequest = new Promise<PtcModeProviderRequest>((resolve) => {
+    let resolveProviderRequest!: (request: CodingModeProviderRequest) => void
+    const providerRequest = new Promise<CodingModeProviderRequest>((resolve) => {
       resolveProviderRequest = resolve
     })
     const provider = createServer((request, response) => {
@@ -740,7 +740,7 @@ describe('qilin web keyless CLI smoke', () => {
       request.setEncoding('utf8')
       request.on('data', (chunk: string) => { body += chunk })
       request.on('end', () => {
-        resolveProviderRequest(JSON.parse(body) as PtcModeProviderRequest)
+        resolveProviderRequest(JSON.parse(body) as CodingModeProviderRequest)
         response.writeHead(200, { 'content-type': 'text/event-stream' })
         response.end(messagesResponse('done'))
       })

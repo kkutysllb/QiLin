@@ -142,7 +142,7 @@ Read these pages when the package-level contract is not enough. They move from t
 
 #### What the model sees
 
-At assembly time, each section checks `ctx.tools.get(name, scope)` and renders only while its tool is visible. Search chooses the existing fetch-enabled or search-only text using fetch config and visibility in that scope. Fetch includes its search-result example only while search is visible. The original text is unchanged when both tools are available; this also applies to PTC capabilities behind `run_code`.
+At assembly time, each section checks `ctx.tools.get(name, scope)` and renders only while its tool is visible. Search chooses the existing fetch-enabled or search-only text using fetch config and visibility in that scope. Fetch includes its search-result example only while search is visible. The original text is unchanged when both tools are available; this also applies to coding capabilities behind `run_code`.
 
 ##### Web search guidance with fetch enabled
 

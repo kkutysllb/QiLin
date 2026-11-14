@@ -105,7 +105,7 @@ describe('parent-only override inheritance snapshot', () => {
       tsconfigPath,
       env: {
         // The replay script calls tools directly; the shipped headless default
-        // (PTC) exposes only run_code, so pin the native presentation.
+        // (coding) exposes only run_code, so pin the native presentation.
         QILIN_TOOLS_MODE: 'native',
         // The primary fixture path must exist for llm-replay's config guard;
         // the override sidecar fully replaces the derived parent script.

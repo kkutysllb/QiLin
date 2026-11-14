@@ -9,20 +9,20 @@
   en: cfa0b408762d247d
   zh: 09a1f5a1a488c0c5
 /qilin-agent-agent-tool-presentation/summary:
-  en: 3518d1e5dcb11ddd
-  zh: 535ad0e02b4a3c52
+  en: 7be546339686be95
+  zh: df3e98b25426e55f
 /qilin-agent-agent-tool-presentation/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-agent-tool-presentation/use-this-package:
-  en: c3cd68366e8fa8bb
-  zh: 4ce55e53694092c4
+  en: c177d0512c53df16
+  zh: cd2907475313d307
 /qilin-agent-agent-tool-presentation/use-this-package/add-the-row-to-a-preset:
-  en: dd7362d023edb9a2
-  zh: 4621eb2ccf6b8b65
-/qilin-agent-agent-tool-presentation/use-this-package/what-ptc-mode-requires:
-  en: 2995d427c4b6fe7e
-  zh: d4dd578df5ce0f70
+  en: baa2e868a41e4b3e
+  zh: ad3e4c751420eae7
+/qilin-agent-agent-tool-presentation/use-this-package/what-coding-mode-requires:
+  en: 85f8f7d47e57fed9
+  zh: aa31fb1b276d438d
 /qilin-agent-agent-tool-presentation/use-this-package/one-presentation-per-agent:
   en: 46bf80f051175567
   zh: 8f5e1623da5d1520
@@ -30,17 +30,17 @@
   en: ce7e776e9d516bdb
   zh: 59d2751743db7795
 /qilin-agent-agent-tool-presentation/understand-the-implementation/design-concept:
-  en: 6f8bb6bd853cbc13
-  zh: 422fca4b20b79fbd
+  en: 3414ca79164a7bde
+  zh: 92836b8391e2b17a
 /qilin-agent-agent-tool-presentation/understand-the-implementation/source-map:
   en: 2a0a0fb2dfdfce75
   zh: c425560fedcdb31a
 /qilin-agent-agent-tool-presentation/understand-the-implementation/behavior-notes:
-  en: 7bce005431e31277
-  zh: de6e26d098c56462
+  en: c71da95ee2a92558
+  zh: e38172b2459ec4fb
 /qilin-agent-agent-tool-presentation/further-exploration:
-  en: d2fc920357dec0e4
-  zh: df855655f4847db8
+  en: fb871c0a8938042f
+  zh: 16e11150098a2641
 /qilin-agent-agent-tool-presentation/model-experience:
   en: b717a2f5a1165d81
   zh: 52e1a4512808f9e7
@@ -48,8 +48,8 @@
   en: c75b16e38577f026
   zh: f802d115af4bf9a1
 /qilin-agent-agent-tool-presentation/known-limitations-and-deferred-work:
-  en: 17a0a213ec65c95f
-  zh: ff96d985f6360338
+  en: 25c3e45d873fcf09
+  zh: 55688a746e780dd5
 /qilin-agent-agent-tool-presentation/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

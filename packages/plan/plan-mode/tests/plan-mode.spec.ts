@@ -11,7 +11,7 @@ import UserQuestionService, {
   UserQuestionError, type AskUserQuestionAnswer, type AskUserQuestionRequest,
 } from '@qilin-agent/user-questions'
 import CommandRuntime from '@qilin-agent/commands'
-import { PtcRuntime, type PtcRunRequest, type PtcRunResult } from '@qilin-agent/coding-runtime'
+import { CodingRuntime, type CodingRunRequest, type CodingRunResult } from '@qilin-agent/coding-runtime'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { turnBoundaryProjectionDefinition } from '@qilin-agent/agent-loop'
 import PlanModeController, { EXIT_PLAN_MODE, planProjectionDefinition, resolveConfig } from '../src/index.ts'
@@ -159,7 +159,7 @@ function registerNamedTools(ctx: Context, names: string[]): void {
   }
 }
 
-/** Assert the mapped PTC mode SDK includes the stable plan exit binding and test tools. */
+/** Assert the mapped coding mode SDK includes the stable plan exit binding and test tools. */
 function expectPlanPtcSdkBindings(sdk: string): void {
   expect(sdk).toContain('interface ToolArgsMap {')
   expect(sdk).toContain('read: Record<string, JsonValue>;')
@@ -506,15 +506,15 @@ describe('the soft layer', () => {
       .toEqual(['exit_plan_mode', 'read', 'added-later'])
   })
 
-  it('keeps run_code the only wire tool in plan mode under the registry PTC mode; the SDK gains the exit binding', async () => {
+  it('keeps run_code the only wire tool in plan mode under the registry coding mode; the SDK gains the exit binding', async () => {
     // Minimal scriptable runtime: the SDK section resolves ctx.codingRuntime at
     // assembly time (the ptc.spec fake's shape).
-    class FakeRuntime extends PtcRuntime {
-      resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+    class FakeRuntime extends CodingRuntime {
+      resolve(request: import('@qilin-agent/coding-runtime').CodingRunRequest): import('@qilin-agent/coding-runtime').CodingRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
-      run(_request: PtcRunRequest): Promise<PtcRunResult> { return Promise.resolve({ logs: [] }) }
+      run(_request: CodingRunRequest): Promise<CodingRunResult> { return Promise.resolve({ logs: [] }) }
     }
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
@@ -532,13 +532,13 @@ describe('the soft layer', () => {
     expectPlanPtcSdkBindings(sdk)
   })
 
-  it('keeps the PTC wire schema and the SDK in step under mode ptc', async () => {
-    class FakeRuntime extends PtcRuntime {
-      resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  it('keeps coding-mode wire schema and the SDK in step under mode ptc', async () => {
+    class FakeRuntime extends CodingRuntime {
+      resolve(request: import('@qilin-agent/coding-runtime').CodingRunRequest): import('@qilin-agent/coding-runtime').CodingRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
-      run(_request: PtcRunRequest): Promise<PtcRunResult> { return Promise.resolve({ logs: [] }) }
+      run(_request: CodingRunRequest): Promise<CodingRunResult> { return Promise.resolve({ logs: [] }) }
     }
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
@@ -551,19 +551,19 @@ describe('the soft layer', () => {
     const assembly = await assembleFor(ctx, agent)
     // The stable registry contribution reaches both model interfaces: the exit
     // tool stays in the SDK alongside the untouched toolset, while the wire
-    // carries only the PTC transport.
+    // carries only coding-mode transport.
     expect(assembly.tools.map(tool => tool.name).sort()).toEqual(['run_code'])
     const sdk = assembly.sections.find(section => section.name === 'tools:sdk')?.text ?? ''
     expectPlanPtcSdkBindings(sdk)
   })
 
-  it('keeps the PTC mode SDK byte-identical across mode switches', async () => {
-    class FakeRuntime extends PtcRuntime {
-      resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  it('keeps the coding mode SDK byte-identical across mode switches', async () => {
+    class FakeRuntime extends CodingRuntime {
+      resolve(request: import('@qilin-agent/coding-runtime').CodingRunRequest): import('@qilin-agent/coding-runtime').CodingRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
-      run(_request: PtcRunRequest): Promise<PtcRunResult> { return Promise.resolve({ logs: [] }) }
+      run(_request: CodingRunRequest): Promise<CodingRunResult> { return Promise.resolve({ logs: [] }) }
     }
     const withPlanMode = new Context()
     await withPlanMode.plugin(SystemPrompt)
@@ -931,14 +931,14 @@ describe('exit_plan_mode', () => {
     expect(asked[0]?.questions[0]?.options?.map(option => option.label)).toEqual(['Approve', 'Keep planning'])
   })
 
-  it('carries the exact plan through a PTC mode review and logs the nested dispatch', async () => {
-    const plan = '# PTC mode plan\n\nUse the existing seam.'
-    class ExitRuntime extends PtcRuntime {
-      resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+  it('carries the exact plan through a coding mode review and logs the nested dispatch', async () => {
+    const plan = '# coding mode plan\n\nUse the existing seam.'
+    class ExitRuntime extends CodingRuntime {
+      resolve(request: import('@qilin-agent/coding-runtime').CodingRunRequest): import('@qilin-agent/coding-runtime').CodingRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
       readonly language = 'typescript'
       readonly isolation = 'fake'
-      async run(request: PtcRunRequest): Promise<PtcRunResult> {
+      async run(request: CodingRunRequest): Promise<CodingRunResult> {
         const exit = request.bindings[0]?.functions[EXIT_PLAN_MODE]
         if (exit === undefined) throw new Error('missing exit_plan_mode binding')
         return { logs: [], value: await exit({ plan }) }

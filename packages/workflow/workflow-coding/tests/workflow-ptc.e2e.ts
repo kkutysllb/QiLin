@@ -7,7 +7,7 @@ import { mountAgentLoopTestDependencies } from '@qilin-agent/agent-loop-testkit'
 import * as LlmDeepSeek from '@qilin-agent/llm-deepseek-api-key'
 import SubagentRuntime from '@qilin-agent/subagent'
 import * as Spawn from '@qilin-agent/subagent-spawn-in-process'
-import PtcWorkflowEngine from '../src/index.ts'
+import CodingWorkflowEngine from '../src/index.ts'
 import { mountPtcRuntime } from './setup.ts'
 
 let ctx: Context | undefined
@@ -25,13 +25,13 @@ async function harness(): Promise<Context> {
   await built.plugin(LlmDeepSeek)
   await built.plugin(SubagentRuntime)
   await built.plugin(Spawn, { providerName: 'spawn' })
-  await built.plugin(PtcWorkflowEngine, { provider: 'spawn' })
+  await built.plugin(CodingWorkflowEngine, { provider: 'spawn' })
   return built
 }
 
 const META = {
   name: 'e2e-ptc-arithmetic',
-  description: 'two real children through PTC: one prose, one structured',
+  description: 'two real children through coding: one prose, one structured',
   phases: [{ title: 'Ask' }, { title: 'Judge' }],
 }
 const SCRIPT = `phase('Ask')
@@ -45,8 +45,8 @@ const judged = await agent(
 )
 return { prose, containsFour: judged === null ? null : judged.containsFour }`
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC workflow engine with-key e2e', () => {
-  it('runs a two-phase script in the Node PTC runtime over real children, one through the structured runtime', async () => {
+describe.skipIf(!process.env.DEEPSEEK_API_KEY)('coding workflow engine with-key e2e', () => {
+  it('runs a two-phase script in the Node coding runtime over real children, one through the structured runtime', async () => {
     ctx = await harness()
     const parentHandle = await ctx.agents.create({
       sessionId: 'wf-ptc-e2e-session' as never,

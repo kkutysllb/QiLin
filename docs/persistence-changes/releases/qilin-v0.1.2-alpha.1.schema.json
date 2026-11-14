@@ -19059,7 +19059,7 @@
         ]
       },
       "names": [
-        "packages/core/tools/src/types.ts#PtcDispatchStartEventData"
+        "packages/core/tools/src/types.ts#CodingDispatchStartEventData"
       ],
       "sources": [
         "packages/core/tools/src/types.ts"
@@ -47917,7 +47917,7 @@
         ]
       },
       "names": [
-        "packages/core/tools/src/types.ts#PtcDispatchEventData"
+        "packages/core/tools/src/types.ts#CodingDispatchEventData"
       ],
       "sources": [
         "packages/core/tools/src/types.ts"

@@ -1,6 +1,6 @@
 /**
  * LLM-backed authorization gate for the current-session-only Auto permission
- * preset. Every native call and every started PTC inner call is reviewed once
+ * preset. Every native call and every started coding inner call is reviewed once
  * before its body; the outer `run_code` transport is deliberately excluded.
  * Under the `ask` approval policy a reviewer denial asks the user; under
  * `never` it is final.
@@ -115,7 +115,7 @@ interface ReviewSnapshot {
 }
 
 type NativeCallEvent = Extract<SessionEvent, { type: 'tool/call' }>
-type PtcStartEvent = Extract<SessionEvent, { type: 'tool/ptc-dispatch-start' }>
+type CodingStartEvent = Extract<SessionEvent, { type: 'tool/ptc-dispatch-start' }>
 
 interface StepIdentity {
   readonly turn: number
@@ -123,7 +123,7 @@ interface StepIdentity {
 }
 
 interface ScopedPtcStart {
-  readonly event: PtcStartEvent
+  readonly event: CodingStartEvent
   readonly step: StepIdentity
 }
 
@@ -164,7 +164,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function loggedSchema(
   value: { readonly description?: unknown; readonly parameters?: unknown },
   expectedName: string,
-  mode: 'native' | 'PTC',
+  mode: 'native' | 'coding',
 ): ToolSchema {
   if (typeof value.description !== 'string' || !isRecord(value.parameters)) {
     throw new Error(`auto-review: the pending ${mode} tool schema is incomplete`)
@@ -277,7 +277,7 @@ function scopedCallKey(step: StepIdentity, callId: ToolCallId): string {
   return `${step.turn}\0${step.step}\0${callId}`
 }
 
-/** Assign each PTC start to the step open when it was logged. */
+/** Assign each coding start to the step open when it was logged. */
 function scopePtcStarts(events: readonly SessionEvent[]): {
   readonly starts: readonly ScopedPtcStart[]
   readonly openStep: StepIdentity | undefined
@@ -299,7 +299,7 @@ function scopePtcStarts(events: readonly SessionEvent[]): {
     }
     if (event.type !== 'tool/ptc-dispatch-start') continue
     if (openStep === undefined) {
-      throw new Error('auto-review: a PTC call has no owning step in the session log')
+      throw new Error('auto-review: a coding call has no owning step in the session log')
     }
     starts.push({ event, step: openStep })
   }
@@ -333,7 +333,7 @@ function nativeAction(
   }
 }
 
-/** Resolve a PTC inner action from its binding schema and logged identity. */
+/** Resolve a coding inner action from its binding schema and logged identity. */
 function ptcAction(
   exec: ToolExecution,
   start: ScopedPtcStart,
@@ -344,12 +344,12 @@ function ptcAction(
     || event.data.rootCallId !== exec.rootCallId
     || event.data.name !== exec.name
     || !sameJson(event.data.arguments, exec.arguments)) {
-    throw new Error('auto-review: the pending PTC call disagrees with its logged action')
+    throw new Error('auto-review: the pending coding call disagrees with its logged action')
   }
   if (exec.schema === undefined || exec.schema.name !== exec.name) {
-    throw new Error('auto-review: the pending PTC binding schema is missing or inconsistent')
+    throw new Error('auto-review: the pending coding binding schema is missing or inconsistent')
   }
-  const schema = loggedSchema(exec.schema, exec.name, 'PTC')
+  const schema = loggedSchema(exec.schema, exec.name, 'coding')
   return {
     mode: 'ptc-inner',
     name: schema.name,
@@ -368,7 +368,7 @@ function ptcAction(
 function snapshotAutoReview(agent: Agent, exec: ToolExecution, cwd: string): ReviewSnapshot {
   const { session } = agent
   // The reviewer's risk inputs are the whole action history: earlier native calls
-  // and PTC starts carry the authorizations and duplicate identities this call is
+  // and coding starts carry the authorizations and duplicate identities this call is
   // compared against, and the direct parent's initial prompt sets the delegated
   // scope. No projection or paged reader exposes those records yet.
   // oxlint-disable-next-line typescript/no-deprecated -- Reviewer needs the whole action history; no projection or paged reader exists yet.
@@ -393,7 +393,7 @@ function snapshotAutoReview(agent: Agent, exec: ToolExecution, cwd: string): Rev
   for (const start of starts) {
     const subCallKey = scopedCallKey(start.step, start.event.data.subCallId)
     if (startsBySubCall.has(subCallKey)) {
-      throw new Error('auto-review: a PTC call identity is ambiguous in the session log')
+      throw new Error('auto-review: a coding call identity is ambiguous in the session log')
     }
     startsBySubCall.set(subCallKey, start)
     const parentKey = scopedCallKey(start.step, start.event.data.parentCallId)
@@ -414,7 +414,7 @@ function snapshotAutoReview(agent: Agent, exec: ToolExecution, cwd: string): Rev
     ? undefined
     : startsBySubCall.get(scopedCallKey(currentStep, exec.callId))
   if (exec.parent !== undefined && currentPtcStart === undefined) {
-    throw new Error('auto-review: the pending PTC call is missing or ambiguous in the session log')
+    throw new Error('auto-review: the pending coding call is missing or ambiguous in the session log')
   }
 
   const projectInstructions: HistoricalUserMessage[] = []
@@ -470,7 +470,7 @@ function snapshotAutoReview(agent: Agent, exec: ToolExecution, cwd: string): Rev
           throw new Error('auto-review: a visible call before the pending root is missing from the session log')
         }
         if (startsForCall.length > 0) {
-          throw new Error('auto-review: an unstarted visible call has logged PTC dispatches')
+          throw new Error('auto-review: an unstarted visible call has logged coding dispatches')
         }
         sawUnstartedSibling = true
         continue

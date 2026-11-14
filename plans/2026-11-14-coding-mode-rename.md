@@ -2,13 +2,13 @@
 
 日期：2026-11-14
 状态：已插入计划，待执行
-触发：用户裁决——不再沿用 dsh 项目的命名设定，`ptc` 这一模式在我们这里就是**编码模式**（coding mode）。
+触发：用户裁决——不再沿用 dsh 项目的命名设定，`coding` 这一模式在我们这里就是**编码模式**（coding mode）。
 
 ## 1. 决定
 
-1. 面向用户与驱动层的**模式标识**由 `ptc` 改为 `coding`：预置 id、默认模式、界面取词、分析事件取值、脚本入口、文档与配置目录全部随之改名。
-2. 界面文案沿用现有中文名「编码模式」，英文用 **Coding mode**；不再出现 PTC 字样。
-3. **运行层一并改名**（2026-11-14 追加裁决）：执行层（包名、服务名、工具呈现方式取值、环境变量取值）全部由 `ptc` 改为 `coding`，见 §7。dsh 的命名不再保留。
+1. 面向用户与驱动层的**模式标识**由 `coding` 改为 `coding`：预置 id、默认模式、界面取词、分析事件取值、脚本入口、文档与配置目录全部随之改名。
+2. 界面文案沿用现有中文名「编码模式」，英文用 **Coding mode**；不再出现 coding 字样。
+3. **运行层一并改名**（2026-11-14 追加裁决）：执行层（包名、服务名、工具呈现方式取值、环境变量取值）全部由 `coding` 改为 `coding`，见 §7。dsh 的命名不再保留。
 
 ## 2. 影响面（已盘点）
 
@@ -26,13 +26,13 @@
 
 - **会话头**：新增 `session-format-v7-to-v8`，把 `agentPreset: 'ptc'` 归一为 `'coding'`，`SESSION_FORMAT_VERSION` 提到 8；`docs/persistence-changes/historical-formats` 与 `session-format-catalog` 同步；两套 SDK 期望输出与 snapshot 夹具同批更新（`pnpm run test` 不覆盖，需跑 `test:snapshot` 与 SDK 期望）。
 - **profile 配置**：`agent-presets` 解析 `default`/`agentPreset` 时接受只读别名 `ptc → coding`（启动即归一，不静默丢弃），并在 `config-catalog` 与 README 写明；不自动改写用户配置文件。
-- **用户自建预置**：若用户目录里存在 id 为 `ptc` 的自建预置，与 shipped 冲突——保留「earlier root wins」现状，不改名。
+- **用户自建预置**：若用户目录里存在 id 为 `coding` 的自建预置，与 shipped 冲突——保留「earlier root wins」现状，不改名。
 
 ## 4. 切片
 
 | 片 | 内容 | 验收 |
 |---|---|---|
-| **S1 预置与常量** | `presets/ptc` → `presets/coding`；`SHIPPED_PRESET_ID`、`CREATOR_PRESET`、默认模式配置示例改 `coding`；界面取词「编码模式 / Coding mode」 | 预置清单出现 `coding`、不再出现 `ptc`；模式选择器与标题按钮文案正确；相关单测更新 |
+| **S1 预置与常量** | `presets/ptc` → `presets/coding`；`SHIPPED_PRESET_ID`、`CREATOR_PRESET`、默认模式配置示例改 `coding`；界面取词「编码模式 / Coding mode」 | 预置清单出现 `coding`、不再出现 `coding`；模式选择器与标题按钮文案正确；相关单测更新 |
 | **S2 会话格式迁移** | `session-format-v7-to-v8`（`ptc → coding`）、版本号 8、历史格式文档、catalog | 旧日志 v7 读入后 `agentPreset` 为 `coding`；v8 新日志原样；迁移单测 + snapshot 夹具 |
 | **S3 配置别名与目录** | `agent-presets` 的只读别名、`config-catalog` 生成、`docs` | 旧 profile `default: ptc` 仍能启动并按编码模式解析；无静默丢弃 |
 | **S4 分析/脚本/文档** | `AnalyticsPreset` 取值、两个映射、`scripts/demo-ptc.mjs` → `demo-coding.mjs`、根脚本键、各包 README 中英 | 事件取值只剩 `coding`；`demo:coding` 可跑；`test:docs` 全绿 |
@@ -75,7 +75,7 @@
 | 片 | 内容 | 验收 |
 |---|---|---|
 | **S6 包改名（机械层）** | `git mv` 三个包目录与分组目录；改 `package.json` 的 `name` 与依赖引用；改全部模块说明符；改 tsconfig `references`；改 cordis 配置 `name:`；`ctx.codingRuntime` → `ctx.codingRuntime` 及模块增补声明 | `pnpm install` 成功、两套 `tsc -b` 干净、`pnpm run build` 通过、`verify-package-meta` / `verify-package-dependencies` / `publint` 干净 |
-| **S7 呈现方式取值** | `mode` 联合类型与默认值、`QILIN_TOOLS_MODE` 解析、bundle 注释、受影响提示与测试 | 取值只剩 `native`/`coding`；旧值 `ptc` 报未知取值而非静默回落；相关单测与快照更新 |
+| **S7 呈现方式取值** | `mode` 联合类型与默认值、`QILIN_TOOLS_MODE` 解析、bundle 注释、受影响提示与测试 | 取值只剩 `native`/`coding`；旧值 `coding` 报未知取值而非静默回落；相关单测与快照更新 |
 
 ### 7.4 追加门禁
 
@@ -89,10 +89,10 @@
 | 服务名 | `ctx.ptcRuntime` → `ctx.codingRuntime`（含字面服务名 `'ptcRuntime'`） |
 | 呈现取值 | `ToolPresentationMode = 'native' | 'coding'`；`QILIN_TOOLS_MODE` 只接受 `native`/`coding`；headless bundle 默认 `coding` |
 | 文档 | 子系统页 `docs/subsystems/coding-runtime.md`（+zh）改名；`type-equiv` 文档块与源码 JSDoc 同步；配置目录重生成；受影响的中英 README 与 Agent Notes 重新配对 |
-| 未改（留存词汇） | 事件类型 `tool/ptc-dispatch*`（持久化词汇）、类型名 `PtcRuntime`/`PtcRunRequest`/`PtcRunResult`、文件 `packages/core/tools/src/ptc.ts`、README 正文里的 `PTC` 概念词、历史 Agent Note 的文件名与正文——改名只覆盖包名/服务名/呈现取值 |
+| 未改（留存词汇） | 事件类型 `tool/ptc-dispatch*`（持久化词汇）、类型名 `CodingRuntime`/`CodingRunRequest`/`CodingRunResult`、文件 `packages/core/tools/src/coding.ts`、README 正文里的 `coding` 概念词、历史 Agent Note 的文件名与正文——改名只覆盖包名/服务名/呈现取值 |
 
 ### 7.6 风险
 
 - **发布家族**：改名等于新包名首发，版本号与 release notes 必须同批；`release:verify-published` 会要求新名在 registry 上存在。
 - **服务名**：`ctx.codingRuntime` 是 seam 名，改名后引用旧名的外部插件失效（仓库内全同步改；外部消费者属预发布 API，允许破坏）。
-- **旧 profile**：`QILIN_TOOLS_MODE=ptc` 的旧配置按「misconfiguration fails loud」报错，并在 §3 的别名机制里同时接受 `ptc`。
+- **旧 profile**：`QILIN_TOOLS_MODE=ptc` 的旧配置按「misconfiguration fails loud」报错，并在 §3 的别名机制里同时接受 `coding`。

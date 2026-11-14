@@ -2,7 +2,7 @@
  * Meta validation checks caller-provided DATA against the {@link WorkflowMeta}
  * contract and rejects every violation by name. Meta arrives as schema-checked
  * JSON data, never evaluated script text. Model-written JavaScript executes
- * inside the confined PTC process.
+ * inside the confined coding process.
  * @module @qilin-agent/workflow-coding/meta
  */
 

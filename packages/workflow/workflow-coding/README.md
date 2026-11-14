@@ -1,5 +1,5 @@
 ---
-description: "Run workflow orchestration through the shared sandboxed PTC Node process runtime, with workflow hooks, subagent routing and caller-owned cancellation."
+description: "Run workflow orchestration through the shared sandboxed coding Node process runtime, with workflow hooks, subagent routing and caller-owned cancellation."
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Run JavaScript workflows in fresh Node processes under the calling Session's file sandbox policy. Scripts keep the `agent()`, `parallel()`, `pipeline()`, `phase()` and `log()` hooks while subagents perform delegated work. The same execution provider serves PTC and workflows, including the opt-in Ralph loop. Runs have no overall elapsed deadline; cancellation stops the managed process and disposes child agents. The selected sandbox and subprocess providers determine enforcement and cleanup limits.
+Run JavaScript workflows in fresh Node processes under the calling Session's file sandbox policy. Scripts keep the `agent()`, `parallel()`, `pipeline()`, `phase()` and `log()` hooks while subagents perform delegated work. The same execution provider serves coding and workflows, including the opt-in Ralph loop. Runs have no overall elapsed deadline; cancellation stops the managed process and disposes child agents. The selected sandbox and subprocess providers determine enforcement and cleanup limits.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ Run JavaScript workflows in fresh Node processes under the calling Session's fil
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this engine in a composition that provides subagents, sandbox policy and the [Node PTC runtime](../../coding-runtime/coding-runtime-node/README.md). It supplies workflow execution for `qilin-tool-workflow` and for `qilin-tool-ralph` when explicitly enabled. Ralph remains disabled in shipped defaults. The engine rejects non-TypeScript PTC providers when it loads. Python PTC compositions must disable the `workflow-coding`, `tool-workflow` and any enabled `tool-ralph` rows.
+Mount this engine in a composition that provides subagents, sandbox policy and the [Node coding runtime](../../coding-runtime/coding-runtime-node/README.md). It supplies workflow execution for `qilin-tool-workflow` and for `qilin-tool-ralph` when explicitly enabled. Ralph remains disabled in shipped defaults. The engine rejects non-TypeScript coding providers when it loads. Python coding compositions must disable the `workflow-coding`, `tool-workflow` and any enabled `tool-ralph` rows.
 
 ### Minimal configuration
 
@@ -44,21 +44,21 @@ With those dependencies available, mount the engine and its model-facing consume
 | `maxItemsPerCall` | `4096` | Items accepted by one `parallel()` or `pipeline()` call. |
 | `syncTimeoutMs` | `5000` | VM timeout for the script's initial synchronous slice, in milliseconds. |
 
-An owning consumer may set `WorkflowStartRequest.subagentProvider` and lower `WorkflowStartRequest.maxTotalAgents` for one run. Script hooks cannot change either choice. Process heap, output, control and termination limits belong to the Node PTC provider; the engine adds no overall elapsed timer. The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentworkflow-coding) defines accepted engine fields.
+An owning consumer may set `WorkflowStartRequest.subagentProvider` and lower `WorkflowStartRequest.maxTotalAgents` for one run. Script hooks cannot change either choice. Process heap, output, control and termination limits belong to the Node coding provider; the engine adds no overall elapsed timer. The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentworkflow-coding) defines accepted engine fields.
 
-The Node PTC provider's `maxPendingCalls` also limits workflow concurrency: child startup, result waits and disposal use those slots. Progress batches use at most one additional slot. Leave headroom when setting `maxConcurrentAgents`.
+The Node coding provider's `maxPendingCalls` also limits workflow concurrency: child startup, result waits and disposal use those slots. Progress batches use at most one additional slot. Leave headroom when setting `maxConcurrentAgents`.
 
 ### Results and failures
 
 The script runs with top-level `await`; `meta` and `args` arrive as JSON data. Every `agent()` call uses the configured subagent provider and the run's fixed parent. The final lossless-JSON return value becomes the run result; an ordinary child failure resolves `agent()` to `null`.
 
-Invalid metadata, an unparseable body, an unavailable provider route or a per-run cap above the ceiling is rejected before a run is published. During execution, hook misuse and tripped cooperative caps fail the workflow. Process failures, unavailable required confinement and PTC output or control limits also fail the run.
+Invalid metadata, an unparseable body, an unavailable provider route or a per-run cap above the ceiling is rejected before a run is published. During execution, hook misuse and tripped cooperative caps fail the workflow. Process failures, unavailable required confinement and coding output or control limits also fail the run.
 
 ### File policy and cancellation
 
-The engine resolves the calling Session's standing file policy and cwd for PTC execution. The VM retains the documented helper API, but it is not a security boundary: code that reaches Node remains subject to the selected OS file policy. The program-visible environment is empty. Network access is not restricted by the file policy.
+The engine resolves the calling Session's standing file policy and cwd for coding-mode execution. The VM retains the documented helper API, but it is not a security boundary: code that reaches Node remains subject to the selected OS file policy. The program-visible environment is empty. Network access is not restricted by the file policy.
 
-The workflow requests `timeoutMs: null` from PTC. Its initial VM slice still has `syncTimeoutMs`, and a caller's abort signal still applies, including an enclosing tool deadline. Cancellation immediately aborts the PTC process and pending or active subagents. The caller must dispose every run and await child cleanup; there is no separate workflow cleanup timer.
+The workflow requests `timeoutMs: null` from coding. Its initial VM slice still has `syncTimeoutMs`, and a caller's abort signal still applies, including an enclosing tool deadline. Cancellation immediately aborts coding-mode process and pending or active subagents. The caller must dispose every run and await child cleanup; there is no separate workflow cleanup timer.
 
 -----
 
@@ -68,19 +68,19 @@ The workflow requests `timeoutMs: null` from PTC. Its initial VM slice still has
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The workflow engine owns orchestration; the PTC provider owns process launch, OS confinement, framed transport and managed process cleanup.
+The workflow engine owns orchestration; coding-mode provider owns process launch, OS confinement, framed transport and managed process cleanup.
 
 ### Design concept
 
-One self-contained guest program runs the existing VM and workflow helpers inside a PTC Node process. Host bindings connect that program to `ctx.subagents` and workflow observers. The engine captures the runtime and subagent services when a run starts, so an accepted run retains its dependencies through engine unload.
+One self-contained guest program runs the existing VM and workflow helpers inside a coding Node process. Host bindings connect that program to `ctx.subagents` and workflow observers. The engine captures the runtime and subagent services when a run starts, so an accepted run retains its dependencies through engine unload.
 
 ### Source map
 
 | File | Role |
 |---|---|
 | [`src/index.ts`](src/index.ts) | Engine configuration, request validation and run creation |
-| [`src/host.ts`](src/host.ts) | PTC execution, child ownership, settlement and disposal |
-| [`src/guest.ts`](src/guest.ts) | Guest adapter over PTC host bindings |
+| [`src/host.ts`](src/host.ts) | coding-mode execution, child ownership, settlement and disposal |
+| [`src/guest.ts`](src/guest.ts) | Guest adapter over coding host bindings |
 | [`src/guest-source.ts`](src/guest-source.ts) | Self-contained guest program source |
 | [`src/runtime.ts`](src/runtime.ts) | VM evaluation, helper contracts and combinators |
 | [`src/realm.ts`](src/realm.ts) | Lossless-JSON materialization across VM realms |
@@ -88,9 +88,9 @@ One self-contained guest program runs the existing VM and workflow helpers insid
 
 ### Values and child ownership
 
-The guest materializes outbound values as lossless JSON before PTC transport. Exotic prototypes, functions, symbols, cycles, sparse arrays, non-finite numbers and nested `undefined` are rejected. Child results cross back as JSON; same-process observer events retain their own cloning and callback-containment rules.
+The guest materializes outbound values as lossless JSON before coding transport. Exotic prototypes, functions, symbols, cycles, sparse arrays, non-finite numbers and nested `undefined` are rejected. Child results cross back as JSON; same-process observer events retain their own cloning and callback-containment rules.
 
-The host tracks pending provider starts separately from published children. A shared abort signal closes both paths; a child that becomes ready after cancellation is disposed. Each published child's disposal is shared by all cleanup paths. In-flight host bindings remain the workflow adapter's responsibility after PTC stops the program.
+The host tracks pending provider starts separately from published children. A shared abort signal closes both paths; a child that becomes ready after cancellation is disposed. Each published child's disposal is shared by all cleanup paths. In-flight host bindings remain the workflow adapter's responsibility after coding stops the program.
 
 ### Cancellation and outcomes
 
@@ -107,7 +107,7 @@ Use these references for the shared execution guarantees and workflow contracts.
 
 - [Workflow subsystem](../../../docs/subsystems/workflow.md) — request, result and event definitions.
 - [Workflow service](../workflow/README.md) — caller-owned runs and cleanup.
-- [Node PTC runtime](../../coding-runtime/coding-runtime-node/README.md) — file policy, process limits and deployment choices.
+- [Node coding runtime](../../coding-runtime/coding-runtime-node/README.md) — file policy, process limits and deployment choices.
 - [workflow tool](../tool-workflow/README.md) — model-facing scripted orchestration.
 - [Ralph tool](../../experimental/tool-ralph/README.md) — opt-in fixed fresh-agent iteration.
 - [Workflow sandbox reuse](../../../.agents/notes/implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.md) — execution ownership and tradeoffs.
@@ -135,11 +135,11 @@ Independent of the parent request cache and of sibling children. Each child can 
 
 #### What the model sees
 
-The tool consumer presents the final JSON value and child count, or a workflow failure. Intermediate child outputs remain available to the script. Script parsing, helper misuse, child infrastructure failures and PTC execution failures produce errors; ordinary child failure produces `null` for the script to handle.
+The tool consumer presents the final JSON value and child count, or a workflow failure. Intermediate child outputs remain available to the script. Script parsing, helper misuse, child infrastructure failures and coding-mode execution failures produce errors; ordinary child failure produces `null` for the script to handle.
 
 #### Token effect
 
-The engine adds no direct parent tokens. PTC bounds the outer program result, and the tool consumer owns its model-facing rendering and retention.
+The engine adds no direct parent tokens. coding bounds the outer program result, and the tool consumer owns its model-facing rendering and retention.
 
 #### KV Cache effect
 
@@ -151,7 +151,7 @@ Append-only; newly visible content follows the reusable request prefix.
 
 These limits qualify workflow execution and cleanup.
 
-- **File confinement and cleanup inherit provider limits** — the Node PTC and subprocess providers define enforcement completeness and the managed process range.
+- **File confinement and cleanup inherit provider limits** — the Node coding and subprocess providers define enforcement completeness and the managed process range.
 - **Workflow caps are cooperative** — helper counters limit ordinary scripts; they are not host-enforced security quotas or descendant token budgets.
 - **No overall elapsed deadline** — a run can remain active until it completes, fails or is cancelled. Caller deadlines still apply.
 - **Child cleanup follows provider contracts** — the adapter awaits disposal and pending starts without a separate abandonment timer.

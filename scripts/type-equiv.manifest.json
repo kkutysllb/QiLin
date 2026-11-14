@@ -928,7 +928,7 @@
     },
     {
       "doc": "docs/subsystems/tools.md",
-      "symbol": "PtcDispatchLog",
+      "symbol": "CodingDispatchLog",
       "source": "packages/core/tools/src/index.ts"
     },
     {
@@ -1263,37 +1263,37 @@
     },
     {
       "doc": "docs/subsystems/coding-runtime.md",
-      "symbol": "PtcJsonValue",
+      "symbol": "CodingJsonValue",
       "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
       "doc": "docs/subsystems/coding-runtime.md",
-      "symbol": "PtcRunRequest",
+      "symbol": "CodingRunRequest",
       "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
       "doc": "docs/subsystems/coding-runtime.md",
-      "symbol": "PtcRunResult",
+      "symbol": "CodingRunResult",
       "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
       "doc": "docs/subsystems/coding-runtime.md",
-      "symbol": "PtcBindingNamespace",
+      "symbol": "CodingBindingNamespace",
       "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
       "doc": "docs/subsystems/coding-runtime.md",
-      "symbol": "PtcBindingErrorClass",
+      "symbol": "CodingBindingErrorClass",
       "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
       "doc": "docs/subsystems/coding-runtime.md",
-      "symbol": "PtcBindingFunction",
+      "symbol": "CodingBindingFunction",
       "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
       "doc": "docs/subsystems/coding-runtime.md",
-      "symbol": "PtcRunFailure",
+      "symbol": "CodingRunFailure",
       "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
@@ -2263,12 +2263,12 @@
     },
     {
       "doc": "docs/subsystems/coding-runtime.md",
-      "symbol": "PtcRunSpec",
+      "symbol": "CodingRunSpec",
       "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {
       "doc": "docs/subsystems/coding-runtime.md",
-      "symbol": "PtcRunSandbox",
+      "symbol": "CodingRunSandbox",
       "source": "packages/coding-runtime/coding-runtime/src/types.ts"
     },
     {

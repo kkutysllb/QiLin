@@ -168,7 +168,7 @@ describe('DeepSeekHarness', () => {
     expect(closed).toBe(true)
   })
 
-  it('preserves Auto review denial details in native and PTC session events', async () => {
+  it('preserves Auto review denial details in native and coding session events', async () => {
     const receipt = {
       type: 'agent/inbox/spliced',
       data: {

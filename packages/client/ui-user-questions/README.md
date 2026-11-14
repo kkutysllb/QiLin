@@ -33,7 +33,7 @@ A multi-select draft keeps its selected labels while the user opens or edits the
 
 ### Reading a settled question back
 
-Each answered batch appears once as a right-aligned user-style bubble after its answer is recorded, for native and PTC blocking questions and for late replies. The bubble lists every question above its selected choices and custom answer, omits question detail and unselected options, and stays visible while process groups or the containing Turn are folded; a late reply admitted after the opening step keeps its Turn open. Unanswered questions stay in the question card and its tool row. The bubble has no disclosure control, and its copy action writes each question with the answer the user gave.
+Each answered batch appears once as a right-aligned user-style bubble after its answer is recorded, for native and coding blocking questions and for late replies. The bubble lists every question above its selected choices and custom answer, omits question detail and unselected options, and stays visible while process groups or the containing Turn are folded; a late reply admitted after the opening step keeps its Turn open. Unanswered questions stay in the question card and its tool row. The bubble has no disclosure control, and its copy action writes each question with the answer the user gave.
 
 ### The plan-review card
 

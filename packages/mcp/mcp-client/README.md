@@ -130,7 +130,7 @@ The SDK receives tool-list changes through legacy notifications or a modern subs
 
 ### Tool execution internals
 
-A tool call uses the SDK with the raw name, complete tool definition, JSON arguments, abort signal, and configured timeout. The SDK owns protocol validation, advertised output-schema validation, and modern request headers. Canonical success is `{ content: JsonValue[], structuredContent? }`, preserving valid MCP JSON blocks for programmatic and PTC mode callers. An MCP `isError` result throws before image persistence. The bridge validates each image batch before saving it; a refusal projects every image as diagnostic text. For a server that does not advertise `resources`, resource and template lists return empty pages without calling the SDK, whose fallback writes a diagnostic to stdout, where the ACP profile carries JSON-RPC.
+A tool call uses the SDK with the raw name, complete tool definition, JSON arguments, abort signal, and configured timeout. The SDK owns protocol validation, advertised output-schema validation, and modern request headers. Canonical success is `{ content: JsonValue[], structuredContent? }`, preserving valid MCP JSON blocks for programmatic and coding mode callers. An MCP `isError` result throws before image persistence. The bridge validates each image batch before saving it; a refusal projects every image as diagnostic text. For a server that does not advertise `resources`, resource and template lists return empty pages without calling the SDK, whose fallback writes a diagnostic to stdout, where the ACP profile carries JSON-RPC.
 
 ### Environment scrubbing (stdio)
 
@@ -174,7 +174,7 @@ The tool-definition prefix stays stable while the discovered set and schemas are
 
 #### What the model sees
 
-The public tool name and JSON arguments remain in assistant history. The canonical value retains the complete MCP JSON blocks and optional structured content for programmatic and PTC mode callers; supported image blocks project beside text in their original order after exact route-capability proof. Refused images, audio, embedded resources, resource links, and unknown blocks remain visible as bounded text diagnostics, and MCP `isError` rejects the call before image persistence.
+The public tool name and JSON arguments remain in assistant history. The canonical value retains the complete MCP JSON blocks and optional structured content for programmatic and coding mode callers; supported image blocks project beside text in their original order after exact route-capability proof. Refused images, audio, embedded resources, resource links, and unknown blocks remain visible as bounded text diagnostics, and MCP `isError` rejects the call before image persistence.
 
 #### Token effect
 

@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 const pkgDir = fileURLToPath(new URL('..', import.meta.url))
 const built = ['lib/index.js', 'lib/persistent-process.js'].every(file => existsSync(join(pkgDir, file)))
 
-describe.skipIf(!built)('persistent PTC published exports', () => {
+describe.skipIf(!built)('persistent coding published exports', () => {
   it('retains variables through the built provider and sibling process entry', async () => {
     const script = `
       const { Context } = await import('@qilin-agent/kylin')

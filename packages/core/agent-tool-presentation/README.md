@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use `qilin-agent-tool-presentation` in an [agent preset](../../preset/agent-presets/README.md) to fix whether models see every native tool schema, only `run_code` with a generated SDK, or both forms. Each preset can choose independently, so native and PTC agents can share one process without sharing tool catalogs. Selecting `ptc` or `both` requires a compatible PTC runtime; a deployment without one rejects the preset at mount time before its first prompt. The `mode` field is required when this package is present, while omitting the package keeps the deployment default.
+Use `qilin-agent-tool-presentation` in an [agent preset](../../preset/agent-presets/README.md) to fix whether models see every native tool schema, only `run_code` with a generated SDK, or both forms. Each preset can choose independently, so native and coding agents can share one process without sharing tool catalogs. Selecting `coding` or `both` requires a compatible coding runtime; a deployment without one rejects the preset at mount time before its first prompt. The `mode` field is required when this package is present, while omitting the package keeps the deployment default.
 
 ## Table of Contents
 
@@ -25,25 +25,25 @@ Use `qilin-agent-tool-presentation` in an [agent preset](../../preset/agent-pres
 <a id="use-this-package"></a>
 ## Use this package
 
-Add this row to an agent preset to fix how every agent joined to that preset sees its tools. `native` presents each visible tool schema as a function definition; `ptc` presents only the `run_code` transport plus a generated SDK and the rule that only `run_code` may be called directly; `both` presents both forms. Agents that declare nothing get the deployment-wide `mode` on the [`qilin-tools`](../tools/README.md) row.
+Add this row to an agent preset to fix how every agent joined to that preset sees its tools. `native` presents each visible tool schema as a function definition; `coding` presents only the `run_code` transport plus a generated SDK and the rule that only `run_code` may be called directly; `both` presents both forms. Agents that declare nothing get the deployment-wide `mode` on the [`qilin-tools`](../tools/README.md) row.
 
 ### Add the row to a preset
 
 ```yaml
 - name: '@qilin-agent/agent-tool-presentation'
   config:
-    mode: ptc
+    mode: coding
 ```
 
 | Field | Default | Meaning |
 |---|---|---|
-| `mode` | required | `native` — every schema; `ptc` — `run_code` plus generated SDK; `both` — both forms |
+| `mode` | required | `native` — every schema; `coding` — `run_code` plus generated SDK; `both` — both forms |
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentagent-tool-presentation) is the exhaustive source for every accepted field. `mode` is required rather than defaulted because a preset without this row inherits the deployment default.
 
-### What PTC mode requires
+### What coding mode requires
 
-Selecting `ptc` or `both` needs a composed PTC runtime (`ctx.codingRuntime`) whose language has a registered SDK renderer — the TypeScript runtime ships via [`qilin-coding-runtime-node`](../../coding-runtime/coding-runtime-node/README.md), and both the TypeScript and Python SDK renderers are built into `qilin-tools`. A preset that selects a PTC mode against a deployment composing no such runtime refuses to mount, naming this row, so the failure lands where the operator can act instead of at the session's first request.
+Selecting `coding` or `both` needs a composed coding runtime (`ctx.codingRuntime`) whose language has a registered SDK renderer — the TypeScript runtime ships via [`qilin-coding-runtime-node`](../../coding-runtime/coding-runtime-node/README.md), and both the TypeScript and Python SDK renderers are built into `qilin-tools`. A preset that selects a coding mode against a deployment composing no such runtime refuses to mount, naming this row, so the failure lands where the operator can act instead of at the session's first request.
 
 ### One presentation per agent
 
@@ -61,7 +61,7 @@ This section explains how the package realizes the behavior above; the observabl
 
 ### Design concept
 
-The tool registry cannot move into a preset: its consumers are all host-plane — the agent loop reads its scheduler, the API proxy reads its presenters, and every tool plugin registers into it — and a service only moves down when all of its consumers move with it. What a preset can own is the presentation of that registry. `ctx.tools.presentAs()` declares it for the mounting scope, which is the preset's standing mount, so the declaration covers every agent joined to that preset and a PTC mode preset runs beside native ones in one process. One row per composition, not one per session.
+The tool registry cannot move into a preset: its consumers are all host-plane — the agent loop reads its scheduler, the API proxy reads its presenters, and every tool plugin registers into it — and a service only moves down when all of its consumers move with it. What a preset can own is the presentation of that registry. `ctx.tools.presentAs()` declares it for the mounting scope, which is the preset's standing mount, so the declaration covers every agent joined to that preset and a coding mode preset runs beside native ones in one process. One row per composition, not one per session.
 
 ### Source map
 
@@ -71,7 +71,7 @@ The tool registry cannot move into a preset: its consumers are all host-plane �
 
 ### Behavior notes
 
-`native` applies immediately. A PTC mode instead waits for `ctx.codingRuntime`, a host-plane service: a preset selecting PTC mode against a deployment composing no runtime holds this row pending, and `qilin-agent-presets` refuses the mount naming this id. `presentAs` is itself the effect, so the declaration unwinds with this row without a second wrapper owning it.
+`native` applies immediately. A coding mode instead waits for `ctx.codingRuntime`, a host-plane service: a preset selecting coding mode against a deployment composing no runtime holds this row pending, and `qilin-agent-presets` refuses the mount naming this id. `presentAs` is itself the effect, so the declaration unwinds with this row without a second wrapper owning it.
 
 </details>
 
@@ -84,8 +84,8 @@ The package-level contract is enough for most consumers; read these when you nee
 
 - [tools package](../tools/README.md) — the tool presentation modes and `presentAs` API.
 - [agent-presets package](../../preset/agent-presets/README.md) — how presets compose agents and their standing mounts.
-- [Node coding-runtime package](../../coding-runtime/coding-runtime-node/README.md) — the TypeScript runtime a PTC mode needs.
-- [PTC mode executor-collapse note](../../../.agents/notes/implemented/bug-fix/2026-08-07-ptc-executor-collapse.md) — why the announced and callable surfaces stay the same.
+- [Node coding-runtime package](../../coding-runtime/coding-runtime-node/README.md) — the TypeScript runtime a coding mode needs.
+- [coding mode executor-collapse note](../../../.agents/notes/implemented/bug-fix/2026-08-07-ptc-executor-collapse.md) — why the announced and callable surfaces stay the same.
 - [Core group map](../README.md) — how the core packages compose.
 
 -----
@@ -106,7 +106,7 @@ No direct invalidation; the presentation is fixed when the agent is composed, so
 
 These limits define when this row needs special care. They are current package constraints, not a task backlog.
 
-- **The runtime stays host-plane** — a preset can select PTC mode but cannot supply the TypeScript runtime it needs; a deployment that composes none can compose no PTC preset.
+- **The runtime stays host-plane** — a preset can select coding mode but cannot supply the TypeScript runtime it needs; a deployment that composes none can compose no coding preset.
 
 <a id="dev-note"></a>
 ### Dev Note

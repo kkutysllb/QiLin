@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-检查应用、跨 PTC 调用保留窗口对象，并通过正常工具执行链发送动作。平台提供方负责原生执行；本库负责对象 API、请求校验、应用授权和图像接纳。变量持久性由外部 PTC 运行时负责。
+检查应用、跨 coding 调用保留窗口对象，并通过正常工具执行链发送动作。平台提供方负责原生执行；本库负责对象 API、请求校验、应用授权和图像接纳。变量持久性由外部 coding 运行时负责。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-library"
 <a id="use-this-package"></a>
 ## 使用本包
 
-挂载 [macOS 提供方](../cua-macos/README.zh.md)以启用原生操作。本库为 opt-in：随附的 bundle 与预设不会挂载它，它本身也不包含平台实现。外部 PTC 宿主从 `@qilin-agent/experimental-cua/bridge` 导入 `connectCua`，并提供当前 `tools.cua` 绑定。源码组合与原生组件准备由提供方负责。
+挂载 [macOS 提供方](../cua-macos/README.zh.md)以启用原生操作。本库为 opt-in：随附的 bundle 与预设不会挂载它，它本身也不包含平台实现。外部 coding 宿主从 `@qilin-agent/experimental-cua/bridge` 导入 `connectCua`，并提供当前 `tools.cua` 绑定。源码组合与原生组件准备由提供方负责。
 
 单窗口任务直接使用 App 方法。`getApp` 读取初始辅助功能状态；需要指定窗口时使用 `getWindows` 和 `getWindow`。重新读取一个应用或窗口范围会替换其中的元素编号，不使其他窗口的快照失效。键盘输入跟随应用焦点。请求参数校验失败时，在分派前返回包含方法、参数和要求的可读消息。
 

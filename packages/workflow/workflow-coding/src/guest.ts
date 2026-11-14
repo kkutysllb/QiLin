@@ -1,4 +1,4 @@
-/** Executes one workflow VM inside the mounted PTC runtime's Node process. */
+/** Executes one workflow VM inside the mounted coding runtime's Node process. */
 
 import type { WorkflowResult } from '@qilin-agent/workflow'
 import type { WorkflowGuestHost, WorkflowProgress } from './guest-types.ts'
@@ -9,7 +9,7 @@ import type { ChildPort } from './types.ts'
 
 /**
  * Run a workflow with one progress batch in flight. Drain progress before child
- * disposal and the terminal result; PTC and the host own cancellation and cleanup.
+ * disposal and the terminal result; coding and the host own cancellation and cleanup.
  * @param host - JSON callbacks owned by this workflow run.
  * @returns The script result after progress delivery; initialization failures reject.
  */

@@ -80,7 +80,7 @@ The package separates the script, run, result, and event contracts from executio
 
 ### Lifecycle and ownership
 
-A run is holder-owned: engine-plugin unload prevents new starts but does not revoke accepted runs, and the caller must dispose every run it starts. `dispose()` cancels if needed and awaits script and child cleanup. The PTC engine aborts its managed process immediately; child disposal still follows each subagent provider's lifecycle contract.
+A run is holder-owned: engine-plugin unload prevents new starts but does not revoke accepted runs, and the caller must dispose every run it starts. `dispose()` cancels if needed and awaits script and child cleanup. The coding engine aborts its managed process immediately; child disposal still follows each subagent provider's lifecycle contract.
 
 `workflow/start` and `workflow/end` pair the run; `workflow/phase` and `workflow/log` carry script narration; `workflow/agent-start` and `workflow/agent-end` pair each child call by `seq`. Every listener is independently contained: a throwing listener is logged without starving peers or changing execution, and each receives its own payload clone.
 
@@ -102,7 +102,7 @@ Read these pages when the package-level contract is not enough. They move from t
 - [Workflow subsystem](../../../docs/subsystems/workflow.md) — the full type vocabulary, start request, and event payloads.
 - [Group map](../README.md) — the workflow capability family and its packages.
 - [workflow tool](../tool-workflow/README.md) — the model-facing consumer that owns the call schema and result envelope.
-- [PTC workflow engine](../workflow-coding/README.md) — the current execution engine and its isolation boundary.
+- [coding workflow engine](../workflow-coding/README.md) — the current execution engine and its isolation boundary.
 - [Dynamic workflows Agent Note](../../../.agents/notes/implemented/feature/2026-07-05-dynamic-workflows.md) — the seam design and its decisions.
 
 -----

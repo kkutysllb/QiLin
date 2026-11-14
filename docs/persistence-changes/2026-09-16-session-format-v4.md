@@ -87,7 +87,7 @@ changes:
 <a id="compatibility"></a>
 ## Compatibility
 
-The tool-role declaration changes ten event roots because inbox entries, message events, compaction summaries, title requests, team messages, and PTC dispatches embed the shared `Message` or `ContentBlock` declarations. Removing `tool-result` from that union and specializing message roles changes those reachable schemas without adding ten independent event protocols. The `turn/end` change separately records the forked reason; `SessionHeader` records the version increase.
+The tool-role declaration changes ten event roots because inbox entries, message events, compaction summaries, title requests, team messages, and coding dispatches embed the shared `Message` or `ContentBlock` declarations. Removing `tool-result` from that union and specializing message roles changes those reachable schemas without adding ten independent event protocols. The `turn/end` change separately records the forked reason; `SessionHeader` records the version increase.
 
 The [native V4 validation decision](../../.agents/notes/implemented/architecture/2026-09-17-native-v4-read-validation.md) owns the reader admission required by these current fields.
 
@@ -101,7 +101,7 @@ The core-owned user source property records the attribution-preservation policy;
 
 Developer events retain their original role and require an open step. Each addition stores toolName; developer/message.headerSeq identifies an earlier known request/header containing exactly one complete matching ToolSchema. All additions in one event share that historical header revision, while removal-only and other developer messages omit headerSeq. Native and Session admission reject absent, forward, non-header, unknown-header, ambiguous, incomplete-definition and retired inline-definition forms without interpreting unknown ignorable records or dropping unrelated JSON metadata. Same-name replacement, restart, fork, surface replacement and compaction retain historical schema identity without consulting the latest header or registry. Generic sourceEventSeqs remains independent. Developer sources use the same recorded attribution-preservation policy as user sources. The optional deferLoading marker is independent of addition history. No shipped profile emits developer records; provider serialization, automatic emission and UI support remain deferred.
 
-The PTC producer writes `source.kind: 'ptc-mode'`. The V3-to-V4 edge retains `tools-code-mode` and `tools-ptc` as historical plugin lookup keys and maps both to that current kind. The source policy reserves `ptc-mode` against attribution-only qualification.
+The coding producer writes `source.kind: 'ptc-mode'`. The V3-to-V4 edge retains `tools-code-mode` and `tools-ptc` as historical plugin lookup keys and maps both to that current kind. The source policy reserves `ptc-mode` against attribution-only qualification.
 
 <a id="verification"></a>
 ## Verification

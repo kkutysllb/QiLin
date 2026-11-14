@@ -162,7 +162,7 @@ async function mount(ctx: Context, workspace: string, qilinHome: string): Promis
 
 /**
  * Present one test Agent's tools natively. The mounted registry defaults to
- * PTC presentation, where the model sees only `run_code`; the native cases
+ * coding-mode presentation, where the model sees only `run_code`; the native cases
  * drive the same tools through their own visible schemas.
  */
 function presentNatively(agent: Agent): void {

@@ -1,5 +1,5 @@
 ---
-description: "CPython-subprocess PTC runtime: the qilin-coding-runtime seam implementation for Python model code, with the fd-3 wire protocol it speaks."
+description: "CPython-subprocess coding runtime: the qilin-coding-runtime seam implementation for Python model code, with the fd-3 wire protocol it speaks."
 kind: "package-reference"
 ---
 
@@ -25,7 +25,7 @@ This experimental package lets explicit compositions run model-generated Python 
 <a id="use-this-package"></a>
 ## Use this package
 
-Choose this published experimental package only in an explicit composition. Register `PythonPtcRuntime` beside `qilin-tools`; `run(resolve(request))` executes each program in a fresh CPython 3.10+ subprocess, resolving with `result.value` on success and `result.error` on failure (the orthogonal `PtcRunFailure.kind` taxonomy classifies parse failures, thrown exceptions, invalid completions, output overflows, budget expiry, aborts, and substrate death). It rejects only for seam misuse — a malformed binding namespace, or a call after disposal. Configuration is rejected at load: a non-Unix platform; an explicit `pythonBin` that is not an executable regular file or a bare name that does not resolve on `PATH`; a non-CPython, pre-3.10, or probe-failing interpreter; a non-positive or non-integer budget; a `maxLogBytes` below the truncation-marker floor (64); a timer value `setTimeout` would clamp; a budget larger than the effective fd-3 frame cap (lowered when the host heap cannot safely parse a near-cap frame); or an `addressSpaceMb`/output-budget pair whose worst-case peak would breach `RLIMIT_AS`.
+Choose this published experimental package only in an explicit composition. Register `PythonPtcRuntime` beside `qilin-tools`; `run(resolve(request))` executes each program in a fresh CPython 3.10+ subprocess, resolving with `result.value` on success and `result.error` on failure (the orthogonal `CodingRunFailure.kind` taxonomy classifies parse failures, thrown exceptions, invalid completions, output overflows, budget expiry, aborts, and substrate death). It rejects only for seam misuse — a malformed binding namespace, or a call after disposal. Configuration is rejected at load: a non-Unix platform; an explicit `pythonBin` that is not an executable regular file or a bare name that does not resolve on `PATH`; a non-CPython, pre-3.10, or probe-failing interpreter; a non-positive or non-integer budget; a `maxLogBytes` below the truncation-marker floor (64); a timer value `setTimeout` would clamp; a budget larger than the effective fd-3 frame cap (lowered when the host heap cannot safely parse a near-cap frame); or an `addressSpaceMb`/output-budget pair whose worst-case peak would breach `RLIMIT_AS`.
 
 `resolve(request)` accepts an absolute `cwd` and uses the provider's configured `maxWallMs` deadline (600,000 ms by default). An explicit `sandboxPolicy` is trusted authority for that call; without one the provider resolves the deployment's policy, and `resolve(request).sandboxPolicy` is always present. Explicit `timeoutMs` overrides are unsupported and reject before execution. The provider advertises `sandboxMode` and returns `result.sandbox` with the policy's mode, whether the program's own failure text matched a backend denial signature, and the selected backend's enforcement completeness.
 
@@ -87,18 +87,18 @@ Completion values and binding arguments cross as exact JSON: values serialize wi
 
 Read these when the runtime contract is not enough. They move from the seam definition to the design record and the companion backend.
 
-- [PTC runtime seam](../../coding-runtime/coding-runtime/README.md) — the abstract contract this backend implements.
+- [coding runtime seam](../../coding-runtime/coding-runtime/README.md) — the abstract contract this backend implements.
 - [fd-3 protocol Agent Note](../../../.agents/notes/implemented/architecture/2026-07-31-ptc-runtime-python-fd3-protocol.md) — design rationale and wire contract.
 - [Settlement-fixes Agent Note](../../../.agents/notes/archived/bug-fix/2026-07-31-code-runtime-python-settlement-fixes.md) — settlement, metering, and containment fixes and their regression cases.
 - [Node process backend](../../coding-runtime/coding-runtime-node/README.md) — the released TypeScript sibling.
-- [PTC runtime subsystem reference](../../../docs/subsystems/coding-runtime.md) — request/result vocabulary, bindings, and failure taxonomy.
+- [coding runtime subsystem reference](../../../docs/subsystems/coding-runtime.md) — request/result vocabulary, bindings, and failure taxonomy.
 
 -----
 
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through PTC mode in `qilin-tools` when an explicit composition mounts this provider; it renders the program's completion value or failure into a retained `run_code` result, and no shipped profile mounts this experimental package.
+Indirectly, through coding mode in `qilin-tools` when an explicit composition mounts this provider; it renders the program's completion value or failure into a retained `run_code` result, and no shipped profile mounts this experimental package.
 
 #### KV Cache effect
 
@@ -115,12 +115,12 @@ These limits define what the package does and does not cover; they are current p
 - **A descendant that escapes the child's process group with `setsid()` is not reaped by the group teardown** — `kill(-pid)` cannot reach it; the run still settles on the value the done frame decided, and the close-deadline backstop forces settlement if the orphan holds the pipes open, but the orphan itself outlives the fiber until it exits on its own.
 - **A `log` frame that arrives after settlement is dropped** — once the run has settled, host-side capture is closed; a late fd-3 `log` frame (from a thread that outlived the done frame) is discarded rather than appended to `logs`.
 - **A binding REPLY value has no seam-level byte or depth cap** — `maxValueBytes` meters only the done frame's completion value; a wide binding reply is rebuilt host-side (`snapshotJsonValue` traversal) and encoded whole, bounded on both sides only by process memory (like a binding argument, which has no child-side budget either).
-- **No shipped profile mounts this provider** — the keyless `ptc-python-turn` snapshot replaces the headless PTC runtime through the real Loader; released profiles use the sandboxed Node process backend.
+- **No shipped profile mounts this provider** — the keyless `ptc-python-turn` snapshot replaces the headless coding runtime through the real Loader; released profiles use the sandboxed Node process backend.
 - **Workflow execution requires Node** — compositions using this Python provider disable `workflow-coding`, `tool-workflow`, and `tool-ralph`; the workflow provider rejects an incompatible runtime when loaded.
 - **Cross-channel log interleaving is backend-dependent** — Python stdout, stderr, and fd-3 log frames travel independently; each channel preserves its own order, while their total order in `result.logs` may differ.
 - **CPython 3.10 or newer is required** — the configured executable is resolved and version-probed at load; unsupported interpreters fail before `ctx.codingRuntime` is registered.
 - **Diagnostic and temporary-directory prefixes omit the package's experimental qualifier** — the marker `[qilin-coding-runtime-python] log capture truncated at <N> bytes` and the `qilin-coding-runtime-python-` directory prefix identify this provider independently of its npm package name. The protocol mirror verifies identical marker bytes in TypeScript and Python.
-- **`run()` is one-shot** — `logs` become available only after `PtcRunResult` resolves; there is no streaming-log or progress interface for output produced by a running program.
+- **`run()` is one-shot** — `logs` become available only after `CodingRunResult` resolves; there is no streaming-log or progress interface for output produced by a running program.
 - **No state persists across runs** — every request executes in a fresh subprocess; a persistent REPL-style kernel stays deferred until a backend brings its own logging scheme.
 - **An fd-3 frame whose raw length exceeds the effective frame parse cap settles the run as a worker-exit** — the cap is 64 MiB, or lower when the host's configured heap cannot safely parse a near-cap frame (`hostFrameParseCeiling`); `maxLogBytes`/`maxValueBytes` are load-bounded to the same cap so an honest child's frames always fit; a model-constructed binding ARGUMENT above the cap (a value with no seam-level budget) trips it too — an accepted residual of the OOM guard.
 - **A child that stops reading its replies settles the run as a worker-exit once the reply backlog passes 1024 frames** — the host writes replies one at a time, waiting for `drain` when the pipe is full; a child that keeps sending calls without consuming replies would otherwise grow the retained backlog (and the binding results it pins) until the wall clock, so the backlog cap fails the run early. Binding results carry no seam-level byte cap, so this is a count bound, not a byte bound.

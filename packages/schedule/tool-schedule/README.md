@@ -25,7 +25,7 @@ Use `@qilin-agent/tool-schedule` to let an agent create, list, view, update, and
 <a id="use-this-package"></a>
 ## Use this package
 
-Add the row below to a preset's plugin list when that preset's agents should manage scheduled tasks. The shipped Web `standard`, `cordis`, and `ptc` presets mount it; `minimal` does not.
+Add the row below to a preset's plugin list when that preset's agents should manage scheduled tasks. The shipped Web `standard`, `cordis`, and `coding` presets mount it; `minimal` does not.
 
 ### When to choose it
 
@@ -60,7 +60,7 @@ The package declares no `Config` fields. It injects `ctx.tools` and `ctx.systemP
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The plugin registers four `defineTool` definitions and one `tool:schedule` system-prompt section in the scope that resolves `ctx.schedule`, so a preset mount decides visibility and Cordis effect ownership disposes them with the mount. The section is empty when neither `schedule_create` nor `schedule_edit` is visible through `ctx.tools.get()` in the requesting scope, including delegated scopes whose preset filters those tools. This lookup works for both Native and PTC presentation. Execution reads `exec.agent` for the acting Session. The delegation-depth guard runs first and the argument checks of `schedule_edit` run next, both before the service call. A `ScheduleInputError` keeps its code when the output schema of the tool declares that code, and every other failure becomes `internal_error`, so storage details never reach the model. Model content is the canonical JSON of the returned value, and the Host service owns persistence, scheduling, Session restoration, and delivery.
+The plugin registers four `defineTool` definitions and one `tool:schedule` system-prompt section in the scope that resolves `ctx.schedule`, so a preset mount decides visibility and Cordis effect ownership disposes them with the mount. The section is empty when neither `schedule_create` nor `schedule_edit` is visible through `ctx.tools.get()` in the requesting scope, including delegated scopes whose preset filters those tools. This lookup works for both Native and coding-mode presentation. Execution reads `exec.agent` for the acting Session. The delegation-depth guard runs first and the argument checks of `schedule_edit` run next, both before the service call. A `ScheduleInputError` keeps its code when the output schema of the tool declares that code, and every other failure becomes `internal_error`, so storage details never reach the model. Model content is the canonical JSON of the returned value, and the Host service owns persistence, scheduling, Session restoration, and delivery.
 
 ### Source map
 
@@ -100,7 +100,7 @@ Only create or modify scheduled tasks at the user's explicit request; prior expl
 
 #### Token effect
 
-One fixed sentence per assembled prompt in Native and PTC mode. Scopes that hide both mutation tools pay no cost for this section.
+One fixed sentence per assembled prompt in Native and coding mode. Scopes that hide both mutation tools pay no cost for this section.
 
 #### KV Cache effect
 

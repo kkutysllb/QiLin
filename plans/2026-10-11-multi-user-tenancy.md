@@ -323,7 +323,7 @@ P1 已落成常备测试：[tenant-isolation.expected.e2e.ts](../apps/cli/tests/
 |---|---|---|
 | 用令牌换来 cookie 后直接取应用文档 | shipped Web 组合默认开账户门，令牌只到登录面 | [hmr-live.e2e.ts](../apps/web/tests/hmr-live.e2e.ts) 的既有先例；未测账户门的车道按 accounts 行自述的部署逃生口挂 `enabled: false` |
 | 应用文档取 `/` | 站点根是落地页，应用文档在 `WEB_ENTRY_PATH`（`/workspace`） | 同目录 `web-default-isolation` 的既有写法 |
-| `session/create` 返回 `agentPreset: 'standard'`、fixture 挂 `'cordis'` 预设、sidebar-browser 行「resolved but disabled」 | shipped 预设只有 `ptc`（[web-app 行](../packages/bundle/web-app/cordis.patch.yml#L579)）；`ui-sidebar-browser` 行无 `disabled` | 实跑输出与 bundle 行 |
+| `session/create` 返回 `agentPreset: 'standard'`、fixture 挂 `'cordis'` 预设、sidebar-browser 行「resolved but disabled」 | shipped 预设只有 `coding`（[web-app 行](../packages/bundle/web-app/cordis.patch.yml#L579)）；`ui-sidebar-browser` 行无 `disabled` | 实跑输出与 bundle 行 |
 
 **剩余红项的处置（2026-10-11 实跑复验；截至第 11 轮只剩 `web-failure-matrix` 2 例）**：
 

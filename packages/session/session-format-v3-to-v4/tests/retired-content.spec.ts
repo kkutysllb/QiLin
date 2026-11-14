@@ -27,7 +27,7 @@ const cases: readonly { name: string; type: string; data: SessionFormatJsonObjec
   { name: 'title request', type: 'session/title-llm-request', data: { messages: [user] } },
   { name: 'compaction summary', type: 'compaction/summary', data: { summary: content } },
   { name: 'compaction raw output', type: 'compaction/summary', data: { summary: [], rawOutput: content } },
-  { name: 'PTC result', type: 'tool/ptc-dispatch', data: { content } },
+  { name: 'coding result', type: 'tool/ptc-dispatch', data: { content } },
   { name: 'team message', type: 'team/message/queued', data: { message: user } },
   ...['assistant/message', 'assistant/attempt'].flatMap(type => ['block-start', 'block-end'].map(kind => ({
     name: `${type} stream ${kind}`, type, data: {

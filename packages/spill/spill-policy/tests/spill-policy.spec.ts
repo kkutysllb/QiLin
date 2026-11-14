@@ -224,7 +224,7 @@ describe('oversized plain-text replacement', () => {
   })
 })
 
-describe('outer PTC mode failure capture', () => {
+describe('outer coding mode failure capture', () => {
   it('spills the bounded output-limit diagnostic through the ordinary outer-result policy', async () => {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)

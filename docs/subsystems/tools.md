@@ -157,7 +157,7 @@ Registration is a trusted same-process contract. The registry borrows the typed 
 ```ts type-equiv
 /**
  * Per-scope filter over global tools. Restrictions intersect and do not affect
- * scoped registrations or the reserved PTC mode transport.
+ * scoped registrations or the reserved coding mode transport.
  */
 interface ToolRestriction {
   /** Global tool names that stay visible; everything else is removed. */
@@ -190,14 +190,14 @@ interface ToolExecutionInput {
    */
   readonly rootCallId?: ToolCallId
   readonly name: string
-  /** Binding-time tool schema for a PTC inner call; frozen by its producer and never logged. */
+  /** Binding-time tool schema for a coding inner call; frozen by its producer and never logged. */
   readonly schema?: ToolSchema
   /** Losslessly JSON-serializable parsed arguments (tools validate their own schema). */
   readonly arguments: unknown
   /** The agent on whose behalf the call runs (set by the agent loop). */
   readonly agent?: Agent
   /**
-   * Opaque token of the enclosing transport execution, when one exists. PTC
+   * Opaque token of the enclosing transport execution, when one exists. coding
    * mode sets this on SDK sub-dispatches so commit-style observers can wait for
    * the outer `run_code` outcome without receiving its live mutable execution.
    * The token also marks the call as a transport sub-dispatch rather than a
@@ -254,7 +254,7 @@ type ToolExecutionMode =
   | { kind: 'exclusive' }
 ```
 
-PTC bindings freeze their ToolSchema at construction and pass it through the scheduler into `ToolExecution.schema`; it is transient execution metadata. Before policy, each actually started sub-dispatch records only pairing ids, name, and normalized arguments. Neither start nor settle events serialize description, parameters, or schema. The bridge later exposes the settled call to the `tools/ptc-dispatch-log` waterfall, which may change the durable content copy while preserving the program value, model-visible outer result, and structured failure identity:
+coding bindings freeze their ToolSchema at construction and pass it through the scheduler into `ToolExecution.schema`; it is transient execution metadata. Before policy, each actually started sub-dispatch records only pairing ids, name, and normalized arguments. Neither start nor settle events serialize description, parameters, or schema. The bridge later exposes the settled call to the `tools/ptc-dispatch-log` waterfall, which may change the durable content copy while preserving the program value, model-visible outer result, and structured failure identity:
 
 ```ts type-equiv
 /**
@@ -266,7 +266,7 @@ PTC bindings freeze their ToolSchema at construction and pass it through the sch
  * the structured `value` (or just the error message on failure); only the
  * `tool/ptc-dispatch` event's copy changes.
  */
-interface PtcDispatchLog {
+interface CodingDispatchLog {
   /** The outer `run_code` execution. */
   readonly exec: ToolExecution
   /** The calling agent (the scope routing key and the spill owner), when the outer call has one. */
@@ -504,7 +504,7 @@ Tool registry and execution pipeline. Scoped registrations shadow globals; one v
  * declaration covers every agent joined under it.
  *
  * Scoped only, and one declaration per scope: this is how an agent preset
- * composes PTC mode agents beside native ones in the same process, and a
+ * composes coding mode agents beside native ones in the same process, and a
  * process-global override would be the `mode` config field instead.
  * @param mode - the presentation the covered agents' models see.
  * @returns the exact disposer that restores the deployment default.
@@ -707,7 +707,7 @@ Allow a listener to replace content in the DURABLE LOG COPY of one `run_code` su
  * @param dispatch - the parent execution, sub-call identity, and the settled content to log.
  * @mode waterfall
  */
-'tools/ptc-dispatch-log'(this: Scoped<ToolRuntime>, dispatch: PtcDispatchLog, next: () => Promise<ContentBlock[]>): Promise<ContentBlock[]>
+'tools/ptc-dispatch-log'(this: Scoped<ToolRuntime>, dispatch: CodingDispatchLog, next: () => Promise<ContentBlock[]>): Promise<ContentBlock[]>
 ```
 
 Types: [ContentBlock](llm-streaming.md) · [Scoped](scope.md)

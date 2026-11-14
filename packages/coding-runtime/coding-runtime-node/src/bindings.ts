@@ -1,6 +1,6 @@
 /** Validate and capture the binding names available to one program. */
 import { DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@qilin-agent/coding-runtime'
-import type { PtcBindingFunction, PtcBindingNamespace, PtcJsonValue, PtcRunRequest } from '@qilin-agent/coding-runtime'
+import type { CodingBindingFunction, CodingBindingNamespace, CodingJsonValue, CodingRunRequest } from '@qilin-agent/coding-runtime'
 import { snapshotJsonValue } from '@qilin-agent/util-values'
 import { encodePtcJsonWire } from './json-wire.ts'
 import type { ReplyMessage } from './protocol.ts'
@@ -10,8 +10,8 @@ const IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/
  * @param request - Host-owned binding declarations.
  * @returns Namespaces keyed by their declared global.
  */
-export function validateBindings(request: PtcRunRequest): Map<string, PtcBindingNamespace> {
-  const bindings = new Map<string, PtcBindingNamespace>()
+export function validateBindings(request: CodingRunRequest): Map<string, CodingBindingNamespace> {
+  const bindings = new Map<string, CodingBindingNamespace>()
   for (const namespace of request.bindings) {
     if (!IDENTIFIER.test(namespace.global) || PORTABLE_RESERVED_WORDS.has(namespace.global)) {
       throw new Error(`qilin-coding-runtime-node: binding global ${JSON.stringify(namespace.global)} is not a usable identifier`)
@@ -60,7 +60,7 @@ export function validateBindings(request: PtcRunRequest): Map<string, PtcBinding
  * @param args - Validated JSON arguments detached from the program.
  * @returns A reply suitable for the runtime's bounded control channel.
  */
-export async function replyToBinding(id: number, binding: PtcBindingFunction | undefined, args: PtcJsonValue): Promise<ReplyMessage> {
+export async function replyToBinding(id: number, binding: CodingBindingFunction | undefined, args: CodingJsonValue): Promise<ReplyMessage> {
   try {
     if (!binding) throw new Error('binding is unavailable in this evaluation; reacquire the current tool')
     const value = snapshotJsonValue(await binding(args))

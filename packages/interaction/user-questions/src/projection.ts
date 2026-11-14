@@ -224,7 +224,7 @@ function settleQuestion(
  * answerable as `continued` in exactly two cases: the tool returned the
  * pending payload, or Session resume repair appended the synthetic
  * `TOOL_OUTCOME_UNKNOWN` result for a call the process never finished. An
- * answer batch settles it with that batch; any failure drops it. A PTC
+ * answer batch settles it with that batch; any failure drops it. A coding
  * sub-call enters the fold when its recorded result is pending. A late reply
  * settles only when the agent admits its user message; queued inbox messages
  * can still be discarded before that point.

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import { installProxyFromEnvironment } from '@qilin-agent/http-proxy'
 import SubagentRuntime from '@qilin-agent/subagent'
-import PtcWorkflowEngine from '../src/index.ts'
+import CodingWorkflowEngine from '../src/index.ts'
 import { fakeParent, mountPtcRuntime } from './setup.ts'
 
 describe('workflow program environment', () => {
@@ -18,7 +18,7 @@ describe('workflow program environment', () => {
       inheritsParentContext: false,
       start: () => Promise.reject(new Error('environment script must not start a child')),
     })
-    await ctx.plugin(PtcWorkflowEngine, { provider: 'stub' })
+    await ctx.plugin(CodingWorkflowEngine, { provider: 'stub' })
     const disposeProxy = await installProxyFromEnvironment({
       get: name => name === 'HTTP_PROXY' || name === 'HTTPS_PROXY'
         ? { value: 'http://fixture:canary@proxy.example:8080' } : undefined,

@@ -1,8 +1,8 @@
-/** Workflow child ownership and progress over the shared sandboxed PTC executor. */
+/** Workflow child ownership and progress over the shared sandboxed coding executor. */
 import type { Context } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
 import type {} from '@qilin-agent/working-directory'
-import type { PtcBindingFunction, PtcJsonValue, PtcRuntime } from '@qilin-agent/coding-runtime'
+import type { CodingBindingFunction, CodingJsonValue, CodingRuntime } from '@qilin-agent/coding-runtime'
 import type { SandboxExecutionPolicy } from '@qilin-agent/sandbox'
 import { SessionId } from '@qilin-agent/session'
 import type SubagentRuntime from '@qilin-agent/subagent'
@@ -36,10 +36,10 @@ function text(value: unknown, name: string): string {
   return value
 }
 
-function json(value: unknown): PtcJsonValue {
+function json(value: unknown): CodingJsonValue {
   const result = snapshotJsonValue(value)
   if (result === undefined) throw new Error('workflow binding value must be lossless JSON')
-  return result as PtcJsonValue
+  return result as CodingJsonValue
 }
 
 function childRequest(value: unknown): ChildStartRequest {
@@ -110,7 +110,7 @@ function workflowResult(value: unknown): WorkflowResult {
  * its managed process and every admitted child startup/disposal. Engine unload does not
  * invalidate the captured runtime or subagent handles.
  */
-export class PtcWorkflowRun implements WorkflowRun {
+export class CodingWorkflowRun implements WorkflowRun {
   readonly result: Promise<WorkflowResult>
   private readonly controller = new AbortController()
   private readonly children = new Map<number, ChildRecord>()
@@ -126,7 +126,7 @@ export class PtcWorkflowRun implements WorkflowRun {
   constructor(
     private readonly ctx: Context,
     private readonly subagents: SubagentRuntime,
-    private readonly runtime: PtcRuntime,
+    private readonly runtime: CodingRuntime,
     readonly id: WorkflowRunId,
     readonly meta: WorkflowMeta,
     private readonly parent: Agent,
@@ -175,7 +175,7 @@ export class PtcWorkflowRun implements WorkflowRun {
     return task
   }
 
-  private bindings(): Record<string, PtcBindingFunction> {
+  private bindings(): Record<string, CodingBindingFunction> {
     return {
       begin: () => { this.requireActive(); return Promise.resolve(json(this.init)) },
       startChild: value => this.track(this.startChild(childRequest(value))),
@@ -197,7 +197,7 @@ export class PtcWorkflowRun implements WorkflowRun {
     return record
   }
 
-  private async startChild(request: ChildStartRequest): Promise<PtcJsonValue> {
+  private async startChild(request: ChildStartRequest): Promise<CodingJsonValue> {
     this.requireActive()
     const callId = ++this.started
     const run = await this.subagents.startActivation({
@@ -232,7 +232,7 @@ export class PtcWorkflowRun implements WorkflowRun {
     return { callId, childId: run.childId }
   }
 
-  private async childResult(record: ChildRecord): Promise<PtcJsonValue> {
+  private async childResult(record: ChildRecord): Promise<CodingJsonValue> {
     const signal = this.controller.signal
     signal.throwIfAborted()
     const aborted = Promise.withResolvers<never>()

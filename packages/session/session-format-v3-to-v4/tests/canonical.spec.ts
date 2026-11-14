@@ -41,7 +41,7 @@ function reopen(artifact: SessionFormatArtifact) {
 }
 
 describe('canonical V4 integration', () => {
-  it('composes seeded systems, source ownership, PTC, canonical replacements and native round-trip', () => {
+  it('composes seeded systems, source ownership, coding, canonical replacements and native round-trip', () => {
     const target = migrated()
     expect(target.header.version).toBe(SESSION_FORMAT_VERSION)
     expect(target.inheritedEventCount).toBe(13)

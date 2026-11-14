@@ -80,7 +80,7 @@ ui-layout（右栏列：宽度/拖拽/折叠/开关按钮 —— 全套原生 ch
 
 ### 2.4 预设面改动（D1/D4 落地口径）
 
-- `presets/ptc/preset.yml`：name → 「编码模式」，description 改写（去掉 PTC 字样，说明工具经 SDK 呈现的编码 Agent 定位）；id/目录不动。
+- `presets/ptc/preset.yml`：name → 「编码模式」，description 改写（去掉 coding 字样，说明工具经 SDK 呈现的编码 Agent 定位）；id/目录不动。
 - 删 `presets/minimal/`（roster 活读取，进程内立即生效）。
 - cordis.patch.yml：`ui-agent-preset` 行加 `disabled: true`（保留行以维持 web-app 依赖声明被 verify-cordis-config 接受；禁用行有既有先例 :457-479）；engine `agent-presets` 行保留，`default: standard` 不变。**已知残留**：modeSelectionEnabled 是 settings 值而非 Config 字段，历史用户若曾开启并设了非常规 default，其未点名会话仍走该值——GUI 移除后无人能翻转，接受。
 - 停用的四个 GUI 面（已核对话骨架对空槽渲染空，不响亮失败）：设置区、新任务英雄条 chip、会话头预设标签、「让 Agent 创建插件」菜单项。预设创作入口随之消失（cordis 预设保留，文件级复制不受影响）。
@@ -153,7 +153,7 @@ R3 五面契约按 HEAD 复核 → 11 图标补 ui-primitives → 说明符重�
 - `ui-workbench` 纯状态零服务依赖（防消费环）；D2 折叠 `workbenchShows` 留在包内，WorkspaceBrowser 经注入的 `shows` 回调消费——client bundle purity 门禁禁止跨插件 value import，浏览器侧只留 type import。
 - 依赖收窄：`UiWorkspaceService` 对预设面的依赖声明为结构化的 `AgentPresetSwitcher`（仅 `select`），不是整个 `ClientRemote['agentPresets']`——测试替身零转型，verification-no-unknown-casts 零新增。
 - selection e2e 新用例断言「切标签→空白任务重绑→列表过滤」；create 透传的单元覆盖在 session-controller manager 测试。e2e 里 New Session 手势在 general 标签下会把 ptc 空白会话换绑成 standard（D2/D3 的正确行为），断言流程按此语义书写。
-- 三个 PTC 车道（ptc-round/present/ptc-escalation）以 `seedWorkbench(page, 'coding')` 启动：车道宿主 `default: 'ptc'`，旧世界客户端省略 preset 依赖宿主兜底；D3 后客户端显式发送当前标签预设（general→standard，无 run_code →「unknown tool」）。修复后三车道黄金与 HEAD 完全一致——原黄金本就是 ptc 组合的正确记录，零黄金漂移；此前一轮 refresh 因 seed 未生效写坏过这三车道的中间产物，已由本次重跑自愈。
+- 三个 coding 车道（ptc-round/present/ptc-escalation）以 `seedWorkbench(page, 'coding')` 启动：车道宿主 `default: 'ptc'`，旧世界客户端省略 preset 依赖宿主兜底；D3 后客户端显式发送当前标签预设（general→standard，无 run_code →「unknown tool」）。修复后三车道黄金与 HEAD 完全一致——原黄金本就是 ptc 组合的正确记录，零黄金漂移；此前一轮 refresh 因 seed 未生效写坏过这三车道的中间产物，已由本次重跑自愈。
 - Playwright 陷阱记录：`page.addInitScript(fn, arg)` 不 await 时注册与首次 goto 竞争，脚本被静默丢弃（无参数版本 await 后正常）；`seedWorkbench` 为 async 并在车道内 await。
 - lifecycle-chrome 两条 aria 黄金新增分段控件 tablist 行（S2 chrome 的预期落盘）。
 - 验证基线：typecheck 绿；ui-workbench/ui-workspace/session-controller 单测 1097 绿；selection/shipped-composition/lifecycle-chrome（30）与 ptc-round/present/ptc-escalation（11）六车道 replay 全绿；doc-sync 仅剩存量红（persistence-type-history）。hygiene 各失败项（vendor-rescope ×2、publint、constraints、package-dependencies、unknown-casts ×7、cordis-config sdk-minimal、runtime-closure）在本机与 S1 提交点逐门对照完全一致——S1 记录中「hygiene 仅剩两红」的说法与 S1 提交点的实际门禁状态不符，S2 对 hygiene 零新增。

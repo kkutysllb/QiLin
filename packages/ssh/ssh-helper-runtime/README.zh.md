@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-这个私有载体把 SSH 辅助程序、受管子进程 runner 与内嵌 PTC worker 打成一份可执行归档，远端主机因此无需安装 Node 或工作区包即可运行它们。`runSshHelperRuntime` 是唯一入口：它断言 SEA 引导形态、把原生包指向与之同置的目录，然后只分发到三者之一。连接配置仍在 [`qilin-ssh`](../ssh/README.zh.md)。
+这个私有载体把 SSH 辅助程序、受管子进程 runner 与内嵌 coding worker 打成一份可执行归档，远端主机因此无需安装 Node 或工作区包即可运行它们。`runSshHelperRuntime` 是唯一入口：它断言 SEA 引导形态、把原生包指向与之同置的目录，然后只分发到三者之一。连接配置仍在 [`qilin-ssh`](../ssh/README.zh.md)。
 
 ## 目录
 
@@ -27,7 +27,7 @@ kind: "package-library"
 
 本载体是私有工作区包：它既不是 profile 插件，也不暴露 npm CLI。它的分发单位是一份可执行归档，内含可执行文件、与其同置的 `native/system/` 目录以及完整性元数据；部署时把整份归档解到带版本号的运行时位置，而不是替换临时挂载点。
 
-在 [`qilin-ssh`](../ssh/README.zh.md) 中以 `launch: { kind: "executable" }` 配置远端连接，并给出 `helper` 的绝对路径与其 SHA-256。连接通过 `ctx.ssh.ptcLaunch` 取得内嵌 PTC 调用。
+在 [`qilin-ssh`](../ssh/README.zh.md) 中以 `launch: { kind: "executable" }` 配置远端连接，并给出 `helper` 的绝对路径与其 SHA-256。连接通过 `ctx.ssh.ptcLaunch` 取得内嵌 coding 调用。
 
 -----
 
@@ -39,7 +39,7 @@ kind: "package-library"
 
 引导只在打包后的可执行文件内运行，因此入口拒绝普通的 `node` 调用。其余设计由两项事实决定：操作系统必须从真实文件执行 Landlock 启动器与 PTY 启动器；平台原生包在运行时按包说明符解析。一个进程内的解析钩子把 `@qilin-agent/node-addon-system-<platform>-<arch>/package.json` 映射到可执行文件旁的 `native/system/package.json`，这正是该目录必须随其分发的原因；node-pty 沿用其相对可执行文件的 spawn-helper 约定。
 
-分发逻辑在导入任何模块之前读取私有选择子，随后将其删除。`QILIN_PTC_RUNTIME_NODE=1` 导入 PTC Node worker；存在 `QILIN_SUBPROCESS_RUNNER` 时导入受管子进程 runner 并把选择子交给它；两者皆无时导入 SSH 辅助程序。runner 入口声明其选择子送达时已被删除，因此该删除由引导负责。
+分发逻辑在导入任何模块之前读取私有选择子，随后将其删除。`QILIN_coding_RUNTIME_NODE=1` 导入 coding Node worker；存在 `QILIN_SUBPROCESS_RUNNER` 时导入受管子进程 runner 并把选择子交给它；两者皆无时导入 SSH 辅助程序。runner 入口声明其选择子送达时已被删除，因此该删除由引导负责。
 
 </details>
 
@@ -49,7 +49,7 @@ kind: "package-library"
 ## 进一步探索
 
 - [SSH 连接](../ssh/README.zh.md)——认证、调用与生命周期。
-- [PTC Node 运行时](../../coding-runtime/coding-runtime-node/README.zh.md)——显式 worker 启动与执行上限。
+- [coding Node 运行时](../../coding-runtime/coding-runtime-node/README.zh.md)——显式 worker 启动与执行上限。
 - [SSH 子系统](../../../docs/subsystems/ssh.zh.md)——远端执行坐标。
 
 -----

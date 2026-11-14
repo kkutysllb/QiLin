@@ -89,8 +89,8 @@ if (resource !== undefined) {
 } else if (aclRunner !== undefined && process.argv[2] === aclRunner) {
   process.argv.splice(1, 1)
   await import('@qilin-agent/sandbox-windows-acl/runner')
-} else if (process.env.QILIN_PTC_RUNTIME_NODE === '1') {
-  Reflect.deleteProperty(process.env, 'QILIN_PTC_RUNTIME_NODE')
+} else if (process.env.QILIN_coding_RUNTIME_NODE === '1') {
+  Reflect.deleteProperty(process.env, 'QILIN_coding_RUNTIME_NODE')
   await import('@qilin-agent/coding-runtime-node/process')
 } else if (selection === undefined) {
   if (cache !== undefined && existsSync(join(cache, 'primary', 'complete'))) {

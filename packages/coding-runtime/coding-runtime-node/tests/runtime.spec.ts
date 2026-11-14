@@ -6,7 +6,7 @@ import { Context } from '@qilin-agent/kylin'
 import Sandbox from '@qilin-agent/sandbox-local'
 import { SandboxUnavailableError } from '@qilin-agent/sandbox'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { PtcBindingFunction, PtcBindingNamespace, PtcRunRequest } from '@qilin-agent/coding-runtime'
+import type { CodingBindingFunction, CodingBindingNamespace, CodingRunRequest } from '@qilin-agent/coding-runtime'
 import type { Config } from '../src/index.ts'
 import { mountRuntime } from './setup.ts'
 
@@ -30,11 +30,11 @@ async function setup(config: Config = {}, mode: 'read-only' | 'workspace-write' 
   const ctx = new Context()
   onTestFinished(async () => { await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }) })
   const { runtime } = await mountRuntime(ctx, config, { mode, workspaceRoot: cwd })
-  const run = (request: PtcRunRequest) => runtime.run(runtime.resolve(request))
+  const run = (request: CodingRunRequest) => runtime.run(runtime.resolve(request))
   return { ctx, runtime, root, cwd, run }
 }
 
-function bindings(functions: Record<string, PtcBindingFunction>): PtcBindingNamespace[] {
+function bindings(functions: Record<string, CodingBindingFunction>): CodingBindingNamespace[] {
   return [{ global: 'tools', functions, errorClass: { name: 'ToolCallError', memberNameProperty: 'toolName' } }]
 }
 

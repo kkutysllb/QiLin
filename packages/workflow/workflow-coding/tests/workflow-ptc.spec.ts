@@ -9,7 +9,7 @@ import SubagentRuntime from '@qilin-agent/subagent'
 import type { SubagentCapabilities, SubagentProvider, SubagentResult, SubagentRun, SubagentStartRequest } from '@qilin-agent/subagent'
 import type { WorkflowMeta, WorkflowResult, WorkflowResultInfo, WorkflowRun, WorkflowRunInfo } from '@qilin-agent/workflow'
 import * as ptcEngineModule from '../src/index.ts'
-import PtcWorkflowEngine, { type Config } from '../src/index.ts'
+import CodingWorkflowEngine, { type Config } from '../src/index.ts'
 import { SessionId } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 
@@ -151,7 +151,7 @@ async function setup(options?: SetupOptions) {
   // A fixed concurrency ceiling: the auto-resolved default is machine-derived
   // (cores - 2, floored at 1), so tests that expect N children in flight
   // would wedge on small CI runners.
-  const engineFiber = await ctx.plugin(PtcWorkflowEngine, { provider: 'stub', maxConcurrentAgents: 8, ...options?.config })
+  const engineFiber = await ctx.plugin(CodingWorkflowEngine, { provider: 'stub', maxConcurrentAgents: 8, ...options?.config })
   return { ctx, provider, parent: await fakeParent(ctx), engineFiber }
 }
 
@@ -173,7 +173,7 @@ async function run(ctx: Context, parent: Agent, source: { script: string; meta: 
 // The per-test cap leaves room for one generous startup wait plus the tight
 // post-event assertions; explicit narrower timeouts inside stay authoritative.
 describe('dsh-workflow-coding', { timeout: 120_000 }, () => {
-  describe('script execution through the Node PTC runtime', () => {
+  describe('script execution through the Node coding runtime', () => {
     it('captures args at start and isolates subsequent caller and script mutations', async () => {
       const { ctx, parent } = await setup()
       const args = { values: [1] }
@@ -220,7 +220,7 @@ describe('dsh-workflow-coding', { timeout: 120_000 }, () => {
       expect('value' in end).toBe(false)
     })
 
-    it('agent({schema, model}) forwards outputSchema and agentOptions to the provider through PTC bindings', async () => {
+    it('agent({schema, model}) forwards outputSchema and agentOptions to the provider through coding bindings', async () => {
       const { ctx, parent, provider } = await setup({
         reply: () => ({ output: [], structured: { files: ['x.ts', 'y.ts'] }, stopReason: 'completed' }),
       })
@@ -239,7 +239,7 @@ describe('dsh-workflow-coding', { timeout: 120_000 }, () => {
       expect(provider.runs[0]!.request.parent).toBeDefined()
     })
 
-    it('agent({provider}) forwards provider-only agentOptions through PTC bindings', async () => {
+    it('agent({provider}) forwards provider-only agentOptions through coding bindings', async () => {
       const { ctx, parent, provider } = await setup()
       const result = await run(ctx, parent, scripted("return await agent('route me', { provider: 'openai' })"))
 
@@ -477,7 +477,7 @@ describe('dsh-workflow-coding', { timeout: 120_000 }, () => {
         }),
       }
       ctx.subagents.registerProvider(provider)
-      await ctx.plugin(PtcWorkflowEngine, { provider: 'rejecting', maxConcurrentAgents: 2 })
+      await ctx.plugin(CodingWorkflowEngine, { provider: 'rejecting', maxConcurrentAgents: 2 })
       const result = await run(ctx, await fakeParent(ctx), scripted(`
         try { await agent('p'); return 'unreachable' } catch (e) { return { name: e.name, code: e.code, fatal: e.fatal, message: e.message } }
       `))
@@ -497,7 +497,7 @@ describe('dsh-workflow-coding', { timeout: 120_000 }, () => {
     })
 
     it('contains a non-JSON result even if the injected subagent service violates its normalization contract', async () => {
-      // Host callback results cross PTC as lossless JSON.
+      // Host callback results cross coding as lossless JSON.
       const { ctx, parent } = await setup()
       const invalid = {
         output: [],
@@ -540,7 +540,7 @@ describe('dsh-workflow-coding', { timeout: 120_000 }, () => {
         }),
       }
       ctx.subagents.registerProvider(provider)
-      await ctx.plugin(PtcWorkflowEngine, { provider: 'bad-dispose', maxConcurrentAgents: 2 })
+      await ctx.plugin(CodingWorkflowEngine, { provider: 'bad-dispose', maxConcurrentAgents: 2 })
       const result = await run(ctx, await fakeParent(ctx), scripted("return await agent('p')"))
       expect(result.stopReason).toBe('completed')
       expect(result.value).toBe('fine')
@@ -566,7 +566,7 @@ describe('dsh-workflow-coding', { timeout: 120_000 }, () => {
         }),
       }
       ctx.subagents.registerProvider(provider)
-      await ctx.plugin(PtcWorkflowEngine, { provider: 'coercion-trap-dispose', maxConcurrentAgents: 2 })
+      await ctx.plugin(CodingWorkflowEngine, { provider: 'coercion-trap-dispose', maxConcurrentAgents: 2 })
       const result = await run(ctx, await fakeParent(ctx), scripted("return await agent('p')"))
       expect(result.stopReason).toBe('completed')
       expect(result.value).toBe('fine')
@@ -791,7 +791,7 @@ describe('dsh-workflow-coding', { timeout: 120_000 }, () => {
         },
       }
       ctx.subagents.registerProvider(provider)
-      await ctx.plugin(PtcWorkflowEngine, { provider: 'signal-only', maxConcurrentAgents: 2 })
+      await ctx.plugin(CodingWorkflowEngine, { provider: 'signal-only', maxConcurrentAgents: 2 })
       const handle = ctx.workflowEngine.start({
         ...scripted(`
           agent('stray, never awaited')
@@ -906,7 +906,7 @@ describe('dsh-workflow-coding', { timeout: 120_000 }, () => {
           }
         },
       })
-      await ctx.plugin(PtcWorkflowEngine, { provider: 'late-publication' })
+      await ctx.plugin(CodingWorkflowEngine, { provider: 'late-publication' })
       const lifecycle: string[] = []
       ctx.on('workflow/agent-start', () => { lifecycle.push('start') })
       ctx.on('workflow/agent-end', () => { lifecycle.push('end') })
@@ -992,7 +992,7 @@ await new Promise(() => {})`))
       await mountPtcRuntime(ctx)
       provideWorkingDirectoryFixture(ctx)
       await ctx.plugin(SubagentRuntime)
-      const fiber = await ctx.plugin(PtcWorkflowEngine, {})
+      const fiber = await ctx.plugin(CodingWorkflowEngine, {})
       expect(ctx.get('workflowEngine')).toBeDefined()
       await fiber.dispose()
       expect(ctx.get('workflowEngine')).toBeUndefined()
@@ -1025,11 +1025,11 @@ await new Promise(() => {})`))
     })
 
     it('has the class-plugin export shape (default = the engine service class)', () => {
-      expect(ptcEngineModule.default).toBe(PtcWorkflowEngine)
-      expect('PtcWorkflowEngine' in ptcEngineModule).toBe(false)
+      expect(ptcEngineModule.default).toBe(CodingWorkflowEngine)
+      expect('CodingWorkflowEngine' in ptcEngineModule).toBe(false)
       const loader = Object.create(Loader.prototype) as Loader
       const unwrapped: unknown = loader.unwrapExports(ptcEngineModule)
-      expect(unwrapped).toBe(PtcWorkflowEngine)
+      expect(unwrapped).toBe(CodingWorkflowEngine)
     })
   })
 })

@@ -5,7 +5,7 @@
 
 import { describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
-import { PtcRuntime } from '@qilin-agent/coding-runtime'
+import { CodingRuntime } from '@qilin-agent/coding-runtime'
 import { createScope, type Scope } from '@qilin-agent/scope'
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -1105,15 +1105,15 @@ function withPersona(...sections: string[]): string {
 }
 
 /** Schema assembly only: these cases never execute user code. */
-class GuidancePtcRuntime extends PtcRuntime {
-  resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+class GuidancePtcRuntime extends CodingRuntime {
+  resolve(request: import('@qilin-agent/coding-runtime').CodingRunRequest): import('@qilin-agent/coding-runtime').CodingRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'fake'
   run() { return Promise.resolve({ logs: [] }) }
 }
 
-describe('scope-aware PTC guidance', () => {
+describe('scope-aware coding guidance', () => {
   it.each(['coding'] as const)('uses capability visibility in %s mode', async (mode) => {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)

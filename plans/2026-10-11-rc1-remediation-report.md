@@ -71,7 +71,7 @@ npx tsx scripts/gen-kylin-api.ts --check && npx tsx scripts/gen-kylin-catalog.ts
 
 ## 6. 计划实施准确度
 
-按复核的口径，计划里 T1–T6/T9 完全落地，T8/A7 部分落地（门的作用域窄于验收断言）；判据 2/4/7 有口径或覆盖缺口。本轮未改这些判定，只清掉了它们周围的口径漂移：退役预设的表述在 CLI reference 中英、GitHub 评审指南中英、base 组合包 README 中英、permission-policy 注释、webhook 车道夹具与断言、以及随预设下发给模型的技能正文里全部改为 `ptc`，门扩到 7 个契约文件并带两条负向对照。
+按复核的口径，计划里 T1–T6/T9 完全落地，T8/A7 部分落地（门的作用域窄于验收断言）；判据 2/4/7 有口径或覆盖缺口。本轮未改这些判定，只清掉了它们周围的口径漂移：退役预设的表述在 CLI reference 中英、GitHub 评审指南中英、base 组合包 README 中英、permission-policy 注释、webhook 车道夹具与断言、以及随预设下发给模型的技能正文里全部改为 `coding`，门扩到 7 个契约文件并带两条负向对照。
 
 ## 7. 文档与夹具口径
 

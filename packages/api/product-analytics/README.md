@@ -31,7 +31,7 @@ Official navigation reports New Session, Plugins, Automation tasks, and More cli
 
 Direct preset switches report accepted different choices in the mode picker: an unbound staged choice, or Host application for a blank Session. Custom source modes are `other`, and only built-in targets are reported. Default changes, automatic fallback, restoration, and Creator launchers are excluded. Each switch records the Coding Tools setting known at the action; an unknown setting reports nothing. `code_work_view_toggle` reports a successful change of that setting.
 
-`send_button_click` carries `is_new_session`, which is true while the submitting Session is still blank, and `agent_preset`, the Session's preset as `creator`, `ptc`, `minimal`, `standard`, or `other` for a custom preset; `agent_preset` is omitted while the preset is unknown.
+`send_button_click` carries `is_new_session`, which is true while the submitting Session is still blank, and `agent_preset`, the Session's preset as `creator`, `coding`, `minimal`, `standard`, or `other` for a custom preset; `agent_preset` is omitted while the preset is unknown.
 
 
 <a id="dev-note"></a>

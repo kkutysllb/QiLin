@@ -26,7 +26,7 @@
 
 | # | 决策 |
 |---|---|
-| D-A1 | 幸存预设 id = `ptc`（不换 id，保 KV 前缀与存量会话头兼容） |
+| D-A1 | 幸存预设 id = `coding`（不换 id，保 KV 前缀与存量会话头兼容） |
 | D-A2 | workflow 两行（tool-workflow / workflow-coding）保持禁用——编排统一走 run_code，不并第二个模型可写编排面 |
 | D-A3 | 创造模式三件全并入 ptc：tool-kylin 自省、customSkillDirs 创作技能、persona 创作段；tool-plugin-manager **启用**（C7=a；web 部署档如需关闭走部署 patch，不在预设层关） |
 | D-A4 | 预设不在前端展示；后台运行，前端零预设面 |
@@ -168,7 +168,7 @@
 | 合并内容 | `presets/ptc/agent.cordis.yml` 并入 `tool-kylin`、`skill-filesystem.customSkillDirs`（`skills/` 目录随 `git mv` 迁入 ptc）、创造 persona 全文；`tool-plugin-manager` 去掉 `disabled`（C7=a）；workflow 两行维持禁用（D-A2） |
 | 退役 | `presets/standard/`、`presets/cordis/` 整目录删除；`ptc/preset.yml` 收敛为 `order: 1` + 说明，不发布显示名（C3） |
 | 部署默认 | `bundle/web-app/cordis.patch.yml` `default: ptc` |
-| 客户端出厂映射 | `ui-workbench` 两标签出厂记忆钉 `ptc`；rehydrate 边界把已退役 id 归位（随 S3 标签机制一并删除） |
+| 客户端出厂映射 | `ui-workbench` 两标签出厂记忆钉 `coding`；rehydrate 边界把已退役 id 归位（随 S3 标签机制一并删除） |
 | 文档 | `agent-presets` 与 `bundle/web-app` 双件 README 同步；pairing 已重录 |
 
 **验证**：
@@ -189,10 +189,10 @@
 
 | 改写点 | 事实依据 |
 |---|---|
-| 组合来源 | 出厂 `ptc` + 车道自建 lean 组合（`lane-lean`，只挂 `tool-bash`/`tool-pwsh`），取代已不存在的 `standard`/`minimal`/`cordis` 三档位；`minimal` 的内容断言（RL prompt、bash 描述）随预设删除，机制断言（宿主/预设服务归属、复制删除、默认设置、fork 继承）保留 |
-| roster | system-trust 子集 == `['ptc']`，default `ptc` |
-| 目录断言 | 补上合并后新增的三行：`run_code`（PTC 呈现注册）与部署级 `sidebar_open`/`working_directory`（全局层唯二成员，任何组合的会话都带） |
-| skill 载入 | 直接 `execute('skill')` 现被 PTC 守卫拒绝并指向 `run_code`，断言据此改写；`skill-badge` 行已改为 opt-in bundle，车道自行 insert；出厂 `skills/` 路径 cordis→ptc |
+| 组合来源 | 出厂 `coding` + 车道自建 lean 组合（`lane-lean`，只挂 `tool-bash`/`tool-pwsh`），取代已不存在的 `standard`/`minimal`/`cordis` 三档位；`minimal` 的内容断言（RL prompt、bash 描述）随预设删除，机制断言（宿主/预设服务归属、复制删除、默认设置、fork 继承）保留 |
+| roster | system-trust 子集 == `['ptc']`，default `coding` |
+| 目录断言 | 补上合并后新增的三行：`run_code`（coding 呈现注册）与部署级 `sidebar_open`/`working_directory`（全局层唯二成员，任何组合的会话都带） |
+| skill 载入 | 直接 `execute('skill')` 现被 coding 守卫拒绝并指向 `run_code`，断言据此改写；`skill-badge` 行已改为 opt-in bundle，车道自行 insert；出厂 `skills/` 路径 cordis→ptc |
 
 **合并引入的产品缺陷（已修）**：创造模式在客户端三处硬编码已退役的 `cordis` —— [index.ts:163](../packages/client/ui-agent-preset/src/client/index.ts) stage、[CreatePluginMenuItem.tsx:33](../packages/client/ui-agent-preset/src/client/CreatePluginMenuItem.tsx) 与 [AgentPresetSection.tsx:215](../packages/client/ui-agent-preset/src/client/AgentPresetSection.tsx) 的按钮门；单预设下该字符串永不命中，「用「创造模式」创作自定义预设」会静默消失。三处改为新内部常量 `SHIPPED_PRESET_ID`；[connection fixture](../packages/client/connection/src/client/fixture.ts) 的 roster 同步为单预设。
 
@@ -208,16 +208,16 @@
 
 ### S1 遗留收口 —— 浏览器车道（2026-10-11 续，第二批）
 
-**先修掉一个阻断一切 profile-less 组合的真缺陷**：合并后的 `ptc` 启用 `tool-plugin-manager`（C7=a），而该工具背后的 `pluginManager` 服务只在**有 profile 的组合**里存在（base bundle 的 `plugin-manager` 行同为 `!!js "!ctx.get('profileContext')"`）。没有 profile 时该服务永不到达 → 行永远 pending → **该组合下每个会话都无法组合**：`agent-preset/invalid: preset "ptc" failed to mount: 1 row(s) did not activate: tool-plugin-manager ... waiting for pluginManager`。实测波及与预设无关的车道（`startup-auto-selection`、`composer-placeholder` 均在「连上工作区后编辑器不解锁」这一步红）。修法：预设行补同一条判据 `disabled: !!js "!ctx.get('profileContext')"`（[agent.cordis.yml](../packages/preset/agent-presets/presets/ptc/agent.cordis.yml)）。验证：profile-less 组合的 `session/create` 恢复 `ok` 并组合出 `agentPreset: "ptc"` 的空白会话（探针实测）；profile-backed 的 CLI 车道 `composes the full agent from ptc` 仍断言 `plugin_manager` 在目录里（1/1 绿）；`verify-cordis-config` 435 文件、`verify-runtime-closure` 1 预设 + 156 包闭合。
+**先修掉一个阻断一切 profile-less 组合的真缺陷**：合并后的 `coding` 启用 `tool-plugin-manager`（C7=a），而该工具背后的 `pluginManager` 服务只在**有 profile 的组合**里存在（base bundle 的 `plugin-manager` 行同为 `!!js "!ctx.get('profileContext')"`）。没有 profile 时该服务永不到达 → 行永远 pending → **该组合下每个会话都无法组合**：`agent-preset/invalid: preset "ptc" failed to mount: 1 row(s) did not activate: tool-plugin-manager ... waiting for pluginManager`。实测波及与预设无关的车道（`startup-auto-selection`、`composer-placeholder` 均在「连上工作区后编辑器不解锁」这一步红）。修法：预设行补同一条判据 `disabled: !!js "!ctx.get('profileContext')"`（[agent.cordis.yml](../packages/preset/agent-presets/presets/ptc/agent.cordis.yml)）。验证：profile-less 组合的 `session/create` 恢复 `ok` 并组合出 `agentPreset: "ptc"` 的空白会话（探针实测）；profile-backed 的 CLI 车道 `composes the full agent from ptc` 仍断言 `plugin_manager` 在目录里（1/1 绿）；`verify-cordis-config` 435 文件、`verify-runtime-closure` 1 预设 + 156 包闭合。
 
 | 车道 | 结果 |
 |---|---|
 | `startup-auto-selection.e2e.ts` | **2/2 绿**（无改动；此前的红即上述缺陷） |
 | `composer-placeholder.e2e.ts`（对照，与预设无关） | **1/1 绿** |
-| `agent-preset-authoring.e2e.ts` | **7/7 绿**：`default: 'ptc'`；查看/删除/复制改名 `编码模式`；读 `presets/ptc` 组合；复制件描述按 `ptc/preset.yml` 现值；创造模式落地 id `ptc`。金样重录 3 份（section/created/damaged；copy-dialog 未变） |
+| `agent-preset-authoring.e2e.ts` | **7/7 绿**：`default: 'ptc'`；查看/删除/复制改名 `编码模式`；读 `presets/ptc` 组合；复制件描述按 `ptc/preset.yml` 现值；创造模式落地 id `coding`。金样重录 3 份（section/created/damaged；copy-dialog 未变） |
 | `agent-preset-selection.e2e.ts` | **5/5 绿**（改写口径见下） |
 
-**selection 车道改写口径**：hero 的 run-mode 芯片是 **ui-workspace 的重复实现**（[AgentPresetChip.tsx](../packages/client/ui-workspace/src/client/AgentPresetChip.tsx)，即 D-A4/S4 的下架对象）——它用 `preset.name ?? id` 取名（不本地化，与 `agent-presets/display` 那套分叉），且 `options.length < 2` 时整块不渲染（注释原文：a selector over one entry is noise）。S1 去掉 `ptc/preset.yml` 显示名后它显示裸 id `ptc`；单预部署下它根本不渲染。车道据此断言：hero **没有** run-mode 按钮、settings 区仍以本地化名 `Coding mode` 报出 roster 与默认、可用性开关 off/on、header 标签。删掉的三例（staging pick、refusal banner、slash catalog 跟随组合）前提都是「多档位切换」，切换对象已不存在；标签重绑一例随 S3 退场（fold 由 `ui-workbench` 单测覆盖）。金样：hero 重录，`menu.expected.md` 删除。
+**selection 车道改写口径**：hero 的 run-mode 芯片是 **ui-workspace 的重复实现**（[AgentPresetChip.tsx](../packages/client/ui-workspace/src/client/AgentPresetChip.tsx)，即 D-A4/S4 的下架对象）——它用 `preset.name ?? id` 取名（不本地化，与 `agent-presets/display` 那套分叉），且 `options.length < 2` 时整块不渲染（注释原文：a selector over one entry is noise）。S1 去掉 `ptc/preset.yml` 显示名后它显示裸 id `coding`；单预部署下它根本不渲染。车道据此断言：hero **没有** run-mode 按钮、settings 区仍以本地化名 `Coding mode` 报出 roster 与默认、可用性开关 off/on、header 标签。删掉的三例（staging pick、refusal banner、slash catalog 跟随组合）前提都是「多档位切换」，切换对象已不存在；标签重绑一例随 S3 退场（fold 由 `ui-workbench` 单测覆盖）。金样：hero 重录，`menu.expected.md` 删除。
 
 **本批未收口（如实登记）**：
 
@@ -225,23 +225,23 @@
 |---|---|
 | `shipped-composition.e2e.ts` | ~~5 红~~ → **第三批收口 6/7，见下** |
 | `preset-migration.snapshot.ts` | 断言含 `['ptc','standard','ptc']`，是 S2 的迁移面本体，随 v4→v5 代次重写一并处置 |
-| `schedule-after.e2e.ts` | ~~种子待改~~ 种子已改 `ptc`；**第三批探明为升级期孤儿车道，见下** |
+| `schedule-after.e2e.ts` | ~~种子待改~~ 种子已改 `coding`；**第三批探明为升级期孤儿车道，见下** |
 | `settings-chrome.e2e.ts` | 无需改：命中的 `standard` 是 `ui-chat transcriptView` 取值，与预设无关 |
 
 ### S1 遗留收口 —— shipped-composition 6/7 与 schedule 车道探明（第三批）
 
-**`shipped-composition.e2e.ts`：5 红 → 1 红（6/7 绿）**，四例按「PTC 直调门拦在一切之前」同根改写：
+**`shipped-composition.e2e.ts`：5 红 → 1 红（6/7 绿）**，四例按「coding 直调门拦在一切之前」同根改写：
 
 | 例 | 改法 |
 |---|---|
 | assembles…defaults | 两层陈旧：全局层断言补 `working_directory`（与 `sidebar_open` 并列的部署级成员）；`EXPECTED_TOOLS` 名册本身从升级期就 stale（`pwsh` 被 Web 部署 patch 禁用、`workflow` 面已退役、新增 `run_code`/`working_directory`/`cordis_inspect_list`/`cordis_inspect_query`）——此前从未执行到该断言（全局层断言先红） |
 | background-job registry | producer 三次直调（`bash`/`job_list`/`job_output`）全部改经 `run_code` 嵌套派发；断言从 bash 的渲染文本改为 run_code 输出（`jobId`/`id [kind]`/`.text`），registry 归属不变 |
-| Auto request 3→2 | 脚本化 producer 改发 `run_code`（程序内嵌套 `tools.bash` 删除并 catch 拒绝消息）——auto-review **刻意放行外层 transport、仍拦截嵌套调用**（[auto-review/src/index.ts:4](../packages/experimental/auto-review/src/index.ts) 注释与 pending-PTC 校验在先），故三请求编排、review 名 `bash`、拒绝文案、脱敏断言全部保留；主面 roster 断言收紧为恰 `[run_code]` |
+| Auto request 3→2 | 脚本化 producer 改发 `run_code`（程序内嵌套 `tools.bash` 删除并 catch 拒绝消息）——auto-review **刻意放行外层 transport、仍拦截嵌套调用**（[auto-review/src/index.ts:4](../packages/experimental/auto-review/src/index.ts) 注释与 pending-coding 校验在先），故三请求编排、review 名 `bash`、拒绝文案、脱敏断言全部保留；主面 roster 断言收紧为恰 `[run_code]` |
 | rollback sentinel | 直调 `write` 改经 `run_code` 嵌套；集成回滚后无拦截器，sentinel 照写 |
 
 **登记不修：`reviews one-shot, continuable, and cold-resumed in-process child calls`（rc.1 上即红，升级期孤儿）**。三层根因：① 升级退役 `backgroundMode`（[tool-subagent Config](../packages/subagent/tool-subagent/src/index.ts) 已无此字段，车道 overlay 仍在插）；② 升级把子代理面重定义为单一 activation 语义（one-shot/continuable 双绑定前提失效）；③ 本片默认预设 ptc 的直调门连 **parent 与 child 的全部脚本化直调**一起拒（`subagent_one_shot`、child 的 `read`/`bash`）。改写它 = 按 activation 时代重设计整条编排（嵌套调用的会话事件投影、child 脚本相位、cold-resume 编排），属独立小片，不属预设切片。
 
-**`schedule-after.e2e.ts`：种子两处已改 `ptc`；车道本体为升级期孤儿（探针实测，非本片引起，上一批「同族小改」的定性有误）**。证据：无 setup 的 agent 只见 `sidebar_open`/`working_directory`（无自动挂预设）；`schedule_create` 直调 = `UNKNOWN_TOOL`；`storageDomain.get('schedule')` 为 undefined。根因：schedule 服务只随**实验性 `schedule-bundle`** 安装（其 patch 自述「shipped Web composition carries none of these rows」），车道的 `id: schedule` overlay 只是覆写、装不出不存在的行；`tool-schedule` 只随预设行挂载（realm 限定），从未入 base/web patch。两个 describe（conversational reminders、active catalog）同根。**复活配方**（独立小片）：车道 scaffold 装配 schedule-bundle 行 + 车内直调工具调用按 PTC 口径改经 `run_code`；`schedule-panel` 同族未验。
+**`schedule-after.e2e.ts`：种子两处已改 `coding`；车道本体为升级期孤儿（探针实测，非本片引起，上一批「同族小改」的定性有误）**。证据：无 setup 的 agent 只见 `sidebar_open`/`working_directory`（无自动挂预设）；`schedule_create` 直调 = `UNKNOWN_TOOL`；`storageDomain.get('schedule')` 为 undefined。根因：schedule 服务只随**实验性 `schedule-bundle`** 安装（其 patch 自述「shipped Web composition carries none of these rows」），车道的 `id: schedule` overlay 只是覆写、装不出不存在的行；`tool-schedule` 只随预设行挂载（realm 限定），从未入 base/web patch。两个 describe（conversational reminders、active catalog）同根。**复活配方**（独立小片）：车道 scaffold 装配 schedule-bundle 行 + 车内直调工具调用按 coding 口径改经 `run_code`；`schedule-panel` 同族未验。
 
 **验证**：本车道 6/7；oxlint 0；`verify-cordis-config` 435 文件、`verify-runtime-closure` 1 预设 + 156 包闭合、`verify-md-links` 2179 文件。
 
@@ -258,17 +258,17 @@
 
 **本片暴露并修掉的自身缺陷（如实登记）**：删 `ui-workbench` 时同时删了 `apps/web/tests/support.ts` 的 `seedWorkbench`/`switchWorkbenchTab`，但 **5 条车道仍在 import** ⇒ 自那笔提交起 `tsc -b tsconfig.host.json` 一直是红的，本轮才发现（S3b 只跑了 client 面类型检查，属流程漏洞）。修法：去掉种子（单预部署下 seed 是空操作——任何新任务都已组合出厂预设）与相关注释，`coding-file-open` 按当前产品真相改断言（交付文件落在侧栏自己的面板 `[data-sidebar-right-panel]`，不再是编码内容体的 `[data-qilin-panel]`）；两面 typecheck 复绿。
 
-**浏览器车道现状（本机）**：`coding-file-open` **绿**；`present` / `ptc-escalation` / `ptc-round` 红在**本机录制夹具陈旧**——`snapshots/web/**/session.v4.jsonl` 是 **gitignored 的本地录制**，其内容早于升级期加入的 `working-directory:current` 运行上下文段（同目录 `changed-files-turn`/`present-svg`/`seeded-history` 三份已在早前用真 key 重录并含该段），且当前 `ptc` 组合会挂三个创作技能而录制里没有 skill-catalog 段。**修法只能是 `QILIN_SNAPSHOT=record`（真实 key + 真实模型调用）重录**，属需单独授权的动作；与本次车道改写无关（种子在单预部署下是空操作）。
+**浏览器车道现状（本机）**：`coding-file-open` **绿**；`present` / `ptc-escalation` / `ptc-round` 红在**本机录制夹具陈旧**——`snapshots/web/**/session.v4.jsonl` 是 **gitignored 的本地录制**，其内容早于升级期加入的 `working-directory:current` 运行上下文段（同目录 `changed-files-turn`/`present-svg`/`seeded-history` 三份已在早前用真 key 重录并含该段），且当前 `coding` 组合会挂三个创作技能而录制里没有 skill-catalog 段。**修法只能是 `QILIN_SNAPSHOT=record`（真实 key + 真实模型调用）重录**，属需单独授权的动作；与本次车道改写无关（种子在单预部署下是空操作）。
 
 **验证（实跑）**：`ui-slots`+`ui-renderer`+`ui-sidebar`+`ui-settings-general`+`ui-plugin-manager` **419/419**；宽口径 GUI 车道 **1801 通过 / 1 红**（红为既有 `pdf-license-bundle` 的 `npm pack` 环境超时）；`tsc -b` **两面 exit 0**；oxlint 0；`verify-client-packages` 67 包、`verify-package-dependencies` 78 包、`verify-type-equiv` 466 块、`verify-md-links`、pairing（两对已重录）全绿。
 
 ### S2 存量会话 v4→v5 代次重写（C2=b，已落地）
 
-**新代次包** `packages/session/session-format-v4-to-v5`（`src/{index,migration,codec,validation}.ts` + 19 例 spec + 双语 README 对）：折叠点恰两处——`header.agentPreset` 与每条 `agent-preset/selected.data.agentPreset`，`standard`/`cordis`/`minimal` → `ptc`；自定义标识、非字符串载荷与其它字段逐字节通过（选择事件对象原样输出，不复制、不修复）。种子切点取最后一个 `data.inherited === true` 的 `session/end-seed` 自身索引，缺标记直接拒绝；非种子源 `headerInheritedEventCount: 0`。物理面复用已发布 V2 行封装 + V4 行准入（V5 只加词汇）。`resolve()` **不加兜底**（不做别名 fold，保持 fail-loud）。投递水位仍按代次：`sessionFormatVersion: 4` 的 delivery-accepted 在 V5 下不再生效。
+**新代次包** `packages/session/session-format-v4-to-v5`（`src/{index,migration,codec,validation}.ts` + 19 例 spec + 双语 README 对）：折叠点恰两处——`header.agentPreset` 与每条 `agent-preset/selected.data.agentPreset`，`standard`/`cordis`/`minimal` → `coding`；自定义标识、非字符串载荷与其它字段逐字节通过（选择事件对象原样输出，不复制、不修复）。种子切点取最后一个 `data.inherited === true` 的 `session/end-seed` 自身索引，缺标记直接拒绝；非种子源 `headerInheritedEventCount: 0`。物理面复用已发布 V2 行封装 + V4 行准入（V5 只加词汇）。`resolve()` **不加兜底**（不做别名 fold，保持 fail-loud）。投递水位仍按代次：`sessionFormatVersion: 4` 的 delivery-accepted 在 V5 下不再生效。
 
 **引擎与文档**：`SESSION_FORMAT_VERSION` 4→5（[types.ts:89](../packages/core/session/src/types.ts)）；catalog 增依赖/引用并重生成（v0→v5 五边链路）；persistence 目录与 schema 重生成；新增变更记录 `docs/persistence-changes/2026-10-11-session-format-v5.*` 与归档 `historical-formats/v4.*`（63 根 / 606 类型）。
 
-**夹具面**：`snapshots/sdk` 八个场景再生当前代次 fixture（`session.v5.jsonl`）与金样；`apps/web/tests/preset-migration.snapshot.ts` 期望由 `['ptc','standard','ptc']` 改为 `['ptc','ptc','ptc']`（v5 边把 `standard` 折成 `ptc`）。
+**夹具面**：`snapshots/sdk` 八个场景再生当前代次 fixture（`session.v5.jsonl`）与金样；`apps/web/tests/preset-migration.snapshot.ts` 期望由 `['ptc','standard','ptc']` 改为 `['ptc','ptc','ptc']`（v5 边把 `standard` 折成 `coding`）。
 
 **本片修的一处门禁漂移**：`scripts/session-snapshot-corpus-policy.spec.ts` 在写入器升到 5 后仍按 v4 时代构造夹具（`adjacent = [1, 2]`），4 例红——已改为按 `SESSION_FORMAT_VERSION` 推导受保留边（`[1, 2, ...4..当前-1]`）与基线多数（`retainedRoleCount + 1`），**16/16 绿**。
 
@@ -276,13 +276,13 @@
 
 **本片修掉的两项 SDK 快照红**（writer 代次直接后果）：场景的**最新 session fixture 兼作 writer oracle**（`retained ? writer.expected.jsonl : 最新 session.*.jsonl`），代次升到 5 后 `text-turn` 与 `subagent-qilin-sdk-diagnostic` 的比对必然在 `sessionFormatVersion` 上不符。按仓库机制 `QILIN_SNAPSHOT=refresh` 再生：新增两份 `session.v5.jsonl`、`text-turn` 金样 1 行（版本戳），`subagent-qilin-sdk-diagnostic` 金样 25/20 行——后者除版本戳外还记录了当前运行时的 activation 期事件流（+2 `subagent/catalog`、+2 `agent/inbox/spliced`、+1 `user/message`，seq 重锚），**这一处需要复核**：它把升级期的激活语义变化一并钉进金样。SDK 车道 8 红 → **6 红**。
 
-**登记不修（SDK 快照面 6 项，独立小片）**：`serial-created`（`SDK snapshot session has no request model`——该 curated 场景的主 fixture 无请求记录，`SDK_ASSERTIONS.route` 未声明）、`subagent-activation-limit`（120s 超时）、`subagent-fork-in-process` / `subagent-spawn-in-process`（`subagent.finished` 未观测到）、`subagent-qilin-sdk-dynamic-route`（日志数 1 ≠ 2）、`tool-error-details`（**S1 相关**：场景同时演练 native 直调与 PTC 两条呈现臂，合并后 `tool-presentation` 只剩 ptc，`denied-native` 臂在到达 `tools/pre-execute` 之前即 `UNKNOWN_TOOL`——升级已删除 `both` 档，native 臂不可能复原；修法=按 PTC 单臂重写脚本 + 重推期望）。修复只能靠 `QILIN_SNAPSHOT=record`（真实 key 与真实模型调用）或逐场景改写，已在升级计划 §6.70 登记为既有基线，需另行授权。
+**登记不修（SDK 快照面 6 项，独立小片）**：`serial-created`（`SDK snapshot session has no request model`——该 curated 场景的主 fixture 无请求记录，`SDK_ASSERTIONS.route` 未声明）、`subagent-activation-limit`（120s 超时）、`subagent-fork-in-process` / `subagent-spawn-in-process`（`subagent.finished` 未观测到）、`subagent-qilin-sdk-dynamic-route`（日志数 1 ≠ 2）、`tool-error-details`（**S1 相关**：场景同时演练 native 直调与 coding 两条呈现臂，合并后 `tool-presentation` 只剩 ptc，`denied-native` 臂在到达 `tools/pre-execute` 之前即 `UNKNOWN_TOOL`——升级已删除 `both` 档，native 臂不可能复原；修法=按 coding 单臂重写脚本 + 重推期望）。修复只能靠 `QILIN_SNAPSHOT=record`（真实 key 与真实模型调用）或逐场景改写，已在升级计划 §6.70 登记为既有基线，需另行授权。
 
 ### S5 Open 门禁（第一批已落地：第三方接入 + 官方摘除）
 
 **S5-A 第三方零核心改动接入**：新增 [third-party-plugin.e2e.ts](../apps/web/tests/third-party-plugin.e2e.ts) 与夹具 `apps/web/tests/fixtures/plugins/fixture-third-party/`（`package.json` + `cordis.patch.yml` + `index.js`）。夹具只用公开契约——`name` / `inject = ['tools']` / `apply(ctx)`，以及 `ctx.tools.register({ name, description, parameters, output: { schema, render }, execute })`——并在**托管 profile** 上按 `qilin plugin add` 的落点安装并启用（`profile: { packages: [{ dir, enabled: true }] }`：写进 manifest 依赖、链接进 profile `node_modules`、列入启用 bundles）。三条断言：工具进入**进程级**名册（发现）、进入该会话 agent 的**模型可见**名册、并经产品自己的 `run_code` 传输**执行**并返回 `THIRD_PARTY_OK`。夹具位于 `apps/web/tests/fixtures/`，`packages/**` 无一处命名它——这就是 Open 的可测口径。
 
-**S5-B 官方插件可摘除、核心链路存活**：新增 [without-official-plugins.overlay.yml](../apps/web/tests/without-official-plugins.overlay.yml)（`ui-trajectory` 客户端行 + `mcp-resources` 宿主行整行关闭），并在 [shipped-composition.e2e.ts](../apps/web/tests/shipped-composition.e2e.ts) 增一例：① 出厂部署本就关掉 base 的宿主 `tool-web` 行（客户端模块图里没有 `client-ui-trajectory`、Loader 里两行 `options.disabled === true`）；② 出厂 `session/create` RPC 仍应答并把会话发布出来；③ 该会话的 agent 名册仍含 `run_code`，且 `web_search` / `web_fetch` **两个都在**——即 `tool-web` 的摘除由预设平面补齐，能力不随官方行消失；④ 会话头的 `agentPreset` 为 `ptc`，接受请求的组合就是运行它的组合。
+**S5-B 官方插件可摘除、核心链路存活**：新增 [without-official-plugins.overlay.yml](../apps/web/tests/without-official-plugins.overlay.yml)（`ui-trajectory` 客户端行 + `mcp-resources` 宿主行整行关闭），并在 [shipped-composition.e2e.ts](../apps/web/tests/shipped-composition.e2e.ts) 增一例：① 出厂部署本就关掉 base 的宿主 `tool-web` 行（客户端模块图里没有 `client-ui-trajectory`、Loader 里两行 `options.disabled === true`）；② 出厂 `session/create` RPC 仍应答并把会话发布出来；③ 该会话的 agent 名册仍含 `run_code`，且 `web_search` / `web_fetch` **两个都在**——即 `tool-web` 的摘除由预设平面补齐，能力不随官方行消失；④ 会话头的 `agentPreset` 为 `coding`，接受请求的组合就是运行它的组合。
 
 **验证（实跑）**：两条车道各自绿（`third-party-plugin` 1/1；`shipped-composition` 该例 1/1，其余 7 例按 `-t` 跳过）；新车道已登记进 [tsconfig.host.json](../tsconfig.host.json) 的 host 面 include 表；`oxlint` 0；`tsc -b tsconfig.host.json` exit 0。
 
@@ -294,9 +294,9 @@
 ~~S2 存量会话 v4→v5 代次重写（C2=b）~~ · ~~S3 双工作台与 audience 归一删除~~ **均已落地（见上）** → **S4 前端零预设面清账**：AgentPresetChip 与 slots.ts 契约下架、display.ts 内建键收敛、locales 三预设文案并一、guide/描述句、apps/web 种子与 shipped-composition 断言对齐、`QILIN_TOOLS_MODE` 缝处置（T9），并补常备 grep 门「退役预设 id 零回流」。浏览器车道重录（`present`/`ptc-escalation`/`ptc-round` 的本地 v4 录制）需 `QILIN_SNAPSHOT=record` 与真实 key，单独授权后执行。schedule-after/schedule-panel 复活与 child-orchestration 重设计为可并行登记片，不阻塞主线。
 ## 11. S4 与 T9 收口（2026-10-11 续）
 
-**S4 已落地**：内建键收敛为唯一出厂预设——`display.ts` 的 `BuiltInPresetCopyKey` 只剩 `presetPtcName`/`presetPtcDescription`，映射表只剩 `ptc`；两处客户端字典（`ui-agent-preset`、`ui-settings-plugin-inventory`）各删两套退役文案，中英同步；文案面按单预设施事（引导句、创造入口、模式开关说明），不再把标准/编码/创造当三个并列模式；车道断言与三份金样按新文案重录。**新增常备门 `verify-preset-copy`**（挂 `doc-quick`）：出厂预设目录、display 映射与两处字典必须逐项一致，退役 id 的文案键或映射零残留；门自带 9 例规格（含漂移负例）。`apps/web/tsconfig.json` 补回第三方插件车道的 host 面排除（S5 引入时漏项，客户端面因此红）。
+**S4 已落地**：内建键收敛为唯一出厂预设——`display.ts` 的 `BuiltInPresetCopyKey` 只剩 `presetPtcName`/`presetPtcDescription`，映射表只剩 `coding`；两处客户端字典（`ui-agent-preset`、`ui-settings-plugin-inventory`）各删两套退役文案，中英同步；文案面按单预设施事（引导句、创造入口、模式开关说明），不再把标准/编码/创造当三个并列模式；车道断言与三份金样按新文案重录。**新增常备门 `verify-preset-copy`**（挂 `doc-quick`）：出厂预设目录、display 映射与两处字典必须逐项一致，退役 id 的文案键或映射零残留；门自带 9 例规格（含漂移负例）。`apps/web/tsconfig.json` 补回第三方插件车道的 host 面排除（S5 引入时漏项，客户端面因此红）。
 
-**T9 已收口**：两处部署 patch 的 `tools.mode` 由「未设即 schema 默认 native」改为 `process.env.QILIN_TOOLS_MODE ?? 'ptc'`——不设环境变量时的行为与出厂预设的 PTC 呈现一致，缝降级为覆盖开关；patch 注释与两份 bundle README 双语同步，并登记上游 per-session 选择落地后退役该缝。
+**T9 已收口**：两处部署 patch 的 `tools.mode` 由「未设即 schema 默认 native」改为 `process.env.QILIN_TOOLS_MODE ?? 'ptc'`——不设环境变量时的行为与出厂预设的 coding 呈现一致，缝降级为覆盖开关；patch 注释与两份 bundle README 双语同步，并登记上游 per-session 选择落地后退役该缝。
 
 **验证**：三包单测 377/377 · 新门 9/9 · `tsc -b` client/host 两面 0 · oxlint 0 · `verify-cordis-config` 436 · 两 bundle 测试 125/125 · `verify-preset-copy`、`verify-md-links` 2183、`verify-client-ui-i18n` 1017、`verify-doc-budgets` 8、`verify-runtime-closure`（1 预设 + 157 包）、`verify-client-packages` 67、`verify-package-dependencies` 78、`rescope-vendor --check` 8470 · 浏览器车道 `agent-preset-authoring` 7/7、`agent-preset-selection` 5/5（replay 复验）。
 

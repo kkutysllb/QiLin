@@ -1,23 +1,23 @@
 /**
- * Service Definition for the PTC execution capability seam that runs one model-written program against host async bindings.
+ * Service Definition for the coding-mode execution capability seam that runs one model-written program against host async bindings.
  * Runtimes know nothing about tools or sessions; consumers own those concerns.
  * @module @qilin-agent/coding-runtime
  */
 
 import { Context, Service } from '@qilin-agent/kylin'
-import type { PtcRunRequest, PtcRunResult, PtcRunSpec } from './types.ts'
+import type { CodingRunRequest, CodingRunResult, CodingRunSpec } from './types.ts'
 import type { SandboxMode } from '@qilin-agent/sandbox'
 
 export type {
-  PtcBindingErrorClass,
-  PtcBindingFunction,
-  PtcBindingNamespace,
-  PtcJsonValue,
-  PtcRunFailure,
-  PtcRunRequest,
-  PtcRunResult,
-  PtcRunSpec,
-  PtcRunSandbox,
+  CodingBindingErrorClass,
+  CodingBindingFunction,
+  CodingBindingNamespace,
+  CodingJsonValue,
+  CodingRunFailure,
+  CodingRunRequest,
+  CodingRunResult,
+  CodingRunSpec,
+  CodingRunSandbox,
 } from './types.ts'
 
 /**
@@ -30,7 +30,7 @@ export type {
  * one backend is valid on all, so a caller cannot pick a name that works on
  * Node and collides on Python (or vice versa). `__name__` et al. ARE
  * valid portable identifiers, so the identifier rule on
- * `PtcBindingNamespace.global` never rejects them — hence this explicit set.
+ * `CodingBindingNamespace.global` never rejects them — hence this explicit set.
  * (Error members differ: {@link DUNDER_MEMBER} refuses every dunder form
  * wholesale; binding globals refuse only the names listed here.) `__debug__`
  * is listed for a different reason than a collision: CPython compiles a bare
@@ -45,7 +45,7 @@ export const RESERVED_BINDING_GLOBALS: ReadonlySet<string> = new Set([
 ])
 
 /**
- * `PtcBindingErrorClass.memberNameProperty` names EVERY backend refuses, as
+ * `CodingBindingErrorClass.memberNameProperty` names EVERY backend refuses, as
  * one shared contract so a request valid on one backend is valid on all. The
  * JS `Error` exclusions (`name`, `message`, `stack`) and Python's
  * exception-protocol members (`args`, `with_traceback`, `add_note`) are
@@ -67,7 +67,7 @@ export const DUNDER_MEMBER = /^__.+__$/
 
 /**
  * Reserved words of every portable target language (ECMAScript ∪ Python),
- * refused as {@link PtcBindingNamespace.global} / error-class names by all
+ * refused as {@link CodingBindingNamespace.global} / error-class names by all
  * backends, one per language: the released TypeScript Node process and the
  * experimental, private CPython subprocess. The portable-identifier contract
  * promises a namespace list valid on one backend is valid on every backend; a
@@ -90,18 +90,18 @@ export const PORTABLE_RESERVED_WORDS: ReadonlySet<string> = new Set([
 
 declare module '@qilin-agent/kylin' {
   interface Context {
-    codingRuntime: PtcRuntime
+    codingRuntime: CodingRuntime
   }
 }
 
 /**
  * Registers one `ctx.codingRuntime` implementation. Program, budget, abort, and substrate
- * failures resolve in {@link PtcRunResult}; only Service Definition contract misuse rejects. Implementations bridge
+ * failures resolve in {@link CodingRunResult}; only Service Definition contract misuse rejects. Implementations bridge
  * structured-cloneable bindings, materialize each declared namespace rejection
  * class, treat programs as hostile peers, isolate distinct state owners, and
  * terminate and await in-flight runs during disposal.
  */
-export abstract class PtcRuntime extends Service {
+export abstract class CodingRuntime extends Service {
   /**
    * The source language {@link run} expects `program` to be written in, as a
    * lowercase identifier. Informational, not gating — a consumer that
@@ -152,14 +152,14 @@ export abstract class PtcRuntime extends Service {
    * @returns Complete directory, deadline and supported authority for run.
    * @throws When an explicit choice is invalid or unsupported by this provider.
    */
-  abstract resolve(request: PtcRunRequest): PtcRunSpec
+  abstract resolve(request: CodingRunRequest): CodingRunSpec
 
   /**
    * Execute resolved inputs; program outcomes resolve as result fields.
    * @param spec - directory, deadline, program, bindings, cancellation and supported policy.
    * @returns Captured output and the execution outcome.
    */
-  abstract run(spec: PtcRunSpec): Promise<PtcRunResult>
+  abstract run(spec: CodingRunSpec): Promise<CodingRunResult>
 }
 
-export default PtcRuntime
+export default CodingRuntime

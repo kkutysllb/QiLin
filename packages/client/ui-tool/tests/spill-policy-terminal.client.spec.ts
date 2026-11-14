@@ -2,8 +2,8 @@
 import { Context } from '@qilin-agent/kylin'
 import type { Agent } from '@qilin-agent/agent'
 import type { ToolResultNode } from '@qilin-agent/client-ui-chat/client'
-import { PtcRuntime } from '@qilin-agent/coding-runtime'
-import type { PtcRunRequest, PtcRunSpec, PtcRunResult } from '@qilin-agent/coding-runtime'
+import { CodingRuntime } from '@qilin-agent/coding-runtime'
+import type { CodingRunRequest, CodingRunSpec, CodingRunResult } from '@qilin-agent/coding-runtime'
 import { estimateContent } from '@qilin-agent/token-meter/estimate'
 import { ToolCallId } from '@qilin-agent/llm'
 import { Session, SessionId } from '@qilin-agent/session'
@@ -46,13 +46,13 @@ async function executeShell(text: string, nested: boolean, name = 'bash', maxInl
     await ctx.plugin(SpillPolicy, { maxInlineTokens })
     if (nested) {
       // The real registry and spill policy own nested output; evaluator execution has its own process suite.
-      class BindingRuntime extends PtcRuntime {
+      class BindingRuntime extends CodingRuntime {
         readonly language = 'typescript'
         readonly isolation = 'fixture'
-        resolve(request: PtcRunRequest): PtcRunSpec {
+        resolve(request: CodingRunRequest): CodingRunSpec {
           return { ...request, cwd: process.cwd(), timeoutMs: 120_000 }
         }
-        async run(spec: PtcRunSpec): Promise<PtcRunResult> {
+        async run(spec: CodingRunSpec): Promise<CodingRunResult> {
           const tool = spec.bindings.find(binding => binding.global === 'tools')?.functions[name]
           if (tool === undefined) throw new Error('missing fixture binding')
           const blocks = await tool(shellArgs)

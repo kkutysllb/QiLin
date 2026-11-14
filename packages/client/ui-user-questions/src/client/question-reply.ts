@@ -191,7 +191,7 @@ function resultReply(
 }
 
 /**
- * In-time ask-user answers paired by native callId or PTC subCallId. Pending, failed, and
+ * In-time ask-user answers paired by native callId or coding subCallId. Pending, failed, and
  * malformed results retain their generic Tool presentation; late answers are
  * owned by questionReplyDefinition. Work is bounded by this call's answer batch.
  */

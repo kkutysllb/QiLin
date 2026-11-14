@@ -58,7 +58,7 @@ describe('qilin run with Agent Teams enabled', () => {
         tsconfigPath,
         env: {
           QILIN_HOME: home,
-          // The headless bundle defaults to the PTC presentation, where only
+          // The headless bundle defaults to the coding-mode presentation, where only
           // `run_code` is directly callable; the fixture adapter calls the
           // teammate, workflow, and task tools by their own names.
           QILIN_TOOLS_MODE: 'native',

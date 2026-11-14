@@ -1,9 +1,9 @@
-/** Node PTC in-memory execution with retained processes scoped to caller-owned objects. */
+/** Node coding in-memory execution with retained processes scoped to caller-owned objects. */
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { stripTypeScriptTypes } from 'node:module'
 import { isAbsolute } from 'node:path'
 import { Context } from '@qilin-agent/kylin'
-import type { PtcRunRequest, PtcRunSpec, PtcRunResult, PtcRunSandbox, PtcRunFailure, PtcBindingNamespace, PtcJsonValue } from '@qilin-agent/coding-runtime'
+import type { CodingRunRequest, CodingRunSpec, CodingRunResult, CodingRunSandbox, CodingRunFailure, CodingBindingNamespace, CodingJsonValue } from '@qilin-agent/coding-runtime'
 import { clampTimeout } from '@qilin-agent/timeout'
 import { SandboxUnavailableError, classifyRunnerFailure, isRunnerSpawnFailure } from '@qilin-agent/sandbox'
 import type { ConfinedArgv, SandboxExecutionPolicy } from '@qilin-agent/sandbox'
@@ -29,13 +29,13 @@ function persistentOutput(maxBytes: number): OutputLedger {
 interface Evaluation {
   id: number
   data: ProgramBootData
-  spec: PtcRunSpec
-  bindings: Map<string, PtcBindingNamespace>
+  spec: CodingRunSpec
+  bindings: Map<string, CodingBindingNamespace>
   reply: typeof replyToBinding
   pending: number
   pendingBytes: number
   admit(text: string): void
-  finish(error?: PtcRunFailure, value?: PtcJsonValue, discard?: boolean): void
+  finish(error?: CodingRunFailure, value?: CodingJsonValue, discard?: boolean): void
 }
 
 /** One managed process; all mutable program state belongs to this process alone. */
@@ -66,13 +66,13 @@ class Kernel {
   }
 
   assertIdle(): void {
-    if (this.running) throw new Error('persistent PTC does not accept concurrent runs for one state owner')
-    if (this.cleanupPending) throw new Error('persistent PTC environment cleanup is incomplete; release the owner before running another program')
+    if (this.running) throw new Error('persistent coding does not accept concurrent runs for one state owner')
+    if (this.cleanupPending) throw new Error('persistent coding environment cleanup is incomplete; release the owner before running another program')
   }
 
-  async run(spec: PtcRunSpec, bindings: Map<string, PtcBindingNamespace>, code: string): Promise<PtcRunResult> {
+  async run(spec: CodingRunSpec, bindings: Map<string, CodingBindingNamespace>, code: string): Promise<CodingRunResult> {
     this.running = true
-    const sandbox: PtcRunSandbox = { mode: this.policy.mode, denied: false }
+    const sandbox: CodingRunSandbox = { mode: this.policy.mode, denied: false }
     try {
       const result = await this.evaluate(spec, bindings, code)
       if (this.confined !== undefined) {
@@ -84,10 +84,10 @@ class Kernel {
     } finally { this.running = false }
   }
 
-  private async evaluate(spec: PtcRunSpec, bindings: Map<string, PtcBindingNamespace>, code: string): Promise<PtcRunResult> {
+  private async evaluate(spec: CodingRunSpec, bindings: Map<string, CodingBindingNamespace>, code: string): Promise<CodingRunResult> {
     if (this.exitOutcome !== undefined) {
       const output = persistentOutput(this.config.maxOutputBytes)
-      const failure: PtcRunFailure = spec.signal?.aborted
+      const failure: CodingRunFailure = spec.signal?.aborted
         ? { kind: 'abort', message: 'execution canceled; retained variables were cleared' }
         : { kind: 'worker-exit', message: `${this.exitMessage(this.exitOutcome)}; retained variables were cleared` }
       try { await this.stop() } catch (error: unknown) {
@@ -98,7 +98,7 @@ class Kernel {
     this.stderr = ''
     const output = persistentOutput(this.config.maxOutputBytes)
     const logs: string[] = []
-    const result = Promise.withResolvers<PtcRunResult>()
+    const result = Promise.withResolvers<CodingRunResult>()
     const timer = spec.timeoutMs === null ? undefined : setTimeout(() => {
       evaluation.finish({ kind: 'timeout', message: `execution deadline reached (${spec.timeoutMs}ms); retained variables were cleared` }, undefined, true)
     }, spec.timeoutMs)
@@ -142,7 +142,7 @@ class Kernel {
   }
 
   async dispose(): Promise<void> {
-    this.active?.finish({ kind: 'abort', message: 'PTC environment disposed; retained variables were cleared' }, undefined, true)
+    this.active?.finish({ kind: 'abort', message: 'coding environment disposed; retained variables were cleared' }, undefined, true)
     await this.stop()
   }
 
@@ -165,7 +165,7 @@ class Kernel {
     return this.stopped
   }
 
-  private fail(kind: PtcRunFailure['kind'], message: string): void {
+  private fail(kind: CodingRunFailure['kind'], message: string): void {
     if (this.active) this.active.finish({ kind, message: `${message}; retained variables were cleared` }, undefined, true)
     else {
       if (!this.closed) this.ctx.logger.warn(message)
@@ -195,7 +195,7 @@ class Kernel {
       .map(key => [key, undefined]))
     const handle = this.ctx.subprocess.spawn({ argv: this.confined?.argv ?? argv, cwd, env, stdio: { stdin: 'ignore', stdout: 'pipe', stderr: 'pipe', control: 'pipe' }, graceMs: this.config.graceMs })
     this.handle = handle
-    if (!handle.control || !handle.stdout || !handle.stderr) throw new Error('subprocess provider did not supply persistent PTC pipes')
+    if (!handle.control || !handle.stdout || !handle.stderr) throw new Error('subprocess provider did not supply persistent coding pipes')
     for (const stream of [handle.stdout, handle.stderr]) {
       stream.setEncoding('utf8')
       stream.on('data', (text: string) => {
@@ -220,34 +220,34 @@ class Kernel {
   }
 
   private receive(raw: unknown, bytes: number): void {
-    if (!record(raw)) { this.fail('protocol', 'invalid persistent PTC frame'); return }
+    if (!record(raw)) { this.fail('protocol', 'invalid persistent coding frame'); return }
     const evaluation = this.active
-    if (!evaluation) { this.fail('protocol', 'frame arrived without an active PTC evaluation'); return }
+    if (!evaluation) { this.fail('protocol', 'frame arrived without an active coding evaluation'); return }
     if (!this.ready) {
-      if (raw.type !== 'ready') { this.fail('protocol', 'expected persistent PTC readiness'); return }
+      if (raw.type !== 'ready') { this.fail('protocol', 'expected persistent coding readiness'); return }
       this.ready = true
       this.dispatch(evaluation)
       return
     }
-    if (raw.id !== evaluation.id || !record(raw.payload)) { this.fail('protocol', 'frame does not belong to the active PTC evaluation'); return }
+    if (raw.id !== evaluation.id || !record(raw.payload)) { this.fail('protocol', 'frame does not belong to the active coding evaluation'); return }
     const payload = raw.payload
     switch (payload.type) {
       case 'log':
         if (typeof payload.text === 'string') evaluation.admit(payload.text)
-        else this.fail('protocol', 'invalid persistent PTC log')
+        else this.fail('protocol', 'invalid persistent coding log')
         return
       case 'output-limit': evaluation.finish({ kind: 'output-limit', message: 'output limit exceeded' }, undefined, true); return
       case 'done': {
         if (payload.error !== undefined) {
           const error = payload.error
           if (!record(error) || typeof error.message !== 'string' || (error.kind !== 'exception' && error.kind !== 'invalid-output' && error.kind !== 'output-limit')) {
-            this.fail('protocol', 'invalid persistent PTC failure'); return
+            this.fail('protocol', 'invalid persistent coding failure'); return
           }
-          const failure = { kind: error.kind, message: error.message } as PtcRunFailure
+          const failure = { kind: error.kind, message: error.message } as CodingRunFailure
           setImmediate(() => { evaluation.finish(failure, undefined, failure.kind === 'output-limit') })
         } else {
           const value = payload.value === undefined ? undefined : decodePtcJsonWire(payload.value)
-          const failure: PtcRunFailure | undefined = payload.value !== undefined && value === undefined
+          const failure: CodingRunFailure | undefined = payload.value !== undefined && value === undefined
             ? { kind: 'invalid-output', message: 'program completion must be lossless JSON' } : undefined
           // Raw stdio may be queued beside the terminal control frame on separate pipes.
           setImmediate(() => { evaluation.finish(failure, value) })
@@ -255,7 +255,7 @@ class Kernel {
         return
       }
       case 'call': {
-        if (payload.id !== this.nextCall || typeof payload.global !== 'string' || typeof payload.name !== 'string') { this.fail('protocol', 'invalid persistent PTC binding identity'); return }
+        if (payload.id !== this.nextCall || typeof payload.global !== 'string' || typeof payload.name !== 'string') { this.fail('protocol', 'invalid persistent coding binding identity'); return }
         this.nextCall += 1
         const args = decodePtcJsonWire(payload.args)
         if (args === undefined) { this.fail('protocol', 'binding arguments must be lossless JSON'); return }
@@ -274,7 +274,7 @@ class Kernel {
         })().catch((error: unknown) => { this.fail('protocol', messageOf(error)) })
         return
       }
-      default: this.fail('protocol', 'unknown persistent PTC message')
+      default: this.fail('protocol', 'unknown persistent coding message')
     }
   }
 }
@@ -299,14 +299,14 @@ export class InMemoryExecution {
    * @param processes - Provider-owned policy invalidation and cleanup.
    */
   constructor(private readonly ctx: Context, private readonly config: ResolvedConfig, private readonly processes: PolicyProcesses) {
-    if (this.config.launch.kind === 'embedded') throw new Error('Persistent PTC requires a node-script launch')
+    if (this.config.launch.kind === 'embedded') throw new Error('Persistent coding requires a node-script launch')
     ctx.effect(() => async () => {
       this.disposed = true
       const results = await Promise.allSettled([...this.kernels].map(kernel => kernel.dispose()))
       this.kernels.clear()
       const failed = results.find(result => result.status === 'rejected')
       if (failed?.status === 'rejected') throw failed.reason
-    }, 'Persistent PTC environments')
+    }, 'Persistent coding environments')
   }
 
   /**
@@ -314,12 +314,12 @@ export class InMemoryExecution {
    * @param request - Program, bindings, owner, directory and elapsed budget.
    * @returns Resolved inputs with the selected file policy.
    */
-  resolve(request: PtcRunRequest): PtcRunSpec {
-    if (this.disposed) throw new Error('persistent PTC: resolve after disposal')
+  resolve(request: CodingRunRequest): CodingRunSpec {
+    if (this.disposed) throw new Error('persistent coding: resolve after disposal')
     const sandboxPolicy = request.sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
     const cwd = request.cwd ?? sandboxPolicy.workspaceRoot
-    if (!isAbsolute(cwd)) throw new Error('persistent PTC: cwd must be absolute')
-    return { ...request, sandboxPolicy, cwd, timeoutMs: request.timeoutMs === null ? null : clampTimeout(request.timeoutMs, this.config.timeoutMs, this.config.maxTimeoutMs, 'persistent PTC timeoutMs') }
+    if (!isAbsolute(cwd)) throw new Error('persistent coding: cwd must be absolute')
+    return { ...request, sandboxPolicy, cwd, timeoutMs: request.timeoutMs === null ? null : clampTimeout(request.timeoutMs, this.config.timeoutMs, this.config.maxTimeoutMs, 'persistent coding timeoutMs') }
   }
 
   /**
@@ -327,16 +327,16 @@ export class InMemoryExecution {
    * @param spec - Resolved request; concurrent calls for one owner are rejected.
    * @returns Logs, a final JSON expression, or a structured execution failure.
    */
-  async run(spec: PtcRunSpec): Promise<PtcRunResult> {
-    if (this.disposed) throw new Error('persistent PTC: run after disposal')
-    if (spec.sandboxPolicy === undefined || !isAbsolute(spec.cwd) || (spec.timeoutMs !== null && (!Number.isFinite(spec.timeoutMs) || spec.timeoutMs <= 0 || spec.timeoutMs > this.config.maxTimeoutMs))) throw new Error('persistent PTC: run requires resolved inputs with a sandbox policy')
+  async run(spec: CodingRunSpec): Promise<CodingRunResult> {
+    if (this.disposed) throw new Error('persistent coding: run after disposal')
+    if (spec.sandboxPolicy === undefined || !isAbsolute(spec.cwd) || (spec.timeoutMs !== null && (!Number.isFinite(spec.timeoutMs) || spec.timeoutMs <= 0 || spec.timeoutMs > this.config.maxTimeoutMs))) throw new Error('persistent coding: run requires resolved inputs with a sandbox policy')
     const bindings = validateBindings(spec)
     let kernel = spec.stateOwner === undefined ? undefined : this.owners.get(spec.stateOwner)
     kernel?.assertIdle()
     if (kernel && !kernel.closed && (kernel.policy.mode !== spec.sandboxPolicy.mode
       || kernel.policy.workspaceRoot !== spec.sandboxPolicy.workspaceRoot
       || kernel.policy.sessionId !== spec.sandboxPolicy.sessionId)) {
-      throw new Error('persistent PTC: release the retained environment before changing its sandbox policy')
+      throw new Error('persistent coding: release the retained environment before changing its sandbox policy')
     }
     let code: string
     try { code = stripTypeScriptTypes(spec.program) } catch (error: unknown) {

@@ -1,4 +1,4 @@
-// PTC mode browser round trip with nested sub-calls and details selection.
+// coding mode browser round trip with nested sub-calls and details selection.
 // Record: QILIN_SNAPSHOT=record writes session.v3.jsonl, then a keyless
 // QILIN_SNAPSHOT=refresh regenerates ui.expected.md.
 import { readFile } from 'node:fs/promises'
@@ -23,7 +23,7 @@ const MODE = webSnapshotMode()
 const PROMPT = 'Using ONE run_code program: run bash `echo CODE_ROUND_OK`, then read the file missing.txt '
   + 'catching its error in the program. Return an object with both outcomes. Then reply DONE and stop.'
 
-describe('web e2e: PTC mode round renders nested sub-calls', () => {
+describe('web e2e: coding mode round renders nested sub-calls', () => {
   let scaffold: WebScaffold
   let browser: Browser
   let page: Page
@@ -155,10 +155,10 @@ describe('web e2e: PTC mode round renders nested sub-calls', () => {
     await compareOrRefreshGolden(UI_EXPECTED, snapshot, MODE)
   })
 
-  it.skipIf(MODE === 'record')('inspects recorded PTC source, wrapping, and original JSON in the trajectory', async () => {
+  it.skipIf(MODE === 'record')('inspects recorded coding source, wrapping, and original JSON in the trajectory', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-ptc-inspector'))
     const call = sessionEvents.find(event => event.type === 'tool/call' && event.data.name === 'run_code')
-    if (call?.type !== 'tool/call') throw new Error('recorded PTC call missing')
+    if (call?.type !== 'tool/call') throw new Error('recorded coding call missing')
     const args = JSON.parse(call.data.arguments) as { code: string; description: string }
     // This assertion reads the NATIVE trajectory ledger of the shipped
     // composition.

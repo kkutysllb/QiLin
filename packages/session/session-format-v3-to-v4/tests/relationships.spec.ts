@@ -135,7 +135,7 @@ describe('mandatory V4 compaction restoration', () => {
 })
 
 describe('mandatory V4 dependent event restoration', () => {
-  it('accepts PTC nesting and settlements with equal argument objects', () => {
+  it('accepts coding nesting and settlements with equal argument objects', () => {
     expect(() => reopen([...begin(), dispatch('start'), dispatch('start', { subCallId: 'grandchild', parentCallId: 'child' }), dispatch('end', { subCallId: 'grandchild', parentCallId: 'child' }), dispatch('end', { arguments: { b: 2, a: 1 } }), ...end()])).not.toThrow()
   })
 
@@ -148,7 +148,7 @@ describe('mandatory V4 dependent event restoration', () => {
     ['root changes', [...begin(), dispatch('start'), dispatch('end', { rootCallId: 'different' })]],
     ['arguments change', [...begin(), dispatch('start'), dispatch('end', { arguments: {} })]],
     ['name changes', [...begin(), dispatch('start'), dispatch('end', { name: 'different' })]],
-  ] satisfies Array<[string, Row[]]>)('rejects PTC %s', (_name, rows) => { expect(() => reopen(rows)).toThrow() })
+  ] satisfies Array<[string, Row[]]>)('rejects coding %s', (_name, rows) => { expect(() => reopen(rows)).toThrow() })
 
   it('accepts retry chains, including retries scheduled after the step ends', () => {
     expect(() => reopen([...begin(), request(), retry(), retryStart(), retry({ retry: 2 }), retryStart({ retry: 2 }), row('step/end', step), retry({ retry: 3 }), row('turn/end', { turn: 1, reason: { kind: 'completed' } })])).not.toThrow()

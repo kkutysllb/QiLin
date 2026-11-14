@@ -70,7 +70,7 @@ Status-specific semantics and the serialized `maxHandoffChars` ceiling are valid
 
 ### Lifecycle and cancellation
 
-The caller's agent is the parent of every fresh child, preserving cwd and lineage without copying its conversation. `exec.signal` enters the workflow engine and is also bridged to `run.cancel()` for implementation independence. The tool awaits `run.result` and calls `run.dispose()` in `finally`, so a cancelled parent step waits for process and child cleanup before returning. The PTC engine sets no overall workflow elapsed deadline; caller cancellation still applies.
+The caller's agent is the parent of every fresh child, preserving cwd and lineage without copying its conversation. `exec.signal` enters the workflow engine and is also bridged to `run.cancel()` for implementation independence. The tool awaits `run.result` and calls `run.dispose()` in `finally`, so a cancelled parent step waits for process and child cleanup before returning. The coding engine sets no overall workflow elapsed deadline; caller cancellation still applies.
 
 ### Render intent
 
@@ -93,7 +93,7 @@ Read these pages when the tool-level contract is not enough. They move from the 
 
 - [Workflow subsystem](../../../docs/subsystems/workflow.md) — the seam contract behind the fixed loop.
 - [Workflow seam](../../workflow/workflow/README.md) — the run and result vocabulary.
-- [PTC workflow engine](../../workflow/workflow-coding/README.md) — the engine that executes the fixed script.
+- [coding workflow engine](../../workflow/workflow-coding/README.md) — the engine that executes the fixed script.
 - [subagent seam](../../subagent/subagent/README.md) — the fresh-child provider contract.
 - [Goal group](../../goal/goal/README.md) — same-session goal tools for ordinary long-running objectives.
 - [Harness-level goal-based execution Agent Note](../../../.agents/notes/implemented/feature/2026-07-16-harness-level-loop.md) — the policy, provider requirements, and deferred work.

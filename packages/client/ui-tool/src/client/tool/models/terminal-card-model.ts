@@ -303,7 +303,7 @@ function parseExitStatus(text: string): { output: string; exitCode?: number | nu
 
 /**
  * Derive terminal props for supported shell and terminal-send calls, including
- * nested PTC dispatch calls. Standard shell results parse their final status
+ * nested coding dispatch calls. Standard shell results parse their final status
  * marker. Successful background shell launches retain only their command after
  * settlement; persistent shell results, spill previews, background terminal sends,
  * errors, and malformed input use the generic path. {@link isSettledPersistentShellCall}

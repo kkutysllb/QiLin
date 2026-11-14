@@ -4,7 +4,7 @@ English | [中文](workflow.zh.md)
 
 The workflow seam lets an agent run a model-written orchestration SCRIPT that starts subagents. Like [subagent](subagent.md) it is **one optional capability**, not part of the agent loop, so its types and operations live here rather than in [core.md](core.md). Like bash, it permits ONE engine implementation per context to provide `ctx.workflowEngine`; there is no named-provider registry (a second engine replaces the first through plugin configuration rather than running beside it).
 
-Service Definition: [qilin-workflow](../../packages/workflow/workflow) (`ctx.workflowEngine` and the vocabulary below). [qilin-workflow-coding](../../packages/workflow/workflow-coding) executes the VM and helpers through the shared Node PTC process runtime under the calling Session's file policy. The consumers are [qilin-tool-workflow](../../packages/workflow/tool-workflow) and the opt-in [qilin-tool-ralph](../../packages/experimental/tool-ralph). [Workflow sandbox reuse](../../.agents/notes/implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.md) owns execution choices; the [dynamic-workflows decision](../../.agents/notes/implemented/feature/2026-07-05-dynamic-workflows.md) owns script semantics.
+Service Definition: [qilin-workflow](../../packages/workflow/workflow) (`ctx.workflowEngine` and the vocabulary below). [qilin-workflow-coding](../../packages/workflow/workflow-coding) executes the VM and helpers through the shared Node coding process runtime under the calling Session's file policy. The consumers are [qilin-tool-workflow](../../packages/workflow/tool-workflow) and the opt-in [qilin-tool-ralph](../../packages/experimental/tool-ralph). [Workflow sandbox reuse](../../.agents/notes/implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.md) owns execution choices; the [dynamic-workflows decision](../../.agents/notes/implemented/feature/2026-07-05-dynamic-workflows.md) owns script semantics.
 
 Sources: browser-safe vocabulary in [`packages/workflow/workflow/src/types.ts`](../../packages/workflow/workflow/src/types.ts), Host request and live-run handles in [`runtime-types.ts`](../../packages/workflow/workflow/src/runtime-types.ts).
 
@@ -92,7 +92,7 @@ interface WorkflowResult {
 
 ## A live run: `WorkflowRun`
 
-The consumer awaits `result`, may `cancel` during execution, and must `dispose` on every path. `result` never rejects: script failure resolves with `stopReason: 'error'`, and cancellation with `'cancelled'`. The PTC engine has no overall elapsed deadline; it immediately aborts the managed process when cancelled. Disposal awaits process and child cleanup under their provider contracts, without an independent workflow cleanup deadline.
+The consumer awaits `result`, may `cancel` during execution, and must `dispose` on every path. `result` never rejects: script failure resolves with `stopReason: 'error'`, and cancellation with `'cancelled'`. The coding engine has no overall elapsed deadline; it immediately aborts the managed process when cancelled. Disposal awaits process and child cleanup under their provider contracts, without an independent workflow cleanup deadline.
 
 ```ts type-equiv
 /**

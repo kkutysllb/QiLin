@@ -9,7 +9,7 @@ kind: "package-group"
 
 ## 概述
 
-实验组包含约定可能变更且不提供支持承诺的原型能力。所有当前包都以 `@qilin-agent/experimental-*` 名称发布，包括显式启用的 Agent Teams 组合、Auto review、Cua Driver 提供方、浏览器操作后端、CPython PTC 后端与浏览器 worker 预览库。组外已发布产品不得依赖实验性包。
+实验组包含约定可能变更且不提供支持承诺的原型能力。所有当前包都以 `@qilin-agent/experimental-*` 名称发布，包括显式启用的 Agent Teams 组合、Auto review、Cua Driver 提供方、浏览器操作后端、CPython coding 后端与浏览器 worker 预览库。组外已发布产品不得依赖实验性包。
 
 ## 目录
 
@@ -32,10 +32,10 @@ kind: "package-group"
 | [`forge`](forge/README.zh.md) | 提供方无关的代码托管平台变更请求注册表与共享轮询循环 | `ctx.forge` |
 | [`forge-github`](forge-github/README.zh.md) | 通过宿主 `gh` CLI 读取 GitHub 的提供方 | — |
 | [`forge-session`](forge-session/README.zh.md) | 把 Session 与它命令涉及的变更请求绑定 | `ctx.forgeSession` |
-| [`auto-review`](auto-review/README.zh.md) | 显式 Web 层，在每个原生或 PTC inner 工具调用前使用同一模型审查 | — |
+| [`auto-review`](auto-review/README.zh.md) | 显式 Web 层，在每个原生或 coding inner 工具调用前使用同一模型审查 | — |
 | [`claude-code-mods`](claude-code-mods/README.zh.md) | 把 Claude Code 模组作为插件运行：其钩子链落在 harness 扩展点上，并在提示框上方绘制横幅 | `ctx.claudeCodeMods` |
 | [`client-ui-claude-code-mods`](client-ui-claude-code-mods/README.zh.md) | 在提示框上方绘制模组树的 Web 横幅，并把按钮点击送回桥接 | — |
-| [`coding-runtime-python`](coding-runtime-python/README.zh.md) | PTC 执行 seam 的 CPython 子进程后端 | `ctx.codingRuntime` |
+| [`coding-runtime-python`](coding-runtime-python/README.zh.md) | coding 执行 seam 的 CPython 子进程后端 | `ctx.codingRuntime` |
 | [`computer-use-cua-driver-mcp`](computer-use-cua-driver-mcp/README.zh.md) | 通过 MCP 使用已安装的 Cua Driver | `ctx.computerUse` |
 | [`computer-use-cua-driver-native`](computer-use-cua-driver-native/README.zh.md) | 嵌入 Cua Driver 原生 npm 运行时 | `ctx.computerUse` |
 | [`browser-use-playwright-mcp`](browser-use-playwright-mcp/README.zh.md) | 通过 MCP 提供 Playwright 浏览器工具 | `ctx.browserUse` |

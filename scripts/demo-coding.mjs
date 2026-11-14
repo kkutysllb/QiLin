@@ -1,8 +1,8 @@
-/** Run one headless task through the shipped PTC mode composition. Requires a model credential. */
+/** Run one headless task through the shipped coding mode composition. Requires a model credential. */
 import { spawn } from 'node:child_process'
 
 const task = process.argv.slice(2).join(' ').trim()
-  || 'Inspect this repository with PTC mode and report its top-level architecture.'
+  || 'Inspect this repository with coding mode and report its top-level architecture.'
 
 const child = spawn(process.execPath, [
   '--import',

@@ -29,8 +29,8 @@ export async function runSshHelperRuntime(): Promise<void> {
   // packaging bootstrap owns this deletion rather than the worker.
   const selection = process.env.QILIN_SUBPROCESS_RUNNER
   Reflect.deleteProperty(process.env, 'QILIN_SUBPROCESS_RUNNER')
-  if (process.env.QILIN_PTC_RUNTIME_NODE === '1') {
-    Reflect.deleteProperty(process.env, 'QILIN_PTC_RUNTIME_NODE')
+  if (process.env.QILIN_coding_RUNTIME_NODE === '1') {
+    Reflect.deleteProperty(process.env, 'QILIN_coding_RUNTIME_NODE')
     await import('@qilin-agent/coding-runtime-node/process')
   } else if (selection !== undefined) {
     const { runSelectedSubprocessRunner } = await import('@qilin-agent/subprocess-local/runner')

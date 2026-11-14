@@ -9,8 +9,8 @@
   en: 04bcb1e79c92cad9
   zh: 45acefa225993264
 /qilin-agent-tools/summary:
-  en: 7fb51274d4f721df
-  zh: da9b19633629eefd
+  en: 4deeff4d633458b2
+  zh: 7fe043363fdeb6a3
 /qilin-agent-tools/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -21,8 +21,8 @@
   en: 02fce53c21a33d74
   zh: 01110c4714dfd602
 /qilin-agent-tools/use-this-package/configure-the-presentation-mode:
-  en: 85a21a16d101e67c
-  zh: 140372587758f8cb
+  en: 5d3b786b6cee6dd0
+  zh: 3ecb897ffd7c48b0
 /qilin-agent-tools/use-this-package/restrict-tools-per-agent:
   en: c6f98b2283cc2e47
   zh: c2cdce5d13473f15
@@ -39,14 +39,14 @@
   en: 92e8af53e6067bad
   zh: 33c7b99b42c5acac
 /qilin-agent-tools/understand-the-implementation/source-map:
-  en: c14e20d6a5c4c408
-  zh: ab9dc0fd38006749
+  en: be78ff5f9e72697f
+  zh: 85eb97d480da252d
 /qilin-agent-tools/understand-the-implementation/execution-and-cancellation:
-  en: dc44a88997777988
-  zh: 56454aeace1c8b77
-/qilin-agent-tools/understand-the-implementation/ptc-mode:
-  en: 05db4632bd08eb8c
-  zh: d1699b7a159eea9b
+  en: c8e6c1b363973472
+  zh: c1c9684ec060ac2f
+/qilin-agent-tools/understand-the-implementation/coding-mode:
+  en: ce5273c0740db94c
+  zh: 45d6f40e6d7ca96d
 /qilin-agent-tools/understand-the-implementation/extension-points:
   en: c2a14d6f22bc9428
   zh: 89c1414fca465931
@@ -68,27 +68,27 @@
 /qilin-agent-tools/model-experience/normal-tool-schemas/kv-cache-effect:
   en: 7c5e75964e020b2c
   zh: d50d0402d15232d9
-/qilin-agent-tools/model-experience/ptc-mode-schema-and-system-prompt:
-  en: eaefd7303f22977d
-  zh: 9c425f9501128224
-/qilin-agent-tools/model-experience/ptc-mode-schema-and-system-prompt/what-the-model-sees:
-  en: 2efe3c1c793219e0
-  zh: 40be3fbb1dd63d4e
-/qilin-agent-tools/model-experience/ptc-mode-schema-and-system-prompt/what-the-model-sees/typescript-ptc-mode-sdk-instructions-with-bash:
-  en: 3a8df15e4ae32f9e
-  zh: fc4a800ba363e835
-/qilin-agent-tools/model-experience/ptc-mode-schema-and-system-prompt/token-effect:
-  en: 12296fcafc14562c
-  zh: f8e9351bb8c6437d
-/qilin-agent-tools/model-experience/ptc-mode-schema-and-system-prompt/kv-cache-effect:
-  en: 78906628d634441f
-  zh: 492f133aea50cfe3
+/qilin-agent-tools/model-experience/coding-mode-schema-and-system-prompt:
+  en: eb040b791a0fa9c0
+  zh: ac3968e7f74cdfcc
+/qilin-agent-tools/model-experience/coding-mode-schema-and-system-prompt/what-the-model-sees:
+  en: f724ccb9cf6bf87a
+  zh: de4a951dd163e5dc
+/qilin-agent-tools/model-experience/coding-mode-schema-and-system-prompt/what-the-model-sees/typescript-coding-mode-sdk-instructions-with-bash:
+  en: deddfd3c6b676f4c
+  zh: ec6657c49fd0bd23
+/qilin-agent-tools/model-experience/coding-mode-schema-and-system-prompt/token-effect:
+  en: a01d0a5db69cd44e
+  zh: b5c75a27d7bbaf2e
+/qilin-agent-tools/model-experience/coding-mode-schema-and-system-prompt/kv-cache-effect:
+  en: 50399a710900b0d7
+  zh: dc9f5c48c67a5fbd
 /qilin-agent-tools/model-experience/tool-call-history-and-results:
   en: a8503137ad03720c
   zh: 611a2dadf7c0c706
 /qilin-agent-tools/model-experience/tool-call-history-and-results/what-the-model-sees:
-  en: 7c568da5a45e99ab
-  zh: 7e78f04448fc5450
+  en: e80bdaddacf85985
+  zh: 3bed8b6f1ed281c1
 /qilin-agent-tools/model-experience/tool-call-history-and-results/token-effect:
   en: 8fe3f024f364ed9f
   zh: 89c1d5d24c5f950b
@@ -96,8 +96,8 @@
   en: 2fbf2175168e8244
   zh: ad59a120b54a0996
 /qilin-agent-tools/known-limitations-and-deferred-work:
-  en: 74fab2af98466315
-  zh: 50465cf290b4d040
+  en: 2a0f6c877d66be2b
+  zh: 71aa32050cd3dc15
 /qilin-agent-tools/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

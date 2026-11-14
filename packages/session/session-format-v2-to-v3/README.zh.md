@@ -1,5 +1,5 @@
 ---
-description: "完整的 V2 到 V3 会话转换：系统头节点、经过审计的引用、PTC 与预设名称、规范信封、保留与拒绝规则。"
+description: "完整的 V2 到 V3 会话转换：系统头节点、经过审计的引用、coding 与预设名称、规范信封、保留与拒绝规则。"
 kind: "package-library"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-将受支持的已发布 V2 会话恢复为 V3，同时保留历史请求含义。本页是这条相邻迁移边的单一规范真源：先说明转换、保留与拒绝的内容，再单独说明原生 V3 准入。本库将系统提示词提升为消息，重映射本地事件引用，转换 PTC 与预设名称，并规范化信封。持久化通过静态目录使用本库；本库不读取或发布文件。
+将受支持的已发布 V2 会话恢复为 V3，同时保留历史请求含义。本页是这条相邻迁移边的单一规范真源：先说明转换、保留与拒绝的内容，再单独说明原生 V3 准入。本库将系统提示词提升为消息，重映射本地事件引用，转换 coding 与预设名称，并规范化信封。持久化通过静态目录使用本库；本库不读取或发布文件。
 
 ## 目录
 
@@ -18,7 +18,7 @@ kind: "package-library"
   - [头部与预设引用](#header-and-presets)
   - [系统头节点与消息身份](#system-head)
   - [序列引用与继承](#sequence-references)
-  - [PTC 词汇](#ptc-vocabulary)
+  - [coding 词汇](#ptc-vocabulary)
   - [规范信封与工具错误](#canonical-envelopes)
   - [投递保护](#delivery-guards)
   - [源审计与拒绝](#source-audit)
@@ -53,12 +53,12 @@ const targetHeader = sessionFormatV2ToV3.migrateHeader(sourceHeader)
 <a id="v2-to-v3-specification"></a>
 ## V2 到 V3 规范
 
-整条迁移边不是恒等转换。它保留源事件的相对顺序、时间戳和每个历史请求的含义，但插入的系统事件会改变事件数、稠密序列位置、本地引用和继承切点。PTC/预设转换及最终信封规范化不添加事件。只有下文列出的字段发生变化；保留承诺适用于已接纳的输入，而非任意未经审计的扩展。
+整条迁移边不是恒等转换。它保留源事件的相对顺序、时间戳和每个历史请求的含义，但插入的系统事件会改变事件数、稠密序列位置、本地引用和继承切点。coding/预设转换及最终信封规范化不添加事件。只有下文列出的字段发生变化；保留承诺适用于已接纳的输入，而非任意未经审计的扩展。
 
 <a id="header-and-presets"></a>
 ### 头部与预设引用
 
-逻辑头部将 `version: 2` 改为 `version: 3`。它保留 `id`、`createdAt`、`isSeeded`、`delegationDepth`，以及已接纳的可选字段 `cwd`、`parentSession` 和 `origin`。在 `header.agentPreset` 和每条 `agent-preset/selected.data.agentPreset` 中，精确匹配的预设标识 `code` 变为 `ptc`，包括继承与本地选择。其他字符串和缺失的头部预设保持不变。选择载荷要求字符串预设标识，并拒绝未经审计的成员。
+逻辑头部将 `version: 2` 改为 `version: 3`。它保留 `id`、`createdAt`、`isSeeded`、`delegationDepth`，以及已接纳的可选字段 `cwd`、`parentSession` 和 `origin`。在 `header.agentPreset` 和每条 `agent-preset/selected.data.agentPreset` 中，精确匹配的预设标识 `code` 变为 `coding`，包括继承与本地选择。其他字符串和缺失的头部预设保持不变。选择载荷要求字符串预设标识，并拒绝未经审计的成员。
 
 此转换不检查已安装预设，也不改写其他位置的 `code`。已发布 V0/V1 数据仅在经过冻结的前代迁移边到达 V2 后接受此转换。原生 V3 自定义预设标识不被重命名，`settings.yaml` 不属于本包范围。
 
@@ -90,7 +90,7 @@ const targetHeader = sessionFormatV2ToV3.migrateHeader(sourceHeader)
 对于有种子的会话，最后一条带有 `data.inherited: true` 的 `session/end-seed` 标识源切点。其源序号等于继承事件数，不含该标记；其映射后的目标序号即目标切点。此前的合成事件属于继承部分，此后的属于本地部分。未标记继承的结束标记不建立切点。若提供 `sourceInheritedEventCount`，则必须一致；有种子但没有标记的日志，以及无种子却有继承标记的日志都会被拒绝。无种子阶段公开 `headerInheritedEventCount: 0`；有种子阶段保持未知，直到 `finish()` 推导精确切点。这也支持前一阶段改变事件数、无法在 EOF 前提供切点的 V0/V1 迁移链。
 
 <a id="ptc-vocabulary"></a>
-### PTC 词汇
+### coding 词汇
 
 精确的事件标签 `tool/code-dispatch-start` 和 `tool/code-dispatch` 变为 `tool/ptc-dispatch-start` 和 `tool/ptc-dispatch`。其载荷值保持不变。仅在以下三个位置的 `source.kind === 'plugin'` 时，精确匹配的插件归属 `tools-code-mode` 才变为 `tools-ptc`：
 
@@ -98,7 +98,7 @@ const targetHeader = sessionFormatV2ToV3.migrateHeader(sourceHeader)
 - `agent/inbox/spliced.data.inserted[].source.plugin`
 - `session/title-llm-request.data.messages[].source.plugin`
 
-相似插件名、其他来源种类、任意文本、嵌套 JSON 及包含 `:code:` 的历史标识保持不变。此转换不重命名 `run_code` 或其 `code` 参数。已使用任一 V3 保留 PTC 标签的 V2 源事件即使可忽略也会被拒绝；不透明源扩展不得通过迁移获得当前生命周期含义。
+相似插件名、其他来源种类、任意文本、嵌套 JSON 及包含 `:code:` 的历史标识保持不变。此转换不重命名 `run_code` 或其 `code` 参数。已使用任一 V3 保留 coding 标签的 V2 源事件即使可忽略也会被拒绝；不透明源扩展不得通过迁移获得当前生命周期含义。
 
 <a id="canonical-envelopes"></a>
 ### 规范信封与工具错误
@@ -107,7 +107,7 @@ const targetHeader = sessionFormatV2ToV3.migrateHeader(sourceHeader)
 
 四种 V3 surface 类型（`system/message`、`user/message`、`assistant/message`、`tool/result`）都要求 `surfaceOp`。仅 assistant 消息禁止 `sourceEventSeqs`；其他类型提供的列表必须非空、唯一，且仅引用更早的事件。已知仅日志事件对这两个 surface 元数据字段均不允许。替换不允许别名或额外键。端点按当前 surface 顺序而非数值序号顺序标识闭区间；恢复会检查存活成员、端点顺序与完整源事件覆盖。
 
-源 surface 事件本就要求位置标记；迁移不虚构缺失的追加标记。带有 `data.error` 的 `tool/result` 要求其唯一工具结果块携带 `isError: true`。失败结果可以省略结构化错误身份。矛盾结果会被拒绝，绝不通过添加 `isError` 或删除诊断来修复。普通工具与 PTC 生命周期关系仍须在这些事件本地检查后验证。
+源 surface 事件本就要求位置标记；迁移不虚构缺失的追加标记。带有 `data.error` 的 `tool/result` 要求其唯一工具结果块携带 `isError: true`。失败结果可以省略结构化错误身份。矛盾结果会被拒绝，绝不通过添加 `isError` 或删除诊断来修复。普通工具与 coding 生命周期关系仍须在这些事件本地检查后验证。
 
 <a id="delivery-guards"></a>
 ### 投递保护
@@ -126,7 +126,7 @@ V2 `session-log-deepseek/delivery-accepted` 若携带 `data.sessionFormatVersion
 | 五个 Message 位置 | `user/message.data.content`；`assistant/message.data.message.content`；`tool/result.data.message.content`；`agent/inbox/spliced.data.inserted[].content`；`session/title-llm-request.data.messages[].content` |
 | 排队的团队消息 | `team/message/queued.data.message.content`；历史 Team 载荷保持 `version: 1` 并带有 `message.delivery` |
 | 压缩输出 | `compaction/summary.data.summary` 和可选的 `compaction/summary.data.rawOutput` |
-| PTC 前代输出 | `tool/code-dispatch.data.content` |
+| coding 前代输出 | `tool/code-dispatch.data.content` |
 | 内嵌 assistant 流 | `assistant/message.data.stream[]` 和 `assistant/attempt.data.stream[]` 中的原始 `type: 'chunk'` 记录：`block-end` 的 `chunk.block` 和 `block-start` 的 `chunk.blockType`，包括尚无完整块的起始记录 |
 
 所有位置共用同一历史种类集合；未完成的起始记录不能引入未知种类。未知种类和归本格式所有的畸形块都会拒绝整次迁移；目录恢复报告 `SessionFormatUnsupportedMigrationError`。诊断标明源事件类型、源序号、包含索引的完整载荷路径和违反的规则。未知种类错误标明违规种类；已知块的畸形错误标明种类和字段错误。畸形内容容器或缺失块报告其位置，而不虚构种类。拒绝时，持久化保留源字节且不发布后继代。
@@ -144,8 +144,8 @@ V2 `session-log-deepseek/delivery-accepted` 若携带 `data.sessionFormatVersion
 
 - 原生 V3 接纳历史内系统消息追加、非头系统节点替换和非头系统节点压缩。系统消息要求有效载荷及匹配的开放步骤归属。首个 surface 系统头节点只能被恰好覆盖该头节点的系统消息替换；普通替换和压缩不能消耗它。迁移本身只产生初始头节点与头节点替换，不产生依赖路由的历史内更新。
 - 原生 V3 拒绝任何 `request/header.data.header.system`，包括空值或格式错误值，并拒绝非规范替换拼写及两个空请求头可选字段。它保留空白内容、空停止列表和已接纳的嵌套 header/source/data 扩展。此扩展准入不会扩大 V2 源审计或精确的逻辑会话头字段范围。
-- 必需的前代 PTC 标签即使已安装也会被拒绝。已退役或未知的可忽略事件（包括其逻辑元数据）保持不透明，且不能满足当前 PTC 关系。已安装的普通事件新增项作为仅日志信封接纳；未知必需类型由识别词汇的恢复阶段拒绝。物理编解码器仍执行已发布的分帧与源事件区间编码规则。
-- V3 事件本地检查在编码前及解码后执行。原始行的已退役系统头字段、畸形系统载荷和必需前代 PTC 的拒绝先于可恢复抑制执行，包括损坏行之后。严格读取立即拒绝规范错误。可恢复的规范解码不产出首个无效事件及其后缀；后续 `turn/end` 建立提交事实并拒绝该后缀。只有已接纳的继承标记计数；有种子的已接纳前缀若没有标记则被拒绝。未分类事件元数据会延迟到识别词汇的恢复阶段，而不是作为规范损坏丢弃，因此不能隐藏未知必需类型。
+- 必需的前代 coding 标签即使已安装也会被拒绝。已退役或未知的可忽略事件（包括其逻辑元数据）保持不透明，且不能满足当前 coding 关系。已安装的普通事件新增项作为仅日志信封接纳；未知必需类型由识别词汇的恢复阶段拒绝。物理编解码器仍执行已发布的分帧与源事件区间编码规则。
+- V3 事件本地检查在编码前及解码后执行。原始行的已退役系统头字段、畸形系统载荷和必需前代 coding 的拒绝先于可恢复抑制执行，包括损坏行之后。严格读取立即拒绝规范错误。可恢复的规范解码不产出首个无效事件及其后缀；后续 `turn/end` 建立提交事实并拒绝该后缀。只有已接纳的继承标记计数；有种子的已接纳前缀若没有标记则被拒绝。未分类事件元数据会延迟到识别词汇的恢复阶段，而不是作为规范损坏丢弃，因此不能隐藏未知必需类型。
 
 -----
 
@@ -155,7 +155,7 @@ V2 `session-log-deepseek/delivery-accepted` 若携带 `data.sessionFormatVersion
 <details>
 <summary>实现细节 — 点击展开</summary>
 
-[阶段](src/migration.ts)拥有每份产物独立的同步序列映射、消息身份集合和提示词/生命周期状态。紧凑事件段增量展开。[编解码器](src/codec.ts)复用冻结的 V2 分帧；[恢复器](src/validation.ts)先校验 V3 结构，再向冻结的普通关系校验提供私有 system/PTC/修复标识与端点视图。该视图为投递检查保留实际目标代次，且绝不对外返回：恢复返回原始 V3 产物与身份。冻结的 V0 到 V1 和 V1 到 V2 语义保持不变。本库不拥有可独立观察的注册或状态副本。
+[阶段](src/migration.ts)拥有每份产物独立的同步序列映射、消息身份集合和提示词/生命周期状态。紧凑事件段增量展开。[编解码器](src/codec.ts)复用冻结的 V2 分帧；[恢复器](src/validation.ts)先校验 V3 结构，再向冻结的普通关系校验提供私有 system/coding/修复标识与端点视图。该视图为投递检查保留实际目标代次，且绝不对外返回：恢复返回原始 V3 产物与身份。冻结的 V0 到 V1 和 V1 到 V2 语义保持不变。本库不拥有可独立观察的注册或状态副本。
 
 [组合目录测试](tests/combined-migration.spec.ts)验证转换组合与原生重新打开；[迁移测试](tests/migration.spec.ts)和[规范测试](tests/canonical-envelopes.spec.ts)固定保留与拒绝规则。[持久化集成](../session-persistence-jsonl/tests/v2-ptc-migration.spec.ts)负责发布证据。[已发布格式决策](../../../.agents/notes/implemented/architecture/2026-08-31-released-session-format-migrations.zh.md)负责将相邻组合测试与原生准入测试分开的依据。
 
@@ -179,7 +179,7 @@ V2 `session-log-deepseek/delivery-accepted` 若携带 `data.sessionFormatVersion
 
 #### 模型看到什么
 
-每个历史请求保留其提示词文本与普通消息内容。空系统头节点不产生模型消息。PTC 归属使用 `tools-ptc`；分发事件仍仅写日志。
+每个历史请求保留其提示词文本与普通消息内容。空系统头节点不产生模型消息。coding 归属使用 `tools-ptc`；分发事件仍仅写日志。
 
 #### Token 影响
 

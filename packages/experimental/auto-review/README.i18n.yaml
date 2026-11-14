@@ -9,8 +9,8 @@
   en: 4758786eea2f3235
   zh: 68af4a3b785a40d1
 /qilin-agent-experimental-auto-review/summary:
-  en: 462dc82ed2bf73fa
-  zh: 752fc512b284ce3a
+  en: 360da31a0e9ad2e7
+  zh: d405e880507df8f6
 /qilin-agent-experimental-auto-review/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -21,14 +21,14 @@
   en: 2b00909b8a598b95
   zh: 53f3d4ea2c24facf
 /qilin-agent-experimental-auto-review/use-this-package/what-you-get:
-  en: d16ffda0261598d2
-  zh: 036753fb1e0f7f1b
+  en: fe8acfe5f7ea290e
+  zh: e64c1e0bb2f61d8b
 /qilin-agent-experimental-auto-review/understand-the-implementation:
-  en: 247d944710609cf4
-  zh: 288747f1688fac99
+  en: 33b95443cefcafd2
+  zh: e97c37858344b819
 /qilin-agent-experimental-auto-review/further-exploration:
-  en: 632da083e0544a63
-  zh: 5b26f33a2ec1dbef
+  en: df92880e0635711b
+  zh: ec9168056e922231
 /qilin-agent-experimental-auto-review/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -48,8 +48,8 @@
   en: f9b4d7b686f14fc5
   zh: a2fac9a8eaf5e2a3
 /qilin-agent-experimental-auto-review/model-experience/tool-denial/what-the-model-sees:
-  en: a0b93e8eebc1b497
-  zh: e4a74a70a065b0e7
+  en: 652f3e51c79fcfdc
+  zh: 769f4666c9f295ae
 /qilin-agent-experimental-auto-review/model-experience/tool-denial/token-effect:
   en: 679cb3d82e97022f
   zh: 2bd88e7a3d2f2418
@@ -57,8 +57,8 @@
   en: 8da1089dee147f94
   zh: 87361347bfd10c6c
 /qilin-agent-experimental-auto-review/known-limitations-and-deferred-work:
-  en: 3cb6e76d79ab3a38
-  zh: f2b7d40d9b5631dd
+  en: 8c53817a5b03b44f
+  zh: 85426f79bae891cd
 /qilin-agent-experimental-auto-review/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

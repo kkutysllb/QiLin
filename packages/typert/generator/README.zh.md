@@ -54,7 +54,7 @@ files:
 
 缺失 JSDoc 与不支持的 tool JSON Schema 不会阻碍本已有效的普通生成或其严格 codec。元数据独立于投影保留解析器与可用文档：每个不支持的输入视图或输出投影都会省略 `jsonSchema` 并记录自己的 `jsonSchemaError`。tool 消费方显式挑选方法，并要求其文档与受支持的输入 schema；输出解析器是必需的，输出 JSON Schema 则可选，除非该消费方要求。仅凭元数据并不会把每个 Remote 方法都变成 tool。
 
-每份生成的参数 spec 同时包含 `codec` 与 `strictCodec`，二者来自同一份由检查器解析的类型模型；分析器与模型不携带任何按方法的输入策略。`method.input()` 与 `{ strict: false }` 选择 Host 分派使用的普通 codec，其声明对象接受并剥离未声明字段。`method.input({ strict: true })` 为解析与受支持的 JSON Schema 选择递归闭合的声明对象。两种具名参数信封都拒绝多余实参；显式 JSON 与字典键保持开放，而受约束的字典值还会按其索引值类型校验具名字段。严格解析先对具名字段与索引值 union 做分配，再合并并闭合每个受支持的对象组合，包括可选字段与可空索引值。`result` 保留其唯一普通 codec。tool 投影以 [`@qilin-agent/tools`](../../core/tools/src/json-schema.ts) 对 tool 参数、tool 输出与生成的 PTC SDK 强制执行的 tool-schema 子集为目标；它支持标量、对象、数组与不相交 union，而规范的 `JsonValue` 与字符串键 JSON 字典无需递归引用。超出该子集的类型会被报告，而不是做更弱的投影。TypeScript 之外的数值边界等语义规则仍归拥有操作所有。
+每份生成的参数 spec 同时包含 `codec` 与 `strictCodec`，二者来自同一份由检查器解析的类型模型；分析器与模型不携带任何按方法的输入策略。`method.input()` 与 `{ strict: false }` 选择 Host 分派使用的普通 codec，其声明对象接受并剥离未声明字段。`method.input({ strict: true })` 为解析与受支持的 JSON Schema 选择递归闭合的声明对象。两种具名参数信封都拒绝多余实参；显式 JSON 与字典键保持开放，而受约束的字典值还会按其索引值类型校验具名字段。严格解析先对具名字段与索引值 union 做分配，再合并并闭合每个受支持的对象组合，包括可选字段与可空索引值。`result` 保留其唯一普通 codec。tool 投影以 [`@qilin-agent/tools`](../../core/tools/src/json-schema.ts) 对 tool 参数、tool 输出与生成的 coding SDK 强制执行的 tool-schema 子集为目标；它支持标量、对象、数组与不相交 union，而规范的 `JsonValue` 与字符串键 JSON 字典无需递归引用。超出该子集的类型会被报告，而不是做更弱的投影。TypeScript 之外的数值边界等语义规则仍归拥有操作所有。
 
 `WorkspaceTypertGenerator` 会先分析所选 face 的全部贡献方，再筛选要生成产物的包，因此包子集保留的声明合并与输出字节与完整构建一致。
 

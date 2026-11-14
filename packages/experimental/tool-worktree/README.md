@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Let a model create and enter a new Git worktree with one call. Web and Desktop expose this tool through Change requests & worktrees; other profiles can select this standalone bundle. Native tool calls and PTC programs receive the same typed result, and the existing file policy governs creation.
+Let a model create and enter a new Git worktree with one call. Web and Desktop expose this tool through Change requests & worktrees; other profiles can select this standalone bundle. Native tool calls and coding programs receive the same typed result, and the existing file policy governs creation.
 
 ## Table of Contents
 

@@ -164,7 +164,7 @@ export interface ToolResultNode {
   /** Unix epoch ms from the tool/result session event. */
   time: number
   callId: string
-  /** Parent Tool call for a PTC dispatch result; absent on a root Session result. */
+  /** Parent Tool call for a coding dispatch result; absent on a root Session result. */
   parentCallId?: string
   /** Wire tool name from the paired tool/call; empty when that call left the loaded window. */
   name: string
@@ -274,7 +274,7 @@ export type ConversationNode =
 /** Identity and placement shared by tool preparation and dispatch. */
 interface ToolCallHead {
   callId: string
-  /** Parent Tool call for a PTC dispatch start; absent on a root Session call. */
+  /** Parent Tool call for a coding dispatch start; absent on a root Session call. */
   parentCallId?: string
   name: string
   turn: number

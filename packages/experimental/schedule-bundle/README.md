@@ -49,7 +49,7 @@ Open Plugins in the Web sidebar and enable Automation tasks, marked by an alarm 
 
 ### Why the bundle is kept
 
-Upstream composes the `schedule` service row and the `ui-schedule` page row in the web-app patch and keeps the clock row and the four reminder tools in each preset. This deployment keeps all three rows in this opt-in bundle and the four tools in the shipped `ptc` preset, and it does not retire the bundle into the Web composition.
+Upstream composes the `schedule` service row and the `ui-schedule` page row in the web-app patch and keeps the clock row and the four reminder tools in each preset. This deployment keeps all three rows in this opt-in bundle and the four tools in the shipped `coding` preset, and it does not retire the bundle into the Web composition.
 
 - One selection carries the capability together: the service, the page, and the clock reading switch on and off as a unit, and disabling restores the composition without a rebuild or a release.
 - The enablement path already exists elsewhere: `OPTIONAL_BUNDLES` offers the bundle in the Official group, and [the user guide](../../../docs/user/guide/schedule.md) and [the subsystem page](../../../docs/subsystems/schedule.md) name it as the way to add Schedule to a shipped Web profile.

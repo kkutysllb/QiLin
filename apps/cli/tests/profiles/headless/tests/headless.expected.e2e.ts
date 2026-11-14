@@ -50,7 +50,7 @@ const refreshing = process.env.QILIN_SNAPSHOT === 'refresh'
 
 /**
  * These transcripts were recorded with the native tool presentation. The
- * shipped headless profile now defaults to PTC, where only `run_code` is
+ * shipped headless profile now defaults to coding, where only `run_code` is
  * directly callable and a fixture adapter's direct `bash` or subagent call is
  * rejected before reaching the tool.
  */

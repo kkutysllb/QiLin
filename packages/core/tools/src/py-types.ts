@@ -1,8 +1,8 @@
 /**
- * PTC mode codegen — Python flavor. The pure projection from registered tool schemas to the
+ * coding mode codegen — Python flavor. The pure projection from registered tool schemas to the
  * Python SDK text the model programs against under `runtime.language === 'python'`. Sibling of
  * {@link ./ts-types.ts | ts-types.ts}; the two files are two projections of the same registry
- * store, keyed by the loaded {@link @qilin-agent/coding-runtime#PtcRuntime.language | PTC
+ * store, keyed by the loaded {@link @qilin-agent/coding-runtime#CodingRuntime.language | coding
  * runtime's language}.
  *
  * Under `mode: 'coding'` the native tool schemas are omitted from the request, so this generated
@@ -235,7 +235,7 @@ function describe(schema: object): string | undefined {
  * Backslashes are doubled first, every quote is escaped, and a trailing
  * backslash cannot survive: a description ending in `"` or an odd backslash
  * would otherwise merge with (or escape) the closing triple quote and make
- * the generated block — PTC mode's only SDK — syntactically invalid Python.
+ * the generated block — coding mode's only SDK — syntactically invalid Python.
  */
 function docLines(description: unknown, indent: number): string[] {
   const collapsed = describe({ description })

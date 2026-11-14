@@ -1193,12 +1193,12 @@
 /session-persistence-event-catalog/resolved-persistence-types/principal:
   en: 9048aab2f20f2683
   zh: 4353dbd33a04fa9e
-/session-persistence-event-catalog/resolved-persistence-types/ptcdispatcheventdata:
-  en: c68b99bb63f21da6
-  zh: 31174625f5dfab57
-/session-persistence-event-catalog/resolved-persistence-types/ptcdispatchstarteventdata:
-  en: 6fe366fc6af692a7
-  zh: edf501a10c3a5c3d
+/session-persistence-event-catalog/resolved-persistence-types/codingdispatcheventdata:
+  en: b9188640df628710
+  zh: 4bb2befc9a12cc76
+/session-persistence-event-catalog/resolved-persistence-types/codingdispatchstarteventdata:
+  en: d8d253c6cb173aba
+  zh: e7205cbd6e7ef0dc
 /session-persistence-event-catalog/resolved-persistence-types/reasoningblock:
   en: 300cfbf234cedd38
   zh: 078b9babcdce2956
@@ -1689,8 +1689,8 @@
   en: ecad5c413b3f951b
   zh: 67f311a75365659f
 /session-persistence-event-catalog/resolved-persistence-types/kind-ptc-mode:
-  en: 8598fc422ef4db39
-  zh: a91e0606b2717961
+  en: 068d1cf7468e8bca
+  zh: 64e163a3279c3dfd
 /session-persistence-event-catalog/resolved-persistence-types/kind-qilin-session-title-llm:
   en: 902f7c3ed76012ad
   zh: 511faf66e44ac0a1
@@ -2160,11 +2160,11 @@
   en: 9c3f37786cd10870
   zh: cd53399cb6ad3cc5
 /session-persistence-event-catalog/resolved-persistence-types/type-tool-ptc-dispatch:
-  en: 33b7b23662944873
-  zh: 93a0a6c28a3ff593
+  en: 1a510ebb67aa1e3f
+  zh: a389dc172b2ca180
 /session-persistence-event-catalog/resolved-persistence-types/type-tool-ptc-dispatch-start:
-  en: 707ba6cda3720ed9
-  zh: c5c9b31e472bf18e
+  en: 846b8d0f146704c7
+  zh: 9244bb1edd5f5b5f
 /session-persistence-event-catalog/resolved-persistence-types/type-tool-result:
   en: aef2a41dbc331ad6
   zh: 5be45f284dbefeb6

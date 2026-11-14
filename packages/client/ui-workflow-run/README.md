@@ -85,7 +85,7 @@ None; this package neither assembles nor sends a provider request.
 
 These limits define which runs produce records and what the node exposes; they are current package constraints.
 
-- **Only top-level calls through `qilin-tool-workflow` produce these records** — nested PTC mode calls and direct `WorkflowEngine` consumers do not.
+- **Only top-level calls through `qilin-tool-workflow` produce these records** — nested coding mode calls and direct `WorkflowEngine` consumers do not.
 - **A run lost without terminal events in a normally ended Turn stays running** — for example a background run whose process crashed during a later Turn, or a run whose recording stopped after a failed append; the session log carries no fact that marks it stopped.
 - **Navigation is intentionally live-only** — terminal members remain visible for review but never expose a cold-session opener from this node.
 - **The node shows run, phase, member identity, and status only** — scripts, outputs, errors, logs, usage, static topology, and controls remain outside this surface.

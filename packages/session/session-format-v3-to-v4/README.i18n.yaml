@@ -21,8 +21,8 @@
   en: d3463f5e222c44a2
   zh: ec932eb4acac30f4
 /qilin-agent-session-format-v3-to-v4/v3-to-v4-specification/header-and-physical-framing:
-  en: 69f24696bd941ceb
-  zh: bc51ca330a4aa361
+  en: a7ad55a1d64dd7ae
+  zh: 86ed1cc47d6a98e5
 /qilin-agent-session-format-v3-to-v4/v3-to-v4-specification/tool-result-representation:
   en: 32b845f1e1867195
   zh: 3e4e046dbc36478e
@@ -60,8 +60,8 @@
   en: db82b002989ac151
   zh: da80b797bf321c3f
 /qilin-agent-session-format-v3-to-v4/native-v4-admission/validation-entry-points-and-recovery:
-  en: 1d6db95cf7a82846
-  zh: 837c690fe87f47db
+  en: 471de58d6ca966c2
+  zh: b685ecba744d9110
 /qilin-agent-session-format-v3-to-v4/understand-the-implementation:
   en: bd4d2271b5844ca1
   zh: b5d00e78d6085a25

@@ -1,4 +1,4 @@
-/** Real JSONL publication and provider-neutral message preservation across the V2 PTC rename. */
+/** Real JSONL publication and provider-neutral message preservation across the V2 coding rename. */
 
 import { Context } from '@qilin-agent/kylin'
 import { SESSION_FORMAT_VERSION, Session, SessionId } from '@qilin-agent/session'
@@ -104,7 +104,7 @@ function releasedV2Events(): SessionFormatEvent[] {
   ]
 }
 
-describe('JSONL V2 PTC publication and restore', () => {
+describe('JSONL V2 coding publication and restore', () => {
   let root: string | undefined
   let ctx: Context | undefined
 

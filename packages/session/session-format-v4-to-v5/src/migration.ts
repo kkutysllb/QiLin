@@ -1,4 +1,4 @@
-/** Identity body conversion folding retired shipped preset ids onto the single PTC roster. */
+/** Identity body conversion folding retired shipped preset ids onto the single coding roster. */
 
 import { SessionFormatError, defineSessionFormatMigration, isSessionFormatJsonObject } from '@qilin-agent/session-format'
 import type { SessionFormatEvent, SessionFormatJsonObject, SessionFormatMigrationStage, SessionFormatMigrationStageInput } from '@qilin-agent/session-format'

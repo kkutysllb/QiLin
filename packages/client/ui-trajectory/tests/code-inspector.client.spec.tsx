@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-/** PTC source, output, and independent wrapping through the trajectory inspector. */
+/** coding source, output, and independent wrapping through the trajectory inspector. */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, waitFor, within } from '@testing-library/react'
 import { PartialArguments } from '@qilin-agent/util-values'
@@ -53,7 +53,7 @@ function failedCell(name: string, texts: readonly string[], nested: boolean): Tr
     .find(cell => cell.kind === (nested ? 'subtool' : 'tool'))!
 }
 
-describe('PTC trajectory inspector', () => {
+describe('coding trajectory inspector', () => {
   it.each([
     ['run_code', false], ['read', false], ['read', true],
   ] as const)('keeps failed %s JSON output as raw text (nested: %s)', (name, nested) => {

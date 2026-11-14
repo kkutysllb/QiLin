@@ -8,8 +8,8 @@ import type { ToolSchema } from '@qilin-agent/llm'
 import { createScope } from '@qilin-agent/scope'
 import type { Scope } from '@qilin-agent/scope'
 import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
-import { PtcRuntime } from '@qilin-agent/coding-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/coding-runtime'
+import { CodingRuntime } from '@qilin-agent/coding-runtime'
+import type { CodingRunRequest, CodingRunResult } from '@qilin-agent/coding-runtime'
 import ToolRuntime, { CodeRunFailedError, RUN_CODE_NAME, TOOL_ABORTED_BEFORE_DISPATCH, defineContentToolFixture, defineTool } from '@qilin-agent/tools'
 import type { Config, JsonSchemaNode, PostToolDecision, ToolExecutionResult } from '@qilin-agent/tools'
 import type { Agent } from '@qilin-agent/agent'
@@ -36,28 +36,28 @@ type SessionAppendStub = (
 ) => void
 
 /**
- * PTC mode unit tier (per the Agent Note's plan): provider contribution per mode,
+ * coding mode unit tier (per the Agent Note's plan): provider contribution per mode,
  * misconfiguration rejections, the run_code dispatch bridge (serialization,
  * abort, JSON normalization, error mapping, events, quiescence), and HMR
  * safety — all against an in-repo fake runtime, exactly the
  * Service Definition / Service Provider / Consumer roles the seam promises.
  */
 
-/** A scriptable in-repo PtcRuntime: each test sets `behavior` to drive the bindings however it needs. */
-class FakeRuntime extends PtcRuntime {
-  resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+/** A scriptable in-repo CodingRuntime: each test sets `behavior` to drive the bindings however it needs. */
+class FakeRuntime extends CodingRuntime {
+  resolve(request: import('@qilin-agent/coding-runtime').CodingRunRequest): import('@qilin-agent/coding-runtime').CodingRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language: string
   readonly isolation = 'fake'
-  behavior: (request: PtcRunRequest) => Promise<PtcRunResult> = () => Promise.resolve({ logs: [] })
-  lastRequest?: PtcRunRequest
+  behavior: (request: CodingRunRequest) => Promise<CodingRunResult> = () => Promise.resolve({ logs: [] })
+  lastRequest?: CodingRunRequest
 
   constructor(ctx: Context, config: { language?: string } = {}) {
     super(ctx)
     this.language = config.language ?? 'typescript'
   }
 
-  run(request: PtcRunRequest): Promise<PtcRunResult> {
+  run(request: CodingRunRequest): Promise<CodingRunResult> {
     this.lastRequest = request
     return this.behavior(request)
   }
@@ -127,7 +127,7 @@ function fakeAgent(context: Context = new Context()): { agent: Agent; events: { 
     header: { cwd: '/workspace' },
     append: (type, data) => { events.push({ type, data }) },
   }
-  // PTC registers retained-state cleanup on the owning agent's context.
+  // coding registers retained-state cleanup on the owning agent's context.
   const agent = { ctx: context, session } as Agent
   return { agent, events }
 }
@@ -268,7 +268,7 @@ describe('mode-aware wire contribution', () => {
     expect(names.indexOf('tools:ptc-only')).toBeLessThan(names.indexOf('tools:sdk'))
   })
 
-  it('projects deeply nested output schemas into the PTC mode SDK without structured-clone recursion', async () => {
+  it('projects deeply nested output schemas into the coding mode SDK without structured-clone recursion', async () => {
     const { ctx, systemPrompt } = await setup({ mode: 'coding' })
     let output: JsonSchemaNode = { type: 'string' }
     for (let depth = 0; depth < 5_000; depth++) {
@@ -383,10 +383,10 @@ describe('mode-aware wire contribution', () => {
       execute: () => Promise.resolve([{ type: 'text' as const, text: 'impostor' }]),
     })
 
-    expect(() => scope.ctx.tools.register(impostor)).toThrow(/reserved for the PTC mode presentation transport/)
-    expect(() => ctx.tools.register(impostor)).toThrow(/reserved for the PTC mode presentation transport/)
-    expect(() => scope.ctx.tools.restrict({ allow: [RUN_CODE_NAME] })).toThrow(/cannot name reserved PTC mode presentation transport/)
-    expect(() => scope.ctx.tools.restrict({ deny: [RUN_CODE_NAME] })).toThrow(/cannot name reserved PTC mode presentation transport/)
+    expect(() => scope.ctx.tools.register(impostor)).toThrow(/reserved for the coding mode presentation transport/)
+    expect(() => ctx.tools.register(impostor)).toThrow(/reserved for the coding mode presentation transport/)
+    expect(() => scope.ctx.tools.restrict({ allow: [RUN_CODE_NAME] })).toThrow(/cannot name reserved coding mode presentation transport/)
+    expect(() => scope.ctx.tools.restrict({ deny: [RUN_CODE_NAME] })).toThrow(/cannot name reserved coding mode presentation transport/)
     scope.ctx.systemPrompt.section({
       name: 'scoped-note',
       order: scope.ctx.systemPrompt.getSectionOrder('TOOLS_SDK') - 10,
@@ -455,9 +455,9 @@ describe('mode-aware wire contribution', () => {
     expect(text(first)).toBe(text(second))
   })
 
-  it('rejects every assembly when a non-native mode has no PTC runtime', async () => {
+  it('rejects every assembly when a non-native mode has no coding runtime', async () => {
     const { systemPrompt } = await setup({ mode: 'coding', runtime: false })
-    await expect(systemPrompt.assemble()).rejects.toThrow(/requires a PTC runtime/)
+    await expect(systemPrompt.assemble()).rejects.toThrow(/requires a coding runtime/)
   })
 
   it('rejects every assembly when the runtime language has no registered SDK renderer', async () => {
@@ -554,7 +554,7 @@ describe('mode-aware wire contribution', () => {
     // The flavor getter reads the runtime directly (peekRuntime), so it — not
     // requirePtcRuntime — owns the flavor-table guard. Keeping
     // RUN_CODE_FLAVORS in step with SDK_RENDERERS is the compiler's job (both
-    // are `satisfies`-checked against PtcSdkLanguage), so what the guard
+    // are `satisfies`-checked against CodingSdkLanguage), so what the guard
     // covers is a mounted runtime naming a language absent from both tables,
     // which throws when the schema is projected. Assembly's
     // requirePtcRuntime rejects such a language earlier; this reaches the
@@ -1360,7 +1360,7 @@ describe('the run_code dispatch bridge', () => {
     })
   })
 
-  it('maps a PTC pre-execute cancellation to the canonical binding rejection', async () => {
+  it('maps a coding pre-execute cancellation to the canonical binding rejection', async () => {
     const { ctx, runtime } = await setup({ mode: 'coding' })
     const calls = registerEcho(ctx)
     ctx.on('tools/pre-execute', (exec, next) =>
@@ -1662,7 +1662,7 @@ describe('the run_code dispatch bridge', () => {
     await ctx.plugin(ToolRuntime, { mode: 'coding' })
     const result = await runCode(ctx, 'program')
     expect(result.isError).toBe(true)
-    expect((result.content[0] as { text: string }).text).toContain('requires a PTC runtime')
+    expect((result.content[0] as { text: string }).text).toContain('requires a coding runtime')
   })
 
   it('refuses an agent-owned program before dispatch when its directory owner is missing', async () => {
@@ -1718,7 +1718,7 @@ describe('the run_code dispatch bridge', () => {
     ['result only', { logs: [], value: 'returned' }, 'returned'],
     ['logs plus result', { logs: ['printed'], value: 'returned' }, 'printed\nreturned'],
     ['no output', { logs: [] }, '(run_code completed with no output)'],
-  ] as [string, PtcRunResult, string][])('keeps %s in durable content without a result presenter', async (_name, output, text) => {
+  ] as [string, CodingRunResult, string][])('keeps %s in durable content without a result presenter', async (_name, output, text) => {
     const { ctx, runtime } = await setup({ mode: 'coding' })
     runtime.behavior = () => Promise.resolve(output)
 
@@ -1973,7 +1973,7 @@ describe('the run_code dispatch bridge', () => {
     expect(text.length).toBeLessThan(11_000)
   })
 
-  it('short-circuits a pre-aborted outer signal before the PTC runtime', async () => {
+  it('short-circuits a pre-aborted outer signal before the coding runtime', async () => {
     const { ctx, runtime } = await setup({ mode: 'coding' })
     const calls = registerEcho(ctx)
     runtime.behavior = (request) => {
@@ -2044,7 +2044,7 @@ describe('the run_code dispatch bridge', () => {
       .toThrow('maxParallelSubCalls must be a positive integer')
   })
 
-  it('direct construction in PTC mode defaults the parallel sub-call cap', async () => {
+  it('direct construction in coding mode defaults the parallel sub-call cap', async () => {
     const ctx = new Context()
     provideWorkingDirectoryFixture(ctx)
     await ctx.plugin(SystemPrompt, {})
@@ -2061,7 +2061,7 @@ describe('the run_code dispatch bridge', () => {
     const assembly = await ctx.systemPrompt.assemble()
     expect(assembly.sections.some(section => section.name === 'tools:sdk')).toBe(false)
   })
-  it('denies a model-direct native-tool call under PTC mode as UNKNOWN_TOOL', async () => {
+  it('denies a model-direct native-tool call under coding mode as UNKNOWN_TOOL', async () => {
     const ctx = new Context()
     provideWorkingDirectoryFixture(ctx)
     await ctx.plugin(SystemPrompt, {})
@@ -2104,12 +2104,12 @@ describe('the run_code dispatch bridge', () => {
 
 /**
  * Presentation is per agent, because an agent preset composes it: one
- * deployment runs a PTC mode agent beside native ones, and neither may see
+ * deployment runs a coding mode agent beside native ones, and neither may see
  * the other's catalog. The deployment `mode` is the default those agents
  * shadow, not a process-wide fact.
  */
 describe('per-agent presentation', () => {
-  it('gives one agent PTC mode while the deployment stays native', async () => {
+  it('gives one agent coding mode while the deployment stays native', async () => {
     const { ctx, systemPrompt } = await setup({ mode: 'native' })
     const calls = registerEcho(ctx)
     const { scope, agent } = await mintAgentScope(ctx)
@@ -2203,7 +2203,7 @@ describe('per-agent presentation', () => {
     expect(ctx.tools.get(RUN_CODE_NAME)).toBeUndefined()
   })
 
-  it('lets an agent opt out of a PTC mode deployment', async () => {
+  it('lets an agent opt out of a coding mode deployment', async () => {
     const { ctx, systemPrompt } = await setup({ mode: 'coding' })
     registerEcho(ctx)
     const { scope, agent } = await mintAgentScope(ctx)
@@ -2238,7 +2238,7 @@ describe('per-agent presentation', () => {
     // Two answers to "which form does the model see" is a contradiction, and
     // silently keeping either one would make the composition unreadable.
     expect(() => scope.ctx.tools.presentAs('native'))
-      .toThrow('conflicts with "ptc" already declared')
+      .toThrow('conflicts with "coding" already declared')
   })
 
   it('refuses an unscoped declaration', async () => {
@@ -2263,7 +2263,7 @@ describe('per-agent presentation', () => {
     scope.ctx.tools.presentAs('coding')
 
     await expect(systemPrompt.assemble({ scope: agent }))
-      .rejects.toThrow('mode "ptc" requires a PTC runtime')
+      .rejects.toThrow('mode "coding" requires a coding runtime')
   })
 })
 
@@ -2272,7 +2272,7 @@ class ConfinedFakeRuntime extends FakeRuntime {
   override get sandboxMode() { return 'read-only' as const }
 }
 
-describe('PTC standing file policy and sandbox outcomes', () => {
+describe('coding standing file policy and sandbox outcomes', () => {
   it('refuses an agent-owned program when no working-directory owner is mounted', async () => {
     const ctx = new Context()
     try {
@@ -2295,7 +2295,7 @@ describe('PTC standing file policy and sandbox outcomes', () => {
       await ctx.plugin(ConfinedFakeRuntime)
       const result = await runCode(ctx, 'return 1')
       expect(result.isError).toBe(true)
-      expect(result.content).toEqual([{ type: 'text', text: 'Error: qilin-tools: confined PTC runtime requires sandboxPolicy' }])
+      expect(result.content).toEqual([{ type: 'text', text: 'Error: qilin-tools: confined coding runtime requires sandboxPolicy' }])
       expect((ctx.codingRuntime as ConfinedFakeRuntime).lastRequest).toBeUndefined()
     } finally { await ctx.fiber.dispose() }
   })
@@ -2377,7 +2377,7 @@ describe('per-program execution controls', () => {
     try {
       const result = await runCode(ctx, 'program', { agent })
       expect(result.isError).toBe(true)
-      expect(JSON.stringify(result.content)).toContain('confined PTC runtime requires sandboxPolicy')
+      expect(JSON.stringify(result.content)).toContain('confined coding runtime requires sandboxPolicy')
     } finally { mode.mockRestore(); await ctx.fiber.dispose() }
   })
 
@@ -2423,7 +2423,7 @@ describe('per-program execution controls', () => {
         arguments: { code: 'return 1', description: 'Try an unsupported mode', sandbox_permissions: 'workspace-write', justification: 'Need file writes' },
       })
       expect(result.isError).toBe(true)
-      expect(JSON.stringify(result.content)).toContain('sandbox_permissions is not available for this PTC runtime')
+      expect(JSON.stringify(result.content)).toContain('sandbox_permissions is not available for this coding runtime')
       expect(runtime.lastRequest).toBeUndefined()
     } finally { await ctx.fiber.dispose() }
   })
@@ -2559,7 +2559,7 @@ describe('per-program execution controls', () => {
 })
 
 
-describe('PTC state ownership', () => {
+describe('coding state ownership', () => {
   it.each(['function-body', 'repl'] as const)('uses one Agent owner and releases %s provider state on disposal', async (programFormat) => {
     const { ctx, runtime } = await setup()
     const agentContext = new Context()

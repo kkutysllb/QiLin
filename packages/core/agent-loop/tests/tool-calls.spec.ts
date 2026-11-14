@@ -15,8 +15,8 @@ import AgentRegistry, { type Agent } from '@qilin-agent/agent'
 import AgentLoop from '@qilin-agent/agent-loop'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import { MockAdapter, textResponse } from './mock-adapter.ts'
-import { PtcRuntime } from '@qilin-agent/coding-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/coding-runtime'
+import { CodingRuntime } from '@qilin-agent/coding-runtime'
+import type { CodingRunRequest, CodingRunResult } from '@qilin-agent/coding-runtime'
 
 declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
@@ -879,14 +879,14 @@ describe('tool-call scheduler: failure quiescence', () => {
   })
 })
 
-describe('PTC mode native-tool denial through the agent loop', () => {
-  /** A minimal in-process PTC runtime for test purposes — never actually runs. */
-  class FakePtcRuntime extends PtcRuntime {
-    resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+describe('coding mode native-tool denial through the agent loop', () => {
+  /** A minimal in-process coding runtime for test purposes — never actually runs. */
+  class FakePtcRuntime extends CodingRuntime {
+    resolve(request: import('@qilin-agent/coding-runtime').CodingRunRequest): import('@qilin-agent/coding-runtime').CodingRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
     readonly language = 'typescript'
     readonly isolation = 'fake' as const
-    async run(_request: PtcRunRequest): Promise<PtcRunResult> {
+    async run(_request: CodingRunRequest): Promise<CodingRunResult> {
       return { logs: [] }
     }
   }
@@ -906,7 +906,7 @@ describe('PTC mode native-tool denial through the agent loop', () => {
     return ctx
   }
 
-  it('denies a model-direct native-tool call under PTC mode: tool body never runs and session records UNKNOWN_TOOL', async () => {
+  it('denies a model-direct native-tool call under coding mode: tool body never runs and session records UNKNOWN_TOOL', async () => {
     let toolInvoked = false
     const tool = defineContentToolFixture({
       name: 'write',
@@ -921,7 +921,7 @@ describe('PTC mode native-tool denial through the agent loop', () => {
       },
     })
 
-    // Scripted model emits a native tool call under PTC mode — the wire
+    // Scripted model emits a native tool call under coding mode — the wire
     // never advertised it, but a non-compliant provider may still emit one.
     const adapter = new MockAdapter([
       [

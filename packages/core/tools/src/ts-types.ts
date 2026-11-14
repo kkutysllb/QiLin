@@ -1,5 +1,5 @@
 /**
- * PTC mode codegen: the pure projection from registered tool schemas to the TypeScript SDK
+ * coding mode codegen: the pure projection from registered tool schemas to the TypeScript SDK
  * text the model programs against (the `tools:sdk` prompt section). Sibling of
  * `json-schema.ts` — `schemas()` (native function calling) and this module (the generated
  * `declare const tools` API) are two projections of the same store.
@@ -9,7 +9,7 @@
 import type { ToolSchema } from '@qilin-agent/llm'
 import { assertSupportedJsonSchema } from './json-schema.ts'
 import type { JsonSchemaNode, JsonSchemaScalar } from './json-schema.ts'
-/** Internal PTC mode projection: the model-facing schema plus the canonical output schema. */
+/** Internal coding mode projection: the model-facing schema plus the canonical output schema. */
 export interface ToolSdkSchema extends ToolSchema {
   /** Validated canonical value returned by the tool binding. */
   output: JsonSchemaNode

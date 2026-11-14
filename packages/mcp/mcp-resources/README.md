@@ -31,7 +31,7 @@ Shipped profiles already mount this package once. Configure only the [MCP client
 
 Use the [client configuration](../mcp-client/README.md#use-this-package) to add a server in the intended scope. This package has no configuration fields.
 
-A caller with no configured MCP server sees no MCP prompt text or resource tools in native or PTC mode. A configured server enables the three shared resource tools, including when another provider mounts its client or the server has no tools or instructions. Connection failures do not remove the shared tools while the client entry remains active; resource calls report the connection error.
+A caller with no configured MCP server sees no MCP prompt text or resource tools in native or coding mode. A configured server enables the three shared resource tools, including when another provider mounts its client or the server has no tools or instructions. Connection failures do not remove the shared tools while the client entry remains active; resource calls report the connection error.
 
 ### Discover and read
 
@@ -87,7 +87,7 @@ These pages cover server configuration, execution, and the decisions behind reso
 
 #### What the model sees
 
-The [generated tool schemas](../../../docs/tool-catalog.md#qilin-agentmcp-resources) define three tools shared by all caller-visible configured servers. With none, native schemas, PTC declarations and bindings, and the server-name prompt are absent. Connecting, disconnecting, or retrying an active client leaves these shared tool definitions unchanged. When system-prompt assembly is mounted and providers are visible, the `MCP resource servers` section says `Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: <JSON array>.` The names come from the same scoped registry, including servers with neither tools nor instructions. An empty registry contributes no section.
+The [generated tool schemas](../../../docs/tool-catalog.md#qilin-agentmcp-resources) define three tools shared by all caller-visible configured servers. With none, native schemas, coding declarations and bindings, and the server-name prompt are absent. Connecting, disconnecting, or retrying an active client leaves these shared tool definitions unchanged. When system-prompt assembly is mounted and providers are visible, the `MCP resource servers` section says `Use list_mcp_resources, list_mcp_resource_templates, or read_mcp_resource with one of these names as the server argument: <JSON array>.` The names come from the same scoped registry, including servers with neither tools nor instructions. An empty registry contributes no section.
 
 #### Token effect
 
@@ -95,7 +95,7 @@ With no caller-visible configured servers, this package adds no tool or prompt t
 
 #### KV Cache effect
 
-Adding the first caller-visible server or removing the last changes the next tool schema or PTC declaration prefix. Changes to visible names update the server-name section; replacing a provider under the same name leaves that text unchanged. Connection failures alone do not change the shared definitions or names.
+Adding the first caller-visible server or removing the last changes the next tool schema or coding declaration prefix. Changes to visible names update the server-name section; replacing a provider under the same name leaves that text unchanged. Connection failures alone do not change the shared definitions or names.
 
 ### Resource results
 

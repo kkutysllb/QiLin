@@ -288,7 +288,7 @@ function fallbackState(context: ConversationNodeContext<ToolState>): ToolState |
   return state
 }
 
-/** Root Tool preparation, dispatch, result, and nested PTC calls. */
+/** Root Tool preparation, dispatch, result, and nested coding calls. */
 export const toolDefinition: ConversationNodeDefinition<ToolState> = {
   kind: 'tool-call',
   target: 'chat',

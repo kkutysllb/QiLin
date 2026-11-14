@@ -21,7 +21,7 @@ Model Context Protocol (MCP) connects the model to tools supplied by external se
 <a id="configuration"></a>
 ## Configuration
 
-MCP servers are opt-in, and the deployment ships none of its own: every server comes from user configuration through the Web settings page or a hand-written entry. Configure one `@qilin-agent/mcp-client` entry per server in the intended Cordis scope. Every shipped profile supplies the [tool registry](tools.md) and mounts the shared resource service once; users configure only client entries. Callers with no visible configured server receive no MCP prompt text or tools in native or PTC mode.
+MCP servers are opt-in, and the deployment ships none of its own: every server comes from user configuration through the Web settings page or a hand-written entry. Configure one `@qilin-agent/mcp-client` entry per server in the intended Cordis scope. Every shipped profile supplies the [tool registry](tools.md) and mounts the shared resource service once; users configure only client entries. Callers with no visible configured server receive no MCP prompt text or tools in native or coding mode.
 
 | Choice | Configuration owner |
 |---|---|

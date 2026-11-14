@@ -266,7 +266,7 @@ export interface Config {
 export interface Config {
   /**
    * The form this agent's model sees. `native` sends every visible schema,
-   * `ptc` sends only `run_code` plus a generated SDK.
+   * `coding` sends only `run_code` plus a generated SDK.
    * Required rather than defaulted: the deployment default is what a preset
    * without this row already gets, so an omitted value would mean the row was
    * composed for nothing.
@@ -2659,7 +2659,7 @@ export type LaunchConfig = {
   /** Absolute preinstalled bootstrap; omitted maps this package's bootstrap into the execution world. */
   bootstrapPath?: string
 } | {
-  /** Start the private PTC worker embedded in a packaged executable. */
+  /** Start the private coding worker embedded in a packaged executable. */
   kind: 'embedded'
   /** Packaged executable name or path resolved by the subprocess provider. */
   executable: string
@@ -3363,18 +3363,18 @@ export interface Config {
   leaseMs?: number
 }
 
-/** Installed helper invocation; script deployments may also install a PTC bootstrap. */
+/** Installed helper invocation; script deployments may also install a coding bootstrap. */
 export type HelperLaunch = {
   /** Run the installed script with a separately installed Node executable. */
   kind: 'node-script'
   /** Absolute remote Node executable. */
   node: string
-  /** Absolute remote PTC bootstrap; requires bootstrapHash. */
+  /** Absolute remote coding bootstrap; requires bootstrapHash. */
   bootstrapPath?: string
   /** Lowercase SHA-256 of bootstrapPath; requires that path. */
   bootstrapHash?: string
 } | {
-  /** Run the helper executable with its embedded Node and PTC worker. */
+  /** Run the helper executable with its embedded Node and coding worker. */
   kind: 'executable'
 }
 ```
@@ -4293,13 +4293,13 @@ export interface Config {
 /** Plugin config: how the registered tools are presented to the model. */
 export interface Config {
   /**
-   * Model presentation. `native` (default) sends every visible schema; `ptc`
+   * Model presentation. `native` (default) sends every visible schema; `coding`
    * sends only `run_code` plus a generated SDK prompt and collapses the
    * executor to the same surface (a model-direct call may only name
    * `run_code`; `run_code` SDK sub-dispatches keep every visible tool).
-   * PTC mode requires a `ctx.codingRuntime` whose `language`
+   * coding mode requires a `ctx.codingRuntime` whose `language`
    * has a registered SDK renderer (TypeScript or Python) and fail prompt
-   * assembly when it is absent or has no renderer. Under `ptc`, native names
+   * assembly when it is absent or has no renderer. Under `coding`, native names
    * in `toolOrder` are invalid.
    */
   mode?: ToolPresentationMode
@@ -4782,7 +4782,7 @@ Abstract service classes — a deployment loads a concrete implementation packag
 | `@qilin-agent/fs` | `FileSystem` | — | [`packages/fs/fs/src/index.ts`](../packages/fs/fs/src/index.ts) |
 | `@qilin-agent/host-directory-picker` | `DirectoryPicker` | — | [`packages/host/directory-picker/src/index.ts`](../packages/host/directory-picker/src/index.ts) |
 | `@qilin-agent/jobs` | `JobRegistry` | — | [`packages/jobs/jobs/src/index.ts`](../packages/jobs/jobs/src/index.ts) |
-| `@qilin-agent/coding-runtime` | `PtcRuntime` | — | [`packages/coding-runtime/coding-runtime/src/index.ts`](../packages/coding-runtime/coding-runtime/src/index.ts) |
+| `@qilin-agent/coding-runtime` | `CodingRuntime` | — | [`packages/coding-runtime/coding-runtime/src/index.ts`](../packages/coding-runtime/coding-runtime/src/index.ts) |
 | `@qilin-agent/sandbox` | `SandboxProvider` | — | [`packages/sandbox/sandbox/src/index.ts`](../packages/sandbox/sandbox/src/index.ts) |
 | `@qilin-agent/session-persistence` | `SessionPersistence` | — | [`packages/session/session-persistence/src/index.ts`](../packages/session/session-persistence/src/index.ts) |
 | `@qilin-agent/session-query` | `SessionQueryEngine` | — | [`packages/session-query/session-query/src/index.ts`](../packages/session-query/session-query/src/index.ts) |

@@ -8,7 +8,7 @@ import { assertEvent, canonicalizeTransformedEvent, record, SURFACE_TYPES } from
 import { remapEvent } from './references.ts'
 import { assertReleasedV3Header } from './validation.ts'
 
-/** Promote system prompts, remap audited references, and canonicalize envelopes and PTC vocabulary. */
+/** Promote system prompts, remap audited references, and canonicalize envelopes and coding vocabulary. */
 export const sessionFormatV2ToV3 = defineSessionFormatMigration({
   name: '@qilin-agent/session-format-v2-to-v3',
   fromVersion: 2,

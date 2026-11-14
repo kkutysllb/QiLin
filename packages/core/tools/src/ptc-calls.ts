@@ -1,4 +1,4 @@
-/** Cancellation and settlement of complete PTC calls, including nested tools. */
+/** Cancellation and settlement of complete coding calls, including nested tools. */
 import type { Context } from '@qilin-agent/kylin'
 import type { SessionId } from '@qilin-agent/session'
 import type { SandboxMode } from '@qilin-agent/sandbox'
@@ -10,7 +10,7 @@ interface Call {
 }
 
 /** Keeps calls under a changed policy from overlapping their canceled predecessors. */
-export class PtcCalls {
+export class CodingCalls {
   private readonly calls = new Map<SessionId, Set<Call>>()
   private disposed = false
 
@@ -28,9 +28,9 @@ export class PtcCalls {
     ctx.effect(() => async () => {
       this.disposed = true
       const calls = [...this.calls.values()].flatMap(calls => [...calls])
-      for (const call of calls) call.controller.abort(new Error('PTC tool registry disposed'))
+      for (const call of calls) call.controller.abort(new Error('coding tool registry disposed'))
       await Promise.all(calls.map(call => call.done))
-    }, 'PTC calls')
+    }, 'coding calls')
   }
 
   /**
@@ -48,7 +48,7 @@ export class PtcCalls {
       await Promise.all(pending.map(call => call.done))
     }
     signal.throwIfAborted()
-    if (this.disposed) throw new Error('PTC tool registry disposed')
+    if (this.disposed) throw new Error('coding tool registry disposed')
     const controller = new AbortController()
     const done = Promise.withResolvers<undefined>()
     const call = { mode: mode(), controller, done: done.promise }

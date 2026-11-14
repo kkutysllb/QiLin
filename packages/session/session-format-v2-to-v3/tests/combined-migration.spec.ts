@@ -52,8 +52,8 @@ function assertComposite(events: readonly SessionFormatEvent[]): void {
   })))
 }
 
-describe('combined structural, canonical-envelope and PTC catalog migration', () => {
-  it('inserts and clears system prompts while remapping replacement and nested PTC history without rewriting identities', () => {
+describe('combined structural, canonical-envelope and coding catalog migration', () => {
+  it('inserts and clears system prompts while remapping replacement and nested coding history without rewriting identities', () => {
     const before = JSON.stringify(source)
     const reader = sessionFormatCatalog.createRestore(header, { recovery: 'strict', validation: 'current' })
     for (const row of source) reader.decodeRow(row)
@@ -95,7 +95,7 @@ describe('combined structural, canonical-envelope and PTC catalog migration', ()
 
   it.each([
     ['old replacement fields', source[9]!, /exact replace fields/],
-    ['old PTC tag', source[4]!, /unknown event type/],
+    ['old coding tag', source[4]!, /unknown event type/],
   ])('rejects %s in native V3 encoding, decoding, and restoration', (_name, row, error) => {
     expect(() => releasedV3SessionFormatCodec.encodeEvent(row)).toThrow(error)
     const logicalHeader = releasedV3SessionFormatCodec.decodeHeader({ ...header, version: 3 })
@@ -155,7 +155,7 @@ describe('combined structural, canonical-envelope and PTC catalog migration', ()
     expect(reopened.finish()).toEqual(target)
   })
 
-  it('refuses target V3 delivery activation after replacement and PTC migration', () => {
+  it('refuses target V3 delivery activation after replacement and coding migration', () => {
     const reader = sessionFormatCatalog.createRestore(header, { recovery: 'strict', validation: 'current' })
     for (const row of source) reader.decodeRow(row)
     expect(() => {

@@ -1,5 +1,5 @@
 /** Combined byte accounting for retained program output. */
-import type { PtcJsonValue, PtcRunFailure, PtcRunResult } from '@qilin-agent/coding-runtime'
+import type { CodingJsonValue, CodingRunFailure, CodingRunResult } from '@qilin-agent/coding-runtime'
 import { jsonStringBytesUpTo, jsonValueBytesUpTo, truncateJsonStringBytes } from './output-json.ts'
 
 /** One run's combined outer-output ledger; binding values never enter it. */
@@ -21,19 +21,19 @@ export class OutputLedger {
   }
 
   /** Finalize a successful absent-or-JSON completion against the combined cap. */
-  success(logs: string[], value?: PtcJsonValue): PtcRunResult {
+  success(logs: string[], value?: CodingJsonValue): CodingRunResult {
     if (value !== undefined && jsonValueBytesUpTo(value, this.maxBytes - this.bytes) === undefined) return this.limit(logs)
     return { logs, ...value !== undefined ? { value } : {} }
   }
 
   /** Finalize a failure diagnostic, with output-limit taking precedence when combined bytes exceed the cap. */
-  failure(logs: string[], error: PtcRunFailure): PtcRunResult {
+  failure(logs: string[], error: CodingRunFailure): CodingRunResult {
     if (jsonStringBytesUpTo(error.message, this.maxBytes - this.bytes) === undefined) return this.limit(logs)
     return { logs, error }
   }
 
   /** Build the explicit output-limit failure while retaining a fitting prefix of the final log. */
-  limit(logs: string[]): PtcRunResult {
+  limit(logs: string[]): CodingRunResult {
     const fullMessage = this.overflowMessage ?? `outer output exceeded ${this.maxBytes} bytes`
     // The fixed diagnostic is ASCII, so every character is one byte plus the quotes.
     const messageBytes = fullMessage.length + 2

@@ -10,7 +10,7 @@ import BrowserUse from '@qilin-agent/browser-use'
 import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
 import Tools from '@qilin-agent/tools'
 import McpResources from '@qilin-agent/mcp-resources'
-import { PtcRuntime } from '@qilin-agent/coding-runtime'
+import { CodingRuntime } from '@qilin-agent/coding-runtime'
 import Llm, { LlmAdapter, ToolCallId, createUserMessage } from '@qilin-agent/llm'
 import type { GenerateOptions, LlmResolvedModelInfo, StreamChunk } from '@qilin-agent/llm'
 import Sessions, { SessionId } from '@qilin-agent/session'
@@ -57,11 +57,11 @@ class FixtureModel extends LlmAdapter {
   }
 }
 
-class PresentationRuntime extends PtcRuntime {
+class PresentationRuntime extends CodingRuntime {
   readonly language = 'typescript'
   readonly isolation = 'fixture'
-  resolve(): never { throw new Error('Unexpected PTC execution in a presentation test') }
-  run(): Promise<never> { return Promise.reject(new Error('Unexpected PTC execution in a presentation test')) }
+  resolve(): never { throw new Error('Unexpected coding-mode execution in a presentation test') }
+  run(): Promise<never> { return Promise.reject(new Error('Unexpected coding-mode execution in a presentation test')) }
 }
 
 async function load(exclusive = false, mode?: string, toolCallTimeoutMs?: number, toolOrder?: string[]) {
@@ -412,7 +412,7 @@ describe('Session MCP Loader composition', () => {
     }
   })
 
-  it('holds an immediate PTC turn until the first SDK includes browser tools', async () => {
+  it('holds an immediate coding turn until the first SDK includes browser tools', async () => {
     const { ctx, root, model } = await load(false, 'gate', undefined, ['run_code', '<unlisted-tools>'])
     await ctx.plugin(PresentationRuntime)
     let created = false

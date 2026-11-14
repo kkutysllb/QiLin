@@ -10,7 +10,7 @@ export const name = 'tool-worktree'
 export const inject = ['tools', 'worktrees']
 
 /**
- * Register create_worktree for model and PTC callers.
+ * Register create_worktree for model and coding callers.
  * @param ctx - tool registry and worktree runtime.
  */
 export function apply(ctx: Context): void {

@@ -23,7 +23,7 @@ packages/    @qilin-agent/<pkg> workspaces at packages/<group>/<pkg>/
   subprocess/           child-process management
   ssh/                  SSH execution providers
   terminal/             persistent terminals
-  coding-runtime/          PTC execution
+  coding-runtime/          coding-mode execution
   sandbox/              process confinement
   deliverables/         turn deliverables
   fs/                   filesystem access
@@ -99,7 +99,7 @@ pnpm run doc-sync       # documentation gates (scripts/run-gates.ts)
 pnpm run test:docs      # quick documentation checks (no build; doc-quick aggregate)
 pnpm run website:build  # VitePress build (doubles as dead-link check)
 pnpm qilin --profile headless "task"  # run one task from source (needs DEEPSEEK_API_KEY)
-pnpm run demo:ptc -- "task"  # headless PTC mode run (needs key)
+pnpm run demo:ptc -- "task"  # headless coding mode run (needs key)
 ```
 
 ### Host sandbox failures

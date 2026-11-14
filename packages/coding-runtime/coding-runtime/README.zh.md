@@ -1,5 +1,5 @@
 ---
-description: "抽象 PTC 执行 seam（`ctx.codingRuntime`），供用户与维护者组合、消费或构建后端，以针对宿主提供的绑定运行一段模型编写的程序。"
+description: "抽象 coding 执行 seam（`ctx.codingRuntime`），供用户与维护者组合、消费或构建后端，以针对宿主提供的绑定运行一段模型编写的程序。"
 kind: "package-reference"
 ---
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当你要组合一个执行模型程序的部署、直接消费 `ctx.codingRuntime`，或构建运行程序的后端时，选择本包。`qilin-tools` 中的 PTC mode 用它执行工具程序，`qilin-workflow-coding` 用它编排工作流。每个消费方负责返回给模型的内容。
+当你要组合一个执行模型程序的部署、直接消费 `ctx.codingRuntime`，或构建运行程序的后端时，选择本包。`qilin-tools` 中的 coding mode 用它执行工具程序，`qilin-workflow-coding` 用它编排工作流。每个消费方负责返回给模型的内容。
 
 ### 运行一个程序
 
@@ -64,21 +64,21 @@ binding-global 与 error-class 名称是语言可移植的：必须匹配 `[A-Za
 
 ### 设计理念
 
-本包是 PTC 执行能力 seam 的 Service Definition 角色（[能力 seam](../../../.agents/notes/implemented/architecture/2026-06-13-capability-seams.zh.md)）：一个注册为 `ctx.codingRuntime` 的抽象 `PtcRuntime extends Service`，加上提供方与消费方共享的词汇。提供方继承 `PtcRuntime`、实现 `resolve` 和 `run` 并注册服务。`qilin-tools` 中的 PTC mode 负责工具绑定，`qilin-workflow-coding` 负责工作流钩子与子 agent。按约定，运行时不了解工具与会话：它接收程序、具名异步绑定和已解析执行选项，然后返回捕获输出、执行结果与适用的沙箱事实。
+本包是 coding 执行能力 seam 的 Service Definition 角色（[能力 seam](../../../.agents/notes/implemented/architecture/2026-06-13-capability-seams.zh.md)）：一个注册为 `ctx.codingRuntime` 的抽象 `CodingRuntime extends Service`，加上提供方与消费方共享的词汇。提供方继承 `CodingRuntime`、实现 `resolve` 和 `run` 并注册服务。`qilin-tools` 中的 coding mode 负责工具绑定，`qilin-workflow-coding` 负责工作流钩子与子 agent。按约定，运行时不了解工具与会话：它接收程序、具名异步绑定和已解析执行选项，然后返回捕获输出、执行结果与适用的沙箱事实。
 
 ### 服务 API
 
 只读 `timeout` 描述符公开数值型 `{ defaultMs, maxMs }`，供消费方呈现；描述符缺省表示不支持数值覆盖。省略 `timeoutMs` 使用提供方默认值；数值请求经过验证和封顶的经过时间预算；显式 `null` 请求不设经过时间截止。提供方拒绝不支持的选择。Node 工作流适配器请求 `null`，而面向模型的 `run_code` 工具只接受正数覆盖值。
 
-`executionInstructions` 提供由运行时拥有的使用说明；不需要说明时返回空字符串。消费方可将其纳入程序呈现，无需根据语言或隔离描述符识别提供方；PTC 将它纳入已记录的 `run_code` schema。
+`executionInstructions` 提供由运行时拥有的使用说明；不需要说明时返回空字符串。消费方可将其纳入程序呈现，无需根据语言或隔离描述符识别提供方；coding 将它纳入已记录的 `run_code` schema。
 
 `resolve(request)` 负责支持选项的验证与部署默认值。`run(spec)` 执行完整输入，并在清理后返回程序结果。语言和执行基底描述符指导呈现；`sandboxMode` 表示消费方能否传入已解析文件策略。描述符与程序成功结果都不能代替后端报告的强制能力事实。
 
-穷尽式语义见[PTC 运行时子系统参考](../../../docs/subsystems/coding-runtime.zh.md)；确切签名见 [`src/index.ts`](src/index.ts)。
+穷尽式语义见[coding 运行时子系统参考](../../../docs/subsystems/coding-runtime.zh.md)；确切签名见 [`src/index.ts`](src/index.ts)。
 
 ### 词汇
 
-`PtcRunRequest` 携带程序、Host 绑定、取消和可选执行选择。`PtcRunSpec` 要求已解析的 cwd 和明确的数值或 null 截止选择。`PtcBindingNamespace` 声明程序全局对象与可选的类型化拒绝构造器。`PtcRunResult` 将日志／值、失败与 `PtcRunSandbox` 事实分开；确切字段与提供方义务见 [`src/types.ts`](src/types.ts)。
+`CodingRunRequest` 携带程序、Host 绑定、取消和可选执行选择。`CodingRunSpec` 要求已解析的 cwd 和明确的数值或 null 截止选择。`CodingBindingNamespace` 声明程序全局对象与可选的类型化拒绝构造器。`CodingRunResult` 将日志／值、失败与 `CodingRunSandbox` 事实分开；确切字段与提供方义务见 [`src/types.ts`](src/types.ts)。
 
 ### 可移植标识符
 
@@ -88,8 +88,8 @@ binding-global 与 error-class 名称是语言可移植的：必须匹配标识�
 
 | 文件 | 职责 |
 |---|---|
-| [`src/index.ts`](src/index.ts) | 插件入口：抽象 `PtcRuntime` 服务与可移植标识符排除集 |
-| [`src/types.ts`](src/types.ts) | 词汇：`PtcRunRequest`、`PtcRunSpec`、绑定、结果、失败与沙箱事实 |
+| [`src/index.ts`](src/index.ts) | 插件入口：抽象 `CodingRuntime` 服务与可移植标识符排除集 |
+| [`src/types.ts`](src/types.ts) | 词汇：`CodingRunRequest`、`CodingRunSpec`、绑定、结果、失败与沙箱事实 |
 
 </details>
 
@@ -98,12 +98,12 @@ binding-global 与 error-class 名称是语言可移植的：必须匹配标识�
 <a id="further-exploration"></a>
 ## 进一步探索
 
-当包级约定不够用时阅读以下内容。它们从 PTC mode 消费方进入后端与能力 seam 模型。
+当包级约定不够用时阅读以下内容。它们从 coding mode 消费方进入后端与能力 seam 模型。
 
-- [PTC mode Agent Note](../../../.agents/notes/implemented/feature/2026-06-15-ptc.zh.md)——工具注册表如何消费 `ctx.codingRuntime` 并把 `run_code` 呈现给模型。
+- [coding mode Agent Note](../../../.agents/notes/implemented/feature/2026-06-15-ptc.zh.md)——工具注册表如何消费 `ctx.codingRuntime` 并把 `run_code` 呈现给模型。
 - [Node 进程后端](../coding-runtime-node/README.zh.md)——已发布的 TypeScript 执行后端。
 - [实验性 Python 后端](../../experimental/coding-runtime-python/README.zh.md)——私有的 CPython 子进程提供方及其 fd-3 协议。
-- [PTC 运行时子系统参考](../../../docs/subsystems/coding-runtime.zh.md)——请求／结果词汇、绑定与 `ctx.codingRuntime` 的 cordis 接口面。
+- [coding 运行时子系统参考](../../../docs/subsystems/coding-runtime.zh.md)——请求／结果词汇、绑定与 `ctx.codingRuntime` 的 cordis 接口面。
 - [能力 seam](../../../.agents/notes/implemented/architecture/2026-06-13-capability-seams.zh.md)——Service Definition / Service Provider / Consumer 拆分。
 
 -----
@@ -111,7 +111,7 @@ binding-global 与 error-class 名称是语言可移植的：必须匹配标识�
 <a id="model-experience"></a>
 ## 模型体验
 
-通过 `qilin-tools` 中的 PTC mode 与工作流适配器间接提供；它们通过各自的工具结果呈现程序结果。
+通过 `qilin-tools` 中的 coding mode 与工作流适配器间接提供；它们通过各自的工具结果呈现程序结果。
 
 #### KV Cache 影响
 
@@ -124,7 +124,7 @@ binding-global 与 error-class 名称是语言可移植的：必须匹配标识�
 
 这些限制说明 seam 不能做什么；它们是当前包约束，不是任务积压。
 
-- **`run()` 是一次性的**——`logs` 只有在 `PtcRunResult` resolve 后才能获得；seam 不提供正在运行的程序所产生输出的流式日志或进度接口。
+- **`run()` 是一次性的**——`logs` 只有在 `CodingRunResult` resolve 后才能获得；seam 不提供正在运行的程序所产生输出的流式日志或进度接口。
 - **运行之间不保留状态**——每次请求都在全新环境中运行；持久 REPL 风格内核在某个后端带来自己的日志方案之前保持延期。
 - **提供方的约束能力不同**——已发布 Node 提供方强制执行已解析文件策略，私有实验性 Python 提供方拒绝显式策略。不提供容器提供方。
 - **提供方之间没有统一的绑定字节上限**——各提供方负责自己的传输限制；绑定仍可能在结果到达这些限制前分配内存。

@@ -157,7 +157,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/agent` | no | Agent interface, registry, initiator scope, and event vocabulary for the QiLin |
 | `@qilin-agent/agent-default-model` | yes | Default model selection shared by Agent entry points |
 | `@qilin-agent/agent-loop` | yes | The concrete agent loop plugin for the QiLin |
-| `@qilin-agent/agent-tool-presentation` | yes | Agent-plane presentation selector: composes one agent's tools as PTC mode, native, or both |
+| `@qilin-agent/agent-tool-presentation` | yes | Agent-plane presentation selector: composes one agent's tools as coding mode, native, or both |
 | `@qilin-agent/session` | no | Event-sourced session store for the QiLin |
 | `@qilin-agent/system-prompt` | yes | System prompt assembly registry for the QiLin |
 | `@qilin-agent/tools` | yes | Tool registry and execution pipeline for the QiLin |
@@ -205,7 +205,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | `@qilin-agent/experimental-forge-session` | yes | Binds change requests to the Session that created, pushed, or tracked them |
 | `@qilin-agent/experimental-hooks-claude-code` | yes | Bridge plugin: run a Claude Code hooks.json / settings hook config on the QiLin interception seams |
 | `@qilin-agent/experimental-hooks-codex` | yes | Bridge plugin: run a Codex hooks.json hook config on the QiLin interception seams |
-| `@qilin-agent/experimental-coding-runtime-python` | yes | CPython subprocess implementation of the QiLin PTC execution seam |
+| `@qilin-agent/experimental-coding-runtime-python` | yes | CPython subprocess implementation of the QiLin coding-mode execution seam |
 | `@qilin-agent/experimental-session-title-all-prompts-llm` | yes | All-user-messages LLM provider plugin for QiLin session titles |
 | `@qilin-agent/experimental-skill-badge` | no | Bundled qilin badge skill provider for QiLin |
 | `@qilin-agent/experimental-speech-to-text` | yes | Experimental speech recognition with independently selectable providers |
@@ -344,7 +344,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 
 | Package | Config | Description |
 |---|---|---|
-| `@qilin-agent/coding-runtime-node` | yes | Node PTC execution with per-call sandboxed processes or in-memory REPL state |
+| `@qilin-agent/coding-runtime-node` | yes | Node coding-mode execution with per-call sandboxed processes or in-memory REPL state |
 
 ## sandbox
 
@@ -521,7 +521,7 @@ Every package below exports a Cordis plugin that a bundle patch can name in a Lo
 | Package | Config | Description |
 |---|---|---|
 | `@qilin-agent/tool-workflow` | yes | Model-facing workflow tool: run a JavaScript orchestration script over ctx.workflowEngine |
-| `@qilin-agent/workflow-coding` | yes | Workflow orchestration in the shared sandboxed Node PTC runtime |
+| `@qilin-agent/workflow-coding` | yes | Workflow orchestration in the shared sandboxed Node coding runtime |
 
 ## workspace
 

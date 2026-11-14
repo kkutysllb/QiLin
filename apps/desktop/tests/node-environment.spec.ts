@@ -2,7 +2,7 @@ import { delimiter } from 'node:path'
 import { expect, it } from 'vitest'
 import { desktopNodeEnvironment } from '../src/node-environment.ts'
 
-it('keeps private Desktop launchers out of the Host environment inherited by PTC', () => {
+it('keeps private Desktop launchers out of the Host environment inherited by coding', () => {
   const environment = { PATH: '/user/bin', HOME: '/user' }
   expect(desktopNodeEnvironment('/desktop/electron', undefined, environment)).toEqual({
     ...environment, ELECTRON_RUN_AS_NODE: '1',

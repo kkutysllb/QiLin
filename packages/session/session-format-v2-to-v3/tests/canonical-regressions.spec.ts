@@ -113,7 +113,7 @@ describe('canonical preservation across migration and native reload', () => {
     expect(JSON.stringify({ header: nativeHeader, rows })).toBe(before)
   })
 
-  it('composes inherited and local preset selections with shifted heads, PTC failure, replacement and historical delivery', () => {
+  it('composes inherited and local preset selections with shifted heads, coding failure, replacement and historical delivery', () => {
     const source = seededHistory()
     const before = JSON.stringify({ header: seededHeader, source })
     const target = restore(source, seededHeader)

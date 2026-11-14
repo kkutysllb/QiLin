@@ -501,7 +501,7 @@ describe('Trajectory conversation Definitions', () => {
     }])
   })
 
-  it('keeps parallel roots, raw Tool facts, and mixed-ID PTC dispatch results', () => {
+  it('keeps parallel roots, raw Tool facts, and mixed-ID coding dispatch results', () => {
     const error = {
       name: 'AutoReviewDeniedError',
       code: 'AUTO_REVIEW_DENIED',

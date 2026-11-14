@@ -3,7 +3,7 @@ import Sessions, { SessionId } from '@qilin-agent/session'
 import SandboxPolicy, { setSandboxMode } from '@qilin-agent/sandbox-policy'
 import SessionProjections from '@qilin-agent/session-projection'
 import { expect, it, onTestFinished, vi } from 'vitest'
-import { PtcCalls } from '../src/ptc-calls.ts'
+import { CodingCalls } from '../src/ptc-calls.ts'
 
 async function setup() {
   const ctx = new Context()
@@ -12,7 +12,7 @@ async function setup() {
   await ctx.plugin(SessionProjections)
   await ctx.plugin(SandboxPolicy, { mode: 'workspace-write' })
   const session = ctx.sessions.create(SessionId('ptc-calls'))
-  const calls = new PtcCalls(ctx)
+  const calls = new CodingCalls(ctx)
   const mode = () => ctx.sandboxPolicy.resolve({ session }).mode
   const signal = new AbortController().signal
   return { ctx, session, calls, mode, signal }
@@ -79,11 +79,11 @@ it('unloads the registry only after calls stop and refuses late admission', asyn
   try {
     await stopped.promise
     const next = calls.run(session.id, signal, mode, async () => 'unexpected')
-    const rejected = expect(next).rejects.toThrow('PTC tool registry disposed')
+    const rejected = expect(next).rejects.toThrow('coding tool registry disposed')
     cleanup.resolve(undefined)
     await first
     await rejected
     await disposed
-    await expect(calls.run(session.id, signal, mode, async () => 'unexpected')).rejects.toThrow('PTC tool registry disposed')
+    await expect(calls.run(session.id, signal, mode, async () => 'unexpected')).rejects.toThrow('coding tool registry disposed')
   } finally { cleanup.resolve(undefined); await first; await disposed }
 })

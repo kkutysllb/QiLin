@@ -9,7 +9,7 @@ kind: persistence-change
 
 ## 概述
 
-新增三个仅用于归属的消息来源种类，记录持久的 working-directory 变更事件，并持久化可选的嵌套 PTC 展示元数据。
+新增三个仅用于归属的消息来源种类，记录持久的 working-directory 变更事件，并持久化可选的嵌套 coding 展示元数据。
 
 ## 目录
 

@@ -238,7 +238,7 @@ describe('answeredQuestionDefinition', () => {
     expect(nodes[0]?.data).not.toHaveProperty('seq')
   })
 
-  it('pairs a PTC sub-dispatch by its subCallId', () => {
+  it('pairs a coding sub-dispatch by its subCallId', () => {
     const nodes = answerNodes([ptcCall(), ptcResult()])
     expect(nodes).toHaveLength(1)
     expect(nodes[0]).toMatchObject({ kind: 'question-reply', anchorSeq: 2, data: { callId: 'call-1' } })

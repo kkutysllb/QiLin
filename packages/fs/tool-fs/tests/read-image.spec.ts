@@ -12,8 +12,8 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@qilin-agent/kylin'
-import { PtcRuntime } from '@qilin-agent/coding-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/coding-runtime'
+import { CodingRuntime } from '@qilin-agent/coding-runtime'
+import type { CodingRunRequest, CodingRunResult } from '@qilin-agent/coding-runtime'
 import { ToolCallId, LlmAdapter, LlmRuntime } from '@qilin-agent/llm'
 import type { GenerateOptions, LlmModelInfo, LlmResolvedModelInfo, Message, StreamChunk } from '@qilin-agent/llm'
 import SystemPrompt from '@qilin-agent/system-prompt'
@@ -70,15 +70,15 @@ class CatalogAdapter extends LlmAdapter {
   }
 }
 
-/** In-process PTC mode seam fake that invokes the real registry bindings. */
-class FakeRuntime extends PtcRuntime {
-  resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+/** In-process coding mode seam fake that invokes the real registry bindings. */
+class FakeRuntime extends CodingRuntime {
+  resolve(request: import('@qilin-agent/coding-runtime').CodingRunRequest): import('@qilin-agent/coding-runtime').CodingRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'fake'
-  behavior: (request: PtcRunRequest) => Promise<PtcRunResult> = () => Promise.resolve({ logs: [] })
+  behavior: (request: CodingRunRequest) => Promise<CodingRunResult> = () => Promise.resolve({ logs: [] })
 
-  run(request: PtcRunRequest): Promise<PtcRunResult> {
+  run(request: CodingRunRequest): Promise<CodingRunResult> {
     return this.behavior(request)
   }
 }
@@ -132,7 +132,7 @@ async function setup(options: SetupOptions = {}) {
 /** A fake calling agent pinned to one routed provider/model. */
 function agentOn(model: string | undefined, provider = 'visual', messages: readonly Message[] = []): object {
   return {
-    // PTC retained-environment cleanup registers on the calling Agent's context.
+    // coding retained-environment cleanup registers on the calling Agent's context.
     ctx: new Context(),
     options: {},
     session: {
@@ -291,7 +291,7 @@ describe('read_image happy path', () => {
     expect(result.isError).toBe(false)
   })
 
-  it('forwards a nested PTC mode image through the outer run_code context', async () => {
+  it('forwards a nested coding mode image through the outer run_code context', async () => {
     await writeFile(join(dir, 'red.png'), PNG_1X1)
     const ctx = await setup({ toolMode: 'coding' })
     const runtime = ctx.codingRuntime as FakeRuntime
@@ -302,7 +302,7 @@ describe('read_image happy path', () => {
 
     const result = await call(ctx, RUN_CODE_NAME, {
       code: 'return await tools.read_image({ file_path: "red.png" })',
-      description: 'Read the image through PTC mode',
+      description: 'Read the image through coding mode',
     }, agentOn('vision-model'))
 
     expect(result.isError).toBe(false)

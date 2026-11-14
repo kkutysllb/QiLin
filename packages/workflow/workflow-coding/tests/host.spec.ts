@@ -1,33 +1,33 @@
 import { provideWorkingDirectoryFixture } from '@qilin-agent/agent-loop-testkit'
 import { Context } from '@qilin-agent/kylin'
 import AgentRegistry from '@qilin-agent/agent'
-import { PtcRuntime } from '@qilin-agent/coding-runtime'
-import type { PtcBindingFunction, PtcRunRequest, PtcRunResult, PtcRunSpec } from '@qilin-agent/coding-runtime'
+import { CodingRuntime } from '@qilin-agent/coding-runtime'
+import type { CodingBindingFunction, CodingRunRequest, CodingRunResult, CodingRunSpec } from '@qilin-agent/coding-runtime'
 import SessionStore, { SessionId } from '@qilin-agent/session'
 import SessionProjections from '@qilin-agent/session-projection'
 import SandboxPolicy from '@qilin-agent/sandbox-policy'
 import SubagentRuntime from '@qilin-agent/subagent'
 import type { SubagentActivation, SubagentResult } from '@qilin-agent/subagent'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import PtcWorkflowEngine from '../src/index.ts'
+import CodingWorkflowEngine from '../src/index.ts'
 import { fakeParent } from './setup.ts'
 
-const completed: PtcRunResult = { logs: [], value: { value: null, stopReason: 'completed', agentsStarted: 0 } }
-type HostBindings = Record<string, PtcBindingFunction>
+const completed: CodingRunResult = { logs: [], value: { value: null, stopReason: 'completed', agentsStarted: 0 } }
+type HostBindings = Record<string, CodingBindingFunction>
 
-class ControlledRuntime extends PtcRuntime {
+class ControlledRuntime extends CodingRuntime {
   language = 'typescript'
   readonly isolation = 'process'
-  execute: (spec: PtcRunSpec) => Promise<PtcRunResult> = () => Promise.resolve(completed)
+  execute: (spec: CodingRunSpec) => Promise<CodingRunResult> = () => Promise.resolve(completed)
 
-  resolve(request: PtcRunRequest): PtcRunSpec {
+  resolve(request: CodingRunRequest): CodingRunSpec {
     return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs === undefined ? 120_000 : request.timeoutMs }
   }
 
-  run(spec: PtcRunSpec): Promise<PtcRunResult> { return this.execute(spec) }
+  run(spec: CodingRunSpec): Promise<CodingRunResult> { return this.execute(spec) }
 }
 
-async function setup(execute?: (bindings: HostBindings, spec: PtcRunSpec) => Promise<PtcRunResult>, language = 'typescript') {
+async function setup(execute?: (bindings: HostBindings, spec: CodingRunSpec) => Promise<CodingRunResult>, language = 'typescript') {
   const ctx = new Context()
   onTestFinished(async () => { await ctx.fiber.dispose() })
   await ctx.plugin(SessionStore)
@@ -51,7 +51,7 @@ async function setup(execute?: (bindings: HostBindings, spec: PtcRunSpec) => Pro
   const runtime = ctx.codingRuntime as ControlledRuntime
   runtime.language = language
   if (execute !== undefined) runtime.execute = spec => execute(spec.bindings[0]!.functions, spec)
-  await ctx.plugin(PtcWorkflowEngine, { provider: 'stub' })
+  await ctx.plugin(CodingWorkflowEngine, { provider: 'stub' })
   const parent = await fakeParent(ctx)
   const start = () => ctx.workflowEngine.start({
     script: 'return null', meta: { name: 'host-test', description: 'workflow callbacks' }, parent,
@@ -63,7 +63,7 @@ describe('workflow host callback validation', () => {
   it('retains its selected directory for the process and later children when the parent moves', async () => {
     const entered = Promise.withResolvers<undefined>()
     const release = Promise.withResolvers<undefined>()
-    let launched: PtcRunSpec | undefined
+    let launched: CodingRunSpec | undefined
     const { ctx, start, parent } = await setup(async (bindings, spec) => {
       launched = spec
       entered.resolve(undefined)
@@ -210,7 +210,7 @@ describe('workflow runtime outcomes', () => {
 
   it('preserves cancellation when the runtime rejects during cancellation', async () => {
     const entered = Promise.withResolvers<undefined>()
-    const failure = Promise.withResolvers<PtcRunResult>()
+    const failure = Promise.withResolvers<CodingRunResult>()
     const { start } = await setup(() => { entered.resolve(undefined); return failure.promise })
     const handle = start()
     try {
@@ -227,7 +227,7 @@ describe('workflow runtime outcomes', () => {
   })
 
   it('rejects a non-TypeScript runtime while loading the workflow provider', async () => {
-    await expect(setup(undefined, 'python')).rejects.toThrow('requires the Node TypeScript PTC runtime')
+    await expect(setup(undefined, 'python')).rejects.toThrow('requires the Node TypeScript coding runtime')
   })
 
   it('disposes a child published after workflow cancellation', async () => {

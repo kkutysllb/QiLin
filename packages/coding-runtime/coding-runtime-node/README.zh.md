@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-在提供 `fs`、`subprocess`、`sandbox` 与 `sandboxPolicy` 的组合中挂载本提供方。`qilin-tools` 的 PTC 模式传入调用 Session 的目录和常设策略；直接运行时消费方在执行前解析这些选项。
+在提供 `fs`、`subprocess`、`sandbox` 与 `sandboxPolicy` 的组合中挂载本提供方。`qilin-tools` 的 coding 模式传入调用 Session 的目录和常设策略；直接运行时消费方在执行前解析这些选项。
 
 ### 配置
 
@@ -60,11 +60,11 @@ kind: "package-reference"
 
 程序是异步函数体：支持顶层 `await` 与 `return`，且只接受可擦除 TypeScript。成功调用以 `result.value` 返回无损 JSON 值，以 `result.logs` 返回捕获文本。`result.sandbox` 独立于程序结果报告所选模式、观察到的拒绝，以及后端完整或部分的强制能力。
 
-直接文件系统、网络与子进程操作仍是 Node 操作，受所选 OS 沙箱约束。嵌套 Host 绑定通过控制通道调用；PTC 工具调用保留注册表的可见性、排序、日志和审批规则。运行程序不会改变 Session 的常设策略，也不会在拒绝后自动重放程序。
+直接文件系统、网络与子进程操作仍是 Node 操作，受所选 OS 沙箱约束。嵌套 Host 绑定通过控制通道调用；coding 工具调用保留注册表的可见性、排序、日志和审批规则。运行程序不会改变 Session 的常设策略，也不会在拒绝后自动重放程序。
 
 ### 截止时间与取消
 
-PTC 消费方按 [qilin-tools](../../core/tools/README.zh.md#ptc-mode) 的说明公开逐次超时与经审批的沙箱选择。运行时只读 `timeout` 描述符向该消费方报告有效默认值与上限。 其 `executionInstructions` 在面向模型的 schema 中说明全新 Node 状态、直接 Node API、空程序环境和文件策略。
+coding 消费方按 [qilin-tools](../../core/tools/README.zh.md#coding-mode) 的说明公开逐次超时与经审批的沙箱选择。运行时只读 `timeout` 描述符向该消费方报告有效默认值与上限。 其 `executionInstructions` 在面向模型的 schema 中说明全新 Node 状态、直接 Node API、空程序环境和文件策略。
 
 省略 `timeoutMs` 使用配置的经过时间默认值；数值请求经过验证并封顶。服务调用方可以显式传入 `timeoutMs: null` 来省略经过时间定时器，工作流适配器即如此；`run_code` 仍只接受正数覆盖值。启用的截止覆盖运行时准备和执行，包括等待嵌套工具或审批的时间。它不是 CPU 计量器。超时或取消通过 Host 的受管进程所有者停止同步循环；成功完成也会清理该受管范围。选择结果后、清理前停止计时器，因此调用可能要在执行截止之后等待清理结算才返回。
 
@@ -112,9 +112,9 @@ Host 擦除可擦除类型，在配置的执行世界中解析可执行文件与
 
 直接使用提供方前先读服务约定；决策记录解释策略与消费方职责。
 
-- [PTC 运行时服务](../coding-runtime/README.zh.md)——请求、已解析 spec 与结果。
+- [coding 运行时服务](../coding-runtime/README.zh.md)——请求、已解析 spec 与结果。
 - [沙箱 Node 决策](../../../.agents/notes/implemented/architecture/2026-09-11-sandboxed-node-ptc-runtime.zh.md)——安全、生命周期与 timeout 取舍。
-- [PTC 基础](../../../.agents/notes/implemented/feature/2026-06-15-ptc.zh.md)——注册表呈现与嵌套工具分派。
+- [coding 基础](../../../.agents/notes/implemented/feature/2026-06-15-ptc.zh.md)——注册表呈现与嵌套工具分派。
 - [子进程提供方](../../subprocess/subprocess-local/README.zh.md)——受管进程范围与平台限制。
 
 -----
@@ -122,7 +122,7 @@ Host 擦除可擦除类型，在配置的执行世界中解析可执行文件与
 <a id="model-experience"></a>
 ## 模型体验
 
-通过 `qilin-tools` 的 PTC 模式与 `qilin-workflow-coding` 间接提供；它们通过各自的工具结果呈现程序结果。中间绑定通信不进入模型历史；外层结果遵循普通工具溢出策略。
+通过 `qilin-tools` 的 coding 模式与 `qilin-workflow-coding` 间接提供；它们通过各自的工具结果呈现程序结果。中间绑定通信不进入模型历史；外层结果遵循普通工具溢出策略。
 
 #### KV Cache effect
 

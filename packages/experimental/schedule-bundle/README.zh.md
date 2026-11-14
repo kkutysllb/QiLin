@@ -49,7 +49,7 @@ kind: "package-bundle"
 
 ### 为何保留此 Bundle
 
-上游把 `schedule` 服务条目与 `ui-schedule` 页面条目组合在 web-app 补丁中，并把时钟条目与四个提醒工具保留在各 preset 中。本部署把三个条目留在可选的 Bundle 中、把四个工具留在随包交付的 `ptc` preset 中，并且不把该 Bundle 退役进 Web 组合。
+上游把 `schedule` 服务条目与 `ui-schedule` 页面条目组合在 web-app 补丁中，并把时钟条目与四个提醒工具保留在各 preset 中。本部署把三个条目留在可选的 Bundle 中、把四个工具留在随包交付的 `coding` preset 中，并且不把该 Bundle 退役进 Web 组合。
 
 - 一次选择即整体承载能力：服务、页面与时钟读数一起开关，禁用即恢复原有组合，无需重新构建或发版。
 - 启用路径已存在于别处：`OPTIONAL_BUNDLES` 在“官方”分组提供该 Bundle，[用户指南](../../../docs/user/guide/schedule.zh.md)与[子系统页](../../../docs/subsystems/schedule.zh.md)都把它写作为随包 Web profile 加入定时的方式。

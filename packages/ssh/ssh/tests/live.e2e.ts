@@ -246,7 +246,7 @@ describe.skipIf(!enabled)('POSIX SSH runtime acceptance', () => {
     }
   }, 60_000)
 
-  it.skipIf(bootstrap === undefined)('runs PTC remotely with empty environment, bindings, denial and a bounded hot loop', async () => {
+  it.skipIf(bootstrap === undefined)('runs coding remotely with empty environment, bindings, denial and a bounded hot loop', async () => {
     const test = await setup()
     const fiber = test.ctx.plugin(NodePtcRuntime, {
       launch: test.ctx.ssh.ptcLaunch,

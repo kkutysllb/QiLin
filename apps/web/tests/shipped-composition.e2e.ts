@@ -619,7 +619,7 @@ it('assembles the shipped Web transport, catalog, guidance, and defaults', async
   // name the agent to see anything. The process-wide rows are `sidebar_open` and
   // `working_directory`, which the base bundle registers so they reach every
   // preset's agent, plus the `run_code` transport the `tools` row registers for
-  // its PTC mode (web-app bundle).
+  // its coding mode (web-app bundle).
   expect(ctx.tools.schemas().map(schema => schema.name).sort())
     .toEqual(['run_code', 'sidebar_open', 'working_directory'])
   const handle = await ctx.agents.create({
@@ -677,7 +677,7 @@ it('assembles the shipped Web transport, catalog, guidance, and defaults', async
   }
 }, 120_000)
 
-it('ships PTC with run_code but without the general workflow SDK binding under dual resolution', async () => {
+it('ships coding with run_code but without the general workflow SDK binding under dual resolution', async () => {
   scaffold = await launchWebScaffold({ deepSeekMissingCredential: true, profileResolutionMode: 'dual' })
   expect(existsSync(join(scaffold.harnessHome, 'profiles', 'node_modules'))).toBe(true)
   const ctx = scaffold.ctx
@@ -1243,7 +1243,7 @@ it('keeps the session chain alive with official plugins removed', async () => {
   if (agent === undefined) throw new Error('session/create did not publish the session')
   const names = ctx.tools.schemas(agent).map(schema => schema.name)
   // The shipped default is `standard`, so the unnamed session presents the
-  // native tool surface rather than the PTC collapse.
+  // native tool surface rather than coding-mode collapse.
   expect(names).not.toContain(RUN_CODE_NAME)
   expect(names).toContain('todo_write')
   expect(names.filter(name => name === 'web_search' || name === 'web_fetch')).toHaveLength(2)

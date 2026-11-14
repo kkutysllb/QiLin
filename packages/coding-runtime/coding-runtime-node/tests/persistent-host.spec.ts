@@ -4,14 +4,14 @@ import { Context } from '@qilin-agent/kylin'
 import { SessionId } from '@qilin-agent/session'
 import { setSandboxMode } from '@qilin-agent/sandbox-policy'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { PtcBindingFunction, PtcRunRequest } from '@qilin-agent/coding-runtime'
+import type { CodingBindingFunction, CodingRunRequest } from '@qilin-agent/coding-runtime'
 import type { SubprocessHandle, SubprocessOutcome } from '@qilin-agent/subprocess'
 import type { Config } from '../src/index.ts'
 import { mountRuntime } from './setup.ts'
 import { JsonChannel } from '../src/channel.ts'
 import { encodePtcJsonWire } from '../src/json-wire.ts'
 
-const request: PtcRunRequest = { program: '1', bindings: [], stateOwner: {} }
+const request: CodingRunRequest = { program: '1', bindings: [], stateOwner: {} }
 const NO_INITIAL_FRAME = Symbol('no initial frame')
 async function setup(config: Config = {}) {
   const ctx = new Context()
@@ -73,7 +73,7 @@ async function setup(config: Config = {}) {
     direct.resolve({ exitCode: 0, signal: null })
     await Promise.all(writes)
   })
-  const start = (input: PtcRunRequest = request, first: unknown = { type: 'ready' }) => {
+  const start = (input: CodingRunRequest = request, first: unknown = { type: 'ready' }) => {
     const result = runtime.run(runtime.resolve(input))
     if (first !== NO_INITIAL_FRAME) queueMicrotask(() => { emit(first) })
     return result
@@ -92,7 +92,7 @@ async function setup(config: Config = {}) {
 
 function frame(payload: unknown, id = 1) { return { id, payload } }
 function call(id = 1, args: unknown = encodePtcJsonWire(null)) { return frame({ type: 'call', id, global: 'tools', name: 'test', args }) }
-const bound: PtcRunRequest = { ...request, bindings: [{ global: 'tools', functions: { test: async () => 42 } }] }
+const bound: CodingRunRequest = { ...request, bindings: [{ global: 'tools', functions: { test: async () => 42 } }] }
 
 it.each(['per-call', 'persistent-in-memory'] as const)('cancels a %s call when its Session policy changes before process launch', async (executionMode) => {
   const h = await setup({ executionMode })
@@ -187,11 +187,11 @@ it('rejects a retained call when its provider unloads during earlier policy clea
   const pending = h.runtime.run(h.runtime.resolve({
     ...request, stateOwner: {}, sandboxPolicy: h.ctx.sandboxPolicy.resolve({ session }),
   }))
-  const rejected = expect(pending).rejects.toThrow('persistent PTC: run after disposal')
+  const rejected = expect(pending).rejects.toThrow('persistent coding: run after disposal')
   const closing = h.fiber.dispose()
   try {
     await vi.waitFor(() => {
-      expect(() => h.runtime.resolve(request)).toThrow('persistent PTC: resolve after disposal')
+      expect(() => h.runtime.resolve(request)).toThrow('persistent coding: resolve after disposal')
     })
     expect(h.spawn).toHaveBeenCalledOnce()
     cleanup.resolve(true)
@@ -205,7 +205,7 @@ it('rejects a retained call when its provider unloads during earlier policy clea
   }
 })
 
-describe('persistent PTC host protocol', () => {
+describe('persistent coding host protocol', () => {
   it.each([
     null,
     { id: 99, payload: {} },
@@ -247,7 +247,7 @@ describe('persistent PTC host protocol', () => {
   })
 
   it('returns current binding successes, exceptions and unavailable bindings', async () => {
-    const cases: Record<string, PtcBindingFunction>[] = [
+    const cases: Record<string, CodingBindingFunction>[] = [
       { test: async () => 42 }, { test: async () => { throw new Error('denied') } },
       // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- Host bindings may reject with a non-Error value.
       { test: () => Promise.reject('denied') }, {},

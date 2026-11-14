@@ -154,7 +154,7 @@ describe('first-party Session format catalog', () => {
     expect(JSON.stringify({ header, row })).toBe(before)
   })
 
-  it.each([0, 1, 2])('migrates frozen v%i PTC records and reopens the actual current representation without rewriting IDs', (version) => {
+  it.each([0, 1, 2])('migrates frozen v%i coding records and reopens the actual current representation without rewriting IDs', (version) => {
     const sourceHeader = deepFreeze({
       type: 'session', version, id: 'tools-code-mode:session', createdAt: 1, delegationDepth: 0,
       ...(version === 2 ? { isSeeded: false } : {}),

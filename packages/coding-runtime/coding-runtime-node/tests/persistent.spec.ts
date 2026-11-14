@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { setImmediate } from 'node:timers/promises'
 import { Context } from '@qilin-agent/kylin'
-import type { PtcBindingFunction, PtcRunRequest } from '@qilin-agent/coding-runtime'
+import type { CodingBindingFunction, CodingRunRequest } from '@qilin-agent/coding-runtime'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
 import type { Config } from '../src/index.ts'
 import { mountRuntime } from './setup.ts'
@@ -14,12 +14,12 @@ async function setup(config: Config = {}) {
   onTestFinished(async () => { await ctx.fiber.dispose(); await rm(cwd, { recursive: true, force: true }) })
   const { runtime, fiber } = await mountRuntime(ctx, { ...config, executionMode: 'persistent-in-memory' })
   const owner = {}
-  const run = (program: string, options: Partial<PtcRunRequest> = {}) =>
+  const run = (program: string, options: Partial<CodingRunRequest> = {}) =>
     runtime.run(runtime.resolve({ program, bindings: [], cwd, stateOwner: owner, ...options }))
   return { ctx, fiber, runtime, owner, run, cwd }
 }
 
-function bindings(value: PtcBindingFunction) {
+function bindings(value: CodingBindingFunction) {
   return [{ global: 'tools', functions: { value }, errorClass: { name: 'ToolCallError', memberNameProperty: 'toolName' } }]
 }
 

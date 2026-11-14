@@ -29,7 +29,7 @@ export interface Config {
 
 /** Cordis plugin identity. */
 export const name = 'spill-policy'
-/** Tools own both model-facing results and PTC dispatch logs. */
+/** Tools own both model-facing results and coding dispatch logs. */
 export const inject = ['tools']
 export const Config: z<Config> = z.object({ maxInlineTokens: z.number() })
 
@@ -41,7 +41,7 @@ function retainable(content: readonly ContentBlock[]): content is RetainableBloc
 const GAP = { type: 'text', text: '\n\n[...]\n\n' } as const
 
 /**
- * Mount token retention for accepted tool results and PTC log copies.
+ * Mount token retention for accepted tool results and coding log copies.
  * @param ctx - tool registry and optional pricing, filesystem, attachment, and spill services.
  * @param config - maximum estimated result tokens; omission disables the plugin.
  */
@@ -135,7 +135,7 @@ export function apply(ctx: Context, config: Config): void {
     if (decision.kind !== 'accept' || Object.hasOwn(decision, 'value') || exec.name === 'read') return decision
     const content = decision.content ?? result.content
     const hasImages = content.some(block => block.type === 'image')
-    // Text-only PTC bindings retain their asynchronous log-only spill path.
+    // Text-only coding bindings retain their asynchronous log-only spill path.
     if (exec.parent !== undefined && !hasImages) return decision
     const retained = await bound(exec, content, exec.name, exec.callId, exec.parent === undefined ? 'result' : 'dispatch')
     if (retained === undefined) return decision

@@ -14,18 +14,18 @@ import { authenticateStream } from './stream-security.ts'
 
 type Hello = z.infer<typeof helloSchema>
 
-/** Installed helper invocation; script deployments may also install a PTC bootstrap. */
+/** Installed helper invocation; script deployments may also install a coding bootstrap. */
 export type HelperLaunch = {
   /** Run the installed script with a separately installed Node executable. */
   kind: 'node-script'
   /** Absolute remote Node executable. */
   node: string
-  /** Absolute remote PTC bootstrap; requires bootstrapHash. */
+  /** Absolute remote coding bootstrap; requires bootstrapHash. */
   bootstrapPath?: string
   /** Lowercase SHA-256 of bootstrapPath; requires that path. */
   bootstrapHash?: string
 } | {
-  /** Run the helper executable with its embedded Node and PTC worker. */
+  /** Run the helper executable with its embedded Node and coding worker. */
   kind: 'executable'
 }
 
@@ -110,14 +110,14 @@ export class SshConnection extends Service {
   /** Hold plugin readiness until the remote identity and helper digest are verified. */
   async [Service.init](): Promise<void> { await this.ready }
 
-  /** Verified remote PTC launch configuration; script deployments require a verified bootstrap. */
+  /** Verified remote coding launch configuration; script deployments require a verified bootstrap. */
   get ptcLaunch(): { kind: 'embedded'; executable: string } | { kind: 'node-script'; executable: string; bootstrapPath: string } {
     if (this.remote === undefined) throw new Error('SSH helper is not ready')
     const launch = this.config.launch
     switch (launch.kind) {
       case 'executable': return { kind: 'embedded', executable: this.remote.executable }
       case 'node-script':
-        if (launch.bootstrapPath === undefined) throw new Error('SSH PTC requires a verified bootstrapPath and bootstrapHash')
+        if (launch.bootstrapPath === undefined) throw new Error('SSH coding requires a verified bootstrapPath and bootstrapHash')
         return { kind: 'node-script', executable: this.remote.executable, bootstrapPath: launch.bootstrapPath }
       /* v8 ignore next -- Config parsing admits only these two launch kinds. */
       default: return assertNever(launch)
@@ -315,7 +315,7 @@ export class SshConnection extends Service {
     }, helloSchema, AbortSignal.timeout(this.config.requestTimeoutMs))
     if (hello.hash !== this.config.helperHash) throw new Error('SSH helper digest differs from the configured artifact')
     if (hello.kind !== launch.kind) throw new Error('SSH helper runtime differs from the configured launch kind')
-    if (hello.bootstrapHash !== bootstrapHash) throw new Error('SSH PTC bootstrap digest differs from the configured artifact')
+    if (hello.bootstrapHash !== bootstrapHash) throw new Error('SSH coding bootstrap digest differs from the configured artifact')
     this.remote = hello
     let heartbeatPending: Promise<unknown> | undefined
     this.heartbeat = setInterval(() => {

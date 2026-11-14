@@ -1,4 +1,4 @@
-/** Released-V2 codec and streaming system, canonical-envelope, and PTC migration into V3. */
+/** Released-V2 codec and streaming system, canonical-envelope, and coding migration into V3. */
 
 export { releasedV2SessionFormatCodec } from '@qilin-agent/session-format-v1-to-v2'
 export * from './codec.ts'

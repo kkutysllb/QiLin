@@ -2,18 +2,18 @@
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/coding-runtime.md
-/ptc-runtime:
-  en: dce4ad9842612ba9
-  zh: d2c6ea109346ab9f
-/ptc-runtime/the-run-request-in-result-out:
-  en: b11e176bee0ca6bd
-  zh: 843d5d70c58dec42
-/ptc-runtime/bindings-host-functions-as-program-globals:
-  en: 182147ddf388c600
-  zh: c0a7d77602c78bcd
-/ptc-runtime/captured-output-and-the-failure-taxonomy:
+/coding-runtime:
+  en: 3aedc3915512dd2d
+  zh: 014f9e0acabb1f5d
+/coding-runtime/the-run-request-in-result-out:
+  en: 19d36b19000329fd
+  zh: d343ab829186ff5c
+/coding-runtime/bindings-host-functions-as-program-globals:
+  en: d3720006d7eb59a4
+  zh: d70e3d2e9e19a9a5
+/coding-runtime/captured-output-and-the-failure-taxonomy:
   en: 9eae3abc8eae8f63
   zh: 046e160f6ea46e97
-/ptc-runtime/the-service:
-  en: 5a9e43632f2a3964
-  zh: 16b04eb152720810
+/coding-runtime/the-service:
+  en: 13f4bf04b1f0d8c3
+  zh: d65b4622c5d17d99

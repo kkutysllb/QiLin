@@ -32,7 +32,7 @@ import * as ToolCordis from '@qilin-agent/tool-kylin'
 import * as ToolCordisHost from '@qilin-agent/tool-kylin/host'
 
 /**
- * With-key PTC mode proof: a real model receives only `run_code`, composes two
+ * With-key coding mode proof: a real model receives only `run_code`, composes two
  * sub-calls, writes a file, and returns curated output while the log records
  * each `tool/ptc-dispatch`. The keyless Loader smoke is in the sibling test.
  */
@@ -46,7 +46,7 @@ let workdir: string | undefined
 
 afterEach(async () => {
   // Always dispose, even on failure/retry/timeout: agent-loop teardown stops
-  // the loop, the executor kills stray processes, and the PTC runtime's
+  // the loop, the executor kills stray processes, and the coding runtime's
   // dispose awaits worker exits.
   await ctx?.fiber.dispose()
   ctx = undefined
@@ -99,7 +99,7 @@ async function workspacePtcModeHarness(cwd: string): Promise<Context> {
 let keylessCall = 0
 const testToolSignal = new AbortController().signal
 
-/** Execute one outer PTC mode call through the real registry and Node process. */
+/** Execute one outer coding mode call through the real registry and Node process. */
 function runCode(
   harness: Context,
   code: string,
@@ -163,7 +163,7 @@ async function backgroundPtcModeHarness(cwd: string): Promise<Context> {
   return harness
 }
 
-describe('PTC mode typed values: keyless real-process contracts', () => {
+describe('coding mode typed values: keyless real-process contracts', () => {
   it('crosses a large intermediate value intact and exposes only typed tool failure fields', async () => {
     ctx = await typedPtcModeHarness()
     ctx.tools.register(defineTool({
@@ -306,7 +306,7 @@ describe('PTC mode typed values: keyless real-process contracts', () => {
     expect(ctx.jobs.list()).toEqual([])
   }, 15_000)
 
-  it('uses runtime inspection results directly through PTC', async () => {
+  it('uses runtime inspection results directly through coding', async () => {
     ctx = await typedPtcModeHarness()
     await ctx.plugin(CordisHostRunnerModule.default)
     // The inspect providers are a host row; the tools read that shared registry.
@@ -340,7 +340,7 @@ function waitForIdle(harness: Context, agent: Agent): Promise<void> {
   })
 }
 
-describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC mode: real model writes a program over real tools', () => {
+describe.skipIf(!process.env.DEEPSEEK_API_KEY)('coding mode: real model writes a program over real tools', () => {
   it('collapses the wire tool list to [run_code], bridges sub-calls, and returns curated output', async () => {
     workdir = await mkdtemp(join(tmpdir(), 'qilin-ptc-e2e-'))
     ctx = await ptcModeHarness(workdir)
@@ -390,7 +390,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC mode: real model writes a pr
     workdir = await mkdtemp(join(tmpdir(), 'qilin-ptc-workspace-e2e-'))
     await mkdir(join(workdir, '.git'), { recursive: true })
     await mkdir(join(workdir, 'pkg/deep'), { recursive: true })
-    await writeFile(join(workdir, 'pkg/AGENTS.md'), `If asked for the PTC mode workspace handshake, reply with exactly ${WORKSPACE_PROBE} and nothing else.\n`)
+    await writeFile(join(workdir, 'pkg/AGENTS.md'), `If asked for the coding mode workspace handshake, reply with exactly ${WORKSPACE_PROBE} and nothing else.\n`)
     await writeFile(join(workdir, 'pkg/deep/task.txt'), 'Touch this file to discover the nested instructions.\n')
     ctx = await workspacePtcModeHarness(workdir)
     const handle = await ctx.agents.create({
@@ -402,7 +402,7 @@ describe.skipIf(!process.env.DEEPSEEK_API_KEY)('PTC mode: real model writes a pr
     handle.agent.followup(createUserMessage({
       content: [{
         type: 'text',
-        text: 'Use one run_code program to call tools.read on pkg/deep/task.txt. After it finishes, answer: PTC mode workspace handshake?',
+        text: 'Use one run_code program to call tools.read on pkg/deep/task.txt. After it finishes, answer: coding mode workspace handshake?',
       }], source: { kind: 'user' } }))
     await waitForIdle(ctx, handle.agent)
 

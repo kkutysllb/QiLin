@@ -324,7 +324,7 @@ export function installCua(ctx: Context, config: CuaConfig, backend: CuaBackend)
       name: 'computer-use:qilin-cua', order: ctx.systemPrompt.getSectionOrder('TOOL_COMPUTER_USE'),
       text: () => ctx.get('codingRuntime')?.programFormat !== 'repl' ? backend.guidance : `${backend.guidance}
 
-Persistent PTC initialization:
+Persistent coding initialization:
 var { connectCua } = await import(${JSON.stringify(new URL('../lib/bridge.js', import.meta.url).href)});
 var cua = connectCua(() => tools.cua, text => console.log(text));`,
     })

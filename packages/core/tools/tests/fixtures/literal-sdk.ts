@@ -1,4 +1,4 @@
-/** Tool documentation containing literal template syntax for recorded PTC replay. */
+/** Tool documentation containing literal template syntax for recorded coding replay. */
 
 import type { Context } from '@qilin-agent/kylin'
 import { defineTool } from '@qilin-agent/tools'

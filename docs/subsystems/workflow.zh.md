@@ -4,7 +4,7 @@
 
 工作流 seam 允许 agent（智能体）运行由模型编写、会启动 subagent 的编排脚本。与 [subagent](subagent.zh.md) 一样，它是**一项可选能力**，不属于 agent loop，因此其类型和操作记录在此处，而非 [core.md](core.zh.md)。与 bash 一样，每个上下文只允许一个引擎实现提供 `ctx.workflowEngine`；没有命名提供方注册表（第二个引擎通过插件配置替换第一个，而不与它同时运行）。
 
-Service Definition：[qilin-workflow](../../packages/workflow/workflow)（`ctx.workflowEngine` 和下文词汇）。[qilin-workflow-coding](../../packages/workflow/workflow-coding)通过共享 Node PTC 进程运行时按调用 Session 的文件策略执行 VM 与辅助函数。消费方为 [qilin-tool-workflow](../../packages/workflow/tool-workflow) 和需显式启用的 [qilin-tool-ralph](../../packages/experimental/tool-ralph)。[工作流沙箱复用](../../.agents/notes/implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.zh.md)负责执行选择；[动态工作流决策](../../.agents/notes/implemented/feature/2026-07-05-dynamic-workflows.zh.md)负责脚本语义。
+Service Definition：[qilin-workflow](../../packages/workflow/workflow)（`ctx.workflowEngine` 和下文词汇）。[qilin-workflow-coding](../../packages/workflow/workflow-coding)通过共享 Node coding 进程运行时按调用 Session 的文件策略执行 VM 与辅助函数。消费方为 [qilin-tool-workflow](../../packages/workflow/tool-workflow) 和需显式启用的 [qilin-tool-ralph](../../packages/experimental/tool-ralph)。[工作流沙箱复用](../../.agents/notes/implemented/architecture/2026-09-13-workflow-ptc-sandbox-reuse.zh.md)负责执行选择；[动态工作流决策](../../.agents/notes/implemented/feature/2026-07-05-dynamic-workflows.zh.md)负责脚本语义。
 
 源码：浏览器安全词汇位于 [`packages/workflow/workflow/src/types.ts`](../../packages/workflow/workflow/src/types.ts)，Host 请求与活跃运行句柄位于 [`runtime-types.ts`](../../packages/workflow/workflow/src/runtime-types.ts)。
 
@@ -92,7 +92,7 @@ interface WorkflowResult {
 
 ## 活跃运行：`WorkflowRun`
 
-消费方等待 `result`，可以在执行期间调用 `cancel`，且必须在每条路径上调用 `dispose`（资源释放）。`result` 绝不拒绝：脚本失败以 `stopReason: 'error'` 兑现，取消以 `'cancelled'` 兑现。PTC 引擎没有整体经过时间截止；取消时立即中止受管进程。资源释放按照各提供方约定等待进程与子 agent 清理，不另设工作流清理截止。
+消费方等待 `result`，可以在执行期间调用 `cancel`，且必须在每条路径上调用 `dispose`（资源释放）。`result` 绝不拒绝：脚本失败以 `stopReason: 'error'` 兑现，取消以 `'cancelled'` 兑现。coding 引擎没有整体经过时间截止；取消时立即中止受管进程。资源释放按照各提供方约定等待进程与子 agent 清理，不另设工作流清理截止。
 
 ```ts type-equiv
 /**

@@ -1,6 +1,6 @@
 {
   "name": "@qilin-agent/coding-runtime-node",
-  "description": "Node PTC execution with per-call sandboxed processes or in-memory REPL state",
+  "description": "Node coding-mode execution with per-call sandboxed processes or in-memory REPL state",
   "version": "3.1.11",
   "publishConfig": {
     "access": "public"

@@ -31,7 +31,7 @@ function planHook(nodes: readonly unknown[]): Parameters<typeof PlanCards>[0]['u
 }
 
 describe('submitted plan identity', () => {
-  it('reads native, running PTC, and settled PTC calls', () => {
+  it('reads native, running coding, and settled coding calls', () => {
     expect(plan).toEqual({ callId: 'call:1', title: 'Keep this plan', markdown })
     for (const type of ['tool/ptc-dispatch-start', 'tool/ptc-dispatch']) {
       expect(submittedPlan({ type, data: { name: 'exit_plan_mode', subCallId: 'call:1', arguments: { plan: markdown } } })).toEqual(plan)
@@ -62,7 +62,7 @@ describe('submitted plan identity', () => {
       expect(parsePlanAddress(address)).toBeUndefined()
     }
   })
-  it('keeps a settled PTC update correlated with its existing card', () => {
+  it('keeps a settled coding update correlated with its existing card', () => {
     expect(planDefinition.match(call as never)).toEqual({ id: plan.callId, role: 'start' })
     const event = { type: 'tool/ptc-dispatch', data: { name: 'exit_plan_mode', subCallId: plan.callId, arguments: { plan: markdown } } }
     expect(planDefinition.match(event as never)).toEqual({ id: plan.callId, role: 'update' })
@@ -70,7 +70,7 @@ describe('submitted plan identity', () => {
     expect(planDefinition.buildViewNode!(context as never)).toMatchObject({ visibility: 'hidden', anchorSeq: 12, data: plan })
     expect(planDefinition.buildViewNode!({ ...context, state: undefined, start: undefined, matches: [] } as never)).toBeNull()
   })
-  it('retains the submitted version and recovers a cropped PTC start from settlement', () => {
+  it('retains the submitted version and recovers a cropped coding start from settlement', () => {
     expect(planDefinition.match({ type: 'user/message', data: {} } as never)).toBeNull()
     const state = planDefinition.start({} as never, { event: call } as never, {} as never)
     expect(state).toEqual(plan)
@@ -80,7 +80,7 @@ describe('submitted plan identity', () => {
   })
 })
 
-it('projects native and PTC submissions into their resolved turns without duplicate cards', () => {
+it('projects native and coding submissions into their resolved turns without duplicate cards', () => {
   const assembler = new ConversationNodeAssembler(
     { entries: () => [planDefinition], fallbackEntry: () => undefined },
     { entries: () => [chatViewDefinition] },

@@ -163,14 +163,14 @@ describe.skipIf(process.platform === 'win32')('SSH connection startup', () => {
     expect(test.calls[0]?.params).toEqual({ protocol: 2, workspace: '/remote/workspace', leaseMs: 30_000, bootstrapPath: '/remote/process.js' })
   })
 
-  it('permits filesystem-only deployments and refuses an unconfigured PTC bootstrap getter', async () => {
+  it('permits filesystem-only deployments and refuses an unconfigured coding bootstrap getter', async () => {
     const test = setup()
     await test.service.ready
     expect(() => test.service.ptcLaunch).toThrow('verified bootstrapPath')
     expect(await test.service.request('echo', { value: 42 }, z.object({ value: z.number() }))).toEqual({ value: 42 })
   })
 
-  it('launches an executable directly and publishes its embedded PTC worker', async () => {
+  it('launches an executable directly and publishes its embedded coding worker', async () => {
     const test = setup({
       config: { launch: { kind: 'executable' }, helper: '/remote/helper with spaces' },
       hello: { kind: 'executable', executable: '/canonical/qilin-ssh-helper' },

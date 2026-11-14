@@ -15,8 +15,8 @@ const built = [
 ].every(path => existsSync(path))
 const runNode = promisify(execFile)
 
-/** Plain Node loads the published workflow package and PTC child bootstrap. */
-describe.skipIf(!built)('built workflow PTC runtime', () => {
+/** Plain Node loads the published workflow package and coding child bootstrap. */
+describe.skipIf(!built)('built workflow coding runtime', () => {
   it('runs a structured child and confines direct writes through installed exports', async () => {
     const driverRoot = await mkdtemp(join(packageRoot, '.built-runtime-'))
     let root: string | undefined
@@ -29,7 +29,7 @@ describe.skipIf(!built)('built workflow PTC runtime', () => {
       const driver = join(driverRoot, 'driver.mjs')
       await writeFile(driver, `
 import { Context } from '@qilin-agent/kylin'
-import PtcWorkflowEngine from '@qilin-agent/workflow-coding'
+import CodingWorkflowEngine from '@qilin-agent/workflow-coding'
 const ctx = new Context()
 try {
   for (const name of ['session', 'session-projection', 'agent', 'system-prompt', 'fs-local', 'working-directory', 'subprocess-local', 'sandbox-local']) {
@@ -53,7 +53,7 @@ try {
       }
     },
   })
-  await ctx.plugin(PtcWorkflowEngine, { provider: 'must-not-be-used' })
+  await ctx.plugin(CodingWorkflowEngine, { provider: 'must-not-be-used' })
   const session = ctx.sessions.create(undefined, { meta: { cwd: process.argv[2] } })
   const parent = { id: session.id, ctx, session, options: {}, status: 'idle' }
   ctx.agents.register(parent)

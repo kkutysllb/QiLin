@@ -1,5 +1,5 @@
 /**
- * Workflow orchestration through the shared sandboxed Node PTC executor.
+ * Workflow orchestration through the shared sandboxed Node coding executor.
  * The VM supplies script helpers; the process applies the calling Session's file policy.
  * @module @qilin-agent/workflow-coding
  */
@@ -14,7 +14,7 @@ import type {} from '@qilin-agent/working-directory'
 import z from '@qilin-agent/schemastery'
 import WorkflowEngine, { WorkflowError, WorkflowRunId } from '@qilin-agent/workflow'
 import type { WorkflowRun, WorkflowRunInfo, WorkflowStartRequest } from '@qilin-agent/workflow'
-import { PtcWorkflowRun } from './host.ts'
+import { CodingWorkflowRun } from './host.ts'
 import { validateMeta } from './meta.ts'
 import type { WorkerInit, WorkerLimits } from './types.ts'
 
@@ -95,12 +95,12 @@ function resolveMaxTotalAgents(requested: number | undefined, ceiling: number): 
 }
 
 /**
- * The PTC-backed workflow engine. `start()` validates the script up front
+ * The coding-backed workflow engine. `start()` validates the script up front
  * (meta + a host-side body parse) and returns a {@link WorkflowRun} whose
  * `result` never rejects; the `workflow/*` events fire around the run per
  * the seam contract.
  */
-class PtcWorkflowEngine extends WorkflowEngine {
+class CodingWorkflowEngine extends WorkflowEngine {
   static inject = ['subagents', 'codingRuntime', 'sandboxPolicy', 'workingDirectory']
 
   static Config: z<Config> = z.object({
@@ -115,7 +115,7 @@ class PtcWorkflowEngine extends WorkflowEngine {
 
   constructor(ctx: Context, config: Config) {
     super(ctx)
-    if (ctx.codingRuntime.language !== 'typescript') throw new Error('workflow-coding requires the Node TypeScript PTC runtime')
+    if (ctx.codingRuntime.language !== 'typescript') throw new Error('workflow-coding requires the Node TypeScript coding runtime')
     // schemastery (static Config) has already filled the defaulted fields;
     // the assertion records that resolution, not a hidden fallback.
     this.config = config as ResolvedConfig
@@ -155,7 +155,7 @@ class PtcWorkflowEngine extends WorkflowEngine {
     // Captured service handles keep a holder-owned run usable after engine unload.
     const runCtx = this.ctx
     const subagents = runCtx.subagents
-    const run = new PtcWorkflowRun(
+    const run = new CodingWorkflowRun(
       runCtx,
       subagents,
       runCtx.codingRuntime,
@@ -189,4 +189,4 @@ class PtcWorkflowEngine extends WorkflowEngine {
   }
 }
 
-export default PtcWorkflowEngine
+export default CodingWorkflowEngine

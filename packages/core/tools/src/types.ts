@@ -8,8 +8,8 @@ import type { ToolCallId } from '@qilin-agent/llm/brand'
 import type { ContentBlock } from '@qilin-agent/llm/types'
 import type { JsonValue } from '@qilin-agent/util-values'
 
-/** Payload recorded when one nested PTC mode Tool dispatch starts. */
-export interface PtcDispatchStartEventData {
+/** Payload recorded when one nested coding mode Tool dispatch starts. */
+export interface CodingDispatchStartEventData {
   rootCallId: ToolCallId
   parentCallId: ToolCallId
   subCallId: ToolCallId
@@ -17,8 +17,8 @@ export interface PtcDispatchStartEventData {
   arguments: unknown
 }
 
-/** Payload recorded when one nested PTC mode Tool dispatch settles. */
-export interface PtcDispatchEventData extends PtcDispatchStartEventData {
+/** Payload recorded when one nested coding mode Tool dispatch settles. */
+export interface CodingDispatchEventData extends CodingDispatchStartEventData {
   isError: boolean
   content: ContentBlock[]
   /** Replayable tool-owned presentation metadata, separate from model content. */
@@ -42,7 +42,7 @@ declare module '@qilin-agent/session/types' {
      * with `tool/ptc-dispatch` by `subCallId` (timing = the two events'
      * `time` fields).
      */
-    'tool/ptc-dispatch-start': PtcDispatchStartEventData
+    'tool/ptc-dispatch-start': CodingDispatchStartEventData
     /**
      * One bridged sub-dispatch SETTLING: the pairing ids (matching the
      * `tool/ptc-dispatch-start` with the same `subCallId`), the tool `name`
@@ -58,6 +58,6 @@ declare module '@qilin-agent/session/types' {
      * before returning), so its execution-enclosure relation holds by
      * construction.
      */
-    'tool/ptc-dispatch': PtcDispatchEventData
+    'tool/ptc-dispatch': CodingDispatchEventData
   }
 }

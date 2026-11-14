@@ -190,7 +190,7 @@ describe('the shipped preset root', () => {
     expect(findEntry(entries, 'tool-plugin-manager')?.disabled).toBe(true)
     expect(findEntry(entries, 'skill-filesystem')?.config).toBeUndefined()
     // The general workflow tool is available here: it is the model-authored
-    // orchestration surface `run_code` replaces under PTC.
+    // orchestration surface `run_code` replaces under coding.
     expect(findEntry(entries, 'tool-workflow')?.disabled).not.toBe(true)
     expect(findEntry(entries, 'workflow-coding')?.disabled).not.toBe(true)
   })

@@ -1,7 +1,7 @@
 /**
  * The row an agent preset carries to pick its tool presentation. What it owes
  * its caller: the choice reaches THIS agent and no other, it unwinds with the
- * agent, and a code mode composed against a deployment with no PTC runtime
+ * agent, and a code mode composed against a deployment with no coding runtime
  * stops at mount — where a preset's activation audit can name it — rather
  * than at the first prompt assembly.
  */
@@ -10,26 +10,26 @@ import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import { createScope } from '@qilin-agent/scope'
 import SystemPrompt from '@qilin-agent/system-prompt'
-import { PtcRuntime } from '@qilin-agent/coding-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/coding-runtime'
+import { CodingRuntime } from '@qilin-agent/coding-runtime'
+import type { CodingRunRequest, CodingRunResult } from '@qilin-agent/coding-runtime'
 import ToolRuntime, { RUN_CODE_NAME, defineTool } from '@qilin-agent/tools'
 import type { Agent } from '@qilin-agent/agent'
 import { SessionId } from '@qilin-agent/session'
 import { apply, Config, inject, name } from '@qilin-agent/agent-tool-presentation'
 
 /** A runtime that never runs anything: presentation never dispatches. */
-class StubRuntime extends PtcRuntime {
-  resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+class StubRuntime extends CodingRuntime {
+  resolve(request: import('@qilin-agent/coding-runtime').CodingRunRequest): import('@qilin-agent/coding-runtime').CodingRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'stub'
 
-  run(_request: PtcRunRequest): Promise<PtcRunResult> {
+  run(_request: CodingRunRequest): Promise<CodingRunResult> {
     return Promise.resolve({ logs: [] })
   }
 }
 
-/** A host plane with one tool, optionally carrying a PTC runtime. */
+/** A host plane with one tool, optionally carrying a coding runtime. */
 async function host(options: { runtime?: boolean } = {}) {
   const ctx = new Context()
   await ctx.plugin(SystemPrompt, {})
@@ -63,13 +63,13 @@ describe('the tool-presentation row', () => {
     expect(() => Config({ mode: 'both' } as never)).toThrow()
   })
 
-  it('declares the services it uses without holding a PTC runtime hostage', () => {
+  it('declares the services it uses without holding a coding runtime hostage', () => {
     // A `native` row must mount where no runtime is composed, so the wait is
     // conditional inside apply rather than static metadata.
     expect(inject).toEqual(['tools'])
   })
 
-  it('gives its own agent PTC mode and leaves the rest native', async () => {
+  it('gives its own agent coding mode and leaves the rest native', async () => {
     const ctx = await host()
     const coded = await mount(ctx, { mode: 'coding' }, 'coded')
     const plain = await mount(ctx, { mode: 'native' }, 'plain')
@@ -95,7 +95,7 @@ describe('the tool-presentation row', () => {
     expect(assembly.sections.some(section => section.name === 'tools:sdk')).toBe(false)
   })
 
-  it('waits for a PTC runtime the deployment does not compose', async () => {
+  it('waits for a coding runtime the deployment does not compose', async () => {
     const ctx = await host({ runtime: false })
 
     const { agent, row } = await mount(ctx, { mode: 'coding' })

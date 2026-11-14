@@ -24,7 +24,7 @@ export type WorkflowProgress =
   | { type: 'agent-start'; info: WorkflowAgentInfo }
   | { type: 'agent-end'; info: WorkflowAgentEndInfo }
 
-/** Host functions exposed through the PTC runtime's JSON binding namespace. */
+/** Host functions exposed through the coding runtime's JSON binding namespace. */
 export interface WorkflowGuestHost {
   /**
    * Read the validated script and its inputs before execution.

@@ -1,6 +1,6 @@
 /** JSON string-prefix accounting for the outer-output ledger. @module @qilin-agent/coding-runtime-node/output-json */
 
-import type { PtcJsonValue } from '@qilin-agent/coding-runtime'
+import type { CodingJsonValue } from '@qilin-agent/coding-runtime'
 
 type IntrinsicCallable = (this: unknown, ...args: unknown[]) => unknown
 
@@ -96,11 +96,11 @@ export function jsonStringBytesUpTo(text: string, maxBytes: number): number | un
  * @param maxBytes - largest serialized size the caller can admit.
  * @returns Exact serialized bytes, or `undefined` as soon as the cap is crossed.
  */
-export function jsonValueBytesUpTo(value: PtcJsonValue, maxBytes: number): number | undefined {
+export function jsonValueBytesUpTo(value: CodingJsonValue, maxBytes: number): number | undefined {
   type Task =
-    | { kind: 'value'; value: PtcJsonValue }
-    | { kind: 'array'; value: PtcJsonValue[]; index: number }
-    | { kind: 'object'; value: Record<string, PtcJsonValue>; keys: string[]; index: number }
+    | { kind: 'value'; value: CodingJsonValue }
+    | { kind: 'array'; value: CodingJsonValue[]; index: number }
+    | { kind: 'object'; value: Record<string, CodingJsonValue>; keys: string[]; index: number }
 
   let bytes = 0
   const add = (cost: number): boolean => {

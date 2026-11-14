@@ -5,7 +5,7 @@ import { setSandboxMode } from '@qilin-agent/sandbox-policy'
 import { Context } from '@qilin-agent/kylin'
 import { SessionId } from '@qilin-agent/session'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
-import type { PtcBindingFunction, PtcRunRequest } from '@qilin-agent/coding-runtime'
+import type { CodingBindingFunction, CodingRunRequest } from '@qilin-agent/coding-runtime'
 import type { SubprocessHandle, SubprocessOutcome } from '@qilin-agent/subprocess'
 import { SandboxUnavailableError } from '@qilin-agent/sandbox'
 import type { ConfinedArgv } from '@qilin-agent/sandbox'
@@ -15,7 +15,7 @@ import { JsonChannel } from '../src/channel.ts'
 import { encodePtcJsonWire } from '../src/json-wire.ts'
 import { mountRuntime } from './setup.ts'
 
-const request: PtcRunRequest = { program: 'return 1', bindings: [] }
+const request: CodingRunRequest = { program: 'return 1', bindings: [] }
 const NO_INITIAL_FRAME = Symbol('no initial frame')
 
 async function setup(config: Config = {}, mode: 'read-only' | 'danger-full-access' = 'danger-full-access') {
@@ -77,7 +77,7 @@ async function setup(config: Config = {}, mode: 'read-only' | 'danger-full-acces
     direct.resolve({ exitCode: 0, signal: null })
     await Promise.all(writes)
   })
-  const start = (input: PtcRunRequest = request, first: unknown = { type: 'ready' }) => {
+  const start = (input: CodingRunRequest = request, first: unknown = { type: 'ready' }) => {
     const result = runtime.run(runtime.resolve(input))
     if (first !== NO_INITIAL_FRAME) queueMicrotask(() => { emit(first) })
     return result
@@ -98,7 +98,7 @@ function call(id: number, value: string = '') {
   return { type: 'call', id, global: 'tools', name: 'test', args: encodePtcJsonWire(value) }
 }
 
-function withBinding(fn: PtcBindingFunction): PtcRunRequest {
+function withBinding(fn: CodingBindingFunction): CodingRunRequest {
   return { ...request, bindings: [{ global: 'tools', functions: { test: fn } }] }
 }
 
@@ -504,11 +504,11 @@ describe('Node runtime host failures', () => {
     h.onBoot(() => { h.emit({ type: 'done' }) })
     expect((await h.start()).error).toBeUndefined()
     const spec = h.spawn.mock.calls[0]?.[0]
-    expect(spec?.env?.QILIN_PTC_RUNTIME_NODE).toBe('1')
+    expect(spec?.env?.QILIN_coding_RUNTIME_NODE).toBe('1')
     expect(Object.hasOwn(spec?.env ?? {}, 'PATH')).toBe(false)
     expect(spec?.argv).toEqual([process.execPath, '134217728'])
     expect(Object.fromEntries(Object.entries(spec?.env ?? {}).filter(([, value]) => value !== undefined)))
-      .toEqual({ QILIN_PTC_RUNTIME_NODE: '1', NODE_OPTIONS: '--max-old-space-size=512' })
+      .toEqual({ QILIN_coding_RUNTIME_NODE: '1', NODE_OPTIONS: '--max-old-space-size=512' })
   })
 })
 

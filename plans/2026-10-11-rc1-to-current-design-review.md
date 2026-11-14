@@ -41,8 +41,8 @@
 | 唯一共享面 | `$QILIN_HOME/auth/accounts.json`（名册）与部署 home 目录；技能根另经 `QILIN_AGENTS_HOME`/`~/.agents` 仍共享 | `apps/cli/src/tenants.ts:236`、`packages/skill/skill-filesystem/src/index.ts:168` |
 | 路由 | 单源为默认；`qilin_tenant=<账户 id>` 是选择器不是凭据，`HttpOnly; SameSite=Lax` | `apps/cli/src/tenants.ts:97-104`、`apps/cli/src/web-entry.ts:116` |
 | 账号门 | 每个运行时自带；cookie 名按请求 authority 的 sha256 命名，签发绑 authority + 凭据代次 | `packages/identity/accounts-local/src/session.ts:80-83,166-167`、`packages/identity/accounts-local/src/index.ts:201-211` |
-| 出厂预设 | 恰一条 `ptc`（`order: 1`），前端预设面关闭 | `packages/preset/agent-presets/presets/ptc/preset.yml`、`packages/bundle/web-app/cordis.patch.yml:424-426,579` |
-| 会话格式 | 代次 5，V4→V5 迁移把 `standard`/`cordis`/`minimal` 折叠为 `ptc` | `packages/core/session/src/types.ts:89`、`packages/session/session-format-v4-to-v5/` |
+| 出厂预设 | 恰一条 `coding`（`order: 1`），前端预设面关闭 | `packages/preset/agent-presets/presets/ptc/preset.yml`、`packages/bundle/web-app/cordis.patch.yml:424-426,579` |
+| 会话格式 | 代次 5，V4→V5 迁移把 `standard`/`cordis`/`minimal` 折叠为 `coding` | `packages/core/session/src/types.ts:89`、`packages/session/session-format-v4-to-v5/` |
 | 入口 | 任何服务浏览器的 profile（`qilin`、`web`）都是部署；子进程带租户标记不再重入 | `apps/cli/src/web-entry.ts:28,64-66`、`apps/cli/src/bin.ts:44-50` |
 
 ### 1.3 与计划的三处重大偏离
@@ -62,7 +62,7 @@
 | S2/T4 会话 V5 | 代次 5，V4→V5 折叠，`resolve()` 不加兜底 | `core/session/src/types.ts:89`；`session-format-v4-to-v5/src/migration.ts`（头 + selected 双写点）；`agent-presets/src/index.ts:370-383` fail-loud；catalog 生成件、持久化变更记录、8 份 SDK 场景 fixture 齐备；spec 19 例 | 完全落地 |
 | S3/T2 双工作台删除 | 标签 UI、状态机、过滤、admission 门零残留 | `WORKBENCH_TAG`/`workbenchShows`/`audienceAdmits`/`SlotAdmissionGate`/`installAdmission`/`AgentPresetChip` 全仓零命中；`git ls-files packages/client/ui-workbench` = 0 | 完全落地，夹具面有半删残留（§3.7） |
 | S3 audience 归一（C6=a） | 删准入门、受众 UI、store 字段与写入口、`PluginAudience` 类型 | 客户端一侧全部完成；**宿主一侧未做**，见 §3.2 | **部分落地** |
-| S4/T5 前端零预设面 | display 键、locales、种子清账，新增 grep 门 | `display.ts` 只剩 ptc 两键；两处字典只剩 PTC；`verify-preset-copy` 挂 `doc-quick`；`ui-agent-preset` 行保留为 `disabled: true` 的依赖声明 | 落地，门的作用域比 A7 窄（§2.4） |
+| S4/T5 前端零预设面 | display 键、locales、种子清账，新增 grep 门 | `display.ts` 只剩 ptc 两键；两处字典只剩 coding；`verify-preset-copy` 挂 `doc-quick`；`ui-agent-preset` 行保留为 `disabled: true` 的依赖声明 | 落地，门的作用域比 A7 窄（§2.4） |
 | S5/T6 Open 门禁 | 第三方零核心改动接入；官方插件可摘除 | `third-party-plugin.e2e.ts` + `fixtures/plugins/fixture-third-party/`；`without-official-plugins.overlay.yml`；`shipped-composition.e2e.ts:1209-1234` | 完全落地 |
 | S6 度量 | 首启步数 ≤2、配置项 0 | `first-run-metric.e2e.ts` + `expected/first-run-metric/steps.expected.md` | 完全落地 |
 | S6 打断点审计 | 逐点「用户决策了什么」 | 计划 §12 七行，路径逐一存在 | 落地，但只存在于计划文档 |
@@ -107,10 +107,10 @@
 
 | 位置 | 事实 |
 |---|---|
-| `apps/cli/reference/README.md:100` 与 `.zh.md:102` | 「通过 `cordis`、`ptc` 与 `standard` agent preset 暴露相同工具」 |
-| `apps/cli/reference/README.md:96` | 「`QILIN_TOOLS_MODE` 选择 `native`、`ptc` 或 `both`」——`both` 已删除，同仓 patch 注释写的是 `(native|ptc)`，也没写新的 ptc 兜底 |
+| `apps/cli/reference/README.md:100` 与 `.zh.md:102` | 「通过 `cordis`、`coding` 与 `standard` agent preset 暴露相同工具」 |
+| `apps/cli/reference/README.md:96` | 「`QILIN_TOOLS_MODE` 选择 `native`、`coding` 或 `both`」——`both` 已删除，同仓 patch 注释写的是 `(native|ptc)`，也没写新的 ptc 兜底 |
 | `docs/user/guide/github-review.md:70` 与 `.zh.md:70` | 「Session 请求选择 `standard` agent preset」 |
-| `packages/preset/agent-presets/presets/ptc/skills/editing-cordis-compositions/SKILL.md:12` | **随 ptc 预设下发给模型**的技能仍写「出厂预设提供 `standard`、`ptc`、`minimal`、`cordis`」——模型可见的过期契约 |
+| `packages/preset/agent-presets/presets/ptc/skills/editing-cordis-compositions/SKILL.md:12` | **随 ptc 预设下发给模型**的技能仍写「出厂预设提供 `standard`、`coding`、`minimal`、`cordis`」——模型可见的过期契约 |
 | `packages/bundle/base/README.md:111` 与 `.zh.md:111` | 仍列「Codex and Claude Code provider bundles」为可安装的可选 provider，而这两个包已整目录删除 |
 | `apps/web/tests/permission-policy-context.e2e.ts:2` | 注释仍写「through all three presets」 |
 | `docs/session-format-status.md:31-33,43-45` | writer 已是 5，但 finalization record 仍 `latestFinalizedVersion: 4`、release record 仍 `latestReleasedVersion: 3`；V5 已随 rc.2 发布 ⇒ 按该文档自述规则应推进（V4 亦从未登记，属既有缺口） |
@@ -122,7 +122,7 @@
 
 ### 2.5 一处潜伏的车道断裂
 
-`apps/cli/tests/fixtures/github-webhook/cordis.yml:15` 把 `agentPreset` 设成 `minimal`，同一车道的断言 `apps/cli/tests/github-webhook-real.e2e.ts:410` 也期望 `'minimal'`。该值经 `packages/experimental/webhook/src/session.ts:55,126` 走 `ctx.agentPresets.resolve()`，在只出厂 `ptc` 的 roster 下没有兜底，必然抛 `agent-preset/not-found`。该车道需要真实 key 与 `QILIN_GITHUB_*`，无 key 时自跳过，所以断裂是**潜伏的**，不在任何一次常规门禁里显形。
+`apps/cli/tests/fixtures/github-webhook/cordis.yml:15` 把 `agentPreset` 设成 `minimal`，同一车道的断言 `apps/cli/tests/github-webhook-real.e2e.ts:410` 也期望 `'minimal'`。该值经 `packages/experimental/webhook/src/session.ts:55,126` 走 `ctx.agentPresets.resolve()`，在只出厂 `coding` 的 roster 下没有兜底，必然抛 `agent-preset/not-found`。该车道需要真实 key 与 `QILIN_GITHUB_*`，无 key 时自跳过，所以断裂是**潜伏的**，不在任何一次常规门禁里显形。
 
 ## 3. 死代码与冗余代码
 
@@ -303,7 +303,7 @@ Origin 校验只存在于转发路径，且比较的是 `Origin.host` 与**同�
 |---|---|
 | `web-failure-matrix` 2 条恢复断言 | 产品契约未裁定（被拒的 reload 是否回滚），两版实现已回退 |
 | SDK 快照 6 项 | 需要真实 key 重录或逐场景改写（`serial-created`、`subagent-activation-limit`、两条 `-in-process`、`dynamic-route`、`tool-error-details`） |
-| `subagent-acp-diagnostic` 快照 | 审计分支实跑 1 failed（直调被 PTC 门拒绝），另含一条悬空 pin（§3.6） |
+| `subagent-acp-diagnostic` 快照 | 审计分支实跑 1 failed（直调被 coding 门拒绝），另含一条悬空 pin（§3.6） |
 | `present` / `ptc-escalation` / `ptc-round` | 本机录制夹具陈旧，只能 `QILIN_SNAPSHOT=record` 重录 |
 | `schedule-after` / `schedule-panel` | 升级期孤儿车道，复活配方已写明 |
 | 全量单测约 280 例红 | 计划 §14 登记为与改动面无交集的既有红，未建改动前基线 |

@@ -4,7 +4,7 @@
  * scope, so concurrent runs do not interact and disposal leaves no global residue. The prompt
  * contribution is ordinary reconstructed request state.
  *
- * Capture commits only after the authoritative `tools/result` succeeds; PTC mode capture also
+ * Capture commits only after the authoritative `tools/result` succeeds; coding mode capture also
  * waits for the enclosing `run_code` result. The terminal result marker and monotonic tool
  * guard prevent later calls from reopening a completed structured run.
  * @module @qilin-agent/subagent/structured
@@ -32,7 +32,7 @@ export const STRUCTURED_OUTPUT_INSTRUCTION
 export interface StructuredAttachment {
   /**
    * Input stays closed from capture staging through its final result, including
-   * an enclosing PTC execution. A failed result discards its capture and reopens input.
+   * an enclosing coding-mode execution. A failed result discards its capture and reopens input.
    * @returns whether the activation can accept another message.
    */
   acceptsInput(): boolean
@@ -133,7 +133,7 @@ export function attachStructuredRuntime(
         /* v8 ignore else -- sequential agent-loop dispatch lets the guard block every later supported call */
         if (captured === undefined) captured = { value: entry.value }
       } else {
-        /* v8 ignore else -- PTC mode serializes sub-dispatches, so the guard blocks every later supported call */
+        /* v8 ignore else -- coding mode serializes sub-dispatches, so the guard blocks every later supported call */
         if (captured === undefined && pending === undefined) {
           pending = { parent: exec.parent, value: entry.value }
         }
@@ -144,7 +144,7 @@ export function attachStructuredRuntime(
     const entry = pending
     pending = undefined
     if (result.isError) return
-    /* v8 ignore else -- PTC mode serializes outer executions, so the guard blocks every later supported call */
+    /* v8 ignore else -- coding mode serializes outer executions, so the guard blocks every later supported call */
     if (captured === undefined) captured = { value: entry.value }
   })
 

@@ -1,4 +1,4 @@
-// Real PTC sandbox denial followed by one approved program execution.
+// Real coding sandbox denial followed by one approved program execution.
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
@@ -23,7 +23,7 @@ const PROMPT = 'Use run_code with timeoutMs 120000 and direct Node filesystem ac
   + 'If the sandbox denies it, explicitly retry the program with sandbox_permissions "workspace-write" and justification "Create the file requested by the user". '
   + 'I will answer the approval prompt. After the file is written, reply DONE and stop.'
 
-describe('web e2e: PTC program sandbox escalation', () => {
+describe('web e2e: coding program sandbox escalation', () => {
   let scaffold: WebScaffold
   let browser: Browser
   let page: Page

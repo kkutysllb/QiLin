@@ -75,7 +75,7 @@ export function restoreReleasedV3Artifact(artifact: SessionFormatArtifact, known
 }
 
 /**
- * Refuse required predecessor PTC tags without interpreting native extension payloads.
+ * Refuse required predecessor coding tags without interpreting native extension payloads.
  * @param event - event envelope whose type and ignorable admission markers are available.
  */
 export function assertV3EventAdmission(event: SessionFormatEvent): void {
@@ -96,7 +96,7 @@ function relationshipEvent(event: SessionFormatEvent): SessionFormatEvent {
     case 'tool/code-dispatch-start':
     case 'tool/code-dispatch':
       assertV3EventAdmission(event)
-      // Obsolete ignorable events do not participate in released PTC lifecycle validation.
+      // Obsolete ignorable events do not participate in released coding lifecycle validation.
       return { ...event, type: 'v3/opaque-released-event' }
   }
   if (event.type === 'system/message') {

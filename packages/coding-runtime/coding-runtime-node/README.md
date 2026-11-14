@@ -25,7 +25,7 @@ Execute model-written TypeScript under the same platform sandbox policy as Bash,
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount this provider in a composition that supplies `fs`, `subprocess`, `sandbox` and `sandboxPolicy`. PTC mode in `qilin-tools` supplies the calling Session's directory and standing policy; direct runtime consumers resolve those options before execution.
+Mount this provider in a composition that supplies `fs`, `subprocess`, `sandbox` and `sandboxPolicy`. coding mode in `qilin-tools` supplies the calling Session's directory and standing policy; direct runtime consumers resolve those options before execution.
 
 ### Configuration
 
@@ -60,11 +60,11 @@ The [configuration catalog](../../../docs/config-catalog.md#qilin-agentcoding-ru
 
 Programs are async function bodies: top-level `await` and `return` work, and only erasable TypeScript is accepted. A successful call returns its lossless-JSON value as `result.value` and captured text as `result.logs`. `result.sandbox` reports the selected mode, observed denial and the backend's full or partial enforcement independently of the program outcome.
 
-Direct filesystem, network and subprocess operations remain Node operations, subject to the selected OS sandbox. Nested host bindings cross the control channel; PTC tool calls retain the registry's visibility, ordering, logging and approval rules. Running a program does not change the Session's standing policy or automatically replay it after a denial.
+Direct filesystem, network and subprocess operations remain Node operations, subject to the selected OS sandbox. Nested host bindings cross the control channel; coding tool calls retain the registry's visibility, ordering, logging and approval rules. Running a program does not change the Session's standing policy or automatically replay it after a denial.
 
 ### Deadlines and cancellation
 
-The PTC consumer exposes per-call timeout and approved sandbox choices as described in [qilin-tools](../../core/tools/README.md#ptc-mode). The runtime's readonly `timeout` descriptor reports its effective default and maximum to that consumer. Its `executionInstructions` describes fresh Node state, direct Node APIs, the empty program environment and file policy in the model-visible schema.
+The coding consumer exposes per-call timeout and approved sandbox choices as described in [qilin-tools](../../core/tools/README.md#coding-mode). The runtime's readonly `timeout` descriptor reports its effective default and maximum to that consumer. Its `executionInstructions` describes fresh Node state, direct Node APIs, the empty program environment and file policy in the model-visible schema.
 
 Omitting `timeoutMs` uses the configured elapsed default; numeric requests are validated and capped. Service callers can explicitly pass `timeoutMs: null` to omit the elapsed timer, as the workflow adapter does; `run_code` continues to accept only positive numeric overrides. An enabled deadline covers runtime setup and execution, including time awaiting nested tools or approval. It is not a CPU meter. Timeout or cancellation stops a synchronous loop through the host's managed process owner; successful completion also cleans that managed range. The timer stops when an outcome is selected, before cleanup, so the returned call can take longer than its execution deadline while cleanup settles.
 
@@ -112,9 +112,9 @@ Source execution loads an erasable-only bootstrap closure without relying on sib
 
 Read the service contract before using the provider directly; the decisions explain policy and consumer ownership.
 
-- [PTC runtime service](../coding-runtime/README.md) — requests, resolved specs and results.
+- [coding runtime service](../coding-runtime/README.md) — requests, resolved specs and results.
 - [Sandboxed Node decision](../../../.agents/notes/implemented/architecture/2026-09-11-sandboxed-node-ptc-runtime.md) — security, lifecycle and timeout tradeoffs.
-- [PTC foundation](../../../.agents/notes/implemented/feature/2026-06-15-ptc.md) — registry presentation and nested tool dispatch.
+- [coding foundation](../../../.agents/notes/implemented/feature/2026-06-15-ptc.md) — registry presentation and nested tool dispatch.
 - [Subprocess provider](../../subprocess/subprocess-local/README.md) — managed process ranges and platform limitations.
 
 -----
@@ -122,7 +122,7 @@ Read the service contract before using the provider directly; the decisions expl
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through PTC mode in `qilin-tools` and `qilin-workflow-coding`, which present program outcomes through their own tool results. Intermediate binding traffic stays outside model history; the outer result follows the ordinary tool spill policy.
+Indirectly, through coding mode in `qilin-tools` and `qilin-workflow-coding`, which present program outcomes through their own tool results. Intermediate binding traffic stays outside model history; the outer result follows the ordinary tool spill policy.
 
 #### KV Cache effect
 

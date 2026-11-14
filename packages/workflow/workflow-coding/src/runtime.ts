@@ -1,6 +1,6 @@
 /**
  * Workflow VM hooks, child callbacks, ordinary concurrency limits and result serialization.
- * PTC owns process confinement and cancellation. Fatal hook and provider failures propagate
+ * coding owns process confinement and cancellation. Fatal hook and provider failures propagate
  * through combinators; ordinary child failures and stage errors become per-item nulls.
  * @module @qilin-agent/workflow-coding/runtime
  */
@@ -88,7 +88,7 @@ export class WorkflowExecution {
       pipeline: (items: unknown, ...stages: unknown[]) => this.contain(this.pipeline(items, stages)),
       phase: (title: unknown) => { this.phase(title) },
       log: (message: unknown) => { this.log(message) },
-      // PTC has already copied these inputs through its JSON channel.
+      // coding has already copied these inputs through its JSON channel.
       args,
     }
     for (const [key, value] of Object.entries(globals)) {

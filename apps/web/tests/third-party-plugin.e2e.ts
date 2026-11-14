@@ -25,7 +25,7 @@ describe('third-party plugin bundle', () => {
   it('installs, is discovered by an agent, and executes without a core change', async () => {
     // `qilin plugin add` leaves a bundle installed and listed in the profile's
     // enabled set; this option reproduces both halves on the managed profile.
-    // The exercise needs the PTC transport: the shipped bundle now defaults to
+    // The exercise needs coding-mode transport: the shipped bundle now defaults to
     // the native presentation, which registers no `run_code`, and a
     // model-direct call to the fixture tool would bypass the transport this
     // scenario is about.
@@ -47,7 +47,7 @@ describe('third-party plugin bundle', () => {
       // The tool reaches the agent's model-facing roster too, so the fixture is
       // usable by the model and not merely registered in the host process.
       expect(ctx.tools.schemas(handle.agent).map(schema => schema.name)).toContain('fixture_echo')
-      // The shipped `ptc` presentation denies model-direct calls to non-PTC
+      // The shipped `ptc` presentation denies model-direct calls to non-coding
       // tools, so the call travels the product's own transport.
       const result = await ctx.tools.execute({
         signal: new AbortController().signal,

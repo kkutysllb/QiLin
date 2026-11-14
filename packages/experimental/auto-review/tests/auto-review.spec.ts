@@ -1006,7 +1006,7 @@ describe('native review request', () => {
   })
 })
 
-describe('PTC and bypass semantics', () => {
+describe('coding and bypass semantics', () => {
   it('reviews one started inner call from its binding schema and preserves the raw final deny reason', async () => {
     const rawReason = '  exact "scope" was not authorized\nretry with a narrower target  '
     const { ctx, adapter } = await harness([
@@ -1082,7 +1082,7 @@ describe('PTC and bypass semantics', () => {
     }
   })
 
-  it('scopes reused PTC root and sub-call ids to the open step', async () => {
+  it('scopes reused coding root and sub-call ids to the open step', async () => {
     const { ctx, adapter } = await harness([
       decisionChunks('{"risk":"low","decision":"allow"}'),
     ])
@@ -1721,7 +1721,7 @@ describe('logged-fact failures', () => {
     expect(requestSections(adapter.requests[0]!).ENVIRONMENT).toEqual({ cwd: process.cwd() })
   })
 
-  it('fails closed for missing, ambiguous, or conflicting PTC facts', async () => {
+  it('fails closed for missing, ambiguous, or conflicting coding facts', async () => {
     const { ctx, adapter } = await harness([])
     const probe = registerProbe(ctx)
     const cases: Array<{

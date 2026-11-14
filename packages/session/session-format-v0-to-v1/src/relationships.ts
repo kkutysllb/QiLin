@@ -24,7 +24,7 @@ interface CompactionState {
   readonly summarized: boolean
 }
 
-interface PtcStart {
+interface CodingStart {
   readonly root: string
   readonly parent: string
   readonly name: string
@@ -68,7 +68,7 @@ export function assertReleasedArtifactRelationships(
   const retries: SessionFormatEvent[] = []
   const retryStarts = new Set<string>()
   const ptcRoots = new Map<string, string>()
-  const ptcStarts = new Map<string, PtcStart>()
+  const ptcStarts = new Map<string, CodingStart>()
   const toolLifecycles = new Map<string, ToolLifecycle>()
   const commandRuns = new Set<string>()
 

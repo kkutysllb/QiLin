@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Inspect applications, retain window objects across PTC calls, and send actions through the normal tool pipeline. Platform providers supply native execution; this library owns the object API, request validation, application consent, and image admission. The external PTC runtime owns variable persistence.
+Inspect applications, retain window objects across coding calls, and send actions through the normal tool pipeline. Platform providers supply native execution; this library owns the object API, request validation, application consent, and image admission. The external coding runtime owns variable persistence.
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ Inspect applications, retain window objects across PTC calls, and send actions t
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the [macOS provider](../cua-macos/README.md) to enable native operations. This library is opt-in: no shipped bundle or preset mounts it, and it has no platform implementation of its own. External PTC hosts import `connectCua` from `@qilin-agent/experimental-cua/bridge` and supply the current `tools.cua` binding. Source compositions and native preparation belong to the provider.
+Mount the [macOS provider](../cua-macos/README.md) to enable native operations. This library is opt-in: no shipped bundle or preset mounts it, and it has no platform implementation of its own. External coding hosts import `connectCua` from `@qilin-agent/experimental-cua/bridge` and supply the current `tools.cua` binding. Source compositions and native preparation belong to the provider.
 
 Use App methods for a single-window task. `getApp` reads initial accessibility state; `getWindows` and `getWindow` select an explicit window when needed. Re-reading one app/window scope replaces its element indices without invalidating another window's snapshot. Keyboard input follows the application's focus. Invalid request arguments reject before dispatch with a readable method, parameter and requirement.
 

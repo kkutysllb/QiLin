@@ -181,20 +181,20 @@ class Relationships {
 
   dispatch(event: SessionFormatEvent, data: SessionFormatJsonObject): void {
     this.requireTurn(event.type)
-    const id = text(data['subCallId'], 'PTC subCallId')
-    const root = text(data['rootCallId'], 'PTC rootCallId')
-    const parent = text(data['parentCallId'], 'PTC parentCallId')
+    const id = text(data['subCallId'], 'coding subCallId')
+    const root = text(data['rootCallId'], 'coding rootCallId')
+    const parent = text(data['parentCallId'], 'coding parentCallId')
     const existing = this.dispatches.get(id)
-    if (existing !== undefined && existing.data['rootCallId'] !== root) throw new SessionFormatError('PTC dispatch changes its rootCallId')
-    if (parent !== root && this.dispatches.get(parent)?.data['rootCallId'] !== root) throw new SessionFormatError('PTC parentCallId does not belong to rootCallId')
+    if (existing !== undefined && existing.data['rootCallId'] !== root) throw new SessionFormatError('coding dispatch changes its rootCallId')
+    if (parent !== root && this.dispatches.get(parent)?.data['rootCallId'] !== root) throw new SessionFormatError('coding parentCallId does not belong to rootCallId')
     if (event.type === 'tool/ptc-dispatch-start') {
-      if (existing !== undefined) throw new SessionFormatError('PTC dispatch repeats subCallId')
+      if (existing !== undefined) throw new SessionFormatError('coding dispatch repeats subCallId')
       this.dispatches.set(id, { data, settled: false })
       return
     }
-    if (existing === undefined || existing.settled) throw new SessionFormatError('PTC dispatch has no unique start')
+    if (existing === undefined || existing.settled) throw new SessionFormatError('coding dispatch has no unique start')
     if (['rootCallId', 'parentCallId', 'name', 'arguments'].some(key => !isDeepStrictEqual(existing.data[key], data[key]))) {
-      throw new SessionFormatError('PTC dispatch does not match its start')
+      throw new SessionFormatError('coding dispatch does not match its start')
     }
     existing.settled = true
   }

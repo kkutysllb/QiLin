@@ -1,4 +1,4 @@
-/** Node PTC process invalidation after a committed Session file-policy change. */
+/** Node coding process invalidation after a committed Session file-policy change. */
 import type { Context } from '@qilin-agent/kylin'
 import type { SessionId } from '@qilin-agent/session'
 import type { SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
@@ -31,7 +31,7 @@ export class PolicyProcesses {
     }, { global: true })
     ctx.effect(() => async () => {
       await this.settle([...this.processes])
-    }, 'Node PTC policy cleanup')
+    }, 'Node coding policy cleanup')
   }
 
   /**

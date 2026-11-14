@@ -175,10 +175,10 @@ Task 10 (S6+S7): complete
   `docs/persistence-changes/historical-formats/**`, `/lib/`, `snapshots/`) rewrote module
   specifiers, paths, the service name, and the presentation-mode value; a second pass fixed the
   remaining test fixtures.
-- Ruling: historical Agent Notes keep `ptc` in their prose and filenames; only their **link
+- Ruling: historical Agent Notes keep `coding` in their prose and filenames; only their **link
   targets** changed so `verify-md-links` resolves, and the affected pairs were re-recorded. A full
   prose sweep would rewrite past decisions.
-- Ruling: `tool/ptc-dispatch*` event types and the `PtcRuntime`/`PtcRun*` type names stay. Event
+- Ruling: `tool/ptc-dispatch*` event types and the `CodingRuntime`/`CodingRun*` type names stay. Event
   types are committed format vocabulary (renaming one is a format change, not a rename), and the
   type names are a separate public-API decision.
 - Cost of the first attempt (reverted): sweeping docs and notes wholesale broke

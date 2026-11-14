@@ -1,9 +1,9 @@
 ---
-description: "PTC 执行能力族的包映射：程序执行能为你做什么，以及每个部分由哪个包负责。"
+description: "coding 执行能力族的包映射：程序执行能为你做什么，以及每个部分由哪个包负责。"
 kind: "package-group"
 ---
 
-# coding-runtime/——PTC 执行能力族
+# coding-runtime/——coding 执行能力族
 
 [English](README.md) | 中文
 
@@ -26,7 +26,7 @@ kind: "package-group"
 
 | 包 | 角色 | ctx 键 |
 |---|---|---|
-| [`coding-runtime/`](coding-runtime/README.zh.md) | 定义 PTC 运行时做什么：针对宿主提供的绑定运行一个程序，并报告其打印和返回的内容 | `ctx.codingRuntime` |
+| [`coding-runtime/`](coding-runtime/README.zh.md) | 定义 coding 运行时做什么：针对宿主提供的绑定运行一个程序，并报告其打印和返回的内容 | `ctx.codingRuntime` |
 | [`coding-runtime-node/`](coding-runtime-node/README.zh.md) | 在全新受管 Node 进程中按已解析沙箱策略执行 TypeScript | 注册 `ctx.codingRuntime` |
 | [`experimental/coding-runtime-python/`](../experimental/coding-runtime-python/README.zh.md) | 实验性 Python 后端：负责 Node 宿主与 CPython 子进程之间的 fd-3 协议，以及 CPython 运行时实现 | — |
 
@@ -35,10 +35,10 @@ kind: "package-group"
 <a id="related-documentation"></a>
 ## 相关文档
 
-先从子系统参考了解服务约定，再看消费此能力的 PTC mode 设计，以及它所遵循的能力 seam 模型。
+先从子系统参考了解服务约定，再看消费此能力的 coding mode 设计，以及它所遵循的能力 seam 模型。
 
-- [PTC 运行时子系统参考](../../docs/subsystems/coding-runtime.zh.md)——请求／结果词汇、绑定与 `ctx.codingRuntime` 的 Cordis 接口面。
-- [PTC mode Agent Note](../../.agents/notes/implemented/feature/2026-06-15-ptc.zh.md)——工具注册表如何把 `run_code` 呈现给模型。
+- [coding 运行时子系统参考](../../docs/subsystems/coding-runtime.zh.md)——请求／结果词汇、绑定与 `ctx.codingRuntime` 的 Cordis 接口面。
+- [coding mode Agent Note](../../.agents/notes/implemented/feature/2026-06-15-ptc.zh.md)——工具注册表如何把 `run_code` 呈现给模型。
 - [能力 seam](../../docs/capability-seams.zh.md)——本家族遵循的 Service Definition / Service Provider / Consumer 拆分。
 
 <a id="dev-note"></a>

@@ -168,7 +168,7 @@ describe('userQuestions projection fold', () => {
     ])).toEqual(settled)
   })
 
-  it('continues a pending PTC sub-call when only run_code appeared in the request header', () => {
+  it('continues a pending coding sub-call when only run_code appeared in the request header', () => {
     const subCallId = ToolCallId('run_1:ptc:1')
     const dispatchData: SessionEvent<'tool/ptc-dispatch'>['data'] = {
       rootCallId: ToolCallId('run_1'), parentCallId: ToolCallId('run_1'), subCallId,

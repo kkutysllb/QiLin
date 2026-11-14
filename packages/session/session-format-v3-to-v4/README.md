@@ -77,7 +77,7 @@ This edge changes only the named representations below, closes evidenced interru
 | V3 physical rows | Released V3 source codec decodes events and compact runs | Source framing and source-event range decoding remain owned by the preceding package. |
 | V4 physical rows | `releasedV4SessionFormatCodec` reuses released V2 framing with native V4 admission | No V4 event is projected into a V3 semantic validator. Encoding and decoding do not run this incoming migration. |
 
-No preset id, PTC dispatch event tag, file attachment, or physical filename is renamed by this edge. Content extensions in embedded streams follow the rules below; stream order and indices remain unchanged.
+No preset id, coding dispatch event tag, file attachment, or physical filename is renamed by this edge. Content extensions in embedded streams follow the rules below; stream order and indices remain unchanged.
 
 <a id="tool-results"></a>
 ### Tool-result representation
@@ -275,7 +275,7 @@ The ordinary interrupted not-started repair retains its canonical historical int
 
 | Entry point | Checks and limits |
 |---|---|
-| V4 codec decode | Released physical framing plus V4 row admission. Required predecessor PTC tags, retired system headers, and owned malformed native fields are refused before recoverable suffix suppression. |
+| V4 codec decode | Released physical framing plus V4 row admission. Required predecessor coding tags, retired system headers, and owned malformed native fields are refused before recoverable suffix suppression. |
 | V4 codec encode | The same native row checks; ignorable developer payloads are still validated by the writer. |
 | Native catalog, `validation: 'transformed'` | Codec checks only; skips artifact restoration because no migration ran. This is not full native validation. |
 | Historical catalog, `validation: 'transformed'` | Conversion followed by generation-owned V4 restoration; skips installed common Session validation. |

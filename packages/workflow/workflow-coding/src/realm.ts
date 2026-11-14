@@ -1,7 +1,7 @@
 /**
  * Materializes script VM values as plain JSON and renders thrown values.
  * Getters and proxy traps may execute inside the confined Node process;
- * process isolation and cancellation belong to PTC, not the VM.
+ * process isolation and cancellation belong to coding, not the VM.
  * @module @qilin-agent/workflow-coding/realm
  */
 

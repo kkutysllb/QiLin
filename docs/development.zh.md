@@ -154,7 +154,7 @@ pnpm run build
 pnpm qilin --profile headless "summarize this workspace"
 ```
 
-PTC mode 演示启用代码式工具展示，并运行同一个 headless profile：
+coding mode 演示启用代码式工具展示，并运行同一个 headless profile：
 
 ```sh
 pnpm run demo:ptc -- "summarize this workspace"

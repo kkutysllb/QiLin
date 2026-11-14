@@ -1127,7 +1127,7 @@ Source: [`packages/core/session/src/types.ts:370`](../packages/core/session/src/
  * before returning), so its execution-enclosure relation holds by
  * construction.
  */
-'tool/ptc-dispatch': PtcDispatchEventData
+'tool/ptc-dispatch': CodingDispatchEventData
 ```
 
 Source: [`packages/core/tools/src/types.ts:61`](../packages/core/tools/src/types.ts)
@@ -1150,7 +1150,7 @@ Source: [`packages/core/tools/src/types.ts:61`](../packages/core/tools/src/types
  * with `tool/ptc-dispatch` by `subCallId` (timing = the two events'
  * `time` fields).
  */
-'tool/ptc-dispatch-start': PtcDispatchStartEventData
+'tool/ptc-dispatch-start': CodingDispatchStartEventData
 ```
 
 Source: [`packages/core/tools/src/types.ts:45`](../packages/core/tools/src/types.ts)
@@ -4534,7 +4534,7 @@ Sources: [`packages/typert/protocol/src/types.ts:457`](../packages/typert/protoc
 
 <a id="persistence-type-ptcdispatcheventdata"></a>
 
-### `PtcDispatchEventData`
+### `CodingDispatchEventData`
 
 SHA-256: `4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738`
 
@@ -4558,7 +4558,7 @@ Sources: [`packages/core/tools/src/types.ts:21`](../packages/core/tools/src/type
 
 <a id="persistence-type-ptcdispatchstarteventdata"></a>
 
-### `PtcDispatchStartEventData`
+### `CodingDispatchStartEventData`
 
 SHA-256: `084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f`
 
@@ -7018,7 +7018,7 @@ Sources: [`packages/session/session-title/src/types.ts:30`](../packages/session/
 
 SHA-256: `27a442ed43e7efa4a2d53f33ec9ce081226f59b1c32410af695a7dd7621f55c8`
 
-Sources: [`packages/core/tools/src/ptc.ts:15`](../packages/core/tools/src/ptc.ts)
+Sources: [`packages/core/tools/src/coding.ts:15`](../packages/core/tools/src/coding.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -9142,7 +9142,7 @@ SHA-256: `154d6c6e9c3bdbeb174f6b3f1ebe95c403b75d11e163aa2236864040635d3cfc`
 
 | Property | Presence | Type |
 |---|---|---|
-| `data` | required | [`PtcDispatchEventData`](#persistence-type-sha256-4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738) |
+| `data` | required | [`CodingDispatchEventData`](#persistence-type-sha256-4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738) |
 | `ignorable` | optional | `true` |
 | `seq` | required | `number` |
 | `time` | required | `number` |
@@ -9158,7 +9158,7 @@ SHA-256: `3a7c59a2828b3a88e55af4ddc15ac63a58fb89855be52610bfba32bd8919f192`
 
 | Property | Presence | Type |
 |---|---|---|
-| `data` | required | [`PtcDispatchStartEventData`](#persistence-type-sha256-084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f) |
+| `data` | required | [`CodingDispatchStartEventData`](#persistence-type-sha256-084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f) |
 | `ignorable` | optional | `true` |
 | `seq` | required | `number` |
 | `time` | required | `number` |

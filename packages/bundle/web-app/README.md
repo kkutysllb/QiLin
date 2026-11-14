@@ -69,7 +69,7 @@ When you launch `qilin --profile web` over SSH, the URL line still prints but th
 
 ### Per-session agent setup
 
-Each browser session composes its own agent from a shipped preset (`standard` by default), instead of sharing one process-wide tool set. `standard` presents the native tool schemas; `ptc` presents the same tools through a generated SDK and adds the runtime-authoring capability. You can change the default preset or add your own presets under `$QILIN_HOME/.agent-presets`.
+Each browser session composes its own agent from a shipped preset (`standard` by default), instead of sharing one process-wide tool set. `standard` presents the native tool schemas; `coding` presents the same tools through a generated SDK and adds the runtime-authoring capability. You can change the default preset or add your own presets under `$QILIN_HOME/.agent-presets`.
 
 -----
 

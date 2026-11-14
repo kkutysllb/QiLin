@@ -12,7 +12,7 @@ kind: "plan"
 
 ### 现状
 - 出厂预设已收敛为单一 `presets/ptc`（合并提交「出厂预设收敛为单一 ptc，并入运行时创作能力」）：删除 `presets/standard` 与 `presets/cordis`，ptc 的 preset.yml 去掉显示名，部署默认（web-app patch `default: ptc`）与 e2e 脚手架钉到 ptc。
-- 合并前的 standard：`name: 标准模式`、`order: 1`，agent.cordis.yml 为「功能完整的编码 Agent」（标准工具面，非 PTC 呈现）。
+- 合并前的 standard：`name: 标准模式`、`order: 1`，agent.cordis.yml 为「功能完整的编码 Agent」（标准工具面，非 coding 呈现）。
 
 ### 目标
 1. 恢复 `presets/standard`（内容以合并前 standard 为基，适配当前树——已删除的包/行必须剔除），显示名改为 **普通模式**。

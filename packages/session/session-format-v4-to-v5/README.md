@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Restore released V4 Sessions as V5 without changing any recorded request. This adjacent edge is an identity conversion except for the shipped preset vocabulary: the retired ids `standard`, `cordis`, and `minimal` become `ptc` in the logical header and in every `agent-preset/selected` payload, while custom ids and every other field pass through unchanged. The [catalog](../session-format-catalog/README.md) consumes it through the static migration declaration; the library itself reads and publishes no files.
+Restore released V4 Sessions as V5 without changing any recorded request. This adjacent edge is an identity conversion except for the shipped preset vocabulary: the retired ids `standard`, `cordis`, and `minimal` become `coding` in the logical header and in every `agent-preset/selected` payload, while custom ids and every other field pass through unchanged. The [catalog](../session-format-catalog/README.md) consumes it through the static migration declaration; the library itself reads and publishes no files.
 
 ## Table of Contents
 
@@ -54,14 +54,14 @@ This edge preserves every source event, its order, its timestamp, and its dense 
 <a id="header-and-presets"></a>
 ### Header and preset fold
 
-The logical header changes `version: 4` to `version: 5`. It retains `id`, `createdAt`, `isSeeded`, `delegationDepth`, and admitted optional `cwd`, `parentSession`, and `origin`. The exact shipped ids `standard`, `cordis`, and `minimal` become `ptc` in `header.agentPreset`; an absent preset stays absent, and a custom id stays unchanged. A malformed source header is rejected before any rewrite.
+The logical header changes `version: 4` to `version: 5`. It retains `id`, `createdAt`, `isSeeded`, `delegationDepth`, and admitted optional `cwd`, `parentSession`, and `origin`. The exact shipped ids `standard`, `cordis`, and `minimal` become `coding` in `header.agentPreset`; an absent preset stays absent, and a custom id stays unchanged. A malformed source header is rejected before any rewrite.
 
 `header.agentPreset` remains a free string, so this edge does not validate it against the installed roster and does not rename other occurrence sites. The preset resolver keeps its fail-loud behavior for a retired id: migration rewrites a stored choice, and is never a runtime alias for a roster that no longer ships it.
 
 <a id="selection-and-inheritance"></a>
 ### Selection events and inheritance
 
-Every `agent-preset/selected` event is inspected, including inherited and local selections. When `data.agentPreset` is a retired shipped id it becomes `ptc`; otherwise the source event object is emitted unchanged. A selection payload whose `agentPreset` is not a string is emitted as recorded rather than repaired, and every other event type passes through without copying or re-framing.
+Every `agent-preset/selected` event is inspected, including inherited and local selections. When `data.agentPreset` is a retired shipped id it becomes `coding`; otherwise the source event object is emitted unchanged. A selection payload whose `agentPreset` is not a string is emitted as recorded rather than repaired, and every other event type passes through without copying or re-framing.
 
 For a seeded Session, the last `session/end-seed` with `data.inherited: true` identifies the cut: its own index is the inherited event count, closing the inherited prefix from the first current position. A seeded source without that marker is refused instead of guessing a cut, and an unseeded source exposes `headerInheritedEventCount: 0` before EOF and finishes with a zero cut.
 

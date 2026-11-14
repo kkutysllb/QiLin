@@ -60,7 +60,7 @@ export async function runPersistentMain(stream: Duplex, maxMessageBytes: number,
   const port = {
     postMessage(payload: ProgramToHost): void {
       const evaluation = context.getStore()
-      if (!evaluation?.active) throw new Error('PTC evaluation has ended; call this function from a new run_code evaluation')
+      if (!evaluation?.active) throw new Error('coding evaluation has ended; call this function from a new run_code evaluation')
       send(evaluation.id, payload)
     },
     on(_event: 'message', listener: (message: ReplyMessage) => void): void { replies.push(listener) },
@@ -86,7 +86,7 @@ export async function runPersistentMain(stream: Duplex, maxMessageBytes: number,
       finish(result) {
         if (!evaluation.active) return
         evaluation.active = false
-        for (const call of pending.values()) call.reject(new Error('PTC evaluation ended before the binding completed'))
+        for (const call of pending.values()) call.reject(new Error('coding evaluation ended before the binding completed'))
         pending.clear()
         send(id, { type: 'done', ...result })
       },

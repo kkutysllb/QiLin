@@ -7,13 +7,13 @@
  * consumers, so it cannot move into a preset. What a preset CAN own is the
  * presentation: `ctx.tools.presentAs()` declares it for the mounting SCOPE,
  * which is the preset's standing mount, so the declaration covers every agent
- * joined to that preset and a PTC mode preset runs beside native ones in one
+ * joined to that preset and a coding mode preset runs beside native ones in one
  * process. One row per composition, not one per session.
  *
- * A PTC mode needs a TypeScript PTC runtime, which is a host-plane service
+ * A coding mode needs a TypeScript coding runtime, which is a host-plane service
  * ([`qilin-coding-runtime-node`](../../../coding-runtime/coding-runtime-node/README.md)).
  * This row therefore waits for it rather than assuming it: a preset selecting
- * PTC mode against a deployment that composes no runtime fails at mount, named
+ * coding mode against a deployment that composes no runtime fails at mount, named
  * in the preset's own activation audit, instead of at the first prompt.
  * @module @qilin-agent/agent-tool-presentation
  */

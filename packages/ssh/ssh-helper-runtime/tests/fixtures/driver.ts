@@ -1,4 +1,4 @@
-/** Test-only Loader consumer exercising files, processes, terminals and PTC through the SSH providers. */
+/** Test-only Loader consumer exercising files, processes, terminals and coding through the SSH providers. */
 import assert from 'node:assert/strict'
 import { writeFile } from 'node:fs/promises'
 import { basename } from 'node:path'

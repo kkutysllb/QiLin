@@ -21,7 +21,7 @@ V7→V8 边界只给存储的编码模式预置标签改名。V8 保留 V7 的�
 <a id="use-this-package"></a>
 ## 使用本包
 
-Session 格式目录从本包的 `qilin.sessionFormatMigration` 清单读取并加载它，`7 → 8`。恢复 V7 日志时，每个头部与事件都经 `sessionFormatV7ToV8`：版本字面量移到 8，存储的 `ptc` 预置改写为 `coding`；用户自建的预置 id 原样保留。随后 `restoreReleasedV8Artifact` 按 V8 校验各行。
+Session 格式目录从本包的 `qilin.sessionFormatMigration` 清单读取并加载它，`7 → 8`。恢复 V7 日志时，每个头部与事件都经 `sessionFormatV7ToV8`：版本字面量移到 8，存储的 `coding` 预置改写为 `coding`；用户自建的预置 id 原样保留。随后 `restoreReleasedV8Artifact` 按 V8 校验各行。
 
 <a id="understand-the-implementation"></a>
 ## 理解实现
@@ -34,7 +34,7 @@ Session 格式目录从本包的 `qilin.sessionFormatMigration` 清单读取并�
 
 #### 模型看到的内容
 
-只有一个标签不同。恢复的 V7 Session 与 V7 读取器一样呈现相同的消息、工具结果与请求头，区别在于存储的 `ptc` 预置会报告为 `coding`，也就是当前预置清单发布的 id。
+只有一个标签不同。恢复的 V7 Session 与 V7 读取器一样呈现相同的消息、工具结果与请求头，区别在于存储的 `coding` 预置会报告为 `coding`，也就是当前预置清单发布的 id。
 
 #### Token 影响
 
@@ -47,7 +47,7 @@ Session 格式目录从本包的 `qilin.sessionFormatMigration` 清单读取并�
 ## 已知限制与待办工作
 
 - **只改一个字段**——编解码器沿用 V7 分帧，因此 V8 文件与 V7 文件只在头部版本字面量与迁移后的预置标签上不同，其余字节不动。
-- **旧标签没有回落**——仍写着 `ptc` 的 V8 头会被拒绝，因为预置清单不再发布该 id；V7 读取器会在 V8 校验之前完成改名。
+- **旧标签没有回落**——仍写着 `coding` 的 V8 头会被拒绝，因为预置清单不再发布该 id；V7 读取器会在 V8 校验之前完成改名。
 - **不改写已存文件**——持久化层负责读取准备与发布不可变后继；本库不读写任何文件。
 
 <a id="dev-note"></a>

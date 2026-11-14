@@ -11,7 +11,7 @@ declare module '@qilin-agent/client-ui-chat/client' {
   }
 }
 
-/** One card per invocation; a later PTC settlement retains the original card position. */
+/** One card per invocation; a later coding settlement retains the original card position. */
 export const planDefinition: ConversationNodeDefinition<SubmittedPlan> = {
   kind: 'submitted-plan',
   target: 'chat',

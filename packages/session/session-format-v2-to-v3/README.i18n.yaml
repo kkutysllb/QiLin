@@ -3,17 +3,17 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/session/session-format-v2-to-v3/README.md
 /:
-  en: d0920097a4f82e1c
-  zh: 49c1486c7342011b
+  en: da7ab9e2c763087b
+  zh: d803f23b76d07b4f
 /qilin-agent-session-format-v2-to-v3:
   en: 305ac03fe45aaaac
   zh: 80b05ba12b3d7219
 /qilin-agent-session-format-v2-to-v3/summary:
-  en: f07931a0033c4f9b
-  zh: aa126cc8c9a2c0df
+  en: f0c172b9532bd1e3
+  zh: c103268997fac656
 /qilin-agent-session-format-v2-to-v3/table-of-contents:
-  en: a53318ab96519b9a
-  zh: 5c0df2c9278c518f
+  en: 140e44d47a31107e
+  zh: b88c22d5e62d1abd
 /qilin-agent-session-format-v2-to-v3/use-this-package:
   en: bbff250eba0f1b89
   zh: 0a618f05cc88ee2b
@@ -24,35 +24,35 @@
   en: 4c8f4d35b5295839
   zh: 4e2afe37830b18f7
 /qilin-agent-session-format-v2-to-v3/v2-to-v3-specification:
-  en: 0132dbed9ea34acb
-  zh: 40eb4b1bb39504b8
+  en: c6fa96a7e21e0f74
+  zh: 8de44c4f1ee80767
 /qilin-agent-session-format-v2-to-v3/v2-to-v3-specification/header-and-preset-references:
-  en: 04c39412c6bd4f0f
-  zh: e8143eaeb44ede63
+  en: 2660e89402f00123
+  zh: c9cb411c29492460
 /qilin-agent-session-format-v2-to-v3/v2-to-v3-specification/system-head-and-message-identities:
   en: 6319beaadc43cdf9
   zh: d875add880701b19
 /qilin-agent-session-format-v2-to-v3/v2-to-v3-specification/sequence-references-and-inheritance:
   en: 5a93128360de269c
   zh: ca8364e14c8817f3
-/qilin-agent-session-format-v2-to-v3/v2-to-v3-specification/ptc-vocabulary:
-  en: 00a5c78a2b461538
-  zh: 7af981f092f34f1f
+/qilin-agent-session-format-v2-to-v3/v2-to-v3-specification/coding-vocabulary:
+  en: 6bc0b321d69611e2
+  zh: ef999b51b90eb99d
 /qilin-agent-session-format-v2-to-v3/v2-to-v3-specification/canonical-envelopes-and-tool-errors:
-  en: b95b6f9c72de67c7
-  zh: 0a8a8e43a4a17e3f
+  en: a87eb07e3e4cbea2
+  zh: 4f0d17434e1c27aa
 /qilin-agent-session-format-v2-to-v3/v2-to-v3-specification/delivery-guards:
   en: deb9d987126fea8b
   zh: f332e6746753b34a
 /qilin-agent-session-format-v2-to-v3/v2-to-v3-specification/source-audit-and-refusal:
-  en: 32a16980bf3b1090
-  zh: aebed8681dcfbeca
+  en: 2837768ce738f426
+  zh: cb7e0248fa04f083
 /qilin-agent-session-format-v2-to-v3/native-v3-admission:
-  en: 2f9127759a38289f
-  zh: d3c7b539f5e3c670
+  en: 3d3687443f2db4f1
+  zh: 3cf7b18aca5b0745
 /qilin-agent-session-format-v2-to-v3/understand-the-implementation:
-  en: 80f57b31f79ca3c9
-  zh: 2adca95bbe6afc8e
+  en: edd89457e99291ac
+  zh: 4b61fb07f9426bfa
 /qilin-agent-session-format-v2-to-v3/further-exploration:
   en: 0d8a6023c54c7e78
   zh: 50b3a7a8566e63b3
@@ -63,8 +63,8 @@
   en: e63dd8ef6de7cf7c
   zh: 2d2a6b61f5e5eb70
 /qilin-agent-session-format-v2-to-v3/model-experience/historical-restoration/what-the-model-sees:
-  en: c9e089fffc6995fe
-  zh: 47b1f772b65eafa3
+  en: 70e9627c4d2bd850
+  zh: 2d314d03f64a2e28
 /qilin-agent-session-format-v2-to-v3/model-experience/historical-restoration/token-effect:
   en: b4d1aba0150e8f4e
   zh: 54729a19efe235a2

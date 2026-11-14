@@ -1,10 +1,10 @@
-/** Node PTC execution with configurable per-call processes or retained in-memory REPL state. */
+/** Node coding-mode execution with configurable per-call processes or retained in-memory REPL state. */
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { stripTypeScriptTypes } from 'node:module'
 import { isAbsolute } from 'node:path'
 import { Context } from '@qilin-agent/kylin'
-import { PtcRuntime } from '@qilin-agent/coding-runtime'
-import type { PtcBindingNamespace, PtcJsonValue, PtcRunFailure, PtcRunRequest, PtcRunResult, PtcRunSandbox, PtcRunSpec } from '@qilin-agent/coding-runtime'
+import { CodingRuntime } from '@qilin-agent/coding-runtime'
+import type { CodingBindingNamespace, CodingJsonValue, CodingRunFailure, CodingRunRequest, CodingRunResult, CodingRunSandbox, CodingRunSpec } from '@qilin-agent/coding-runtime'
 import { clampTimeout } from '@qilin-agent/timeout'
 import { SandboxUnavailableError, classifyRunnerFailure, isRunnerSpawnFailure } from '@qilin-agent/sandbox'
 import type { ConfinedArgv, SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
@@ -36,7 +36,7 @@ function launchFailureMessage(error: unknown): string { return `Node worker did 
 function record(value: unknown): value is Record<string, unknown> { return typeof value === 'object' && value !== null && !Array.isArray(value) }
 
 /** Node execution under file policy, with optional owner-scoped retained memory. */
-export class NodePtcRuntime extends PtcRuntime {
+export class NodePtcRuntime extends CodingRuntime {
   static inject = ['fs', 'subprocess', 'sandbox', 'sandboxPolicy']
   static Config = NodeConfig
   readonly language = 'typescript'
@@ -84,7 +84,7 @@ export class NodePtcRuntime extends PtcRuntime {
    * @param request - Program, bindings, optional cwd/deadline, and resolved authority.
    * @returns Complete execution inputs with a capped numeric budget or an explicit null deadline.
    */
-  resolve(request: PtcRunRequest): PtcRunSpec {
+  resolve(request: CodingRunRequest): CodingRunSpec {
     if (this.inMemory) return this.inMemory.resolve(request)
     if (this.disposed) throw new Error('coding-runtime-node: resolve after disposal')
     const sandboxPolicy = request.sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
@@ -104,7 +104,7 @@ export class NodePtcRuntime extends PtcRuntime {
    * @param spec - Inputs returned by resolve for the configured mode.
    * @returns Logs, JSON completion or failure; retained processes remain until release or invalidation.
    */
-  async run(spec: PtcRunSpec): Promise<PtcRunResult> {
+  async run(spec: CodingRunSpec): Promise<CodingRunResult> {
     if (this.disposed) throw new Error('coding-runtime-node: run after disposal')
     const controller = new AbortController()
     const completion = Promise.withResolvers<void>()
@@ -132,16 +132,16 @@ export class NodePtcRuntime extends PtcRuntime {
   }
 
   private async execute(
-    spec: PtcRunSpec,
+    spec: CodingRunSpec,
     policy: SandboxExecutionPolicy,
-    bindings: Map<string, PtcBindingNamespace>,
+    bindings: Map<string, CodingBindingNamespace>,
     controller: AbortController,
-  ): Promise<PtcRunResult> {
+  ): Promise<CodingRunResult> {
     const replyBinding = AsyncLocalStorage.bind(replyToBinding)
     const output = new OutputLedger(this.config.maxOutputBytes)
     const logs: string[] = []
-    const sandbox: PtcRunSandbox = { mode: policy.mode, denied: false }
-    const result = Promise.withResolvers<PtcRunResult>()
+    const sandbox: CodingRunSandbox = { mode: policy.mode, denied: false }
+    const result = Promise.withResolvers<CodingRunResult>()
     const signal = spec.signal === undefined ? controller.signal : AbortSignal.any([spec.signal, controller.signal])
     let handle: SubprocessHandle | undefined
     let channel: JsonChannel | undefined
@@ -149,7 +149,7 @@ export class NodePtcRuntime extends PtcRuntime {
     let settled = false
     let timedOut = false
     let outputOverflow = false
-    let overflowResult: PtcRunResult | undefined
+    let overflowResult: CodingRunResult | undefined
     let stderr = ''
     let parsing = true
     const wallTimer = spec.timeoutMs === null ? undefined
@@ -164,7 +164,7 @@ export class NodePtcRuntime extends PtcRuntime {
       })
       return stopping
     }
-    const finish = (failure?: PtcRunFailure, value?: PtcJsonValue): void => {
+    const finish = (failure?: CodingRunFailure, value?: CodingJsonValue): void => {
       if (settled) return
       settled = true
       clearTimeout(wallTimer)
@@ -227,7 +227,7 @@ export class NodePtcRuntime extends PtcRuntime {
         .filter(key => !STARTUP_ENVIRONMENT_NAMES.has(key.toUpperCase()) && key.toUpperCase() !== 'ELECTRON_RUN_AS_NODE')
         .map(key => [key, undefined]))
       if (packaged) {
-        env.QILIN_PTC_RUNTIME_NODE = '1'
+        env.QILIN_coding_RUNTIME_NODE = '1'
         env.NODE_OPTIONS = heapFlag
       }
       handle = this.ctx.subprocess.spawn({ argv: confined?.argv ?? argv, cwd: spec.cwd, env, stdio: { stdin: 'ignore', stdout: 'pipe', stderr: 'pipe', control: 'pipe' }, graceMs: this.config.graceMs, signal })
@@ -292,7 +292,7 @@ export class NodePtcRuntime extends PtcRuntime {
           case 'done': {
             if (raw.error !== undefined) {
               if (!record(raw.error) || typeof raw.error.message !== 'string' || (raw.error.kind !== 'exception' && raw.error.kind !== 'invalid-output' && raw.error.kind !== 'output-limit')) { protocolFailure('invalid terminal error'); return }
-              const failure = { kind: raw.error.kind, message: raw.error.message } as PtcRunFailure
+              const failure = { kind: raw.error.kind, message: raw.error.message } as CodingRunFailure
               if (confined !== undefined) {
                 sandbox.denied = confined.denialSignatures.some(signature =>
                   failure.message.toLowerCase().includes(signature.toLowerCase()))

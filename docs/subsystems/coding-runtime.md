@@ -1,27 +1,27 @@
-# PTC runtime
+# coding runtime
 
 English | [中文](coding-runtime.zh.md)
 
-The PTC execution [capability seam](../../.agents/notes/implemented/architecture/2026-06-13-capability-seams.md) supplies `ctx.codingRuntime` through [qilin-coding-runtime](../../packages/coding-runtime/coding-runtime). It runs one program against host bindings and reports output, failure and applicable sandbox facts. PTC execution is optional rather than part of [the agent-loop spine](core.md). The [PTC foundation](../../.agents/notes/implemented/feature/2026-06-15-ptc.md) owns registry presentation, the [typed-return contract](../../.agents/notes/implemented/feature/2026-07-20-ptc-typed-tool-returns.md) owns binding values, and the [sandboxed Node decision](../../.agents/notes/implemented/architecture/2026-09-11-sandboxed-node-ptc-runtime.md) owns the shipped execution provider.
+The coding-mode execution [capability seam](../../.agents/notes/implemented/architecture/2026-06-13-capability-seams.md) supplies `ctx.codingRuntime` through [qilin-coding-runtime](../../packages/coding-runtime/coding-runtime). It runs one program against host bindings and reports output, failure and applicable sandbox facts. coding-mode execution is optional rather than part of [the agent-loop spine](core.md). The [coding foundation](../../.agents/notes/implemented/feature/2026-06-15-ptc.md) owns registry presentation, the [typed-return contract](../../.agents/notes/implemented/feature/2026-07-20-ptc-typed-tool-returns.md) owns binding values, and the [sandboxed Node decision](../../.agents/notes/implemented/architecture/2026-09-11-sandboxed-node-ptc-runtime.md) owns the shipped execution provider.
 
 Source: [`packages/coding-runtime/coding-runtime/src/types.ts`](../../packages/coding-runtime/coding-runtime/src/types.ts)
 
 ## The run: request in, result out
 
-`PtcRunRequest` contains the program, bindings, cancellation and optional execution choices. The provider's `resolve` validates supported choices and applies its deployment defaults; `run` receives a `PtcRunSpec` with an explicit directory and deadline choice. An omitted timeout uses provider defaults, a number requests a capped elapsed budget, and `null` requests no elapsed deadline. Providers reject unsupported choices before execution:
+`CodingRunRequest` contains the program, bindings, cancellation and optional execution choices. The provider's `resolve` validates supported choices and applies its deployment defaults; `run` receives a `CodingRunSpec` with an explicit directory and deadline choice. An omitted timeout uses provider defaults, a number requests a capped elapsed budget, and `null` requests no elapsed deadline. Providers reject unsupported choices before execution:
 
 ```ts type-equiv
 /**
  * Caller inputs for one program. The provider's resolve method validates supported
  * options and supplies directory, deadline, and authority before execution.
  */
-interface PtcRunRequest {
+interface CodingRunRequest {
   /**
    * The program source, in the runtime's {@link ../index.ts | language}. It
    * follows the provider's programFormat: an async function body supports
    * top-level `await` and `return`; a REPL supports top-level declarations,
    * `await`, and a final expression. The completion value becomes
-   * {@link PtcRunResult.value}.
+   * {@link CodingRunResult.value}.
    */
   program: string
   /**
@@ -31,7 +31,7 @@ interface PtcRunRequest {
    */
   stateOwner?: object
   /** Host functions exposed to the program, one global object per namespace. */
-  bindings: PtcBindingNamespace[]
+  bindings: CodingBindingNamespace[]
   /** Working directory in the mounted filesystem and subprocess execution world. */
   cwd?: string
   /**
@@ -43,7 +43,7 @@ interface PtcRunRequest {
   sandboxPolicy?: SandboxExecutionPolicy
   /**
    * Abort the run: the runtime stops the program (hard, even mid-loop) and
-   * resolves with a {@link PtcRunFailure} of kind `'abort'`. In-flight
+   * resolves with a {@link CodingRunFailure} of kind `'abort'`. In-flight
    * binding calls are the CALLER's to settle — the runtime only stops asking.
    */
   signal?: AbortSignal
@@ -52,7 +52,7 @@ interface PtcRunRequest {
 
 ```ts type-equiv
 /** Fully resolved execution inputs; run never supplies a missing directory or deadline choice. */
-interface PtcRunSpec extends PtcRunRequest {
+interface CodingRunSpec extends CodingRunRequest {
   /** Absolute directory in the provider's execution world. */
   cwd: string
   /** Positive finite elapsed budget in milliseconds after provider capping, or null for no deadline. */
@@ -62,7 +62,7 @@ interface PtcRunSpec extends PtcRunRequest {
 
 ```ts type-equiv
 /** File confinement applied to a program, independently of its terminal outcome. */
-interface PtcRunSandbox {
+interface CodingRunSandbox {
   /** File-effect mode used for this execution. */
   mode: SandboxMode
   /** Program failure text matched backend diagnostics; not enforcement proof or an exhaustive denial record. */
@@ -72,7 +72,7 @@ interface PtcRunSandbox {
 }
 ```
 
-Program failures resolve through `PtcRunResult.error`; invalid caller inputs may reject before execution. Sandbox mode, observed denial and enforcement completeness are separate facts, so a successful program does not by itself prove that every requested restriction was enforced:
+Program failures resolve through `CodingRunResult.error`; invalid caller inputs may reject before execution. Sandbox mode, observed denial and enforcement completeness are separate facts, so a successful program does not by itself prove that every requested restriction was enforced:
 
 ```ts type-equiv
 /**
@@ -80,30 +80,30 @@ Program failures resolve through `PtcRunResult.error`; invalid caller inputs may
  * rejection of `run()` — reporting a failed program is the caller's job, not
  * an exception path.
  */
-interface PtcRunResult {
+interface CodingRunResult {
   /** Applied file policy and observed denial, when the provider enforces file policy. */
-  sandbox?: PtcRunSandbox
+  sandbox?: CodingRunSandbox
   /**
    * The program's completion value (a return or final REPL expression), when it ran to
    * completion and the value crossed the runtime's lossless-JSON boundary.
    * Invalid or over-limit completions fail the run instead of substituting a
    * rendered string; a failed or value-less run leaves this absent.
    */
-  value?: PtcJsonValue
+  value?: CodingJsonValue
   /**
    * Captured text. Each source channel preserves emission order; interleaving
    * across independent channels is backend-dependent. Bounded only as part of
    * the outer result.
    */
   logs: string[]
-  /** Present iff the run failed; see {@link PtcRunFailure} for the taxonomy. */
-  error?: PtcRunFailure
+  /** Present iff the run failed; see {@link CodingRunFailure} for the taxonomy. */
+  error?: CodingRunFailure
 }
 ```
 
 ## Bindings: host functions as program globals
 
-Each `PtcBindingNamespace` becomes a global object of async callables; PTC passes `tools`. Arguments and resolutions must be lossless JSON. Providers enforce their own transport caps; the seam sets no uniform binding-byte limit. An optional error-class descriptor creates program-visible typed rejections without naming a consumer inside the runtime. Binding names are own properties, so `__proto__` cannot traverse a prototype:
+Each `CodingBindingNamespace` becomes a global object of async callables; coding passes `tools`. Arguments and resolutions must be lossless JSON. Providers enforce their own transport caps; the seam sets no uniform binding-byte limit. An optional error-class descriptor creates program-visible typed rejections without naming a consumer inside the runtime. Binding names are own properties, so `__proto__` cannot traverse a prototype:
 
 ```ts type-equiv
 /**
@@ -111,10 +111,10 @@ Each `PtcBindingNamespace` becomes a global object of async callables; PTC passe
  * injects a real error constructor under `name`; rejected member calls become
  * its instances and expose the exact member name through
  * `memberNameProperty`. Both strings are runtime data rather than knowledge
- * of a particular consumer such as PTC mode.
+ * of a particular consumer such as coding mode.
  */
-interface PtcBindingErrorClass {
-  /** Constructor global and resulting `Error.name`; same portable identifier rule as {@link PtcBindingNamespace.global}. */
+interface CodingBindingErrorClass {
+  /** Constructor global and resulting `Error.name`; same portable identifier rule as {@link CodingBindingNamespace.global}. */
   name: string
   /**
    * Non-empty own property for the member name. The portable exclusion set is
@@ -128,13 +128,13 @@ interface PtcBindingErrorClass {
 
 ```ts type-equiv
 /**
- * A named group of {@link PtcBindingFunction}s the runtime exposes to the
+ * A named group of {@link CodingBindingFunction}s the runtime exposes to the
  * program as one global object (e.g. `tools`). Function names are arbitrary
  * strings — a runtime must treat names like `__proto__` or `constructor` as
  * ordinary own properties (null-prototype construction), never as prototype
  * collisions.
  */
-interface PtcBindingNamespace {
+interface CodingBindingNamespace {
   /**
    * The global identifier the program sees. Must match the LANGUAGE-PORTABLE
    * identifier subset `[A-Za-z_][A-Za-z0-9_]*` and no language's reserved
@@ -147,15 +147,15 @@ interface PtcBindingNamespace {
    */
   global: string
   /** The callable members, keyed by the exact name the program calls. */
-  functions: Record<string, PtcBindingFunction>
+  functions: Record<string, CodingBindingFunction>
   /** Optional program-visible typed rejection contract for this namespace. */
-  errorClass?: PtcBindingErrorClass
+  errorClass?: CodingBindingErrorClass
 }
 ```
 
 ```ts type-equiv
 /** A lossless JSON value transferable through the dependency-light Service Definition. */
-type PtcJsonValue = null | boolean | number | string | PtcJsonValue[] | { [key: string]: PtcJsonValue }
+type CodingJsonValue = null | boolean | number | string | CodingJsonValue[] | { [key: string]: CodingJsonValue }
 ```
 
 ```ts type-equiv
@@ -168,7 +168,7 @@ type PtcJsonValue = null | boolean | number | string | PtcJsonValue[] | { [key: 
  * of this function surfaces inside the program as a rejection of the
  * corresponding call.
  */
-type PtcBindingFunction = (args: unknown) => Promise<PtcJsonValue>
+type CodingBindingFunction = (args: unknown) => Promise<CodingJsonValue>
 ```
 
 ## Captured output and the failure taxonomy
@@ -185,14 +185,14 @@ Failure kinds are **orthogonal outcomes reported independently** (per [defensive
  *
  * - `'exception'` — the program threw or failed to parse/transform.
  * - `'timeout'` — an implementation-owned budget expired; the message says which.
- * - `'abort'` — {@link PtcRunRequest.signal} fired.
+ * - `'abort'` — {@link CodingRunRequest.signal} fired.
  * - `'worker-exit'` — the execution substrate never started or died without settling (e.g. a spawn error, OOM).
  * - `'invalid-output'` — the completion value was not lossless JSON.
  * - `'output-limit'` — the serialized outer logs/value/diagnostic exceeded the configured cap.
  * - `'protocol'` — the program sent invalid or over-budget control traffic.
  * - `'sandbox-unavailable'` — required confinement could not be established.
  */
-interface PtcRunFailure {
+interface CodingRunFailure {
   /** The failure class (see the interface doc for each kind's meaning). */
   kind: 'exception' | 'timeout' | 'abort' | 'worker-exit' | 'invalid-output' | 'output-limit' | 'protocol' | 'sandbox-unavailable'
   /** Human-readable detail, suitable for feeding back to a model to self-correct. */
@@ -202,7 +202,7 @@ interface PtcRunFailure {
 
 ## The service
 
-`PtcRuntime` is defined in [`src/index.ts`](../../packages/coding-runtime/coding-runtime/src/index.ts). `resolve(request)` returns complete execution inputs, and `run(spec)` executes them. `executionInstructions` supplies provider-owned usage guidance for consumer presentation. `timeout` reports the configured elapsed-time default and maximum when per-call overrides are supported; `resolve` still validates and caps each request. `language` selects supported program presentation; `isolation` describes the substrate without claiming security. `sandboxMode` advertises file-policy support, with `undefined` for a provider that does not supply confinement. Each implementation keeps program state separate between runs and terminates and awaits active executions during disposal.
+`CodingRuntime` is defined in [`src/index.ts`](../../packages/coding-runtime/coding-runtime/src/index.ts). `resolve(request)` returns complete execution inputs, and `run(spec)` executes them. `executionInstructions` supplies provider-owned usage guidance for consumer presentation. `timeout` reports the configured elapsed-time default and maximum when per-call overrides are supported; `resolve` still validates and caps each request. `language` selects supported program presentation; `isolation` describes the substrate without claiming security. `sandboxMode` advertises file-policy support, with `undefined` for a provider that does not supply confinement. Each implementation keeps program state separate between runs and terminates and awaits active executions during disposal.
 
 <!-- BEGIN GENERATED kylin-surface (gen-kylin-catalog.ts) — do not edit between markers -->
 
@@ -214,9 +214,9 @@ Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm
 
 <a id="ctxptcruntime--ptcruntime-abstract-seam"></a>
 
-### `ctx.codingRuntime` — `PtcRuntime` (abstract seam)
+### `ctx.codingRuntime` — `CodingRuntime` (abstract seam)
 
-Registers one `ctx.codingRuntime` implementation. Program, budget, abort, and substrate failures resolve in PtcRunResult; only Service Definition contract misuse rejects. Implementations bridge structured-cloneable bindings, materialize each declared namespace rejection class, treat programs as hostile peers, isolate distinct state owners, and terminate and await in-flight runs during disposal.
+Registers one `ctx.codingRuntime` implementation. Program, budget, abort, and substrate failures resolve in CodingRunResult; only Service Definition contract misuse rejects. Implementations bridge structured-cloneable bindings, materialize each declared namespace rejection class, treat programs as hostile peers, isolate distinct state owners, and terminate and await in-flight runs during disposal.
 
 ```ts cordis-catalog
 /**
@@ -234,14 +234,14 @@ release(owner: object): Promise<void>
  * @returns Complete directory, deadline and supported authority for run.
  * @throws When an explicit choice is invalid or unsupported by this provider.
  */
-abstract resolve(request: PtcRunRequest): PtcRunSpec
+abstract resolve(request: CodingRunRequest): CodingRunSpec
 
 /**
  * Execute resolved inputs; program outcomes resolve as result fields.
  * @param spec - directory, deadline, program, bindings, cancellation and supported policy.
  * @returns Captured output and the execution outcome.
  */
-abstract run(spec: PtcRunSpec): Promise<PtcRunResult>
+abstract run(spec: CodingRunSpec): Promise<CodingRunResult>
 ```
 
 Source: [`packages/coding-runtime/coding-runtime/src/index.ts`](../../packages/coding-runtime/coding-runtime/src/index.ts)

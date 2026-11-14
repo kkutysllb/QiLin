@@ -7,4 +7,4 @@
   - option "自动审查 EXP":
     - text: 自动审查
     - superscript: EXP
-    - text: 无沙箱运行；每次原生工具调用和 PTC 内层调用前由同一模型进行实验性审查。
+    - text: 无沙箱运行；每次原生工具调用和 coding 内层调用前由同一模型进行实验性审查。

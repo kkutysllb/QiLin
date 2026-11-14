@@ -289,7 +289,7 @@ describe('released event and payload inventory', () => {
     expect(mutations).toBeGreaterThan(250)
   })
 
-  it('allows explicit opaque tool metadata and PTC arguments losslessly', () => {
+  it('allows explicit opaque tool metadata and coding arguments losslessly', () => {
     for (const type of ['tool/result', 'tool/code-dispatch', 'tool/code-dispatch-start']) {
       const data = structuredClone(validPayloads[type] as SessionFormatJsonValue)
       expect(() => { assertPayload(type, data) }).not.toThrow()

@@ -39,7 +39,7 @@
 - 首启声明改为 QiLin 版本：标题与正文不再引用 QiLin 与 DSH 生态。
 - pnpm run test:snapshot：132 项中 127 项通过、3 项失败、2 项跳过，引擎与会话路径在 QiLin 树上端到端可用。
 - 交付物浏览器验收：apps/web/tests/produced-files.e2e.ts 通过，produced files 行在真实浏览器中渲染正确。
-- 交付物另一用例 apps/web/tests/present.e2e.ts 在本机 2 项失败；已在原始基线提交的独立 worktree 上复跑，失败完全一致（1 文件 / 2 项），因此归因于环境（PTC code-runtime 交付路径）而非本次重构。
+- 交付物另一用例 apps/web/tests/present.e2e.ts 在本机 2 项失败；已在原始基线提交的独立 worktree 上复跑，失败完全一致（1 文件 / 2 项），因此归因于环境（coding code-runtime 交付路径）而非本次重构。
 
 ### 类型与门禁
 - pnpm run typecheck 0 错误；verify-client-packages、verify-package-dependencies、verify-package-paths、verify-md-links、verify-md-wrap、verify-package-readme-limitations、verify-subsystem-pages、verify-config-catalog、verify-doc-budgets 全部通过。

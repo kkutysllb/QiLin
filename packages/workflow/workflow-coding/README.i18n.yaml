@@ -3,47 +3,47 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/workflow/workflow-coding/README.md
 /:
-  en: c38b437e7e319d4b
-  zh: 2da5213a6120586c
+  en: 56987eb3a4875933
+  zh: f858c70f613e11d0
 /qilin-agent-workflow-coding:
   en: a2de1fa3f3e1d26e
   zh: 0795342110c9ee3f
 /qilin-agent-workflow-coding/summary:
-  en: 9b6df6defa779ce7
-  zh: 43db3d8918707117
+  en: e4c05250e4830a82
+  zh: d3051cb7ec3d212c
 /qilin-agent-workflow-coding/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-workflow-coding/use-this-package:
-  en: 6f4aaefa51c58396
-  zh: eae133172f9f3501
+  en: 5d6f7451a0f7cb23
+  zh: 42334c1081b86f55
 /qilin-agent-workflow-coding/use-this-package/minimal-configuration:
-  en: ca9f01aa89c6a128
-  zh: df1f54a05bed9fc4
+  en: 9650a2876b8486d7
+  zh: 01c32c0baa00fa38
 /qilin-agent-workflow-coding/use-this-package/results-and-failures:
-  en: 483134c11525910a
-  zh: d2ad48023e4a4be9
+  en: f38c35077408befe
+  zh: 498c9d2b10f2b7cb
 /qilin-agent-workflow-coding/use-this-package/file-policy-and-cancellation:
-  en: abc56c2117c83d1c
-  zh: 4574a44302f70c20
+  en: 6004a5e943ce1851
+  zh: 66275a32603167aa
 /qilin-agent-workflow-coding/understand-the-implementation:
-  en: 52aee3bea250e968
-  zh: d606ae0fbb5c97b4
+  en: 34e225e852da5838
+  zh: fa88307219045436
 /qilin-agent-workflow-coding/understand-the-implementation/design-concept:
-  en: 9b3beda22fb408f7
-  zh: ac8701b4a7591b0e
+  en: 661835287a5073ba
+  zh: deeae84ff17e0c06
 /qilin-agent-workflow-coding/understand-the-implementation/source-map:
-  en: d94db278c7b67278
-  zh: 054d0cf46a8f6f07
+  en: 100b407e889bee00
+  zh: de981aa33859b1ab
 /qilin-agent-workflow-coding/understand-the-implementation/values-and-child-ownership:
-  en: 4e866f00a49d76e7
-  zh: 15a02d9ccc33d08f
+  en: a1b2aa8c777bcb66
+  zh: ea4e14cf1eb8ad49
 /qilin-agent-workflow-coding/understand-the-implementation/cancellation-and-outcomes:
   en: 8b8806d701e3d32d
   zh: cfa21c4962be2fa4
 /qilin-agent-workflow-coding/further-exploration:
-  en: 266c8e635424c3b4
-  zh: b7e1e4dc9559f824
+  en: ac912a585583f8b4
+  zh: eaf29e15fb24bbb9
 /qilin-agent-workflow-coding/model-experience:
   en: 215e7ba838619b7b
   zh: a311da3843709f90
@@ -63,17 +63,17 @@
   en: 75d061c2151624a7
   zh: 71e58e020b60ff90
 /qilin-agent-workflow-coding/model-experience/parent-tool-result-indirectly/what-the-model-sees:
-  en: 0bcd125dbda955d8
-  zh: b92b5a58e3630522
+  en: 788ae8c4868b83f3
+  zh: 97fdf2227147b962
 /qilin-agent-workflow-coding/model-experience/parent-tool-result-indirectly/token-effect:
-  en: 4de147b4a1fd87cb
-  zh: 772f8777b67ebbb1
+  en: 3ebdbc8b18f1d1a6
+  zh: be0f9bfbc14a6472
 /qilin-agent-workflow-coding/model-experience/parent-tool-result-indirectly/kv-cache-effect:
   en: 19f4d26f590d11ac
   zh: 64e6e18b2a8a8395
 /qilin-agent-workflow-coding/known-limitations-and-deferred-work:
-  en: b95d53d19ceb44ff
-  zh: 082d51f78b68aea5
+  en: fa54bcafdf9f6b29
+  zh: e392374271d499c3
 /qilin-agent-workflow-coding/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

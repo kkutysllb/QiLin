@@ -223,7 +223,7 @@ class _LogStream(io.TextIOBase):
     Installed as ``sys.stdout`` / ``sys.stderr`` before executing the model
     program. ``print(...)`` calls ``write`` once per argument, separator, and
     newline, so a raw one-push-per-write stream would emit
-    ``["a", " ", "b", "\\n"]`` for ``print("a", "b")`` — and PTC mode renders
+    ``["a", " ", "b", "\\n"]`` for ``print("a", "b")`` — and coding mode renders
     ``logs`` with ``join('\\n')``, turning that into spurious blank lines. This
     stream instead buffers writes and pushes one LogBuffer entry per completed
     LINE (the text up to each ``\\n``, newline stripped), so the rendered join
@@ -780,7 +780,7 @@ class ProtocolChannel:
         Encoded with the iterative :func:`_encode_json_plain` (not
         ``json.dumps``, whose per-level recursion would raise
         ``RecursionError`` on a deeply nested completion or call argument the
-        depth-unbounded ``PtcJsonValue`` contract admits). NaN/Infinity still
+        depth-unbounded ``CodingJsonValue`` contract admits). NaN/Infinity still
         raise ``ValueError`` — they would serialize as non-standard tokens
         that Node's ``JSON.parse`` rejects, silently dropping the frame, and a
         call would then hang until the wall clock instead of failing fast.
@@ -894,7 +894,7 @@ def _make_error_class(
     _setattr: Any = setattr,
 ) -> type:
     """Mint one program-visible rejection class per the seam's
-    ``PtcBindingErrorClass`` contract: instances carry the failed member name
+    ``CodingBindingErrorClass`` contract: instances carry the failed member name
     under ``member_name_property`` and render as their message."""
 
     def __init__(self, member_name: str, message: str) -> None:  # noqa: N807
@@ -1137,7 +1137,7 @@ async def _run(channel: ProtocolChannel) -> None:
         error_class = error_classes.get(global_name)
 
         def call_failure(message: str) -> BaseException:
-            # The namespace's declared rejection contract (e.g. PTC mode's
+            # The namespace's declared rejection contract (e.g. coding mode's
             # ToolCallError with .toolName) when present; RuntimeError keeps
             # the pre-errorClass behavior for namespaces that declared none.
             if error_class is not None:
@@ -1256,7 +1256,7 @@ async def _run(channel: ProtocolChannel) -> None:
     _stderr_orig = sys.__stderr__.flush if sys.__stderr__ is not None else None
 
     # 6. Compile the program as the body of an async function, matching the
-    # seam contract (`PtcRunRequest.program` is an async-function body: top-level
+    # seam contract (`CodingRunRequest.program` is an async-function body: top-level
     # `await` and `return` both work, and the returned value is the completion).
     # AST-splicing the parsed body into an `async def` keeps every statement's
     # original line number, so a traceback points at the model's own source.
@@ -1531,7 +1531,7 @@ def _encode_json_plain(value: Any) -> str:
 
     ``json.dumps`` recurses one Python frame per nesting level and raises
     ``RecursionError`` a few thousand levels deep, but the seam's
-    ``PtcJsonValue`` has no depth limit — a valid deeply nested completion or
+    ``CodingJsonValue`` has no depth limit — a valid deeply nested completion or
     call argument below the byte budget must cross intact (the host uses the
     same iterative idiom in ``protocol.ts``). Accepts what the callers already
     validated or constructed: ``None``/``bool``/``int``/finite ``float``/
@@ -1661,7 +1661,7 @@ def _dump_string(text: str) -> str:
     until the wall clock. JSON carries it as the ASCII escape ``\\ud800``, which
     the host's ``JSON.parse`` reads back as the same UTF-16 code unit and its
     ``JSON.stringify`` re-emits identically — so the shared seam
-    (``PtcJsonValue``, ``snapshotJsonValue``, the worker backend) keeps a
+    (``CodingJsonValue``, ``snapshotJsonValue``, the worker backend) keeps a
     lone-surrogate string instead of failing the value. An adjacent high-low
     pair is folded into its astral code point FIRST: the host holds strings as
     UTF-16, where those two code units and the single character are the same
@@ -2092,7 +2092,7 @@ def _lossless_json_violation(value: Any) -> str | None:
             # but JSON carries the code unit as its ASCII ``\uXXXX`` escape and
             # :func:`_dump_string` emits exactly that, so the host receives the
             # same code unit the program passed — the same acceptance
-            # ``PtcJsonValue``, ``snapshotJsonValue``, and the worker backend
+            # ``CodingJsonValue``, ``snapshotJsonValue``, and the worker backend
             # already give it.
             continue
         if type(current) is int:
@@ -2189,7 +2189,7 @@ def _make_cpu_enforcer() -> Any:
     :func:`_run`'s frame and reads its locals, so a program determined to
     tamper still can — consistent with this backend's documented posture, where
     the in-process interpreter is containment rather than a security boundary
-    (§Trust posture in the PTC mode Agent Note). The bounds that model code cannot
+    (§Trust posture in the coding mode Agent Note). The bounds that model code cannot
     forge are outside the interpreter: the RLIMIT_CPU HARD limit at
     ``cpuSeconds + 1``, whose SIGKILL is undeliverable to a handler and
     unraisable by a process that cannot raise its own hard limit, and the
@@ -2327,7 +2327,7 @@ def _cap_message(message: str, max_bytes: int) -> str:
 
     This is the PRODUCING-side cap. The host's receive-side ``capMessage``
     (``src/index.ts``) bills the same field by RAW bytes instead, because its
-    output goes into ``PtcRunResult.error.message`` and never re-crosses a
+    output goes into ``CodingRunResult.error.message`` and never re-crosses a
     frame-bounded channel — see that function's JSDoc for the split.
     """
 

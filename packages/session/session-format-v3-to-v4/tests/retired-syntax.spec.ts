@@ -9,7 +9,7 @@ const request = (data: unknown): SessionFormatEvent => ({ type: 'request/header'
 const turn: SessionFormatEvent = { type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } }
 
 describe('native retired syntax admission', () => {
-  it('rejects retired headers and PTC tags in strict reads, encoding, and recoverable suffixes', () => {
+  it('rejects retired headers and coding tags in strict reads, encoding, and recoverable suffixes', () => {
     const invalid = [
       request(null), request({ header: null }), request({ header: { config: { provider: 'mock', model: 'mock' }, system: '' } }),
       { type: 'tool/code-dispatch-start', seq: 1, time: 1, data: {} },

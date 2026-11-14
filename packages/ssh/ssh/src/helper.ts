@@ -99,7 +99,7 @@ export async function runSshHelper(transport: HelperTransport): Promise<void> {
         protocol: z.literal(SSH_PROTOCOL_VERSION), workspace: remotePath, leaseMs: z.number().int().min(3000).max(600_000),
         bootstrapPath: remotePath.optional(),
       }).strict().parse(raw)
-      if (transport.kind === 'executable' && input.bootstrapPath !== undefined) throw new Error('Executable SSH helper uses its embedded PTC bootstrap')
+      if (transport.kind === 'executable' && input.bootstrapPath !== undefined) throw new Error('Executable SSH helper uses its embedded coding bootstrap')
       workspace = ctx.fs.processPath(await ctx.fs.resolve(input.workspace, { signal }))
       leaseMs = input.leaseMs
       initialized = true

@@ -80,7 +80,7 @@ return { reviewed: reviews.length }
 
 ### 生命周期与归属
 
-运行由持有方负责：引擎插件卸载会阻止新的启动，但不会撤销已接受的运行，调用方必须 dispose 自己启动的每个运行。`dispose()` 在需要时取消，并等待脚本与子 agent 清理完成。PTC 引擎立即中止受管进程；子 agent 的资源释放仍遵循各 subagent 提供方的生命周期约定。
+运行由持有方负责：引擎插件卸载会阻止新的启动，但不会撤销已接受的运行，调用方必须 dispose 自己启动的每个运行。`dispose()` 在需要时取消，并等待脚本与子 agent 清理完成。coding 引擎立即中止受管进程；子 agent 的资源释放仍遵循各 subagent 提供方的生命周期约定。
 
 `workflow/start` 与 `workflow/end` 为运行配对；`workflow/phase` 与 `workflow/log` 携带脚本叙述；`workflow/agent-start` 与 `workflow/agent-end` 按 `seq` 为每次子 agent 调用配对。每个监听器都独立隔离：抛错的监听器只记录日志，不会饿死同级监听器或改变执行，并且每个监听器都会收到自己的 payload 副本。
 
@@ -102,7 +102,7 @@ return { reviewed: reviews.length }
 - [工作流子系统](../../../docs/subsystems/workflow.zh.md)——完整类型词汇、启动请求与事件载荷。
 - [组地图](../README.zh.md)——工作流能力家族及其包。
 - [workflow 工具](../tool-workflow/README.zh.md)——拥有调用 schema 与结果包络的模型侧消费方。
-- [PTC 工作流引擎](../workflow-coding/README.zh.md)——当前执行引擎及其隔离边界。
+- [coding 工作流引擎](../workflow-coding/README.zh.md)——当前执行引擎及其隔离边界。
 - [动态工作流 Agent Note](../../../.agents/notes/implemented/feature/2026-07-05-dynamic-workflows.zh.md)——seam 设计及其决策。
 
 -----

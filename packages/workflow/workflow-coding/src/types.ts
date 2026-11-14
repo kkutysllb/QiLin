@@ -1,6 +1,6 @@
 /**
  * Workflow guest inputs and the child callbacks consumed by its VM helpers.
- * PTC transfers initialization data, requests and results as lossless JSON.
+ * coding transfers initialization data, requests and results as lossless JSON.
  * @module @qilin-agent/workflow-coding/types
  */
 
@@ -28,7 +28,7 @@ export interface WorkerInit {
   meta: WorkflowMeta
   /** The plain-JS script body, exactly as the start request carried it. */
   body: string
-  /** The run's `args` value, copied through the PTC JSON channel. */
+  /** The run's `args` value, copied through coding-mode JSON channel. */
   args?: unknown
   /** The guest helper limits. */
   limits: WorkerLimits
@@ -77,7 +77,7 @@ export interface ChildHandle {
 }
 
 /**
- * Child callbacks independent of the PTC transport.
+ * Child callbacks independent of coding-mode transport.
  */
 export interface ChildPort {
   /**

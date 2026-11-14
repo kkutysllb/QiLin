@@ -60,7 +60,7 @@ const LITERAL_ARGV_OPTION = '--expand-environment=no'
 const LITERAL_ARGV_OPTION_REJECTED = /unrecognized option\b.*expand-environment/u
 // The spelling before systemctl v252 and an unambiguous prefix of the later `--kill-whom`.
 const KILL_ALL_MEMBERS = '--kill-who=all'
-/** Flags bit that /proc/net/unix sets on a listening socket (__SO_ACCEPTCON). */
+/** Flags bit that /proc/net/unix sets on a listening socket (__SO_ACCEcodingON). */
 const UNIX_SOCKET_ACCEPTING = 0x10000
 
 /** systemd-run options that keep target argv literal; empty where scope mode never expands argv. */

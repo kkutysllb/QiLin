@@ -18,7 +18,7 @@ import AgentRegistry from '@qilin-agent/agent'
 import LocalJobRegistry from '@qilin-agent/jobs-local'
 import * as ToolTasks from '@qilin-agent/tool-jobs'
 import SubagentRuntime from '@qilin-agent/subagent'
-import PtcWorkflowEngine from '@qilin-agent/workflow-coding'
+import CodingWorkflowEngine from '@qilin-agent/workflow-coding'
 import { mountWorkflowRuntime } from '../../workflow-coding/tests/setup.ts'
 import * as toolWorkflow from '../src/index.ts'
 import type {} from '../src/types.ts'
@@ -620,7 +620,7 @@ describe('dsh-tool-workflow', () => {
     })
   })
 
-  describe('composition with the sandboxed PTC workflow engine', () => {
+  describe('composition with the sandboxed coding workflow engine', () => {
     it('an abort releases the tool even when the script parks on a promise no hook owns', async () => {
       const ctx = new Context()
       onTestFinished(async () => { await ctx.fiber.dispose() })
@@ -636,7 +636,7 @@ describe('dsh-tool-workflow', () => {
         start: () => Promise.reject(new Error('the parked-script fixture must not start a child')),
       })
       await mountWorkflowRuntime(ctx)
-      await ctx.plugin(PtcWorkflowEngine, {})
+      await ctx.plugin(CodingWorkflowEngine, {})
       await ctx.plugin(toolWorkflow, {})
       const session = Session.create(SessionId('caller'))
       const parent = { id: session.id, options: {}, session } as unknown as Agent
@@ -654,7 +654,7 @@ describe('dsh-tool-workflow', () => {
       expect((result.content[0] as { text: string }).text).toContain('cancelled')
     })
 
-    it('a background run over the sandboxed PTC engine settles its job with the rendered return value', async () => {
+    it('a background run over the sandboxed coding engine settles its job with the rendered return value', async () => {
       const ctx = new Context()
       onTestFinished(async () => { await ctx.fiber.dispose() })
       await ctx.plugin(SystemPrompt)
@@ -672,7 +672,7 @@ describe('dsh-tool-workflow', () => {
         start: () => Promise.reject(new Error('the scriptonly fixture must not start a child')),
       })
       await mountWorkflowRuntime(ctx)
-      await ctx.plugin(PtcWorkflowEngine, {})
+      await ctx.plugin(CodingWorkflowEngine, {})
       await ctx.plugin(toolWorkflow, {})
       const session = Session.create(SessionId('caller'))
       const parent: Agent = {

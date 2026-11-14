@@ -9,7 +9,7 @@ English | [中文](2026-09-12-auto-review-error-metadata.zh.md)
 
 ## Summary
 
-Adds optional structured error metadata to persisted PTC dispatches and an optional user-facing reason to persisted native tool errors. Both additions retain the Session format version.
+Adds optional structured error metadata to persisted coding dispatches and an optional user-facing reason to persisted native tool errors. Both additions retain the Session format version.
 
 ## Table of Contents
 
@@ -39,12 +39,12 @@ changes:
 <a id="compatibility"></a>
 ## Compatibility
 
-Existing tool/ptc-dispatch events can omit error, and existing tool/result errors can omit reason. PTC dispatch events do not enter model history; native tool-result replay projects data.message and does not include error metadata. Older readers can ignore these additions without changing model replay. Current Web readers accept absent reasons and only display Auto review denial details when the recorded error identity matches. Permission mode remains a string in the existing event; selecting auto introduces no declared persistence-type change. No header, event envelope, or existing value type changes, and no adjacent migration is required.
+Existing tool/ptc-dispatch events can omit error, and existing tool/result errors can omit reason. coding dispatch events do not enter model history; native tool-result replay projects data.message and does not include error metadata. Older readers can ignore these additions without changing model replay. Current Web readers accept absent reasons and only display Auto review denial details when the recorded error identity matches. Permission mode remains a string in the existing event; selecting auto introduces no declared persistence-type change. No header, event envelope, or existing value type changes, and no adjacent migration is required.
 
 <a id="verification"></a>
 ## Verification
 
-pnpm exec vitest run scripts/persistence-changes.spec.ts scripts/persistence-schema.spec.ts passed 64 tests. Focused permission, Auto review, tool execution, agent-loop, subagent inheritance, and TypeScript SDK owner tests passed 390 tests across 10 files, including native and PTC denial metadata. uv run --python 3.10 --group test --project python/sdk pytest python/sdk/tests/test_client.py -k preserves_auto_review_errors passed 1 test. The persistence preview classified only the two optional additions and required no version bump.
+pnpm exec vitest run scripts/persistence-changes.spec.ts scripts/persistence-schema.spec.ts passed 64 tests. Focused permission, Auto review, tool execution, agent-loop, subagent inheritance, and TypeScript SDK owner tests passed 390 tests across 10 files, including native and coding denial metadata. uv run --python 3.10 --group test --project python/sdk pytest python/sdk/tests/test_client.py -k preserves_auto_review_errors passed 1 test. The persistence preview classified only the two optional additions and required no version bump.
 
 <a id="dev-note"></a>
 ## Dev Note

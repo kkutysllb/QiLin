@@ -227,7 +227,7 @@ function fallbackState(context: ConversationNodeContext<ToolState>): ToolState |
   return state
 }
 
-/** Trajectory-owned root Tool lifecycle with nested PTC dispatch calls. */
+/** Trajectory-owned root Tool lifecycle with nested coding dispatch calls. */
 const trajectoryToolDefinition: ConversationNodeDefinition<ToolState> = {
   kind: 'trajectory-tool-call',
   target: 'trajectory',
@@ -276,7 +276,7 @@ const trajectoryToolDefinition: ConversationNodeDefinition<ToolState> = {
 /* jscpd:ignore-end */
 
 /**
- * Register the Trajectory Tool lifecycle with raw native and PTC error details.
+ * Register the Trajectory Tool lifecycle with raw native and coding error details.
  *
  * @param ctx - Plugin context receiving the Definition.
  */

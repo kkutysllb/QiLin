@@ -2142,7 +2142,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   {
     key: 'codingRuntime',
     summary: 'Registers one `ctx.codingRuntime` implementation.',
-    description: 'Registers one `ctx.codingRuntime` implementation. Program, budget, abort, and substrate failures resolve in PtcRunResult; only Service Definition contract misuse rejects. Implementations bridge structured-cloneable bindings, materialize each declared namespace rejection class, treat programs as hostile peers, isolate distinct state owners, and terminate and await in-flight runs during disposal.',
+    description: 'Registers one `ctx.codingRuntime` implementation. Program, budget, abort, and substrate failures resolve in CodingRunResult; only Service Definition contract misuse rejects. Implementations bridge structured-cloneable bindings, materialize each declared namespace rejection class, treat programs as hostile peers, isolate distinct state owners, and terminate and await in-flight runs during disposal.',
     methods: [
       {
         signature: 'abstract readonly language: string',
@@ -2162,14 +2162,14 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         throws: ['When managed resource cleanup fails.'],
       },
       {
-        signature: 'abstract resolve(request: PtcRunRequest): PtcRunSpec',
+        signature: 'abstract resolve(request: CodingRunRequest): CodingRunSpec',
         description: 'Resolve supported options and provider defaults before execution.',
         parameters: [{ name: 'request', description: 'Program, bindings, cancellation and optional execution choices.' }],
         returns: 'Complete directory, deadline and supported authority for run.',
         throws: ['When an explicit choice is invalid or unsupported by this provider.'],
       },
       {
-        signature: 'abstract run(spec: PtcRunSpec): Promise<PtcRunResult>',
+        signature: 'abstract run(spec: CodingRunSpec): Promise<CodingRunResult>',
         description: 'Execute resolved inputs; program outcomes resolve as result fields.',
         parameters: [{ name: 'spec', description: 'directory, deadline, program, bindings, cancellation and supported policy.' }],
         returns: 'Captured output and the execution outcome.',
@@ -3866,7 +3866,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     methods: [
       {
         signature: 'presentAs(mode: ToolPresentationMode): () => void',
-        description: 'Present the calling scope\'s tools in `mode` instead of the deployment default. Nearest scope on the chain wins, so a preset\'s standing declaration covers every agent joined under it.\n\nScoped only, and one declaration per scope: this is how an agent preset composes PTC mode agents beside native ones in the same process, and a process-global override would be the `mode` config field instead.',
+        description: 'Present the calling scope\'s tools in `mode` instead of the deployment default. Nearest scope on the chain wins, so a preset\'s standing declaration covers every agent joined under it.\n\nScoped only, and one declaration per scope: this is how an agent preset composes coding mode agents beside native ones in the same process, and a process-global override would be the `mode` config field instead.',
         parameters: [{ name: 'mode', description: 'the presentation the covered agents\' models see.' }],
         returns: 'the exact disposer that restores the deployment default.',
       },
@@ -5199,7 +5199,7 @@ export const EVENT_API: readonly EventApiEntry[] = [
   {
     name: 'tools/ptc-dispatch-log',
     mode: 'waterfall',
-    signature: '\'tools/ptc-dispatch-log\'(this: Scoped<ToolRuntime>, dispatch: PtcDispatchLog, next: () => Promise<ContentBlock[]>): Promise<ContentBlock[]>',
+    signature: '\'tools/ptc-dispatch-log\'(this: Scoped<ToolRuntime>, dispatch: CodingDispatchLog, next: () => Promise<ContentBlock[]>): Promise<ContentBlock[]>',
     summary: 'Allow a listener to replace content in the DURABLE LOG COPY of one `run_code` sub-dispatch outcome before the bridge appends its `tool/ptc-dispatch` event.',
     description: 'Allow a listener to replace content in the DURABLE LOG COPY of one `run_code` sub-dispatch outcome before the bridge appends its `tool/ptc-dispatch` event. `next()` keeps the content unchanged; a listener may return replacement blocks (e.g. the spill policy\'s preview + locator for an oversized text result). Only the logged copy is affected — the program already received the complete value, and the model sees neither. A throwing listener is contained: the bridge falls back to logging the original settled content. Scope-filtered dispatch (`@qilin-agent/scope`): agent-scoped listeners receive only that agent\'s dispatches.',
     parameters: [{ name: 'dispatch', description: 'the parent execution, sub-call identity, and the settled content to log.' }],
@@ -7393,44 +7393,44 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface PruneResult {\n    readonly pruned: readonly PrunedEntry[];\n    readonly charsRemoved: number;\n}',
   },
   {
-    name: 'PtcBindingErrorClass',
-    declaration: 'export interface PtcBindingErrorClass {\n    name: string;\n    memberNameProperty: string;\n}',
+    name: 'CodingBindingErrorClass',
+    declaration: 'export interface CodingBindingErrorClass {\n    name: string;\n    memberNameProperty: string;\n}',
   },
   {
-    name: 'PtcBindingFunction',
-    declaration: 'export type PtcBindingFunction = (args: unknown) => Promise<PtcJsonValue>;',
+    name: 'CodingBindingFunction',
+    declaration: 'export type CodingBindingFunction = (args: unknown) => Promise<CodingJsonValue>;',
   },
   {
-    name: 'PtcBindingNamespace',
-    declaration: 'export interface PtcBindingNamespace {\n    global: string;\n    functions: Record<string, PtcBindingFunction>;\n    errorClass?: PtcBindingErrorClass;\n}',
+    name: 'CodingBindingNamespace',
+    declaration: 'export interface CodingBindingNamespace {\n    global: string;\n    functions: Record<string, CodingBindingFunction>;\n    errorClass?: CodingBindingErrorClass;\n}',
   },
   {
-    name: 'PtcDispatchLog',
-    declaration: 'export interface PtcDispatchLog {\n    readonly exec: ToolExecution;\n    readonly agent?: Agent;\n    readonly subCallId: ToolCallId;\n    readonly name: string;\n    readonly isError: boolean;\n    readonly content: ContentBlock[];\n}',
+    name: 'CodingDispatchLog',
+    declaration: 'export interface CodingDispatchLog {\n    readonly exec: ToolExecution;\n    readonly agent?: Agent;\n    readonly subCallId: ToolCallId;\n    readonly name: string;\n    readonly isError: boolean;\n    readonly content: ContentBlock[];\n}',
   },
   {
-    name: 'PtcJsonValue',
-    declaration: 'export type PtcJsonValue = null | boolean | number | string | PtcJsonValue[] | {\n    [key: string]: PtcJsonValue;\n};',
+    name: 'CodingJsonValue',
+    declaration: 'export type CodingJsonValue = null | boolean | number | string | CodingJsonValue[] | {\n    [key: string]: CodingJsonValue;\n};',
   },
   {
-    name: 'PtcRunFailure',
-    declaration: 'export interface PtcRunFailure {\n    kind: \'exception\' | \'timeout\' | \'abort\' | \'worker-exit\' | \'invalid-output\' | \'output-limit\' | \'protocol\' | \'sandbox-unavailable\';\n    message: string;\n}',
+    name: 'CodingRunFailure',
+    declaration: 'export interface CodingRunFailure {\n    kind: \'exception\' | \'timeout\' | \'abort\' | \'worker-exit\' | \'invalid-output\' | \'output-limit\' | \'protocol\' | \'sandbox-unavailable\';\n    message: string;\n}',
   },
   {
-    name: 'PtcRunRequest',
-    declaration: 'export interface PtcRunRequest {\n    program: string;\n    stateOwner?: object;\n    bindings: PtcBindingNamespace[];\n    cwd?: string;\n    timeoutMs?: number | null;\n    sandboxPolicy?: SandboxExecutionPolicy;\n    signal?: AbortSignal;\n}',
+    name: 'CodingRunRequest',
+    declaration: 'export interface CodingRunRequest {\n    program: string;\n    stateOwner?: object;\n    bindings: CodingBindingNamespace[];\n    cwd?: string;\n    timeoutMs?: number | null;\n    sandboxPolicy?: SandboxExecutionPolicy;\n    signal?: AbortSignal;\n}',
   },
   {
-    name: 'PtcRunResult',
-    declaration: 'export interface PtcRunResult {\n    sandbox?: PtcRunSandbox;\n    value?: PtcJsonValue;\n    logs: string[];\n    error?: PtcRunFailure;\n}',
+    name: 'CodingRunResult',
+    declaration: 'export interface CodingRunResult {\n    sandbox?: CodingRunSandbox;\n    value?: CodingJsonValue;\n    logs: string[];\n    error?: CodingRunFailure;\n}',
   },
   {
-    name: 'PtcRunSandbox',
-    declaration: 'export interface PtcRunSandbox {\n    mode: SandboxMode;\n    denied: boolean;\n    enforcement?: SandboxEnforcement;\n}',
+    name: 'CodingRunSandbox',
+    declaration: 'export interface CodingRunSandbox {\n    mode: SandboxMode;\n    denied: boolean;\n    enforcement?: SandboxEnforcement;\n}',
   },
   {
-    name: 'PtcRunSpec',
-    declaration: 'export interface PtcRunSpec extends PtcRunRequest {\n    cwd: string;\n    timeoutMs: number | null;\n}',
+    name: 'CodingRunSpec',
+    declaration: 'export interface CodingRunSpec extends CodingRunRequest {\n    cwd: string;\n    timeoutMs: number | null;\n}',
   },
   {
     name: 'QilinEnvironment',

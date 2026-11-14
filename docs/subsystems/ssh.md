@@ -24,7 +24,7 @@ Administrative deadlines bound individual RPC observations; they do not replace 
 
 ## Composition scope
 
-Headless records and checks Session cwd through the mounted filesystem provider. Remote FS, Bash, terminal, LSP and PTC consumers can therefore share those coordinates. Web workspace views that assume host filesystem access need separate integration; replacing providers alone does not make those views remote-aware.
+Headless records and checks Session cwd through the mounted filesystem provider. Remote FS, Bash, terminal, LSP and coding consumers can therefore share those coordinates. Web workspace views that assume host filesystem access need separate integration; replacing providers alone does not make those views remote-aware.
 
 See the [decision record](../../.agents/notes/implemented/architecture/2026-09-11-posix-ssh-runtime.md) for the alternatives and verification obligations.
 
@@ -63,7 +63,7 @@ declare class SshConnection extends Service {
   constructor(ctx: Context, config: Config);
   /** Hold plugin readiness until the remote identity and helper digest are verified. */
   async [Service.init](): Promise<void>;
-  /** Verified remote PTC launch configuration; script deployments require a verified bootstrap. */
+  /** Verified remote coding launch configuration; script deployments require a verified bootstrap. */
   get ptcLaunch(): { kind: 'embedded'; executable: string } | { kind: 'node-script'; executable: string; bootstrapPath: string };
   /**
      * Send a helper operation; cancellation never replays an ambiguous mutation.

@@ -9,7 +9,7 @@ import { decodePtcJsonWire } from '../../packages/coding-runtime/coding-runtime-
 import { SUBPROCESS_CONTROL_ENV, SUBPROCESS_CONTROL_FD } from '../../packages/subprocess/subprocess/src/control.ts'
 
 /**
- * Execute a PTC program with the host runtime and source files inaccessible.
+ * Execute a coding program with the host runtime and source files inaccessible.
  * @param executable - relocated helper executable.
  * @param workspace - isolated program working directory.
  * @param home - empty helper home and native-resource cache.
@@ -21,7 +21,7 @@ export async function probeRestrictedWorker(
 ): Promise<void> {
   const profile = `(version 1)(allow default)${[checkout, hostNode].map(path => `(deny file-read* (subpath ${JSON.stringify(path)}))(deny process-exec (subpath ${JSON.stringify(path)}))`).join('')}`
   const child = spawn('/usr/bin/sandbox-exec', ['-p', profile, executable, '1048576'], {
-    cwd: workspace, env: { HOME: home, TMPDIR: home, PATH: '/usr/bin:/bin', QILIN_PTC_RUNTIME_NODE: '1', [SUBPROCESS_CONTROL_ENV]: 'pipe', NODE_OPTIONS: '--disable-sigusr1' },
+    cwd: workspace, env: { HOME: home, TMPDIR: home, PATH: '/usr/bin:/bin', QILIN_coding_RUNTIME_NODE: '1', [SUBPROCESS_CONTROL_ENV]: 'pipe', NODE_OPTIONS: '--disable-sigusr1' },
     stdio: ['ignore', 'pipe', 'pipe', 'ignore', 'ignore', 'ignore', 'ignore', 'pipe'],
   })
   const completed = Promise.withResolvers<unknown>()
@@ -33,7 +33,7 @@ export async function probeRestrictedWorker(
     child.once('error', reject)
     child.once('close', (code, signal) => {
       if (code === 0 && signal === null) resolve()
-      else reject(new Error(`Restricted PTC worker exited (${code ?? signal}): ${diagnostic}`))
+      else reject(new Error(`Restricted coding worker exited (${code ?? signal}): ${diagnostic}`))
     })
   })
   void exited.catch((error: unknown) => { completed.reject(error) })

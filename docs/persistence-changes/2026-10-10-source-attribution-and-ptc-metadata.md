@@ -9,7 +9,7 @@ English | [中文](2026-10-10-source-attribution-and-ptc-metadata.zh.md)
 
 ## Summary
 
-Adds three attribution-only message source kinds, records a durable working-directory change event, and persists optional nested PTC presentation metadata.
+Adds three attribution-only message source kinds, records a durable working-directory change event, and persists optional nested coding-mode presentation metadata.
 
 ## Table of Contents
 

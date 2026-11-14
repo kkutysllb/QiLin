@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-检查 macOS 权限，选择运行中的应用和窗口，读取辅助功能树、截图并发送输入。外部持久执行环境可以保留这些对象。Swift 辅助进程直接使用 macOS 框架，并改写选取的 MIT 许可 Cua Driver 行为。本包不提供 PTC 运行时或变量持久化。
+检查 macOS 权限，选择运行中的应用和窗口，读取辅助功能树、截图并发送输入。外部持久执行环境可以保留这些对象。Swift 辅助进程直接使用 macOS 框架，并改写选取的 MIT 许可 Cua Driver 行为。本包不提供 coding 运行时或变量持久化。
 
 ## 目录
 
@@ -59,7 +59,7 @@ pnpm qilin headless --patch packages/experimental/cua-macos/examples/macos.cordi
 
 Agent 销毁和插件卸载会取消并等待完整工具调用，包括图像接入检查和附件存储。已经开始的图像写入必须结束后，销毁才会返回；已取消的调用不会返回成功截图。
 
-CUA 工具在读取 AX、窗口标题、截图、激活和输入之前检查应用授权。User Questions 提供任务级允许和拒绝选项；应用签名可验证且组合支持配置持久化时，也可保存授权。任务授权绑定所选进程句柄，长期授权绑定真实可执行路径和指定代码签名要求。拒绝后，同一任务不再反复询问。删除保存的 `allowedApps` 条目会取消相关操作并使原生组件中的句柄失效；重新授权需要重新选择应用。同一 Agent 连接中的其他句柄也会失效，已保存的授权仍可复用。Agent 或提供方销毁时等待对应连接的原生状态清理。设计理由见[应用授权决策](../../../.agents/notes/implemented/architecture/2026-09-26-cua-application-consent.zh.md)。这些检查约束 CUA 调用；持久 PTC 和另行授权的 shell 工具保留各自的执行权限。
+CUA 工具在读取 AX、窗口标题、截图、激活和输入之前检查应用授权。User Questions 提供任务级允许和拒绝选项；应用签名可验证且组合支持配置持久化时，也可保存授权。任务授权绑定所选进程句柄，长期授权绑定真实可执行路径和指定代码签名要求。拒绝后，同一任务不再反复询问。删除保存的 `allowedApps` 条目会取消相关操作并使原生组件中的句柄失效；重新授权需要重新选择应用。同一 Agent 连接中的其他句柄也会失效，已保存的授权仍可复用。Agent 或提供方销毁时等待对应连接的原生状态清理。设计理由见[应用授权决策](../../../.agents/notes/implemented/architecture/2026-09-26-cua-application-consent.zh.md)。这些检查约束 CUA 调用；持久 coding 和另行授权的 shell 工具保留各自的执行权限。
 
 原始 `getState` 操作返回经过校验的状态字段，以及按本次披露选项生成的完整文本。原生 helper 还返回供原生检查使用的结构化元素诊断数组；工具投影会从模型文本和结构化工具值中移除这份重复数组。
 
@@ -67,7 +67,7 @@ AX 观察默认只展示菜单栏入口。使用 `app.getAXState({ includeMenus:
 
 实际值与占位文字分别展示。有名称、状态或可用动作的分组和滚动区域保留独立行。同一节点中重复的名称、描述和帮助只显示一次。实际值、占位文字和 URL 即使文字相同也保留各自含义，不删除不同节点共有的正文。相关控件明确展示可写性，包括 `AXIncrementor`；`unknown` 表示系统未报告。缺少可选状态字段不代表 false。超出当前值长度的 UTF-16 选区标为不可用。自定义动作简称省略 AppKit 的 target/selector 诊断信息；同名动作需要使用 `details:true` 返回的完整名称。
 
-观察方法默认自动输出，同时返回结果。在 persistent PTC 中使用 `void await app.getAXState()` 输出一次，或指定 `emit:false` 后自行打印一次。AX 输出后的截图可能单独失败，已成功取得的 AX 输出仍保留。
+观察方法默认自动输出，同时返回结果。在 persistent coding 中使用 `void await app.getAXState()` 输出一次，或指定 `emit:false` 后自行打印一次。AX 输出后的截图可能单独失败，已成功取得的 AX 输出仍保留。
 
 截图诊断使用带工具请求 ID 的 `[cua-screenshot]` 记录。原生阶段记录经本次 Agent 连接返回，覆盖窗口及 AX 几何检查、系统截图、PNG/Base64 编码和响应写出。Host 调试日志补充发送、响应和清理耗时。每次请求最多保留 8192 字节完整诊断记录，超限会明确标记；截图失败时附在错误中，保留到 Session trace。记录只含阶段、耗时和错误码，不含窗口标题、AX 正文或图片内容。
 
@@ -75,7 +75,7 @@ AX 观察默认只展示菜单栏入口。使用 `app.getAXState({ includeMenus:
 
 ### 接入外部执行环境
 
-使用 persistent PTC 时，在 macOS 配置后追加 `--patch packages/experimental/cua-macos/examples/persistent-ptc.cordis.yml`。该 provider 为存活的 Agent 保留变量，并遵守当前选择的文件沙箱策略。调用方导入适配模块，并提供当前执行中已授权的 `tools.cua` 绑定。persistent PTC 会在 CUA 指引中收到安装目录内 bridge 的文件 URL，项目无须安装本包。下面的例子用于能从自身安装目录解析本包、且已提供 `tools` 的外部宿主；本包不安装全局对象，也不负责保留变量：
+使用 persistent coding 时，在 macOS 配置后追加 `--patch packages/experimental/cua-macos/examples/persistent-ptc.cordis.yml`。该 provider 为存活的 Agent 保留变量，并遵守当前选择的文件沙箱策略。调用方导入适配模块，并提供当前执行中已授权的 `tools.cua` 绑定。persistent coding 会在 CUA 指引中收到安装目录内 bridge 的文件 URL，项目无须安装本包。下面的例子用于能从自身安装目录解析本包、且已提供 `tools` 的外部宿主；本包不安装全局对象，也不负责保留变量：
 
 ```javascript
 import { connectCua } from '@qilin-agent/experimental-cua/bridge'
@@ -142,14 +142,14 @@ AppKit sheet 可以通过其窗口 ID 单独选择，也会出现在所属文档
 
 #### 模型可见内容
 
-插件提供一个 `cua` 操作工具，定义各方法的参数。标准 PTC 呈现通过 `run_code` 将它暴露为 `tools.cua`。以下是本包逐字输出的指导文本：
+插件提供一个 `cua` 操作工具，定义各方法的参数。标准 coding 呈现通过 `run_code` 将它暴露为 `tools.cua`。以下是本包逐字输出的指导文本：
 
 ##### 操作指导文本（原文）
 
 ```markdown
 Use cua with method getCapabilities and params {} to inspect permissions and sessionLocked. If sessionLocked is true or an operation reports SESSION_LOCKED, stop UI attempts and ask the user to unlock macOS. A null sessionLocked means no usable console session was verified. After unlocking, read fresh state; screenshots from a locked desktop are not current observations. Use listApps or cua.getState to discover running applications, and findApps(query) to search installed applications by name, bundle ID or absolute path. getApp requests user consent before launching a stopped application in the background, or before observations and input on a running one. If access is denied or revoked, stop using that application until the user explicitly grants access again. Never switch tools to bypass a refusal. Keep the returned appHandle; every app operation requires it. listWindows returns window IDs and point bounds. Raw getState returns AX text and snapshotId. Menu-bar entries are shown by default; includeMenus=true expands their contents. details=true adds identifiers, global-point bounds and complete action names. Both options also apply to getAXState. Each read replaces the indices for that app/window scope. Use its element indices only with that snapshotId. Raw screenshot and coordinate operations require a windowId. Coordinates are pixels in the latest returned screenshot, measured from its top-left. Set relative:true for integer thousandths from 0 to 1000 instead. The Host converts both modes to native window points; AX detail bounds remain global macOS points. A verified window can expose no AX elements. Its empty snapshot permits screenshots and coordinate input; element-index actions require an element from a fresh AX observation.
 
-Initialize the object API once in persistent PTC. Reuse its variables in later calls; put temporary declarations inside { ... } blocks to avoid redeclaration errors. All object methods are async. getAXState returns text, not a structured state object. Its text separates values and placeholders, and reports subroles, help, URLs, disabled/focused/selected/expanded state and UTF-16 selection ranges when available. Writability is true, false or unknown on relevant controls; omitted state fields do not assert false. selection=unavailable means the reported range exceeds the observed text. Compact output omits ordinary Press/Pick (click), ShowMenu (right click) and ScrollToVisible actions; details=true lists every available action. Use the displayed action name with performSecondaryAction; ambiguous aliases require the complete name from details=true. Truncation reports the reached provider limit. Narrow the window or increase that provider limit before reading again.
+Initialize the object API once in persistent coding. Reuse its variables in later calls; put temporary declarations inside { ... } blocks to avoid redeclaration errors. All object methods are async. getAXState returns text, not a structured state object. Its text separates values and placeholders, and reports subroles, help, URLs, disabled/focused/selected/expanded state and UTF-16 selection ranges when available. Writability is true, false or unknown on relevant controls; omitted state fields do not assert false. selection=unavailable means the reported range exceeds the observed text. Compact output omits ordinary Press/Pick (click), ShowMenu (right click) and ScrollToVisible actions; details=true lists every available action. Use the displayed action name with performSecondaryAction; ambiguous aliases require the complete name from details=true. Truncation reports the reached provider limit. Narrow the window or increase that provider limit before reading again.
 
 Use app methods directly for single-window tasks; getApp already reads initial AX state. Call app.getWindows() and await app.getWindow(windowId) only to target a particular window or resolve ambiguous window selection. App screenshots and coordinate actions use the latest AX observation: its focused on-screen, nonzero-size window, otherwise the sole such window. They do not refresh focus automatically. Read app.getAXState() to follow changed focus.
 
@@ -188,7 +188,7 @@ Await operations sequentially. After input, read fresh state to verify the effec
 
 Hover first uses advertised AX alternate UI without moving the system cursor, preserving revealed descendants until the pointer target leaves their region. When unavailable, it moves the visible system cursor without pressing a button; that route requires the target point to be unobscured in the foreground app. FOREGROUND_REQUIRED requires explicit activation or raising and a fresh observation before retrying. Returning, AX reads and screenshots do not restore the previous point. Wait for the application's hover delay, observe, then hover into the revealed controls before clicking. Use successive hover calls for intermediate points. The result reports hoverRoute and systemPointerMoved. Other input or application changes can interrupt the interaction; app objects do not reserve applications between calls.
 
-Use selectText only on controls advertising selectionWritable. It selects a unique literal occurrence, or places the cursor before/after it; prefix and suffix must be immediately adjacent. AMBIGUOUS_TEXT requires more context; TEXT_NOT_FOUND or SELECTION_CHANGED requires a fresh observation before deciding on input. Left clicks support single/double clicks; right and middle clicks support single clicks. Modified clicks use pointer input. Keypad names such as KP_0 and KP_Enter retain their physical key identity. Window objects expose observation and pointer/AX actions; keyboard input remains app-scoped and follows current focus. Scroll deltas are integer lines from -10 to 10; positive values reveal content above or left. Paste delivers plain text or HTML through the application's enabled standard Paste menu command. Paste follows the target app's focused text input. Foreground requirements vary by application; for example, ChatGPT/Codex was observed to accept background Paste without reading clipboard data. PASTE_NOT_CONSUMED means the command was dispatched but no clipboard read was observed before the configured deadline. Inspect the target contents, explicitly activate the app and focus the intended input, then observe again before deciding whether to retry; a delayed paste may still run. Original clipboard formats are restored if the clipboard still belongs to this paste; a later copy is preserved. Unsupported Paste commands fail without typing fallback. CLIPBOARD_CHANGED means another writer intervened; observe before deciding on further input. Browser applications can be controlled with getApp like other native apps; browser tabs are unavailable. Installed-app search covers standard macOS application directories; use an absolute application path for another location. Launch does not restore a window or document, and cancellation may leave an application already started. The execution host must install the object API and own variable persistence; this plugin does not preload a cua global. In persistent PTC, use the host-provided initialization snippet below once. Its installation-owned file URL works independently of the project directory. Retain app objects between calls. Observation methods emit by default and also return their value. Use void await app.getAXState() to avoid a duplicate REPL completion, or pass emit:false and print the returned text once. End screenshot calls with void await app.getScreenshot() or void await app.getAXStateAndScreenshot() so image bytes are not serialized as the program completion value.
+Use selectText only on controls advertising selectionWritable. It selects a unique literal occurrence, or places the cursor before/after it; prefix and suffix must be immediately adjacent. AMBIGUOUS_TEXT requires more context; TEXT_NOT_FOUND or SELECTION_CHANGED requires a fresh observation before deciding on input. Left clicks support single/double clicks; right and middle clicks support single clicks. Modified clicks use pointer input. Keypad names such as KP_0 and KP_Enter retain their physical key identity. Window objects expose observation and pointer/AX actions; keyboard input remains app-scoped and follows current focus. Scroll deltas are integer lines from -10 to 10; positive values reveal content above or left. Paste delivers plain text or HTML through the application's enabled standard Paste menu command. Paste follows the target app's focused text input. Foreground requirements vary by application; for example, ChatGPT/Codex was observed to accept background Paste without reading clipboard data. PASTE_NOT_CONSUMED means the command was dispatched but no clipboard read was observed before the configured deadline. Inspect the target contents, explicitly activate the app and focus the intended input, then observe again before deciding whether to retry; a delayed paste may still run. Original clipboard formats are restored if the clipboard still belongs to this paste; a later copy is preserved. Unsupported Paste commands fail without typing fallback. CLIPBOARD_CHANGED means another writer intervened; observe before deciding on further input. Browser applications can be controlled with getApp like other native apps; browser tabs are unavailable. Installed-app search covers standard macOS application directories; use an absolute application path for another location. Launch does not restore a window or document, and cancellation may leave an application already started. The execution host must install the object API and own variable persistence; this plugin does not preload a cua global. In persistent coding, use the host-provided initialization snippet below once. Its installation-owned file URL works independently of the project directory. Retain app objects between calls. Observation methods emit by default and also return their value. Use void await app.getAXState() to avoid a duplicate REPL completion, or pass emit:false and print the returned text once. End screenshot calls with void await app.getScreenshot() or void await app.getAXStateAndScreenshot() so image bytes are not serialized as the program completion value.
 ```
 
 #### Token 影响
@@ -211,7 +211,7 @@ Use selectText only on controls advertising selectionWritable. It selects a uniq
 - 后台输入依赖私有 SkyLight 符号，macOS 升级可能使其不可用，需在目标系统版本验证。
 - 实测 Blender Unicode 输入曾出现分派成功但界面未显示文本，后台 AppKit 的 Command+A 曾未选中全文。输入后必须检查应用状态；工具返回成功只表示已分派。
 - 原生二进制需要本地构建。签名、分发和系统权限引导留待后续。
-- 持久 PTC 是对外部运行环境的假设，本包不实现它。真实模型任务成功率需要在原生测试和协议测试之外单独评估。
+- 持久 coding 是对外部运行环境的假设，本包不实现它。真实模型任务成功率需要在原生测试和协议测试之外单独评估。
 
 -----
 

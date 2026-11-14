@@ -361,11 +361,11 @@ describe('native V3 codec and restorer', () => {
 })
 
 
-describe('composed V3 system and PTC migration', () => {
+describe('composed V3 system and coding migration', () => {
   const message = (plugin: string, id = plugin) => ({ ...user(id), source: { kind: 'plugin', plugin } })
   const dispatch = { rootCallId: 'tools-code-mode:root', parentCallId: 'tools-code-mode:root', subCallId: 'tools-code-mode:child', name: 'read', arguments: { text: 'tools-code-mode', type: 'tool/code-dispatch' } }
 
-  it('renames PTC after system insertion and remaps local references without touching tool JSON or identities', () => {
+  it('renames coding after system insertion and remaps local references without touching tool JSON or identities', () => {
     const input = dense([
       ...opening(), event('user/message', message('tools-code-mode', 'tools-code-mode:message'), 'append'),
       event('request/header', request('prompt')), event('tool/code-dispatch-start', dispatch),
@@ -406,7 +406,7 @@ describe('composed V3 system and PTC migration', () => {
     expect(title['system']).toBe('tools-code-mode')
   })
 
-  it.each(['decoded', 'transformed'] as const)('refuses both required and ignorable reserved PTC tags in %s sources', (sourceKind) => {
+  it.each(['decoded', 'transformed'] as const)('refuses both required and ignorable reserved coding tags in %s sources', (sourceKind) => {
     for (const type of ['tool/ptc-dispatch-start', 'tool/ptc-dispatch']) {
       for (const ignorable of [false, true]) {
         const value = sessionFormatV2ToV3.createStage({
@@ -427,7 +427,7 @@ describe('composed V3 system and PTC migration', () => {
   })
 })
 
-describe('v3 PTC event admission and relationships', () => {
+describe('v3 coding event admission and relationships', () => {
   const turn = { type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } }
   const dispatch = {
     rootCallId: 'tools-code-mode:root', parentCallId: 'tools-code-mode:root', subCallId: 'tools-code-mode:child',
@@ -442,7 +442,7 @@ describe('v3 PTC event admission and relationships', () => {
     header: { ...header, version: 3 }, inheritedEventCount: 0, events,
   })
 
-  it('validates a frozen complete PTC lifecycle and returns original names, IDs, and references', () => {
+  it('validates a frozen complete coding lifecycle and returns original names, IDs, and references', () => {
     const source = artifact([turn, start, settle, { type: 'turn/end', seq: 3, time: 4, data: { turn: 1, reason: { kind: 'completed' } } }])
     const before = JSON.stringify(source)
     const restored = restoreReleasedV3Artifact(source, new Set(['tool/ptc-dispatch-start', 'tool/ptc-dispatch']))
@@ -452,19 +452,19 @@ describe('v3 PTC event admission and relationships', () => {
     expect(JSON.stringify(source)).toBe(before)
   })
 
-  it('accepts an unfinished PTC start without requiring a fabricated settlement', () => {
+  it('accepts an unfinished coding start without requiring a fabricated settlement', () => {
     const source = artifact([turn, start])
     expect(restoreReleasedV3Artifact(source, new Set())).toBe(source)
   })
 
-  it('rejects an orphan PTC settlement', () => {
+  it('rejects an orphan coding settlement', () => {
     expect(() => restoreReleasedV3Artifact(artifact([turn, { ...settle, seq: 1 }]), new Set())).toThrow(/no unique start/)
   })
 
   it.each([
     { name: 'other' }, { arguments: { path: 'different' } }, { subCallId: 'other-child' },
     { parentCallId: 'missing-parent' }, { rootCallId: 'different-root' },
-  ])('rejects a PTC settlement whose identity or input disagrees with its start: %j', (override) => {
+  ])('rejects a coding settlement whose identity or input disagrees with its start: %j', (override) => {
     expect(() => restoreReleasedV3Artifact(artifact([turn, start, { ...settle, data: { ...settle.data, ...override } }]), new Set()))
       .toThrow(/does not match|no unique start|parentCallId|rootCallId/)
   })
@@ -473,7 +473,7 @@ describe('v3 PTC event admission and relationships', () => {
     expect(() => restoreReleasedV3Artifact(artifact([{ ...event, seq: 0 }]), new Set())).toThrow(/outside an open turn/)
   })
 
-  it('rejects duplicate PTC starts and settlements', () => {
+  it('rejects duplicate coding starts and settlements', () => {
     expect(() => restoreReleasedV3Artifact(artifact([turn, start, { ...start, seq: 2 }]), new Set())).toThrow(/repeats subCallId/)
     expect(() => restoreReleasedV3Artifact(artifact([turn, start, settle, { ...settle, seq: 3 }]), new Set())).toThrow(/no unique start/)
   })
@@ -492,7 +492,7 @@ describe('v3 PTC event admission and relationships', () => {
     expect(source.events[0]?.type).toBe(type)
   })
 
-  it('does not let an ignorable obsolete start satisfy a current PTC settlement', () => {
+  it('does not let an ignorable obsolete start satisfy a current coding settlement', () => {
     const obsolete = { ...start, type: 'tool/code-dispatch-start', ignorable: true }
     expect(() => restoreReleasedV3Artifact(artifact([turn, obsolete, settle]), new Set())).toThrow(/no unique start/)
   })

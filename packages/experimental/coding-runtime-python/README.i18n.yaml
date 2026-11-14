@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/experimental/coding-runtime-python/README.md
 /:
-  en: d24529dde294f36b
-  zh: b01f8b76f6292f9f
+  en: 8650951fb0c69ca9
+  zh: bd3027878e4b27e3
 /qilin-agent-experimental-coding-runtime-python:
   en: 57da6d2c16410ce0
   zh: 30fa9a7202aeb9d0
@@ -15,8 +15,8 @@
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-experimental-coding-runtime-python/use-this-package:
-  en: 5b66887006f9bb7b
-  zh: d28252cd8f375855
+  en: 466fbfaff243d30d
+  zh: 3504da7f7e7dcadd
 /qilin-agent-experimental-coding-runtime-python/use-this-package/what-you-get:
   en: ca7b9cc958069c7f
   zh: 8a4ac72d02ad76eb
@@ -45,17 +45,17 @@
   en: 4f322d79bbf578f6
   zh: 7f7f9187f49af439
 /qilin-agent-experimental-coding-runtime-python/further-exploration:
-  en: 6d9796513938019c
-  zh: 6bcdd49032c45c0b
+  en: d2eebf67db574348
+  zh: eca973f6504b9ef2
 /qilin-agent-experimental-coding-runtime-python/model-experience:
-  en: ff25dfde207ca818
-  zh: 2987fdb26e7128cc
+  en: ddb8ac8e56ffe07b
+  zh: 843389e626a5a1ae
 /qilin-agent-experimental-coding-runtime-python/model-experience/kv-cache-effect:
   en: 40294c1c31b74824
   zh: d805c6bd7270505e
 /qilin-agent-experimental-coding-runtime-python/known-limitations-and-deferred-work:
-  en: 03458e4cc3d12056
-  zh: 352434eccc7ecd46
+  en: b0d25e6b4cdca26e
+  zh: 5a854538778e437d
 /qilin-agent-experimental-coding-runtime-python/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

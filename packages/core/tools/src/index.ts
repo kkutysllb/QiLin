@@ -14,7 +14,7 @@ import type { Agent } from '@qilin-agent/agent'
 import type { UserMessage } from '@qilin-agent/session'
 import { assertNever, deepFreeze, snapshotJsonValue, type JsonValue } from '@qilin-agent/util-values'
 import type { PromptSection, ToolProviderResult } from '@qilin-agent/system-prompt'
-import type { PtcRuntime } from '@qilin-agent/coding-runtime'
+import type { CodingRuntime } from '@qilin-agent/coding-runtime'
 import type {} from '@qilin-agent/sandbox-policy'
 // Type-only: makes `ctx.get('approval')` resolve to the ApprovalService
 // augmentation. The seam stays optional at runtime — see `serviceAsk`.
@@ -26,8 +26,8 @@ import type {} from '@qilin-agent/working-directory'
 import type { ToolCallView, ToolResultView } from './presentation.ts'
 import { assertSupportedJsonSchema, validateJsonSchemaValue } from './json-schema.ts'
 import type { JsonSchemaNode } from './json-schema.ts'
-import { createRunCodeTool, RUN_CODE_NAME } from './ptc.ts'
-import type { PtcSdkLanguage } from './ptc.ts'
+import { createRunCodeTool, RUN_CODE_NAME } from './coding.ts'
+import type { CodingSdkLanguage } from './coding.ts'
 import { renderToolsSdk } from './ts-types.ts'
 import type { ToolSdkSchema } from './ts-types.ts'
 import { renderToolsSdkPy } from './py-types.ts'
@@ -44,14 +44,14 @@ declare module '@qilin-agent/llm' {
  * `ctx.codingRuntime.language` in this table when assembling the `tools:sdk`
  * section under a non-native mode; a runtime whose language is not a key
  * fails the assembly loudly (same idiom as `toolOrder` violations). Adding a
- * new backend language is three parallel edits — a {@link PtcSdkLanguage}
- * member, an entry here, and a `RUN_CODE_FLAVORS` entry in `ptc.ts` for
+ * new backend language is three parallel edits — a {@link CodingSdkLanguage}
+ * member, an entry here, and a `RUN_CODE_FLAVORS` entry in `coding.ts` for
  * its `run_code` schema strings — plus the renderer function this table points
  * at. The `satisfies` clause pins this table's key set to that union, which
  * the flavor table is checked against too, so any of the three left out is a
  * typecheck failure. What no check reaches is the prose that names the values
  * instead of deriving them: the seam's `qilin-coding-runtime` README pair, its
- * `PtcRuntime.language` JSDoc, and `docs/subsystems/coding-runtime.md`
+ * `CodingRuntime.language` JSDoc, and `docs/subsystems/coding-runtime.md`
  * with its zh pair, plus this package's own README pair and the
  * {@link Config.mode} JSDoc.
  */
@@ -60,12 +60,12 @@ declare module '@qilin-agent/llm' {
  * (the call fails) and the route (inside the program), because a rule the
  * model can only discover by being denied is one it corrects too late.
  */
-const PTC_ONLY_INSTRUCTION = `\`${RUN_CODE_NAME}\` is the only tool you can call directly — a tool call naming any other tool fails. Reach every tool the SDK declares below from inside the program.`
+const CODING_ONLY_INSTRUCTION = `\`${RUN_CODE_NAME}\` is the only tool you can call directly — a tool call naming any other tool fails. Reach every tool the SDK declares below from inside the program.`
 
 const SDK_RENDERERS: Record<string, (schemas: ToolSdkSchema[], programFormat: 'function-body' | 'repl') => string> = {
   typescript: renderToolsSdk,
   python: renderToolsSdkPy,
-} satisfies Record<PtcSdkLanguage, (schemas: ToolSdkSchema[], programFormat: 'function-body' | 'repl') => string>
+} satisfies Record<CodingSdkLanguage, (schemas: ToolSdkSchema[], programFormat: 'function-body' | 'repl') => string>
 
 export {
   defineTool,
@@ -103,9 +103,9 @@ export {
   type JsonSchemaScalar,
 } from './json-schema.ts'
 
-export type { PtcDispatchEventData, PtcDispatchStartEventData } from './types.ts'
+export type { CodingDispatchEventData, CodingDispatchStartEventData } from './types.ts'
 
-export { CodeRunFailedError, RUN_CODE_NAME } from './ptc.ts'
+export { CodeRunFailedError, RUN_CODE_NAME } from './coding.ts'
 export { jsonSchemaToTs, renderToolsSdk } from './ts-types.ts'
 export { jsonSchemaToPy, renderToolsSdkPy } from './py-types.ts'
 export { defineContentToolFixture, type ContentToolFixtureOptions } from './testing.ts'
@@ -191,7 +191,7 @@ declare module '@qilin-agent/kylin' {
      * @param dispatch - the parent execution, sub-call identity, and the settled content to log.
      * @mode waterfall
      */
-    'tools/ptc-dispatch-log'(this: Scoped<ToolRuntime>, dispatch: PtcDispatchLog, next: () => Promise<ContentBlock[]>): Promise<ContentBlock[]>
+    'tools/ptc-dispatch-log'(this: Scoped<ToolRuntime>, dispatch: CodingDispatchLog, next: () => Promise<ContentBlock[]>): Promise<ContentBlock[]>
     /**
      * Observe the frozen, lossless-JSON final outcome. Listener failures are contained.
      * Scope-filtered dispatch (`@qilin-agent/scope`): keyed by `exec.agent`.
@@ -325,14 +325,14 @@ export interface ToolExecutionInput {
    */
   readonly rootCallId?: ToolCallId
   readonly name: string
-  /** Binding-time tool schema for a PTC inner call; frozen by its producer and never logged. */
+  /** Binding-time tool schema for a coding inner call; frozen by its producer and never logged. */
   readonly schema?: ToolSchema
   /** Losslessly JSON-serializable parsed arguments (tools validate their own schema). */
   readonly arguments: unknown
   /** The agent on whose behalf the call runs (set by the agent loop). */
   readonly agent?: Agent
   /**
-   * Opaque token of the enclosing transport execution, when one exists. PTC
+   * Opaque token of the enclosing transport execution, when one exists. coding
    * mode sets this on SDK sub-dispatches so commit-style observers can wait for
    * the outer `run_code` outcome without receiving its live mutable execution.
    * The token also marks the call as a transport sub-dispatch rather than a
@@ -362,7 +362,7 @@ export type ToolExecutionMode =
  * the structured `value` (or just the error message on failure); only the
  * `tool/ptc-dispatch` event's copy changes.
  */
-export interface PtcDispatchLog {
+export interface CodingDispatchLog {
   /** The outer `run_code` execution. */
   readonly exec: ToolExecution
   /** The calling agent (the scope routing key and the spill owner), when the outer call has one. */
@@ -675,7 +675,7 @@ export interface Config {
    * sends only `run_code` plus a generated SDK prompt and collapses the
    * executor to the same surface (a model-direct call may only name
    * `run_code`; `run_code` SDK sub-dispatches keep every visible tool).
-   * PTC mode requires a `ctx.codingRuntime` whose `language`
+   * coding mode requires a `ctx.codingRuntime` whose `language`
    * has a registered SDK renderer (TypeScript or Python) and fail prompt
    * assembly when it is absent or has no renderer. Under `ptc`, native names
    * in `toolOrder` are invalid.
@@ -701,7 +701,7 @@ export interface Config {
 
 /**
  * Per-scope filter over global tools. Restrictions intersect and do not affect
- * scoped registrations or the reserved PTC mode transport.
+ * scoped registrations or the reserved coding mode transport.
  */
 export interface ToolRestriction {
   /** Global tool names that stay visible; everything else is removed. */
@@ -855,8 +855,8 @@ export class ToolRuntime extends Service {
   /**
    * Reserved presentation transport, kept outside the filterable registration
    * layers. Built on first need rather than at construction: which agents run
-   * a PTC mode is no longer known when the service is constructed, and the
-   * transport owns its PTC call tracking and state-owner registrations.
+   * a coding mode is no longer known when the service is constructed, and the
+   * transport owns its coding call tracking and state-owner registrations.
    */
   private ptcTransport: ToolDefinition | undefined
   private readonly ptcContext: Context
@@ -894,19 +894,19 @@ export class ToolRuntime extends Service {
   private collapseSection(): PromptSection {
     return {
       name: 'tools:ptc-only',
-      order: this.ctx.systemPrompt.getSectionOrder('PTC_ONLY'),
+      order: this.ctx.systemPrompt.getSectionOrder('coding_ONLY'),
       // The SAME predicate the executor denies by, so the prompt cannot state
       // a rule the registry does not enforce (see `collapses`).
-      text: context => this.modeFor(context.scope) === 'coding' ? PTC_ONLY_INSTRUCTION : '',
+      text: context => this.modeFor(context.scope) === 'coding' ? CODING_ONLY_INSTRUCTION : '',
     }
   }
 
   /**
-   * The generated-SDK prompt section, registered globally by a PTC mode
+   * The generated-SDK prompt section, registered globally by a coding mode
    * deployment and per scope by {@link presentAs}.
    *
    * The body regenerates from the CALLING scope, and renders empty for an
-   * agent presenting natively — an agent that opted out under a PTC mode
+   * agent presenting natively — an agent that opted out under a coding mode
    * deployment still sees the global registration, and an empty section is
    * dropped from the rendered prompt.
    * @returns the section registration.
@@ -962,7 +962,7 @@ export class ToolRuntime extends Service {
   private requirePtcTransport(): ToolDefinition {
     this.ptcTransport ??= createRunCodeTool(this, {
       resolveWorkingDirectory: async (exec) => {
-        // Only Agent-owned PTC requires directory state; native registries
+        // Only Agent-owned coding requires directory state; native registries
         // and unowned programs can run without this service.
         if (exec.agent === undefined) return undefined
         const directories = this.ctx.get('workingDirectory')
@@ -973,7 +973,7 @@ export class ToolRuntime extends Service {
       peekApprover: () => this.ctx.get('approval'),
       resolveSandboxPolicy: (exec) => {
         const policy = this.ctx.get('sandboxPolicy')
-        if (policy === undefined) throw new Error('qilin-tools: confined PTC runtime requires sandboxPolicy')
+        if (policy === undefined) throw new Error('qilin-tools: confined coding runtime requires sandboxPolicy')
         return policy.resolve(exec.agent === undefined ? {} : { session: exec.agent.session })
       },
       // The language-aware description/parameters getters read the runtime
@@ -993,7 +993,7 @@ export class ToolRuntime extends Service {
    * declaration covers every agent joined under it.
    *
    * Scoped only, and one declaration per scope: this is how an agent preset
-   * composes PTC mode agents beside native ones in the same process, and a
+   * composes coding mode agents beside native ones in the same process, and a
    * process-global override would be the `mode` config field instead.
    * @param mode - the presentation the covered agents' models see.
    * @returns the exact disposer that restores the deployment default.
@@ -1016,7 +1016,7 @@ export class ToolRuntime extends Service {
         { label: 'tools.presentAs()' },
       )
       // The SDK and collapse sections are per scope for the same reason the
-      // mode is. Under a deployment that already defaults to PTC mode this
+      // mode is. Under a deployment that already defaults to coding mode this
       // shadows the global registration with an identical body, which costs
       // nothing and keeps one rule instead of a case analysis.
       if (mode !== 'native') {
@@ -1053,10 +1053,10 @@ export class ToolRuntime extends Service {
   }
 
   /**
-   * Resolve the PTC runtime or throw the actionable misconfiguration error.
+   * Resolve the coding runtime or throw the actionable misconfiguration error.
    * Read at use time (assembly / run_code execution), NOT via static
    * `inject`: an inject entry would hold `ctx.tools` — and every tool plugin
-   * behind it — hostage to a PTC runtime existing even under `mode:
+   * behind it — hostage to a coding runtime existing even under `mode:
    * 'native'`.
    *
    * Assembly and `run_code` execution read separately, so the language is not
@@ -1066,10 +1066,10 @@ export class ToolRuntime extends Service {
    * other. Binding it is deferred until a second backend ships (the first
    * point it is testable).
    */
-  private requirePtcRuntime(mode: ToolPresentationMode): PtcRuntime {
+  private requirePtcRuntime(mode: ToolPresentationMode): CodingRuntime {
     const runtime = this.ctx.get('codingRuntime')
     if (!runtime) {
-      throw new Error(`qilin-tools: mode "${mode}" requires a PTC runtime — load a ctx.codingRuntime implementation (e.g. @qilin-agent/coding-runtime-node) or set tools mode to "native"`)
+      throw new Error(`qilin-tools: mode "${mode}" requires a coding runtime — load a ctx.codingRuntime implementation (e.g. @qilin-agent/coding-runtime-node) or set tools mode to "native"`)
     }
     if (!Object.hasOwn(SDK_RENDERERS, runtime.language)) {
       const known = Object.keys(SDK_RENDERERS).map(name => JSON.stringify(name)).join(', ')
@@ -1102,7 +1102,7 @@ export class ToolRuntime extends Service {
     // so a name free to take under the deployment default would become a
     // collision the moment a preset mounted.
     if (name === RUN_CODE_NAME) {
-      throw new Error(`tool name "${RUN_CODE_NAME}" is reserved for the PTC mode presentation transport and cannot be registered or shadowed`)
+      throw new Error(`tool name "${RUN_CODE_NAME}" is reserved for the coding mode presentation transport and cannot be registered or shadowed`)
     }
     return this.layers.effect(
       this.ctx,
@@ -1133,7 +1133,7 @@ export class ToolRuntime extends Service {
       ...deny !== undefined ? { deny: new Set(deny) } : {},
     }
     if ([...allow ?? [], ...deny ?? []].includes(RUN_CODE_NAME)) {
-      throw new Error(`tools.restrict() cannot name reserved PTC mode presentation transport "${RUN_CODE_NAME}"; restrict end-capability tools instead`)
+      throw new Error(`tools.restrict() cannot name reserved coding mode presentation transport "${RUN_CODE_NAME}"; restrict end-capability tools instead`)
     }
     const known = this.view(scope).restrictableNames
     const unknown = [...allow ?? [], ...deny ?? []].filter(name => !known.has(name))
@@ -1285,7 +1285,7 @@ export class ToolRuntime extends Service {
     return [...this.view(scope).visible.values()].map(definition => this.schemaOf(definition, true))
   }
 
-  /** Project visible callable tools onto the generated PTC mode SDK contract. */
+  /** Project visible callable tools onto the generated coding mode SDK contract. */
   private sdkSchemas(scope?: ScopeKey): ToolSdkSchema[] {
     return [...this.view(scope).visible.values()]
       .filter(definition => definition.name !== RUN_CODE_NAME)
@@ -1344,7 +1344,7 @@ export class ToolRuntime extends Service {
    * receives it as a capability parameter (the `requireRuntime` idiom) — the
    * waterfall, not this invoker, is the public extension point.
    */
-  private async shapeDispatchLog(dispatch: PtcDispatchLog): Promise<ContentBlock[]> {
+  private async shapeDispatchLog(dispatch: CodingDispatchLog): Promise<ContentBlock[]> {
     try {
       return await this.ctx.waterfall(
         scopeTarget(this, dispatch.agent), 'tools/ptc-dispatch-log', dispatch,

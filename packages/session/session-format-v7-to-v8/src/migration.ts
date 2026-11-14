@@ -1,4 +1,4 @@
-/** V7-to-V8 adjacency: the coding preset label replaces the retired PTC label. */
+/** V7-to-V8 adjacency: the coding preset label replaces the retired coding label. */
 
 import { SessionFormatError, defineSessionFormatMigration, isSessionFormatJsonObject } from '@qilin-agent/session-format'
 import type { SessionFormatEvent, SessionFormatEventRun, SessionFormatMigrationStage, SessionFormatMigrationStageInput } from '@qilin-agent/session-format'

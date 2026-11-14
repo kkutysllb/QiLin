@@ -3,7 +3,7 @@
  * @module @qilin-agent/coding-runtime-node/json-wire
  */
 
-import type { PtcJsonValue } from '@qilin-agent/coding-runtime'
+import type { CodingJsonValue } from '@qilin-agent/coding-runtime'
 
 /* jscpd:ignore-start -- the source bootstrap mirrors session JSON helpers without workspace runtime imports */
 type IntrinsicCallable = (this: unknown, ...args: unknown[]) => unknown
@@ -129,13 +129,13 @@ function enumerableStringKeys(value: object): string[] | undefined {
 
 type SnapshotDestination =
   | { kind: 'root' }
-  | { kind: 'array'; target: PtcJsonValue[]; index: number }
-  | { kind: 'object'; target: Record<string, PtcJsonValue>; key: string }
+  | { kind: 'array'; target: CodingJsonValue[]; index: number }
+  | { kind: 'object'; target: Record<string, CodingJsonValue>; key: string }
 
 type SnapshotTask =
   | { kind: 'visit'; value: unknown; destination: SnapshotDestination }
-  | { kind: 'array-item'; source: unknown[]; index: number; target: PtcJsonValue[] }
-  | { kind: 'object-property'; source: Record<string, unknown>; key: string; target: Record<string, PtcJsonValue> }
+  | { kind: 'array-item'; source: unknown[]; index: number; target: CodingJsonValue[] }
+  | { kind: 'object-property'; source: Record<string, unknown>; key: string; target: Record<string, CodingJsonValue> }
   | { kind: 'leave'; source: object }
 
 /**
@@ -147,10 +147,10 @@ type SnapshotTask =
  * @param value - the candidate completion value.
  * @returns a detached lossless-JSON snapshot, or `undefined` when invalid.
  */
-export function snapshotPtcJsonValue(value: unknown): PtcJsonValue | undefined {
+export function snapshotPtcJsonValue(value: unknown): CodingJsonValue | undefined {
   const active = new IntrinsicSet<object>()
-  let root: PtcJsonValue | undefined
-  const assign = (destination: SnapshotDestination, item: PtcJsonValue): void => {
+  let root: CodingJsonValue | undefined
+  const assign = (destination: SnapshotDestination, item: CodingJsonValue): void => {
     if (destination.kind === 'root') {
       root = item
     } else if (destination.kind === 'array') {
@@ -205,7 +205,7 @@ export function snapshotPtcJsonValue(value: unknown): PtcJsonValue | undefined {
       if (!hasPlainArrayPrototype(candidate)) return undefined
       const length = candidate.length
       if (intrinsicReflectOwnKeys(candidate).length !== length + 1) return undefined
-      const target: PtcJsonValue[] = []
+      const target: CodingJsonValue[] = []
       assign(task.destination, target)
       setAdd(active, candidate)
       append(tasks, { kind: 'leave', source: candidate })
@@ -218,7 +218,7 @@ export function snapshotPtcJsonValue(value: unknown): PtcJsonValue | undefined {
     if (!hasPlainObjectPrototype(candidate)) return undefined
     const keys = enumerableStringKeys(candidate)
     if (keys === undefined) return undefined
-    const target: Record<string, PtcJsonValue> = {}
+    const target: Record<string, CodingJsonValue> = {}
     assign(task.destination, target)
     setAdd(active, candidate)
     append(tasks, { kind: 'leave', source: candidate })
@@ -242,23 +242,23 @@ interface ObjectWireToken {
   keys: string[]
 }
 
-type PtcJsonToken = null | boolean | number | string | ArrayWireToken | ObjectWireToken
+type CodingJsonToken = null | boolean | number | string | ArrayWireToken | ObjectWireToken
 
 /**
  * A pre-order, bounded-depth transport for one lossless JSON value. Container
  * markers and scalar leaves share one flat token array, so JSON serialization
  * does not recurse through the value's application nesting.
  */
-export type PtcJsonWire = PtcJsonToken[]
+export type CodingJsonWire = CodingJsonToken[]
 
 /**
  * Flatten one validated JSON value for the process control channel.
  * @param value - the lossless JSON value to transport.
  * @returns a pre-order token stream whose own nesting is bounded.
  */
-export function encodePtcJsonWire(value: PtcJsonValue): PtcJsonWire {
-  const wire: PtcJsonWire = []
-  const pending: PtcJsonValue[] = [value]
+export function encodePtcJsonWire(value: CodingJsonValue): CodingJsonWire {
+  const wire: CodingJsonWire = []
+  const pending: CodingJsonValue[] = [value]
   for (let current = takeLast(pending); current !== undefined; current = takeLast(pending)) {
     if (current === null || typeof current === 'boolean' || typeof current === 'number' || typeof current === 'string') {
       append(wire, current)
@@ -288,8 +288,8 @@ export function encodePtcJsonWire(value: PtcJsonValue): PtcJsonWire {
 }
 
 type DecodeFrame =
-  | { kind: 'array'; target: PtcJsonValue[]; length: number; index: number }
-  | { kind: 'object'; target: Record<string, PtcJsonValue>; keys: string[]; index: number }
+  | { kind: 'array'; target: CodingJsonValue[]; length: number; index: number }
+  | { kind: 'object'; target: Record<string, CodingJsonValue>; keys: string[]; index: number }
 
 /** Whether an array contains exactly its dense indexed slots and `length`. */
 function isDenseArray(value: unknown[]): boolean {
@@ -346,15 +346,15 @@ function containerToken(value: object): ArrayWireToken | ObjectWireToken | undef
  * @param input - untrusted message-port payload.
  * @returns the detached JSON value, or `undefined` when the wire is invalid.
  */
-export function decodePtcJsonWire(input: unknown): PtcJsonValue | undefined {
+export function decodePtcJsonWire(input: unknown): CodingJsonValue | undefined {
   try {
     if (!intrinsicArrayIsArray(input) || !isDenseArray(input) || input.length === 0) return undefined
     const wire = input as unknown[]
     const frames: DecodeFrame[] = []
-    let root: PtcJsonValue | undefined
+    let root: CodingJsonValue | undefined
     let rootAssigned = false
 
-    const attach = (value: PtcJsonValue): boolean => {
+    const attach = (value: CodingJsonValue): boolean => {
       const parent = frames[frames.length - 1]
       if (!parent) {
         if (rootAssigned) return false
@@ -378,7 +378,7 @@ export function decodePtcJsonWire(input: unknown): PtcJsonValue | undefined {
 
     for (let tokenIndex = 0; tokenIndex < wire.length; tokenIndex++) {
       const token = wire[tokenIndex]
-      let value: PtcJsonValue
+      let value: CodingJsonValue
       let frame: DecodeFrame | undefined
       if (token === null || typeof token === 'boolean' || typeof token === 'string') {
         value = token
@@ -392,12 +392,12 @@ export function decodePtcJsonWire(input: unknown): PtcJsonValue | undefined {
         const remainingTokens = wire.length - tokenIndex - 1
         if (marker.kind === 'array') {
           if (marker.length > remainingTokens) return undefined
-          const target: PtcJsonValue[] = []
+          const target: CodingJsonValue[] = []
           value = target
           if (marker.length > 0) frame = { kind: 'array', target, length: marker.length, index: 0 }
         } else {
           if (marker.keys.length > remainingTokens) return undefined
-          const target: Record<string, PtcJsonValue> = {}
+          const target: Record<string, CodingJsonValue> = {}
           value = target
           if (marker.keys.length > 0) frame = { kind: 'object', target, keys: marker.keys, index: 0 }
         }

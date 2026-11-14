@@ -13,9 +13,9 @@
 
 - id: tools
   config:
-    # This surface's own process-wide PTC fallback and override. It is
+    # This surface's own process-wide coding fallback and override. It is
     # independent of the Web preset default: headless mounts no agent presets,
-    # so its one-shot agents keep the PTC presentation unless the environment
+    # so its one-shot agents keep the coding-mode presentation unless the environment
     # overrides it.
     mode: !!js process.env.QILIN_TOOLS_MODE ?? 'coding'
 

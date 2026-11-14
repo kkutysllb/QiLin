@@ -58,7 +58,7 @@ This section explains how the consumer is split from the engine and how the run 
 
 ### Design concept
 
-The consumer owns the model-facing schema, the `tool:<toolName>` system-prompt guidance, and the result envelope; script parsing, execution, caps, and cancellation live behind `ctx.workflowEngine`, while the PTC engine shares Node process confinement with `run_code`. Usage guidance ships with the tool plugin as a prompt section, never in the deployment persona.
+The consumer owns the model-facing schema, the `tool:<toolName>` system-prompt guidance, and the result envelope; script parsing, execution, caps, and cancellation live behind `ctx.workflowEngine`, while coding-mode engine shares Node process confinement with `run_code`. Usage guidance ships with the tool plugin as a prompt section, never in the deployment persona.
 
 ### Run lifecycle
 
@@ -90,7 +90,7 @@ Read these pages when the tool-level contract is not enough. They move from the 
 
 - [Workflow subsystem](../../../docs/subsystems/workflow.md) — the seam contract, start request, and event payloads.
 - [Workflow seam](../workflow/README.md) — the run and result vocabulary behind the tool.
-- [PTC workflow engine](../workflow-coding/README.md) — the engine that executes the scripts.
+- [coding workflow engine](../workflow-coding/README.md) — the engine that executes the scripts.
 - [subagent tool](../../subagent/tool-subagent/README.md) — the plain-delegation alternative for one or two children.
 - [Group map](../README.md) — the workflow capability family and its packages.
 - [Dynamic workflows Agent Note](../../../.agents/notes/implemented/feature/2026-07-05-dynamic-workflows.md) — the seam design and its decisions.
@@ -158,7 +158,7 @@ These limits define what the tool does not yet support. They are current constra
 - **The parent turn blocks until the whole workflow settles** — there is no background start/poll API, and cancellation discards partial output as an error.
 - **`args` must be an object and Native result text is bounded** — callers wrap top-level arrays and scalars in a field; the canonical workflow result stays complete, while JSON beyond `maxResultChars` is truncated in the model-facing projection rather than stored behind a retrieval handle.
 - **Workflow policy is fixed per tool registration** — provider selection, caps, and tool name are deployment config, not model-call arguments.
-- **Durable records are top-level and observational** — nested PTC mode dispatches are not recorded, and a recording failure intentionally degrades to an incomplete prefix rather than changing execution.
+- **Durable records are top-level and observational** — nested coding mode dispatches are not recorded, and a recording failure intentionally degrades to an incomplete prefix rather than changing execution.
 
 <a id="dev-note"></a>
 ### Dev Note

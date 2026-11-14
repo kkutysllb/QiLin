@@ -90,7 +90,7 @@ export class PartialArguments {
   }
 
   /**
-   * View an already parsed argument payload, such as a PTC dispatch object.
+   * View an already parsed argument payload, such as a coding dispatch object.
    * @param value - the parsed argument value.
    * @returns a sealed view; a non-object payload has no fields.
    */

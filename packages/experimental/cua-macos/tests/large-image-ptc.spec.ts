@@ -1,4 +1,4 @@
-/** Valid large PNG admission through Loader, Harness tool rendering, disk attachments and a real Node PTC process. */
+/** Valid large PNG admission through Loader, Harness tool rendering, disk attachments and a real Node coding process. */
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -37,7 +37,7 @@ const HEIGHT = 1024
 const MODEL = 'large-image-vision-fixture'
 
 // The external native substitute is a POSIX executable; it never accesses the desktop.
-it.skipIf(process.platform === 'win32')('delivers a valid PNG larger than 4 MiB through disk storage and Node PTC into the next model image request', async () => {
+it.skipIf(process.platform === 'win32')('delivers a valid PNG larger than 4 MiB through disk storage and Node coding into the next model image request', async () => {
   const root = await mkdtemp(join(tmpdir(), 'qilin-cua-large-image-'))
   const context = new Context()
   const fixture: { close?: () => Promise<void> } = {}
@@ -130,7 +130,7 @@ it.skipIf(process.platform === 'win32')('delivers a valid PNG larger than 4 MiB 
         this.requestImages.push(Buffer.from(block.source.data, 'base64'))
       }
       yield { type: 'block-start', index: 0, blockType: 'text' }
-      yield { type: 'block-end', index: 0, block: { type: 'text', text: 'Received the screenshot through PTC.' } }
+      yield { type: 'block-end', index: 0, block: { type: 'text', text: 'Received the screenshot through coding.' } }
       yield { type: 'finish', reason: { kind: 'stop' } }
     }
   }
@@ -154,14 +154,14 @@ it.skipIf(process.platform === 'win32')('delivers a valid PNG larger than 4 MiB 
   expect(model.requests[0]?.tools?.map(tool => tool.name)).toEqual(['run_code'])
   const messages = handle.agent.session.deriveMessages()
   const result = messages.find(message => message.role === 'tool' && message.toolCallId === 'large-image-ptc')
-  if (result?.role !== 'tool') throw new Error('The PTC result was not recorded')
+  if (result?.role !== 'tool') throw new Error('The coding result was not recorded')
   expect(result.isError, JSON.stringify(result.content)).toBe(false)
   expect(result.content.filter(block => block.type === 'text').map(block => block.text).join('\n'))
     .toContain(String(model.requestImages[0]?.toString('base64').length))
   const nextImages = model.requests[1]?.messages.flatMap(message => message.content).filter(block => block.type === 'image')
   expect(nextImages).toHaveLength(1)
   const image = nextImages?.[0]
-  if (image === undefined) throw new Error('The next model request is missing the PTC screenshot')
+  if (image === undefined) throw new Error('The next model request is missing coding-mode screenshot')
   expect(image.attachment).toMatchObject({ width: WIDTH, height: HEIGHT })
   const stored = await context.attachments.readImage(image.attachment)
   const path = context.attachments.imageHostPath(image.attachment)

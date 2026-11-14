@@ -104,7 +104,7 @@ When `ctx.sessionProjections` is composed, the package registers the `plan` unit
 | [`src/types.ts`](src/types.ts) | The `plan` projection-key declaration and `PlanProjection` wire value |
 | [`src/client.ts`](src/client.ts) | Client-namespace re-export of the types outlet |
 
-The review intent carries the originating tool-call id, so the Web client can reopen the same submitted plan after the review closes. The complete Markdown remains in the existing native call or PTC dispatch log.
+The review intent carries the originating tool-call id, so the Web client can reopen the same submitted plan after the review closes. The complete Markdown remains in the existing native call or coding dispatch log.
 
 </details>
 

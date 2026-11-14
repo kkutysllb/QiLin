@@ -13,7 +13,7 @@ export type LaunchConfig = {
   /** Absolute preinstalled bootstrap; omitted maps this package's bootstrap into the execution world. */
   bootstrapPath?: string
 } | {
-  /** Start the private PTC worker embedded in a packaged executable. */
+  /** Start the private coding worker embedded in a packaged executable. */
   kind: 'embedded'
   /** Packaged executable name or path resolved by the subprocess provider. */
   executable: string
@@ -44,7 +44,7 @@ export function resolveLaunch(config?: LaunchConfig): LaunchConfig {
 export function bootstrapArgs(fs: Pick<FileSystem, 'processPathFromHostPath'>, config: LaunchConfig, maxMessageBytes: number, persistent = false): string[] {
   switch (config.kind) {
     case 'embedded':
-      if (persistent) throw new Error('Persistent PTC requires a node-script launch')
+      if (persistent) throw new Error('Persistent coding requires a node-script launch')
       return [String(maxMessageBytes)]
     case 'node-script': return scriptBootstrapArgs(fs, config.bootstrapPath, maxMessageBytes, persistent)
     /* v8 ignore next -- Callers supply the resolved, closed LaunchConfig union. */
@@ -59,7 +59,7 @@ function scriptBootstrapArgs(
   if (bootstrapPath !== undefined) return [bootstrapPath, String(maxMessageBytes)]
   const mapped = (path: string): string => {
     const result = fs.processPathFromHostPath(path)
-    if (result === undefined) throw new Error('PTC runtime bootstrap is unavailable in the subprocess execution world: ' + path)
+    if (result === undefined) throw new Error('coding runtime bootstrap is unavailable in the subprocess execution world: ' + path)
     return result
   }
   /* v8 ignore next 3 -- built-lib.e2e.ts executes the bundled provider and sibling process.js under plain Node. */

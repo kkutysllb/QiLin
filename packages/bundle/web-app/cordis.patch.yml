@@ -34,7 +34,7 @@
     # scopes that carry no tool-presentation choice of their own. It defaults to
     # the shipped default preset's presentation: `standard` carries no
     # tool-presentation row and inherits this native fallback, while `ptc`
-    # declares its own PTC row. An unset environment therefore behaves like the
+    # declares its own coding row. An unset environment therefore behaves like the
     # composition this bundle ships. The seam stays TEMPORARY upstream: a
     # per-session choice retires it.
     mode: !!js process.env.QILIN_TOOLS_MODE ?? 'native'

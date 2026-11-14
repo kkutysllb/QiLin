@@ -1,5 +1,5 @@
 ---
-description: "Abstract PTC execution seam (`ctx.codingRuntime`) for users and maintainers composing, consuming, or building a backend that runs one model-written program against host-provided bindings."
+description: "Abstract coding-mode execution seam (`ctx.codingRuntime`) for users and maintainers composing, consuming, or building a backend that runs one model-written program against host-provided bindings."
 kind: "package-reference"
 ---
 
@@ -25,7 +25,7 @@ Use `qilin-coding-runtime` to run one model-written program against host-provide
 <a id="use-this-package"></a>
 ## Use this package
 
-Choose this package when you compose a deployment that executes model-written programs, consume `ctx.codingRuntime` directly, or build a backend that runs programs. PTC mode in `qilin-tools` uses it for tool programs, and `qilin-workflow-coding` uses it for workflow orchestration. Each consumer owns the content returned to its model.
+Choose this package when you compose a deployment that executes model-written programs, consume `ctx.codingRuntime` directly, or build a backend that runs programs. coding mode in `qilin-tools` uses it for tool programs, and `qilin-workflow-coding` uses it for workflow orchestration. Each consumer owns the content returned to its model.
 
 ### Run a program
 
@@ -64,21 +64,21 @@ This section explains the design behind the seam; observable behavior is fully c
 
 ### Design concept
 
-The package is the Service Definition role of the PTC execution capability seam ([capability seams](../../../.agents/notes/implemented/architecture/2026-06-13-capability-seams.md)): an abstract `PtcRuntime extends Service` registered as `ctx.codingRuntime`, plus the vocabulary providers and consumers share. Providers subclass `PtcRuntime`, implement `resolve` and `run`, and register the service. PTC mode in `qilin-tools` owns tool bindings, while `qilin-workflow-coding` owns workflow hooks and child agents. The runtime stays ignorant of tools and sessions by contract: it receives a program, named async bindings and resolved execution options, then returns captured output, the outcome and applicable sandbox facts.
+The package is the Service Definition role of the coding-mode execution capability seam ([capability seams](../../../.agents/notes/implemented/architecture/2026-06-13-capability-seams.md)): an abstract `CodingRuntime extends Service` registered as `ctx.codingRuntime`, plus the vocabulary providers and consumers share. Providers subclass `CodingRuntime`, implement `resolve` and `run`, and register the service. coding mode in `qilin-tools` owns tool bindings, while `qilin-workflow-coding` owns workflow hooks and child agents. The runtime stays ignorant of tools and sessions by contract: it receives a program, named async bindings and resolved execution options, then returns captured output, the outcome and applicable sandbox facts.
 
 ### Service API
 
 The readonly `timeout` descriptor exposes numeric `{ defaultMs, maxMs }` for consumer presentation; an absent descriptor means numeric overrides are unsupported. An omitted `timeoutMs` selects the provider default; a number requests a validated, capped elapsed budget; explicit `null` requests no elapsed deadline. A provider rejects choices it does not support. The Node workflow adapter requests `null`, while the model-facing `run_code` tool accepts only positive numeric overrides.
 
-`executionInstructions` supplies provider-owned usage guidance, or an empty string when none is needed. Consumers can include it in their program presentation without identifying the provider from its language or isolation descriptor; PTC includes it in the logged `run_code` schema.
+`executionInstructions` supplies provider-owned usage guidance, or an empty string when none is needed. Consumers can include it in their program presentation without identifying the provider from its language or isolation descriptor; coding includes it in the logged `run_code` schema.
 
 `resolve(request)` owns supported option validation and deployment defaulting. `run(spec)` executes the complete inputs and resolves program outcomes after cleanup. Language and substrate descriptors guide presentation; `sandboxMode` indicates whether the consumer can pass a resolved file policy. Neither descriptors nor a successful program result substitute for the backend's reported enforcement facts.
 
-The exhaustive semantics live in the [PTC runtime subsystem reference](../../../docs/subsystems/coding-runtime.md); the exact signatures are in [`src/index.ts`](src/index.ts).
+The exhaustive semantics live in the [coding runtime subsystem reference](../../../docs/subsystems/coding-runtime.md); the exact signatures are in [`src/index.ts`](src/index.ts).
 
 ### Vocabulary
 
-`PtcRunRequest` carries the program, host bindings, cancellation and optional execution choices. `PtcRunSpec` requires the resolved cwd and an explicit numeric or null deadline choice. `PtcBindingNamespace` declares program globals and optional typed rejection constructors. `PtcRunResult` separates logs/value, failure and `PtcRunSandbox` facts; exact fields and provider obligations live in [`src/types.ts`](src/types.ts).
+`CodingRunRequest` carries the program, host bindings, cancellation and optional execution choices. `CodingRunSpec` requires the resolved cwd and an explicit numeric or null deadline choice. `CodingBindingNamespace` declares program globals and optional typed rejection constructors. `CodingRunResult` separates logs/value, failure and `CodingRunSandbox` facts; exact fields and provider obligations live in [`src/types.ts`](src/types.ts).
 
 ### Portable identifiers
 
@@ -88,8 +88,8 @@ Binding-global and error-class names are language-portable: they must match the 
 
 | File | Role |
 |---|---|
-| [`src/index.ts`](src/index.ts) | Plugin entry: abstract `PtcRuntime` service and the portable-identifier exclusion sets |
-| [`src/types.ts`](src/types.ts) | Vocabulary: `PtcRunRequest`, `PtcRunSpec`, bindings, results, failures and sandbox facts |
+| [`src/index.ts`](src/index.ts) | Plugin entry: abstract `CodingRuntime` service and the portable-identifier exclusion sets |
+| [`src/types.ts`](src/types.ts) | Vocabulary: `CodingRunRequest`, `CodingRunSpec`, bindings, results, failures and sandbox facts |
 
 </details>
 
@@ -98,12 +98,12 @@ Binding-global and error-class names are language-portable: they must match the 
 <a id="further-exploration"></a>
 ## Further Exploration
 
-Read these when the package-level contract is not enough. They move from the PTC mode consumer to the backends and the capability-seam model.
+Read these when the package-level contract is not enough. They move from the coding mode consumer to the backends and the capability-seam model.
 
-- [PTC mode Agent Note](../../../.agents/notes/implemented/feature/2026-06-15-ptc.md) — how the tool registry consumes `ctx.codingRuntime` and presents `run_code` to the model.
+- [coding mode Agent Note](../../../.agents/notes/implemented/feature/2026-06-15-ptc.md) — how the tool registry consumes `ctx.codingRuntime` and presents `run_code` to the model.
 - [Node process backend](../coding-runtime-node/README.md) — the shipped TypeScript execution backend.
 - [Experimental Python backend](../../experimental/coding-runtime-python/README.md) — the private CPython subprocess provider and its fd-3 protocol.
-- [PTC runtime subsystem reference](../../../docs/subsystems/coding-runtime.md) — request/result vocabulary, bindings, and the `ctx.codingRuntime` cordis surface.
+- [coding runtime subsystem reference](../../../docs/subsystems/coding-runtime.md) — request/result vocabulary, bindings, and the `ctx.codingRuntime` cordis surface.
 - [Capability seams](../../../.agents/notes/implemented/architecture/2026-06-13-capability-seams.md) — the Service Definition / Service Provider / Consumer split.
 
 -----
@@ -111,7 +111,7 @@ Read these when the package-level contract is not enough. They move from the PTC
 <a id="model-experience"></a>
 ## Model Experience
 
-Indirectly, through PTC mode in `qilin-tools` and the workflow adapter, which present program outcomes through their own tool results.
+Indirectly, through coding mode in `qilin-tools` and the workflow adapter, which present program outcomes through their own tool results.
 
 #### KV Cache effect
 
@@ -124,7 +124,7 @@ No direct invalidation; the named consumer owns any request-prefix changes.
 
 These limits define what the seam cannot do; they are current package constraints, not a task backlog.
 
-- **`run()` is one-shot** — `logs` arrive only on the resolved `PtcRunResult`; the seam exposes no streaming-log or progress API for a live program's output.
+- **`run()` is one-shot** — `logs` arrive only on the resolved `CodingRunResult`; the seam exposes no streaming-log or progress API for a live program's output.
 - **No state survives between runs** — every request runs against a fresh world; a persistent REPL-style kernel is deferred until a backend brings its own logging story.
 - **Providers have different confinement capabilities** — the shipped Node provider enforces a resolved file policy, while the private experimental Python provider rejects an explicit policy. No container provider is supplied.
 - **No uniform binding byte cap applies across providers** — each provider owns its transport limits; a binding can still allocate memory before its result reaches those limits.

@@ -41,7 +41,7 @@ Every package lives in exactly one group; new packages join existing groups, and
 | [`shell/`](shell/README.md) | Bash capability family: executor seam, local impl, model-facing tools |
 | [`terminal/`](terminal/README.md) | Persistent PTY capability family: owner-scoped sessions, local implementation, model-facing tools |
 | [`telemetry/`](telemetry/README.md) | Shared Cordis OTel reporting channels |
-| [`coding-runtime/`](coding-runtime/README.md) | PTC execution capability family: Service Definition + sandboxed Node provider + PTC mode Consumer |
+| [`coding-runtime/`](coding-runtime/README.md) | coding-mode execution capability family: Service Definition + sandboxed Node provider + coding mode Consumer |
 | [`computer-use/`](computer-use/README.md) | Exclusive named desktop-provider registration |
 | [`browser-use/`](browser-use/README.md) | Exclusive named browser-provider registration |
 | [`sandbox/`](sandbox/README.md) | Process-confinement seam; bwrap/Landlock/Seatbelt backends |
@@ -54,7 +54,7 @@ Every package lives in exactly one group; new packages join existing groups, and
 | [`subagent/`](subagent/README.md) | Subagent capability family: provider-registry contract and model-facing delegation tools |
 | [`jobs/`](jobs/README.md) | Generic background-job runtime and model-facing job control tools |
 | [`experimental/`](experimental/README.md) | Pre-stable prototypes with explicit private exceptions |
-| [`workflow/`](workflow/README.md) | Workflow seam, PTC process engine, and model-facing `workflow`/`ralph` tools |
+| [`workflow/`](workflow/README.md) | Workflow seam, coding process engine, and model-facing `workflow`/`ralph` tools |
 | [`webhook/`](webhook/README.md) | Verified external events, trusted rules, and fire-and-forget Workspace Sessions |
 | [`web/`](web/README.md) | Web capability family: seam, search/fetch providers, model-facing web tools |
 | [`document/`](document/README.md) | Shared Host Office-to-PDF conversion |

@@ -42,7 +42,7 @@ One page per subsystem of the QiLin: what it is, the data structures it moves, a
 | [ssh.md](ssh.md) | the POSIX SSH connection and remote filesystem, subprocess and sandbox providers |
 | [terminal.md](terminal.md) | persistent terminal ids, backend/session contracts, send readiness, bounded reads, and owner-visible snapshots |
 | [sandbox.md](sandbox.md) | per-session policy resolution and the process-confinement seam: file-effect modes, execution/provider policies, `ConfinedArgv`, enforcement and fail-closed errors |
-| [coding-runtime.md](coding-runtime.md) | the PTC execution seam: `PtcRunRequest`/`Result`, binding namespaces, captured logs, the `PtcRunFailure` taxonomy |
+| [coding-runtime.md](coding-runtime.md) | the coding-mode execution seam: `CodingRunRequest`/`Result`, binding namespaces, captured logs, the `CodingRunFailure` taxonomy |
 | [computer-use.md](computer-use.md) | exclusive named computer-use provider registration and Cua Driver integration choices |
 | [browser-use.md](browser-use.md) | exclusive named browser-use registration, provider choices, and per-Session browser ownership |
 | [extensions.md](extensions.md) | versioned dynamic Kylin Plugins and Packages, Host/Client activation, approval, runtime inspection, and lifecycle teardown |

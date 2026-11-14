@@ -1,7 +1,7 @@
 /** Length-prefixed JSON transport with bounded input and queued writes. */
 import { Buffer } from 'node:buffer'
 import type { Duplex } from 'node:stream'
-import type { PtcJsonValue } from '@qilin-agent/coding-runtime'
+import type { CodingJsonValue } from '@qilin-agent/coding-runtime'
 import { jsonValueBytesUpTo } from './output-json.ts'
 
 const stringify = JSON.stringify
@@ -89,7 +89,7 @@ export class JsonChannel {
    */
   send(message: unknown): Promise<void> {
     if (this.closed) return Promise.reject(new Error('control channel is closed'))
-    const size = jsonValueBytesUpTo(message as PtcJsonValue, this.maxBytes)
+    const size = jsonValueBytesUpTo(message as CodingJsonValue, this.maxBytes)
     if (size === undefined || this.queuedBytes + size > this.maxBytes) {
       return Promise.reject(new Error(`control output exceeds ${this.maxBytes} queued bytes`))
     }

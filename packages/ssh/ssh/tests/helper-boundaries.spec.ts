@@ -62,7 +62,7 @@ describe.skipIf(process.platform === 'win32')('SSH helper wire and lifecycle bou
     const test = await createHelperHarness(false, 30_000, 'executable')
     try {
       await expect(test.client.request('hello', { protocol: 2, workspace: test.root, leaseMs: 3000, bootstrapPath: '/external/process.js' }, helloSchema))
-        .rejects.toThrow('embedded PTC bootstrap')
+        .rejects.toThrow('embedded coding bootstrap')
       expect((await test.hello()).kind).toBe('executable')
     } finally { await test.close() }
   })

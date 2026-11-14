@@ -268,7 +268,7 @@ describe('web e2e: agent-preset authoring is a host-side copy', () => {
         result: { value?: { items: unknown[] } }
       }
       return JSON.stringify(body.result.value?.items ?? body.result)
-    }, { timeout: 15_000 }).toContain('"agentPreset":"ptc"')
+    }, { timeout: 15_000 }).toContain('"agentPreset":"coding"')
   }, 60_000)
 
   it('drove every surface without a page error or a stream warning', () => {

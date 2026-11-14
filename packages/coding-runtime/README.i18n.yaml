@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/coding-runtime/README.md
 /:
-  en: 1bb0d1f590789f43
-  zh: 2297f7fb333c7212
-/coding-runtime-ptc-execution-capability-family:
-  en: c31611ccb639ce10
-  zh: 8e14d29a169fe36d
-/coding-runtime-ptc-execution-capability-family/summary:
+  en: f1e3420fcfcc5fb4
+  zh: ea013bcb65f4e92c
+/coding-runtime-coding-mode-execution-capability-family:
+  en: 33b214b84c4aa9d1
+  zh: 692c79123fab6c0d
+/coding-runtime-coding-mode-execution-capability-family/summary:
   en: b43a64bbe9ab41b8
   zh: 96b0c35b8ca3d354
-/coding-runtime-ptc-execution-capability-family/table-of-contents:
+/coding-runtime-coding-mode-execution-capability-family/table-of-contents:
   en: 1eb35b015a6c423f
   zh: a8a3dceee2c9e943
-/coding-runtime-ptc-execution-capability-family/packages:
-  en: 57fec76a9f12a6c2
-  zh: 6133f9113e9bc5f1
-/coding-runtime-ptc-execution-capability-family/related-documentation:
-  en: de7136ac41d32d4d
-  zh: ec9cc2dec8b20b05
-/coding-runtime-ptc-execution-capability-family/dev-note:
+/coding-runtime-coding-mode-execution-capability-family/packages:
+  en: 91362ed3af28b1d4
+  zh: a17201169882f14c
+/coding-runtime-coding-mode-execution-capability-family/related-documentation:
+  en: 2b7bed7d2f0c9a9a
+  zh: 06911c1ea8c05e60
+/coding-runtime-coding-mode-execution-capability-family/dev-note:
   en: 5de1d6304e00c58f
   zh: 8d8225361cfa29e5

@@ -1,4 +1,4 @@
-/** Execution mode and resource limits for the Node PTC provider. */
+/** Execution mode and resource limits for the Node coding provider. */
 import z from '@qilin-agent/schemastery'
 import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import type { LaunchConfig } from './launch.ts'
@@ -27,7 +27,7 @@ export interface Config {
 
 /** Configuration after Loader defaults and executable selection. */
 export type ResolvedConfig = Required<Config>
-/** Loader defaults for the Node PTC provider. */
+/** Loader defaults for the Node coding provider. */
 export const NodeConfig: z<Config> = z.object({
   executionMode: z.union([z.const('per-call'), z.const('persistent-in-memory')]).default('per-call'),
   timeoutMs: z.number().default(120_000),

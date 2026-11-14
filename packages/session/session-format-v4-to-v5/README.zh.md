@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-在不改动任何已记录请求的前提下，把已发布的 V4 会话恢复为 V5。这条相邻迁移边除出厂预设词汇外是恒等转换：已退役标识 `standard`、`cordis`、`minimal` 在逻辑头部与每个 `agent-preset/selected` 载荷中变为 `ptc`，自定义标识与其它字段原样通过。[目录](../session-format-catalog/README.zh.md)通过静态迁移声明使用本库；本库自身不读取、不发布文件。
+在不改动任何已记录请求的前提下，把已发布的 V4 会话恢复为 V5。这条相邻迁移边除出厂预设词汇外是恒等转换：已退役标识 `standard`、`cordis`、`minimal` 在逻辑头部与每个 `agent-preset/selected` 载荷中变为 `coding`，自定义标识与其它字段原样通过。[目录](../session-format-catalog/README.zh.md)通过静态迁移声明使用本库；本库自身不读取、不发布文件。
 
 ## 目录
 
@@ -54,14 +54,14 @@ const targetHeader = sessionFormatV4ToV5.migrateHeader(sourceHeader)
 <a id="header-and-presets"></a>
 ### 头部与预设折叠
 
-逻辑头部将 `version: 4` 改为 `version: 5`。它保留 `id`、`createdAt`、`isSeeded`、`delegationDepth` 以及已接纳的可选 `cwd`、`parentSession`、`origin`。出厂标识 `standard`、`cordis`、`minimal` 在 `header.agentPreset` 中变为 `ptc`；预设缺席则保持缺席，自定义标识保持原样。格式非法的源头部在重写之前即被拒绝。
+逻辑头部将 `version: 4` 改为 `version: 5`。它保留 `id`、`createdAt`、`isSeeded`、`delegationDepth` 以及已接纳的可选 `cwd`、`parentSession`、`origin`。出厂标识 `standard`、`cordis`、`minimal` 在 `header.agentPreset` 中变为 `coding`；预设缺席则保持缺席，自定义标识保持原样。格式非法的源头部在重写之前即被拒绝。
 
 `header.agentPreset` 仍是自由字符串，因此本迁移边不按已安装名册校验它，也不改名其它出现位置。预设解析器对已退役标识仍保持失败即报的语义：迁移改写的是已存储的选择，绝不充当名册已不再提供该标识时的运行时别名。
 
 <a id="selection-and-inheritance"></a>
 ### 选择事件与继承
 
-每个 `agent-preset/selected` 事件都会被检查，包括继承段与本地段的选择。当 `data.agentPreset` 是已退役出厂标识时变为 `ptc`；否则原样输出源事件对象。`agentPreset` 非字符串的选择载荷按记录输出而不修复，其它事件类型一律原样通过，不复制也不重新封装。
+每个 `agent-preset/selected` 事件都会被检查，包括继承段与本地段的选择。当 `data.agentPreset` 是已退役出厂标识时变为 `coding`；否则原样输出源事件对象。`agentPreset` 非字符串的选择载荷按记录输出而不修复，其它事件类型一律原样通过，不复制也不重新封装。
 
 对于种子会话，最后一个 `data.inherited: true` 的 `session/end-seed` 确定切点：它自身的索引即继承事件计数，从当前位置起闭合继承前缀。种子源缺少该标记时直接拒绝，而不是猜测切点；非种子源在 EOF 之前暴露 `headerInheritedEventCount: 0`，结束时切点为零。
 

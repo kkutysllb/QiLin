@@ -1129,7 +1129,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
  * before returning), so its execution-enclosure relation holds by
  * construction.
  */
-'tool/ptc-dispatch': PtcDispatchEventData
+'tool/ptc-dispatch': CodingDispatchEventData
 ```
 
 来源：[`packages/core/tools/src/types.ts:61`](../packages/core/tools/src/types.ts)
@@ -1152,7 +1152,7 @@ export type SessionEvent<T extends SessionEventType = SessionEventType> = {
  * with `tool/ptc-dispatch` by `subCallId` (timing = the two events'
  * `time` fields).
  */
-'tool/ptc-dispatch-start': PtcDispatchStartEventData
+'tool/ptc-dispatch-start': CodingDispatchStartEventData
 ```
 
 来源：[`packages/core/tools/src/types.ts:45`](../packages/core/tools/src/types.ts)
@@ -4536,7 +4536,7 @@ SHA-256: `f80bda7b749191bd163877f34b343ffd1b35b0fa68dfcecfa54ca54947f068d0`
 
 <a id="persistence-type-ptcdispatcheventdata"></a>
 
-### `PtcDispatchEventData`
+### `CodingDispatchEventData`
 
 SHA-256: `4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738`
 
@@ -4560,7 +4560,7 @@ SHA-256: `4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738`
 
 <a id="persistence-type-ptcdispatchstarteventdata"></a>
 
-### `PtcDispatchStartEventData`
+### `CodingDispatchStartEventData`
 
 SHA-256: `084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f`
 
@@ -7020,7 +7020,7 @@ SHA-256: `ef7be0c662c9c49c1299432c6963cc01b71045592850f35850e6b56e09d7772c`
 
 SHA-256: `27a442ed43e7efa4a2d53f33ec9ce081226f59b1c32410af695a7dd7621f55c8`
 
-来源：[`packages/core/tools/src/ptc.ts:15`](../packages/core/tools/src/ptc.ts)
+来源：[`packages/core/tools/src/coding.ts:15`](../packages/core/tools/src/coding.ts)
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|
@@ -9144,7 +9144,7 @@ SHA-256: `154d6c6e9c3bdbeb174f6b3f1ebe95c403b75d11e163aa2236864040635d3cfc`
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|
-| `data` | 必需 | [`PtcDispatchEventData`](#persistence-type-sha256-4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738) |
+| `data` | 必需 | [`CodingDispatchEventData`](#persistence-type-sha256-4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738) |
 | `ignorable` | 可选 | `true` |
 | `seq` | 必需 | `number` |
 | `time` | 必需 | `number` |
@@ -9160,7 +9160,7 @@ SHA-256: `3a7c59a2828b3a88e55af4ddc15ac63a58fb89855be52610bfba32bd8919f192`
 
 | 属性 | 存在性 | 类型 |
 |---|---|---|
-| `data` | 必需 | [`PtcDispatchStartEventData`](#persistence-type-sha256-084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f) |
+| `data` | 必需 | [`CodingDispatchStartEventData`](#persistence-type-sha256-084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f) |
 | `ignorable` | 可选 | `true` |
 | `seq` | 必需 | `number` |
 | `time` | 必需 | `number` |

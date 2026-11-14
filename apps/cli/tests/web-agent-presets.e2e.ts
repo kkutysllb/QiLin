@@ -418,7 +418,7 @@ describe('the shipped Web composition', () => {
     }
   })
 
-  it('presents the shipped preset as PTC mode without disturbing a session composed elsewhere', async () => {
+  it('presents the shipped preset as coding mode without disturbing a session composed elsewhere', async () => {
     const coded = await ctx.agents.create({
       sessionId: SessionId('preset-ptc'),
       setup: agentCtx => ctx.agentPresets.mount(agentCtx, 'coding').then(() => undefined),
@@ -429,7 +429,7 @@ describe('the shipped Web composition', () => {
     })
     try {
       // One tool reaches the MODEL: the transport. The registry's catalog for
-      // this agent is unchanged — PTC mode collapses the presentation, not
+      // this agent is unchanged — coding mode collapses the presentation, not
       // the capabilities — so the assembly is what carries the claim.
       const assembly = await ctx.systemPrompt.assemble({ scope: coded.agent })
       expect(assembly.tools.map(tool => tool.name)).toEqual(['run_code'])
@@ -504,7 +504,7 @@ describe('the shipped Web composition', () => {
       expect(scoped).toContain('qilin-badge')
       expect(scoped).toContain('project-proof')
 
-      // The preset owns the loader tool, and its PTC presentation makes
+      // The preset owns the loader tool, and its coding-mode presentation makes
       // `run_code` the one directly callable tool: a direct execute is refused
       // with that guidance rather than the loader going missing from the table.
       expect(toolNames(ctx, handle.agent)).toContain('skill')

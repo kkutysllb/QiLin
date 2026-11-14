@@ -6,23 +6,23 @@ import ToolRuntime, { defineTool, type Config as ToolConfig } from '@qilin-agent
 import { ToolCallId } from '@qilin-agent/llm'
 import type { Agent } from '@qilin-agent/agent'
 import { bindScopeParent, createScope, type Scope } from '@qilin-agent/scope'
-import { PtcRuntime, type PtcRunRequest, type PtcRunResult, type PtcRunSpec } from '@qilin-agent/coding-runtime'
+import { CodingRuntime, type CodingRunRequest, type CodingRunResult, type CodingRunSpec } from '@qilin-agent/coding-runtime'
 import McpResources, { type McpResourceProvider } from '../src/index.ts'
 
 const resourceToolNames = ['list_mcp_resources', 'list_mcp_resource_templates', 'read_mcp_resource']
 
-class BindingProbe extends PtcRuntime {
+class BindingProbe extends CodingRuntime {
   readonly language = 'typescript'
   readonly isolation = 'in-process-test'
-  behavior: (spec: PtcRunSpec) => Promise<PtcRunResult> = async spec => ({
+  behavior: (spec: CodingRunSpec) => Promise<CodingRunResult> = async spec => ({
     logs: [], value: Object.keys(spec.bindings[0]!.functions).sort(),
   })
 
-  resolve(request: PtcRunRequest): PtcRunSpec {
+  resolve(request: CodingRunRequest): CodingRunSpec {
     return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 60_000 }
   }
 
-  run(spec: PtcRunSpec): Promise<PtcRunResult> {
+  run(spec: CodingRunSpec): Promise<CodingRunResult> {
     return this.behavior(spec)
   }
 }
@@ -195,7 +195,7 @@ describe('MCP resource tools', () => {
     expect(visibleResourceTools(ctx, owner)).toEqual([])
   })
 
-  it('removes PTC declarations and bindings and rejects a previously materialized call after disposal', async () => {
+  it('removes coding declarations and bindings and rejects a previously materialized call after disposal', async () => {
     const ctx = await setup('coding')
     const request = vi.fn<McpResourceProvider['request']>().mockResolvedValue({ resources: [] })
     const remove = ctx.mcpResources.register('docs', { request })

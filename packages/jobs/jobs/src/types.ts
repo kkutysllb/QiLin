@@ -14,7 +14,7 @@ export type { JobChannel, JobChunk, JobKind, JobKindMap, JobStatus, JobView } fr
 
 /** Tool dispatch that created a job; nested calls retain their root invocation. */
 export interface JobToolCall {
-  /** Exact invocation, including a PTC sub-call when applicable. */
+  /** Exact invocation, including a coding sub-call when applicable. */
   readonly callId: SessionEventMap['tool/call']['callId']
   /** Root model-requested invocation owning this execution. */
   readonly rootCallId: SessionEventMap['tool/call']['callId']

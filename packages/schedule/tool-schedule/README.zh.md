@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-当某个 preset 的 agent 需要管理定时任务时，把下面这一行加入该 preset 的插件列表。随产品发布的 Web `standard`、`cordis` 与 `ptc` preset 会挂载它；`minimal` 不会。
+当某个 preset 的 agent 需要管理定时任务时，把下面这一行加入该 preset 的插件列表。随产品发布的 Web `standard`、`cordis` 与 `coding` preset 会挂载它；`minimal` 不会。
 
 ### 何时选用
 
@@ -60,7 +60,7 @@ kind: "package-reference"
 <details>
 <summary>实现内部细节——点击展开</summary>
 
-插件在解析到 `ctx.schedule` 的作用域内注册四个 `defineTool` 定义与一个 `tool:schedule` system prompt 段落，因此由 preset 挂载决定可见性，并由 Cordis effect 的所有权随挂载一并释放。当请求作用域中的 `ctx.tools.get()` 既看不到 `schedule_create` 也看不到 `schedule_edit` 时，该段落为空；preset 过滤了这些工具的委派作用域也包括在内。此查询同时适用于 Native 与 PTC 呈现方式。执行时读取 `exec.agent` 作为执行操作的 Session。委派深度守卫先运行，`schedule_edit` 的参数校验随后运行，二者都在服务调用之前完成。当工具的输出 schema 声明了某个 `ScheduleInputError` 的错误码时，该错误保留其错误码；其他任何失败都变为 `internal_error`，因此存储细节不会到达模型。模型内容为返回值的规范 JSON，而持久化、调度、Session 恢复与投递都由宿主服务负责。
+插件在解析到 `ctx.schedule` 的作用域内注册四个 `defineTool` 定义与一个 `tool:schedule` system prompt 段落，因此由 preset 挂载决定可见性，并由 Cordis effect 的所有权随挂载一并释放。当请求作用域中的 `ctx.tools.get()` 既看不到 `schedule_create` 也看不到 `schedule_edit` 时，该段落为空；preset 过滤了这些工具的委派作用域也包括在内。此查询同时适用于 Native 与 coding 呈现方式。执行时读取 `exec.agent` 作为执行操作的 Session。委派深度守卫先运行，`schedule_edit` 的参数校验随后运行，二者都在服务调用之前完成。当工具的输出 schema 声明了某个 `ScheduleInputError` 的错误码时，该错误保留其错误码；其他任何失败都变为 `internal_error`，因此存储细节不会到达模型。模型内容为返回值的规范 JSON，而持久化、调度、Session 恢复与投递都由宿主服务负责。
 
 ### 源码映射
 
@@ -100,7 +100,7 @@ Only create or modify scheduled tasks at the user's explicit request; prior expl
 
 #### Token effect
 
-Native 和 PTC 模式下，每次组装 prompt 只加入一句固定文本。同时隐藏两个修改工具的作用域不承担本段落的开销。
+Native 和 coding 模式下，每次组装 prompt 只加入一句固定文本。同时隐藏两个修改工具的作用域不承担本段落的开销。
 
 #### KV Cache effect
 

@@ -1,6 +1,6 @@
 {
   "name": "@qilin-agent/coding-runtime",
-  "description": "Abstract PTC execution seam (ctx.codingRuntime) for the QiLin",
+  "description": "Abstract coding-mode execution seam (ctx.codingRuntime) for the QiLin",
   "version": "3.1.11",
   "publishConfig": {
     "access": "public"

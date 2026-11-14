@@ -596,9 +596,9 @@ def advanced_tool_followup(
         })
     if call_id == "advanced-denied-ptc" and tool_name == "run_code":
         if 'Auto review rejected tool "snapshot_double"; its body was not executed' not in tool_text:
-            raise AssertionError(f"PTC denial did not preserve the model result: {tool_text}")
+            raise AssertionError(f"coding denial did not preserve the model result: {tool_text}")
         if "transport raw" in tool_text:
-            raise AssertionError("PTC denial leaked its user-facing reason to the model")
+            raise AssertionError("coding denial leaked its user-facing reason to the model")
         assert_advertised_tool(body, "subagent")
         return tool_call_chunks(
             "advanced-direct-child",
@@ -1433,15 +1433,15 @@ def smoke_sdk_snapshot(base_url: str, executable: Path, update_snapshots: bool) 
         ptc_events = [event for event in result.events
                       if event.get("type") in ("tool/ptc-dispatch-start", "tool/ptc-dispatch")]
         if [event["type"] for event in ptc_events] != ["tool/ptc-dispatch-start", "tool/ptc-dispatch"] * 2:
-            raise AssertionError(f"advanced snapshot emitted unexpected PTC dispatch events: {ptc_events}")
+            raise AssertionError(f"advanced snapshot emitted unexpected coding dispatch events: {ptc_events}")
         for index, event in enumerate(ptc_events):
             data = event["data"]
             identity = (data.get("rootCallId"), data.get("parentCallId"), data.get("subCallId"))
             root_call = "advanced-code" if index < 2 else "advanced-denied-ptc"
             if identity != (root_call, root_call, root_call + ":ptc:1"):
-                raise AssertionError(f"advanced snapshot emitted unexpected PTC dispatch identity: {identity}")
+                raise AssertionError(f"advanced snapshot emitted unexpected coding dispatch identity: {identity}")
             if {"description", "parameters", "schema"}.intersection(data):
-                raise AssertionError("PTC binding schema entered the packaged SDK wire")
+                raise AssertionError("coding binding schema entered the packaged SDK wire")
         errors = [event["data"]["error"] for event in result.events
                   if event.get("type") in ("tool/result", "tool/ptc-dispatch") and "error" in event["data"]]
         assert errors == [{

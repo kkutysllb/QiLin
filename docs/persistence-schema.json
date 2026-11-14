@@ -22891,7 +22891,7 @@
     {
       "digest": "084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f",
       "names": [
-        "packages/core/tools/src/types.ts#PtcDispatchStartEventData"
+        "packages/core/tools/src/types.ts#CodingDispatchStartEventData"
       ],
       "sources": [
         "packages/core/tools/src/types.ts:12"
@@ -24040,7 +24040,7 @@
     {
       "digest": "4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738",
       "names": [
-        "packages/core/tools/src/types.ts#PtcDispatchEventData"
+        "packages/core/tools/src/types.ts#CodingDispatchEventData"
       ],
       "sources": [
         "packages/core/tools/src/types.ts:21"

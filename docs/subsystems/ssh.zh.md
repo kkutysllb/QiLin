@@ -20,11 +20,11 @@
 
 进程先预留，再连接流，且启动最多接受一次。`done` 报告直接结果，`waitForExit` 观察远端托管进程范围。终端操作保留共享异步 API。准备阶段取消、已启动进程终止及提供方释放都通过辅助进程释放各自资源。
 
-管理截止时限约束单次 RPC 观察，不替代 Bash 或 PTC 运行时消费方选择的执行截止时限。远端等待可以持续挂起，同时其他请求继续推进。SSH 丢失会使待处理操作失效；辅助进程 EOF、信号及租期到期会启动远端清理。客户端如实报告未确认结果，绝不通过重连重放可能已执行的操作。
+管理截止时限约束单次 RPC 观察，不替代 Bash 或 coding 运行时消费方选择的执行截止时限。远端等待可以持续挂起，同时其他请求继续推进。SSH 丢失会使待处理操作失效；辅助进程 EOF、信号及租期到期会启动远端清理。客户端如实报告未确认结果，绝不通过重连重放可能已执行的操作。
 
 ## 组合范围
 
-headless 通过已挂载的文件系统提供方记录和检查 Session cwd。因此远端 FS、Bash、终端、LSP 及 PTC 消费方可以共享这些坐标。假定可访问主机文件系统的 Web 工作区视图需要单独集成；仅替换提供方并不会使这些视图支持远端。
+headless 通过已挂载的文件系统提供方记录和检查 Session cwd。因此远端 FS、Bash、终端、LSP 及 coding 消费方可以共享这些坐标。假定可访问主机文件系统的 Web 工作区视图需要单独集成；仅替换提供方并不会使这些视图支持远端。
 
 替代方案与验证责任见[决策记录](../../.agents/notes/implemented/architecture/2026-09-11-posix-ssh-runtime.zh.md)。
 
@@ -63,7 +63,7 @@ declare class SshConnection extends Service {
   constructor(ctx: Context, config: Config);
   /** Hold plugin readiness until the remote identity and helper digest are verified. */
   async [Service.init](): Promise<void>;
-  /** Verified remote PTC launch configuration; script deployments require a verified bootstrap. */
+  /** Verified remote coding launch configuration; script deployments require a verified bootstrap. */
   get ptcLaunch(): { kind: 'embedded'; executable: string } | { kind: 'node-script'; executable: string; bootstrapPath: string };
   /**
      * Send a helper operation; cancellation never replays an ambiguous mutation.

@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The experimental group contains prototype capabilities whose contracts can change and carry no support promise. All current packages publish under their `@qilin-agent/experimental-*` names, including the opt-in Agent Teams composition, Auto review, Cua Driver providers, browser-use backends, CPython PTC backend, and browser-worker preview libraries. Released products outside this group must not depend on experimental packages. The qilin installation ships the Agent Teams, voice input, Auto review, and Schedule packages as optional bundles switched on from the Web sidebar's Plugins page; the other packages are libraries or explicit compositions.
+The experimental group contains prototype capabilities whose contracts can change and carry no support promise. All current packages publish under their `@qilin-agent/experimental-*` names, including the opt-in Agent Teams composition, Auto review, Cua Driver providers, browser-use backends, CPython coding backend, and browser-worker preview libraries. Released products outside this group must not depend on experimental packages. The qilin installation ships the Agent Teams, voice input, Auto review, and Schedule packages as optional bundles switched on from the Web sidebar's Plugins page; the other packages are libraries or explicit compositions.
 
 ## Table of Contents
 
@@ -32,10 +32,10 @@ The experimental group contains prototype capabilities whose contracts can chang
 | [`forge`](forge/README.md) | Provider-neutral registry of code-host change requests with one shared polling loop | `ctx.forge` |
 | [`forge-github`](forge-github/README.md) | GitHub provider reading the host `gh` CLI | — |
 | [`forge-session`](forge-session/README.md) | Binds a Session to the change requests its commands touch | `ctx.forgeSession` |
-| [`auto-review`](auto-review/README.md) | Explicit Web layer for same-model review before each native or PTC inner tool call | — |
+| [`auto-review`](auto-review/README.md) | Explicit Web layer for same-model review before each native or coding inner tool call | — |
 | [`claude-code-mods`](claude-code-mods/README.md) | Run Claude Code mods as plugins: their hook chains on harness extension points and a band above the prompt | `ctx.claudeCodeMods` |
 | [`client-ui-claude-code-mods`](client-ui-claude-code-mods/README.md) | The Web band that draws a mod's tree above the prompt and sends button clicks back | — |
-| [`coding-runtime-python`](coding-runtime-python/README.md) | CPython subprocess backend for the PTC execution seam | `ctx.codingRuntime` |
+| [`coding-runtime-python`](coding-runtime-python/README.md) | CPython subprocess backend for the coding-mode execution seam | `ctx.codingRuntime` |
 | [`computer-use-cua-driver-mcp`](computer-use-cua-driver-mcp/README.md) | Use an installed Cua Driver through MCP | `ctx.computerUse` |
 | [`computer-use-cua-driver-native`](computer-use-cua-driver-native/README.md) | Embed the Cua Driver native npm runtime | `ctx.computerUse` |
 | [`browser-use-playwright-mcp`](browser-use-playwright-mcp/README.md) | Playwright browser tools over MCP | `ctx.browserUse` |

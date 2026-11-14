@@ -33,7 +33,7 @@ describe('released v1 whole-artifact relationships', () => {
     ['compaction/end without start', [
       { type: 'compaction/end', seq: 0, time: 1, data: { compactionId: 'c', turn: null } },
     ]],
-    ['PTC dispatch outside a turn', [
+    ['coding dispatch outside a turn', [
       {
         type: 'tool/code-dispatch-start', seq: 0, time: 1,
         data: { rootCallId: 'root', parentCallId: 'root', subCallId: 'sub', name: 'read', arguments: {} },
@@ -67,7 +67,7 @@ describe('released v1 whole-artifact relationships', () => {
     expect(() => decode([], { ...header, cwd: 'relative' })).toThrow(/cwd must be absolute/)
   })
 
-  it('accepts complete core, retry, title, compaction, PTC, and replacement relationships', () => {
+  it('accepts complete core, retry, title, compaction, coding, and replacement relationships', () => {
     const rows = [
       { type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } },
       { type: 'user/message', seq: 1, time: 2, data: user('one'), surfaceOp: 'append' },
@@ -441,7 +441,7 @@ describe('released v1 whole-artifact relationships', () => {
     }])).toThrow()
   })
 
-  it('requires each PTC settle to match exactly one start', () => {
+  it('requires each coding settle to match exactly one start', () => {
     const turn = { type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } }
     const start = {
       type: 'tool/code-dispatch-start', seq: 1, time: 2,
@@ -585,7 +585,7 @@ describe('released v1 whole-artifact relationships', () => {
     }])).toThrow(/not on the current surface/)
   })
 
-  it('rejects PTC ancestry/root/start violations', () => {
+  it('rejects coding ancestry/root/start violations', () => {
     const turn = { type: 'turn/start', seq: 0, time: 1, data: { turn: 1 } }
     const start = (seq: number, overrides: Record<string, unknown> = {}) => ({
       type: 'tool/code-dispatch-start', seq, time: seq + 1,

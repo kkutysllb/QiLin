@@ -6,7 +6,7 @@ import { expect, it } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import SubagentRuntime from '@qilin-agent/subagent'
 import type { SandboxMode } from '@qilin-agent/sandbox'
-import PtcWorkflowEngine from '../src/index.ts'
+import CodingWorkflowEngine from '../src/index.ts'
 import { fakeParent, mountPtcRuntime } from './setup.ts'
 
 async function setup(mode: SandboxMode) {
@@ -20,16 +20,16 @@ async function setup(mode: SandboxMode) {
     inheritsParentContext: false,
     start: () => Promise.reject(new Error('source runtime smoke must not start a child')),
   })
-  await ctx.plugin(PtcWorkflowEngine, {})
+  await ctx.plugin(CodingWorkflowEngine, {})
   return { ctx, parent: await fakeParent(ctx), ...files }
 }
 
-it('runs the default workflow config through the source PTC runtime', async () => {
+it('runs the default workflow config through the source coding runtime', async () => {
   const { ctx, parent } = await setup('read-only')
   const run = ctx.workflowEngine.start({
     script: 'return args.left * args.right',
     args: { left: 6, right: 7 },
-    meta: { name: 'source-runtime-compat', description: 'source workflow and PTC entry' },
+    meta: { name: 'source-runtime-compat', description: 'source workflow and coding entry' },
     parent,
   })
   try {

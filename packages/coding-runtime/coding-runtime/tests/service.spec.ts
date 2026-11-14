@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
-import { PtcRuntime } from '@qilin-agent/coding-runtime'
-import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/coding-runtime'
+import { CodingRuntime } from '@qilin-agent/coding-runtime'
+import type { CodingRunRequest, CodingRunResult } from '@qilin-agent/coding-runtime'
 
 /**
  * Minimal concrete runtime: records requests, "executes" by invoking every
@@ -9,15 +9,15 @@ import type { PtcRunRequest, PtcRunResult } from '@qilin-agent/coding-runtime'
  * Service Definition package ships no provider, so the contract is exercised through
  * the smallest subclass that honors it.
  */
-class StubRuntime extends PtcRuntime {
-  resolve(request: import('@qilin-agent/coding-runtime').PtcRunRequest): import('@qilin-agent/coding-runtime').PtcRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
+class StubRuntime extends CodingRuntime {
+  resolve(request: import('@qilin-agent/coding-runtime').CodingRunRequest): import('@qilin-agent/coding-runtime').CodingRunSpec { return { ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: request.timeoutMs ?? 120_000 } }
 
   readonly language = 'typescript'
   readonly isolation = 'in-process-stub'
-  requests: PtcRunRequest[] = []
-  nextResult: PtcRunResult = { logs: [] }
+  requests: CodingRunRequest[] = []
+  nextResult: CodingRunResult = { logs: [] }
 
-  async run(request: PtcRunRequest): Promise<PtcRunResult> {
+  async run(request: CodingRunRequest): Promise<CodingRunResult> {
     this.requests.push(request)
     if (request.signal?.aborted) {
       return { logs: [], error: { kind: 'abort', message: String(request.signal.reason) } }
@@ -38,7 +38,7 @@ async function setup() {
   return { ctx, runtime }
 }
 
-describe('PtcRuntime service seam', () => {
+describe('CodingRuntime service seam', () => {
   it('registers as ctx.codingRuntime and serves the abstract API', async () => {
     const { runtime } = await setup()
     expect(runtime.language).toBe('typescript')

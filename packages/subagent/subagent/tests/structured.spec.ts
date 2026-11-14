@@ -26,13 +26,13 @@ const testToolSignal = new AbortController().signal
 
 type Script = ConstructorParameters<typeof MockAdapter>[0]
 
-interface PtcRunRequestLike {
+interface CodingRunRequestLike {
   bindings: { global: string; functions: Record<string, (args: unknown) => Promise<unknown>> }[]
 }
 
 interface SetupOptions {
   toolMode?: ToolConfig['mode']
-  codeRun?: (request: PtcRunRequestLike) => Promise<{ logs: never[]; value?: unknown }>
+  codeRun?: (request: CodingRunRequestLike) => Promise<{ logs: never[]; value?: unknown }>
 }
 
 const SCHEMA: ObjectJsonSchema = {
@@ -54,7 +54,7 @@ async function setup(script: Script, options: SetupOptions = {}) {
     ctx.provide('codingRuntime', {
       language: 'typescript',
       isolation: 'test',
-      resolve: (request: import('@qilin-agent/coding-runtime').PtcRunRequest) => ({ ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: 120_000 }),
+      resolve: (request: import('@qilin-agent/coding-runtime').CodingRunRequest) => ({ ...request, cwd: request.cwd ?? process.cwd(), timeoutMs: 120_000 }),
       run: options.codeRun ?? (() => Promise.resolve({ logs: [] })),
     } as never)
   }
@@ -615,7 +615,7 @@ describe('in-process structured output', () => {
     await run.dispose()
   })
 
-  it('keeps pure PTC mode at one wire tool and exposes structured capture through the SDK only', async () => {
+  it('keeps pure coding mode at one wire tool and exposes structured capture through the SDK only', async () => {
     const { ctx, parent, adapter } = await setup([
       toolCallResponse('c1', RUN_CODE_NAME, { code: 'return await tools.structured_output({ answer: 12 })', description: 'Capture the structured answer' }),
     ], {

@@ -1,4 +1,4 @@
-/** Cold V2 restoration mounts the shipped PTC preset and publishes one successor in the current generation. */
+/** Cold V2 restoration mounts the shipped coding preset and publishes one successor in the current generation. */
 
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
@@ -16,7 +16,7 @@ import { launchWebScaffold, webSnapshotMode } from './scaffold.ts'
 const fixturePath = fileURLToPath(new URL('../../../snapshots/web/preset-migration/session.v2.jsonl', import.meta.url))
 
 describe.skipIf(webSnapshotMode() === 'record')('historical preset restoration through the Web Host', () => {
-  it.each([false, true])('resumes code as PTC (selection events=%s)', async (withSelections) => {
+  it.each([false, true])('resumes code as coding (selection events=%s)', async (withSelections) => {
     const scaffold = await launchWebScaffold()
     try {
       const id = SessionId('preset-migration')

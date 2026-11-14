@@ -4,7 +4,7 @@
  * @module @qilin-agent/coding-runtime-node/src/protocol
  */
 
-import type { PtcJsonWire } from './json-wire.ts'
+import type { CodingJsonWire } from './json-wire.ts'
 
 /** What the host hands the program at spawn, after the readiness handshake. */
 export interface ProgramBootData {
@@ -30,7 +30,7 @@ interface CallMessage {
   /** The function name within the namespace. */
   name: string
   /** The single argument as a flat lossless-JSON wire value. */
-  args: PtcJsonWire
+  args: CodingJsonWire
 }
 
 /** Program → host: captured text, streamed eagerly so output survives a mid-run termination (timeout, abort, OOM). */
@@ -54,7 +54,7 @@ interface OutputLimitMessage {
  */
 export interface DoneMessage {
   type: 'done'
-  value?: PtcJsonWire
+  value?: CodingJsonWire
   error?: { kind: 'exception' | 'invalid-output' | 'output-limit'; message: string }
 }
 
@@ -63,5 +63,5 @@ export type ProgramToHost = CallMessage | LogMessage | OutputLimitMessage | Done
 
 /** Host → program: the answer to one {@link CallMessage}. */
 export type ReplyMessage =
-  | { type: 'reply'; id: number; ok: true; value: PtcJsonWire }
+  | { type: 'reply'; id: number; ok: true; value: CodingJsonWire }
   | { type: 'reply'; id: number; ok: false; message: string }

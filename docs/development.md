@@ -150,7 +150,7 @@ The one-shot Headless coding agent needs `DEEPSEEK_API_KEY` in the environment o
 pnpm qilin --profile headless "summarize this workspace"
 ```
 
-The PTC mode demo runs the same headless profile with code presentation enabled:
+The coding mode demo runs the same headless profile with code presentation enabled:
 
 ```sh
 pnpm run demo:ptc -- "summarize this workspace"

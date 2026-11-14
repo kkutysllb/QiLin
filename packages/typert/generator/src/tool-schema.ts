@@ -22,7 +22,7 @@ interface Schema extends Record<string, unknown> {
 
 /**
  * Project one resolved type into the tool-schema subset that `@qilin-agent/tools`
- * enforces on tool parameters, tool output, and the generated PTC SDK. A type the
+ * enforces on tool parameters, tool output, and the generated coding SDK. A type the
  * subset cannot express without weakening constraints raises {@link ToolSchemaError},
  * which callers report as an absent projection rather than a narrower schema.
  * @param renderer - complete analyzed type graph.

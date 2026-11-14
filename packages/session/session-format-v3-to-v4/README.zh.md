@@ -77,7 +77,7 @@ const artifact = restore.finish()
 | V3 物理行 | 已发布 V3 源 codec 解码事件与紧凑 run | 源分帧和源事件区间解码仍归前一个包所有。 |
 | V4 物理行 | `releasedV4SessionFormatCodec` 复用已发布 V2 分帧并执行原生 V4 接纳 | 不把 V4 事件投影到 V3 语义校验器。编码和解码不运行此入边迁移。 |
 
-本边不重命名 preset id、PTC dispatch 事件标签、文件附件或物理文件名。内嵌流中的内容扩展遵循下列规则，流顺序和索引保持不变。
+本边不重命名 preset id、coding dispatch 事件标签、文件附件或物理文件名。内嵌流中的内容扩展遵循下列规则，流顺序和索引保持不变。
 
 <a id="tool-results"></a>
 ### 工具结果表示
@@ -275,7 +275,7 @@ Fork 种子构造归核心 Session 所有，不属于此迁移。原生 V4 接�
 
 | 入口 | 检查与限制 |
 |---|---|
-| V4 codec 解码 | 已发布物理分帧加 V4 行接纳。Required 前代 PTC 标签、已退役 system header 和自身负责的错误原生字段，在 recoverable 后缀抑制前被拒绝。 |
+| V4 codec 解码 | 已发布物理分帧加 V4 行接纳。Required 前代 coding 标签、已退役 system header 和自身负责的错误原生字段，在 recoverable 后缀抑制前被拒绝。 |
 | V4 codec 编码 | 同样的原生行检查；writer 仍校验 ignorable developer 载荷。 |
 | 原生 catalog，`validation: 'transformed'` | 只有 codec 检查；因为没有执行迁移，跳过产物恢复。这不是完整原生校验。 |
 | 历史 catalog，`validation: 'transformed'` | 转换后执行代际自有的 V4 恢复；跳过已安装 Session 的通用校验。 |

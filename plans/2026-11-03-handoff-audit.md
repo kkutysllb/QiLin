@@ -116,8 +116,8 @@
 
 ## 九、B 档第一项执行结果（shipped-composition，2026-11-03，已完成）
 
-- 决策口径：改组合——让场景按它自己注释假设的 PTC 呈现组装，而不是把断言削到默认组合上。
-- 落地：五处脚手架改用既有的 `toolsMode: 'ptc'` 组合接缝；主用例的 agent 同时改挂 `ptc` 预设（`EXPECTED_TOOLS` 描述的就是该预设的目录）。三处过期期望按现状校正：目录补 `plugin_manager`、文件引用提示词夹具重录（`present` 文件卡片指引落地后的文本）、后台作业 id 断言跟进 `bash-<16 位十六进制>`。
+- 决策口径：改组合——让场景按它自己注释假设的 coding 呈现组装，而不是把断言削到默认组合上。
+- 落地：五处脚手架改用既有的 `toolsMode: 'ptc'` 组合接缝；主用例的 agent 同时改挂 `coding` 预设（`EXPECTED_TOOLS` 描述的就是该预设的目录）。三处过期期望按现状校正：目录补 `plugin_manager`、文件引用提示词夹具重录（`present` 文件卡片指引落地后的文本）、后台作业 id 断言跟进 `bash-<16 位十六进制>`。
 - 实测：该文件 8 例中 5 例通过（此前 2 例通过、6 例失败）。
 - 余下三例的定性：
   - 2 例属宿主沙箱限制——后台 bash 用例报 `sandbox-unavailable: sandbox_apply: Operation not permitted`，Auto 卸载用例报 `posix_openpt` 被拒；非沙箱宿主上应转绿。
@@ -214,7 +214,7 @@
   - CJS 形状：Node 的 `events` 模块值就是 EventEmitter 类本身，静态模块改为类形状（`class X extends require('events')` 依赖它）。
   - pi-ai stub 补齐 `getAllBuiltinModels` 与 `builtinModels`，`llm-pi-ai` 的激活不再抛错。
 - 首页 hero 缺失的根因已定位：预览部署没有 profile 级设置服务——base 组合在缺少 `profileContext` 时禁用 `settings` 与 `config-editor`，Models 联表因此返回 `unavailable`，引导步骤自行 complete，`Configure later` 本就不会出现。测试改为断言宿主输入框这一真实首个交互面。
-- 迁移层的根因：V4→V5 折叠表在 V5 落地时（2026-10-11）把 `standard` 记为已退役，而 `standard` 在 2026-10-18 重新成为出厂预设，折叠表未回退——历史会话的选中模式因此被静默改写成 `ptc`，并与会话索引分歧，父会话迁移抛「historical session generation changed during migration」。折叠表收敛为仍缺席的 `cordis`/`minimal`，`standard` 直通。
+- 迁移层的根因：V4→V5 折叠表在 V5 落地时（2026-10-11）把 `standard` 记为已退役，而 `standard` 在 2026-10-18 重新成为出厂预设，折叠表未回退——历史会话的选中模式因此被静默改写成 `coding`，并与会话索引分歧，父会话迁移抛「historical session generation changed during migration」。折叠表收敛为仍缺席的 `cordis`/`minimal`，`standard` 直通。
 - 设置服务：预览引导的是组合后的条目清单而非启动器 profile，base 组合据此不挂载 `settings`/`config-editor`；preview-boot 改为记录该限制（断言 `settings service is absent`），凭据通路照旧实测。
 - **preview-boot 已全绿**：页面、tree active、宿主输入框、会话读写/重命名、技能目录、凭据、种子会话与子代理目录、控制台无错误。
 
@@ -297,7 +297,7 @@
 
 ## 二十二、移除官方 API Session Log 上传偏好设置（2026-11-03 已完成）
 
-- 麒麟不需要「在使用官方模型 API 时上传 Session Log」的用户开关。删除 `ui-settings-session-log` client 包（设置行 + 保存 toast）与全部接线：web-app bundle 注册/依赖、client slot catalog、聚合 tsconfig、pnpm-lock；`settings-chrome` 双语 ARIA 金标重录（各减 2 行）；生成目录重录（config catalog、module-graph、PTC 组合参考 packages.md）；README 模型体验门禁的豁免条目移除。
+- 麒麟不需要「在使用官方模型 API 时上传 Session Log」的用户开关。删除 `ui-settings-session-log` client 包（设置行 + 保存 toast）与全部接线：web-app bundle 注册/依赖、client slot catalog、聚合 tsconfig、pnpm-lock；`settings-chrome` 双语 ARIA 金标重录（各减 2 行）；生成目录重录（config catalog、module-graph、coding 组合参考 packages.md）；README 模型体验门禁的豁免条目移除。
 - 宿主 `session-log-deepseek` 保留：`enabled`（默认 true）/`maxBytes` 仍是 cordis.yml Config 字段；要整体关闭上传用配置 `session-log-deepseek.enabled: false`，后续若要彻底移除可整包删除（连同 `qilin_session_log` 请求字段贡献与 `deepseek-llm-api-extensions` 的消费方梳理）。
 - 边界：会话格式目录里的 `qilin_session_log` 扩展标识与各迁移包保留——历史日志里的接受水位记录仍需可读，属格式兼容层，不随功能下线。
 - 复验：全量单测 2215 文件 / 39153 例 0 失败；`settings-chrome` 重录后回放绿；`preview-boot` 绿；`doc-sync` 45/45；build 绿。

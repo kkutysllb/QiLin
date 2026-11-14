@@ -15,7 +15,7 @@ import type { Config } from '../src/index.ts'
 // child only TMPDIR, so a bare `python3` inside a wrapper would resolve against
 // /bin/sh's default PATH rather than the caller's selected interpreter.
 const PYABS = resolvePythonBin('python3') ?? 'python3'
-import type { PtcBindingFunction, PtcJsonValue, PtcRunResult } from '@qilin-agent/coding-runtime'
+import type { CodingBindingFunction, CodingJsonValue, CodingRunResult } from '@qilin-agent/coding-runtime'
 
 /**
  * Names one `py/` script whose `copyFileSync` must fail, for the partial-staging
@@ -79,7 +79,7 @@ async function setup(config: Config = {}) {
 }
 
 /** Convenience: one namespace `tools` with the given functions. */
-function tools(functions: Record<string, PtcBindingFunction>) {
+function tools(functions: Record<string, CodingBindingFunction>) {
   return [{ global: 'tools', functions }]
 }
 
@@ -386,7 +386,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     // bindings — the child is never spawned.
     const { runtime } = await setup()
     const exploding = {
-      get explode(): PtcBindingFunction {
+      get explode(): CodingBindingFunction {
         throw new Error('getter blew up')
       },
     }
@@ -402,7 +402,7 @@ describe('PythonPtcRuntime — seam descriptors and misuse', () => {
     // getter whose keys differ between reads cannot desynchronize the two.
     let reads = 0
     const countReads = {
-      get first(): PtcBindingFunction {
+      get first(): CodingBindingFunction {
         reads += 1
         return async () => 1
       },
@@ -1125,7 +1125,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
         'return {"first": first, "caught": caught}',
       ].join('\n'),
       bindings: tools({
-        echo: async (args) => { calls.push(args); return { echoed: args as PtcJsonValue } },
+        echo: async (args) => { calls.push(args); return { echoed: args as CodingJsonValue } },
         fail: async () => { throw new Error('nope') },
       }),
     }))
@@ -1149,7 +1149,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
         'return first',
       ].join('\n'),
       bindings: tools({
-        echo: async args => ({ echoed: args as PtcJsonValue }),
+        echo: async args => ({ echoed: args as CodingJsonValue }),
       }),
     }))
     expect(result.error).toBeUndefined()
@@ -1177,7 +1177,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
         'return first',
       ].join('\n'),
       bindings: tools({
-        echo: async args => ({ echoed: args as PtcJsonValue }),
+        echo: async args => ({ echoed: args as CodingJsonValue }),
       }),
     }))
     expect(result.error).toBeUndefined()
@@ -1202,7 +1202,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
         'return first',
       ].join('\n'),
       bindings: tools({
-        echo: async args => ({ echoed: args as PtcJsonValue }),
+        echo: async args => ({ echoed: args as CodingJsonValue }),
       }),
     }))
     expect(result.error).toBeUndefined()
@@ -1375,7 +1375,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
 
   it('coalesces print arguments into one log line, not per-write fragments', async () => {
     // print("a","b") calls write() per arg/sep/newline; the stream must emit
-    // one logical line "a b" so PTC mode's join(newline) does not insert
+    // one logical line "a b" so coding mode's join(newline) does not insert
     // spurious blank lines. Two prints → exactly two entries, no empties.
     const { runtime } = await setup()
     const result = await runtime.run(runtime.resolve({
@@ -2606,7 +2606,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
   })
 
   it('raises the declared errorClass with the member name on rejection', async () => {
-    // PTC mode declares { name: ToolCallError, memberNameProperty: toolName };
+    // coding mode declares { name: ToolCallError, memberNameProperty: toolName };
     // a host rejection must surface as that class, carrying the failed tool.
     const { runtime } = await setup()
     const result = await runtime.run(runtime.resolve({
@@ -2704,7 +2704,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
         globalReads += 1
         return globalReads === 1 ? 'tools' : 'evil'
       },
-      functions: { echo: async (args: unknown) => args as PtcJsonValue },
+      functions: { echo: async (args: unknown) => args as CodingJsonValue },
     }
     const { runtime } = await setup()
     const result = await runtime.run(runtime.resolve({
@@ -2793,7 +2793,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
     // `__traceback__` — setattr of a string raises TypeError while
     // constructing the rejection — so every dunder is refused at the seam.
     const { runtime } = await setup()
-    // name/message/stack are the seam's own exclusions (PtcBindingErrorClass
+    // name/message/stack are the seam's own exclusions (CodingBindingErrorClass
     // forbids replacing them; the worker backend rejects them identically).
     for (const member of ['__traceback__', '__dict__', '__class__', 'args', 'name', 'message', 'stack']) {
       await expect(runtime.run(runtime.resolve({
@@ -2843,7 +2843,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
   })
 
   it('preserves a deeply nested completion value below the byte budget', async () => {
-    // PtcJsonValue has no depth limit: a 10000-deep nested list is only
+    // CodingJsonValue has no depth limit: a 10000-deep nested list is only
     // ~20 kB — under maxValueBytes — and must cross intact. That depth
     // overflows BOTH recursive serializers the pipeline used to rely on
     // (CPython's json.dumps recursion limit ~1000s, V8's JSON.stringify), so
@@ -2948,7 +2948,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
         '    caught = str(e)',
         'return caught',
       ].join('\n'),
-      bindings: tools({ echo: async args => args as PtcJsonValue }),
+      bindings: tools({ echo: async args => args as CodingJsonValue }),
     }))
     expect(result.error).toBeUndefined()
     expect(result.value).toContain('lossless JSON')
@@ -3041,7 +3041,7 @@ describe('PythonPtcRuntime — programs and bindings', () => {
         'r = await tools["my-tool"]({"n": 7})',
         'return r',
       ].join('\n'),
-      bindings: tools({ 'my-tool': async args => ({ got: args as PtcJsonValue }) }),
+      bindings: tools({ 'my-tool': async args => ({ got: args as CodingJsonValue }) }),
     }))
     expect(result.error).toBeUndefined()
     expect(result.value).toEqual({ got: { n: 7 } })
@@ -3083,7 +3083,7 @@ describe('PythonPtcRuntime — budgets, termination, disposal', () => {
   it('aborts a run when the outer signal fires mid-flight', async () => {
     const { runtime } = await setup({ maxWallMs: 10_000 })
     const controller = new AbortController()
-    const settled: Promise<PtcRunResult> = runtime.run(runtime.resolve({
+    const settled: Promise<CodingRunResult> = runtime.run(runtime.resolve({
       program: 'import time\nwhile True: time.sleep(0.1)',
       bindings: [],
       signal: controller.signal,
@@ -3106,7 +3106,7 @@ describe('PythonPtcRuntime — budgets, termination, disposal', () => {
     try {
       const { runtime } = await setup({ maxWallMs: 4_000, graceMs: 200 })
       const controller = new AbortController()
-      const settled: Promise<PtcRunResult> = runtime.run(runtime.resolve({
+      const settled: Promise<CodingRunResult> = runtime.run(runtime.resolve({
         program: 'import time\nwhile True: time.sleep(0.1)',
         bindings: [],
         signal: controller.signal,
@@ -3334,7 +3334,7 @@ describe('PythonPtcRuntime — budgets, termination, disposal', () => {
         'echoed = await tools.echo({"ping": True})',
         'return {"before": before, "after": mapped(), "echoed": echoed}',
       ].join('\n'),
-      bindings: tools({ echo: async args => args as PtcJsonValue }),
+      bindings: tools({ echo: async args => args as CodingJsonValue }),
     }))
     expect(result.error).toBeUndefined()
     const value = result.value as { before: number; after: number; echoed: unknown }
@@ -3853,7 +3853,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         'return x',
       ].join('\n'),
       bindings: tools({
-        echo: async (args) => { seenLegitCall = true; return args as PtcJsonValue },
+        echo: async (args) => { seenLegitCall = true; return args as CodingJsonValue },
       }),
     }))
     expect(result.error).toBeUndefined()
@@ -3877,7 +3877,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         'return x',
       ].join('\n'),
       bindings: tools({
-        echo: async args => args as PtcJsonValue,
+        echo: async args => args as CodingJsonValue,
       }),
     }))
     expect(result.error).toBeUndefined()
@@ -3906,7 +3906,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         'return x',
       ].join('\n'),
       bindings: tools({
-        echo: async (args) => { echoCalls += 1; return args as PtcJsonValue },
+        echo: async (args) => { echoCalls += 1; return args as CodingJsonValue },
       }),
     }))
     expect(result.error).toBeUndefined()
@@ -3932,7 +3932,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         'return {"caught": caught, "after": after}',
       ].join('\n'),
       bindings: tools({
-        echo: async (args) => { seen.push(args); return args as PtcJsonValue },
+        echo: async (args) => { seen.push(args); return args as CodingJsonValue },
       }),
     }))
     expect(result.error).toBeUndefined()
@@ -3961,7 +3961,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         'return x',
       ].join('\n'),
       bindings: tools({
-        echo: async (args) => { dispatched = args; return args as PtcJsonValue },
+        echo: async (args) => { dispatched = args; return args as CodingJsonValue },
       }),
     }))
     expect(result.error).toBeUndefined()
@@ -4003,7 +4003,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
   it('carries a lone-surrogate completion string across the wire as its JSON escape', async () => {
     // UTF-8 has no encoding for a lone surrogate, but JSON does: the ASCII
     // `\ud800` escape, which JSON.parse reads back as the same UTF-16 code
-    // unit. `PtcJsonValue`, `snapshotJsonValue`, and the worker backend all
+    // unit. `CodingJsonValue`, `snapshotJsonValue`, and the worker backend all
     // accept such a string, so this backend must not narrow the shared seam.
     const { runtime } = await setup()
     const result = await runtime.run(runtime.resolve({
@@ -4056,7 +4056,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
     const { runtime } = await setup()
     const result = await runtime.run(runtime.resolve({
       program: String.raw`return await tools.echo({"text": "x\udfff"})`,
-      bindings: tools({ echo: async (args: unknown) => { seen.push(args); return args as PtcJsonValue } }),
+      bindings: tools({ echo: async (args: unknown) => { seen.push(args); return args as CodingJsonValue } }),
     }))
     expect(result.error).toBeUndefined()
     expect(seen).toEqual([{ text: 'x\udfff' }])
@@ -4196,7 +4196,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         'return result["value"]',
       ].join('\n'),
       bindings: tools({
-        echo: async (args) => { seen.push(args); return args as PtcJsonValue },
+        echo: async (args) => { seen.push(args); return args as CodingJsonValue },
       }),
     }))
     expect(result.error).toBeUndefined()
@@ -4469,7 +4469,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
     // the call fails through its rejection contract instead of dispatching a
     // float whose digits come from an override.
     const { runtime } = await setup()
-    const seen: PtcJsonValue[] = []
+    const seen: CodingJsonValue[] = []
     const result = await runtime.run(runtime.resolve({
       program: [
         'class F(float):',
@@ -4480,7 +4480,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         '    return str(exc)',
       ].join('\n'),
       bindings: tools({ echo: async (args) => {
-        seen.push(args as PtcJsonValue)
+        seen.push(args as CodingJsonValue)
         return null
       } }),
     }))
@@ -4494,7 +4494,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
     // exact-type rule: the call fails descriptively instead of dispatching a
     // value whose serialization disagrees with what was validated.
     const { runtime } = await setup()
-    const seen: PtcJsonValue[] = []
+    const seen: CodingJsonValue[] = []
     const result = await runtime.run(runtime.resolve({
       program: [
         'class Sneaky(dict):',
@@ -4505,7 +4505,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         '    return str(exc)',
       ].join('\n'),
       bindings: tools({ echo: async (args) => {
-        seen.push(args as PtcJsonValue)
+        seen.push(args as CodingJsonValue)
         return null
       } }),
     }))
@@ -4692,7 +4692,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
       'print("after-trickle")',
       'return "done"',
     ].join('\n')
-    let result: PtcRunResult
+    let result: CodingRunResult
     try {
       const { runtime } = await setup({ maxWallMs: 30_000 })
       result = await runtime.run(runtime.resolve({ program, bindings: [] }))
@@ -5284,7 +5284,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         'time.sleep(30)',
         'return "unreachable"',
       ].join('\n'),
-      bindings: [{ global: 'tools', functions: { echo: async (args: unknown) => args as PtcJsonValue } }],
+      bindings: [{ global: 'tools', functions: { echo: async (args: unknown) => args as CodingJsonValue } }],
     }))
     expect(result.error?.kind).toBe('worker-exit')
     expect(result.error?.message).toContain('reply queue exceeded')
@@ -5331,7 +5331,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         'import asyncio',
         'return len(await asyncio.gather(*[tools.echo(i) for i in range(1025)]))',
       ].join('\n'),
-      bindings: [{ global: 'tools', functions: { echo: async (args: unknown) => args as PtcJsonValue } }],
+      bindings: [{ global: 'tools', functions: { echo: async (args: unknown) => args as CodingJsonValue } }],
     }))
     expect(result.error).toBeUndefined()
     expect(result.value).toBe(1025)
@@ -5401,7 +5401,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         'import asyncio',
         'return len(await asyncio.gather(*[t.e(i) for i in range(1300)]))',
       ].join('\n'),
-      bindings: [{ global: 't', functions: { e: async (args: unknown) => args as PtcJsonValue } }],
+      bindings: [{ global: 't', functions: { e: async (args: unknown) => args as CodingJsonValue } }],
     }))
     expect(result.error).toBeUndefined()
     expect(result.value).toBe(1300)
@@ -5461,7 +5461,7 @@ describe('PythonPtcRuntime — hostile peer', () => {
         'except Exception as e:',
         '    return str(e)',
       ].join('\n'),
-      bindings: [{ global: 'tools', functions: { echo: async (args: unknown) => args as PtcJsonValue } }],
+      bindings: [{ global: 'tools', functions: { echo: async (args: unknown) => args as CodingJsonValue } }],
     }))
     expect(result.error).toBeUndefined()
     expect(result.value).toContain('duplicate dict key')

@@ -66,7 +66,7 @@ A missing owner or spill backend, failed storage, missing route image pricing, o
 
 ### The durable log copy
 
-PTC programs receive complete canonical values. Image-bearing sub-results are bounded before forwarding to the model; when every image is omitted, the model still receives the retained text and recovery notice. The dispatch log uses the same retained content. Text-only sub-call logs, including `read`, are bounded asynchronously without delaying program values.
+coding programs receive complete canonical values. Image-bearing sub-results are bounded before forwarding to the model; when every image is omitted, the model still receives the retained text and recovery notice. The dispatch log uses the same retained content. Text-only sub-call logs, including `read`, are bounded asynchronously without delaying program values.
 
 -----
 

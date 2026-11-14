@@ -1,6 +1,6 @@
 {
   "name": "@qilin-agent/agent-tool-presentation",
-  "description": "Agent-plane presentation selector: composes one agent's tools as PTC mode, native, or both",
+  "description": "Agent-plane presentation selector: composes one agent's tools as coding mode, native, or both",
   "version": "3.1.11",
   "publishConfig": {
     "access": "public"

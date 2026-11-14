@@ -1,5 +1,5 @@
 /**
- * CPython subprocess PTC runtime: a fresh `python3` process runs each model program under an
+ * CPython subprocess coding runtime: a fresh `python3` process runs each model program under an
  * asyncio event loop with top-level ``await``. Binding calls travel on fd 3 as JSON-lines,
  * leaving stdout/stderr free for the program's own output. Direct file effects follow the
  * shared sandbox policy; CPU, address-space, output, and wall-clock budgets bound each run.
@@ -19,8 +19,8 @@ import { getHeapStatistics } from 'node:v8'
 import type { Duplex } from 'node:stream'
 import { Context } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
-import { PtcRuntime, DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@qilin-agent/coding-runtime'
-import type { PtcBindingErrorClass, PtcBindingFunction, PtcJsonValue, PtcRunFailure, PtcRunRequest, PtcRunResult, PtcRunSandbox, PtcRunSpec } from '@qilin-agent/coding-runtime'
+import { CodingRuntime, DUNDER_MEMBER, PORTABLE_RESERVED_WORDS, RESERVED_BINDING_GLOBALS, RESERVED_ERROR_MEMBERS } from '@qilin-agent/coding-runtime'
+import type { CodingBindingErrorClass, CodingBindingFunction, CodingJsonValue, CodingRunFailure, CodingRunRequest, CodingRunResult, CodingRunSandbox, CodingRunSpec } from '@qilin-agent/coding-runtime'
 import { snapshotJsonValue } from '@qilin-agent/util-values'
 import { SandboxUnavailableError, classifyRunnerFailure, isRunnerSpawnFailure } from '@qilin-agent/sandbox'
 import type { ConfinedArgv, SandboxExecutionPolicy, SandboxMode } from '@qilin-agent/sandbox'
@@ -104,7 +104,7 @@ type ResolvedConfig = Required<Config>
 
 /**
  * The seam's language-portable identifier subset (see
- * `PtcBindingNamespace.global`) — identical to Python's identifier grammar,
+ * `CodingBindingNamespace.global`) — identical to Python's identifier grammar,
  * so the shared contract needs no per-backend mapping here.
  */
 const IDENTIFIER = /^[A-Za-z_][A-Za-z0-9_]*$/
@@ -703,7 +703,7 @@ function accrueStrayCost(buf: Buffer, state: Utf8CostState): number {
  * SERIALIZED (JSON-escaped) cost. The split is deliberate: `_cap_message`'s
  * output has to cross fd 3 as a JSON string, so its escaped width is what the
  * frame ceiling bounds; this function's output goes straight into
- * `PtcRunResult.error.message` and never re-crosses a frame-bounded channel, so
+ * `CodingRunResult.error.message` and never re-crosses a frame-bounded channel, so
  * the honest measure of what it retains is the raw length. An honest child has
  * already capped the diagnostic by serialized cost, and raw length ≤ serialized
  * cost, so a well-formed message passes through unchanged. A forged message with
@@ -785,8 +785,8 @@ export function detachResidual(residual: Buffer): Buffer[] {
 
 /** One namespace after seam validation: its callables plus the optional typed-rejection contract. */
 interface ValidatedNamespace {
-  functions: Record<string, PtcBindingFunction>
-  errorClass?: PtcBindingErrorClass
+  functions: Record<string, CodingBindingFunction>
+  errorClass?: CodingBindingErrorClass
 }
 
 /**
@@ -795,16 +795,16 @@ interface ValidatedNamespace {
  */
 interface LiveRun {
   kill(sig: NodeJS.Signals): void
-  settle(failure: PtcRunFailure): void
+  settle(failure: CodingRunFailure): void
   finished: Promise<void>
 }
 
 /**
- * The experimental {@link PtcRuntime} backend (private, not released) registering as `codingRuntime`. Every
+ * The experimental {@link CodingRuntime} backend (private, not released) registering as `codingRuntime`. Every
  * cap is validated config; every long-running operation honors the request's
  * `AbortSignal`; every disposer awaits child-process exit.
  */
-export class PythonPtcRuntime extends PtcRuntime {
+export class PythonPtcRuntime extends CodingRuntime {
   static Config: z<Config> = z.object({
     cpuSeconds: z.number().default(60),
     maxWallMs: z.number().default(600_000),
@@ -922,7 +922,7 @@ export class PythonPtcRuntime extends PtcRuntime {
     // already inside the charge and must not be multiplied in again. The
     // receive-side `capMessage` backstop is the one exception to this argument:
     // it bills a forged `done.error.message` by RAW bytes, but that output goes
-    // into `PtcRunResult.error.message` and never re-crosses a frame-bounded
+    // into `CodingRunResult.error.message` and never re-crosses a frame-bounded
     // channel, so it is not part of the wire-width bound (see its JSDoc). The
     // admissible cap is therefore `parse-cap - envelope`: the receive path
     // rejects raw frames past the effective parse cap (`frameParseCapBytes` —
@@ -1047,7 +1047,7 @@ export class PythonPtcRuntime extends PtcRuntime {
    * @returns Complete inputs for the provider's run method.
    * @throws When a requested override is unsupported or cwd is relative.
    */
-  resolve(request: PtcRunRequest): PtcRunSpec {
+  resolve(request: CodingRunRequest): CodingRunSpec {
     if (this.disposed) throw new Error('qilin-coding-runtime-python: resolve() after disposal')
     if (request.timeoutMs !== undefined) throw new Error('qilin-coding-runtime-python: per-call timeout is unsupported')
     const sandboxPolicy = request.sandboxPolicy ?? this.ctx.sandboxPolicy.resolve()
@@ -1061,7 +1061,7 @@ export class PythonPtcRuntime extends PtcRuntime {
    * @param request - Resolved cwd, sandbox policy, provider deadline, program and bindings.
    * @returns Captured output, the program outcome, and file-confinement facts.
    */
-  async run(request: PtcRunSpec): Promise<PtcRunResult> {
+  async run(request: CodingRunSpec): Promise<CodingRunResult> {
     if (request.sandboxPolicy === undefined || request.timeoutMs !== this.config.maxWallMs) {
       throw new Error('qilin-coding-runtime-python: run requires a resolved sandbox policy and the configured wall deadline')
     }
@@ -1094,7 +1094,7 @@ export class PythonPtcRuntime extends PtcRuntime {
    * reserved globals/error classes, duplicates, and colliding or
    * runtime-owned injected globals.
    */
-  private validateBindings(request: PtcRunRequest): Map<string, ValidatedNamespace> {
+  private validateBindings(request: CodingRunRequest): Map<string, ValidatedNamespace> {
     const bindings = new Map<string, ValidatedNamespace>()
     // Every name the bootstrap injects into the program's one global namespace:
     // namespace globals plus error-class names. They must be a collision-free
@@ -1133,7 +1133,7 @@ export class PythonPtcRuntime extends PtcRuntime {
       // attribute name, so both face the Python identifier rules; the member
       // additionally must be assignable on a BaseException instance.
       const errorClass = namespace.errorClass
-      let validatedErrorClass: PtcBindingErrorClass | undefined
+      let validatedErrorClass: CodingBindingErrorClass | undefined
       if (errorClass) {
         const name = errorClass.name
         const memberNameProperty = errorClass.memberNameProperty
@@ -1167,7 +1167,7 @@ export class PythonPtcRuntime extends PtcRuntime {
       // contract treats member names like `__proto__` or `constructor` as
       // ordinary own properties, and a plain `{}` assignment of `__proto__`
       // would hit the prototype setter instead of creating the own property.
-      const functions = Object.create(null) as Record<string, PtcBindingFunction>
+      const functions = Object.create(null) as Record<string, CodingBindingFunction>
       for (const name of Object.keys(namespace.functions)) {
         // Only callables enter the snapshot: a getter exposing a non-function
         // member would otherwise assign a value the dispatcher's `typeof fn
@@ -1184,11 +1184,11 @@ export class PythonPtcRuntime extends PtcRuntime {
 
   /** Spawn the child for one validated run and drive it to settlement. */
   private async execute(
-    request: PtcRunSpec,
+    request: CodingRunSpec,
     policy: SandboxExecutionPolicy,
     bindings: Map<string, ValidatedNamespace>,
     bootstrapPath: string,
-  ): Promise<PtcRunResult> {
+  ): Promise<CodingRunResult> {
     // This run's own staging directory, removed at settlement.
     const bootstrapDir = dirname(bootstrapPath)
     // Explicit pipe count of 4 puts the framed-JSON channel at fd 3 in the child.
@@ -1202,7 +1202,7 @@ export class PythonPtcRuntime extends PtcRuntime {
     // `worker-exit` — the same class as the async ENOENT `error` event below.
     let child: ChildProcessWithoutNullStreams
     let proto: Duplex | null
-    const sandbox: PtcRunSandbox = { mode: policy.mode, denied: false }
+    const sandbox: CodingRunSandbox = { mode: policy.mode, denied: false }
     // Confinement wraps the interpreter argv; a `danger-full-access` policy
     // needs no wrapper, and any failure to establish required confinement
     // resolves as `sandbox-unavailable` instead of running unconfined.
@@ -1286,7 +1286,7 @@ export class PythonPtcRuntime extends PtcRuntime {
       })
     }
 
-    return new Promise<PtcRunResult>((resolve) => {
+    return new Promise<CodingRunResult>((resolve) => {
       let settled = false
       const logs: string[] = []
       // An unterminated line flushed with the `open` flag: the next log frame
@@ -1395,7 +1395,7 @@ export class PythonPtcRuntime extends PtcRuntime {
       // (native prints, C-extension writes) still counts against the ledger.
       //
       // Output is admitted per LINE, not per transport chunk. `logs` entries
-      // are joined with `\n` downstream (PTC mode), so each entry must be one
+      // are joined with `\n` downstream (coding mode), so each entry must be one
       // line: pushing a raw `data` chunk would turn every arbitrary pipe-read
       // boundary into a model-visible newline, so a single 200 KiB native write
       // split across pipe reads would read back with spurious line breaks. The
@@ -1921,7 +1921,7 @@ export class PythonPtcRuntime extends PtcRuntime {
             // the value (an unbounded scan would push every member of a wide
             // forgery before any cap ran). checkDoneValue folds both jobs into
             // one bounded, iterative traversal — iterative because the seam's
-            // PtcJsonValue has no depth limit and an honest deep-but-small
+            // CodingJsonValue has no depth limit and an honest deep-but-small
             // completion must cross intact rather than dying on stringify
             // recursion; bounded because it stops at the cap without
             // materializing the encoding, rejecting a forged value anywhere
@@ -1937,7 +1937,7 @@ export class PythonPtcRuntime extends PtcRuntime {
                 : { error: { kind: 'invalid-output', message: 'completion value contained a non-lossless number' } })
               return
             }
-            finish({ value: message.value as PtcJsonValue })
+            finish({ value: message.value as CodingJsonValue })
             return
           }
           case 'call': {
@@ -2248,12 +2248,12 @@ export class PythonPtcRuntime extends PtcRuntime {
       let resolved = false
       // The decided terminal result for a live child, recorded by finish() and
       // read by the `close` handler that settles it once the pipes have drained.
-      let decided: Omit<PtcRunResult, 'logs'>
+      let decided: Omit<CodingRunResult, 'logs'>
 
       // The single settlement point: resolve run() with the decided result and
       // mark the fiber quiescent. Idempotent — the first call wins, so a later
       // `close` after done/timeout/abort is absorbed as a no-op.
-      const settle = (result: Omit<PtcRunResult, 'logs'>): void => {
+      const settle = (result: Omit<CodingRunResult, 'logs'>): void => {
         if (resolved) return
         resolved = true
         if (closeDeadline !== undefined) clearTimeout(closeDeadline)
@@ -2364,7 +2364,7 @@ export class PythonPtcRuntime extends PtcRuntime {
         pollGroup()
       }
 
-      const finish = (result: Omit<PtcRunResult, 'logs'>): void => {
+      const finish = (result: Omit<CodingRunResult, 'logs'>): void => {
         if (settled) return
         settled = true
         decided = result
@@ -2473,7 +2473,7 @@ export class PythonPtcRuntime extends PtcRuntime {
       const live: LiveRun = {
         kill,
         finished,
-        settle: (failure: PtcRunFailure) => { finish({ error: failure }) },
+        settle: (failure: CodingRunFailure) => { finish({ error: failure }) },
       }
       this.live.add(live)
       /* jscpd:ignore-end */

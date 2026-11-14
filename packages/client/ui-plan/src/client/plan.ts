@@ -1,4 +1,4 @@
-/** Plan text and resource identities derived from logged native or PTC calls. */
+/** Plan text and resource identities derived from logged native or coding calls. */
 import type { ToolCallId } from '@qilin-agent/llm/brand'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { SessionAddress } from '@qilin-agent/api-session-controller/types'
@@ -26,7 +26,7 @@ function record(value: unknown): value is Record<string, unknown> {
 
 /**
  * Read a complete plan from untrusted logged arguments.
- * @param event - Native call or PTC dispatch event from Session history.
+ * @param event - Native call or coding dispatch event from Session history.
  * @returns the submitted plan, or undefined for unrelated or malformed data.
  */
 export function submittedPlan(event: { readonly type: string; readonly data: unknown }): SubmittedPlan | undefined {
