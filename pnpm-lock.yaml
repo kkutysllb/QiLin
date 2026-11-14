@@ -8129,6 +8129,25 @@ importers:
         specifier: workspace:*
         version: link:../../core/session
 
+  packages/document/tool-office-read:
+    dependencies:
+      '@qilin-agent/fs':
+        specifier: workspace:*
+        version: link:../../fs/fs
+      '@qilin-agent/office-read':
+        specifier: workspace:*
+        version: link:../office-read
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin-agent/tools':
+        specifier: workspace:*
+        version: link:../../core/tools
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+
   packages/experimental/api-speech-to-text:
     dependencies:
       '@qilin-agent/schemastery':

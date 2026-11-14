@@ -1,0 +1,43 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/document/tool-office-read/README.md
+/:
+  en: c451189dc7216eca
+  zh: 3162f7c25925b4ad
+/qilin-agent-tool-office-read:
+  en: c4e8d6052917899f
+  zh: 7273c065f14bbd1d
+/qilin-agent-tool-office-read/summary:
+  en: 3fefdd478ff62c38
+  zh: 4e3f88e98f0de6ee
+/qilin-agent-tool-office-read/table-of-contents:
+  en: 76368b6b1da79c80
+  zh: 22650233a3f73f9c
+/qilin-agent-tool-office-read/use-this-package:
+  en: 11e1c108520acd7d
+  zh: 1d28516abbf32c4d
+/qilin-agent-tool-office-read/understand-the-implementation:
+  en: 1a3520240133b616
+  zh: 7d88a9b7b0028aec
+/qilin-agent-tool-office-read/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-tool-office-read/model-experience/document-reading:
+  en: bff9040e7f1675c8
+  zh: e906eb533a821b17
+/qilin-agent-tool-office-read/model-experience/document-reading/what-the-model-sees:
+  en: 7a397a9006f60989
+  zh: 84fbefaaaae02f6d
+/qilin-agent-tool-office-read/model-experience/document-reading/token-effect:
+  en: ddae276267971e32
+  zh: f66c63784b452c66
+/qilin-agent-tool-office-read/model-experience/document-reading/kv-cache-effect:
+  en: f44a424a795ef437
+  zh: 90b30b3aaaa727ad
+/qilin-agent-tool-office-read/known-limitations-and-deferred-work:
+  en: 1e7b6a50abba9605
+  zh: d8f9012a982a0d52
+/qilin-agent-tool-office-read/known-limitations-and-deferred-work/dev-note:
+  en: 0a1253c6f7b5e8b9
+  zh: 9f56528562c7c914
