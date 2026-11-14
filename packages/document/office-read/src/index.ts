@@ -117,3 +117,53 @@ export function readOffice(
     throw new OfficeReadError('corrupt', `${format} package could not be read: ${error instanceof Error ? error.message : String(error)}`)
   }
 }
+
+/** Counts and names one read document exposes without its content. */
+export interface OfficeMetadata {
+  /** Detected or requested format. */
+  readonly format: OfficeFormat
+  /** Paragraphs the body holds. */
+  readonly paragraphs: number
+  /** Tables the body holds. */
+  readonly tables: number
+  /** One entry per worksheet: its name and the size of the cells it holds. */
+  readonly sheets: readonly { readonly name: string; readonly rows: number; readonly columns: number }[]
+  /** Slides the deck holds. */
+  readonly slides: number
+  /** Whether a read limit stopped the walk early. */
+  readonly truncated: boolean
+}
+
+/**
+ * Read one Office package and return its counts and names only.
+ * The preview cache uses this identity so two documents that differ only in
+ * styling produce the same key while differently sized ones do not.
+ * @param bytes - complete document bytes.
+ * @param options - format override and limit overrides.
+ * @returns the format-appropriate metadata.
+ * @throws {OfficeReadError} when the bytes are not a package this reader supports.
+ */
+export function readOfficeMetadata(
+  bytes: Uint8Array,
+  options: { readonly format?: OfficeFormat; readonly limits?: Partial<OfficeReadLimits> } = {},
+): OfficeMetadata {
+  const content = readOffice(bytes, options)
+  if (content.format === 'docx') {
+    return { format: 'docx', paragraphs: content.paragraphs.length, tables: content.tables.length, sheets: [], slides: 0, truncated: content.truncated }
+  }
+  if (content.format === 'xlsx') {
+    return {
+      format: 'xlsx',
+      paragraphs: 0,
+      tables: 0,
+      sheets: content.sheets.map(sheet => ({
+        name: sheet.name,
+        rows: sheet.rows.length,
+        columns: sheet.rows.reduce((widest, row) => Math.max(widest, row.length), 0),
+      })),
+      slides: 0,
+      truncated: content.truncated,
+    }
+  }
+  return { format: 'pptx', paragraphs: 0, tables: 0, sheets: [], slides: content.slides.length, truncated: content.truncated }
+}

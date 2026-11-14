@@ -51,7 +51,7 @@ None. The tool returns document text; it changes no prompt prefix and no recorde
 
 - **Text, not pages** — the tool reports content, never layout, styling, fonts, or a rendered page; the document preview renders through `office-to-pdf` instead.
 - **Read-only** — there is no write, edit, or re-save operation.
-- **No composition yet** — no shipped preset mounts this plugin; S3 wires it together with the preview path and adds the composition-level test.
+- **Preview cache identity** — the document preview keeps its own conversion cache keyed by file identity; sharing the reader's metadata as that key needs a Host–Client method, which this release does not add.
 - **Unsupported document parts** — comments, tracked changes, charts, embedded objects, and conditional formats are not reported.
 
 <a id="dev-note"></a>
