@@ -141,7 +141,12 @@ V5 是产品功能批次而不是纯样式批次：它要动 worktree 服务、f
 | 不变量 | 打开会话后行内事实与面板一致（同一投影，无第二份状态） |
 | 测试 | 未打开会话有工作树时行内显示分支；无缓存值显示“打开后可见”；打开后与面板一致；缓存随新事件失效；超阈值退化 |
 
-**依赖说明**：这不是 forge 包内可完成的事——列表下发 `projectionValues` 属于会话列表服务；forge 只消费。实现顺序：先服务端下发与缓存，再前端文案，最后测试。
+**依赖说明（盘点修正）**：`projectionValues` 由**客户端会话管理器**从每会话的 projection store 读（`session-controller/src/client/sessions/manager.ts` 的 `buildListSnapshot` / `projectionValues`），而 store 只在收到该会话的 **control frame**（打开/建立控制连接）时创建。所以未打开会话没有 store，自然没有值。修正后的实现路径二选一：
+
+1. **列表帧携带投影**：Host 在会话列表响应里带上 `forgeWorktree` 投影值（Host 侧投影服务可对未打开会话按日志折叠），客户端管理器只透传；
+2. **批量投影读取**：新增一个按 sessionId 批量读投影的 Remote，列表行未打开时触发一次、按 `(sessionId, seq)` 缓存。
+
+两者都改 `session-controller`（Host 与客户端两侧），不是 forge 包内改动；forge 只消费 `projectionValues`。
 
 ## 3. 依赖与顺序
 
