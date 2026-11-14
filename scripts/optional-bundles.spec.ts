@@ -60,12 +60,12 @@ describe('optional bundles', () => {
     }
   })
 
-  it('adds the three Schedule rows the shipped Web composition leaves out', () => {
-    const { patches } = bundle('@qilin-agent/experimental-schedule-bundle')
+  it('ships the three Schedule rows in the Web composition itself', () => {
+    // The automation surface is always on: its rows belong to the default bundle,
+    // and the former optional bundle is retired rather than re-adding them.
     const scheduleRows = (entries: ReturnType<typeof composeEntries>) =>
       entries.filter(entry => ['time-context', 'schedule', 'ui-schedule'].includes(entry.id))
-    expect(scheduleRows(composeEntries(shipped))).toEqual([])
-    expect(scheduleRows(composeEntries([...shipped, patches]))).toEqual([
+    expect(scheduleRows(composeEntries(shipped))).toEqual([
       { id: 'time-context', name: '@qilin-agent/time-context' },
       { id: 'schedule', name: '@qilin-agent/schedule' },
       { id: 'ui-schedule', name: '@qilin-agent/client-ui-schedule' },

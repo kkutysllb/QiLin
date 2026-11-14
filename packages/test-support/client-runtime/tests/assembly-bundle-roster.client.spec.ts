@@ -27,7 +27,7 @@ describe('webApp (the real web profile)', () => {
     const names = webApp.rows.map(row => row.name)
     expect(names).toContain('@qilin-agent/client-ui-settings-general')
     expect(names).not.toContain('@qilin-agent/llm') // Host only
-    expect(names).not.toContain('@qilin-agent/client-ui-schedule') // inserted disabled
+    expect(names).toContain('@qilin-agent/client-ui-schedule') // always-on automation rows
     expect(names).not.toContain('@qilin-agent/web-app') // Host runtime glue, its `/startup` row is a subpath
   })
 })

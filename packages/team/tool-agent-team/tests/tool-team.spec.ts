@@ -739,7 +739,7 @@ describe('qilin-tool-team', () => {
 
     await fiber.dispose()
     const legacySchema = (await assembly(ctx, lead)).tools.find(schema => schema.name === 'send_message')
-    expect(JSON.stringify(legacySchema)).toContain('agent_id')
+    expect(JSON.stringify(legacySchema)).toContain('"agent"')
   })
 
   it('rolls back partial scoped installation after a same-scope collision', async () => {

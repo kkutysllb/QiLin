@@ -279,7 +279,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
   {
     pkg: '@qilin-agent/tools',
     dir: 'tools',
-    source: 'packages/core/tools/src/ptc.ts',
+    source: 'packages/core/tools/src/coding.ts',
     requires: ['ctx.workingDirectory (Agent executions)', 'ctx.tools', 'ctx.codingRuntime (execution time)', 'ctx.systemPrompt'],
     writes: ['tool/call', 'one tool/ptc-dispatch-start + tool/ptc-dispatch pair per bridged sub-call', 'tool/result'],
     // The registry's OWN tool: run_code exists only under a non-native mode

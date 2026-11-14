@@ -719,7 +719,7 @@ describe('loadProfile', () => {
     initProfile(custom, ['@qilin-agent/base', '@qilin-agent/web-app', 'dsh-animations', 'custom-bundle'])
     loadProfile('t', 'web', anchor, customHome)
     expect(readProfileManifest('t', custom).qilin?.profile?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile', '@qilin-agent/experimental-schedule-bundle', 'custom-bundle'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile', 'custom-bundle'])
     // Loading again writes nothing: the restored list converges.
     const settled = readProfileManifest('t', custom)
     loadProfile('t', 'web', anchor, customHome)
@@ -823,7 +823,7 @@ describe('loadProfile', () => {
     writeProfileManifest(installed, { ...owned, dependencies: { ...owned.dependencies, 'dsh-animations': '^1.2.4' } })
     loadProfile('t', 'web', anchor, installedHome)
     expect(readProfileManifest('t', installed).qilin?.profile?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile', '@qilin-agent/experimental-schedule-bundle', 'dsh-animations'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile', 'dsh-animations'])
 
     // An audiences record without the dependency says the owner manages the
     // layer through the plugin manager; it keeps the layer too.
@@ -837,7 +837,7 @@ describe('loadProfile', () => {
     })
     loadProfile('t', 'web', anchor, recordedHome)
     expect(readProfileManifest('t', recorded).qilin?.profile?.bundles)
-      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile', '@qilin-agent/experimental-schedule-bundle', 'dsh-animations'])
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile', 'dsh-animations'])
   })
 
   it('brands a web profile that an older installation initialized without the product layer', () => {

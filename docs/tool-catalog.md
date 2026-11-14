@@ -616,7 +616,7 @@ Execute a TypeScript program against the available tools. Takes two required arg
 }
 ```
 
-Source: [`packages/core/tools/src/ptc.ts`](../packages/core/tools/src/ptc.ts)
+Source: [`packages/core/tools/src/coding.ts`](../packages/core/tools/src/coding.ts)
 
 Owned by the tool registry as a reserved transport outside filterable capability layers under `mode: coding` (see the coding mode Agent Note). Under `coding` it is the registry's only wire contribution; the other visible capabilities are declared in a generated SDK section in the loaded runtime's language, and a program calls them through bindings scheduled under the native concurrency contract (submission-ordered starts and policy; concurrency-safe bodies overlap up to `maxParallelSubCalls`) that re-enter the complete guarded tool pipeline and link each nested execution to this outer result.
 
