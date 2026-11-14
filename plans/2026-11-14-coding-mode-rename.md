@@ -81,7 +81,17 @@
 
 `pnpm run test:gui`、`pnpm run test:snapshot`、两套 SDK 期望输出、`pnpm run doc-sync`、`pnpm run gen-config-catalog`、`pnpm run verify-package-meta`、`pnpm run verify-package-dependencies`、`pnpm run publint`、`pnpm run verify-cordis-config`、`pnpm run verify-translation-pairing --write`（三个包 README 中英 + 分组 README）。
 
-### 7.5 风险
+### 7.5 落地情况（2026-11-14）
+
+| 项 | 结果 |
+|---|---|
+| 包目录与包名 | `packages/coding-runtime/{coding-runtime,coding-runtime-node}`、`packages/workflow/workflow-coding`、`packages/experimental/coding-runtime-python`；四个包名同步改名 |
+| 服务名 | `ctx.ptcRuntime` → `ctx.codingRuntime`（含字面服务名 `'ptcRuntime'`） |
+| 呈现取值 | `ToolPresentationMode = 'native' | 'coding'`；`QILIN_TOOLS_MODE` 只接受 `native`/`coding`；headless bundle 默认 `coding` |
+| 文档 | 子系统页 `docs/subsystems/coding-runtime.md`（+zh）改名；`type-equiv` 文档块与源码 JSDoc 同步；配置目录重生成；受影响的中英 README 与 Agent Notes 重新配对 |
+| 未改（留存词汇） | 事件类型 `tool/ptc-dispatch*`（持久化词汇）、类型名 `PtcRuntime`/`PtcRunRequest`/`PtcRunResult`、文件 `packages/core/tools/src/ptc.ts`、README 正文里的 `PTC` 概念词、历史 Agent Note 的文件名与正文——改名只覆盖包名/服务名/呈现取值 |
+
+### 7.6 风险
 
 - **发布家族**：改名等于新包名首发，版本号与 release notes 必须同批；`release:verify-published` 会要求新名在 registry 上存在。
 - **服务名**：`ctx.codingRuntime` 是 seam 名，改名后引用旧名的外部插件失效（仓库内全同步改；外部消费者属预发布 API，允许破坏）。

@@ -170,6 +170,27 @@ Task 9 (S1 + 别名): complete
   clean, `pnpm run build` clean, `test:docs` 21/21 (including `verify-preset-copy`, which needed its
   hardcoded skills path and copy string updated), `verify-client-ui-i18n`, `oxlint` clean.
 
+Task 10 (S6+S7): complete (`cc7063dd3f`)
+- Package and doc directories moved, then one scripted sweep (excluding `.agents/notes/**`,
+  `docs/persistence-changes/historical-formats/**`, `/lib/`, `snapshots/`) rewrote module
+  specifiers, paths, the service name, and the presentation-mode value; a second pass fixed the
+  remaining test fixtures.
+- Ruling: historical Agent Notes keep `ptc` in their prose and filenames; only their **link
+  targets** changed so `verify-md-links` resolves, and the affected pairs were re-recorded. A full
+  prose sweep would rewrite past decisions.
+- Ruling: `tool/ptc-dispatch*` event types and the `PtcRuntime`/`PtcRun*` type names stay. Event
+  types are committed format vocabulary (renaming one is a format change, not a rename), and the
+  type names are a separate public-API decision.
+- Cost of the first attempt (reverted): sweeping docs and notes wholesale broke
+  `verify-type-equiv`, `verify-md-links`, and every bilingual pairing sidecar, and no amount of
+  re-recording converged. The scoped sweep plus explicit note-link handling converged in one pass.
+- Gates: both `tsc -b` faces clean, `pnpm run build` clean, `test:docs` 21/21 (`type-equiv`
+  472 blocks, `md-links` 2365 files, pairing 1195 pairs), `verify-cordis-config` 227 configs,
+  `verify-package-dependencies` 85 packages, `verify-client-packages` 72 packages.
+- Known environment failures (not rename defects): every failing spec in the renamed runtime,
+  workflow, and tools suites dies at `mkdtemp` under `$HOME` with `EPERM` — this session's file
+  sandbox is workspace-write, and those suites create temp roots in the home directory.
+
 ## Review round 1 (fresh subagent, whole slice)
 
 Findings taken:
