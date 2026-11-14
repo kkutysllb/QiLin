@@ -72,6 +72,17 @@ V5 是产品功能批次而不是纯样式批次：它要动 worktree 服务、f
 
 工作树维护期间消息被 hold 时，composer 显示「等待工作树就绪」与可用的停止入口，而不是静默等待。
 
+## 2.1 S1 进展（2026-11-14，已完成）
+
+| 层 | 落地内容 | 测试 |
+|---|---|---|
+| worktree 服务 | `worktrees.remove(agent, { …, deleteBranch })`：与 restore 同套校验、不加 force 移除（脏检出保留并报错）、缺失目录清登记、锁定拒绝、未合并分支保留并报错 | +5（移除/删分支/脏检出保留/锁定/池外零命令） |
+| 投影与记录 | 新 plugin record `removed`：`forgeWorktree` 投影清空 `created`，旧日志回放不变 | 投影/回放规格随之通过 |
+| forge Remote | `forgePanel.removeWorktree(session, deleteBranch, signal)`：维护中先把工作目录移回源仓库，再移除；失败映射 `forgePanel/remove-failed` | +3（移除/删分支拒绝/无工作树） |
+| 面板 UI | 检出行「移除工作树」按钮 + 二次确认（未提交改动会丢失、可选删分支、失败原因留对话框） | +2（确认后调用、勾选分支、拒绝保留对话框） |
+
+证据：`pnpm run test:gui` 10858 通过；`tsc -b` 两套 face 干净；`test:docs` 21/21；`build` 通过。
+
 ## 3. 依赖与顺序
 
 S1 → S2（都要动 forge Remote 与面板状态，先做破坏性操作把错误码与确认模式定下来）→ S3/S4（读面增强）→ S5（终端独立）→ S6（生命周期语义）。
