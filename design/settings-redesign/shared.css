@@ -1,0 +1,65 @@
+:root {
+  --bg: #17171a;
+  --panel: #1e1e21;
+  --surface: #232327;
+  --line: #2e2f34;
+  --line-strong: #3a3b41;
+  --text: #f4f4f6;
+  --text-2: #a6a8b1;
+  --text-3: #7b7d87;
+  --accent: #e6b25c;
+  --accent-soft: rgba(230, 178, 92, 0.14);
+  --radius: 12px;
+  --font: -apple-system, "PingFang SC", "Helvetica Neue", "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+.app { display: flex; height: 900px; }
+.sidebar { width: 232px; flex: none; padding: 26px 14px; display: flex; flex-direction: column; gap: 26px; }
+.back { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); padding: 0 10px; }
+.side-title { font-size: 20px; font-weight: 650; letter-spacing: -0.01em; padding: 0 10px; }
+.side-list { display: flex; flex-direction: column; gap: 2px; }
+.side-item { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 9px; font-size: 13.5px; color: var(--text-2); position: relative; }
+.side-item svg { opacity: .7; flex: none; }
+.side-item.on { color: var(--text); background: var(--surface); }
+.side-item.on::before { content: ""; position: absolute; left: -6px; top: 9px; bottom: 9px; width: 2px; border-radius: 2px; background: var(--accent); }
+.side-foot { margin-top: auto; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-3); padding: 0 10px; }
+.content { flex: 1; overflow: hidden; background: var(--bg); }
+.scroll { height: 100%; overflow: auto; padding: 44px 56px 80px; }
+.page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; margin-bottom: 34px; }
+.page-title { margin: 0; font-size: 24px; font-weight: 620; letter-spacing: -0.015em; }
+.page-sub { margin: 6px 0 0; font-size: 13px; color: var(--text-3); }
+.chip { font-size: 11.5px; color: var(--text-3); border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 28px; padding: 15px 0; border-top: 1px solid var(--line); }
+.row:first-child { border-top: 0; }
+.row-label { font-size: 14px; font-weight: 480; }
+.row-desc { margin-top: 3px; font-size: 12.5px; color: var(--text-3); }
+.control { display: flex; align-items: center; gap: 8px; }
+.select { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px 6px 12px; }
+.seg { display: inline-flex; padding: 3px; gap: 2px; border: 1px solid var(--line); border-radius: 10px; }
+.seg-item { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-2); padding: 5px 11px; border-radius: 7px; }
+.seg-item.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 0 rgba(255,255,255,.03), 0 0 0 1px var(--line-strong); }
+.chiprow { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill { font-size: 12.5px; color: var(--text-2); border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px; }
+.pill.on { color: var(--text); background: var(--accent-soft); border-color: rgba(230,178,92,.5); }
+.toggle { width: 38px; height: 22px; border-radius: 999px; background: var(--line-strong); position: relative; }
+.toggle::after { content: ""; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: #fff; top: 2px; left: 2px; }
+.toggle.on { background: var(--accent); }
+.toggle.on::after { left: 18px; }
+/* Variant A: gutter sheet */
+.groups { max-width: 880px; }
+.group { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 40px; padding: 28px 0; border-top: 1px solid var(--line); }
+.group:first-child { border-top: 0; padding-top: 0; }
+.group-label { font-size: 12px; letter-spacing: .06em; color: var(--text-2); font-weight: 560; }
+.group-hint { margin-top: 8px; font-size: 12px; color: var(--text-3); line-height: 18px; }
+/* Variant B: master detail */
+.b-shell { display: flex; height: 100%; }
+.b-index { width: 214px; flex: none; border-right: 1px solid var(--line); padding: 26px 12px; display: flex; flex-direction: column; gap: 4px; }
+.b-item { padding: 10px 12px; border-radius: 9px; font-size: 13.5px; color: var(--text-2); display: flex; flex-direction: column; gap: 3px; }
+.b-item span { font-size: 11.5px; color: var(--text-3); }
+.b-item.on { background: var(--surface); color: var(--text); }
+.b-main { flex: 1; padding: 40px 52px; overflow: auto; }
+/* Variant C: split surfaces */
+.c-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.card { border: 1px solid var(--line); border-radius: 14px; padding: 6px 18px 8px; background: linear-gradient(180deg, rgba(255,255,255,.012), transparent); }
+.card h3 { margin: 16px 0 6px; font-size: 12px; letter-spacing: .06em; color: var(--text-2); font-weight: 560; }

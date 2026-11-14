@@ -29,7 +29,7 @@ import { createSettingsShellStore } from './shell-store.ts'
 import { SettingsRoot } from './SettingsRoot.tsx'
 import { HeaderContent } from './chrome.tsx'
 import { AboutSection } from './AboutSection.tsx'
-import { GeneralSection } from './GeneralSection.tsx'
+import { GeneralSection, type GeneralItemRef, type GeneralSectionInjected } from './GeneralSection.tsx'
 import { CurrentVersionRow } from './CurrentVersionRow.tsx'
 import { DeveloperToolsRow, type DeveloperToolsRowInjected } from './DeveloperToolsRow.tsx'
 import { HostReleasePrompt, type HostReleasePromptInjected } from './HostReleasePrompt.tsx'
@@ -218,6 +218,29 @@ export function apply(ctx: ClientContext): void {
     label: () => t('general.nav'),
     locale: NS,
     children: { 'settings.general.item': { kind: 'list', scope: 'root' } },
+    // The item ledger as a bare observable: the section groups registered rows
+    // without subscribing to a store of its own.
+    inject: (): GeneralSectionInjected => {
+      let version = -1
+      let items: readonly GeneralItemRef[] = []
+      return {
+        hooks: {
+          items: {
+            getSnapshot: () => {
+              const next = ctx.slots.getVersion('settings.general.item')
+              if (next !== version) {
+                version = next
+                items = ctx.slots.entriesOfSlot('settings.general.item')
+                  .map(entry => ({ id: entry.options.id ?? '' }))
+                  .sort((a, b) => a.id.localeCompare(b.id))
+              }
+              return items
+            },
+            subscribe: listener => ctx.slots.subscribe('settings.general.item', listener),
+          },
+        },
+      }
+    },
   }, GeneralSection))
   ctx.slots.inject('settings.section', () => ctx.slots.register({
     name: 'settings.section',

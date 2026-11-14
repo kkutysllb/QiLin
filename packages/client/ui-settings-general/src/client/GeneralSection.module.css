@@ -1,30 +1,80 @@
-/* Every feature contribution is its own card, so the General column reads as a
- * stack of independent settings instead of one long form. The slot renders one
- * layout-neutral anchor holding all item roots, so the card rules have to reach
- * through it and land on each registrant's root element — and the closing rule
- * targets the last item *inside* that anchor: the anchor is the section's only
- * child, so a `:last-child` on the anchor itself would match on every render.
- *
- * Registrants own their row chrome (padding plus a hairline separator) for the
- * flat column they were written against; the card replaces both, and these
- * selectors outrank a registrant's single class wherever the two disagree. The
- * card keeps the page's own surface — the outline alone separates it. */
+/* General page: a display header over two-column cards. Each card is one group
+ * of settings rows; rows own their internal layout, the card owns the surface,
+ * the row separators, and the group heading. */
 
 .section {
   display: flex;
   flex-direction: column;
+  gap: var(--qilin-space-6);
   width: 100%;
 }
 
-.section > :global([data-slot='settings.general.item']) > * {
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qilin-space-1);
+  padding-top: var(--qilin-space-1);
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 620;
+  line-height: 32px;
+  letter-spacing: -0.015em;
+  color: var(--qilin-alias-label-primary);
+}
+
+.description {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--qilin-alias-label-tertiary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: var(--qilin-space-4);
+}
+
+.card {
   box-sizing: border-box;
-  width: 100%;
-  margin: 0 0 var(--qilin-space-5);
-  padding: var(--qilin-space-5) var(--qilin-space-5);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   border: 1px solid var(--qilin-alias-border-l2);
   border-radius: var(--qilin-radius-xl);
+  padding: var(--qilin-space-2) var(--qilin-space-5) var(--qilin-space-3);
 }
 
-.section > :global([data-slot='settings.general.item']) > *:last-child {
-  margin-bottom: 0;
+.cardTitle {
+  margin: var(--qilin-space-3) 0 var(--qilin-space-1);
+  font-size: 12px;
+  font-weight: 560;
+  letter-spacing: 0.06em;
+  color: var(--qilin-alias-label-tertiary);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.rows > * {
+  padding: var(--qilin-space-4) 0;
+  border: 0;
+  border-top: 1px solid var(--qilin-alias-border-l2);
+}
+
+.rows > *:first-child {
+  border-top: 0;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

@@ -47,15 +47,18 @@ describe('GeneralSection', () => {
     const renderSlot = vi.fn(
       ((key: string) => <div data-testid={`slot-${key}`} />) as GeneralSectionComponentProps['renderSlot'],
     )
-    const props: GeneralSectionComponentProps = { ...kit, renderSlot, close: vi.fn() }
+    const useItems = vi.fn((selector: (value: readonly { id: string }[]) => unknown) => selector([{ id: 'permission' }, { id: 'appearance' }])) as unknown as GeneralSectionComponentProps['useItems']
+    const props: GeneralSectionComponentProps = { ...kit, renderSlot, close: vi.fn(), t, useItems }
     const view = render(<GeneralSection {...props} />)
     return { view, renderSlot }
   }
 
-  it('renders the item slot as the section body', () => {
+  it('renders each known item inside its group card', () => {
     const { renderSlot } = mount()
-    expect(renderSlot).toHaveBeenCalledWith('settings.general.item', {})
-    expect(screen.getByTestId('slot-settings.general.item')).toBeTruthy()
+    expect(renderSlot).toHaveBeenCalledWith('settings.general.item', {}, { only: 'permission' })
+    expect(renderSlot).toHaveBeenCalledWith('settings.general.item', {}, { only: 'appearance' })
+    expect(screen.getAllByRole('heading', { level: 3 }).map(heading => heading.textContent))
+      .toEqual(['Access and safety', 'Appearance and type'])
   })
 })
 
