@@ -11,6 +11,7 @@ import {
 } from '@qilin-agent/workspace'
 import { RemoteError, remoteErrorOf } from '@qilin-agent/typert-protocol'
 import { workspaceView } from './feed.ts'
+import type { WorkspaceKinds } from './kinds.ts'
 import type {
   WorkspaceArchiveSessionRequest,
   WorkspaceArchiveValue,
@@ -26,6 +27,7 @@ import type {
   WorkspaceRenameRequest,
   WorkspaceUnarchiveSessionRequest,
   WorkspaceUnpinSessionRequest,
+  WorkspaceView,
   WorkspaceValue,
 } from './types.ts'
 
@@ -34,7 +36,11 @@ export class WorkspaceCommands {
   private operationTail = Promise.resolve()
 
   /** @param ctx - Host context containing the Workspace registry. */
-  constructor(private readonly ctx: Context) {}
+  /**
+   * @param ctx - Host context containing the Workspace registry.
+   * @param kinds - directory classification every echoed row carries.
+   */
+  constructor(private readonly ctx: Context, private readonly kinds: WorkspaceKinds) {}
 
   /**
    * Create or resolve one Workspace over an existing directory.
@@ -46,10 +52,10 @@ export class WorkspaceCommands {
       try {
         const existing = await this.ctx.workspaceRegistry.resolveByPath(request.path)
         if (existing !== undefined) {
-          return { workspace: workspaceView(existing), created: false }
+          return { workspace: await this.viewOf(existing), created: false }
         }
         const workspace = await this.ctx.workspaceRegistry.create(request.path)
-        return { workspace: workspaceView(workspace), created: true }
+        return { workspace: await this.viewOf(workspace), created: true }
       } catch (error) {
         if (remoteErrorOf(error) !== undefined) throw error
         throw new RemoteError(
@@ -85,7 +91,7 @@ export class WorkspaceCommands {
         }
         await workspace.setTitle(title)
       }
-      return { workspace: workspaceView(workspace) }
+      return { workspace: await this.viewOf(workspace) }
     })
   }
 
@@ -147,7 +153,16 @@ export class WorkspaceCommands {
         { cause: error },
       )
     }
-    return { workspace: workspaceView(workspace) }
+    return { workspace: await this.viewOf(workspace) }
+  }
+
+  /**
+   * Project one Workspace with its classified directory kind.
+   * @param workspace - authoritative registry entity.
+   * @returns the Remote row a mutation echo carries.
+   */
+  private async viewOf(workspace: Workspace): Promise<WorkspaceView> {
+    return workspaceView(workspace, await this.kinds.resolve(workspace.path))
   }
 
   /**

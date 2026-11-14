@@ -18,7 +18,7 @@ import {
 import type {
   SessionListState, SessionSearchResultItem,
 } from '@qilin-agent/api-session-controller/client'
-import type { WorkspaceId, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
+import type { WorkspaceDirectoryKind, WorkspaceId, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { WorkspaceBrowserProps } from '../contract/slots.ts'
 import type { GroupNode, SessionNode, SessionOrderBy } from '../tree.ts'
@@ -637,7 +637,27 @@ function SessionTree({
     )
   }
 
-  const groupRows = rootGroups.map(group => renderGroup(group, 0))
+  // Two summary sections head the project tree: Git repositories, then plain
+  // directories, each keeping the caller's own project order. The ungrouped
+  // bucket belongs to neither section and trails both.
+  const projectRows: ReactNode[] = []
+  let section: WorkspaceDirectoryKind | undefined
+  for (const group of rootGroups) {
+    if (group.section !== undefined && group.section !== section) {
+      section = group.section
+      rowKeys.push(`section:${group.section}`)
+      projectRows.push((
+        <div
+          key={`section:${group.section}`}
+          className={css.projectSection}
+          data-workspace-section={group.section}
+        >
+          {t(group.section === 'repository' ? 'section.repositories' : 'section.directories')}
+        </div>
+      ))
+    }
+    projectRows.push(renderGroup(group, 0))
+  }
   return (
     <div className={clsx(css.treeBody, css.wide)}>
       {workspaceDropAtListStart && <span className={css.listTopDropIndicator} aria-hidden="true" />}
@@ -652,7 +672,7 @@ function SessionTree({
         {groups.length === 0 && (
           <div className={css.empty} data-row-key="empty">{t('empty.none')}</div>
         )}
-        {groupRows}
+        {projectRows}
       </AnimatedRows>
       <span className={css.fade} />
     </div>

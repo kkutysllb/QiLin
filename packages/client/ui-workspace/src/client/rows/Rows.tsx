@@ -12,7 +12,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { PointerEvent, RefObject } from 'react'
 import clsx from 'clsx'
 import {
-  HoverCard, IconArchiveOutlineRegular, IconBranchOutlineRegular, IconCopyOutlineRegular,
+  HoverCard, IconArchiveOutlineRegular, IconBranch, IconBranchOutlineRegular, IconCopyOutlineRegular,
   IconEditOutlineRegular, IconEllipsisOutlineRegular, IconFolderCloseRegular, IconFolderOpenRegular,
   IconPinFillRegular, IconPinOutlineRegular, IconPlusOutlineRegular, IconTrashOutlineRegular,
   IconTriangleRightFillRegular, Menu, prefersReducedMotion, relativeTime,
@@ -206,7 +206,8 @@ function rowHalf(e: { clientY: number; currentTarget: HTMLElement }): 'before' |
 }
 
 /**
- * Project (workspace) header row: folder + title;
+ * Project (workspace) header row: a branch glyph for a Git repository and a
+ * folder glyph for a plain directory, then the title;
  * hover reveals the chevron and create button, and dwelling on a real
  * Workspace shows its hover card (the ungrouped bucket has none).
  * `containsCurrent` arrives on the node (derivation fact, no renderer scan).
@@ -272,8 +273,13 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
         }}
       onDragEnd={drag?.end}
     >
-      <span className={clsx(css.slot, css.folder, active && css.folderActive)}>
-        {row.expanded ? <IconFolderOpenRegular /> : <IconFolderCloseRegular />}
+      <span
+        className={clsx(css.slot, css.folder, active && css.folderActive)}
+        data-workspace-icon={row.section === 'repository' ? 'repository' : 'folder'}
+      >
+        {row.section === 'repository'
+          ? <IconBranch size={15} />
+          : row.expanded ? <IconFolderOpenRegular /> : <IconFolderCloseRegular />}
       </span>
       <span className={clsx(css.slot, css.chevron)}>
         <IconTriangleRightFillRegular className={clsx(css.arrow, row.expanded && css.arrowOpen)} />

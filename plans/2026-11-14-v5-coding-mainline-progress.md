@@ -83,6 +83,32 @@ Task 5: complete
 - `pnpm run verify-client-ui-i18n` → 1097 source files
 - `npx tsx scripts/run-oxlint.ts <changed files>` → 0 errors
 
+## Slice S7 (user follow-up): sidebar Git / non-Git project sections
+
+Task 6: complete
+- Host: `WorkspaceKinds` (`api/workspace-controller/src/kinds.ts`) classifies a Workspace path by
+  walking to the filesystem root for the first `.git`; `WorkspaceView.kind` is required, filled by
+  the follow baseline, each increment, and each mutation echo.
+  Ruling: no Git spawn. The walk needs no process or timeout and still classifies a Workspace
+  opened inside a repository and a linked worktree or submodule (`.git` is a file there); a bare
+  repository classifies as a plain directory, which is documented.
+  Ruling: the kind is not durable. It is a derived fact of the directory, so one cached answer per
+  path serves every row and the workspace record format stays unchanged.
+  Ruling: publication is chained. First pass published synchronously and lost frames when a
+  directory still needed classification; second pass used the registry entity, which the rename
+  test exposed as a race (the domain event fires before the in-memory title settles), so a changed
+  row now comes from the committed record while an added row reads the registry, and both go out
+  through one ordered chain so followers see domain order.
+- Client: `tree.ts` carries each project group's `section` and orders root groups repositories
+  first, then directories, each in Host order, with Ungrouped trailing; `WorkspaceBrowser` heads
+  each run with a summary section row; `ProjectRowItem` draws the v2 branch glyph for a repository
+  and keeps the folder glyph otherwise.
+- Tests: `workspace-controller.host.spec.ts` (+4: three path shapes, cached reuse, no-fs
+  fallback, echo and baseline carry the kind), `tree.client.spec.ts` (+2: section assignment and
+  section order), `workspace-browser.client.spec.tsx` (+1: both headings and both row icons).
+- Docs: workspace-controller and ui-workspace READMEs (en+zh) describe the classification and the
+  two headings; plan §2.5 and the handoff status record the slice.
+
 ## Review round 1 (fresh subagent, whole slice)
 
 Findings taken:

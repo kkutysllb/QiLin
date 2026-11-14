@@ -178,7 +178,7 @@ it('leaves a Workspace header toggle to a menu binding that already handled the 
   const onToggle = vi.fn()
   const onKeyDown = vi.fn((event: { preventDefault: () => void }) => { event.preventDefault() })
   const group: GroupNode = {
-    key: 'project', workspaceId: 'project' as WorkspaceId, cwd: '/projects/project', createdAt: 0, label: 'Project',
+    key: 'project', workspaceId: 'project' as WorkspaceId, section: 'directory', cwd: '/projects/project', createdAt: 0, label: 'Project',
     sessionCount: 0, expanded: false, containsCurrent: false, sessions: [],
   }
   render(createElement(ProjectRowItem, {

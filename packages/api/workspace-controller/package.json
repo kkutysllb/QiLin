@@ -86,12 +86,13 @@
     "@qilin-agent/workspace": "workspace:*"
   },
   "devDependencies": {
-    "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/api-gateway": "workspace:*",
     "@qilin-agent/client-connection": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/fs": "workspace:*",
     "@qilin-agent/host-directory-picker": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/remote-mock": "workspace:*",
     "@qilin-agent/session": "workspace:*",
     "@qilin-agent/storage-domain": "workspace:*",

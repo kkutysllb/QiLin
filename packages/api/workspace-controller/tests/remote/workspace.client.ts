@@ -53,6 +53,7 @@ export function workspace(id: string, overrides: Partial<WorkspaceView> = {}): W
   return {
     workspaceId: id as WorkspaceId,
     path: `/work/${id}`,
+    kind: 'directory',
     title: id,
     sessionIds: [],
     createdAt: '2026-01-01T00:00:00.000Z',

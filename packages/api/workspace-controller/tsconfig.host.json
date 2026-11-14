@@ -11,10 +11,12 @@
     "src/commands.ts",
     "src/directory-picker.ts",
     "src/feed.ts",
+    "src/kinds.ts",
     "src/default-workspace.ts"
   ],
   "references": [
     { "path": "../../../vendor/cordis" },
+    { "path": "../../fs/fs" },
     { "path": "../../core/session" },
     { "path": "../../host/directory-picker" },
     { "path": "../../storage/storage-domain" },

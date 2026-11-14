@@ -40,6 +40,7 @@ function workspace(title: string, sessionIds: readonly string[]): WorkspaceView 
   return {
     workspaceId: title as WorkspaceView['workspaceId'],
     path: `/work/${title}`,
+    kind: 'directory',
     title,
     sessionIds: sessionIds.map(sid),
     createdAt: '2026-01-01T00:00:00.000Z',

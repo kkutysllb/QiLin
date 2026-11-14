@@ -5,6 +5,7 @@ import { Remote, TypertRemoteService } from '@qilin-agent/typert-protocol'
 import { WorkspaceCommands } from './commands.ts'
 import { DirectoryPickerController } from './directory-picker.ts'
 import { WorkspaceFeed } from './feed.ts'
+import { WorkspaceKinds } from './kinds.ts'
 import type {
   WorkspaceArchiveSessionRequest,
   WorkspaceArchiveValue,
@@ -44,8 +45,11 @@ export class WorkspaceController extends TypertRemoteService {
   /** @param ctx - Host context containing the Workspace registry. */
   constructor(ctx: Context) {
     super(ctx, 'workspaceController', { namespace: 'workspace' })
-    this.commands = new WorkspaceCommands(ctx)
-    this.feed = new WorkspaceFeed(ctx)
+    // One classification cache serves the command echoes and the follow
+    // baseline, so a browser sees the same kind for one directory either way.
+    const kinds = new WorkspaceKinds(ctx)
+    this.commands = new WorkspaceCommands(ctx, kinds)
+    this.feed = new WorkspaceFeed(ctx, kinds)
     // This package is the Loader entry for both Remote owners it hosts: the
     // directory-picking seam is abstract and never an entry itself. The child
     // stays pending until a picking backend is composed, so a host without one

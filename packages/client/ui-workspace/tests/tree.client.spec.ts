@@ -30,8 +30,8 @@ const withMain = (state: SessionListState, id: SessionId): SessionListState => (
     [id]: { ...state.byId[id]!, retainedBy: { ...state.byId[id]!.retainedBy, mainView: 1 } },
   },
 })
-const workspace = (id: string, sessionIds: string[], title = id): WorkspaceView => ({
-  workspaceId: wid(id), path: `/projects/${id}`, title,
+const workspace = (id: string, sessionIds: string[], title = id, kind: WorkspaceView['kind'] = 'directory'): WorkspaceView => ({
+  workspaceId: wid(id), path: `/projects/${id}`, kind, title,
   sessionIds: sessionIds.map(sid), createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z',
 })
 const view = (expandedGroups: readonly string[] = [], ungroupedOrder?: readonly string[]) => ({
@@ -598,5 +598,32 @@ describe('pin ordering', () => {
     expect(sessionMemberIds(listState)).toEqual([sid('kept'), sid('gone')])
     expect(visibleSessionIds(listState, archived('gone'))).toEqual([sid('kept')])
     expect(visibleSessionIds(listState, pinned('gone'))).toEqual([sid('kept'), sid('gone')])
+  })
+})
+
+describe('project summary sections', () => {
+  it('carries each project\'s Git classification as its summary section', () => {
+    const groups = deriveGroups(
+      list(),
+      [workspace('repo', [], 'repo', 'repository'), workspace('plain', [], 'plain', 'directory')],
+      noArchive,
+      noAttention,
+      view(),
+    )
+
+    expect(groups.map(group => [group.key, group.section])).toEqual([['repo', 'repository'], ['plain', 'directory']])
+  })
+
+  it('leads with repositories, keeps each section\'s caller order, and leaves the ungrouped bucket out of both', () => {
+    const groups = deriveGroups(
+      list(summary('loose', 10)),
+      [workspace('plain-first', [], 'plain-first', 'directory'), workspace('repo', [], 'repo', 'repository'), workspace('plain-second', [], 'plain-second', 'directory')],
+      noArchive,
+      noAttention,
+      view(),
+    )
+
+    expect(groups.map(group => group.key)).toEqual(['repo', 'plain-first', 'plain-second', UNGROUPED_KEY])
+    expect(groups.map(group => group.section)).toEqual(['repository', 'directory', 'directory', undefined])
   })
 })

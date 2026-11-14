@@ -11,11 +11,20 @@ import type { WorkspaceId } from '@qilin-agent/workspace/types'
 export type { WorkspaceId } from '@qilin-agent/workspace/types'
 export type { DirectoryEntry, DirectoryListing } from '@qilin-agent/host-directory-picker/types'
 
+/**
+ * Whether a Workspace directory lies inside a Git work tree. `repository`
+ * covers a checkout root, a linked worktree, a submodule, and any directory
+ * inside a work tree; `directory` covers everything else.
+ */
+export type WorkspaceDirectoryKind = 'repository' | 'directory'
+
 /** One durable Workspace projected for browser consumers. */
 export interface WorkspaceView {
   readonly workspaceId: WorkspaceId
   /** Canonical host directory path. */
   readonly path: string
+  /** Git classification of {@link path}, which the browser groups projects by. */
+  readonly kind: WorkspaceDirectoryKind
   /** User-visible title. */
   readonly title: string
   /** Sessions accounted to this Workspace in manual order. */

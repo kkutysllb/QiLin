@@ -62,8 +62,8 @@ const sessionState = (
     byId: { ...state.byId, [main]: { ...row, retainedBy: { ...row.retainedBy, mainView: 1 } } },
   }
 }
-const workspace = (id: string, sessionIds: string[], title = id): WorkspaceView => ({
-  workspaceId: wid(id), path: `/projects/${id}`, title,
+const workspace = (id: string, sessionIds: string[], title = id, kind: WorkspaceView['kind'] = 'directory'): WorkspaceView => ({
+  workspaceId: wid(id), path: `/projects/${id}`, kind, title,
   sessionIds: sessionIds.map(sid), createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z',
 })
 const workspaceState = (
@@ -155,6 +155,23 @@ function rerender(b: ReturnType<typeof mount>, overrides: Partial<WorkspaceBrows
 }
 
 describe('WorkspaceBrowser', () => {
+  it('heads the projects with a Git repository section and a plain directory section, marking each project by kind', () => {
+    mount({
+      useSessions: hook(sessionState([])),
+      useWorkspaces: hook(workspaceState([
+        workspace('plain', []),
+        workspace('repo', [], 'repo', 'repository'),
+      ])),
+    })
+
+    const sections = [...document.querySelectorAll('[data-workspace-section]')]
+    expect(sections.map(section => section.getAttribute('data-workspace-section'))).toEqual(['repository', 'directory'])
+    expect(sections.map(section => section.textContent)).toEqual([zh['section.repositories'], zh['section.directories']])
+    // Repositories lead even though the Host listed the plain directory first.
+    const rows = [...document.querySelectorAll('[data-workspace-icon]')]
+    expect(rows.map(row => row.getAttribute('data-workspace-icon'))).toEqual(['repository', 'folder'])
+  })
+
   it.each(['workspace', 'flat', 'ungrouped'] as const)('keeps %s recency independent of arrival order and saved manual positions', (mode) => {
     localStorage.clear()
     const preferences = createWorkspaceViewStore().create()

@@ -11,6 +11,7 @@ import WorkspaceRegistry from '@qilin-agent/workspace'
 import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import WorkspaceController from '../src/index.ts'
 import { WorkspaceFeed } from '../src/feed.ts'
+import { WorkspaceKinds } from '../src/kinds.ts'
 import type { WorkspaceFollowFrame } from '../src/types.ts'
 import { MemoryStorageBackend } from '../../../storage/storage-domain/tests/helpers/memory-backend.ts'
 
@@ -259,8 +260,8 @@ describe('WorkspaceController follow', () => {
   it('seeds a new feed from existing rows and rejects an inconsistent registry commit', async () => {
     const { ctx, root } = await harness()
     const existing = await ctx.workspaceRegistry.create(stageDir(root, 'existing'))
-    const feed = new WorkspaceFeed(ctx)
-    expect(feed.baseline()).toMatchObject({
+    const feed = new WorkspaceFeed(ctx, new WorkspaceKinds(ctx))
+    expect(await feed.baseline()).toMatchObject({
       items: [{ workspaceId: existing.id }],
     })
 
@@ -377,5 +378,72 @@ describe('WorkspaceController follow', () => {
     await ctx.fiber.dispose()
     roots.splice(roots.indexOf(ctx), 1)
     await expect(closing).resolves.toEqual({ done: true, value: undefined })
+  })
+})
+
+describe('WorkspaceKinds', () => {
+  /** A filesystem double that answers for exactly the given directory entries. */
+  function fakeFs(entries: readonly string[]) {
+    const existing = new Set(entries)
+    return {
+      lstat: async (path: string) => existing.has(path) ? { isFile: () => false } : undefined,
+    }
+  }
+
+  it('classifies a checkout root, a directory inside a work tree, and a plain directory', async () => {
+    const ctx = new Context()
+    roots.push(ctx)
+    ctx.provide('fs', fakeFs(['/repo/.git', '/repo/sub/plain', '/plain']) as never)
+    const kinds = new WorkspaceKinds(ctx)
+
+    await expect(kinds.resolve('/repo')).resolves.toBe('repository')
+    await expect(kinds.resolve('/repo/sub/plain')).resolves.toBe('repository')
+    await expect(kinds.resolve('/plain')).resolves.toBe('directory')
+    expect(kinds.kindOf('/repo')).toBe('repository')
+    expect(kinds.kindOf('/never-classified')).toBeUndefined()
+  })
+
+  it('reads one directory once and shares the answer between callers', async () => {
+    const ctx = new Context()
+    roots.push(ctx)
+    let reads = 0
+    ctx.provide('fs', {
+      lstat: async (path: string) => {
+        reads += 1
+        return path === '/repo/.git' ? {} : undefined
+      },
+    } as never)
+    const kinds = new WorkspaceKinds(ctx)
+
+    await expect(kinds.resolve('/repo')).resolves.toBe('repository')
+    const settled = reads
+    await expect(kinds.resolve('/repo')).resolves.toBe('repository')
+    await expect(kinds.resolveAll(['/repo'])).resolves.toBeUndefined()
+    expect(reads).toBe(settled)
+  })
+
+  it('carries the classification a mutation echo and a follow baseline report', async () => {
+    const { controller, ctx, root } = await harness()
+    const path = stageDir(root, 'project')
+    ctx.provide('fs', fakeFs([join(path, '.git')]) as never)
+
+    const created = await controller.create({ path })
+    expect(created.workspace).toMatchObject({ path, kind: 'repository' })
+
+    const abort = new AbortController()
+    const iterator = controller.follow(abort.signal)[Symbol.asyncIterator]()
+    await expect(nextFrame(iterator)).resolves.toMatchObject({
+      type: 'baseline',
+      value: { items: [{ workspaceId: created.workspace.workspaceId, kind: 'repository' }] },
+    })
+    abort.abort()
+  })
+
+  it('classifies every directory as a plain directory without a filesystem service', async () => {
+    const ctx = new Context()
+    roots.push(ctx)
+    const kinds = new WorkspaceKinds(ctx)
+
+    await expect(kinds.resolve('/repo')).resolves.toBe('directory')
   })
 })

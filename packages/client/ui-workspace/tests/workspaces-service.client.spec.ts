@@ -48,6 +48,7 @@ function workspace(
   return {
     workspaceId: wid(id),
     path: `/w/${id}`,
+    kind: 'directory',
     title: id,
     sessionIds,
     createdAt,

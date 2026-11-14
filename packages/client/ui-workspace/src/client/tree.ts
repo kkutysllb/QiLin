@@ -6,7 +6,7 @@
 import {
   type SessionListState, type SessionSearchResultItem, type SessionSummary,
 } from '@qilin-agent/api-session-controller/client'
-import type { WorkspaceId, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
+import type { WorkspaceDirectoryKind, WorkspaceId, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
 import type {
   SessionStatusSnapshot,
 } from '@qilin-agent/client-ui-session/client'
@@ -78,6 +78,12 @@ export interface GroupNode {
   key: string
   /** Backing Workspace id; absent only for the ungrouped bucket. */
   workspaceId: WorkspaceId | undefined
+  /**
+   * Summary section the project belongs to: its directory's Git
+   * classification, or undefined for the ungrouped bucket. Projects lead with
+   * repositories so the browser can head each section.
+   */
+  section: WorkspaceDirectoryKind | undefined
   cwd: string | undefined
   /** Workspace creation time (epoch ms); absent only for the ungrouped bucket. */
   createdAt: number | undefined
@@ -122,6 +128,7 @@ export interface TreeView {
 interface Group {
   key: string
   workspaceId: WorkspaceId | undefined
+  section: WorkspaceDirectoryKind | undefined
   cwd: string | undefined
   createdAt: number | undefined
   label: string
@@ -229,12 +236,13 @@ function sessionTitle(session: SessionSummary): string {
 function buildGroup(
   key: string,
   workspaceId: WorkspaceId | undefined,
+  section: WorkspaceDirectoryKind | undefined,
   cwd: string | undefined,
   createdAt: number | undefined,
   label: string,
   members: readonly SessionSummary[],
 ): Group {
-  return { key, workspaceId, cwd, createdAt, label, sessions: [...members] }
+  return { key, workspaceId, section, cwd, createdAt, label, sessions: [...members] }
 }
 
 /** Apply a stored Ungrouped order and append newly loose Sessions by recency. */
@@ -279,7 +287,7 @@ function groupByWorkspace(
       members.push(summary)
     }
     groups.push(buildGroup(
-      workspace.workspaceId, workspace.workspaceId, workspace.path,
+      workspace.workspaceId, workspace.workspaceId, workspace.kind, workspace.path,
       Date.parse(workspace.createdAt), workspace.title, members,
     ))
   }
@@ -293,11 +301,31 @@ function groupByWorkspace(
       undefined,
       undefined,
       undefined,
+      undefined,
       '',
       orderedUngrouped(stray, ungroupedOrder, list.byId),
     ))
   }
   return groups
+}
+
+/**
+ * Order project groups by summary section — repositories first, then plain
+ * directories — keeping each section's caller order. The ungrouped bucket
+ * trails every section.
+ * @param groups - groups in caller order.
+ * @returns the groups in render order.
+ */
+function sectionOrder(groups: readonly Group[]): Group[] {
+  const repositories: Group[] = []
+  const directories: Group[] = []
+  const ungrouped: Group[] = []
+  for (const group of groups) {
+    if (group.section === 'repository') repositories.push(group)
+    else if (group.section === 'directory') directories.push(group)
+    else ungrouped.push(group)
+  }
+  return [...repositories, ...directories, ...ungrouped]
 }
 
 /** Keep navigation presentation independent from domain-owned interaction objects. */
@@ -384,11 +412,12 @@ export function deriveGroups(
     ? undefined
     : owningGroupKey(workspaces, current)
   const groups: GroupNode[] = []
-  for (const g of groupByWorkspace(list, workspaces, archived, view.ungroupedOrder)) {
+  for (const g of sectionOrder(groupByWorkspace(list, workspaces, archived, view.ungroupedOrder))) {
     const expanded = expandedGroups.has(g.key)
     groups.push({
       key: g.key,
       workspaceId: g.workspaceId,
+      section: g.section,
       cwd: g.cwd,
       createdAt: g.createdAt,
       label: g.label,
