@@ -148,6 +148,19 @@ V5 是产品功能批次而不是纯样式批次：它要动 worktree 服务、f
 
 两者都改 `session-controller`（Host 与客户端两侧），不是 forge 包内改动；forge 只消费 `projectionValues`。
 
+**已定方案：列表帧携带投影（方案 1）**。改动点（已核对文件存在）：
+
+| 层 | 文件 | 改动 |
+|---|---|---|
+| Host 列表 | `packages/api/session-controller/src/list.ts` | 构建列表项时为每条会话取 `forgeWorktree` 投影值（经 Host 侧投影缓存，未打开会话按日志折叠） |
+| Host 类型 | `packages/api/session-controller/src/types.ts` | 列表项增加 `projectionValues`（`Partial<SessionProjectionMap>`），仅含列表需要的键 |
+| 线协议 | `packages/api/session-controller/src/client/contract/sessions.ts` | 透传该字段（Typert 再生） |
+| 客户端 | `packages/api/session-controller/src/client/sessions/manager.ts` | `buildListSnapshot` 用列表帧的值填充 `projectionValues`，控制帧到达后以控制 store 为准覆盖 |
+| forge | `src/client/session-list.ts` | 不改结构；补「无值且未打开 → 打开后可见」文案 |
+| 测试 | `session-controller` 与 forge 各自 | 列表项带工作树投影；控制帧覆盖列表值；无值时行内显示「打开后可见」 |
+
+开工前需先确认两点（下一步第一件事）：Host 侧投影缓存服务的服务名与读取 API；列表项当前是否已有字段可承载逐键投影值（还是要新加）。
+
 ## 3. 依赖与顺序
 
 S1 → S2（都要动 forge Remote 与面板状态，先做破坏性操作把错误码与确认模式定下来）→ S3/S4（读面增强）→ S5（终端独立）→ S6（生命周期语义）。
