@@ -301,8 +301,13 @@ export class SettingsFormModel<T> {
    * @returns the value a control renders and whether a save would leave an override.
    */
   structuredField(field: string): SettingsStructuredState {
-    if (this.structured.has(field)) return { value: this.structured.get(field), overridden: true }
-    return { value: this.sectionValue(field), overridden: this.stored(field) }
+    if (this.structured.has(field)) {
+      const value = this.structured.get(field)
+      return { value, overridden: value !== undefined }
+    }
+    // A control backed by this field renders the user layer, not the effective
+    // value: an inherited value belongs in the field's placeholder.
+    return { value: this.userLayer()?.[field], overridden: this.stored(field) }
   }
 
   /**
@@ -387,10 +392,16 @@ export class SettingsFormModel<T> {
       else plan.push({ field, op: { op: 'set', path: this.path(field), value: write.value } })
     }
     for (const [field, value] of this.structured) {
-      if (JSON.stringify(value) === JSON.stringify(this.sectionValue(field))) continue
-      plan.push({ field, op: value === undefined
-        ? { op: 'unset', path: this.path(field) }
-        : { op: 'set', path: this.path(field), value } })
+      // Compare against the user layer, not the effective value: clearing an
+      // inherited field writes nothing, and restoring the stored value writes
+      // nothing either.
+      const stored = this.stored(field) ? this.userLayer()?.[field] : undefined
+      if (value === undefined) {
+        if (this.stored(field)) plan.push({ field, op: { op: 'unset', path: this.path(field) } })
+        continue
+      }
+      if (JSON.stringify(value) === JSON.stringify(stored)) continue
+      plan.push({ field, op: { op: 'set', path: this.path(field), value } })
     }
     return plan
   }

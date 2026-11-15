@@ -12,7 +12,7 @@ import {
   ModelsSection, needsSetup, providerCopy, providerTargetLabel, removeProviderProfile,
 } from '../src/client/ModelsSection.tsx'
 import type { ModelsSectionInjected, ModelsSectionProps } from '../src/client/ModelsSection.tsx'
-import { pathOps, ProviderEditor } from '../src/client/ProviderEditor.tsx'
+import { ProviderEditor } from '../src/client/ProviderEditor.tsx'
 import type { ProviderEditorProps } from '../src/client/ProviderEditor.tsx'
 import {
   DeepSeekModelsEditor, formatCapacity, modelDrafts, parseCapacity, validateDeepSeekModels,
@@ -660,15 +660,6 @@ describe('ModelsSection', () => {
     expect(providerTargetLabel(target)).toBe('DeepSeek (deepseek-official)')
     expect(providerCopy(en.deleteTitle, target)).toBe('Delete DeepSeek (deepseek-official)?')
     expect(providerTargetLabel(OPENAI_TARGET)).toBe('openai')
-  })
-
-  it('names only changed fields instead of rebuilding the section', () => {
-    expect(pathOps(['providers', 'openai'], { baseURL: 'https://old', reasoning: 'high' }, { reasoning: 'high' }))
-      .toEqual([{ op: 'unset', path: ['providers', 'openai', 'baseURL'] }])
-    expect(pathOps([], { b: 1 }, { b: 2, d: 3 }))
-      .toEqual([{ op: 'set', path: ['b'], value: 2 }, { op: 'set', path: ['d'], value: 3 }])
-    expect(pathOps([], undefined, {})).toEqual([])
-    expect(pathOps([], { a: 1 }, { a: 1 })).toEqual([])
   })
 
   it('stores a typed key write-only from the setup card without touching settings', async () => {

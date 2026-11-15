@@ -22,14 +22,17 @@
  * see instead of rebuilding the whole subtree from a partial descriptor.
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type {
   CredentialInfo, LlmNativeAuth, SettingsNamespaceView, SettingsPathOpView,
 } from '@qilin-agent/api-remotes/client'
-import type { JsonValue } from '@qilin-agent/util-values'
-import { SecretInput, SettingsForm, Tooltip } from '@qilin-agent/client-ui-primitives'
-import type { SettingsFormLabels, SettingsFormShell } from '@qilin-agent/client-ui-primitives'
+import {
+  SecretInput, SettingsForm, SettingsFormModel, settingsTextField, Tooltip,
+} from '@qilin-agent/client-ui-primitives'
+import type {
+  SettingsFormLabels, SettingsFormScope, SettingsFormShell,
+} from '@qilin-agent/client-ui-primitives'
 import {
   DeepSeekModelsEditor, modelDrafts, validateDeepSeekModels,
 } from './DeepSeekModelsEditor.tsx'
@@ -113,46 +116,6 @@ export interface ProviderEditorProps {
   onBusyChange?: (busy: boolean) => void
 }
 
-/** A user-section subtree as a plain draft object (absent → empty). */
-function draftAt(
-  schema: SettingsSchemaOperations,
-  namespace: SettingsNamespaceView,
-  path: readonly string[],
-): Record<string, unknown> {
-  const subtree = schema.getPath(namespace.user, path)
-  if (typeof subtree !== 'object' || subtree === null || Array.isArray(subtree)) return {}
-  return structuredClone(subtree) as Record<string, unknown>
-}
-
-/**
- * The minimal path ops carrying `after` over `before`, both as the card sees
- * them. Only keys the card observed are named; fields absent from both sides
- * produce no op, which is why edits are path-addressed rather than a rebuilt
- * section.
- * @param base - path of the edited subtree inside the user section.
- * @param before - the subtree as loaded, or undefined when it is new.
- * @param after - the subtree as edited.
- * @returns ordered set/unset ops; empty when nothing changed.
- */
-export function pathOps(
-  base: readonly string[],
-  before: unknown,
-  after: Record<string, unknown>,
-): SettingsPathOpView[] {
-  const previous = typeof before === 'object' && before !== null && !Array.isArray(before)
-    ? before as Record<string, unknown>
-    : {}
-  const ops: SettingsPathOpView[] = []
-  for (const [key, value] of Object.entries(after)) {
-    if (JSON.stringify(previous[key]) === JSON.stringify(value)) continue
-    ops.push({ op: 'set', path: [...base, key], value: value as JsonValue })
-  }
-  for (const key of Object.keys(previous)) {
-    if (!(key in after)) ops.push({ op: 'unset', path: [...base, key] })
-  }
-  return ops
-}
-
 /** The editor layout the owning namespace selects. */
 function layoutOf(ns: string): EditorLayout {
   if (ns === 'llm-deepseek') return 'deepseek'
@@ -181,26 +144,58 @@ function refFor(
  */
 export function ProviderEditor(props: ProviderEditorProps): ReactNode {
   const { namespace, schema, settingsPath, operations, t } = props
-  const [draft, setDraft] = useState<Record<string, unknown>>(() => draftAt(schema, namespace, settingsPath))
   const [keyDraft, setKeyDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [listBusy, setListBusy] = useState(false)
   const { onBusyChange } = props
   useEffect(() => { onBusyChange?.(busy || listBusy) }, [busy, listBusy, onBusyChange])
   const [failure, setFailure] = useState<string | undefined>(undefined)
-  // A settings success advances both retry baselines immediately. Keeping the
-  // derived fields in the draft prevents a pushed namespace refresh from
-  // turning them into deletions when the following credential write is retried.
-  const [committedOriginal, setCommittedOriginal] = useState<unknown>(
-    () => schema.getPath(namespace.user, settingsPath),
-  )
-  const [expectedRevision, setExpectedRevision] = useState(() => namespace.revision)
+  // The shared staged form owns the draft: every control stages a field or the
+  // model list, and one save plans the path ops against the stored section.
+  // Reads happen during render; each staging action bumps this counter so the
+  // card repaints without the component carrying a store subscription.
+  const [, bump] = useReducer((version: number) => version + 1, 0)
+  const viewRef = useRef({ namespace, readOnly: props.readOnly, t })
+  viewRef.current = { namespace, readOnly: props.readOnly, t }
+  const writeFailure = useRef<unknown>(undefined)
+  const keyRef = refFor(schema, namespace, settingsPath, props.provider)
+  const form = useMemo(() => {
+    const scope: SettingsFormScope<unknown> = {
+      // The page publishes namespace views as props; the form never pushes, so
+      // its subscription is the no-op and renders read this snapshot.
+      getSnapshot: () => {
+        const view = viewRef.current.namespace
+        return {
+          status: 'ready', value: view.value, base: view.base, user: view.user,
+          writable: !viewRef.current.readOnly, revision: view.revision,
+        }
+      },
+      subscribe: () => () => {},
+      mutate: async (ops, expectedRevision) => {
+        const result = await operations.writeSettings(
+          viewRef.current.namespace.ns, ops as SettingsPathOpView[], expectedRevision,
+        )
+        if (result.kind === 'written') return true
+        writeFailure.current = result.kind === 'conflict' ? viewRef.current.t('conflict') : result.message
+        return false
+      },
+    }
+    return new SettingsFormModel<unknown>(
+      scope,
+      [settingsTextField('displayName'), settingsTextField('baseURL'), settingsTextField('api'), settingsTextField('apiKeyEnv')],
+      [{ field: 'apiKey', write: async (text) => {
+        const message = await operations.storeCredential(keyRef, text)
+        if (message !== undefined) { writeFailure.current = message; return false }
+        return true
+      } }],
+      { prefix: settingsPath },
+    )
+  }, [keyRef, operations, settingsPath])
   const root = useMemo(() => schema.rehydrate(namespace.schema), [namespace.schema, schema])
   const node = useMemo(() => schema.nodeAtPath(root, settingsPath), [root, schema, settingsPath])
   const fallback = schema.getPath(namespace.value, settingsPath)
   const disabled = props.readOnly || busy
   const layout = layoutOf(namespace.ns)
-  const keyRef = refFor(schema, namespace, settingsPath, props.provider)
   // The same schema read the create card makes, so the choices offered here
   // and there cannot drift apart: both come from the adapter's own `Config`.
   // Only the pi-ai layout has a per-route protocol for the read to find, and
@@ -214,15 +209,24 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     const value = schema.getPath(source, [key])
     return typeof value === 'string' && value.trim().length > 0 ? value : undefined
   }
+  /**
+   * The user-layer draft of one field: an inherited value is not a draft, so
+   * the control renders it as its placeholder instead of as its text.
+   */
+  const fieldDraft = (key: string): string => {
+    const field = form.field(key)
+    return field.overridden ? field.text : ''
+  }
+  /** The staged text of one field, with a blank draft reading as absent. */
+  const fieldAt = (key: string): string | undefined => {
+    const text = fieldDraft(key)
+    return text.trim().length > 0 ? text : undefined
+  }
   const setField = (key: string, next: string | undefined): void => {
-    // A value of nothing but whitespace is cleared, not stored: `stringAt`
-    // already reports it as absent, so the field would otherwise render empty
-    // while the draft still carried the spaces into `settings.yaml`, where
-    // both adapters would accept that non-empty string as a real value.
-    const value = next === undefined || next.trim().length === 0 ? undefined : next
-    setDraft(current => value === undefined
-      ? schema.deletePath(current, [key])
-      : schema.setPath(current, [key], value))
+    // The field specs treat a blank draft as a clear, so whitespace-only input
+    // stages a clear instead of a value both adapters would accept.
+    form.actions().edit(key, next ?? '')
+    bump()
   }
 
   // The model list is validated by the same per-row checker for both families,
@@ -237,7 +241,8 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
   const editsReasoning = reasoningLevels.length > 0
   const validateModels = (value: unknown): DeepSeekModelsValidationFailure | ReasoningEffortsFailure | undefined =>
     validateDeepSeekModels(value) ?? (editsReasoning ? validateReasoningEfforts(value) : undefined)
-  const modelFailure = validateModels(schema.getPath(draft, ['models']))
+  const modelsField = form.structuredField('models')
+  const modelFailure = validateModels(modelsField.value)
   const keyFailure = apiKeyFailure(keyDraft)
   // What a probe or a write must carry: the typed key with paste whitespace
   // removed. A blank field yields an empty string, which both call sites read
@@ -251,8 +256,8 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
   const shownKeyFailure = credentialRequiredFailure ?? keyFailure
   // What the form currently shows, which is what an interrogation must ask:
   // an edited-but-unsaved endpoint, and a key typed but not yet stored.
-  const probeApi = stringAt(draft, 'api') ?? stringAt(fallback, 'api')
-  const probeBaseURL = stringAt(draft, 'baseURL') ?? stringAt(fallback, 'baseURL')
+  const probeApi = fieldAt('api') ?? stringAt(fallback, 'api')
+  const probeBaseURL = fieldAt('baseURL') ?? stringAt(fallback, 'baseURL')
   const probe = {
     settingsNs: namespace.ns,
     // Naming the route lets an adapter that already describes it answer from
@@ -262,72 +267,75 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     ...probeApi === undefined ? {} : { api: probeApi },
     ...keyValue.length === 0 ? {} : { apiKey: keyValue },
   }
-  /**
-   * The write for this card, or a failure message. Every edit travels as
-   * path ops against the STORED section: the draft comes from the redacted
-   * descriptor, so a wholesale replace rebuilt from it could delete fields
-   * outside the card. Ops name only the fields this card can see.
-   */
-  const applyOnce = async (): Promise<string | undefined> => {
-    const ns = namespace.ns
-    // A pi-ai profile names the conventional reference only when this page is
-    // about to store a key. Otherwise the provider keeps its native auth path.
-    const next = layout === 'pi-ai' && stringAt(draft, 'apiKeyEnv') === undefined
-      && stringAt(fallback, 'apiKeyEnv') === undefined && keyValue.length > 0
-      ? schema.setPath(draft, ['apiKeyEnv'], keyRef)
-      : draft
-    if (props.credentialOnly !== true) {
-      // The same checker gates the submit button, so a card cannot reach this
-      // with a bad row; it stays because the schema check below would refuse
-      // the write with a message naming a path instead of the row, and because
-      // nothing but this function decides what is written.
-      const failure = validateModels(schema.getPath(next, ['models']))
-      /* v8 ignore next 3 -- unreachable from the card: the same failure disables submit */
-      if (failure !== undefined) {
-        return `${t('model')} ${String(failure.index + 1)}: ${t(failure.key)}`
-      }
-    }
-    /* v8 ignore next -- apply is only reachable from the rendered card, which required a resolved node */
-    if (props.credentialOnly !== true && node !== undefined && settingsPath.length === 0) {
-      const sectionError = schema.validate(node, next)
-      if (sectionError !== undefined) return sectionError
-    }
-    const materializesNativeProfile = layout === 'pi-ai'
-      && fallback === undefined
-      && committedOriginal === undefined
-      && Object.keys(next).length === 0
-    const ops: SettingsPathOpView[] = props.credentialOnly === true
-      ? []
-      : materializesNativeProfile
-        ? [{ op: 'set', path: [...settingsPath], value: {} }]
-        : pathOps(settingsPath, committedOriginal, next)
-    if (ops.length > 0) {
-      const written = await operations.writeSettings(ns, ops, expectedRevision)
-      if (written.kind !== 'written') return written.kind === 'conflict' ? t('conflict') : written.message
-      setCommittedOriginal(schema.getPath(written.view.user, settingsPath))
-      setExpectedRevision(written.view.revision)
-      setDraft(next)
-    }
-    if (keyValue.length > 0) {
-      const stored = await operations.storeCredential(keyRef, keyValue)
-      if (stored !== undefined) return stored
-    }
-    setKeyDraft('')
-    return undefined
-  }
+  // A pi-ai profile materializes its profile node even when nothing was edited:
+  // writing the empty object is what makes the route exist in settings.yaml.
+  const materializesNativeProfile = layout === 'pi-ai'
+    && fallback === undefined
+    && schema.getPath(namespace.user, settingsPath) === undefined
 
   const apply = async (): Promise<void> => {
+    if (submitInvalid) return
     setBusy(true)
     setFailure(undefined)
+    writeFailure.current = undefined
     try {
-      const failure = await applyOnce()
-      if (failure !== undefined) {
-        setFailure(failure)
-        return
+      // A pi-ai profile names the conventional reference only when this page is
+      // about to store a key; the model save carries it with the other ops.
+      if (layout === 'pi-ai' && fieldAt('apiKeyEnv') === undefined
+        && stringAt(fallback, 'apiKeyEnv') === undefined && keyValue.length > 0) {
+        form.actions().edit('apiKeyEnv', keyRef)
       }
+      // A whole-section profile is validated before any write, so a bad draft
+      // names its field instead of surfacing the Host's path diagnostic.
+      if (props.credentialOnly !== true && settingsPath.length === 0) {
+        const draft: Record<string, unknown> = (() => {
+          const stored = schema.getPath(namespace.user, settingsPath)
+          return typeof stored === 'object' && stored !== null && !Array.isArray(stored)
+            ? structuredClone(stored) as Record<string, unknown>
+            : {}
+        })()
+        for (const field of ['displayName', 'baseURL', 'api', 'apiKeyEnv'] as const) {
+          const staged = form.field(field)
+          if (!staged.overridden) {
+            if (!Object.hasOwn(draft, field)) continue
+            const current = form.field(field)
+            if (current.text.trim().length === 0) Reflect.deleteProperty(draft, field)
+            else draft[field] = current.text
+            continue
+          }
+          if (staged.text.trim().length === 0) Reflect.deleteProperty(draft, field)
+          else draft[field] = staged.text
+        }
+        const models = form.structuredField('models')
+        if (models.overridden && models.value !== undefined) draft.models = structuredClone(models.value)
+        else if (models.overridden) Reflect.deleteProperty(draft, 'models')
+        /* v8 ignore next -- apply is only reachable from the rendered card, which required a resolved node */
+        if (node !== undefined) {
+          const sectionError = schema.validate(node, draft)
+          if (sectionError !== undefined) { setFailure(sectionError); return }
+        }
+      }
+      const dirty = form.shell().dirty
+      if (props.credentialOnly !== true && !dirty && materializesNativeProfile) {
+        const written = await operations.writeSettings(
+          namespace.ns, [{ op: 'set', path: [...settingsPath], value: {} }], namespace.revision,
+        )
+        if (written.kind !== 'written') {
+          setFailure(written.kind === 'conflict' ? t('conflict') : written.message)
+          return
+        }
+      } else if (dirty) {
+        await form.save()
+        if (form.shell().failed) {
+          setFailure(typeof writeFailure.current === 'string' ? writeFailure.current : t('saveFailed'))
+          return
+        }
+      }
+      setKeyDraft('')
       props.onClose(true)
     } finally {
       setBusy(false)
+      bump()
     }
   }
 
@@ -387,8 +395,8 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     // A whole-section `llm-deepseek` profile is a composition fact with no
     // per-route identity for its schema to carry, hence the family test.
     const ownsIdentity = family === 'pi-ai' && props.declared === true
-    const customModels = schema.getPath(draft, ['models'])
-    const modelsOverridden = schema.hasPath(draft, ['models'])
+    const customModels = modelsField.value
+    const modelsOverridden = modelsField.overridden
     const models = modelDrafts(modelsOverridden ? customModels : inheritedModels())
     const defaultContextWindow = schema.getPath(fallback, ['defaultContextWindow'])
     const defaultMaxTokens = schema.getPath(fallback, ['maxTokens'])
@@ -442,9 +450,13 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
       t,
       disabled,
       onChange: (next: Record<string, unknown>[]) => {
-        setDraft(current => schema.setPath(current, ['models'], next))
+        form.stageValue('models', next)
+        bump()
       },
-      onReset: () => { setDraft(current => schema.deletePath(current, ['models'])) },
+      onReset: () => {
+        form.stageValue('models', undefined)
+        bump()
+      },
     }
     return (
       <>
@@ -467,7 +479,11 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
               required={props.credentialRequired === true}
               autoFocus={props.autoFocusCredential === true}
               disabled={disabled}
-              onChange={(event) => { setKeyDraft(event.target.value) }}
+              onChange={(event) => {
+                setKeyDraft(event.target.value)
+                form.actions().edit('apiKey', event.target.value)
+                bump()
+              }}
             />
             {credentialHint === undefined ? null : <p id={`${props.provider}-credential-hint`} className={styles[missingRefs ? 'notice' : detectedRef === undefined ? 'advancedHint' : 'savedNotice']}>{credentialHint}</p>}
             {shownKeyFailure === undefined ? null : <p className={styles['error']}>{t(shownKeyFailure)}</p>}
@@ -485,7 +501,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
                   <input
                     className={styles['input']}
                     type="text"
-                    value={stringAt(draft, 'displayName') ?? ''}
+                    value={fieldDraft('displayName')}
                     // What this route is called the moment the field is
                     // cleared, which is the layer beneath the one this field
                     // edits: a `cordis.yml` may pin a name for a route the
@@ -507,7 +523,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
               <input
                 className={styles['input']}
                 type="text"
-                value={stringAt(draft, 'baseURL') ?? ''}
+                value={fieldDraft('baseURL')}
                 placeholder={family === 'deepseek'
                   ? t('deepSeekBaseUrl')
                   : baseURL === undefined ? t(endpointEnv.length > 0 ? 'baseUrlConfigured' : 'baseUrlDefault')
