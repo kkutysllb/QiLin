@@ -154,6 +154,13 @@ describe('SidebarRightController — opening', () => {
     expect(titles()).not.toContain('readme.txt')
   })
 
+  it('opens a file addressed through a literal dot segment', () => {
+    const { controller, publish, titles } = harness()
+    publish()
+    controller.openResource('qilin-resource://file/session/s-test/../delivery/clip.mp4')
+    expect(titles()).toContain('clip.mp4')
+  })
+
   it('focuses the tab already showing the same (kind, contentId) instead of opening a second one', () => {
     const { controller, publish, titles, layout, tabOf } = harness()
     publish()

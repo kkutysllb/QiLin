@@ -43,7 +43,7 @@ tab 身份是 `(kind, address)` 二元组：注册表的认领把地址原文用
 | `label()` | 类型自己的名字，供命名类型的界面使用——首要是开关行。页类型的 `title(address)` 命名的是它打开的内容，资源类型根本没有单一地址可命名，两者都不能代表类型本身。 |
 | `icon?` | chip 在标题之前绘制的图形；标题本身已承载全部身份时省略。 |
 | `single?` | `true` 会聚焦任意位置已有的同 kind tab 而不是再开一个，因此整个停靠面最多持有一个。省略即为默认：每个地址一个 tab，一个页在每个格只开一次。 |
-| `patterns` | 可选的资源地址 glob；按 kind 打开的页面类型省略。含 `:` 的模式匹配整个地址（`qilin-resource://file/**`）；不含的匹配 URL 的路径部分且任意深度都中（`*.md`），不是 URL 的地址不会命中此类模式。匹配不分大小写、不隐藏 dotfile；语法为 picomatch 的 POSIX 方言。 |
+| `patterns` | 可选的资源地址 glob；按 kind 打开的页面类型省略。含 `:` 的模式匹配整个地址（`qilin-resource://file/**`），包括整个 `.` 或 `..` 路径段；不含的匹配 URL 的路径部分且任意深度都中（`*.md`），不是 URL 的地址不会命中此类模式。匹配不分大小写、不隐藏 dotfile；语法为 picomatch 的 POSIX 方言。 |
 | `priority` | 三档字面量之一：`extension`（缺省且最高：产品之外的类型压过所有内置查看器）、`builtin`（随产品发布的类型）、`fallback`（任何更具体的类型都应压过的纯内容查看器）。 |
 | `canOpen(address)` | 可选的同步否决，对 glob 命中生效；每次路由决策都会调用。 |
 | `title(address)` | chip 文本，在 tab 打开时捕获进布局记录，之后不再改写。 |

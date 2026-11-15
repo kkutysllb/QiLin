@@ -217,6 +217,20 @@ function pathOf(address: string): string | undefined {
   }
 }
 
+/**
+ * The address a whole-address pattern is also tested against, with whole `.`
+ * and `..` path segments percent-encoded.
+ *
+ * The file-address grammar keeps such a segment as written, and it is an
+ * ordinary path segment there; picomatch's globstar refuses it even with
+ * `dot: true`. Escaping it lets the glob read an ordinary segment, and
+ * `parseFileAddress` decodes the escape back to the same path.
+ */
+function dotEscaped(address: string): string {
+  return address.replace(/(^|\/)(\.{1,2})(?=\/|$)/g, (_match, lead: string, dots: string) =>
+    `${lead}${dots === '..' ? '%2E%2E' : '%2E'}`)
+}
+
 /** Compile one declared pattern into the test the router runs. */
 function matcherFor(pattern: string): (address: string) => boolean {
   // `basename: true` is what makes `*.md` match at any depth; it applies only to
@@ -224,7 +238,12 @@ function matcherFor(pattern: string): (address: string) => boolean {
   const whole = pattern.includes(':')
   const match = picomatch(pattern, { nocase: true, dot: true, ...whole ? {} : { basename: true } })
   return (address) => {
-    if (whole) return match(address)
+    // A pattern that spells a dot segment keeps matching the address as given.
+    if (whole) {
+      if (match(address)) return true
+      const escaped = dotEscaped(address)
+      return escaped !== address && match(escaped)
+    }
     const path = pathOf(address)
     return path !== undefined && match(path)
   }

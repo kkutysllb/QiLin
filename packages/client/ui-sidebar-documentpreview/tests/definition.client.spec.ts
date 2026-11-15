@@ -67,6 +67,9 @@ describe('text type in the registry', () => {
       sessionFileAddress('s-1', '/home/me/notes.md'),
       sessionFileAddress('s-1', 'C:/w/x.ts'),
       sessionFileAddress('s-1', '//host/share/x.ts'),
+      // A delivery outside the workspace keeps its `..` segment, and the address
+      // still names this Session's file: the clip opens in the fallback viewer.
+      sessionFileAddress('s-1', '../哥舒歌/delivery/片.mp4'),
     ]) {
       expect(tabs.claim(address)).toEqual({ kind: TEXTPREVIEW_KIND, contentId: address, title: basenameOf(address) })
     }

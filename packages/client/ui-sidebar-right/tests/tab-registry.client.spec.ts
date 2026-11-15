@@ -49,6 +49,21 @@ describe('SidebarRightTabRegistry — recognition', () => {
     expect(ranked(registry, 'sidebar://files')).toEqual([])
   })
 
+  it('matches a whole-address pattern across literal dot path segments', () => {
+    const registry = new SidebarRightTabRegistry(new Context())
+    registry.register(typeFor('text', ['qilin-resource://file/**']))
+    // The file-address grammar keeps `.` and `..` as path segments; the glob
+    // must read them as segments rather than skip them.
+    expect(registry.claim('qilin-resource://file/session/s/../outside/clip.mp4').kind).toBe('text')
+    expect(registry.claim('qilin-resource://file/session/s/./notes/a.md').kind).toBe('text')
+  })
+
+  it('keeps a pattern that spells a dot segment literal', () => {
+    const registry = new SidebarRightTabRegistry(new Context())
+    registry.register(typeFor('exact', ['qilin-resource://file/session/s/../**']))
+    expect(registry.claim('qilin-resource://file/session/s/../clip.mp4').kind).toBe('exact')
+  })
+
   it('matches a pattern without ":" against the URI path at any depth, ignoring case', () => {
     const registry = new SidebarRightTabRegistry(new Context())
     registry.register(typeFor('image', ['*.png']))
