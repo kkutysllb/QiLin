@@ -1,0 +1,18 @@
+# 图像工坊内置层：挂载随安装提供的 dsh-kylin-images。
+# 开关由插件管理页的官方可选 Bundle 卡片控制；本层只声明组合行与默认配置。
+- insert:
+    - id: dsh-kylin-images
+      name: 'dsh-kylin-images'
+      config:
+        defaultChannelId: ''
+        defaultModel: ''
+        defaultAspectRatio: '3:4'
+        defaultResolution: '2k'
+        defaultFormat: 'png'
+        defaultCount: 1
+        concurrency: 2
+        includeTemplatePitfalls: true
+        budgetConfirmCny: 1
+        confirmUnknownPrice: true
+        cacheEnabled: true
+        cacheMaxEntries: 200

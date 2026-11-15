@@ -1,0 +1,34 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/bundle/animations-bundle/README.md
+/:
+  en: 9730788824fc301a
+  zh: 455c2020b3f76784
+/qilin-agent-animations-bundle:
+  en: b452bde6b8550f79
+  zh: 37160f4d0ee8c560
+/qilin-agent-animations-bundle/summary:
+  en: 286ed1518813e817
+  zh: 7fec9c56e094b9dd
+/qilin-agent-animations-bundle/table-of-contents:
+  en: 76368b6b1da79c80
+  zh: 762ac2d89989b648
+/qilin-agent-animations-bundle/use-this-package:
+  en: 30dd7ab9267f0495
+  zh: 8de9ad4ba74767f8
+/qilin-agent-animations-bundle/understand-the-implementation:
+  en: 20952da8b005177f
+  zh: c88c1f3cef6e9158
+/qilin-agent-animations-bundle/model-experience:
+  en: 1899220802750d8e
+  zh: 588a2b125f12242b
+/qilin-agent-animations-bundle/model-experience/kv-cache-effect:
+  en: 4c44cf59284ef47c
+  zh: d937ae81d5900819
+/qilin-agent-animations-bundle/known-limitations-and-deferred-work:
+  en: a832a641de7ace8e
+  zh: 025f94a361638f5c
+/qilin-agent-animations-bundle/known-limitations-and-deferred-work/dev-note:
+  en: 165c87fc0b9d96ea
+  zh: 8e7932d336836155

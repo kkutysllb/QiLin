@@ -1,0 +1,34 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/bundle/skills-bundle/README.md
+/:
+  en: 86ac17a4385514ff
+  zh: 97d5e53640f22c68
+/qilin-agent-skills-bundle:
+  en: 209b7effcba64369
+  zh: 44156630d0e9443f
+/qilin-agent-skills-bundle/summary:
+  en: 8fbee6fc7bec2fc0
+  zh: d53a1e6095069b0a
+/qilin-agent-skills-bundle/table-of-contents:
+  en: 76368b6b1da79c80
+  zh: 762ac2d89989b648
+/qilin-agent-skills-bundle/use-this-package:
+  en: c96a2df46b13ac73
+  zh: 4e383d2f6863a400
+/qilin-agent-skills-bundle/understand-the-implementation:
+  en: baeadc77002f1bbe
+  zh: 7460c2ff6483f672
+/qilin-agent-skills-bundle/model-experience:
+  en: 5eee2aa0701a0001
+  zh: a44233edd944cd5e
+/qilin-agent-skills-bundle/model-experience/kv-cache-effect:
+  en: 7769483dee71e4dc
+  zh: 4ed8074ede061b76
+/qilin-agent-skills-bundle/known-limitations-and-deferred-work:
+  en: 0f0d02a7178ff484
+  zh: 18570317727fff3b
+/qilin-agent-skills-bundle/known-limitations-and-deferred-work/dev-note:
+  en: e6de7a7c34a281fc
+  zh: 613c4bbd65c0517b

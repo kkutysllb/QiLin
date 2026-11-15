@@ -25,6 +25,9 @@ kind: "package-group"
 | [`base`](base/README.zh.md) | 基于 base 的 profile 共享核心 | —（仅 patch） |
 | [`acp-app`](acp-app/README.zh.md) | 基于 base、仅用于自动化的 ACP stdio 应用 | 挂载 ACP bridge |
 | [`web-app`](web-app/README.zh.md) | 基于 base 的浏览器应用层 | 挂载多条 Web 配置行 |
+| [`kylin-images-bundle`](kylin-images-bundle/README.zh.md) | 基于 `dsh-kylin-images` 的内置可选图像工坊层 | 开启后挂载图像工具与设置项 |
+| [`animations-bundle`](animations-bundle/README.zh.md) | 基于 `dsh-animations` 的内置可选动效工坊技能包 | 开启后注册八个 runtime skill |
+| [`skills-bundle`](skills-bundle/README.zh.md) | 基于 `dsh-skills-bundle` 的内置可选方法论技能包 | 开启后注册 31 项核心技能并提供可选技能分区 |
 | [`headless`](headless/README.zh.md) | 基于 base 的一次性命令行任务应用 | `headless-runner` |
 | [`sdk-app`](sdk-app/README.zh.md) | 基于 base 的 SDK JSON-RPC stdio 应用 | 挂载 SDK 服务器 |
 | [`sdk-minimal`](sdk-minimal/README.zh.md) | 不使用 base 或 Web 的独立极简 SDK 应用 | —（完整 patch 树） |

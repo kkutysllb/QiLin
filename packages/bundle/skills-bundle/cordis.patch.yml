@@ -1,0 +1,5 @@
+# 方法论技能包内置层：挂载随安装提供的 dsh-skills-bundle。
+# 开关由插件管理页的官方可选 Bundle 卡片控制；本层只声明组合行。
+- insert:
+    - id: kcoder-skills
+      name: 'dsh-skills-bundle'

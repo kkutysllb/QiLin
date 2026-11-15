@@ -25,6 +25,9 @@ This group maps the installable patch layers used by `qilin --profile`. Each pac
 | [`base`](base/README.md) | Shared core for base-backed profiles | — (patch only) |
 | [`acp-app`](acp-app/README.md) | Automation-only ACP stdio application over base | mounts the ACP bridge |
 | [`web-app`](web-app/README.md) | Browser application layer over base | mounts Web rows |
+| [`kylin-images-bundle`](kylin-images-bundle/README.md) | Built-in optional Image Studio layer over `dsh-kylin-images` | mounts the image tools and Settings entry when enabled |
+| [`animations-bundle`](animations-bundle/README.md) | Built-in optional Animation Studio skill pack over `dsh-animations` | registers eight runtime skills when enabled |
+| [`skills-bundle`](skills-bundle/README.md) | Built-in optional methodology skill pack over `dsh-skills-bundle` | registers 31 core skills and exposes optional skills when enabled |
 | [`headless`](headless/README.md) | One-shot command-line task application over base | `headless-runner` |
 | [`sdk-app`](sdk-app/README.md) | SDK JSON-RPC stdio application over base | mounts the SDK server |
 | [`sdk-minimal`](sdk-minimal/README.md) | Standalone minimal SDK application without base or Web | — (complete patch tree) |

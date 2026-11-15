@@ -1,0 +1,13 @@
+<svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="kylin-images-a" x1="6" y1="6" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF9A5A" />
+      <stop offset="0.55" stop-color="#E85D9E" />
+      <stop offset="1" stop-color="#7B61FF" />
+    </linearGradient>
+  </defs>
+  <rect x="4.5" y="7.5" width="27" height="21" rx="5.5" stroke="url(#kylin-images-a)" stroke-width="2" />
+  <circle cx="12.5" cy="14.5" r="2.5" fill="url(#kylin-images-a)" />
+  <path d="M7 26.5 14.5 19l4.5 4.5 3.5-3.5 6.5 6.5" stroke="url(#kylin-images-a)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M28 3v6M25 6h6" stroke="#FFB45A" stroke-width="2" stroke-linecap="round" />
+</svg>

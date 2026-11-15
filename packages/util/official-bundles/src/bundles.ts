@@ -31,6 +31,9 @@ export const HIDDEN_BUNDLES: ReadonlySet<string> = new Set([
  * on the main list.
  */
 export const EXTENSION_BUNDLES: readonly string[] = [
+  '@qilin-agent/kylin-images-bundle',
+  '@qilin-agent/animations-bundle',
+  '@qilin-agent/skills-bundle',
   '@qilin-agent/experimental-voice-input-bundle',
   '@qilin-agent/experimental-auto-review',
 ]

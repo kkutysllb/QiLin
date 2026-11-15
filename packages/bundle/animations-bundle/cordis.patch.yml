@@ -1,0 +1,7 @@
+# 动效工坊内置层：挂载随安装提供的 dsh-animations。
+# 开关由插件管理页的官方可选 Bundle 卡片控制；本层只声明组合行。
+- insert:
+    - id: dsh-animations
+      name: 'dsh-animations'
+      config:
+        announceToAgent: true

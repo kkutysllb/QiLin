@@ -1,0 +1,52 @@
+{
+  "name": "@qilin-agent/skills-bundle",
+  "description": "方法论技能包：31 项核心技能 + 40 项可选长尾技能（内置 dsh-skills-bundle）",
+  "version": "3.1.12-rc.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/bundle/skills-bundle"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "icon": "./icon.svg",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "icon.svg",
+    "locale/*.json",
+    "lib/index.js",
+    "cordis.patch.yml",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "dsh-skills-bundle": "^1.3.1"
+  },
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "qilin": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

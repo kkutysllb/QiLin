@@ -12,6 +12,7 @@ const root = resolve(import.meta.dirname, '..')
 
 interface Manifest {
   name: string
+  dependencies?: Record<string, string>
   qilin?: { bundle?: { patch?: string } }
 }
 
@@ -80,5 +81,15 @@ describe('optional bundles', () => {
       for (const language of ['en', 'zh']) expect((field as Record<string, string>)[language]).toMatch(/\S/)
     }
     expect(meta?.icon).toMatch(/^data:image\//)
+  })
+
+  it.each(['@qilin-agent/kylin-images-bundle', '@qilin-agent/animations-bundle'])('%s declares every inserted package as a dependency', (name) => {
+    const entry = bundles.get(name)
+    expect(entry).toBeDefined()
+    const rowNames = bundle(name).patches.flatMap(patch => patch.insert ?? [])
+      .map(row => row.name)
+      .filter((rowName): rowName is string => typeof rowName === 'string')
+    expect(rowNames.length).toBeGreaterThan(0)
+    for (const rowName of rowNames) expect(entry?.manifest.dependencies?.[rowName]).toBeTypeOf('string')
   })
 })

@@ -499,19 +499,16 @@ describe('resolveBundleDir', () => {
       .toBe(join(dirname(anchor), 'node_modules', 'shipped-bundle'))
   })
 
-  it('resolves a retired seed from the profile copy once the installation stops shipping it', () => {
-    // dsh-animations left the shipped templates, so an installation upgraded
-    // past it no longer carries the seed; the profile's own installed copy —
-    // the plugin-channel restore path — serves, whatever its version.
+  it('resolves a profile-owned bundle from the profile copy when the installation ships no such name', () => {
     const anchor = stageInstallation({})
     const profileDir = join(dirname(anchor), 'profile')
     mkdirSync(profileDir, { recursive: true })
     writeFileSync(join(profileDir, 'package.json'), '{}')
-    const profileCopy = join(profileDir, 'node_modules', 'dsh-animations')
+    const profileCopy = join(profileDir, 'node_modules', 'profile-owned')
     stageProfileCopy(profileCopy, '1.2.3')
-    expect(resolveBundleDir('t', 'dsh-animations', anchor, profileDir)).toBe(profileCopy)
+    expect(resolveBundleDir('t', 'profile-owned', anchor, profileDir)).toBe(profileCopy)
     writeVersion(profileCopy, '0.0.1')
-    expect(resolveBundleDir('t', 'dsh-animations', anchor, profileDir)).toBe(profileCopy)
+    expect(resolveBundleDir('t', 'profile-owned', anchor, profileDir)).toBe(profileCopy)
   })
 
   it('resolves a package whose exports map omits ./package.json', () => {
@@ -910,17 +907,16 @@ describe('loadProfile', () => {
     })
     // Inside the staged installation, so the shipped layer resolves from it.
     const dir = join(dirname(anchor), 'profile')
-    initProfile(dir, ['@qilin-agent/base', 'dsh-animations'])
-    const installed = join(dir, 'node_modules', 'dsh-animations')
+    initProfile(dir, ['@qilin-agent/base', 'profile-owned'])
+    const installed = join(dir, 'node_modules', 'profile-owned')
     mkdirSync(installed, { recursive: true })
-    writeFileSync(join(installed, 'package.json'), JSON.stringify({ name: 'dsh-animations', version: '1.2.3' }))
+    writeFileSync(join(installed, 'package.json'), JSON.stringify({ name: 'profile-owned', version: '1.2.3' }))
     const rows = readProfilePluginRows('t', dir, anchor, ['@qilin-agent/base'])
-    // The retired animations bundle installed back through the plugin channel
-    // is an owner layer: it upgrades and removes in place, unlike the shipped
-    // layers that move with the installation.
+    // A profile-owned bundle is an owner layer: it upgrades and removes in
+    // place, unlike the shipped layers that move with the installation.
     expect(rows).toEqual([
       { name: '@qilin-agent/base', layer: 0, version: '0.0.0', source: 'builtin', updatable: false, removable: false },
-      { name: 'dsh-animations', layer: 1, version: '1.2.3', source: 'user', updatable: true, removable: true },
+      { name: 'profile-owned', layer: 1, version: '1.2.3', source: 'user', updatable: true, removable: true },
     ])
   })
 

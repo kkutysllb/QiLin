@@ -51,7 +51,7 @@ profile 是同一套 qilin 安装提供不同应用界面的方式：`web`、`he
 
 产品不再分发的名字是例外：加载时会应用[退役名单](../../util/official-bundles/README.zh.md)，把该名字从 `qilin.profile.bundles` 移除、写回清理后的 manifest，并在 stderr 报告一次。因此仍选中已退役“开发者工具”组合包的 profile 会正常启动，而不是因为一个无处安装的组合包失败；把该名字声明为依赖也不会保留这一层。迁移改名的包适用同一规则，只是多一步改写：[改名映射](../../util/official-bundles/README.zh.md)会把旧 bundle 名（及其依赖键）替换为发行版携带的新名字，因此改名之前创建的 profile 仍能启动。
 
-浏览器模板不再种下 `dsh-animations` 动效技能包：需要它的 profile 通过 `qilin plugin` 或[插件管理器](../plugin-manager/README.zh.md)自行安装，装下的副本属于 profile 所有，可原地升级或移除。加载随附 profile 时会恢复模板自身的层，并保留模板从未持有过的每一个条目，而安装实例曾经种下的条目归安装实例所有：浏览器模板曾种下的 `dsh-animations` 会在下次加载时从 profile 的列表中退役（自行添加的其他条目留在原处），装回的副本不受影响；列表等于模板加这些条目时不再写盘，因此该写入会收敛。使用者关闭的层记录在 `qilin.profile.excluded` 中，跨加载保持关闭：会话标题栏的 Agent Teams 开关以此持有它随附的层，关闭状态不会被误当成列表丢失。
+浏览器模板不再种下原始的 `dsh-animations` 包。安装实例以[动效工坊 Bundle](../../bundle/animations-bundle/README.zh.md) 的形式把它作为内置可选卡片提供，补丁挂载随安装提供的 `dsh-animations`；同名 profile 副本会被安装实例的副本遮蔽，因此内置卡片是受支持的入口。加载随附 profile 时会恢复模板自身的层，并保留模板从未持有过的每一个条目，而安装实例曾经种下的条目归安装实例所有：浏览器模板曾种下的 `dsh-animations` 会在下次加载时从 profile 的列表中退役（自行添加的其他条目留在原处），同名 profile 副本会被安装实例的随包副本遮蔽；列表等于模板加这些条目时不再写盘，因此该写入会收敛。使用者关闭的层记录在 `qilin.profile.excluded` 中，跨加载保持关闭：会话标题栏的 Agent Teams 开关以此持有它随附的层，关闭状态不会被误当成列表丢失。
 
 在 profile 导入插件之前，QiLin 会用 `getQilinRuntimeVersion()` 返回的单一运行时版本检查插件对 `@qilin-agent/cli` 与 `@qilin-agent/*` 的 `peerDependencies`。每条声明的范围都必须匹配，预发布版本也参与范围匹配。源码工作区的 `workspace:^`、`workspace:~` 与 `workspace:*` 指的就是该运行时。随仓库 vendor 的 `@qilin-agent/kylin` 框架族虽然发布在同一 scope 下，但版本独立于 harness 发布，因此它以及 `@qilin-agent/` 之外的任何 peer 都不构成约束；非法范围视为不兼容。这些检查读取的是 peer 声明，不是 `engines.qilin`，也不能作为防范恶意包代码的沙箱。
 

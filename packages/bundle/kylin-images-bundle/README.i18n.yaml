@@ -1,0 +1,34 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/bundle/kylin-images-bundle/README.md
+/:
+  en: e48dd1ce878a30c8
+  zh: b4f62ed4f2d00fe0
+/qilin-agent-kylin-images-bundle:
+  en: fad7567c2abb643e
+  zh: 49dba57604557b73
+/qilin-agent-kylin-images-bundle/summary:
+  en: c1d41a8e0b8b44ce
+  zh: 4ec40e73d9e28b3d
+/qilin-agent-kylin-images-bundle/table-of-contents:
+  en: 76368b6b1da79c80
+  zh: 762ac2d89989b648
+/qilin-agent-kylin-images-bundle/use-this-package:
+  en: ed6e4c5b396d37ae
+  zh: 40f5bd28c379b72e
+/qilin-agent-kylin-images-bundle/understand-the-implementation:
+  en: 57c1e9dc9904e348
+  zh: 012379b7984bd074
+/qilin-agent-kylin-images-bundle/model-experience:
+  en: 0e1960a4017aacce
+  zh: 32546d7d28c20864
+/qilin-agent-kylin-images-bundle/model-experience/kv-cache-effect:
+  en: 2424626f4f45a79d
+  zh: 5c78291e1898dd48
+/qilin-agent-kylin-images-bundle/known-limitations-and-deferred-work:
+  en: b3e581b82b47e370
+  zh: 405f881ed98e8dbb
+/qilin-agent-kylin-images-bundle/known-limitations-and-deferred-work/dev-note:
+  en: 93aa8b5920ce77ca
+  zh: fb3cbbec20ab9d8a
