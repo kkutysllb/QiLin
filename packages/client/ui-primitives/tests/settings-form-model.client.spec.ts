@@ -50,6 +50,79 @@ function acceptWrites<T>(host: StubScope<T>): void {
   })
 }
 
+describe('SettingsFormModel over a nested entry', () => {
+  function nested() {
+    const host = stubScope<Record<string, unknown>>()
+    const subject = new SettingsFormModel(
+      host.scope,
+      [settingsNumberField('timeoutMs'), settingsTextField('baseURL')],
+      [],
+      { prefix: ['providers', 'route'] },
+    )
+    host.publish({
+      status: 'ready',
+      writable: true,
+      revision: 7,
+      value: { providers: { route: { timeoutMs: 1_000, baseURL: 'https://a.test' } }, shared: 1 },
+      base: { providers: { route: { timeoutMs: 500 } } },
+      user: { providers: { route: { baseURL: 'https://a.test' } } },
+    })
+    return { host, subject }
+  }
+
+  it('reads the field through the prefix and writes the prefixed path', async () => {
+    const { host, subject } = nested()
+    expect(subject.field('timeoutMs')).toEqual({ text: '1000', overridden: false, invalid: false })
+    expect(subject.field('baseURL')).toEqual({ text: 'https://a.test', overridden: true, invalid: false })
+    subject.actions().edit('timeoutMs', '2000')
+    subject.actions().save()
+    await vi.waitFor(() => { expect(host.mutate).toHaveBeenCalledOnce() })
+    expect(host.mutate.mock.calls[0]![0]).toEqual([
+      { op: 'set', path: ['providers', 'route', 'timeoutMs'], value: 2_000 },
+    ])
+    expect(host.mutate.mock.calls[0]![1]).toBe(7)
+  })
+
+  it('stages a structured field as one prefixed path operation', async () => {
+    const host = stubScope<Record<string, unknown>>()
+    const subject = new SettingsFormModel(host.scope, [], [], { prefix: ['providers', 'route'] })
+    const models = [{ id: 'one' }]
+    host.publish({
+      status: 'ready',
+      writable: true,
+      value: { providers: { route: { models: [{ id: 'stored' }] } } },
+      base: {},
+      user: { providers: { route: { models: [{ id: 'stored' }] } } },
+    })
+    expect(subject.structuredField('models')).toEqual({ value: [{ id: 'stored' }], overridden: true })
+    subject.stageValue('models', models)
+    expect(subject.structuredField('models')).toEqual({ value: models, overridden: true })
+    expect(subject.shell().dirty).toBe(true)
+    subject.actions().save()
+    await vi.waitFor(() => { expect(host.mutate).toHaveBeenCalledOnce() })
+    expect(host.mutate.mock.calls[0]![0]).toEqual([
+      { op: 'set', path: ['providers', 'route', 'models'], value: models },
+    ])
+  })
+
+  it('clears a structured field that the user layer stores', async () => {
+    const host = stubScope<Record<string, unknown>>()
+    const subject = new SettingsFormModel(host.scope, [], [], { prefix: ['providers', 'route'] })
+    host.publish({
+      status: 'ready',
+      writable: true,
+      value: { providers: { route: { models: [{ id: 'stored' }] } } },
+      base: {},
+      user: { providers: { route: { models: [{ id: 'stored' }] } } },
+    })
+    subject.stageValue('models', undefined)
+    subject.actions().save()
+    await vi.waitFor(() => { expect(host.mutate).toHaveBeenCalledOnce() })
+    expect(host.mutate.mock.calls[0]![0]).toEqual([
+      { op: 'unset', path: ['providers', 'route', 'models'] },
+    ])
+  })
+})
 describe('SettingsFormModel', () => {
   function form() {
     const host = stubScope<Record<string, unknown>>()

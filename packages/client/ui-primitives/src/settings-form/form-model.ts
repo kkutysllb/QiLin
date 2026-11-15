@@ -99,6 +99,14 @@ export interface SettingsFieldState {
   invalid: boolean
 }
 
+/** One structured field as its control renders it: a whole value, staged or stored. */
+export interface SettingsStructuredState {
+  /** The staged value, or the stored one while the field carries no draft. */
+  value: unknown
+  /** Whether saving would leave a user-layer entry for this field. */
+  overridden: boolean
+}
+
 /** Form state every plugin card shares. */
 export interface SettingsFormShell {
   /** False while the namespace is not served to this client; the card renders nothing. */
@@ -196,6 +204,8 @@ export class SettingsFormModel<T> {
   private readonly specs: Map<string, SettingsFieldSpec>
   private readonly secretSpecs: Map<string, SettingsSecretSpec>
   private readonly staged = new Map<string, StagedEdit>()
+  private readonly structured = new Map<string, unknown>()
+  private readonly prefix: readonly string[]
   private readonly listeners = new Set<() => void>()
   private baseline: SettingsFormScopeSnapshot<T> | undefined
   private readonly unsubscribe: () => void
@@ -206,12 +216,16 @@ export class SettingsFormModel<T> {
    * @param scope - the shared configuration form for this card's namespace.
    * @param specs - the section fields this card edits.
    * @param secrets - the card's write-only controls, written outside the section.
+   * @param options - path prefix of the section subtree this card edits, for a
+   * card that owns one entry rather than the whole section.
    */
   constructor(
     private readonly scope: SettingsFormScope<T>,
     specs: SettingsFieldSpec[],
     secrets: SettingsSecretSpec[] = [],
+    options: { readonly prefix?: readonly string[] } = {},
   ) {
+    this.prefix = options.prefix ?? []
     this.specs = new Map(specs.map(spec => [spec.field, spec]))
     this.secretSpecs = new Map(secrets.map(spec => [spec.field, spec]))
     this.unsubscribe = scope.subscribe(() => { this.publish() })
@@ -268,6 +282,30 @@ export class SettingsFormModel<T> {
   }
 
   /**
+   * Stage a whole value for one structured field: the control keeps its own
+   * editing state, and a save writes that field of the prefixed subtree as one
+   * path operation.
+   * @param field - field name inside the prefixed section.
+   * @param value - the value a save would write; undefined clears the field.
+   */
+  stageValue(field: string, value: unknown): void {
+    this.baseline ??= this.scope.getSnapshot()
+    this.structured.set(field, value)
+    this.failed = false
+    this.publish()
+  }
+
+  /**
+   * Read one structured field's staged or stored value.
+   * @param field - field name inside the prefixed section.
+   * @returns the value a control renders and whether a save would leave an override.
+   */
+  structuredField(field: string): SettingsStructuredState {
+    if (this.structured.has(field)) return { value: this.structured.get(field), overridden: true }
+    return { value: this.sectionValue(field), overridden: this.stored(field) }
+  }
+
+  /**
    * Build the edit, reset, save, and discard actions bound to this form.
    * @returns the actions a card's slot entry injects.
    */
@@ -309,7 +347,7 @@ export class SettingsFormModel<T> {
       let landed = !ops.length || await this.scope.mutate(ops, this.baseline?.revision)
       if (!landed) { this.failed = true; return }
       for (const item of plan) if (item.run) landed = await item.run() && landed
-      if (landed) { this.staged.clear(); this.baseline = undefined }
+      if (landed) { this.staged.clear(); this.structured.clear(); this.baseline = undefined }
       this.failed = !landed
     } catch (_error) {
       this.failed = true
@@ -339,14 +377,20 @@ export class SettingsFormModel<T> {
       }
       const spec = this.spec(field)
       if (staged.clear) {
-        if (this.stored(field)) plan.push({ field, op: { op: 'unset', path: [field] } })
+        if (this.stored(field)) plan.push({ field, op: { op: 'unset', path: this.path(field) } })
         continue
       }
       if (staged.text === spec.format(this.sectionValue(field))) continue
       const write = spec.parse(staged.text)
       if (write === undefined) plan.push({ field })
-      else if (write.kind === 'clear') plan.push({ field, op: { op: 'unset', path: [field] } })
-      else plan.push({ field, op: { op: 'set', path: [field], value: write.value } })
+      else if (write.kind === 'clear') plan.push({ field, op: { op: 'unset', path: this.path(field) } })
+      else plan.push({ field, op: { op: 'set', path: this.path(field), value: write.value } })
+    }
+    for (const [field, value] of this.structured) {
+      if (JSON.stringify(value) === JSON.stringify(this.sectionValue(field))) continue
+      plan.push({ field, op: value === undefined
+        ? { op: 'unset', path: this.path(field) }
+        : { op: 'set', path: this.path(field), value } })
     }
     return plan
   }
@@ -370,21 +414,39 @@ export class SettingsFormModel<T> {
     return this.scope.getSnapshot()
   }
 
+  /**
+   * Walk a documented layer down the card path prefix.
+   * @param layer - section value, composition base, or raw user layer.
+   * @returns the prefixed subtree, if every prefix step exists.
+   */
+  private subtree(layer: unknown): Record<string, unknown> | undefined {
+    let node: unknown = layer
+    for (const step of this.prefix) {
+      if (typeof node !== 'object' || node === null) return undefined
+      node = (node as Record<string, unknown>)[step]
+    }
+    return typeof node === 'object' && node !== null ? node as Record<string, unknown> : undefined
+  }
+
   private sectionValue(field: string): unknown {
-    return (this.snapshotOf().value as Record<string, unknown> | undefined)?.[field]
+    return this.subtree(this.snapshotOf().value)?.[field]
   }
 
   private baseValue(field: string): unknown {
-    return (this.snapshotOf().base as Record<string, unknown> | undefined)?.[field]
+    return this.subtree(this.snapshotOf().base)?.[field]
   }
 
   private userLayer(): Record<string, unknown> | undefined {
-    return this.snapshotOf().user as Record<string, unknown> | undefined
+    return this.subtree(this.snapshotOf().user)
   }
 
   private stored(field: string): boolean {
     const user = this.userLayer()
     return user !== undefined && Object.hasOwn(user, field)
+  }
+
+  private path(field: string): readonly string[] {
+    return [...this.prefix, field]
   }
 
   private publish(): void {
