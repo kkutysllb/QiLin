@@ -73,7 +73,7 @@ The section declares two seats for plugins distributed outside this repository, 
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The page never holds a full settings section: it holds only the REDACTED descriptor, so every edit lands as `settings.mutate` path ops against the stored section — a set per changed field, an unset per cleared one, and a single unset for a deleted provider row.
+The page never holds a full settings section: it holds only the REDACTED descriptor, so every edit lands as `settings.mutate` path ops against the stored section — a set per changed field, an unset per cleared one, and a single unset for a deleted provider row. The editor stages those edits in the shared settings form (one model per card, prefixed at the provider's path) and Apply writes them as one revision-fenced mutation: text fields travel as their staged drafts, the model list as one whole-value operation, and the API key as a separate write-only credential call after the settings commit.
 
 ### Validation
 
