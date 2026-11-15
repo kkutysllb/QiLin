@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/skills-bundle",
   "description": "方法论技能包：31 项核心技能 + 40 项可选长尾技能（内置 dsh-skills-bundle）",
-  "version": "3.1.12-rc.2",
+  "version": "3.1.12-rc.3",
   "publishConfig": {
     "access": "public"
   },
