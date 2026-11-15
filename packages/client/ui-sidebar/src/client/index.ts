@@ -13,6 +13,8 @@ import type {} from '@qilin-agent/client-ui-session/client'
 // Type-only: pulls the conversation header slot declarations.
 import type {} from '@qilin-agent/client-ui-conversation/client'
 import type { SidebarPanelMetadata, SidebarRootInjected, SidebarSectionAssignmentsOwnerProps } from './contract/slots.ts'
+// Type-only: pulls the `ctx.settingsShell` merge the row routing calls.
+import type {} from '@qilin-agent/client-ui-settings/client'
 import { createPanelPins } from './panel-pins.ts'
 import { HeaderLeadingControls } from './HeaderLeadingControls.tsx'
 import { SidebarRoot } from './SidebarRoot.tsx'
@@ -100,7 +102,15 @@ export function apply(ctx: ClientContext): void {
     // (current Session Workspace, then recent Workspace).
     startSession: (workspaceId) => { workspaceNavigation.startSession(workspaceId) },
     toggleSidebar: () => { ctx.layout.toggleSidebar() },
-    selectPanel: (id) => { ctx.layout.selectPanel(id) },
+    selectPanel: (id) => {
+      // A row whose id names a live settings section reveals that page instead
+      // of selecting a main panel: the settings shell owns every such page.
+      if (ctx.slots.entriesOfSlot('settings.section').some(entry => entry.options.id === id)) {
+        ctx.get('settingsShell')?.open(id)
+        return
+      }
+      ctx.layout.selectPanel(id)
+    },
     setPinned: panelPins.setPinned,
     trackEntryClick: (attributes) => { ctx.get('productAnalytics')?.track('sidebar_menu_click', attributes) },
     hooks: { panels, shortcuts: ctx.shortcuts.catalog, entryPins: panelPins.unpinned, entryActions },
@@ -138,7 +148,7 @@ export function apply(ctx: ClientContext): void {
   ctx.slots.inject('sidebar.section.assignments', () => ctx.slots.register({
     name: 'sidebar.section.assignments',
     id: 'ok-desktop-sections',
-    inject: () => ({ assignments: { plugins: t('section.general'), schedules: t('section.general'), mcp: t('section.general') } }),
+    inject: () => ({ assignments: { models: t('section.general'), plugins: t('section.general'), schedules: t('section.general'), mcp: t('section.general') } }),
   }, () => null))
   syncPanels()
 }

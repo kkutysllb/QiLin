@@ -47,21 +47,22 @@
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin-agent/remote-mock": "workspace:*",
     "@qilin-agent/api-remotes": "workspace:*",
     "@qilin-agent/client-locale": "workspace:*",
     "@qilin-agent/client-store": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
     "@qilin-agent/client-ui-settings": "workspace:*",
+    "@qilin-agent/client-ui-sidebar": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
     "@qilin-agent/host-webserver": "workspace:*",
-    "@types/react": "~18.3.1",
-    "@testing-library/react": "^16.3.2",
     "@qilin-agent/kylin": "workspace:~",
-    "react": "^18.2.0",
-    "@qilin-agent/client-ui-renderer": "workspace:*",
-    "@qilin-agent/util-values": "workspace:*"
+    "@qilin-agent/remote-mock": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "~18.3.1",
+    "react": "^18.2.0"
   },
   "dependencies": {
     "@qilin-agent/schemastery": "workspace:~"

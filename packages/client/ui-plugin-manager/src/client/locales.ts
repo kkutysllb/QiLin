@@ -7,7 +7,7 @@ export const INSTALL_PATH_EXAMPLE = '/Users/name/my-plugin'
 
 /** Simplified Chinese dictionary and key source of truth. */
 export const zh = {
-  panel: '插件',
+  panel: '插件管理',
   title: '插件',
   intro: '安装、启用和配置插件',
   infoLabel: '插件说明',

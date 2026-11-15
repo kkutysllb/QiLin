@@ -10,6 +10,28 @@
 
 import type {} from '@qilin-agent/client-ui-slots'
 
+/**
+ * The settings panel's open channel, provided as `ctx.settingsShell` so a
+ * surface outside the shell (a sidebar row, the account menu) can reveal the
+ * panel and select a section. The panel state stays with the shell occupant;
+ * this service only carries the request and is inert until that occupant
+ * mounts.
+ */
+export interface SettingsShell {
+  /**
+   * Reveal the settings panel, optionally selecting one section.
+   * @param sectionId - section to select; omitted keeps the current selection.
+   */
+  open(sectionId?: string): void
+}
+
+declare module '@qilin-agent/kylin' {
+  interface Context {
+    /** The settings panel's reveal channel; inert until the shell occupant mounts. */
+    settingsShell: SettingsShell
+  }
+}
+
 declare module '@qilin-agent/client-ui-slots' {
   interface SlotMap {
     /**

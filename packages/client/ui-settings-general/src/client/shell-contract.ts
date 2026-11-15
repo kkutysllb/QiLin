@@ -29,25 +29,7 @@ export interface SettingsOnboardingStep {
   order: number
 }
 
-/**
- * The settings panel's open channel, provided as `ctx.settingsShell` so a
- * surface outside this package can reveal the panel (the account menu's own
- * Settings row). The panel state stays with the shell occupant; this service
- * only carries the request, and it is inert until that occupant mounts.
- */
-export interface SettingsShell {
-  /**
-   * Reveal the settings panel, optionally selecting one section.
-   * @param sectionId - section to select; omitted keeps the current selection.
-   */
-  open(sectionId?: string): void
-}
-
-declare module '@qilin-agent/kylin' {
-  interface Context {
-    settingsShell: SettingsShell
-  }
-}
+export type { SettingsShell } from '@qilin-agent/client-ui-settings/client'
 
 /**
  * Registrant-private injected share of the settings shell (assembled in

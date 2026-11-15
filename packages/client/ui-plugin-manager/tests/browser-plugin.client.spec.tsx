@@ -131,7 +131,7 @@ describe('ui-plugin-manager browser plugin', () => {
     // The nav row names the section with the page's own title and keeps its order.
     expect(entry.options).toMatchObject({ id: PANEL_ID, order: 15 })
     expect(entry.locale).toBe(NS)
-    expect(resolveSlotLabel(entry.options.label)).toBe('插件')
+    expect(resolveSlotLabel(entry.options.label)).toBe('插件管理')
     // The page declares the slots a plugin's configuration arrives through, and binds their projection beside its state.
     expect(b.slots.spec('plugins.add.actions')).toMatchObject({ kind: 'list', scope: 'root' })
     expect(b.slots.spec('plugins.item')).toMatchObject({ kind: 'list', scope: 'root' })

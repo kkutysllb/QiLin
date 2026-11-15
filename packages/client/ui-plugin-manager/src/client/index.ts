@@ -23,10 +23,15 @@ import type {} from '@qilin-agent/api-remotes/client'
 // Type-only: the forwarded events' own declaration (`$on`'s key face resolves
 // through the owning package's client-safe types subpath).
 import type {} from '@qilin-agent/plugin-manager/types'
+import { IconCordisPluginOutlineMedium, IconCordisPluginOutlineRegular } from '@qilin-agent/client-ui-primitives'
+import { createElement } from 'react'
+import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
 import { isExperimentalBundle } from '@qilin-agent/official-bundles'
 // Type-only: the `conversation.session.header.utilities` seat the Agent Teams
 // switch registers into, declared by the conversation package.
 import type {} from '@qilin-agent/client-ui-conversation/client'
+// Type-only: the `sidebar.panellist` row that reveals this section.
+import type {} from '@qilin-agent/client-ui-sidebar/client'
 import { PluginManagerPage } from './PluginManagerPage.tsx'
 import { createPluginHeaderRef } from './header-scroll.ts'
 import { PluginRefreshToast, type PluginRefreshToastFace } from './PluginRefreshToast.tsx'
@@ -77,6 +82,10 @@ export const NS = 'pluginManager'
 
 /** The settings section id that renders the management page. */
 export const PANEL_ID = 'plugins'
+
+/** Plugin manager navigation glyph for the sidebar row. */
+const PluginsNavIcon = ({ size, active }: PropsRuntime<'sidebar.panellist'>) =>
+  createElement(active ? IconCordisPluginOutlineMedium : IconCordisPluginOutlineRegular, { size })
 
 /** Services required by the sidebar registration and the Remote methods; the inventory says whether the Host manages a profile. */
 export const inject = ['slots', 'locale', 'remote', 'remote.pluginManager', 'remote.pluginInventory', 'remote.pluginRegistryProbe', 'configForms']
@@ -143,6 +152,15 @@ export function apply(ctx: ClientContext): void {
   // request that arrives before the shell mounts still aims the next open.
   const handle = createNavigationStore(), instance = handle.create()
   const store: typeof handle = { ...handle, create: () => instance }
+  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
+    name: 'sidebar.panellist',
+    id: PANEL_ID,
+    order: 30,
+    settings: PANEL_ID,
+    locale: NS,
+    label: () => t('panel'),
+  }, PluginsNavIcon))
+
   ctx.slots.inject('settings.section', function* () {
     yield ctx.slots.register({
       name: 'settings.section',

@@ -63,6 +63,7 @@
     "@qilin-agent/client-product-analytics": "workspace:*",
     "@qilin-agent/client-ui-renderer": "workspace:*",
     "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-settings": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
     "@qilin-agent/client-ui-workspace": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",

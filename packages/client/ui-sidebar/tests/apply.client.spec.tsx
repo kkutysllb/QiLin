@@ -4,7 +4,8 @@ import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import type { PropsRenderSlots } from '@qilin-agent/client-ui-slots'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
-import { apply, inject } from '@qilin-agent/client-ui-sidebar/client'
+import { inject } from '@qilin-agent/client-ui-sidebar/client'
+import { apply } from '../src/client/index.ts'
 import type { SidebarRootInjected } from '@qilin-agent/client-ui-sidebar/client'
 import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
 import { HeaderLeadingControls } from '../src/client/HeaderLeadingControls.tsx'
@@ -36,6 +37,8 @@ async function bench(declare = true) {
   ctx.provide('layout', layout)
   ctx.provide('uiWorkspace', uiWorkspace as never)
   ctx.provide('locale', new LocaleRuntime(ctx))
+  const settingsShell = { open: vi.fn() }
+  ctx.provide('settingsShell', settingsShell)
   ctx.provide('shortcuts', {
     register: vi.fn(() => () => {}), registerFixed: vi.fn(() => () => {}),
     observeFixedInput: vi.fn(() => () => {}),
@@ -48,11 +51,12 @@ async function bench(declare = true) {
         'sidebar': { kind: 'single', scope: 'root' },
         'main': { kind: 'keyed', scope: 'root' },
         'conversation.header.leading': { kind: 'single', scope: 'root' },
+        'settings.section': { kind: 'list', scope: 'root' },
       } },
       SidebarFrame,
     )
   }
-  return { ctx, slots, layout, uiWorkspace }
+  return { ctx, slots, layout, uiWorkspace, settingsShell }
 }
 
 describe('ui-sidebar apply', () => {
@@ -99,6 +103,12 @@ describe('ui-sidebar apply', () => {
     injected.selectPanel(panelId)
     expect(b.layout.selectPanel).toHaveBeenCalledExactlyOnceWith(panelId)
     expectTypeOf<Parameters<SidebarRootInjected['selectPanel']>[0]>().toEqualTypeOf<MainPanelId>()
+    // A row whose id names a live settings section reveals that page instead of
+    // selecting a main panel.
+    b.slots.register({ name: 'settings.section', id: 'models' }, () => null)
+    injected.selectPanel('models' as MainPanelId)
+    expect(b.settingsShell.open).toHaveBeenCalledExactlyOnceWith('models')
+    expect(b.layout.selectPanel).toHaveBeenCalledTimes(1)
   })
 
   it('waits for the sidebar declaration before registering', async () => {

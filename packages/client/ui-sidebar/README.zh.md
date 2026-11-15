@@ -33,7 +33,7 @@ qilin Web 客户端的侧边栏让用户识别当前构建、启动新会话、�
 
 ### 全局面板入口
 
-插件在 root 作用域的 `sidebar.panellist` list 中注册图标组件，提供 `id`、可选 `order`，以及字符串或随语言变化的 `label`。同一个 id 寻址布局中 root 作用域 `main` keyed slot 的组件；选择不存在的主面板条目会抛错，并保留当前选中态。标签提供普通可见文字、无障碍名称和折叠提示。展开的导航行间距为 2px。每一行通过 `usePanelInfo` 读取自己的选中态；DOM 焦点移到搜索框或目录选择器时，显示的面板及其列表项选中态不变。没有面板注册项时，列表及其间距均不渲染。默认组合不注册示例面板。
+插件在 root 作用域的 `sidebar.panellist` list 中注册图标组件，提供 `id`、可选 `order`，以及字符串或随语言变化的 `label`。同一个 id 寻址布局中 root 作用域 `main` keyed slot 的组件；选择不存在的主面板条目会抛错，并保留当前选中态；当该 id 命中一个已生效的 settings.section 分区时，该行通过设置外壳的打开通道直接展开对应设置页，主内容列保持不变。标签提供普通可见文字、无障碍名称和折叠提示。展开的导航行间距为 2px。每一行通过 `usePanelInfo` 读取自己的选中态；DOM 焦点移到搜索框或目录选择器时，显示的面板及其列表项选中态不变。没有面板注册项时，列表及其间距均不渲染。默认组合不注册示例面板。
 
 当 root 作用域的 `sidebar.panellist.actions` list 存在注册项时，导航地标内的面板行之后会出现一个同样式样的**更多**按钮；收起轨道把它的标签作为提示显示。点击打开菜单，菜单行来自该 list 的注册项。每个注册项收到 `entries`（按注册顺序的可自定义面板，含 `id`、`label`、`pinned`、`active`；Plugins 永不列出）、`onOpen(id)`（选中该面板）、`onPinnedChange(id, pinned)` 与 `onDismiss()`（关闭菜单）。侧边栏只在内存中保存一份未固定面板 id 列表，所有 Session 共用；Plugins 始终显示。取消固定只隐藏该行，主面板、其注册与当前选中态都不变。未注册的面板 id 会留在内存列表中，直到插件重新加载。
 
@@ -72,7 +72,7 @@ qilin Web 客户端的侧边栏让用户识别当前构建、启动新会话、�
 <details>
 <summary>实现细节——点击展开</summary>
 
-外壳是纯组合：`SidebarRootComponentProps` 组合布局 owner share、全局 `useSessions` 与 `useWorkspaces` 钩子、已声明的品牌、`sidebar.workspaces` 与 `sidebar.settings` 子 slot，以及注入的导航回调。面板元数据由列表注册和语言变化派生；选中态属于布局存储。注入的 `trackEntryClick(attributes)` 转发到 `ctx.get('productAnalytics')?.track('sidebar_menu_click', attributes)`，而 `selectPanel` 只负责选中，因此每个控件各自提供入口与位置。
+外壳是纯组合：`SidebarRootComponentProps` 组合布局 owner share、全局 `useSessions` 与 `useWorkspaces` 钩子、已声明的品牌、`sidebar.workspaces` 与 `sidebar.settings` 子 slot，以及注入的导航回调。面板元数据由列表注册和语言变化派生；选中态属于布局存储；只有命中已生效 settings.section 分区的行改为打开设置外壳。注入的 `trackEntryClick(attributes)` 转发到 `ctx.get('productAnalytics')?.track('sidebar_menu_click', attributes)`，而 `selectPanel` 只负责选中，因此每个控件各自提供入口与位置。
 
 展开态导航的左右外距为 8px，每一行在两侧各内缩 3px 绘制底色，行内图形与标签间隔 6px；新会话底部外边距 10px，内容左右各留 4px。logo 行无底部外边距，内容从侧栏左边缘向内 16px 开始（栏内边距 8px 加行内边距 8px），标记与名称间隔 5px；仅 macOS 非全屏、侧栏展开时顶部开关向右偏移 4px。所有悬停反馈都包在 `@media (hover: hover)` 内，因此触摸或手写笔在任何一次点击后都不会留下粘滞底色；折叠态尺寸独立于以上全部取值。
 

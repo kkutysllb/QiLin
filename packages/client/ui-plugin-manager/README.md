@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use the **Manage plugins** view, opened from the **Plugins** navigation entry, to manage the profile's installed bundles and the official bundles shipped switched off. Switch bundles and their rows on and off, install a bundle once the Host has read the spec, watch pnpm's output, stop a run, and enable what it added. **Check for updates** compares the manageable layers with their registry's latest versions; the **Plugin catalog** searches GitHub's plugin topic. A plugin with a configuration page edits it here.
+Use the **Manage plugins** view, opened from the Settings navigation or the sidebar **Plugins** row, to manage the profile's installed bundles and the official bundles shipped switched off. Switch bundles and their rows on and off, install a bundle once the Host has read the spec, watch pnpm's output, stop a run, and enable what it added. **Check for updates** compares the manageable layers with their registry's latest versions; the **Plugin catalog** searches GitHub's plugin topic. A plugin with a configuration page edits it here.
 
 ## Table of Contents
 
