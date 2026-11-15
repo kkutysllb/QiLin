@@ -31,7 +31,6 @@ import { pathToFileURL } from 'node:url'
 import type { Locator, Page } from 'playwright'
 import { expect } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
-import { QILIN_LAUNCH_ENVIRONMENT_KEY, type LaunchEnvironmentSnapshot } from '@qilin-agent/launch-environment'
 import Loader from '@qilin-agent/kylin-plugin-loader'
 import { entryListSchema, type PatchOptions } from '@qilin-agent/kylin-plugin-include'
 import yaml from 'js-yaml'
@@ -321,8 +320,6 @@ export interface WebScaffold {  /** The active snapshot mode this scaffold boote
 export interface LaunchOptions {
   /** Profile resolver backend used by this test Host; defaults to runtime coverage. */
   profileResolutionMode?: Extract<ProfileResolutionMode, 'dual' | 'runtime'>
-  /** Enable the real Open In rows with deterministic launch-environment facts. */
-  openInAppEnvironment?: LaunchEnvironmentSnapshot
   /**
    * Compare the replayed root session with `replayFixture`; defaults on for a
    * manifest-owned canonical recording; `read-only` also forbids refresh
@@ -702,10 +699,10 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
       { id: 'directory-picker-browse', name: '@qilin-agent/host-directory-picker-browse' },
       { id: 'ui-directory-picker-browse', name: '@qilin-agent/client-ui-directory-picker-browse' },
     ] },
-    // Ordinary scenarios exclude host-dependent application discovery. The
-    // Open In scenario supplies launch facts that suppress every native probe.
-    { id: 'open-in-app', disabled: options.openInAppEnvironment === undefined },
-    { id: 'ui-open-in-app', disabled: options.openInAppEnvironment === undefined },
+    // Application discovery is host-dependent; the lane keeps those rows out so
+    // an installed editor on the test machine cannot change a golden.
+    { id: 'open-in-app', disabled: true },
+    { id: 'ui-open-in-app', disabled: true },
     ...options.agentPresets === undefined
       ? []
       // Never the derived harness-home root: a developer's own presets must not
@@ -753,7 +750,6 @@ export async function launchWebScaffold(options: LaunchOptions = {}): Promise<We
   // the temp workspace so tool cwd, session cwd, and fixtures agree.
   const originalCwd = process.cwd()
   const ctx = new Context()
-  if (options.openInAppEnvironment !== undefined) ctx.provide(QILIN_LAUNCH_ENVIRONMENT_KEY, options.openInAppEnvironment)
   const observedSessions = new Map<SessionId, Session>()
   const stopObservingSessions = ctx.on('session/created', (session) => {
     observedSessions.set(session.id, session)

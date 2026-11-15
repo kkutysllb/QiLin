@@ -6,7 +6,7 @@ import type {} from '@qilin-agent/client-ui-conversation/client'
 import { NS, type OpenInAppKey } from './locales.ts'
 import css from './OpenInAppAction.module.css'
 
-/** Browser operations and state injected into the Session Header contribution. */
+/** Browser operations and state injected into the sidebar files contribution. */
 export interface OpenInAppActionInjected {
   hooks: {
     openInAppApps: ObservableSnapshot<readonly string[] | null>
@@ -17,7 +17,8 @@ export interface OpenInAppActionInjected {
   iconUrl: (appId: string) => string
 }
 
-/** Browser operations and state shared by the Session header and file tree contributions. */
+/** Browser operations and state shared by the sidebar Files action and the
+ * document-control seats: both receive the session runtime share. */
 export type OpenInAppActionProps =
   PropsRuntime<'conversation.session.header.utilities'>
   & PropsLocale<typeof NS>
@@ -118,12 +119,12 @@ function AppIcon({ id, url, size }: { id: string; url: string; size: number }): 
 const BUSY_DRESS_DELAY_MS = 250
 
 /**
- * Session-header split button: the main button opens the session's workspace
- * directory in the remembered application, the chevron opens the menu of
- * every application the host probed as installed. It renders nothing until
- * the host reported at least one nameable application and the session has a
- * known workspace directory, so a host without the capability never grows
- * the control.
+ * Workspace-directory split button: the main button opens the session's
+ * workspace directory in the remembered application, the chevron opens the
+ * menu of every application the host probed as installed. It renders nothing
+ * until the host reported at least one nameable application and the session
+ * has a known workspace directory, so a host without the capability never
+ * grows the control.
  * @param props - session runtime, injected controller face, and localized copy.
  * @returns the split button and its menu, or null when there is nothing to offer.
  */

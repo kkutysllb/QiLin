@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-`qilin-agent-team-profile` enables [Agent Teams](../agent-team/README.md) collaboration, tools, and Web UI with one bundle. Delegate work to teammates and view members, shared tasks, and teammate sessions in Web. Ordinary subagent delegation and overlapping global child controls are disabled; Workflow can still create fresh children. The bundle ships selected by the browser profile templates, so Web and Desktop start with Agent Teams on; the switch in the Session header, beside Open locally, turns it off and on again. The Plugins page leaves the bundle out, and a headless profile adds it explicitly.
+`qilin-agent-team-profile` enables [Agent Teams](../agent-team/README.md) collaboration, tools, and Web UI with one bundle. Delegate work to teammates and view members, shared tasks, and teammate sessions in Web. Ordinary subagent delegation and overlapping global child controls are disabled; Workflow can still create fresh children. The bundle ships selected by the browser profile templates, so Web and Desktop start with Agent Teams on; the switch that leads the Session header's utilities turns it off and on again. The Plugins page leaves the bundle out, and a headless profile adds it explicitly.
 
 ## Table of Contents
 

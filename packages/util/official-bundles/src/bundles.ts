@@ -8,7 +8,7 @@
  * Built-in profile layers and bundles with no page of their own. Their Host
  * availability and activation stay intact; the Plugins page leaves them out.
  * An enabled layer would strand the session if switched from a card list.
- * Agent Teams is switched from the Session header instead, beside Open locally,
+ * Agent Teams is switched from the Session header instead, leading its utilities,
  * and the automation tasks layer is always on and has no switch at all, so the
  * page keeps no control for either.
  */

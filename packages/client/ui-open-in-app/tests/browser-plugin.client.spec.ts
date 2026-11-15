@@ -49,7 +49,7 @@ async function bench(over: {
   ctx.slots.register({
     name: 'root',
     children: {
-      'conversation.session.header.utilities': { kind: 'list', scope: 'session' },
+      'sidebar.right.tab.files.actions': { kind: 'list', scope: 'session' },
       'sidebar.right.tab.document.actions': { kind: 'list', scope: 'session' },
       'sidebar.right.tab.document.unpreviewable': { kind: 'list', scope: 'session' },
     },
@@ -96,8 +96,8 @@ async function bench(over: {
   return { ctx, fiber, commands, menus }
 }
 
-function headerEntryIds(ctx: Context): (string | undefined)[] {
-  return ctx.slots.entries('conversation.session.header.utilities').map(entry => entry.options.id)
+function filesEntryIds(ctx: Context): (string | undefined)[] {
+  return ctx.slots.entries('sidebar.right.tab.files.actions').map(entry => entry.options.id)
 }
 
 /** The document seats' file-opening face, read from the erased registration inject. */
@@ -171,14 +171,14 @@ describe('open-in-app browser half', () => {
     expect(writeText).toHaveBeenCalledWith('https://example.test/a')
   })
 
-  it('registers the header split button, and fiber teardown removes it (HMR safety)', async () => {
+  it('registers the sidebar files split button, and fiber teardown removes it (HMR safety)', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ apps: [] }), { status: 200 })))
     const { ctx, fiber } = await bench()
-    const entry = ctx.slots.entries('conversation.session.header.utilities')[0]
+    const entry = ctx.slots.entries('sidebar.right.tab.files.actions')[0]
     expect(entry?.component).toBe(OpenInAppAction)
     expect(entry?.options).toMatchObject({ id: 'open-in-app' })
     await fiber.dispose()
-    expect(headerEntryIds(ctx)).not.toContain('open-in-app')
+    expect(filesEntryIds(ctx)).not.toContain('open-in-app')
   })
 
   it('registers both document seats, and fiber teardown removes them (HMR safety)', async () => {
@@ -274,7 +274,7 @@ describe('open-in-app browser half', () => {
     if (command === undefined) throw new Error('the workspace command was not registered')
     await vi.waitFor(() => { expect(command.resolve().status).toBe('handled') })
 
-    const entry = ctx.slots.entries('conversation.session.header.utilities')[0]
+    const entry = ctx.slots.entries('sidebar.right.tab.files.actions')[0]
     const injected = (entry?.inject as unknown as () => OpenInAppActionInjected)()
     const launching = injected.launch('finder', '/w/dir')
     expect(command.resolve()).toEqual({
@@ -316,7 +316,7 @@ describe('open-in-app browser half', () => {
     })
     vi.stubGlobal('fetch', fetcher)
     const { ctx, fiber } = await bench()
-    const entry = ctx.slots.entries('conversation.session.header.utilities')[0]
+    const entry = ctx.slots.entries('sidebar.right.tab.files.actions')[0]
     const injected = (entry?.inject as unknown as () => OpenInAppActionInjected)()
 
     await vi.waitFor(() => {
@@ -343,7 +343,7 @@ describe('open-in-app browser half', () => {
       return new Response('', { status: 502 })
     }))
     const { ctx, fiber } = await bench()
-    const entry = ctx.slots.entries('conversation.session.header.utilities')[0]
+    const entry = ctx.slots.entries('sidebar.right.tab.files.actions')[0]
     const injected = (entry as { inject?: () => unknown } | undefined)?.inject?.() as OpenInAppActionInjected
     await vi.waitFor(() => {
       expect(injected.hooks.openInAppApps.getSnapshot()).toEqual([])

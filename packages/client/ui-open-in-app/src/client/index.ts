@@ -1,9 +1,9 @@
 /**
- * Browser half of open-in-app: one Session-header split button opening the
- * session's workspace directory (the summary's `cwd`) in the remembered
- * installed application, plus the document preview header's file opener and
- * its unpreviewable empty-state form. Availability arrives once per page from
- * the host apps route; the last choice persists in the browser through the
+ * Browser half of open-in-app: the sidebar files action that opens the
+ * displayed workspace directory in the remembered installed application, the
+ * document preview header's file opener and its unpreviewable empty-state form,
+ * and the shared resource menus. Availability arrives once per page from the
+ * host apps route; the last choice persists in the browser through the
  * persisted snapshot store on the controller. The file controls read desktop
  * availability and run their gestures over the Session Remote, whose Host side
  * re-verifies each path before any native command runs.
@@ -30,7 +30,7 @@ import { en, NS, zh, type OpenInAppKey } from './locales.ts'
 
 declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
-    /** Session-header "open workspace in application" copy and document file-open copy. */
+    /** Sidebar "open workspace in application" copy and document file-open copy. */
     'open-in-app': OpenInAppKey
   }
 }
@@ -45,8 +45,8 @@ export const inject = [
 ]
 
 /**
- * Client plugin body: register the dictionaries, the header split button, and
- * the document preview's file controls.
+ * Client plugin body: register the dictionaries, the sidebar files split
+ * button, and the document preview's file controls.
  * @param ctx - client root context.
  */
 export function apply(ctx: ClientContext): void {
@@ -54,7 +54,7 @@ export function apply(ctx: ClientContext): void {
   void controller.load()
   const paths = new OpenInAppPathController(ctx.remote.session)
   ctx.effect(() => ctx.locale.register(NS, { zh, en }), 'open-in-app: dictionaries')
-  /** The opening face both Session-header seats receive: the app roster, the remembered choice, and the launch. */
+  /** The opening face the sidebar's file actions receive: the app roster, the remembered choice, and the launch. */
   const openInAppInjected = (): OpenInAppActionInjected => ({
     hooks: {
       openInAppApps: controller.apps,
@@ -108,13 +108,6 @@ export function apply(ctx: ClientContext): void {
     yield ctx.slots.register({ name: 'contextMenu.icon', key: 'open-in-app.application' }, ContextMenuApplicationIcon)
   })
   registerContextMenus(ctx, paths, t, controller)
-  ctx.slots.inject('conversation.session.header.utilities', () => ctx.slots.register({
-    name: 'conversation.session.header.utilities',
-    id: 'open-in-app',
-    order: -10,
-    locale: NS,
-    inject: openInAppInjected,
-  }, OpenInAppAction))
   // Workspace directory controls: the file tree's reload-adjacent action list
   // renders the same shared control against the displayed directory.
   ctx.slots.inject('sidebar.right.tab.files.actions', () => ctx.slots.register({

@@ -3,26 +3,26 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-open-in-app/README.md
 /:
-  en: 160f41efa6b435fc
-  zh: ce2601d0ea86d704
+  en: 5f38f64acfdefbdf
+  zh: bf9d293454daecd2
 /qilin-agent-client-ui-open-in-app:
   en: a84981c3f6b235a5
   zh: 94216eb974c51080
 /qilin-agent-client-ui-open-in-app/summary:
-  en: 67095b5780d26096
-  zh: 32ee4ad0f5406b5c
+  en: 16a689d351baea26
+  zh: d1d6039b38272621
 /qilin-agent-client-ui-open-in-app/table-of-contents:
   en: d152484eb41ac6b4
   zh: 725b47765ee8f30b
 /qilin-agent-client-ui-open-in-app/use-this-package:
-  en: 86ca0b751f71620b
-  zh: 9a539146d9104c8d
+  en: e09a88dbacb49598
+  zh: e2d12f7a56c8677d
 /qilin-agent-client-ui-open-in-app/use-this-package/what-to-expect:
-  en: 4b80d2ed864d403d
-  zh: 8e29a1e136c56dd9
+  en: 87e2d2727b00b0a8
+  zh: 43b9b7f2180936ad
 /qilin-agent-client-ui-open-in-app/understand-the-implementation:
-  en: 66451cb9675e2ce6
-  zh: 213fda45d8889831
+  en: c0dfcaefd8f51f65
+  zh: e47bdf5999b51486
 /qilin-agent-client-ui-open-in-app/further-exploration:
   en: b0f07edf5d8b5ec4
   zh: 3dcde47e9afb770e

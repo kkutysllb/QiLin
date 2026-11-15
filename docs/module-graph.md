@@ -222,6 +222,10 @@ flowchart TD
     pkg_client_ui_workspace["client-ui-workspace"]
     pkg_client_web["client-web"]
   end
+  subgraph group_coding_runtime["packages/coding-runtime"]
+    pkg_coding_runtime["coding-runtime"]
+    pkg_coding_runtime_node["coding-runtime-node"]
+  end
   subgraph group_compaction["packages/compaction"]
     pkg_command_compact["command-compact"]
     pkg_compaction["compaction"]
@@ -251,7 +255,9 @@ flowchart TD
     pkg_workspace_changes["workspace-changes"]
   end
   subgraph group_document["packages/document"]
+    pkg_office_read["office-read"]
     pkg_office_to_pdf["office-to-pdf"]
+    pkg_tool_office_read["tool-office-read"]
   end
   subgraph group_experimental["packages/experimental"]
     pkg_experimental_api_speech_to_text["experimental-api-speech-to-text"]
@@ -266,6 +272,7 @@ flowchart TD
     pkg_experimental_client_ui_cot_translation["experimental-client-ui-cot-translation"]
     pkg_experimental_client_ui_forge["experimental-client-ui-forge"]
     pkg_experimental_client_ui_voice_input["experimental-client-ui-voice-input"]
+    pkg_experimental_coding_runtime_python["experimental-coding-runtime-python"]
     pkg_experimental_computer_use_cua_driver_mcp["experimental-computer-use-cua-driver-mcp"]
     pkg_experimental_computer_use_cua_driver_native["experimental-computer-use-cua-driver-native"]
     pkg_experimental_cot_translation_bundle["experimental-cot-translation-bundle"]
@@ -279,7 +286,6 @@ flowchart TD
     pkg_experimental_hooks_claude_code["experimental-hooks-claude-code"]
     pkg_experimental_hooks_codex["experimental-hooks-codex"]
     pkg_experimental_plugin_market_bundle["experimental-plugin-market-bundle"]
-    pkg_experimental_ptc_runtime_python["experimental-coding-runtime-python"]
     pkg_experimental_ralph_bundle["experimental-ralph-bundle"]
     pkg_experimental_schedule_bundle["experimental-schedule-bundle"]
     pkg_experimental_session_search["experimental-session-search"]
@@ -357,10 +363,6 @@ flowchart TD
     pkg_agent_presets["agent-presets"]
     pkg_persona["persona"]
   end
-  subgraph group_ptc_runtime["packages/coding-runtime"]
-    pkg_ptc_runtime["coding-runtime"]
-    pkg_ptc_runtime_node["coding-runtime-node"]
-  end
   subgraph group_sandbox["packages/sandbox"]
     pkg_sandbox["sandbox"]
     pkg_sandbox_local["sandbox-local"]
@@ -387,6 +389,7 @@ flowchart TD
     pkg_session_format_v4_to_v5["session-format-v4-to-v5"]
     pkg_session_format_v5_to_v6["session-format-v5-to-v6"]
     pkg_session_format_v6_to_v7["session-format-v6-to-v7"]
+    pkg_session_format_v7_to_v8["session-format-v7-to-v8"]
     pkg_session_log_deepseek["session-log-deepseek"]
     pkg_session_persistence["session-persistence"]
     pkg_session_persistence_jsonl["session-persistence-jsonl"]
@@ -468,7 +471,7 @@ flowchart TD
   subgraph group_workflow["packages/workflow"]
     pkg_tool_workflow["tool-workflow"]
     pkg_workflow["workflow"]
-    pkg_workflow_ptc["workflow-coding"]
+    pkg_workflow_coding["workflow-coding"]
   end
   subgraph group_workspace["packages/workspace"]
     pkg_workspace["workspace"]
@@ -562,6 +565,7 @@ flowchart TD
   pkg_app_boot --> pkg_home_paths
   pkg_app_boot --> pkg_launch_environment
   pkg_app_boot --> pkg_system_prompt
+  pkg_coding_runtime --> pkg_sandbox
   pkg_deliverable_file_references --> pkg_system_prompt
   pkg_experimental_skill_badge --> pkg_skill
   pkg_experimental_speech_to_text --> pkg_settings
@@ -573,7 +577,6 @@ flowchart TD
   pkg_experimental_translator --> pkg_timeout
   pkg_experimental_translator --> pkg_util_values
   pkg_persona --> pkg_system_prompt
-  pkg_ptc_runtime --> pkg_sandbox
   pkg_sandbox_local --> pkg_llm
   pkg_sandbox_local --> pkg_sandbox
   pkg_sandbox_local --> pkg_session
@@ -745,8 +748,8 @@ flowchart TD
   pkg_llm_deepseek_api_key --> pkg_llm_deepseek
   pkg_llm_deepseek_api_key --> pkg_settings
   pkg_tools --> pkg_agent
+  pkg_tools --> pkg_coding_runtime
   pkg_tools --> pkg_llm
-  pkg_tools --> pkg_ptc_runtime
   pkg_tools --> pkg_sandbox
   pkg_tools --> pkg_sandbox_policy
   pkg_tools --> pkg_scope
@@ -765,15 +768,22 @@ flowchart TD
   pkg_fs_sandbox --> pkg_fs_local
   pkg_fs_sandbox --> pkg_sandbox
   pkg_fs_sandbox --> pkg_sandbox_policy
+  pkg_coding_runtime_node --> pkg_coding_runtime
+  pkg_coding_runtime_node --> pkg_fs
+  pkg_coding_runtime_node --> pkg_sandbox
+  pkg_coding_runtime_node --> pkg_sandbox_policy
+  pkg_coding_runtime_node --> pkg_session
+  pkg_coding_runtime_node --> pkg_subprocess
+  pkg_coding_runtime_node --> pkg_timeout
   pkg_compaction --> pkg_brand
   pkg_compaction --> pkg_commands
   pkg_compaction --> pkg_llm
   pkg_compaction --> pkg_session
-  pkg_experimental_ptc_runtime_python --> pkg_ptc_runtime
-  pkg_experimental_ptc_runtime_python --> pkg_sandbox
-  pkg_experimental_ptc_runtime_python --> pkg_sandbox_policy
-  pkg_experimental_ptc_runtime_python --> pkg_timeout
-  pkg_experimental_ptc_runtime_python --> pkg_util_values
+  pkg_experimental_coding_runtime_python --> pkg_coding_runtime
+  pkg_experimental_coding_runtime_python --> pkg_sandbox
+  pkg_experimental_coding_runtime_python --> pkg_sandbox_policy
+  pkg_experimental_coding_runtime_python --> pkg_timeout
+  pkg_experimental_coding_runtime_python --> pkg_util_values
   pkg_experimental_worktree --> pkg_agent
   pkg_experimental_worktree --> pkg_fs
   pkg_experimental_worktree --> pkg_sandbox
@@ -797,13 +807,6 @@ flowchart TD
   pkg_jobs_local --> pkg_jobs
   pkg_jobs_local --> pkg_scope
   pkg_jobs_local --> pkg_timeout
-  pkg_ptc_runtime_node --> pkg_fs
-  pkg_ptc_runtime_node --> pkg_ptc_runtime
-  pkg_ptc_runtime_node --> pkg_sandbox
-  pkg_ptc_runtime_node --> pkg_sandbox_policy
-  pkg_ptc_runtime_node --> pkg_session
-  pkg_ptc_runtime_node --> pkg_subprocess
-  pkg_ptc_runtime_node --> pkg_timeout
   pkg_session_title_llm --> pkg_llm
   pkg_session_title_llm --> pkg_session
   pkg_session_title_llm --> pkg_session_title
@@ -1357,15 +1360,15 @@ flowchart TD
   pkg_agent_team --> pkg_session_projection
   pkg_agent_team --> pkg_subagent
   pkg_agent_team --> pkg_typert_protocol
-  pkg_workflow_ptc --> pkg_agent
-  pkg_workflow_ptc --> pkg_llm
-  pkg_workflow_ptc --> pkg_ptc_runtime
-  pkg_workflow_ptc --> pkg_sandbox
-  pkg_workflow_ptc --> pkg_sandbox_policy
-  pkg_workflow_ptc --> pkg_session
-  pkg_workflow_ptc --> pkg_subagent
-  pkg_workflow_ptc --> pkg_tools
-  pkg_workflow_ptc --> pkg_workflow
+  pkg_workflow_coding --> pkg_agent
+  pkg_workflow_coding --> pkg_coding_runtime
+  pkg_workflow_coding --> pkg_llm
+  pkg_workflow_coding --> pkg_sandbox
+  pkg_workflow_coding --> pkg_sandbox_policy
+  pkg_workflow_coding --> pkg_session
+  pkg_workflow_coding --> pkg_subagent
+  pkg_workflow_coding --> pkg_tools
+  pkg_workflow_coding --> pkg_workflow
   pkg_experimental_client_ui_claude_code_mods --> pkg_api_remotes
   pkg_experimental_client_ui_claude_code_mods --> pkg_api_session_controller
   pkg_experimental_client_ui_claude_code_mods --> pkg_client_locale
@@ -1579,7 +1582,9 @@ flowchart TD
 | [`client-ui-workspace`](../packages/client/ui-workspace) | `client` | — |
 | [`client-web`](../packages/client/web) | `client` | — |
 | [`credentials`](../packages/credentials/credentials) | `credentials` | — |
+| [`office-read`](../packages/document/office-read) | `document` | — |
 | [`office-to-pdf`](../packages/document/office-to-pdf) | `document` | — |
+| [`tool-office-read`](../packages/document/tool-office-read) | `document` | — |
 | [`experimental-badge-skill-bundle`](../packages/experimental/badge-skill-bundle) | `experimental` | — |
 | [`experimental-cot-translation-bundle`](../packages/experimental/cot-translation-bundle) | `experimental` | — |
 | [`experimental-forge`](../packages/experimental/forge) | `experimental` | — |
@@ -1608,6 +1613,7 @@ flowchart TD
 | [`session-format-v4-to-v5`](../packages/session/session-format-v4-to-v5) | `session` | — |
 | [`session-format-v5-to-v6`](../packages/session/session-format-v5-to-v6) | `session` | — |
 | [`session-format-v6-to-v7`](../packages/session/session-format-v6-to-v7) | `session` | — |
+| [`session-format-v7-to-v8`](../packages/session/session-format-v7-to-v8) | `session` | — |
 | [`usage-report`](../packages/session/usage-report) | `session` | — |
 | [`ssh-helper-runtime`](../packages/ssh/ssh-helper-runtime) | `ssh` | — |
 | [`storage`](../packages/storage/storage) | `storage` | — |
@@ -1665,12 +1671,12 @@ flowchart TD
 | [`spill-local`](../packages/spill/spill-local) | `spill` | [`spill`](../packages/spill/spill) |
 | [`session-log-export`](../packages/session-query/session-log-export) | `session-query` | [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence) |
 | [`app-boot`](../packages/boot/app-boot) | `boot` | [`home-paths`](../packages/util/home-paths), [`launch-environment`](../packages/util/launch-environment), [`system-prompt`](../packages/core/system-prompt) |
+| [`coding-runtime`](../packages/coding-runtime/coding-runtime) | `coding-runtime` | [`sandbox`](../packages/sandbox/sandbox) |
 | [`deliverable-file-references`](../packages/deliverables/deliverable-file-references) | `deliverables` | [`system-prompt`](../packages/core/system-prompt) |
 | [`experimental-skill-badge`](../packages/experimental/skill-badge) | `experimental` | [`skill`](../packages/skill/skill) |
 | [`experimental-speech-to-text`](../packages/experimental/speech-to-text) | `experimental` | [`settings`](../packages/settings/settings) |
 | [`experimental-translator`](../packages/experimental/translator) | `experimental` | [`credentials`](../packages/credentials/credentials), [`launch-environment`](../packages/util/launch-environment), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`timeout`](../packages/util/timeout), [`util-values`](../packages/util/values) |
 | [`persona`](../packages/preset/persona) | `preset` | [`system-prompt`](../packages/core/system-prompt) |
-| [`coding-runtime`](../packages/coding-runtime/coding-runtime) | `coding-runtime` | [`sandbox`](../packages/sandbox/sandbox) |
 | [`sandbox-local`](../packages/sandbox/sandbox-local) | `sandbox` | [`llm`](../packages/llm/llm), [`sandbox`](../packages/sandbox/sandbox), [`session`](../packages/core/session) |
 | [`sandbox-windows-acl`](../packages/sandbox/sandbox-windows-acl) | `sandbox` | [`skill`](../packages/skill/skill), [`subprocess`](../packages/subprocess/subprocess) |
 | [`session-persistence-jsonl`](../packages/session/session-persistence-jsonl) | `session` | [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence) |
@@ -1712,17 +1718,17 @@ flowchart TD
 | [`loader-smoke`](../packages/test-support/loader-smoke) | `test-support` | [`agent`](../packages/core/agent), [`http-proxy`](../packages/util/http-proxy), [`llm`](../packages/llm/llm), [`session`](../packages/core/session) |
 | [`workflow`](../packages/workflow/workflow) | `workflow` | [`agent`](../packages/core/agent), [`brand`](../packages/util/brand), [`llm`](../packages/llm/llm), [`session`](../packages/core/session) |
 | [`llm-deepseek-api-key`](../packages/llm/llm-deepseek-api-key) | `llm` | [`anonymous-user-id`](../packages/identity/anonymous-user-id), [`attachment`](../packages/attachment/attachment), [`credentials`](../packages/credentials/credentials), [`fs`](../packages/fs/fs), [`launch-environment`](../packages/util/launch-environment), [`llm`](../packages/llm/llm), [`llm-deepseek`](../packages/llm/llm-deepseek), [`settings`](../packages/settings/settings) |
-| [`tools`](../packages/core/tools) | `core` | [`agent`](../packages/core/agent), [`llm`](../packages/llm/llm), [`coding-runtime`](../packages/coding-runtime/coding-runtime), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`system-prompt`](../packages/core/system-prompt), [`user-approval`](../packages/interaction/user-approval), [`working-directory`](../packages/session/working-directory) |
+| [`tools`](../packages/core/tools) | `core` | [`agent`](../packages/core/agent), [`coding-runtime`](../packages/coding-runtime/coding-runtime), [`llm`](../packages/llm/llm), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`scope`](../packages/core/scope), [`session`](../packages/core/session), [`system-prompt`](../packages/core/system-prompt), [`user-approval`](../packages/interaction/user-approval), [`working-directory`](../packages/session/working-directory) |
 | [`command-goal`](../packages/goal/command-goal) | `goal` | [`commands`](../packages/interaction/commands), [`goal`](../packages/goal/goal), [`llm`](../packages/llm/llm) |
 | [`goal-round-driver`](../packages/goal/goal-round-driver) | `goal` | [`agent`](../packages/core/agent), [`goal`](../packages/goal/goal), [`llm`](../packages/llm/llm), [`session`](../packages/core/session) |
 | [`fs-sandbox`](../packages/fs/fs-sandbox) | `fs` | [`fs`](../packages/fs/fs), [`fs-local`](../packages/fs/fs-local), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy) |
+| [`coding-runtime-node`](../packages/coding-runtime/coding-runtime-node) | `coding-runtime` | [`coding-runtime`](../packages/coding-runtime/coding-runtime), [`fs`](../packages/fs/fs), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`session`](../packages/core/session), [`subprocess`](../packages/subprocess/subprocess), [`timeout`](../packages/util/timeout) |
 | [`compaction`](../packages/compaction/compaction) | `compaction` | [`brand`](../packages/util/brand), [`commands`](../packages/interaction/commands), [`llm`](../packages/llm/llm), [`session`](../packages/core/session) |
 | [`experimental-coding-runtime-python`](../packages/experimental/coding-runtime-python) | `experimental` | [`coding-runtime`](../packages/coding-runtime/coding-runtime), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`timeout`](../packages/util/timeout), [`util-values`](../packages/util/values) |
 | [`experimental-worktree`](../packages/experimental/worktree) | `experimental` | [`agent`](../packages/core/agent), [`fs`](../packages/fs/fs), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`subprocess`](../packages/subprocess/subprocess), [`working-directory`](../packages/session/working-directory) |
 | [`command-feedback`](../packages/feedback/command-feedback) | `feedback` | [`anonymous-user-id`](../packages/identity/anonymous-user-id), [`commands`](../packages/interaction/commands), [`session`](../packages/core/session), [`typert-protocol`](../packages/typert/protocol) |
 | [`permission-presets`](../packages/interaction/permission-presets) | `interaction` | [`commands`](../packages/interaction/commands), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`session`](../packages/core/session), [`session-projection`](../packages/session/session-projection), [`settings`](../packages/settings/settings), [`shell`](../packages/shell/shell), [`typert-protocol`](../packages/typert/protocol), [`user-approval`](../packages/interaction/user-approval) |
 | [`jobs-local`](../packages/jobs/jobs-local) | `jobs` | [`agent`](../packages/core/agent), [`jobs`](../packages/jobs/jobs), [`scope`](../packages/core/scope), [`timeout`](../packages/util/timeout) |
-| [`coding-runtime-node`](../packages/coding-runtime/coding-runtime-node) | `coding-runtime` | [`fs`](../packages/fs/fs), [`coding-runtime`](../packages/coding-runtime/coding-runtime), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`session`](../packages/core/session), [`subprocess`](../packages/subprocess/subprocess), [`timeout`](../packages/util/timeout) |
 | [`session-title-llm`](../packages/session/session-title-llm) | `session` | [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-title`](../packages/session/session-title), [`timeout`](../packages/util/timeout) |
 | [`config-editor`](../packages/settings/config-editor) | `settings` | [`app-boot`](../packages/boot/app-boot), [`hmr`](../packages/boot/hmr) |
 | [`bash-sandbox`](../packages/shell/bash-sandbox) | `shell` | [`bash-local`](../packages/shell/bash-local), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`shell`](../packages/shell/shell) |
@@ -1817,7 +1823,7 @@ flowchart TD
 | [`experimental-tool-ralph`](../packages/experimental/tool-ralph) | `experimental` | [`agent`](../packages/core/agent), [`llm`](../packages/llm/llm), [`subagent`](../packages/subagent/subagent), [`system-prompt`](../packages/core/system-prompt), [`tools`](../packages/core/tools), [`workflow`](../packages/workflow/workflow) |
 | [`sdk-protocol`](../packages/sdk/protocol) | `sdk` | [`commands`](../packages/interaction/commands), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`subagent`](../packages/subagent/subagent), [`user-questions`](../packages/interaction/user-questions) |
 | [`agent-team`](../packages/team/agent-team) | `team` | [`agent`](../packages/core/agent), [`llm`](../packages/llm/llm), [`session`](../packages/core/session), [`session-persistence`](../packages/session/session-persistence), [`session-projection`](../packages/session/session-projection), [`subagent`](../packages/subagent/subagent), [`typert-protocol`](../packages/typert/protocol) |
-| [`workflow-coding`](../packages/workflow/workflow-coding) | `workflow` | [`agent`](../packages/core/agent), [`llm`](../packages/llm/llm), [`coding-runtime`](../packages/coding-runtime/coding-runtime), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`session`](../packages/core/session), [`subagent`](../packages/subagent/subagent), [`tools`](../packages/core/tools), [`workflow`](../packages/workflow/workflow) |
+| [`workflow-coding`](../packages/workflow/workflow-coding) | `workflow` | [`agent`](../packages/core/agent), [`coding-runtime`](../packages/coding-runtime/coding-runtime), [`llm`](../packages/llm/llm), [`sandbox`](../packages/sandbox/sandbox), [`sandbox-policy`](../packages/sandbox/sandbox-policy), [`session`](../packages/core/session), [`subagent`](../packages/subagent/subagent), [`tools`](../packages/core/tools), [`workflow`](../packages/workflow/workflow) |
 | [`experimental-client-ui-claude-code-mods`](../packages/experimental/client-ui-claude-code-mods) | `experimental` | [`api-remotes`](../packages/api/remotes), [`api-session-controller`](../packages/api/session-controller), [`client-locale`](../packages/client/locale), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-renderer`](../packages/client/ui-renderer), [`client-ui-session`](../packages/client/ui-session), [`client-ui-slots`](../packages/client/ui-slots), [`experimental-claude-code-mods`](../packages/experimental/claude-code-mods), [`session`](../packages/core/session), [`typert-protocol`](../packages/typert/protocol) |
 | [`experimental-client-ui-cot-translation`](../packages/experimental/client-ui-cot-translation) | `experimental` | [`api-session-controller`](../packages/api/session-controller), [`experimental-translator`](../packages/experimental/translator), [`session`](../packages/core/session), [`settings`](../packages/settings/settings), [`typert-protocol`](../packages/typert/protocol) |
 | [`experimental-client-ui-voice-input`](../packages/experimental/client-ui-voice-input) | `experimental` | [`api-gateway`](../packages/api/gateway), [`api-remotes`](../packages/api/remotes), [`api-session-controller`](../packages/api/session-controller), [`client-locale`](../packages/client/locale), [`client-store`](../packages/client/store), [`client-ui-conversation`](../packages/client/ui-conversation), [`client-ui-plugin-manager`](../packages/client/ui-plugin-manager), [`client-ui-primitives`](../packages/client/ui-primitives), [`client-ui-renderer`](../packages/client/ui-renderer), [`client-ui-session`](../packages/client/ui-session), [`client-ui-slots`](../packages/client/ui-slots), [`experimental-api-speech-to-text`](../packages/experimental/api-speech-to-text), [`experimental-speech-to-text`](../packages/experimental/speech-to-text), [`session`](../packages/core/session), [`typert-protocol`](../packages/typert/protocol) |

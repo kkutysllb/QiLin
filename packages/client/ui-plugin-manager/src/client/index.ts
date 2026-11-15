@@ -124,12 +124,12 @@ export function apply(ctx: ClientContext): void {
     }),
   }, PluginRefreshToast))
   // The Agent Teams bundle is switched from the Session header rather than the
-  // Plugins page, so its control sits beside the Open locally action.
+  // Plugins page, so its control leads the header's utilities row.
   const agentTeamSwitch = new AgentTeamSwitchController(ctx)
   ctx.slots.inject('conversation.session.header.utilities', () => ctx.slots.register({
     name: 'conversation.session.header.utilities',
     id: 'agent-team-switch',
-    // Left of Open locally (order -10).
+    // Leading the row, ahead of the export action and the layout toggles.
     order: -20,
     locale: NS,
     inject: (): AgentTeamSwitchInjected => ({

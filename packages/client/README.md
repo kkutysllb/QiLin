@@ -83,7 +83,7 @@ The kernel packages boot and serve the page; the UI feature packages present it.
 | [`ui-message-feedback/`](ui-message-feedback/README.md) | The feedback surface: per-message Like/Dislike in the assistant-message action strip, and the feedback dialog behind both ratings and `/feedback` | — |
 | [`ui-directory-picker-browse/`](ui-directory-picker-browse/README.md) | In-app directory browsing surface for the workspace directory flow | — |
 | [`ui-directory-picker-native/`](ui-directory-picker-native/README.md) | Native directory-picker surface driving the local Desktop or Host OS chooser | — |
-| [`ui-open-in-app/`](ui-open-in-app/README.md) | Session-header split button opening the workspace directory in an installed application | — |
+| [`ui-open-in-app/`](ui-open-in-app/README.md) | Files-tab action and document-preview file controls opening workspace paths in an installed application | — |
 
 -----
 

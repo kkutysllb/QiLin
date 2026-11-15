@@ -1,5 +1,5 @@
 /**
- * Agent Teams switch in the Session header, left of Open locally: the profile
+ * Agent Teams switch in the Session header, leading its utilities row: the profile
  * selects the `@qilin-agent/agent-team-profile` layer, and this is its only
  * control now that the Plugins page leaves the bundle out.
  */
