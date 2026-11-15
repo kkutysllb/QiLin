@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-The Web GUI lets users switch the model and reasoning effort for an existing session through either the `/model` popup or the composer's model control. Both surfaces present the same provider-grouped choices, and the selected model determines the available effort names and default. A complete selection applies to the next request; a running step keeps the model and effort it started with. If no adapter can serve the session's route, the composer remains disabled until routing becomes available.
+The Web GUI lets users switch the model and reasoning effort for an existing session through either the `/model` popup or the composer's model control. Both surfaces present the same provider-grouped choices, and the selected model determines the available effort names and default. A workspace model-manager page controls which deployed models those selectors expose. A complete selection applies to the next request; a running step keeps the model and effort it started with. If no adapter can serve the session's route, the composer remains disabled until routing becomes available.
 
 ## Table of Contents
 
@@ -26,6 +26,10 @@ The Web GUI lets users switch the model and reasoning effort for an existing ses
 ## Use this package
 
 Mount this plugin alongside `ui-conversation` and the commands package; the composer then shows the model seat next to the pending indicator, and `/model` opens the same directory as a popup. While the seat's menu is open, `↑`/`↓` move focus across the rows of the shown pane, Tab settles the focused row, and Escape and `Shift+Tab` leave a drilled pane first and otherwise close back to the trigger. Drilling lands on the row of the value in use, and going back lands on the cell that opened the pane left. Both surfaces show the host-reported current selection when the exact provider/model pair remains in the advertised groups. A selection whose model or provider is absent from the catalog stays routable and keeps its stored provider, model, and effort, while the trigger shows `Select model` without the effort caption or the saved IDs; an empty catalog says `No models available.`
+
+### Workspace model manager
+
+The workspace sidebar's Models row opens a main-panel page (`model-manager`) rather than the Settings section. Each card states the provider, model name and id, context window, and disclosed input modalities, with one switch per model. The switch writes a persisted disabled-pair set shared by every selector: a switched-off model disappears from `/model` and the composer menu, and switching it back restores it. The page and selectors read the same Host catalog, so a model removed from the deployment disappears from both without a separate cleanup. Provider configuration and credentials remain in the Settings page.
 
 ### Model and effort
 
@@ -93,6 +97,7 @@ These limits define the current model surface. They are current package constrai
 - **Directory names are presentation-only** — selection and persistence use provider/model/effort ids; a provider whose catalog or exact-model metadata lookup fails lists as an unselectable failure row until reload.
 - **No arbitrary effort input** — the composer offers only the exact model's adapter-advertised levels; an adapter without reasoning metadata leaves the Effort row absent.
 - **Badges label the composer seat only** — `/model` popup rows, the trigger's accessible name, and its tooltip keep the plain catalog name.
+- **Availability is per browser profile** — the disabled-pair set lives in the document's local storage, so it does not follow an account across browsers or devices. A disabled model that is currently selected stays on the session until the user picks another; it is only removed from the selectors.
 
 <a id="dev-note"></a>
 ### Dev Note

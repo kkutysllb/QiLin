@@ -416,6 +416,24 @@ describe('Web session model selection', () => {
     await ctx.fiber.dispose()
   })
 
+  it('carries exact model context and input modalities into the browser catalog', async () => {
+    const { ctx } = await harness()
+    ctx.llm.registerAdapter(['metadata'], new class extends CatalogAdapter {
+      override resolveModel(provider: string, model: string): Promise<LlmResolvedModelInfo> {
+        return Promise.resolve({
+          provider, id: model, name: model,
+          context: { contextWindow: 256_000 },
+          inputModalities: ['text', 'image'],
+        })
+      }
+    }('Metadata', [{ provider: 'metadata', id: 'rich-model', name: 'Rich Model' }]))
+    const catalog = await buildModelCatalog(ctx, { provider: 'metadata', model: 'rich-model' })
+    expect(catalog.groups.find(group => group.id === 'metadata')?.models[0]).toMatchObject({
+      id: 'rich-model', contextWindow: 256_000, inputModalities: ['text', 'image'],
+    })
+    await ctx.fiber.dispose()
+  })
+
   it('preserves optional catalog metadata and string provider failures', async () => {
     const { ctx } = await harness()
     ctx.llm.registerAdapter(['plain'], new CatalogAdapter('Plain', [

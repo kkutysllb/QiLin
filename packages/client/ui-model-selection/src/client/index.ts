@@ -11,21 +11,27 @@
  * history outside the direct-parent continuation path.
  */
 // Type-only: the carrier types, the forwarded Host-event face and the ctx.remote merge.
+import { createElement } from 'react'
 import type { ModelSelection } from '@qilin-agent/api-session-controller/types'
 import type {} from '@qilin-agent/api-session-controller/client'
 import type { Context as ClientContext } from '@qilin-agent/kylin'
+import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
 import type { CommandUiContract, SelectOption } from '@qilin-agent/client-ui-commands/client'
 // Type-only: pulls the ui-conversation SlotMap merge (the input.model seat).
 import type {} from '@qilin-agent/client-ui-conversation/client'
+// Type-only: pulls the sidebar.panellist SlotMap merge and its owner props.
+import type {} from '@qilin-agent/client-ui-sidebar/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
 import type {} from '@qilin-agent/client-locale/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
 import type {} from '@qilin-agent/client-ui-session/client'
-import type { TranslateNS } from '@qilin-agent/client-ui-slots'
+import type { PropsRuntime, TranslateNS } from '@qilin-agent/client-ui-slots'
 import { IconDataOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { ModelDirectoryState } from './directory.ts'
 import { ModelDirectoryResolver } from './service.ts'
 import type { ModelSelectInjected } from './slots.ts'
+import { ModelManagerPage } from './ModelManagerPage.tsx'
+import type { ModelManagerInjected } from './ModelManagerPage.tsx'
 import { ModelSelect } from './ModelSelect.tsx'
 import { en, zh, type ModelKey } from './locales.ts'
 import { orderModelProviders } from './provider-order.ts'
@@ -103,6 +109,16 @@ function selectionOf(state: ModelDirectoryState, id: string): ModelSelection | u
 /** Dictionary namespace owned by this plugin. */
 const NS = 'model'
 
+/** Sidebar row id and matching workspace panel key. */
+export const MODEL_MANAGER_PANEL_ID = 'model-manager' as MainPanelId
+
+/**
+ * Sidebar glyph for the model manager: the same catalog mark the old settings row used.
+ * @param props - owner props supplied by the sidebar's panel row.
+ * @returns the model glyph.
+ */
+const ModelManagerNavIcon = ({ size }: PropsRuntime<'sidebar.panellist'>) => createElement(IconDataOutlineRegular, { size })
+
 /** Required services: the contribution registry, the seat's slot registry, locale, and the service's own faces. */
 export const inject = ['commandUi', 'locale', 'sessions', 'slots', 'remote', 'remote.session']
 
@@ -122,6 +138,40 @@ export function apply(ctx: ClientContext): void {
   // QiLin's resolver still owns its composer-block reason copy; read at raise
   // time so a locale change reaches the next publish.
   ctx.plugin(ModelDirectoryResolver, { blockReason: () => t('blocked.composer') })
+
+  // The workspace model manager opens as its own main panel, not as the
+  // settings section. Cards read the shared Host catalog and write the same
+  // availability store every selector filters.
+  ctx.inject(['slots', 'modelDirectories'], (scope: ClientContext) => {
+    const models = scope.modelDirectories
+    // Stable callbacks: the page's load effect keys on this object rather than
+    // refetching on every render of a fresh inject face.
+    const manager = {
+      load: (): void => { void models.loadCatalog().catch(() => { /* the page exposes the catalog error */ }) },
+      setEnabled: (provider: string, model: string, enabled: boolean): void => {
+        models.setModelEnabled(provider, model, enabled)
+      },
+    }
+    const injected = (): ModelManagerInjected => ({
+      load: manager.load,
+      setEnabled: manager.setEnabled,
+      hooks: { catalog: models.catalogState, availability: models.availability.store },
+      t,
+    })
+    scope.slots.inject('main', () => scope.slots.register({
+      name: 'main',
+      key: MODEL_MANAGER_PANEL_ID,
+      locale: NS,
+      inject: injected,
+    }, ModelManagerPage))
+    scope.slots.inject('sidebar.panellist', () => scope.slots.register({
+      name: 'sidebar.panellist',
+      id: MODEL_MANAGER_PANEL_ID,
+      order: 15,
+      locale: NS,
+      label: () => t('manager.nav'),
+    }, ModelManagerNavIcon))
+  })
 
   // Entry 1: the /model popupSelect over the shared directory.
   ctx.inject(['commandUi', 'modelDirectories'], (scope: ClientContext) => {

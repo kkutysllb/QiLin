@@ -9,14 +9,17 @@
   en: 2ad6da2010200994
   zh: 5bf1cbbdb40fa1ff
 /qilin-agent-client-ui-model-selection/summary:
-  en: 1b8dd668cd222dbb
-  zh: ea2a5e75ee38491b
+  en: e4455dd690a1ea3a
+  zh: a93fd0c4ff29a830
 /qilin-agent-client-ui-model-selection/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-client-ui-model-selection/use-this-package:
   en: 26be4277807dc62d
   zh: afdf7d08f1c0263b
+/qilin-agent-client-ui-model-selection/use-this-package/workspace-model-manager:
+  en: bd5680b3c6f85221
+  zh: 7e07eddd1b5fcd5e
 /qilin-agent-client-ui-model-selection/use-this-package/model-and-effort:
   en: 22710e4cbba080af
   zh: e7870b79bf0c1f83
@@ -42,8 +45,8 @@
   en: 68e54c00412a40d1
   zh: 0ac96f57fd194d96
 /qilin-agent-client-ui-model-selection/known-limitations-and-deferred-work:
-  en: 7003aff3aa57e40c
-  zh: 450d88a5e9332f05
+  en: fcdf4a0c88a7986f
+  zh: db1c1d961b53cbe2
 /qilin-agent-client-ui-model-selection/known-limitations-and-deferred-work/dev-note:
   en: e67f633dc6fe7773
   zh: 3bb0c20c93f16f98

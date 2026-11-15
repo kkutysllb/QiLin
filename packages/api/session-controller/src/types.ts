@@ -6,7 +6,7 @@ import type {
 } from '@qilin-agent/attachment'
 import type { Branded } from '@qilin-agent/brand'
 import type { LlmAttemptId, MessageId } from '@qilin-agent/llm/brand'
-import type { LlmModelBadge, TextBlock } from '@qilin-agent/llm'
+import type { LlmModelBadge, ModelModality, TextBlock } from '@qilin-agent/llm'
 import type { SessionId, SessionSeqCursor } from '@qilin-agent/session/types'
 import type { SessionProjectionMap } from '@qilin-agent/session-projection/types'
 import type { Principal } from '@qilin-agent/typert-protocol'
@@ -142,6 +142,10 @@ export interface ModelCatalogModel {
   readonly name: string
   readonly description?: string
   readonly reasoning?: ModelReasoning
+  /** Maximum combined request and response context, when the route reports one. */
+  readonly contextWindow?: number
+  /** Accepted request modalities; absent means the route did not disclose them. */
+  readonly inputModalities?: readonly ModelModality[]
   /** Selector label the provider advertises; absent for a route that advertises none. */
   readonly badge?: LlmModelBadge
 }

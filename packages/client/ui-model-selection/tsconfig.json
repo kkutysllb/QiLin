@@ -52,6 +52,12 @@
     },
     {
       "path": "../../util/values"
+    },
+    {
+      "path": "../ui-layout"
+    },
+    {
+      "path": "../ui-sidebar"
     }
   ]
 }

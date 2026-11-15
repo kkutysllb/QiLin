@@ -15,9 +15,13 @@
 import { Service } from '@qilin-agent/kylin'
 import type { Context } from '@qilin-agent/kylin'
 import type { SessionBinding } from '@qilin-agent/api-session-controller/client'
+import type { ModelCatalog } from '@qilin-agent/api-session-controller/types'
+import type { SnapshotStore } from '@qilin-agent/client-store'
 import type { SessionId } from '@qilin-agent/session/types'
 import { WeakMapWithValues } from '@qilin-agent/util-values'
+import { ModelAvailability } from './availability.ts'
 import { ModelCatalogDirectory } from './catalog.ts'
+import type { ModelCatalogState } from './catalog.ts'
 import { ModelDirectory } from './directory.ts'
 
 declare module '@qilin-agent/kylin' {
@@ -38,6 +42,8 @@ export class ModelDirectoryResolver extends Service {
 
   private readonly live: LiveState = { directories: new WeakMapWithValues() }
   private readonly catalog: ModelCatalogDirectory
+  /** User switches shared by the manager page and every selector. */
+  readonly availability: ModelAvailability = new ModelAvailability()
 
   /** Localized composer-block copy; this plugin owns the string it raises. */
   private readonly blockReason: () => string
@@ -51,6 +57,7 @@ export class ModelDirectoryResolver extends Service {
     this.blockReason = config.blockReason
     this.catalog = new ModelCatalogDirectory(ctx)
     void this.catalog.load().catch(() => { /* selectors expose the shared error */ })
+    ctx.effect(() => this.availability.attach(), 'ui-model-selection: model availability storage')
     ctx.on('connection/reset', () => {
       this.catalog.resetGeneration()
       for (const directory of this.live.directories.values) directory.resetConnected()
@@ -59,6 +66,29 @@ export class ModelDirectoryResolver extends Service {
     ctx.remote.$on('llm/models-updated', () => { this.catalog.refresh() })
     ctx.remote.$on('settings/document-updated', () => { this.catalog.refresh() })
     ctx.remote.$on('credentials/reference-updated', () => { this.catalog.refresh() })
+  }
+
+  /** Shared Host-generation catalog state, for the model manager page. */
+  get catalogState(): SnapshotStore<ModelCatalogState> {
+    return this.catalog.store
+  }
+
+  /**
+   * Load or refresh the shared catalog for the model manager page.
+   * @returns the loaded catalog.
+   */
+  loadCatalog(): Promise<ModelCatalog> {
+    return this.catalog.load()
+  }
+
+  /**
+   * Switch one advertised model on or off for every selector.
+   * @param provider - provider route id.
+   * @param model - provider-owned model id.
+   * @param enabled - true restores the model; false hides it from pickers.
+   */
+  setModelEnabled(provider: string, model: string, enabled: boolean): void {
+    this.availability.setEnabled(provider, model, enabled)
   }
 
   /**
@@ -82,6 +112,7 @@ export class ModelDirectoryResolver extends Service {
       () => sessions.subagentAddress(sessionId) === undefined,
       this.catalog,
       binding.session.projections.faceOf('modelSelection'),
+      this.availability,
     )
     live.directories.set(binding, directory)
     // The composer cannot read this plugin (the dependency runs one way), so

@@ -12,6 +12,7 @@ import type { RemoteResult, TypertClientRemote } from '@qilin-agent/typert-proto
 import type { ObservableSnapshot, SnapshotStore } from '@qilin-agent/client-store'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { ModelCatalogDirectory } from './catalog.ts'
+import type { ModelAvailability } from './availability.ts'
 
 /** Directory snapshot both entries render from. */
 export interface ModelDirectoryState {
@@ -52,6 +53,7 @@ export class ModelDirectory {
   private resolved = false
   private readonly unsubscribeCatalog: () => void
   private readonly unsubscribeSelection: () => void
+  private readonly unsubscribeAvailability: () => void
 
   /**
    * @param sessions - the session wire face (captured from the plugin's root connection).
@@ -59,6 +61,7 @@ export class ModelDirectory {
    * @param available - whether this session may use Agent-bound model RPCs.
    * @param catalog - Host-generation catalog shared by every Session.
    * @param projected - durable model selection projected from Session history.
+   * @param availability - the user's model on/off switches shared by every selector.
    */
   constructor(
     private readonly sessions: Pick<TypertClientRemote['session'], 'selectModel'>,
@@ -66,9 +69,11 @@ export class ModelDirectory {
     private readonly available: () => boolean,
     private readonly catalog: ModelCatalogDirectory,
     private readonly projected: ObservableSnapshot<unknown>,
+    private readonly availability: ModelAvailability,
   ) {
     this.unsubscribeCatalog = catalog.store.subscribe(() => { this.syncInputs() })
     this.unsubscribeSelection = projected.subscribe(() => { this.syncInputs() })
+    this.unsubscribeAvailability = availability.store.subscribe(() => { this.syncInputs() })
     this.syncInputs()
   }
 
@@ -136,6 +141,7 @@ export class ModelDirectory {
     this.disposed = true
     this.unsubscribeSelection()
     this.unsubscribeCatalog()
+    this.unsubscribeAvailability()
   }
 
   private assertAvailable(): void {
@@ -176,11 +182,20 @@ export class ModelDirectory {
     const effort = current.reasoningEffort ?? reasoning?.defaultEffort
     const retainedEffort = effort === undefined ? undefined
       : reasoning?.efforts.find((level: ModelReasoningEffort) => level.id === effort)?.name ?? effort
+    // Selectors see the advertised catalog minus the user's switched-off
+    // pairs; a disabled current selection falls back to the trigger's
+    // unselected state rather than becoming a hidden option.
+    const groups = catalog.value.groups
+      .map(group => ({
+        ...group,
+        models: group.models.filter(model => this.availability.has(group.id, model.id)),
+      }))
+      .filter(group => group.models.length > 0)
     this.store.set({
       current,
       ...retainedEffort === undefined ? {} : { retainedEffort },
       routable: catalog.value.routableProviders.includes(current.provider),
-      groups: catalog.value.groups,
+      groups,
       failures: catalog.value.failures,
       status: this.store.getSnapshot().status === 'selecting'
         ? 'selecting'

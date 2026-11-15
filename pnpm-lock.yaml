@@ -4727,6 +4727,9 @@ importers:
       '@qilin-agent/client-ui-input-trigger':
         specifier: workspace:*
         version: link:../ui-input-trigger
+      '@qilin-agent/client-ui-layout':
+        specifier: workspace:*
+        version: link:../ui-layout
       '@qilin-agent/client-ui-primitives':
         specifier: workspace:*
         version: link:../ui-primitives
@@ -4736,6 +4739,9 @@ importers:
       '@qilin-agent/client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@qilin-agent/client-ui-sidebar':
+        specifier: workspace:*
+        version: link:../ui-sidebar
       '@qilin-agent/client-ui-slots':
         specifier: workspace:*
         version: link:../ui-slots

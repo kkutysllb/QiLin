@@ -121,13 +121,28 @@ async function bench(locale: 'zh' | 'en' = 'zh') {
     },
   })
   const seats = new Map<string, {
-    inject: ((sessionId: SessionId) => ModelSelectInjected) | undefined
-    locale: string | undefined
+    inject?: ((sessionId: SessionId) => ModelSelectInjected) | undefined
+    locale?: string | undefined
+    id?: string | undefined
+    key?: string | undefined
+    order?: number | undefined
+    label?: (() => string) | undefined
   }>()
   ctx.provide('slots', {
     inject(_name: string, callback: () => () => void) { return callback() },
-    register(options: { name: string; locale?: string; inject?: (sessionId: SessionId) => ModelSelectInjected }) {
-      seats.set(options.name, { inject: options.inject, locale: options.locale })
+    register(options: {
+      name: string
+      locale?: string
+      id?: string
+      key?: string
+      order?: number
+      label?: () => string
+      inject?: (sessionId: SessionId) => unknown
+    }) {
+      seats.set(options.name, {
+        ...options,
+        inject: options.inject as ((sessionId: SessionId) => ModelSelectInjected) | undefined,
+      })
       return () => { seats.delete(options.name) }
     },
   })
@@ -181,7 +196,12 @@ async function bench(locale: 'zh' | 'en' = 'zh') {
       if (ui.kind !== 'popupSelect') throw new Error('expected the popupSelect kind')
       return ui
     },
-    seat: () => seats.get('conversation.input.model')!,
+    seat: () => {
+      const seat = seats.get('conversation.input.model')
+      if (seat?.inject === undefined) throw new Error('expected the model seat registration')
+      return { inject: seat.inject, locale: seat.locale }
+    },
+    slot: (name: string) => seats.get(name),
     hostCurrent: () => selected,
     rejectSelection: () => {
       selectionFailure = new RemoteError('session/writer-held', 'writer held', { sessionId: sid('owned') })
@@ -219,10 +239,39 @@ describe('ui-model-selection dual entry', () => {
     expect(b.seat().locale).toBe('model')
   })
 
+  it('registers the workspace model manager page and its sidebar row', async () => {
+    const b = await bench()
+    expect(b.slot('main')).toMatchObject({ key: 'model-manager' })
+    expect(b.slot('sidebar.panellist')).toMatchObject({ id: 'model-manager', order: 15 })
+    expect(b.slot('sidebar.panellist')?.label?.()).toBe(zh['manager.nav'])
+  })
+
+  it('hides switched-off models from both selection entries and restores them', async () => {
+    const b = await bench()
+    b.mint('s1')
+    b.ctx.modelDirectories.setModelEnabled('deepseek-official', 'deepseek-flash', false)
+    expect(b.ctx.modelDirectories.availability.has('deepseek-official', 'deepseek-flash')).toBe(false)
+    const options = await b.popup().options(projection('s1'), new AbortController().signal)
+    expect(options.map(option => option.label)).not.toContain('DeepSeek-V4-Flash')
+    expect(options.map(option => option.label)).toContain('DeepSeek-V4-Pro')
+    const pairs = (store: { getSnapshot: () => { groups: readonly { id: string; models: readonly { id: string }[] }[] } }) =>
+      store.getSnapshot().groups.flatMap(group => group.models.map(model => `${group.id}/${model.id}`))
+    const direct = b.ctx.modelDirectories.directoryFor(sid('s1'))
+    expect(pairs(direct.store).includes('deepseek-official/deepseek-flash')).toBe(false)
+    const face = b.seat().inject(sid('s1'))
+    expect(face.directory === direct.store).toBe(true)
+    face.load()
+    expect(pairs(face.directory).includes('deepseek-official/deepseek-flash')).toBe(false)
+    b.ctx.modelDirectories.setModelEnabled('deepseek-official', 'deepseek-flash', true)
+    await vi.waitFor(() => {
+      expect(pairs(face.directory).includes('deepseek-official/deepseek-flash')).toBe(true)
+    })
+  })
+
   it.each([['zh', '新'], ['en', 'New']] as const)('resolves seat badge text for the active %s locale', async (locale, expected) => {
     const b = await bench(locale)
     b.mint('s1')
-    const face = b.seat().inject!(sid('s1'))
+    const face = b.seat().inject(sid('s1'))
     expect(face.resolveText({ en: 'New', zh: '新' })).toBe(expected)
     expect(face.resolveText('1017')).toBe('1017')
   })
@@ -232,7 +281,7 @@ describe('ui-model-selection dual entry', () => {
   it('a seat selection is the current the popup marks active next — one shared state', async () => {
     const b = await bench()
     b.mint('s1')
-    const seatFace = b.seat().inject!(sid('s1'))
+    const seatFace = b.seat().inject(sid('s1'))
     // Switch through the SEAT entry.
     expect(await seatFace.select({
       provider: 'deepseek-official',
@@ -257,7 +306,7 @@ describe('ui-model-selection dual entry', () => {
   it('a popup selection lands on the seat store — the reverse direction of the same state', async () => {
     const b = await bench()
     b.mint('s1')
-    const seatFace = b.seat().inject!(sid('s1'))
+    const seatFace = b.seat().inject(sid('s1'))
     const options = await b.popup().options(projection('s1'), new AbortController().signal)
     const pro = options.find((o: SelectOption) => o.label === 'DeepSeek-V4-Pro')!
     await b.popup().onSelect(pro, projection('s1'))
@@ -272,9 +321,9 @@ describe('ui-model-selection dual entry', () => {
     const b = await bench()
     b.mint('a')
     b.mint('b')
-    const faceA = b.seat().inject!(sid('a'))
-    const faceA2 = b.seat().inject!(sid('a'))
-    const faceB = b.seat().inject!(sid('b'))
+    const faceA = b.seat().inject(sid('a'))
+    const faceA2 = b.seat().inject(sid('a'))
+    const faceB = b.seat().inject(sid('b'))
     expect(faceA.directory).toBe(faceA2.directory)
     expect(faceA.directory).not.toBe(faceB.directory)
     // The service face resolves the same instance the seat inject handed out.
@@ -289,7 +338,7 @@ describe('ui-model-selection dual entry', () => {
   it('keeps the durable projected selection while the eager catalog reconnects', async () => {
     const b = await bench()
     b.mint('s1')
-    const face = b.seat().inject!(sid('s1'))
+    const face = b.seat().inject(sid('s1'))
     await face.select({ provider: 'deepseek-official', model: 'deepseek-v4-pro' })
     b.setHostCurrent({ provider: 'deepseek-official', model: 'deepseek-flash' })
 
@@ -309,7 +358,7 @@ describe('ui-model-selection dual entry', () => {
     const b = await bench()
     try {
       b.mint('s1')
-      const face = b.seat().inject!(sid('s1'))
+      const face = b.seat().inject(sid('s1'))
       for (const badge of [{ text: 'New', tone: 'info' as const }, { text: 'Updated', tone: 'success' as const }, undefined]) {
         b.setGroups(GROUPS.map(group => ({
           ...group, models: group.models.map(model => ({ ...model, ...(badge === undefined ? {} : { badge }) })),
@@ -329,7 +378,7 @@ describe('ui-model-selection dual entry', () => {
   it('keeps the last complete view while a refreshed catalog catches up with projection', async () => {
     const b = await bench()
     b.mint('s1')
-    const face = b.seat().inject!(sid('s1'))
+    const face = b.seat().inject(sid('s1'))
     face.load()
     expect(face.directory.getSnapshot().current?.model).toBe('deepseek-flash')
 
@@ -354,17 +403,17 @@ describe('ui-model-selection dual entry', () => {
   it('scope disposal drops the directory; a reborn scope gets a fresh one', async () => {
     const b = await bench()
     const first = b.mint('s1')
-    const face1 = b.seat().inject!(sid('s1'))
+    const face1 = b.seat().inject(sid('s1'))
     await first.fiber.dispose()
     b.mint('s1')
-    const face2 = b.seat().inject!(sid('s1'))
+    const face2 = b.seat().inject(sid('s1'))
     expect(face2.directory).not.toBe(face1.directory)
   })
 
   it('blocks the composer only once the Host reports the route unservable', async () => {
     const b = await bench()
     b.mint('s1')
-    const face = b.seat().inject!(sid('s1'))
+    const face = b.seat().inject(sid('s1'))
 
     // Before the first load nothing is known. `null` is not `false`: a slow
     // or unreachable Host must never lock a working composer.
@@ -394,7 +443,7 @@ describe('ui-model-selection dual entry', () => {
   it('never blocks on catalog membership alone', async () => {
     const b = await bench()
     b.mint('s1')
-    const face = b.seat().inject!(sid('s1'))
+    const face = b.seat().inject(sid('s1'))
     // A model the route serves but no longer advertises: the seat prompts for
     // a selection, the composer stays usable. Blocking here would break a
     // supported configuration (a narrowed `models` list over a live route).
@@ -411,7 +460,7 @@ describe('ui-model-selection dual entry', () => {
     const b = await bench()
     const scope = b.mint('s1')
     b.setRoutable(false)
-    const face = b.seat().inject!(sid('s1'))
+    const face = b.seat().inject(sid('s1'))
     face.load()
     b.remote.emit('llm/adapters-updated', [])
     await vi.waitFor(() => { expect(b.blockOf('s1')).toBeDefined() })
@@ -422,7 +471,7 @@ describe('ui-model-selection dual entry', () => {
 
   it('an unknown session fails loud at the seat inject', async () => {
     const b = await bench()
-    expect(() => b.seat().inject!(sid('ghost'))).toThrow(/resolved no scope/)
+    expect(() => b.seat().inject(sid('ghost'))).toThrow(/resolved no scope/)
   })
 
   it('withholds both model entries from addressed subagent sessions without Agent-bound RPCs', async () => {
@@ -436,7 +485,7 @@ describe('ui-model-selection dual entry', () => {
       new AbortController().signal,
     )).rejects.toThrow(/unavailable for addressed subagent/)
 
-    const face = b.seat().inject!(sid('child'))
+    const face = b.seat().inject(sid('child'))
     expect(face.available).toBe(false)
     face.load()
     await expect(face.select({ provider: 'deepseek', model: 'deepseek-v4-pro' })).resolves.toBeUndefined()

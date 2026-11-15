@@ -1064,8 +1064,12 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type UseFactorySlot<F extends keyof SlotFactoryMap & string> = <N extends FactoryLocalNameOf<F>>(name: N, fallback: FactoryLocalComponent<F, N>) => SlotComponent<FactoryLocalInputPropsOf<F, N>>;',
   },
   {
+    name: 'WorkspaceDirectoryKind',
+    declaration: 'export type WorkspaceDirectoryKind = \'repository\' | \'directory\';',
+  },
+  {
     name: 'WorkspaceView',
-    declaration: 'export interface WorkspaceView {\n    readonly workspaceId: WorkspaceId;\n    readonly path: string;\n    readonly title: string;\n    readonly sessionIds: readonly SessionId[];\n    readonly createdAt: string;\n    readonly updatedAt: string;\n}',
+    declaration: 'export interface WorkspaceView {\n    readonly workspaceId: WorkspaceId;\n    readonly path: string;\n    readonly kind: WorkspaceDirectoryKind;\n    readonly title: string;\n    readonly sessionIds: readonly SessionId[];\n    readonly createdAt: string;\n    readonly updatedAt: string;\n}',
   },
 ]
 

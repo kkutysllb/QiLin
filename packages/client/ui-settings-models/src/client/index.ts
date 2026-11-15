@@ -7,14 +7,9 @@
  * existing wire APIs. Export discipline:
  * packages/client/AGENTS.md.
  */
-import { createElement } from 'react'
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 // Type-only: pulls the shell's SlotMap merge (the 'settings.section' entry).
 import type {} from '@qilin-agent/client-ui-settings/client'
-import { IconDataOutlineRegular } from '@qilin-agent/client-ui-primitives'
-import type { PropsRuntime } from '@qilin-agent/client-ui-slots'
-// Type-only: pulls the `sidebar.panellist` slot and its owner props.
-import type {} from '@qilin-agent/client-ui-sidebar/client'
 // Type-only: pulls the locale plugin's Context merge (ctx.locale).
 import type {} from '@qilin-agent/client-locale/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
@@ -45,15 +40,6 @@ declare module '@qilin-agent/client-ui-slots' {
 /** Dictionary namespace owned by this plugin. */
 const NS = 'settings.models'
 
-/** Sidebar row id: the same key as the settings section it reveals. */
-const MODELS_ROW_ID = 'models'
-
-/**
- * Sidebar row glyph for the Models page.
- * @param props - owner props supplied by the sidebar's panel row.
- * @returns the model-catalog glyph.
- */
-const ModelsNavIcon = ({ size }: PropsRuntime<'sidebar.panellist'>) => createElement(IconDataOutlineRegular, { size })
 export type {
   ModelsSettingsState, ProviderDirectoryEntry, ProviderRow,
 } from './store.ts'
@@ -131,14 +117,6 @@ export function apply(ctx: ClientContext): void {
       for (const dispose of disposers) dispose()
     }
   }, 'ui-settings-models: pushed invalidations')
-
-  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
-    name: 'sidebar.panellist',
-    id: MODELS_ROW_ID,
-    order: 15,
-    locale: NS,
-    label: () => t('nav'),
-  }, ModelsNavIcon))
 
   ctx.slots.inject('settings.section', () => ctx.slots.register({
     name: 'settings.section',

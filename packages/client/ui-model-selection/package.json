@@ -68,7 +68,9 @@
     "@qilin-agent/util-values": "workspace:*",
     "@qilin-agent/client-ui-renderer": "workspace:*",
     "@qilin-agent/client-ui-session": "workspace:*",
-    "clsx": "^2.1.1"
+    "clsx": "^2.1.1",
+    "@qilin-agent/client-ui-layout": "workspace:*",
+    "@qilin-agent/client-ui-sidebar": "workspace:*"
   },
   "files": [
     "lib/index.js",
