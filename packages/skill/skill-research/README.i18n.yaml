@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/skill/skill-research/README.md
+/:
+  en: ccd172ca27dd4174
+  zh: 1b98c0de8c82715a
+/qilin-agent-skill-research:
+  en: 14de5be3d9099ebd
+  zh: 1ab9830ae23cc941
+/qilin-agent-skill-research/summary:
+  en: e3fef34e30b495d1
+  zh: 4630707426a6706d
+/qilin-agent-skill-research/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: 1db86285abf6c499
+/qilin-agent-skill-research/use-this-package:
+  en: f99892592d6dec2c
+  zh: cf8f130ad75f9e8e
+/qilin-agent-skill-research/understand-the-implementation:
+  en: b1088fdc8096e665
+  zh: 2a708f3a1c638af4
+/qilin-agent-skill-research/further-exploration:
+  en: 9abcf8f3b08c569c
+  zh: 0e11d69d1ff3f682
+/qilin-agent-skill-research/model-experience:
+  en: cf652f85e7f99e84
+  zh: 07f407916e28d8b9
+/qilin-agent-skill-research/model-experience/kv-cache-effect:
+  en: 19e021e9817a5c9b
+  zh: afed4ab46171c798
+/qilin-agent-skill-research/known-limitations-and-deferred-work:
+  en: f09aa69240589952
+  zh: 82a24c3fe926762b
+/qilin-agent-skill-research/known-limitations-and-deferred-work/dev-note:
+  en: 7dfe81b6fc2d21a8
+  zh: bb3e8dd851b8aa85

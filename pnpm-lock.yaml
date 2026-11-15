@@ -2985,6 +2985,9 @@ importers:
       '@qilin-agent/session-turn-outline':
         specifier: workspace:*
         version: link:../../session/session-turn-outline
+      '@qilin-agent/skill-research':
+        specifier: workspace:*
+        version: link:../../skill/skill-research
       '@qilin-agent/subprocess':
         specifier: workspace:*
         version: link:../../subprocess/subprocess
@@ -14007,6 +14010,28 @@ importers:
       '@deepseek-ai/libreoffice-kit':
         specifier: ^0.1.5
         version: 0.1.5
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      yaml:
+        specifier: ^2.4.2
+        version: 2.9.0
+    devDependencies:
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/skill':
+        specifier: workspace:*
+        version: link:../skill
+
+  packages/skill/skill-research:
+    dependencies:
       '@qilin-agent/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery

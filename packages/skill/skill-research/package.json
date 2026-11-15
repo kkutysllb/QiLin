@@ -1,0 +1,47 @@
+{
+  "name": "@qilin-agent/skill-research",
+  "description": "Bundled scientific research workflows: literature review, evidence-driven writing, experiments, statistics, figures, review, citation audit, and grant writing",
+  "version": "3.1.12-rc.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/skill/skill-research"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "assets",
+    "THIRD_PARTY_NOTICES.md",
+    "lib/types/**/*.d.ts"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin-agent/skill": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~"
+  },
+  "dependencies": {
+    "@qilin-agent/schemastery": "workspace:~",
+    "yaml": "^2.4.2"
+  }
+}

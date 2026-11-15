@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-11-15-bundled-scientific-research-skills.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-11-15-bundled-scientific-research-skills.md
+/agent-note-bundled-scientific-research-skills:
+  en: 71320fe26abc8aa1
+  zh: 944e5b0c6a43e2ea
+/agent-note-bundled-scientific-research-skills/problem:
+  en: e89665e8f43e0623
+  zh: bb714aab2afb72ff
+/agent-note-bundled-scientific-research-skills/decision:
+  en: 874c1427c1d1d5c5
+  zh: 585061f2d0411474
+/agent-note-bundled-scientific-research-skills/alternatives-considered:
+  en: fc6c957217feebfb
+  zh: 5cfb4c9b114c5c3b
+/agent-note-bundled-scientific-research-skills/consequences:
+  en: f587f622b760f4c3
+  zh: 5e8a3b4e2006ae65

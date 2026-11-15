@@ -138,6 +138,7 @@
     "@qilin-agent/session-reference": "workspace:*",
     "@qilin-agent/session-stats": "workspace:*",
     "@qilin-agent/session-turn-outline": "workspace:*",
+    "@qilin-agent/skill-research": "workspace:*",
     "@qilin-agent/subprocess": "workspace:*",
     "@qilin-agent/time-context": "workspace:*",
     "@qilin-agent/tool-kylin": "workspace:*",

@@ -197,6 +197,7 @@ const packageFileExtras: Readonly<Record<string, readonly string[]>> = {
   '@qilin-agent/sandbox-windows-acl': ['lib/runner.js', 'lib/types-*.js', 'assets'],
   '@qilin-agent/experimental-skill-badge': ['assets'],
   '@qilin-agent/skill-office': ['assets'],
+  '@qilin-agent/skill-research': ['assets', 'THIRD_PARTY_NOTICES.md'],
   '@qilin-agent/subprocess': ['lib/control.js'],
   // SSH launches a private helper and shares wire definitions and TLS setup
   // between that helper and the connection owner.

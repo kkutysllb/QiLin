@@ -54,6 +54,10 @@
       config:
         maxNoteBytes: 8192
 
+    # Bundled scientific research workflows, advertised to Web and Desktop agents.
+    - id: skill-research
+      name: '@qilin-agent/skill-research'
+
     # Browser Session export: `/export` command plus the shared download dialog.
     - id: session-log-download
       name: '@qilin-agent/session-log-export'
