@@ -67,7 +67,7 @@ export function apply(ctx: ClientContext): void {
       const face = entry.inject?.(undefined as never) as Partial<SidebarSectionAssignmentsOwnerProps> | undefined
       if (face?.assignments !== undefined) Object.assign(assigned, face.assignments)
     }
-    const next = ctx.slots.entriesOfSlot('sidebar.panellist').map(({ options }) => {
+    const ordered = ctx.slots.entriesOfSlot('sidebar.panellist').map(({ options }) => {
       // The list registration requires an id; StoredEntry erases the slot kind.
       const id = options.id as MainPanelId
       // Any row without an assigned or declared section is plugin-contributed, so it
@@ -79,6 +79,18 @@ export function apply(ctx: ClientContext): void {
       const section = assigned[id] ?? resolveSlotLabel(options.section) ?? trailing
       return { id, order: options.order ?? 0, label: resolveSlotLabel(options.label) ?? id, section }
     }).sort((a, b) => a.order - b.order)
+    // Group every row under its section while keeping the order sections first
+    // appear at. Row order alone is not enough: a third-party panel may sort
+    // between two engine rows and would otherwise split its section, drawing
+    // the same header twice around the plugin row.
+    const sectionOrder = new Map<string | undefined, number>()
+    for (const panel of ordered) {
+      if (!sectionOrder.has(panel.section)) sectionOrder.set(panel.section, sectionOrder.size)
+    }
+    const next = ordered
+      .map(panel => ({ panel, section: sectionOrder.get(panel.section) as number }))
+      .sort((a, b) => a.section - b.section)
+      .map(({ panel }) => panel)
     const previous = panels.getSnapshot()
     if (previous.length === next.length && previous.every((panel, index) => {
       const candidate = next[index] as SidebarPanelMetadata
@@ -142,8 +154,8 @@ export function apply(ctx: ClientContext): void {
     locale: NS,
     inject: injectProps,
   }, HeaderLeadingControls))
-  // 侧栏面板分区：引擎自带的分组表头（连续同段行共享一枚，SidebarRoot 对
-  // section 变化插 .panelSection），部署侧集中声明引擎面板行的归属。
+  // 侧栏面板分区：引擎自带的分组表头（同段行归并到首次出现的位置，SidebarRoot
+  // 对 section 变化插 .panelSection），部署侧集中声明引擎面板行的归属。
   // 未声明的行一律归「扩展」尾部区：它们就是插件贡献的行。
   ctx.slots.inject('sidebar.section.assignments', () => ctx.slots.register({
     name: 'sidebar.section.assignments',

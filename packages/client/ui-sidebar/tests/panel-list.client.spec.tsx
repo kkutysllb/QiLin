@@ -191,21 +191,23 @@ describe('sidebar global panels', () => {
     expect(within(navigation).getAllByRole('button').map(row => row.textContent)).toEqual(['Extensions', 'New Session', 'Alpha panel', 'Beta panel'])
   })
 
-  it('renders one header per section break and gives unsectioned rows the Extensions header', async () => {
+  it('groups rows by section and gives unsectioned rows the Extensions header', async () => {
     const { runtime, view } = await bench()
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'Alpha group' })
     await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20 })
     await mountPanel(runtime, { id: GAMMA, heading: 'Gamma content', label: 'Gamma panel', order: 30, section: 'Alpha group' })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
     const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
-    expect(headers).toHaveLength(3)
-    expect(headers.map(header => header.textContent)).toEqual(['Alpha group', 'Extensions', 'Alpha group'])
-    expect(headers.map(header => header.getAttribute('aria-hidden'))).toEqual(['false', 'false', 'false'])
+    // A plugin row whose order falls between two rows of one section must not
+    // split that section's header: the first section keeps its rows together.
+    expect(headers).toHaveLength(2)
+    expect(headers.map(header => header.textContent)).toEqual(['Alpha group', 'Extensions'])
+    expect(headers.map(header => header.getAttribute('aria-hidden'))).toEqual(['false', 'false'])
     // Section headers are fold toggles (role=button with aria-expanded); panel
     // rows are the buttons without one.
     // The Extensions header is a fold toggle with role=button and no label; the rows are the labelled ones.
     const rows = within(navigation).getAllByRole('button').filter(row => row.getAttribute('aria-label') !== null).filter(row => row.getAttribute('aria-expanded') === null)
-    expect(rows.map(row => row.textContent)).toEqual(['New Session', 'Alpha panel', 'Beta panel', 'Gamma panel'])
+    expect(rows.map(row => row.textContent)).toEqual(['New Session', 'Alpha panel', 'Gamma panel', 'Beta panel'])
     expect(headers.every(header => header.getAttribute('aria-expanded') === 'true')).toBe(true)
     const entries = runtime.slots.entries('sidebar.panellist')
     expect(entries[0]!.options.section).toBe('Alpha group')

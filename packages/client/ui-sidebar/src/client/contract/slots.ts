@@ -110,9 +110,12 @@ export interface SidebarPanelMetadata {
   /** Row title and accessible name: resolved label, or the id when omitted. */
   label: string
   /**
-   * Optional grouping label. Consecutive rows sharing a section render under
-   * one header; `undefined` rows render header-less. The sidebar owns the
-   * header because it owns the list.
+   * Optional grouping label. Rows sharing a section are grouped under one
+   * header at the position the section first appears; `undefined` rows render
+   * header-less. The sidebar owns the header because it owns the list.
+   *
+   * Grouping is independent of row order: a later plugin row that sorts between
+   * two rows of one section must not split that section's header.
    *
    * Spelled `| undefined` on purpose: this value is copied out of the
    * type-erased registration options (which admit undefined under
