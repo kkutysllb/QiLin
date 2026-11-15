@@ -155,47 +155,26 @@ function rerender(b: ReturnType<typeof mount>, overrides: Partial<WorkspaceBrows
 }
 
 describe('WorkspaceBrowser', () => {
-  it('collapses and expands a project section from its heading and remembers it across mounts', () => {
+  it('badges every project with its kind ahead of the icon, keeping the caller order', () => {
     localStorage.clear()
-    const shown = () => [...document.querySelectorAll('[data-workspace-icon]')].map(row => row.getAttribute('data-workspace-icon'))
-    const b = mount({
-      useSessions: hook(sessionState([])),
-      useWorkspaces: hook(workspaceState([workspace('plain', []), workspace('repo', [], 'repo', 'repository')])),
-    })
-    const coding = document.querySelector('[data-workspace-section="repository"]') as HTMLElement
-    expect(coding.getAttribute('aria-expanded')).toBe('true')
-    expect(shown()).toEqual(['repository', 'folder'])
-
-    fireEvent.click(coding)
-    expect(coding.getAttribute('aria-expanded')).toBe('false')
-    expect(shown()).toEqual(['folder'])
-    // The other section keeps its own state.
-    expect(document.querySelector('[data-workspace-section="directory"]')?.getAttribute('aria-expanded')).toBe('true')
-
-    b.view.unmount()
     mount({
       useSessions: hook(sessionState([])),
       useWorkspaces: hook(workspaceState([workspace('plain', []), workspace('repo', [], 'repo', 'repository')])),
     })
-    expect(document.querySelector('[data-workspace-section="repository"]')?.getAttribute('aria-expanded')).toBe('false')
-    expect(shown()).toEqual(['folder'])
-  })
 
-  it('heads the projects with a coding-project section and an other-project section, marking each project by kind', () => {
-    mount({
-      useSessions: hook(sessionState([])),
-      useWorkspaces: hook(workspaceState([
-        workspace('plain', []),
-        workspace('repo', [], 'repo', 'repository'),
-      ])),
-    })
-
-    const sections = [...document.querySelectorAll('[data-workspace-section]')]
-    expect(sections.map(section => section.getAttribute('data-workspace-section'))).toEqual(['repository', 'directory'])
-    expect(sections.map(section => section.textContent)).toEqual([zh['section.coding'], zh['section.ordinary']])
-    // Repositories lead even though the Host listed the plain directory first.
-    const rows = [...document.querySelectorAll('[data-workspace-icon]')]
-    expect(rows.map(row => row.getAttribute('data-workspace-icon'))).toEqual(['repository', 'folder'])
+    // The summary headings are gone; each row names its own kind instead.
+    expect(document.querySelectorAll('[data-workspace-section]')).toHaveLength(0)
+    const rows = [...document.querySelectorAll('[data-row-key^="workspace:"]')]
+    expect(rows.map(row => row.querySelector('[data-workspace-kind]')?.textContent))
+      .toEqual([zh['badge.coding'], zh['badge.ordinary']])
+    expect(rows.map(row => row.querySelector('[data-workspace-icon]')?.getAttribute('data-workspace-icon')))
+      .toEqual(['repository', 'folder'])
+    for (const row of rows) {
+      const badge = row.querySelector('[data-workspace-kind]')
+      const icon = row.querySelector('[data-workspace-icon]')
+      if (badge === null || icon === null) throw new Error('row without its badge or icon')
+      expect(badge.compareDocumentPosition(icon) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    }
   })
 
   it.each(['workspace', 'flat', 'ungrouped'] as const)('keeps %s recency independent of arrival order and saved manual positions', (mode) => {
@@ -617,7 +596,7 @@ describe('WorkspaceBrowser', () => {
     expect(Array.from(
       screen.getByRole('tree', { name: '会话' }).querySelectorAll('[data-row-key]'),
       row => row.getAttribute('data-row-key'),
-    )).toEqual(['section:directory', 'workspace:alpha', 'session:session-1'])
+    )).toEqual(['workspace:alpha', 'session:session-1'])
     b.store.actions.setGroupBy('flat')
     rerender(b, {})
     expect(Array.from(
@@ -2064,8 +2043,9 @@ describe('Workspace tree grouping', () => {
     fireEvent.dragEnd(source)
     expect(b.props.insertWorkspaceBefore).toHaveBeenCalledExactlyOnceWith(root.workspaceId, undefined)
     rerender(b, { useWorkspaces: hook(workspaceState([team, child, other, outside, root])) })
+    const badge = t('badge.ordinary')
     expect(screen.getAllByRole('treeitem').map(row => row.textContent)).toEqual([
-      'outside', 'Projects', 'Team', 'Child', 'other',
+      `${badge}outside`, `${badge}Projects`, `${badge}Team`, `${badge}Child`, `${badge}other`,
     ])
     expect(within(section('Team')).getByText('Child')).toBeTruthy()
   })

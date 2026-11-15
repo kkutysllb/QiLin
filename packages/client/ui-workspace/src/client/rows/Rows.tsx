@@ -273,6 +273,14 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
         }}
       onDragEnd={drag?.end}
     >
+      {row.workspaceId !== undefined && (
+        <span
+          className={css.kindBadge}
+          data-workspace-kind={row.section === 'repository' ? 'repository' : 'ordinary'}
+        >
+          {t(row.section === 'repository' ? 'badge.coding' : 'badge.ordinary')}
+        </span>
+      )}
       <span
         className={clsx(css.slot, css.folder, active && css.folderActive)}
         data-workspace-icon={row.section === 'repository' ? 'repository' : 'folder'}

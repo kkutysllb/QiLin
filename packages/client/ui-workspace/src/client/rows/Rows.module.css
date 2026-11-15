@@ -101,6 +101,25 @@
   color: var(--qilin-alias-label-secondary);
 }
 
+/* Kind badge names the Workspace directory kind in a fixed-width leading
+   column, so every row's icon and title start at the same x. */
+.kindBadge {
+  flex: none;
+  width: 38px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  line-height: 16px;
+  color: var(--qilin-alias-label-secondary);
+  background: var(--qilin-alias-fill-tertiary);
+  white-space: nowrap;
+}
+
 /* Compact one-line Workspace row after removing the session-count subtitle. */
 .projectRow {
   height: 34px;
