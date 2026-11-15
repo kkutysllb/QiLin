@@ -156,6 +156,18 @@ describe('ui-sidebar apply', () => {
     }
   })
 
+  it('assigns the workspace model manager to the General section', async () => {
+    const b = await bench()
+    const sidebar = b.ctx.plugin({ inject: [...inject], apply })
+    await sidebar.await()
+    try {
+      const assignment = (b.slots.entries('sidebar.section.assignments')[0]!.inject as () => { assignments: Record<string, string> })()
+      expect(assignment.assignments['model-manager']).toBe(assignment.assignments.schedules)
+    } finally {
+      await sidebar.dispose()
+    }
+  })
+
   it('applies deployment section assignments over panel rows', async () => {
     const b = await bench()
     const sidebar = b.ctx.plugin({ inject: [...inject], apply })

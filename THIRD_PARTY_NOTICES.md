@@ -97,6 +97,9 @@ External packages installed for runtime use or distributed inside the prebuilt b
 | [`compression`](https://github.com/expressjs/compression) | MIT |
 | [`diff`](https://github.com/kpdecker/jsdiff) | BSD-3-Clause |
 | [`dompurify`](https://github.com/cure53/DOMPurify) | (MPL-2.0 OR Apache-2.0) |
+| [`dsh-animations`](https://github.com/kkutysllb/dsh-animations) | MIT |
+| [`dsh-kylin-images`](https://github.com/kkutysllb/dsh-kylin-images) | MIT |
+| [`dsh-skills-bundle`](https://github.com/kkutysllb/dsh-skills-bundle) | MIT |
 | [`electron-updater`](https://github.com/electron-userland/electron-builder) | MIT |
 | [`eventsource-parser`](https://github.com/rexxars/eventsource-parser) | MIT |
 | [`exceljs`](https://github.com/exceljs/exceljs) | MIT |
