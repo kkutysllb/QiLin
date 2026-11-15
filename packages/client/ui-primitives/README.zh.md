@@ -124,7 +124,7 @@ kind: "package-library"
 | [`src/SearchBlock.tsx`](src/SearchBlock.tsx) / [`src/WebBlock.tsx`](src/WebBlock.tsx) | 搜索与网页检索卡片 |
 | [`src/icons/`](src/icons/) | `ic_ds_*` 字形组件与品牌标记 |
 | [`src/quote-text.ts`](src/quote-text.ts) / [`src/QuotePreview.tsx`](src/QuotePreview.tsx) | 已发送用户文本引文的双向实现：blockquote 扫描与解码、`qilin-quote:` 来源标记、输入框手势调用的插入序列化，以及带复制与跳转控件的引文界面 |
-| [`src/credential-formats.ts`](src/credential-formats.ts) / [`src/format-tables.ts`](src/format-tables.ts) / [`src/credential-scanner.ts`](src/credential-scanner.ts) / [`src/credential-masks.ts`](src/credential-masks.ts) / [`src/SecretText.tsx`](src/SecretText.tsx) | `projectUserText` 背后的凭据格式、由其派生的查表、扫描、掩码形态，以及带显示控件的掩码文本段 |
+| [`src/credential-formats.ts`](src/credential-formats.ts) / [`src/format-tables.ts`](src/format-tables.ts) / [`src/credential-scanner.ts`](src/credential-scanner.ts) / [`src/credential-masks.ts`](src/credential-masks.ts) / [`src/SecretText.tsx`](src/SecretText.tsx) | `projectUserText` 背后的凭据格式、由其派生的查表、扫描、掩码形态，、带显示控件的掩码文本段，以及模型设置页用于 API 密钥的可编辑掩码输入（[`src/SecretInput.tsx`](src/SecretInput.tsx)） |
 | [`src/useAnchoredPosition.ts`](src/useAnchoredPosition.ts) / [`src/useAnchoredMaxHeight.ts`](src/useAnchoredMaxHeight.ts) | 浮动面板与浮层几何钩子 |
 | [`src/input-modality.ts`](src/input-modality.ts) | 发布在 `<html>` 上的全文档输入模态 |
 | [`src/motion.ts`](src/motion.ts) | 共享的 `prefersReducedMotion()` 查询：本包动画与工作区行在开始运动前都会询问它 |

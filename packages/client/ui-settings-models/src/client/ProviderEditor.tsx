@@ -28,7 +28,7 @@ import type {
   CredentialInfo, LlmNativeAuth, SettingsNamespaceView, SettingsPathOpView,
 } from '@qilin-agent/api-remotes/client'
 import type { JsonValue } from '@qilin-agent/util-values'
-import { Tooltip } from '@qilin-agent/client-ui-primitives'
+import { SecretInput, Tooltip } from '@qilin-agent/client-ui-primitives'
 import {
   DeepSeekModelsEditor, modelDrafts, validateDeepSeekModels,
 } from './DeepSeekModelsEditor.tsx'
@@ -43,7 +43,7 @@ import { protocolLabel } from './protocol-label.ts'
 import type { ModelsOperations } from './operations.ts'
 import type { SettingsSchemaOperations } from './schema-operations.ts'
 import type { en } from './locales.ts'
-import { ApiKeyInput } from './ApiKeyInput.tsx'
+
 import styles from './ModelsSection.module.css'
 
 /** Per-adapter-family curated field sets (unknown namespaces get the hint alone). */
@@ -427,8 +427,10 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
               {t('keyInput')}
               {authHelp}
             </span>
-            <ApiKeyInput
-              t={t}
+            <SecretInput
+              labels={{ reveal: t('keyReveal'), hide: t('keyHide') }}
+              wrapperClassName={styles['keyInput']}
+              inputClassName={`${styles['input']} ${keyDraft.length > 0 ? styles['keyInputFilled'] : ''}`}
               value={keyDraft}
               placeholder={keyPlaceholder}
               aria-label={t('keyInput')}

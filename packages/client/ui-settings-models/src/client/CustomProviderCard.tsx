@@ -24,9 +24,10 @@
 
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import { SecretInput } from '@qilin-agent/client-ui-primitives'
 import type { JsonValue } from '@qilin-agent/util-values'
 import { apiKeyFailure } from './apiKey.ts'
-import { ApiKeyInput } from './ApiKeyInput.tsx'
+
 import { EditorFooter } from './EditorFooter.tsx'
 import { validateDeepSeekModels } from './DeepSeekModelsEditor.tsx'
 import { ModelListEditor } from './ModelListEditor.tsx'
@@ -274,8 +275,10 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
       </div>
       <div className={styles['field']}>
         <span className={styles['fieldLabel']}>{t('keyInput')}</span>
-        <ApiKeyInput
-          t={t}
+        <SecretInput
+          labels={{ reveal: t('keyReveal'), hide: t('keyHide') }}
+          wrapperClassName={styles['keyInput']}
+          inputClassName={`${styles['input']} ${keyDraft.length > 0 ? styles['keyInputFilled'] : ''}`}
           value={keyDraft}
           placeholder={t('keyPlaceholder')}
           aria-label={t('keyInput')}

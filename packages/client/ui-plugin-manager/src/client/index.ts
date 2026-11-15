@@ -156,7 +156,6 @@ export function apply(ctx: ClientContext): void {
     name: 'sidebar.panellist',
     id: PANEL_ID,
     order: 30,
-    settings: PANEL_ID,
     locale: NS,
     label: () => t('panel'),
   }, PluginsNavIcon))
