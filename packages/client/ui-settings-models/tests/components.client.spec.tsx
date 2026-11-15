@@ -1439,7 +1439,7 @@ describe('ModelsSection', () => {
     fireEvent.change(key, { target: { value: 'sk-live' } })
     fireEvent.click(screen.getByText(en.apply))
     await screen.findByText(/shadowed by the read-only environment/)
-    expect(screen.queryByRole('status')).toBeNull()
+    expect(screen.getAllByRole('status')).toHaveLength(1)
   })
 
   it('reports an environment-provided credential without locking the field', async () => {

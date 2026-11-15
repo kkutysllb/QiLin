@@ -24,11 +24,11 @@
 
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { SecretInput } from '@qilin-agent/client-ui-primitives'
+import { SecretInput, SettingsForm } from '@qilin-agent/client-ui-primitives'
+import type { SettingsFormLabels, SettingsFormShell } from '@qilin-agent/client-ui-primitives'
 import type { JsonValue } from '@qilin-agent/util-values'
 import { apiKeyFailure } from './apiKey.ts'
 
-import { EditorFooter } from './EditorFooter.tsx'
 import { validateDeepSeekModels } from './DeepSeekModelsEditor.tsx'
 import { ModelListEditor } from './ModelListEditor.tsx'
 import { validateReasoningEfforts } from './ModelReasoningEfforts.tsx'
@@ -211,6 +211,24 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
     }
   }
 
+  const createState: SettingsFormShell = {
+    available: true,
+    writable: !props.readOnly,
+    // Creating is one action; there is no stored profile to diff against.
+    dirty: true,
+    invalid: disabled || !ready,
+    saving: busy,
+    failed: failure !== undefined,
+  }
+  const createLabels: SettingsFormLabels = {
+    unavailable: t('readOnly'),
+    readOnly: t('readOnly'),
+    saveFailed: failure ?? t('saveFailed'),
+    save: t('create'),
+    saving: t('creating'),
+    cancel: t('cancel'),
+  }
+
   return (
     <div className={styles['editor']}>
       <div className={styles['editorHeader']}>
@@ -310,19 +328,16 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
         disabled={profileDisabled}
         onBusyChange={setListBusy}
       />
-      {failure !== undefined ? <p className={styles['error']}>{failure}</p> : null}
       {/* Only the gates with something to say render; the route-id gate has its
           own field-level hint, so its blocked state would print an empty line. */}
       {hint === undefined ? null : <p className={styles['advancedHint']}>{hint}</p>}
-      <EditorFooter
-        t={t}
-        busy={busy}
-        submitDisabled={disabled || !ready}
-        submitLabelKey="create"
-        submitBusyLabelKey="creating"
+      <SettingsForm
+        labels={createLabels}
+        state={createState}
+        onSave={() => { void create() }}
+        onDiscard={() => {}}
         onCancel={() => { props.onClose(committed) }}
-        onSubmit={() => { void create() }}
-      />
+      >{null}</SettingsForm>
     </div>
   )
 }

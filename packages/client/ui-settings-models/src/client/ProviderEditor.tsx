@@ -28,13 +28,13 @@ import type {
   CredentialInfo, LlmNativeAuth, SettingsNamespaceView, SettingsPathOpView,
 } from '@qilin-agent/api-remotes/client'
 import type { JsonValue } from '@qilin-agent/util-values'
-import { SecretInput, Tooltip } from '@qilin-agent/client-ui-primitives'
+import { SecretInput, SettingsForm, Tooltip } from '@qilin-agent/client-ui-primitives'
+import type { SettingsFormLabels, SettingsFormShell } from '@qilin-agent/client-ui-primitives'
 import {
   DeepSeekModelsEditor, modelDrafts, validateDeepSeekModels,
 } from './DeepSeekModelsEditor.tsx'
 import type { DeepSeekModelsValidationFailure } from './DeepSeekModelsEditor.tsx'
 import { apiKeyFailure } from './apiKey.ts'
-import { EditorFooter } from './EditorFooter.tsx'
 import { ModelListEditor } from './ModelListEditor.tsx'
 import { validateReasoningEfforts } from './ModelReasoningEfforts.tsx'
 import type { ReasoningEffortsFailure } from './ModelReasoningEfforts.tsx'
@@ -331,6 +331,34 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     }
   }
 
+  // The card's chrome comes from the shared staged form: one save/cancel row,
+  // the read-only line, and the refusal text, so this editor states its
+  // outcome the same way every other settings card does.
+  const submitInvalid = disabled || layout === 'unknown'
+    || (props.credentialOnly !== true && modelFailure !== undefined)
+    || shownKeyFailure !== undefined
+    || (props.credentialRequired === true && keyValue.length === 0)
+  const formState: SettingsFormShell = {
+    available: true,
+    writable: !props.readOnly,
+    // Apply is meaningful with no staged edit: it materializes a native-auth
+    // profile and stores a typed key, so dirtiness never gates this card.
+    dirty: true,
+    invalid: submitInvalid,
+    saving: busy,
+    failed: failure !== undefined,
+  }
+  const formLabels: SettingsFormLabels = {
+    // The card only renders for a served namespace, so the frame
+    // never shows its unavailable line; the read-only line still applies.
+    unavailable: t('readOnly'),
+    readOnly: t('readOnly'),
+    saveFailed: failure ?? t('saveFailed'),
+    save: t(props.submitLabelKey ?? 'apply'),
+    saving: t(props.submitBusyLabelKey ?? 'applying'),
+    cancel: t(props.cancelLabelKey ?? 'cancel'),
+  }
+
   if (node === undefined) {
     // A directory entry addressing a position its schema cannot resolve is a
     // host-side inconsistency; showing it beats a blank card.
@@ -564,7 +592,6 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
       {layout === 'unknown'
         ? <p className={styles['advancedHint']}>{`${t('advancedHint')} (${namespace.ns})`}</p>
         : curatedFields(layout)}
-      {failure !== undefined ? <p className={styles['error']}>{failure}</p> : null}
       {props.credentialOnly === true || modelFailure === undefined
         ? null
         : (
@@ -572,19 +599,13 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
             {`${t('model')} ${String(modelFailure.index + 1)}: ${t(modelFailure.key)}`}
           </p>
         )}
-      <EditorFooter
-        t={t}
-        busy={busy}
-        submitDisabled={disabled || layout === 'unknown'
-          || (props.credentialOnly !== true && modelFailure !== undefined)
-          || shownKeyFailure !== undefined
-          || (props.credentialRequired === true && keyValue.length === 0)}
-        submitLabelKey={props.submitLabelKey ?? 'apply'}
-        submitBusyLabelKey={props.submitBusyLabelKey ?? 'applying'}
-        {...props.cancelLabelKey === undefined ? {} : { cancelLabelKey: props.cancelLabelKey }}
+      <SettingsForm
+        labels={formLabels}
+        state={formState}
+        onSave={() => { props.onSubmitCredential?.(); void apply() }}
+        onDiscard={() => {}}
         onCancel={() => { props.onClose(false) }}
-        onSubmit={() => { props.onSubmitCredential?.(); void apply() }}
-      />
+      >{null}</SettingsForm>
     </div>
   )
 }

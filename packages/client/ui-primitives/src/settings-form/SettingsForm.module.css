@@ -29,6 +29,24 @@
   color: var(--qilin-alias-label-error);
 }
 
+.cancel {
+  appearance: none;
+  margin-left: auto;
+  border: 1px solid var(--qilin-alias-border-l4);
+  border-radius: var(--qilin-radius-md);
+  padding: 5px 14px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+  background: none;
+  color: var(--qilin-alias-label-secondary);
+}
+
+.cancel:hover {
+  color: var(--qilin-alias-label-primary);
+}
+
 .save {
   appearance: none;
   border: 1px solid transparent;

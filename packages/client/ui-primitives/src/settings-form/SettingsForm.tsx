@@ -26,6 +26,8 @@ export interface SettingsFormLabels {
   save: string
   /** The save control while a save is crossing the wire. */
   saving: string
+  /** Leave without saving; required when the form offers {@link SettingsFormProps.onCancel}. */
+  cancel?: string
 }
 
 /** Form chrome shared by every settings page. */
@@ -38,6 +40,8 @@ export interface SettingsFormProps {
   onSave: () => void
   /** Drop every staged edit; the form calls it when it leaves the page. */
   onDiscard: () => void
+  /** Leave without saving, for a card opened as a dialog; omitted by a page. */
+  onCancel?: () => void
   /** The plugin's controls. */
   children: ReactNode
 }
@@ -60,6 +64,9 @@ export function SettingsForm(props: SettingsFormProps) {
       {props.children}
       <div className={css.footer}>
         {state.failed ? <p className={css.failed} role="status">{labels.saveFailed}</p> : null}
+        {props.onCancel === undefined || labels.cancel === undefined
+          ? null
+          : <button type="button" className={css.cancel} onClick={props.onCancel}>{labels.cancel}</button>}
         <button
           type="button"
           className={css.save}

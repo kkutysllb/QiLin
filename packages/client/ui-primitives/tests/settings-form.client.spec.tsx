@@ -36,6 +36,21 @@ it('says the namespace is not served in place of the controls', () => {
   expect(screen.queryByLabelText('Field')).toBeNull()
 })
 
+it('leaves through its cancel control when the form offers one', () => {
+  const onCancel = vi.fn()
+  render(
+    <SettingsForm
+      labels={{ ...labels, cancel: 'Cancel' }}
+      state={{ ...settled, dirty: true }}
+      onSave={vi.fn()}
+      onDiscard={vi.fn()}
+      onCancel={onCancel}
+    ><input aria-label="Field" /></SettingsForm>,
+  )
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+  expect(onCancel).toHaveBeenCalledOnce()
+})
+
 it('keeps the save inert until something is staged, then saves on click', () => {
   const { onSave } = renderForm()
   expect(screen.getByRole('button', { name: labels.save })).toHaveProperty('disabled', true)
