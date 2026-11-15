@@ -549,6 +549,7 @@
       "@qilin-agent/skill": ["./packages/skill/skill/src"],
       "@qilin-agent/skill-filesystem": ["./packages/skill/skill-filesystem/src"],
       "@qilin-agent/skill-office": ["./packages/skill/skill-office/src"],
+      "@qilin-agent/skill-research": ["./packages/skill/skill-research/src"],
       "@qilin-agent/spill": ["./packages/spill/spill/src"],
       "@qilin-agent/spill-local": ["./packages/spill/spill-local/src"],
       "@qilin-agent/spill-policy": ["./packages/spill/spill-policy/src"],
