@@ -84,12 +84,30 @@ describe('the Agent Teams header switch', () => {
   it('says why a restart is needed and what a refusal left in place', () => {
     mount({ ...READY, notice: 'restart-required' }, zh)
     expect(screen.getByRole('switch', { name: zh.agentTeamSwitch }).getAttribute('title')).toBe(zh.agentTeamSwitchRestart)
+    // The outcome is stated in the header, not only on the hover surface.
+    expect(screen.getByRole('status').textContent).toBe(zh.agentTeamSwitchRestart)
+    expect(screen.getByRole('status').getAttribute('data-notice')).toBe('restart-required')
     cleanup()
     mount({ ...READY, notice: 'failed', detail: 'profile is read-only' })
     expect(screen.getByRole('switch', { name: en.agentTeamSwitch }).getAttribute('title')).toBe('profile is read-only')
+    expect(screen.getByRole('status').textContent).toBe('profile is read-only')
+    expect(screen.getByRole('status').getAttribute('data-notice')).toBe('failed')
     cleanup()
     mount({ ...READY, notice: 'failed', detail: null })
     expect(screen.getByRole('switch', { name: en.agentTeamSwitch }).getAttribute('title')).toBe(en.agentTeamSwitchFailed)
+    expect(screen.getByRole('status').textContent).toBe(en.agentTeamSwitchFailed)
+  })
+
+  it('names the write while it is in flight', () => {
+    mount({ ...READY, enabled: false, busy: true }, zh)
+    expect(screen.getByRole('switch', { name: zh.agentTeamSwitch })).toHaveProperty('disabled', true)
+    expect(screen.getByRole('status').textContent).toBe(zh.agentTeamSwitchBusy)
+    expect(screen.getByRole('status').getAttribute('data-notice')).toBe('busy')
+  })
+
+  it('keeps the header quiet while no outcome needs saying', () => {
+    mount(READY)
+    expect(screen.queryByRole('status')).toBeNull()
   })
 })
 

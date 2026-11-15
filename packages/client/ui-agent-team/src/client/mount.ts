@@ -13,7 +13,8 @@ import type {} from '@qilin-agent/agent-team/remote'
 import type {} from '@qilin-agent/client-ui-conversation/client'
 import { TeamBody, TeamTitle } from './TeamBody.tsx'
 import { TeamAction } from './TeamAction.tsx'
-import { TEAM_ID, teamDefinition } from './definition.tsx'
+import { SquadChip } from './SquadChip.tsx'
+import { TEAM_ID, TEAM_KIND, teamDefinition } from './definition.tsx'
 import { createTeamPageStore } from './team-page-store.ts'
 import { teamOpenTeammate, teamWritesFace, type TeamWriteDeps } from './team-writes.ts'
 import { en, NS, zh, type TeamKey } from './locales.ts'
@@ -31,7 +32,7 @@ declare module '@qilin-agent/client-ui-slots' {
  * mounts it, so declaring it here would leave the fiber PENDING forever waiting
  * for its own output.
  */
-export const inject = ['sessions', 'uiWorkspace', 'slots', 'locale', 'remote', 'sidebarRightTabs']
+export const inject = ['sessions', 'uiWorkspace', 'slots', 'locale', 'remote', 'sidebarRight', 'sidebarRightTabs']
 
 /** What the UI registration itself needs: the services above plus the namespace {@link mountAgentTeamUi} mounts first. */
 const UI_INJECT = [...inject, 'remote.agentTeams']
@@ -75,6 +76,20 @@ export function registerAgentTeamUi(ctx: ClientContext): void {
       locale: NS,
       inject: () => ({ openTeammate }),
     }, TeamAction),
+  )
+  // The squad chip states the formation and opens this package's Team page in
+  // the right Sidebar; the page draws both the graph and the shared board.
+  ctx.slots.inject(
+    'conversation.session.header.actions',
+    () => ctx.slots.register({
+      name: 'conversation.session.header.actions',
+      id: 'agent-team-squad',
+      order: 40,
+      locale: NS,
+      inject: () => ({
+        openTeam: (target: SessionId) => { ctx.sidebarRight.openTabIn(target, TEAM_KIND) },
+      }),
+    }, SquadChip),
   )
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
     { name: 'sidebar.right.pane.tab', key: TEAM_ID, locale: NS, store: createTeamPageStore(), inject: teamWritesFace(deps) },

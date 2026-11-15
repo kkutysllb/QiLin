@@ -44,6 +44,16 @@ export function AgentTeamSwitch({ useAgentTeamSwitch, load, toggle, t }: AgentTe
   if (state.status === 'idle') return null
   if (state.status === 'unavailable') return null
   const restart = state.notice === 'restart-required'
+  // A restart-bound or refused write leaves the selection unchanged, so the
+  // switch alone cannot show that the click did anything: name the outcome in
+  // the header instead of relying on the hover surface.
+  const busy = state.busy
+  const notice = state.notice
+  const outcome = notice === null
+    ? null
+    : notice === 'restart-required'
+      ? t('agentTeamSwitchRestart')
+      : state.detail ?? t('agentTeamSwitchFailed')
   return (
     <Tooltip
       label={restart ? t('agentTeamSwitchRestart') : t('agentTeamSwitchHint')}
@@ -63,6 +73,19 @@ export function AgentTeamSwitch({ useAgentTeamSwitch, load, toggle, t }: AgentTe
             : state.notice === 'failed' ? state.detail ?? t('agentTeamSwitchFailed') : undefined}
           onChange={(next) => { toggle(next) }}
         />
+        {busy && (
+          <span className={css.notice} data-notice="busy" role="status">{t('agentTeamSwitchBusy')}</span>
+        )}
+        {notice !== null && outcome !== null && (
+          <span
+            className={css.notice}
+            data-notice={notice}
+            role="status"
+            title={outcome}
+          >
+            {outcome}
+          </span>
+        )}
       </span>
     </Tooltip>
   )

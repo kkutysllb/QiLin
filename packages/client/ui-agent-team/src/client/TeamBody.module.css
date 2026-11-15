@@ -1,4 +1,6 @@
 .root {
+  container-type: inline-size;
+  container-name: team-page;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -8,6 +10,72 @@
   /* The page scroller draws on the sidebar fill, a base rung below bg-layer-2/3,
      so its bar keeps the l1 thumb; the l2 notice, member, task, and form cards
      are descendants. Classified in ui-theme's scrollbar-styles spec. */
+}
+
+/* The fleet row: the formation graph leads, the collaboration timeline follows.
+   A narrow page stacks them; a wide one gives the graph the larger share. */
+.fleet {
+  display: grid;
+  gap: 10px 14px;
+  min-width: 0;
+}
+
+.fleetMain,
+.fleetSide {
+  min-width: 0;
+}
+
+@container team-page (min-width: 720px) {
+  .fleet {
+    grid-template-columns: minmax(0, 1.7fr) minmax(220px, 1fr);
+    align-items: start;
+  }
+}
+
+/* The compact collaboration-task rows beside the graph: a read-only summary of
+   the board below, so the fleet column states work without the editing chrome. */
+.taskRows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.taskRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.taskRow:hover {
+  background: var(--qilin-alias-interactive-bg-hover);
+}
+
+.compactSubject {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--qilin-alias-label-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.compactOwner {
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  color: var(--qilin-alias-label-tertiary);
+  font-size: 10.5px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .toolbar {
@@ -178,6 +246,10 @@
   border: 1px solid var(--qilin-alias-border-l2);
   border-radius: 9px;
   background: var(--qilin-alias-bg-layer-2);
+}
+
+.taskLinked {
+  border-color: color-mix(in srgb, var(--qilin-alias-brand-primary) 45%, var(--qilin-alias-border-l2));
 }
 
 .taskTitle {

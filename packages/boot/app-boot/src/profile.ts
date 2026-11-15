@@ -1112,8 +1112,12 @@ function normalizeShippedProfile(name: string, dir: string, manifest: ProfileMan
   const shipped = new Set([...template.bundles, ...INSTALLATION_OWNED_PROFILE_TUPLES[name] ?? []])
   const dependencies = new Set(Object.keys(manifest.dependencies ?? {}))
   const audiences = manifest.qilin?.profile?.audiences ?? {}
-  const restored = [...template.bundles, ...bundles.filter(entry =>
-    !shipped.has(entry) || dependencies.has(entry) || Object.hasOwn(audiences, entry))]
+  const excluded = new Set(profileDeclarationOf(manifest)?.profile?.excluded ?? [])
+  const restored = [
+    ...template.bundles.filter(entry => !excluded.has(entry)),
+    ...bundles.filter(entry => !excluded.has(entry)
+      && (!shipped.has(entry) || dependencies.has(entry) || Object.hasOwn(audiences, entry))),
+  ]
   if (sameBundles(bundles, restored)) return manifest
   const normalized: ProfileManifest = {
     ...manifest,
@@ -1127,6 +1131,19 @@ function normalizeShippedProfile(name: string, dir: string, manifest: ProfileMan
   }
   writeProfileManifest(dir, normalized)
   return normalized
+}
+
+/**
+ * Restore a shipped profile's template layers through the same rule a normal
+ * launch applies. A caller that loads a profile directory directly — a
+ * launcher handing an application its composed profile — must run this first,
+ * or a template layer a release added never reaches a profile that predates it.
+ * @param binName - diagnostic prefix for manifest reads.
+ * @param name - the profile name whose shipped template owns the layers.
+ * @param dir - the profile directory.
+ */
+export function restoreShippedProfileLayers(binName: string, name: string, dir: string): void {
+  normalizeShippedProfile(name, dir, readProfileManifest(binName, dir))
 }
 
 /**

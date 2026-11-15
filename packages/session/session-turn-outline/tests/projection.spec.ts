@@ -18,7 +18,8 @@ import type { Session, SessionEvent } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
 import * as SessionTurnOutlinePlugin from '@qilin-agent/session-turn-outline'
 import { turnOutlineProjectionDefinition } from '@qilin-agent/session-turn-outline/src/projection.ts'
-import type { TurnOutlineEntry, TurnOutlineState } from '@qilin-agent/session-turn-outline/types'
+import { turnStatsProjectionDefinition } from '@qilin-agent/session-turn-outline/src/stats-projection.ts'
+import type { TurnOutlineEntry, TurnOutlineState, TurnStats } from '@qilin-agent/session-turn-outline/types'
 
 declare module '@qilin-agent/llm' {
   interface MessageSourceMap {
@@ -273,5 +274,42 @@ describe('turn outline projection unit', () => {
         },
       },
     }, [], SessionLogOffset(0), session.header, session.inheritedEventCount)).not.toThrow()
+  })
+})
+
+describe('turn stats projection unit', () => {
+  it('counts started turns and steps across the whole log', async () => {
+    const { ctx, session } = await harness(true)
+    const statsOf = (): TurnStats => ctx.sessionProjections.snapshot(session).values.turnStats as TurnStats
+    expect(statsOf()).toEqual({ turns: 0, steps: 0 })
+    session.append('turn/start', { turn: 1 })
+    session.append('step/start', { turn: 1, step: 1 })
+    session.append('step/end', { turn: 1, step: 1 })
+    session.append('step/start', { turn: 1, step: 2 })
+    appendAssistant(session, 1, 2, 'answer')
+    endTurn(session, 1)
+    session.append('turn/start', { turn: 2 })
+    session.append('step/start', { turn: 2, step: 1 })
+    expect(statsOf()).toEqual({ turns: 2, steps: 3 })
+  })
+
+  it('ignores every other event and keeps the fold state by reference', () => {
+    const state: TurnStats = { turns: 1, steps: 2 }
+    const unrelated = {
+      type: 'assistant/message',
+      seq: SessionSeq(7),
+      time: 0,
+      data: {},
+    } as unknown as SessionEvent
+    expect(turnStatsProjectionDefinition.apply(state, unrelated)).toBe(state)
+  })
+
+  it('serves the key only while the plugin is mounted', async () => {
+    const { ctx, session } = await harness(false)
+    expect('turnStats' in ctx.sessionProjections.snapshot(session).values).toBe(false)
+    const fiber = await ctx.plugin(SessionTurnOutlinePlugin)
+    expect('turnStats' in ctx.sessionProjections.snapshot(session).values).toBe(true)
+    await fiber.dispose()
+    expect('turnStats' in ctx.sessionProjections.snapshot(session).values).toBe(false)
   })
 })

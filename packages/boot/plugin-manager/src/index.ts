@@ -24,6 +24,7 @@ import {
   evaluatePluginCompatibility, readProfileCompatibility, readProfileVersionExemptions,
   setProfileVersionExemption, PROFILE_COMPATIBILITY_FILENAME,
   OFFICIAL_ON_DEMAND_CATALOG, getQilinRuntimeVersion, ResolutionRestartRequired, SUPERSEDED_BUNDLES,
+  RENAMED_BUNDLES,
 } from '@qilin-agent/app-boot'
 import type {} from '@qilin-agent/hmr'
 import type { ProfileContext, ProfileManifest } from '@qilin-agent/app-boot'
@@ -245,9 +246,16 @@ function printedError(printed: string): string {
 /** What applying the saved profile reports into a change result. */
 type Reload = Pick<ChangeResult, 'warnings' | 'restartReason'>
 
-/** The bundles a profile manifest selects. */
+/**
+ * The bundles a profile manifest selects, with package moves resolved to the
+ * shipped name. A profile written before a bundle rename still lists the old
+ * name; every reader here must see the bundle it now resolves to, or the header
+ * switch reports a selected layer as off and a toggle writes a duplicate.
+ */
 function bundleSelection(manifest: ProfileManifest): readonly string[] {
-  return manifest.qilin?.profile?.bundles ?? []
+  const raw = manifest.qilin?.profile?.bundles ?? []
+  const excluded = new Set(manifest.qilin?.profile?.excluded ?? [])
+  return [...new Set(raw.map(name => RENAMED_BUNDLES[name] ?? name))].filter(name => !excluded.has(name))
 }
 
 /**
@@ -1171,8 +1179,15 @@ export class PluginManager extends TypertRemoteService {
     const superseded = enabled ? (SUPERSEDED_BUNDLES[name] ?? []).filter(item => previous.includes(item)) : []
     const remaining = previous.filter(item => !superseded.includes(item))
     const bundles = enabled ? [...remaining, ...remaining.includes(name) ? [] : [name]] : previous.filter(item => item !== name)
-    if (JSON.stringify(previous) === JSON.stringify(bundles)) return []
-    manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles } }
+    // A template layer a release restores would otherwise come back on the next
+    // read; recording the owner's choice keeps the switch where they put it.
+    const exclusions = new Set(manifest.qilin?.profile?.excluded ?? [])
+    if (enabled) exclusions.delete(name)
+    else exclusions.add(name)
+    const excluded = [...exclusions]
+    if (JSON.stringify(previous) === JSON.stringify(bundles)
+      && JSON.stringify(manifest.qilin?.profile?.excluded ?? []) === JSON.stringify(excluded)) return []
+    manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles, excluded } }
     await saveManifest(this.profile.dir, manifest)
     if (enabled) this.protectsManager(name)
     return superseded
@@ -1285,6 +1300,15 @@ export class PluginManager extends TypertRemoteService {
         }
       }
       if (result.application !== 'restart-required') delete result.restartReason
+      // The profile switch is a header control with no log of its own: name the
+      // outcome once here so a refused or restart-bound write is diagnosable.
+      if (result.application === 'failed' || result.application === 'restart-required') {
+        this.ownerContext.logger.warn(
+          'plugin change %s %s %s: %s',
+          request.stage, request.target, result.application === 'failed' ? 'failed' : 'needs a restart',
+          result.error?.diagnostic ?? result.restartReason ?? 'no reason reported',
+        )
+      }
       result.changed = before !== this.diskState()
       this.ownerContext.emit('plugin-manager/changed', { reason })
       return result

@@ -125,6 +125,37 @@ declare module '@qilin-agent/session-projection/types' {
   }
 }
 
+/** One inbound peer message a Session received, kept for a fleet timeline. */
+export interface AgentMessageRecord {
+  /** Durable message identity: the mailbox message id, or `seq:<seq>` for an adjacent-Agent message. */
+  readonly id: string
+  /** Unix epoch milliseconds of the receiving log entry. */
+  readonly time: number
+  /** Which durable path carried the message. */
+  readonly kind: 'agent-message' | 'team-message'
+  readonly senderId: SessionId
+  /** Durable sender name when the mailbox recorded one. */
+  readonly senderName?: string
+  /** Bounded preview of the message text. */
+  readonly text: string
+}
+
+/** Whole-log inbound peer messages of one Session, newest last and capped. */
+export interface AgentMessagesState {
+  readonly messages: readonly AgentMessageRecord[]
+}
+
+declare module '@qilin-agent/session-projection/types' {
+  interface SessionProjectionMap {
+    /** Inbound peer messages a fleet view rows as cross-Agent traffic. */
+    agentMessages: AgentMessagesState
+  }
+  interface SessionProjectionStateMap {
+    /** Inbound peer messages folded from this Session's own log. */
+    agentMessages: AgentMessagesState
+  }
+}
+
 /** One peer message recorded by the historical Team mailbox. */
 export interface TeamMessageSnapshot {
   readonly id: TeamMessageId

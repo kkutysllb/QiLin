@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-11-14-squad-formation-graph.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-11-14-squad-formation-graph.md
+/agent-note-squad-chip-and-formation-graph-in-the-team-page:
+  en: 690e4c6a35e28d73
+  zh: 60bce4e267cf771a
+/agent-note-squad-chip-and-formation-graph-in-the-team-page/problem:
+  en: b666efc667084de2
+  zh: 101f0b716049f386
+/agent-note-squad-chip-and-formation-graph-in-the-team-page/decision:
+  en: aa7743152b963c8a
+  zh: 86b89f79f0712e65
+/agent-note-squad-chip-and-formation-graph-in-the-team-page/alternatives-considered:
+  en: a59ca82ae5a9142f
+  zh: fc7ab87538a6a485
+/agent-note-squad-chip-and-formation-graph-in-the-team-page/consequences:
+  en: a8602f5c1c8830c5
+  zh: dfc6a4a5e6f99774

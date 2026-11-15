@@ -32,6 +32,7 @@ import {
   QILIN_LAUNCH_PROFILE_KEY,
   reportSkippedBundles,
   resolveProfileDir,
+  restoreShippedProfileLayers,
   type ProfileContext,
   type Profile,
   type RuntimeResolution,
@@ -207,6 +208,13 @@ async function composeProfile(
   fromDefaultProfile?: string,
   resolvedProfile?: ResolvedProfileRuntime,
 ): Promise<ComposedProfile> {
+  // A launcher that composes its own profile directory skips the template
+  // restore a normal launch performs; run it here so a shipped layer a release
+  // added still reaches that profile. The reloaded directory keeps the same
+  // identity and path.
+  if (resolvedProfile !== undefined) {
+    restoreShippedProfileLayers(NAME, name, resolvedProfile.profile.dir)
+  }
   const profile = resolvedProfile?.profile ?? prepareProfile(name, true, fromDefaultProfile)
   if (resolvedProfile !== undefined) writeFileSync(join(profile.dir, PROFILE_ROOT_FILENAME), PROFILE_ROOT_CONFIG)
   const resolutionOptions = { installAnchor: resolvedProfile?.installAnchor ?? INSTALL_ANCHOR, profile }

@@ -35,6 +35,7 @@ import {
   reconcileProfileBundles,
   readProfilePatches,
   resolveBundleDir,
+  restoreShippedProfileLayers,
   resolveProfileDir,
   writeProfileManifest,
   bundlePatchFiles,
@@ -855,6 +856,36 @@ describe('loadProfile', () => {
     loadProfile('t', 'web', anchor, home)
     expect(readProfileManifest('t', dir).qilin?.profile?.bundles)
       .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile'])
+  })
+
+  it('keeps a template layer a profile recorded as switched off', () => {
+    // The Session header switch owns its shipped layer: loading must not read a
+    // deliberate deselection as a list that lost the layer and restore it.
+    const home = tmp()
+    const dir = resolveProfileDir('web', home)
+    initProfile(dir, ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
+    const manifest = readProfileManifest('t', dir)
+    writeProfileManifest(dir, {
+      ...manifest,
+      qilin: { profile: { ...manifest.qilin?.profile, excluded: ['@qilin-agent/agent-team-profile'] } },
+    })
+    restoreShippedProfileLayers('t', 'web', dir)
+    expect(readProfileManifest('t', dir).qilin?.profile?.bundles)
+      .toEqual(['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
+    expect(readProfileManifest('t', dir).qilin?.profile?.excluded).toEqual(['@qilin-agent/agent-team-profile'])
+  })
+
+  it('restores a lost template layer for a launcher that composes the directory itself', () => {
+    // A launcher handing the application an already-composed directory never
+    // passes through loadProfile; the exported restore keeps that path from
+    // running on a stale layer list.
+    const home = tmp()
+    const dir = resolveProfileDir('web', home)
+    initProfile(dir, ['@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand'])
+    restoreShippedProfileLayers('t', 'web', dir)
+    expect(readProfileManifest('t', dir).qilin?.profile?.bundles).toEqual([
+      '@qilin-agent/base', '@qilin-agent/web-app', '@qilin-agent/web-brand', '@qilin-agent/agent-team-profile',
+    ])
   })
 
   it('restores a lost template layer for a template with no recorded retired tuple', () => {

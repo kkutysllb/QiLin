@@ -37,13 +37,25 @@ export interface TurnOutlineState {
   readonly draft: string
 }
 
+/** Whole-log turn and step totals, independent of what a client has paged in. */
+export interface TurnStats {
+  /** Started turns: one per `turn/start`. */
+  readonly turns: number
+  /** Started steps: one per `step/start`, so the count reads as the model requests the agent made. */
+  readonly steps: number
+}
+
 declare module '@qilin-agent/session-projection/types' {
   interface SessionProjectionStateMap {
     /** Whole-log turn outline fold state (entries plus the open turn's response draft). */
     turnOutline: TurnOutlineState
+    /** Whole-log turn and step totals. */
+    turnStats: TurnStats
   }
   interface SessionProjectionMap {
     /** Every started turn with its `turn/start` seq and bounded previews, strictly increasing by turn; see {@link TurnOutlineEntry}. */
     turnOutline: readonly TurnOutlineEntry[]
+    /** Whole-log turn and step totals; see {@link TurnStats}. */
+    turnStats: TurnStats
   }
 }

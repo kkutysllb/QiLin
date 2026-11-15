@@ -15,6 +15,12 @@
       "path": "../../team/agent-team"
     },
     {
+      "path": "../../llm/token-meter"
+    },
+    {
+      "path": "../../session/session-turn-outline"
+    },
+    {
       "path": "../../api/session-controller/tsconfig.client.json"
     },
     {

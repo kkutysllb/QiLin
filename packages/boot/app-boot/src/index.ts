@@ -20,7 +20,7 @@ import { createLaunchEnvironmentSnapshot, DSH_HOME_COMPAT_NAME, type LaunchEnvir
 export { readBundlePatches, readProfilePatches, resolveTelemetryPatch, type ProfileContext, type ProfilePnpmInvocation } from './profile-context.ts'
 export { sanitizeProfile } from './profile-sanitize.ts'
 export { removeLinkProjections } from './profile.ts'
-export { reportSkippedBundles } from './profile.ts'
+export { reportSkippedBundles, restoreShippedProfileLayers } from './profile.ts'
 export { bundlePatchFiles, bundlePatchPaths } from './profile.ts'
 export { getQilinRuntimeVersion, evaluatePluginCompatibility, pluginCompatibilityWarning, type PluginCompatibility } from './plugin-compatibility.ts'
 export {

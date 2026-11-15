@@ -67,6 +67,8 @@
     "@qilin-agent/agent-team": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-turn-outline": "workspace:*",
+    "@qilin-agent/token-meter": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",
     "@testing-library/react": "^16.1.0",
     "@types/react": "~18.3.1",

@@ -371,6 +371,44 @@ it('recomposes the remaining layers while another bundle is broken and mounts it
   expect((await manager.listBundles()).find(row => row.name === 'extra')?.error).toBeUndefined()
 })
 
+it('records a deselected bundle so a template restore cannot bring it back', async () => {
+  const { manager, dir } = await fixture()
+  expect(await manager.setBundleEnabled('extra', false)).toMatchObject({ changed: true, application: 'applied' })
+  expect(readProfileManifest('test', dir).qilin?.profile).toMatchObject({ bundles: ['core'], excluded: ['extra'] })
+  // The deselection is the profile's own record: the row reads disabled, not missing.
+  expect((await manager.listBundles()).find(row => row.name === 'extra')).toMatchObject({ enabled: false })
+  // Selecting it again clears the record rather than leaving a stale exclusion.
+  expect(await manager.setBundleEnabled('extra', true)).toMatchObject({ changed: true, application: 'applied' })
+  expect(readProfileManifest('test', dir).qilin?.profile).toMatchObject({ bundles: ['core', 'extra'], excluded: [] })
+})
+
+it('resolves a bundle renamed by a package move to its shipped name', async () => {
+  const { manager, dir } = await fixture()
+  // The shipped bundle is installed in the profile, so selecting it resolves.
+  const installed = join(dir, 'node_modules', '@qilin-agent', 'agent-team-profile')
+  mkdirSync(installed, { recursive: true })
+  writeFileSync(join(installed, 'package.json'), JSON.stringify({
+    name: '@qilin-agent/agent-team-profile', version: '1.0.0', qilin: { bundle: { patch: './cordis.patch.yml' } },
+  }))
+  writeFileSync(join(installed, 'cordis.patch.yml'), '[]\n')
+  const manifest = readProfileManifest('test', dir)
+  manifest.dependencies = { ...manifest.dependencies, '@qilin-agent/agent-team-profile': '1.0.0' }
+  manifest.qilin = {
+    ...manifest.qilin,
+    profile: { ...manifest.qilin?.profile, bundles: ['core', 'extra', '@qilin-agent/experimental-agent-team-profile'] },
+  }
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  // The old name resolves to the shipped bundle: one row, reported enabled, and
+  // no separate row for the retired alias.
+  const rows = await manager.listBundles()
+  expect(rows.find(row => row.name === '@qilin-agent/agent-team-profile')).toMatchObject({ enabled: true })
+  expect(rows.some(row => row.name === '@qilin-agent/experimental-agent-team-profile')).toBe(false)
+  // Switching it off writes the canonical list without the layer, so the retired
+  // spelling is migrated rather than kept beside the shipped name.
+  expect(await manager.setBundleEnabled('@qilin-agent/agent-team-profile', false)).toMatchObject({ changed: true, application: 'applied' })
+  expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra'])
+})
+
 it('retires the bundle a selection supersedes, and never restores it', async () => {
   const { manager, dir, bundle } = await fixture()
   // Each fixture row provides its own probe service; the shared name belongs to `extra`.

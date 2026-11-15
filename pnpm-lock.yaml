@@ -3533,6 +3533,12 @@ importers:
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
+      '@qilin-agent/session-turn-outline':
+        specifier: workspace:*
+        version: link:../../session/session-turn-outline
+      '@qilin-agent/token-meter':
+        specifier: workspace:*
+        version: link:../../llm/token-meter
       '@qilin-agent/typert-protocol':
         specifier: workspace:*
         version: link:../../typert/protocol

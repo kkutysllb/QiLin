@@ -48,10 +48,22 @@ export interface TeamPageInjected {
    */
   readonly openTeammate: (sessionId: SessionId, childSessionId: SessionId) => void
   /**
+   * Open one agent's conversation from the page's formation graph: the Lead by
+   * identity, any delegated child through its durable address.
+   * @param target - Session identity or subagent address.
+   */
+  readonly openAgent: (target: SessionTarget) => void
+  /**
    * Re-read the Lead's projections from the Host; the board follows the push.
    * @param sessionId - the conversation the page is attached to.
    */
   readonly refresh: (sessionId: SessionId) => void
+  /**
+   * Re-read one drawn agent's projections, so a summary-excluded fact (context
+   * pressure, composition) reaches its card without opening that conversation.
+   * @param sessionId - the agent Session to read.
+   */
+  readonly refreshAgent: (sessionId: SessionId) => void
   /**
    * Create one shared task on the person's behalf.
    * @param sessionId - the conversation the page is attached to.
@@ -147,8 +159,14 @@ export function teamWritesFace(
     }
     return {
       openTeammate,
+      openAgent(target) {
+        deps.openSession(target)
+      },
       refresh(sessionId) {
         void deps.refreshProjections(leadSessionId(sessionId))
+      },
+      refreshAgent(sessionId) {
+        void deps.refreshProjections(sessionId)
       },
       createTask(_, fields) {
         write(() => writer.createTask(lead, {

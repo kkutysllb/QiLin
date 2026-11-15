@@ -66,6 +66,14 @@ export interface QilinProfileManifest {
    * keeps every bundle regardless of the value.
    */
   audiences?: Record<string, QilinProfileAudience>
+  /**
+   * Shipped template layers this profile's owner switched off, by package name.
+   * Profile loading restores a template layer a release added or a list lost,
+   * but never brings back one recorded here: the Session header's Agent Teams
+   * switch writes this record, and a restored name would make that switch
+   * spring back on the next read.
+   */
+  excluded?: string[]
 }
 
 /** The workbench surfaces a bundle's UI presents on; the engine composition is presentation-independent. */

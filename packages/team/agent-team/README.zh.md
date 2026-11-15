@@ -121,6 +121,7 @@ Lead 可以停止 teammate 的当前轮次，而不会删除其排队的消息�
 | [`src/task-board.ts`](src/task-board.ts) | 任务 CAS 命令、DAG 校验与派生视图 |
 | [`src/journal.ts`](src/journal.ts) | 串行化的 Lead 日志事务与提交通知 |
 | [`src/projection.ts`](src/projection.ts) | 解码并校验 Team 事件、发布 `agentTeam` 客户端视图的严格回放投影 |
+| [`src/messages-projection.ts`](src/messages-projection.ts) | `agentMessages` 折叠：入站 peer 消息的有界预览与最新在后上限 |
 | [`src/remote.ts`](src/remote.ts) | 浏览器写面：wire 错误映射与 `RemoteErrorDetailsMap` 的 Team 扩展 |
 | [`src/task-view.ts`](src/task-view.ts) | 任务板与客户端视图共用的纯任务派生：就绪状态、owner 名称与写入范围重叠 |
 | [`src/activity.ts`](src/activity.ts) | 一次性变更等待者与 dispose（资源释放）时的等待解除 |
@@ -177,6 +178,8 @@ Mailbox 投影与 checkpoint 准入保留本地声明的校验器之外获准内
 ### 浏览器投影
 
 `agentTeam` Session 投影发布 Lead Session 的持久成员身份与阶段、成员错误、未删除任务视图，以及最后有效状态旁的 `failure`。其 `apply` 只替换被触及的集合；仅邮箱的变化保留客户端视图引用，不产生 frame。[子系统参考](../../../docs/subsystems/agent-team.zh.md#web-projection) 定义传输类型。
+
+第二个单元 `agentMessages` 把单个 Session 收到的入站 peer 消息——Team 邮箱投递（`team-message` 来源）与相邻 Agent 的 `send_message` 转发（`agent-message` 来源）——折叠为至多十二条、最新在后的行，每行带接收日志的时间、持久发送方身份与可选名称，以及有界文本预览。两种来源都落在收件人自己的日志里，因此合并编队视图绘制的收件人即可得到跨 Agent 流量，无需读取页面并不持有的日志。该单元随 Team 服务 fiber 注册，并随其移除。
 
 [Web UI](../../client/ui-agent-team/README.zh.md) 读取共享 Session 投影，并从 Session 状态叠加活动信息。任务创建与更新既可以通过服务和模型工具完成，也可以通过下文的浏览器写面完成。`./client` 导出可供浏览器使用的 roster、任务与投影类型。
 

@@ -7,6 +7,8 @@
 export type { TeamRejectedFailureDetails } from './remote.ts'
 
 export type {
+  AgentMessageRecord,
+  AgentMessagesState,
   TeamMemberPhase,
   TeamMemberProjection,
   TeamMemberView,

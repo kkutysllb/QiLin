@@ -5,7 +5,7 @@
  */
 import { useSyncExternalStore } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import type { RenderResult } from '@testing-library/react'
 import type { SessionId } from '@qilin-agent/session/types'
 import type {
@@ -89,6 +89,8 @@ interface BenchOptions {
   readonly listing?: boolean
   readonly parentSessionId?: SessionId
   readonly openState?: SessionSnapshot['openState']
+  /** Treat the worker row as delegated by the lead, so the timeline has a row. */
+  readonly parented?: boolean
 }
 
 function summary(id: SessionId): SessionSummary {
@@ -99,6 +101,11 @@ function hookOf<T>(inst: { subscribe: (fn: () => void) => () => void; getSnapsho
   return function useSelector<S>(sel: (s: T) => S): S {
     return sel(useSyncExternalStore(inst.subscribe, inst.getSnapshot))
   }
+}
+
+/** The board's own scope: the compact fleet summary repeats the same subjects. */
+function boardScope(): HTMLElement {
+  return document.querySelector('[data-team-tasks]') as HTMLElement
 }
 
 /** Drain the face's fire-and-forget promise chain. */
@@ -127,9 +134,13 @@ async function bodyBench(options: BenchOptions = {}): Promise<Mounted> {
   const projectionValues = options.dropTeam === true
     ? {}
     : { agentTeam: options.team ?? FULL_TEAM, ...options.memberValues }
+  const byIdEntries: Record<SessionId, SessionSummary> = Object.fromEntries(
+    [SESSION, WORKER, OTHER].map(id => [id, summary(id)]),
+  )
+  if (options.parented === true) byIdEntries[WORKER] = { ...byIdEntries[WORKER]!, parentId: SESSION, origin: 'subagent' }
   const sessions = createSnapshotStore<SessionListState>({
     ids: [SESSION, WORKER, OTHER].map(id => summary(id).id),
-    byId: Object.fromEntries([SESSION, WORKER, OTHER].map(id => [id, summary(id)])),
+    byId: byIdEntries,
     phase: options.listing === true ? 'pending' : 'ready',
     projectionsBySession: {
       ...Object.fromEntries(Object.entries(options.memberValues ?? {}).map(([id, values]) => [id, {
@@ -217,6 +228,56 @@ async function bodyBench(options: BenchOptions = {}): Promise<Mounted> {
   }
 }
 
+describe('TeamBody formation', () => {
+  it('draws the formation and lights the board rows a hovered card owns', async () => {
+    await bodyBench()
+    const card = document.querySelector('[data-squad-agent="lead"]') as HTMLElement
+    expect(card).not.toBeNull()
+    fireEvent.mouseEnter(card)
+    expect(document.querySelector('[data-team-task="task-1"]')?.getAttribute('data-team-task-linked')).toBe('')
+    expect(document.querySelector('[data-team-task="task-2"]')?.getAttribute('data-team-task-linked')).toBeNull()
+    fireEvent.mouseLeave(card)
+    expect(document.querySelector('[data-team-task="task-1"]')?.getAttribute('data-team-task-linked')).toBeNull()
+  })
+
+  it('keeps the owning card lit while a board row is hovered', async () => {
+    await bodyBench()
+    const task = document.querySelector('[data-team-task="task-2"]') as HTMLElement
+    fireEvent.mouseEnter(task)
+    expect(document.querySelector('[data-squad-agent="lead"]')?.getAttribute('data-squad-dim')).toBeNull()
+    fireEvent.mouseLeave(task)
+    fireEvent.mouseEnter(document.querySelector('[data-team-task="task-1"]') as HTMLElement)
+    expect(document.querySelector('[data-squad-agent="lead"]')?.getAttribute('data-squad-dim')).toBeNull()
+  })
+
+  it('summarizes the collaboration tasks beside the graph', async () => {
+    await bodyBench()
+    const rows = document.querySelector('[data-squad-tasks]') as HTMLElement
+    expect(rows).not.toBeNull()
+    expect(rows.textContent).toContain('Implement runtime')
+    expect(rows.textContent).toContain('lead')
+    expect(rows.querySelector('[data-state="ongoing"]')).not.toBeNull()
+  })
+
+  it('rows the delegation and its step count in the collaboration timeline', async () => {
+    await bodyBench({
+      parented: true,
+      memberValues: { [WORKER]: { turnStats: { turns: 1, steps: 7 } } },
+    })
+    expect(screen.getByText('跨 Agent 协作')).toBeDefined()
+    const row = document.querySelector('[data-squad-target="worker-id"]') as HTMLElement
+    expect(row).not.toBeNull()
+    expect(row.textContent).toContain('lead 委派 worker-id')
+    expect(row.textContent).toContain('7 步')
+  })
+
+  it('opens an agent conversation from its own formation card', async () => {
+    const b = await bodyBench()
+    fireEvent.click(document.querySelector('[data-squad-agent="lead"]') as HTMLElement)
+    expect(b.opened).toEqual([SESSION])
+  })
+})
+
 describe('TeamBody board', () => {
   it('renders the roster with live status and the board with status, meta, and warnings', async () => {
     const b = await bodyBench()
@@ -224,14 +285,14 @@ describe('TeamBody board', () => {
     expect(screen.getAllByText('lead').length).toBeGreaterThan(0)
     expect(screen.getAllByText('worker').length).toBeGreaterThan(0)
     expect(screen.getAllByText('未运行').length).toBe(2)
-    expect(screen.getByText('Implement runtime')).toBeDefined()
+    expect(within(boardScope()).getByText('Implement runtime')).toBeDefined()
     expect(screen.getByText('进行中')).toBeDefined()
     expect(screen.getByText('task-1')).toBeDefined()
     expect(screen.getAllByText(/task-2/).length).toBeGreaterThan(0)
     expect(screen.getByText('写入范围: src')).toBeDefined()
     expect(screen.getByText('write scopes overlap with task-2')).toBeDefined()
-    expect(screen.getByText('Write tests')).toBeDefined()
-    expect(screen.getByText('已完成')).toBeDefined()
+    expect(within(boardScope()).getByText('Write tests')).toBeDefined()
+    expect(within(boardScope()).getByText('已完成')).toBeDefined()
     expect(b.opened).toEqual([])
   })
 
@@ -256,8 +317,9 @@ describe('TeamBody board', () => {
 
   it('marks the current conversation roster row disabled and others openable', async () => {
     const b = await bodyBench()
-    const leadRow = screen.getByRole('button', { name: /lead/u })
-    const workerRow = screen.getByRole('button', { name: /worker/u })
+    const roster = within(document.querySelector('[data-team-roster]') as HTMLElement)
+    const leadRow = roster.getByRole('button', { name: /lead/u })
+    const workerRow = roster.getByRole('button', { name: /worker/u })
     expect((leadRow as HTMLButtonElement).disabled).toBe(true)
     expect((workerRow as HTMLButtonElement).disabled).toBe(false)
     fireEvent.click(workerRow)
@@ -286,8 +348,9 @@ describe('TeamBody board', () => {
     expect(screen.getByText('准备中')).toBeDefined()
     expect(screen.getByText('失败')).toBeDefined()
     expect(screen.getByText('spawn failed')).toBeDefined()
-    const prepRow = screen.getByRole('button', { name: /prep/u }) as HTMLButtonElement
-    const brokenRow = screen.getByRole('button', { name: /broken/u }) as HTMLButtonElement
+    const roster = within(document.querySelector('[data-team-roster]') as HTMLElement)
+    const prepRow = roster.getByRole('button', { name: /prep/u }) as HTMLButtonElement
+    const brokenRow = roster.getByRole('button', { name: /broken/u }) as HTMLButtonElement
     expect(prepRow.disabled).toBe(true)
     expect(brokenRow.disabled).toBe(true)
   })
@@ -307,7 +370,7 @@ describe('TeamBody board', () => {
 
   it('reads a teammate conversation roster through its Lead', async () => {
     await bodyBench({ parentSessionId: SESSION })
-    expect(screen.getByText('Implement runtime')).toBeDefined()
+    expect(within(boardScope()).getByText('Implement runtime')).toBeDefined()
   })
 })
 
@@ -327,7 +390,7 @@ describe('TeamBody transitions', () => {
 
   it('arms delete behind a confirmation step', async () => {
     const b = await bodyBench()
-    const card = screen.getByText('Implement runtime').closest('article') as HTMLElement
+    const card = within(boardScope()).getByText('Implement runtime').closest('article') as HTMLElement
     const arm = [...card.querySelectorAll('button')].find(button => button.textContent?.includes('删除'))
     expect(arm).toBeDefined()
     fireEvent.click(arm!)
@@ -339,7 +402,7 @@ describe('TeamBody transitions', () => {
 
   it('reassigns through the owner select and releases with the unowned option', async () => {
     const b = await bodyBench()
-    const card = screen.getByText('Implement runtime').closest('article') as HTMLElement
+    const card = within(boardScope()).getByText('Implement runtime').closest('article') as HTMLElement
     const select = card.querySelector('select') as HTMLSelectElement
     fireEvent.change(select, { target: { value: 'worker' } })
     await settle()
@@ -419,7 +482,7 @@ describe('TeamBody forms', () => {
 
   it('pre-fills the edit form and commits a text-only edit', async () => {
     const b = await bodyBench()
-    const card = screen.getByText('Implement runtime').closest('article') as HTMLElement
+    const card = within(boardScope()).getByText('Implement runtime').closest('article') as HTMLElement
     fireEvent.click([...card.querySelectorAll('button')].find(button => button.textContent === '编辑')!)
     expect(screen.getByLabelText<HTMLInputElement>('主题').value).toBe('Implement runtime')
     expect(screen.getByLabelText<HTMLInputElement>('依赖').value).toBe('task-2')
@@ -438,7 +501,7 @@ describe('TeamBody forms', () => {
   it('keeps the edit form open beside the conflict notice and refreshes the board', async () => {
     const b = await bodyBench()
     b.answer({ ok: false, error: new RemoteError('agent-team/stale-revision', 'stale', {}) })
-    const card = screen.getByText('Implement runtime').closest('article') as HTMLElement
+    const card = within(boardScope()).getByText('Implement runtime').closest('article') as HTMLElement
     fireEvent.click([...card.querySelectorAll('button')].find(button => button.textContent === '编辑')!)
     fireEvent.change(screen.getByLabelText('主题'), { target: { value: 'Implement the runtime' } })
     fireEvent.click(screen.getByRole('button', { name: '提交' }))

@@ -13,6 +13,7 @@ import { TeamActivity } from './activity.ts'
 import { errorMessage, TeamError } from './error.ts'
 import { TeamJournal } from './journal.ts'
 import { TeamRuntimeLifecycle } from './lifecycle.ts'
+import { agentMessagesProjectionDefinition } from './messages-projection.ts'
 import { teamProjectionDefinition } from './projection.ts'
 import { teamWireError } from './remote.ts'
 import { resolveActiveMember, TeamRoster } from './roster.ts'
@@ -106,10 +107,12 @@ export class TeamService extends TypertRemoteService {
     })
     ctx.effect(() => {
       const disposeProjection = ctx.root.sessionProjections.register(teamProjectionDefinition)
+      const disposeMessages = ctx.root.sessionProjections.register(agentMessagesProjectionDefinition)
       return async () => {
         try {
           await this.disposeRuntime()
         } finally {
+          disposeMessages()
           disposeProjection()
         }
       }

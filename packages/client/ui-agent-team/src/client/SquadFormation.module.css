@@ -1,0 +1,333 @@
+/* The formation graph sits at the top of the Team page: chips, a legend, and a
+   scrollable canvas of agent cards over branch-coloured edges. Geometry comes
+   from squad-model.ts, so the canvas width follows the measured stage and the
+   cards never carry their own breakpoints. */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  padding: 2px 8px;
+  border: 1px solid var(--qilin-alias-border-l1);
+  border-radius: 999px;
+  corner-shape: round;
+  background: var(--qilin-alias-bg-layer-2);
+  color: var(--qilin-alias-label-secondary);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.chipLive {
+  border-color: color-mix(in srgb, var(--qilin-alias-state-success-primary) 40%, transparent);
+  color: var(--qilin-alias-state-success-primary);
+}
+
+.chipTeam {
+  border-color: color-mix(in srgb, var(--qilin-alias-brand-primary) 40%, transparent);
+  color: var(--qilin-alias-brand-primary);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--qilin-alias-label-tertiary);
+  font-size: 11px;
+}
+
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.legendSwatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.legendDash {
+  width: 14px;
+  height: 0;
+  border-top: 2px dashed var(--qilin-alias-label-secondary);
+}
+
+.stage {
+  width: 100%;
+  max-height: min(58vh, 560px);
+  padding: 2px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.canvas {
+  position: relative;
+  margin: 0 auto;
+}
+
+.links {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.link {
+  stroke-opacity: 0.45;
+  transition: stroke-opacity 200ms ease;
+}
+
+.linkLive {
+  stroke-opacity: 0.9;
+}
+
+.flow {
+  stroke-linecap: round;
+  stroke-dasharray: 2 7;
+  animation: squad-flow 1.1s linear infinite;
+}
+
+.joint {
+  opacity: 0.75;
+}
+
+.focus .link {
+  stroke-opacity: 0.12;
+}
+
+.focus .flow {
+  opacity: 0.12;
+}
+
+.focus .joint {
+  opacity: 0.14;
+}
+
+.focus [data-squad-lit] .link {
+  stroke-opacity: 1;
+}
+
+.focus [data-squad-lit] .flow {
+  opacity: 1;
+}
+
+.focus [data-squad-lit] .joint {
+  opacity: 1;
+}
+
+.card {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  height: var(--squad-card-h, 112px);
+  padding: 8px 10px;
+  overflow: hidden;
+  border: 0;
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l2);
+  box-shadow: var(--qilin-elevation-stroke);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--squad-hue) 6%, var(--qilin-alias-bg-layer-2));
+  color: var(--qilin-alias-label-primary);
+  cursor: pointer;
+  transition: box-shadow 200ms ease, transform 200ms ease, opacity 200ms ease;
+}
+
+.card:hover {
+  --qilin-elevation-stroke-color: var(--qilin-alias-border-l3);
+  box-shadow: var(--qilin-elevation-panel);
+  transform: translateY(-1px);
+}
+
+.card:focus-visible {
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline-offset: 1px;
+}
+
+.cardLead {
+  --qilin-elevation-stroke-color: color-mix(in srgb, var(--qilin-alias-brand-primary) 55%, var(--qilin-alias-border-l2));
+}
+
+.cardCurrent {
+  box-shadow: var(--qilin-elevation-stroke), inset 0 0 0 1px color-mix(in srgb, var(--qilin-alias-brand-primary) 40%, transparent);
+}
+
+.cardDim {
+  opacity: 0.42;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  corner-shape: round;
+  background: color-mix(in srgb, var(--squad-hue) 18%, transparent);
+  color: var(--squad-hue);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.cardLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--qilin-alias-label-primary);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  flex: none;
+  padding: 0 4px;
+  overflow: hidden;
+  border: 1px solid var(--qilin-alias-border-l1);
+  border-radius: 999px;
+  corner-shape: round;
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-label-tertiary);
+  font-size: 9px;
+  line-height: 14px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.badgeLead {
+  border-color: color-mix(in srgb, var(--qilin-alias-brand-primary) 40%, transparent);
+  color: var(--qilin-alias-brand-primary);
+}
+
+.cardFacts {
+  overflow: hidden;
+  color: var(--qilin-alias-label-tertiary);
+  font-size: 10.5px;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cardMetric {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.cardTokens {
+  color: var(--qilin-alias-label-primary);
+  font-size: 13px;
+  line-height: 1.2;
+}
+
+.bar {
+  display: flex;
+  flex: none;
+  height: 6px;
+  border-radius: 3px;
+  corner-shape: round;
+  background: color-mix(in srgb, var(--qilin-alias-label-secondary) 16%, transparent);
+  overflow: hidden;
+}
+
+.barSegment {
+  display: block;
+  height: 100%;
+  transition: width 200ms ease;
+}
+
+/* Segment colours live here, not in the component: composition hues, the fresh
+   window's empty tint, and the legend swatches all read the same four rules. */
+.barSegment[data-squad-segment='system'],
+.legendSwatch[data-squad-swatch='system'] {
+  background: var(--qilin-alias-state-business-primary);
+}
+
+.barSegment[data-squad-segment='tools'],
+.legendSwatch[data-squad-swatch='tools'] {
+  background: var(--qilin-static-amber-500);
+}
+
+.barSegment[data-squad-segment='messages'],
+.legendSwatch[data-squad-swatch='messages'] {
+  background: var(--qilin-static-green-500);
+}
+
+.barSegment[data-squad-segment='free'],
+.legendSwatch[data-squad-swatch='free'] {
+  background: color-mix(in srgb, var(--qilin-alias-label-secondary) 18%, transparent);
+}
+
+.cardMeta {
+  display: flex;
+  flex: none;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  color: var(--qilin-alias-label-secondary);
+  font-size: 10px;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+
+.cardDuration {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cardPct {
+  flex: none;
+  font-weight: 600;
+}
+
+.solo {
+  margin: 0;
+  color: var(--qilin-alias-label-tertiary);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+@keyframes squad-flow {
+  to {
+    stroke-dashoffset: -9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow {
+    animation: none;
+  }
+
+  .card,
+  .barSegment,
+  .link {
+    transition: none;
+  }
+}

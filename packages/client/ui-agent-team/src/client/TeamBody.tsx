@@ -37,11 +37,14 @@ import {
   isTeamDraftCommittable,
   memberDotState,
   memberStatusKey,
+  taskDotState,
   teamDraftOf,
   teamFormFieldsOf,
   type TeamDraft,
 } from './team-model.ts'
 import { useMemberFacts } from './member-facts.ts'
+import { SquadFormation } from './SquadFormation.tsx'
+import { SquadTimeline } from './SquadTimeline.tsx'
 import { TaskCardHead, TaskFacts } from './TaskCardParts.tsx'
 import type { createTeamPageStore } from './team-page-store.ts'
 import type { TeamPageInjected } from './team-writes.ts'
@@ -144,13 +147,20 @@ function OwnerSelect({
 
 /** One board card: status, full description, meta line, owner select, and actions. */
 function TaskCard({
-  task, members, sessionId, busy, openEdit, transitionTask, reassignTask, t,
+  task, members, sessionId, busy, openEdit, transitionTask, reassignTask, highlighted, onHoverOwner, t,
 }: PagePartProps
   & { task: TeamTask; members: readonly TeamMemberProjection[]; openEdit: (task: TeamTask) => void }
+  & { highlighted: boolean; onHoverOwner: (name: string | undefined) => void }
   & Pick<TeamPageInjected, 'transitionTask' | 'reassignTask'>): ReactNode {
   const [armed, setArmed] = useState(false)
   return (
-    <article className={css.task}>
+    <article
+      className={highlighted ? `${css.task} ${css.taskLinked}` : css.task}
+      data-team-task={task.id}
+      data-team-task-linked={highlighted ? '' : undefined}
+      onMouseEnter={() => { onHoverOwner(task.ownerName) }}
+      onMouseLeave={() => { onHoverOwner(undefined) }}
+    >
       <TaskCardHead task={task} styles={css} t={t} />
       <p className={css.taskDescription}>{task.description}</p>
       <div className={css.meta}>
@@ -273,9 +283,11 @@ function TaskForm({
  */
 export function TeamBody({
   sessionId, useSession, useSessions, useSessionStatus, useStore, actions,
-  openTeammate, refresh, createTask, editTask, transitionTask, reassignTask, t,
+  openTeammate, openAgent, refresh, refreshAgent, createTask, editTask, transitionTask, reassignTask, t,
 }: TeamBodyProps): ReactNode {
   const [form, setForm] = useState<PageForm>(null)
+  /** The formation card and the board rows light each other through this owner name. */
+  const [hoveredOwner, setHoveredOwner] = useState<string | undefined>(undefined)
   /** A commit awaiting its settlement: the form closes when the store stays notice-free. */
   const [closingForm, setClosingForm] = useState(false)
   const busy = useStore(state => state.busy)
@@ -288,6 +300,7 @@ export function TeamBody({
   useEffect(() => {
     setForm(null)
     setClosingForm(false)
+    setHoveredOwner(undefined)
   }, [sessionId])
 
   useEffect(() => {
@@ -349,6 +362,48 @@ export function TeamBody({
           <StateDot state="error" />{t('failure', { message: team.failure })}
         </div>
       )}
+      <div className={css.fleet}>
+        <section className={css.fleetMain}>
+          <h3>{t('squad.formation')}</h3>
+          <SquadFormation
+            sessionId={sessionId}
+            useSessions={useSessions}
+            useSessionStatus={useSessionStatus}
+            hoveredOwner={hoveredOwner}
+            onHoverOwner={setHoveredOwner}
+            openAgent={openAgent}
+            refreshAgent={refreshAgent}
+            t={t}
+          />
+        </section>
+        <section className={css.fleetSide}>
+          <h3>{t('squad.timeline')}</h3>
+          <SquadTimeline
+            sessionId={sessionId}
+            useSessions={useSessions}
+            useSessionStatus={useSessionStatus}
+            t={t}
+          />
+          {team !== undefined && (
+            <>
+              <h3>{t('squad.collabTasks')}<span className={css.count}>{team.tasks.length}</span></h3>
+              {team.tasks.length === 0
+                ? <p className={css.emptyNotice}>{t('squad.tasksEmpty')}</p>
+                : (
+                  <ul className={css.taskRows} data-squad-tasks>
+                    {team.tasks.map(task => (
+                      <li key={task.id} className={css.taskRow} data-squad-task={task.id}>
+                        <StateDot state={taskDotState(task)} size={8} />
+                        <span className={css.compactSubject} title={task.subject}>{task.subject}</span>
+                        <span className={css.compactOwner}>{task.ownerName ?? t('unowned')}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+            </>
+          )}
+        </section>
+      </div>
       {team !== undefined && (
         <>
           <section>
@@ -356,7 +411,7 @@ export function TeamBody({
               {t('roster')}
               <span className={css.count}>{team.members.length}</span>
             </h3>
-            <div className={css.roster}>
+            <div className={css.roster} data-team-roster>
               {team.members.map(member => (
                 <MemberRow
                   key={member.id}
@@ -410,7 +465,7 @@ export function TeamBody({
                     {t('tasks')}
                     <span className={css.count}>{team.tasks.length}</span>
                   </h3>
-                  <div className={css.tasks}>
+                  <div className={css.tasks} data-team-tasks>
                     {team.tasks.map(task => (
                       <TaskCard
                         key={task.id}
@@ -424,6 +479,8 @@ export function TeamBody({
                         }}
                         transitionTask={transitionTask}
                         reassignTask={reassignTask}
+                        highlighted={hoveredOwner !== undefined && task.ownerName === hoveredOwner}
+                        onHoverOwner={setHoveredOwner}
                         t={t}
                       />
                     ))}

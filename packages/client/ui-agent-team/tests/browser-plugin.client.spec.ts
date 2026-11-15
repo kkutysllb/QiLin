@@ -9,6 +9,7 @@ import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import { createTeamPageStore } from '../src/client/team-page-store.ts'
 import { mountAgentTeamUi } from '../src/client/mount.ts'
 import { TeamAction, type TeamActionInjected } from '../src/client/TeamAction.tsx'
+import { SquadChip, type SquadChipInjected } from '../src/client/SquadChip.tsx'
 import { TeamBody } from '../src/client/TeamBody.tsx'
 import { apply, inject } from '../src/client/index.ts'
 import { apply as nodeApply } from '../src/index.ts'
@@ -60,6 +61,10 @@ async function bench(options: { addressed?: boolean; mount?: boolean } = {}) {
   ctx.provide('uiWorkspace', {
     openSession: (target: unknown) => { navigation.push(['open', target]) },
   } as never)
+  const sidebarOpenTabIn = vi.fn((sessionId: SessionId, kind: string) => {
+    navigation.push(['tab', sessionId, kind])
+  })
+  ctx.provide('sidebarRight', { openTabIn: sidebarOpenTabIn } as never)
   class Remote extends Service {
     constructor() { super(ctx, 'remote') }
     async $mount(contribution: TypertRemoteContribution) {
@@ -93,6 +98,8 @@ async function bench(options: { addressed?: boolean; mount?: boolean } = {}) {
       remoteDisposals,
       entry: () => undefined,
       actions: () => undefined as never,
+      squadEntry: () => undefined,
+      squadActions: () => undefined as never,
       collapseHeader,
       select: (sessionId: SessionId) => { mainSessionId = sessionId },
     }
@@ -101,6 +108,13 @@ async function bench(options: { addressed?: boolean; mount?: boolean } = {}) {
   await fiber
   const entry = () => ctx.slots.entries('conversation.session.header.actions')
     .find(candidate => candidate.component === TeamAction)
+  const squadEntry = () => ctx.slots.entries('conversation.session.header.actions')
+    .find(candidate => candidate.component === SquadChip)
+  const squadActions = (): SquadChipInjected => {
+    const { openTeam } = squadEntry()!.inject!()
+    if (typeof openTeam !== 'function') throw new Error('Squad chip lacks its injected callback')
+    return { openTeam: openTeam as SquadChipInjected['openTeam'] }
+  }
   const actions = (): TeamActionInjected => {
     const injected = entry()!.inject!()
     const { openTeammate } = injected
@@ -119,6 +133,9 @@ async function bench(options: { addressed?: boolean; mount?: boolean } = {}) {
     remoteDisposals,
     entry,
     actions,
+    squadEntry,
+    squadActions,
+    sidebarOpenTabIn,
     collapseHeader,
     select: (sessionId: SessionId) => { mainSessionId = sessionId },
   }
@@ -130,7 +147,9 @@ describe('ui-team browser plugin', () => {
     // The plugin mounts `agentTeams` itself, so the namespace must not appear
     // here: an entry waiting for a service its own apply creates never
     // activates (see default-product-isolation.e2e.ts).
-    expect(inject).toEqual(['sessions', 'uiWorkspace', 'slots', 'locale', 'remote', 'sidebarRightTabs'])
+    expect(inject).toEqual([
+      'sessions', 'uiWorkspace', 'slots', 'locale', 'remote', 'sidebarRight', 'sidebarRightTabs',
+    ])
     expect(b.mounts).toHaveLength(1)
     expect(b.entry()).toMatchObject({
       options: { id: 'agent-team', order: -20 },
@@ -143,8 +162,21 @@ describe('ui-team browser plugin', () => {
 
     await b.fiber?.dispose()
     expect(b.entry()).toBeUndefined()
+    expect(b.squadEntry()).toBeUndefined()
     expect(b.remoteDisposals).toHaveLength(1)
     expect(t('empty')).toBe('empty')
+  })
+
+  it('registers the squad chip after the subagent count and opens the Team page by kind', async () => {
+    const b = await bench()
+    expect(b.squadEntry()).toMatchObject({
+      options: { id: 'agent-team-squad', order: 40 },
+      locale: 'agent-team',
+    })
+    b.squadActions().openTeam(SESSION)
+    expect(b.sidebarOpenTabIn).toHaveBeenCalledExactlyOnceWith(SESSION, 'agent-team')
+    expect(b.navigation).toEqual([['tab', SESSION, 'agent-team']])
+    await b.fiber?.dispose()
   })
 
   it('registers the tab type, page body, and chip title under the sidebar seats', async () => {
@@ -196,6 +228,7 @@ describe('ui-team browser plugin', () => {
     } as never, () => null)
     await Promise.resolve()
     expect(b.entry()).toBeDefined()
+    expect(b.squadEntry()).toBeDefined()
   })
 
   it('propagates the mount failure without registering the UI', async () => {
@@ -221,9 +254,13 @@ describe('ui-team browser plugin', () => {
     const instance = createTeamPageStore().create()
     const face = (pageEntry.inject as (
       sessionId: SessionId, actions: typeof instance.actions,
-    ) => { refresh(id: SessionId): Promise<void> })(SESSION, instance.actions)
-    await face.refresh(SESSION)
-    expect(b.navigation).toEqual([['refresh', SESSION]])
+    ) => { refresh(id: SessionId): void; openAgent(target: unknown): void })(SESSION, instance.actions)
+    face.refresh(SESSION)
+    face.openAgent({ parentSessionId: SESSION, childSessionId: CHILD, mode: 'continuable' })
+    expect(b.navigation).toEqual([
+      ['refresh', SESSION],
+      ['open', { parentSessionId: SESSION, childSessionId: CHILD, mode: 'continuable' }],
+    ])
   })
 
   it('keeps the node half inert', () => {

@@ -14,3 +14,26 @@
   color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
 }
+
+/* A saved-but-restart-bound or refused write names itself here, because the
+   switch cannot move for either outcome. */
+.notice {
+  max-width: 168px;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.notice[data-notice='restart-required'] {
+  color: var(--qilin-alias-state-warning-primary);
+}
+
+.notice[data-notice='failed'] {
+  color: var(--qilin-alias-state-error-primary);
+}
+
+.notice[data-notice='busy'] {
+  color: var(--qilin-alias-label-tertiary);
+}

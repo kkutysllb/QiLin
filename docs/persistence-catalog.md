@@ -1012,7 +1012,7 @@ Source: [`packages/core/session/src/types.ts:339`](../packages/core/session/src/
 
 Types: [TeamId](subsystems/agent-team.md) · [TeamMemberSnapshot](subsystems/agent-team.md)
 
-Source: [`packages/team/agent-team/src/types.ts:244`](../packages/team/agent-team/src/types.ts)
+Source: [`packages/team/agent-team/src/types.ts:275`](../packages/team/agent-team/src/types.ts)
 
 <a id="teammessagedelivered--log-only"></a>
 
@@ -1030,7 +1030,7 @@ Source: [`packages/team/agent-team/src/types.ts:244`](../packages/team/agent-tea
 
 Types: [TeamId](subsystems/agent-team.md) · [TeamMessageId](subsystems/agent-team.md)
 
-Source: [`packages/team/agent-team/src/types.ts:250`](../packages/team/agent-team/src/types.ts)
+Source: [`packages/team/agent-team/src/types.ts:281`](../packages/team/agent-team/src/types.ts)
 
 <a id="teammessagequeued--log-only"></a>
 
@@ -1043,7 +1043,7 @@ Source: [`packages/team/agent-team/src/types.ts:250`](../packages/team/agent-tea
 
 Types: [TeamId](subsystems/agent-team.md) · [TeamMessageSnapshot](subsystems/agent-team.md)
 
-Source: [`packages/team/agent-team/src/types.ts:248`](../packages/team/agent-team/src/types.ts)
+Source: [`packages/team/agent-team/src/types.ts:279`](../packages/team/agent-team/src/types.ts)
 
 <a id="teammode--log-only"></a>
 
@@ -1058,7 +1058,7 @@ Source: [`packages/team/agent-team/src/types.ts:248`](../packages/team/agent-tea
 'team/mode': { mode: TeamMode; source?: 'composition' }
 ```
 
-Source: [`packages/team/agent-team/src/types.ts:242`](../packages/team/agent-team/src/types.ts)
+Source: [`packages/team/agent-team/src/types.ts:273`](../packages/team/agent-team/src/types.ts)
 
 <a id="teamtask--log-only"></a>
 
@@ -1071,7 +1071,7 @@ Source: [`packages/team/agent-team/src/types.ts:242`](../packages/team/agent-tea
 
 Types: [TeamId](subsystems/agent-team.md) · [TeamTaskSnapshot](subsystems/agent-team.md)
 
-Source: [`packages/team/agent-team/src/types.ts:246`](../packages/team/agent-team/src/types.ts)
+Source: [`packages/team/agent-team/src/types.ts:277`](../packages/team/agent-team/src/types.ts)
 
 ### `todo/*`
 
@@ -3299,6 +3299,50 @@ SHA-256: `e3036258884ad7cc987833964f64c9dd582d20a214f50ac87a529ae3ee3a2c0a`
 
 Array of [`AssistantStreamRecord`](#persistence-type-sha256-83499398021f80de77573abc83709050d062a79e6470d964840647b48ce0876e).
 
+<a id="persistence-type-sha256-4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738"></a>
+
+<a id="persistence-type-codingdispatcheventdata"></a>
+
+<a id="persistence-type-packagescoretoolssrctypestscodingdispatcheventdata"></a>
+
+### `CodingDispatchEventData`
+
+SHA-256: `4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738`
+
+Sources: [`packages/core/tools/src/types.ts:21`](../packages/core/tools/src/types.ts)
+
+| Property | Presence | Type |
+|---|---|---|
+| `arguments` | required | `unknown` (opaque) |
+| `content` | required | [`ContentBlock[]`](#persistence-type-sha256-13714f91b2b94dfd0712a57c828871603b100a9b53cf9d93b2678914afe6c40a) |
+| `error` | optional | [`{ code, name, reason? }`](#persistence-type-sha256-a2138d3d5ad11cf2a9b6577309ce468cf5f44562baaf7b72c7de5bdb9d234c1f) |
+| `isError` | required | `boolean` |
+| `meta` | optional | [`JsonValue`](#persistence-type-sha256-4921ac0448e1a749a633911b73d285e9afa419462c0f59404f87d66cd18cee26) |
+| `name` | required | `string` |
+| `parentCallId` | required | `string` |
+| `rootCallId` | required | `string` |
+| `subCallId` | required | `string` |
+
+<a id="persistence-type-sha256-084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f"></a>
+
+<a id="persistence-type-codingdispatchstarteventdata"></a>
+
+<a id="persistence-type-packagescoretoolssrctypestscodingdispatchstarteventdata"></a>
+
+### `CodingDispatchStartEventData`
+
+SHA-256: `084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f`
+
+Sources: [`packages/core/tools/src/types.ts:12`](../packages/core/tools/src/types.ts)
+
+| Property | Presence | Type |
+|---|---|---|
+| `arguments` | required | `unknown` (opaque) |
+| `name` | required | `string` |
+| `parentCallId` | required | `string` |
+| `rootCallId` | required | `string` |
+| `subCallId` | required | `string` |
+
 <a id="persistence-type-sha256-bbbe33185c1af681c34bb2e922d77f430b393d35e3be1d6b2abc23bf3401b50d"></a>
 
 <a id="persistence-type-commandsource"></a>
@@ -4528,50 +4572,6 @@ Sources: [`packages/typert/protocol/src/types.ts:457`](../packages/typert/protoc
 |---|---|---|
 | `kind` | required | `"owner"` |
 
-<a id="persistence-type-sha256-4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738"></a>
-
-<a id="persistence-type-packagescoretoolssrctypestsptcdispatcheventdata"></a>
-
-<a id="persistence-type-ptcdispatcheventdata"></a>
-
-### `CodingDispatchEventData`
-
-SHA-256: `4f2f9a0b03024c1c923c88197da96797510806b022cc6e48d9dd2811bee69738`
-
-Sources: [`packages/core/tools/src/types.ts:21`](../packages/core/tools/src/types.ts)
-
-| Property | Presence | Type |
-|---|---|---|
-| `arguments` | required | `unknown` (opaque) |
-| `content` | required | [`ContentBlock[]`](#persistence-type-sha256-13714f91b2b94dfd0712a57c828871603b100a9b53cf9d93b2678914afe6c40a) |
-| `error` | optional | [`{ code, name, reason? }`](#persistence-type-sha256-a2138d3d5ad11cf2a9b6577309ce468cf5f44562baaf7b72c7de5bdb9d234c1f) |
-| `isError` | required | `boolean` |
-| `meta` | optional | [`JsonValue`](#persistence-type-sha256-4921ac0448e1a749a633911b73d285e9afa419462c0f59404f87d66cd18cee26) |
-| `name` | required | `string` |
-| `parentCallId` | required | `string` |
-| `rootCallId` | required | `string` |
-| `subCallId` | required | `string` |
-
-<a id="persistence-type-sha256-084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f"></a>
-
-<a id="persistence-type-packagescoretoolssrctypestsptcdispatchstarteventdata"></a>
-
-<a id="persistence-type-ptcdispatchstarteventdata"></a>
-
-### `CodingDispatchStartEventData`
-
-SHA-256: `084daac0229c95c875df15aedb63ea1a910c22eb95067b1844bc8673b7af4e4f`
-
-Sources: [`packages/core/tools/src/types.ts:12`](../packages/core/tools/src/types.ts)
-
-| Property | Presence | Type |
-|---|---|---|
-| `arguments` | required | `unknown` (opaque) |
-| `name` | required | `string` |
-| `parentCallId` | required | `string` |
-| `rootCallId` | required | `string` |
-| `subCallId` | required | `string` |
-
 <a id="persistence-type-sha256-d7a8fc62663c8ffb1bbd0c5fa77a3846fa46d18206ebad00c531ee2f543c08dc"></a>
 
 <a id="persistence-type-packagesllmllmsrctypestsreasoningblock"></a>
@@ -5066,7 +5066,7 @@ Sources: [`packages/team/agent-team/src/types.ts:48`](../packages/team/agent-tea
 
 SHA-256: `34f3cd11b4624d15f512bfe2fd6022bcff49e8c786704e54a9e5d29d3238409b`
 
-Sources: [`packages/team/agent-team/src/types.ts:129`](../packages/team/agent-team/src/types.ts)
+Sources: [`packages/team/agent-team/src/types.ts:160`](../packages/team/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5086,7 +5086,7 @@ Sources: [`packages/team/agent-team/src/types.ts:129`](../packages/team/agent-te
 
 SHA-256: `b892e5c5cd082f9d64c30bc5a3f4ba342d2473dcfaca2faf40abe5657b317676`
 
-Sources: [`packages/team/agent-team/src/types.ts:138`](../packages/team/agent-team/src/types.ts)
+Sources: [`packages/team/agent-team/src/types.ts:169`](../packages/team/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -5106,7 +5106,7 @@ Sources: [`packages/team/agent-team/src/types.ts:138`](../packages/team/agent-te
 
 SHA-256: `464373c1d8a34ff57764606a39a92c9dc435b5304f42765f6d8ed04b3aa88249`
 
-Sources: [`packages/team/agent-team/src/types.ts:233`](../packages/team/agent-team/src/types.ts)
+Sources: [`packages/team/agent-team/src/types.ts:264`](../packages/team/agent-team/src/types.ts)
 
 One of:
 
@@ -7855,7 +7855,7 @@ Sources: [`packages/web/web-search-deepseek/src/provider.ts:61`](../packages/web
 
 SHA-256: `0040cfc00431af2403f13ce6249c0359646d15d9e40b3d50b4843c641dd11ced`
 
-Sources: [`packages/team/agent-team/src/types.ts:244`](../packages/team/agent-team/src/types.ts)
+Sources: [`packages/team/agent-team/src/types.ts:275`](../packages/team/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7883,7 +7883,7 @@ Sources: [`packages/core/session/src/types.ts:339`](../packages/core/session/src
 
 SHA-256: `c6b994133e98a3c633001e95dffbc0847da85ff4261659560b0bdb28500b2fdb`
 
-Sources: [`packages/team/agent-team/src/types.ts:248`](../packages/team/agent-team/src/types.ts)
+Sources: [`packages/team/agent-team/src/types.ts:279`](../packages/team/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7897,7 +7897,7 @@ Sources: [`packages/team/agent-team/src/types.ts:248`](../packages/team/agent-te
 
 SHA-256: `d0175524814e681ffdd8235e04dd8a9e0ffd59508be1b65bcf582a6e9e1b283f`
 
-Sources: [`packages/team/agent-team/src/types.ts:250`](../packages/team/agent-team/src/types.ts)
+Sources: [`packages/team/agent-team/src/types.ts:281`](../packages/team/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -7925,7 +7925,7 @@ Sources: [`packages/sandbox/sandbox-policy/src/session-mode.ts:33`](../packages/
 
 SHA-256: `ee404b95ebc433ae752e77f9e152a2bf68cc14582a185e6f442a421265c656ca`
 
-Sources: [`packages/team/agent-team/src/types.ts:242`](../packages/team/agent-team/src/types.ts)
+Sources: [`packages/team/agent-team/src/types.ts:273`](../packages/team/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|
@@ -8069,7 +8069,7 @@ Sources: [`packages/compaction/compaction-image-offload/src/projection.ts:25`](.
 
 SHA-256: `6358dc41ca0490a18939f4f4d4c163659d3b743b1f655fba14d6bf25ec494de0`
 
-Sources: [`packages/team/agent-team/src/types.ts:246`](../packages/team/agent-team/src/types.ts)
+Sources: [`packages/team/agent-team/src/types.ts:277`](../packages/team/agent-team/src/types.ts)
 
 | Property | Presence | Type |
 |---|---|---|

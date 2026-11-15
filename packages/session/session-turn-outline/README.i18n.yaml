@@ -9,8 +9,8 @@
   en: 6663de06430c4efa
   zh: 1598438920356b5b
 /qilin-agent-session-turn-outline/summary:
-  en: 6e52b4d6489aa252
-  zh: d4c91b36c0878575
+  en: aaac17e623a1d3ce
+  zh: f26c9eb23d899792
 /qilin-agent-session-turn-outline/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
@@ -23,6 +23,9 @@
 /qilin-agent-session-turn-outline/use-this-package/what-an-entry-means:
   en: faf6f2af56847bd3
   zh: fdf0e21dccde33d5
+/qilin-agent-session-turn-outline/use-this-package/turn-and-step-totals:
+  en: 821d93dcd3b3dbe5
+  zh: 89c8d88c8c1357e4
 /qilin-agent-session-turn-outline/use-this-package/failures-and-recovery:
   en: cdfa6afebdb1926a
   zh: d762a515be9de75f
@@ -33,8 +36,8 @@
   en: a20da800a1fbe258
   zh: 7123399bb8d80806
 /qilin-agent-session-turn-outline/understand-the-implementation/source-map:
-  en: 819a644c4681b4f8
-  zh: 0f02af23ab8f59ea
+  en: e7c2361ff33f0758
+  zh: 141261a13436e28c
 /qilin-agent-session-turn-outline/understand-the-implementation/fold-rules:
   en: ac64b54bd3d619a1
   zh: 4f33bdf2693179a6

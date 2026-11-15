@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This package gives history clients a whole-session outline of every started turn, including bounded prompt and settled-response previews. Clients can navigate turns that are not yet loaded and page backward from the exact event sequence needed to load a selected turn. It fits assemblies that provide session projections; elsewhere, clients continue using loaded-window navigation. Previews exclude injected context and tool results, and a response appears only after its turn settles.
+This package gives history clients a whole-session outline of every started turn, including bounded prompt and settled-response previews, plus whole-log turn and step totals for surfaces that state an agent's progress without its events. Clients can navigate turns that are not yet loaded and page backward from the exact event sequence needed to load a selected turn. It fits assemblies that provide session projections; elsewhere, clients continue using loaded-window navigation. Previews exclude injected context and tool results, and a response appears only after its turn settles.
 
 ## Table of Contents
 
@@ -46,6 +46,10 @@ Mount the plugin beside the session store and the projection registry when clien
 
 The wire value is the complete entry array, strictly increasing by `turn` (whole-value rule): consumers replace, never merge. Prompts fill only from `user/message` events with the human `user` source, so injected context and tool results never leak into navigation; a turn whose prompt is images-only keeps `''` and consumers label it by number. The response buffers as a draft while its turn streams and commits at `turn/end`; the change feed's raw-view identity gate keeps draft-only changes quiet, so the outline pushes at most three times per turn — boundary, prompt, settled response. Preview budgets match the chat rail's loaded-turn previews, so a turn shows the same words before and after its events load.
 
+### Turn and step totals
+
+The same plugin serves a second key, `turnStats`: `{ turns, steps }` counted over the whole log. A turn counts once per `turn/start`; a step counts once per `step/start`, so the step figure is the number of model requests the agent made. The value is small enough for every Session summary, which lets a fleet view state each agent's progress without reading that agent's log. Both keys are absent when the plugin is not mounted.
+
 ### Failures and recovery
 
 The unit is inert without the projection registry: `inject` keeps the fiber pending and nothing registers, so other assemblies lack the `turnOutline` key. Unmounting the plugin removes the key, because registrations are effects on the mounting fiber. Persisted-cache rows are schema-validated on restore — including the strictly-increasing turn order — so a corrupt row is discarded instead of seeding a broken fold.
@@ -70,7 +74,8 @@ The unit is a pure fold over committed session events. `turn/start` — not the 
 |---|---|
 | [`src/index.ts`](src/index.ts) | Plugin entry: `inject`, unit registration on the mounting fiber |
 | [`src/projection.ts`](src/projection.ts) | The fold: entry append, preview fill, wire view |
-| [`src/types.ts`](src/types.ts) | One home of the `turnOutline` projection-key declaration and entry types |
+| [`src/stats-projection.ts`](src/stats-projection.ts) | The `turnStats` fold: one count per `turn/start` and `step/start` |
+| [`src/types.ts`](src/types.ts) | One home of the `turnOutline` and `turnStats` projection-key declarations and entry types |
 
 ### Fold rules
 

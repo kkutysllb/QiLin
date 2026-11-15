@@ -121,6 +121,7 @@ The [Agent Teams Agent Note](../../../.agents/notes/implemented/feature/2026-08-
 | [`src/task-board.ts`](src/task-board.ts) | Task CAS commands, DAG validation, and derived views |
 | [`src/journal.ts`](src/journal.ts) | Serialized Lead-log transactions and commit notification |
 | [`src/projection.ts`](src/projection.ts) | Strict replay projection that decodes and validates Team events and publishes the `agentTeam` client view |
+| [`src/messages-projection.ts`](src/messages-projection.ts) | `agentMessages` fold: inbound peer messages with bounded previews and a newest-last cap |
 | [`src/remote.ts`](src/remote.ts) | Browser write-bridge face: wire error mapping and the `RemoteErrorDetailsMap` Team augmentation |
 | [`src/task-view.ts`](src/task-view.ts) | Pure task readiness, owner-name, and write-overlap derivation shared by the task board and the client view |
 | [`src/activity.ts`](src/activity.ts) | One-shot change waiters and disposal release |
@@ -177,6 +178,8 @@ Read these pages when the package-level contract is not enough. They move from t
 ### Browser projection
 
 The `agentTeam` Session projection publishes the Lead Session's durable roster identities and phases, member errors, non-deleted task views, and any `failure` beside the last valid state. Its `apply` replaces only the touched collection; mailbox-only changes retain the client view reference and produce no frame. The [subsystem reference](../../../docs/subsystems/agent-team.md#web-projection) defines the wire types.
+
+A second unit, `agentMessages`, folds the inbound peer messages one Session received — Team mailbox deliveries (the `team-message` source) and adjacent-Agent `send_message` relays (the `agent-message` source) — into at most twelve newest-last rows, each with the receiving log's time, the durable sender identity and optional name, and a bounded text preview. Both sources land in the recipient's own log, so merging the recipients a fleet view draws yields the cross-Agent traffic without reading any log the page does not hold. The unit registers with the Team service fiber and is removed with it.
 
 The [Web UI](../../client/ui-agent-team/README.md) reads the shared Session projections and overlays activity from Session status. Task creation and updates travel through both the service and model tools and the browser write bridge below. The `./client` export supplies browser-safe roster, task, and projection types.
 
