@@ -155,6 +155,55 @@ function rerender(b: ReturnType<typeof mount>, overrides: Partial<WorkspaceBrows
 }
 
 describe('WorkspaceBrowser', () => {
+  const tenWorkspaces = (): WorkspaceView[] => [
+    ...Array.from({ length: 10 }, (_, index) => ({
+      ...workspace(`w-${index + 1}`, index === 0 ? ['active'] : []),
+      updatedAt: `2026-01-${String(index + 1).padStart(2, '0')}T00:00:00.000Z`,
+    })),
+  ]
+
+  it('keeps the newest eight workspaces on the first page and folds the rest under More', () => {
+    mount({
+      useSessions: hook(sessionState([summary('active', Date.parse('2026-03-01T00:00:00.000Z'))])),
+      useWorkspaces: hook(workspaceState(tenWorkspaces())),
+    })
+
+    // Session activity outranks the mutation time: w-1 leads the first page.
+    expect(screen.getByText('w-1')).toBeTruthy()
+    expect(screen.getByText('w-4')).toBeTruthy()
+    // The two stale mutation times fold away.
+    expect(screen.queryByText('w-2')).toBeNull()
+    expect(screen.queryByText('w-3')).toBeNull()
+    const more = document.querySelector('[data-row-key="workspaces:more"]') as HTMLElement
+    expect(more.getAttribute('aria-expanded')).toBe('false')
+    expect(more.textContent).toBe(t('workspaces.more', { n: 2 }))
+
+    fireEvent.click(more)
+    expect(screen.getByText('w-2')).toBeTruthy()
+    expect(screen.getByText('w-3')).toBeTruthy()
+    const less = document.querySelector('[data-row-key="workspaces:less"]') as HTMLElement
+    expect(less.getAttribute('aria-expanded')).toBe('true')
+    expect(less.textContent).toBe(t('workspaces.less'))
+
+    fireEvent.click(less)
+    expect(screen.queryByText('w-2')).toBeNull()
+  })
+
+  it('remembers the folded tail expanded across mounts', () => {
+    const b = mount({ useWorkspaces: hook(workspaceState(tenWorkspaces())) })
+    fireEvent.click(document.querySelector('[data-row-key="workspaces:more"]') as HTMLElement)
+    expect(screen.getByText('w-2')).toBeTruthy()
+    b.view.unmount()
+    mount({ useWorkspaces: hook(workspaceState(tenWorkspaces())) })
+    expect(screen.getByText('w-2')).toBeTruthy()
+  })
+
+  it('shows no More row while every workspace fits the first page', () => {
+    mount({ useWorkspaces: hook(workspaceState(tenWorkspaces().slice(0, 8))) })
+    expect(document.querySelector('[data-row-key="workspaces:more"]')).toBeNull()
+    expect(screen.getByText('w-8')).toBeTruthy()
+  })
+
   it('badges every project with its kind ahead of the icon, keeping the caller order', () => {
     localStorage.clear()
     mount({

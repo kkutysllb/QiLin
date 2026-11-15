@@ -455,6 +455,42 @@
   font-size: 13px;
 }
 
+/* Folded project tail: one quiet disclosure row under the first page. */
+.moreRow {
+  flex: none;
+  width: 100%;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: start;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding-inline: var(--qilin-sidebar-row-padding);
+  border-radius: 8px;
+  color: var(--qilin-alias-label-tertiary);
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+@media (hover: hover) {
+  .moreRow:hover {
+    background-color: var(--qilin-alias-interactive-bg-hover);
+  }
+}
+
+/* Filled triangle: points right folded, down expanded. */
+.moreChevron {
+  flex: none;
+  transition: transform 150ms var(--ds-ease-in-out);
+}
+
+.moreChevronOpen {
+  transform: rotate(90deg);
+}
+
 /* Rename dialog form (same figma dialog family as the create modals). */
 .renameInput {
   box-sizing: border-box;

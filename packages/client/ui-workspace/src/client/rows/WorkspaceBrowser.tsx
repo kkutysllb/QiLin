@@ -13,7 +13,7 @@ import { type CSSProperties, type ReactNode, useEffect, useMemo, useRef, useStat
 import clsx from 'clsx'
 import {
   AnimatedRows, Button, IconCloseFillRegular, IconPersonalizationOutlineRegular,
-  IconProjectAddOutlineRegular, IconSearchOutlineRegular, Menu, Modal, Tooltip,
+  IconProjectAddOutlineRegular, IconSearchOutlineRegular, IconTriangleRightFillRegular, Menu, Modal, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
 import type {
   SessionListState, SessionSearchResultItem,
@@ -44,6 +44,8 @@ const SEARCH_DEBOUNCE_MS = 250
 const SEARCH_QUERY_MAX_CODE_UNITS = 500
 /** Non-blank Session rows visible per Workspace while no Session raises its watermark. */
 const SESSION_WATERMARK_BASE = 5
+/** Workspaces the project list keeps on its first page before folding the rest. */
+const WORKSPACE_FIRST_PAGE = 8
 /** Highest watermark that attention-bearing Sessions raise automatically; Show more may exceed it. */
 const SESSION_WATERMARK_AUTO_MAX = 50
 
@@ -221,6 +223,10 @@ type SessionTreeProps = Pick<
   groupExpansion: Readonly<Record<string, boolean>>
   /** Persist one Workspace group's expansion. */
   setGroupExpanded: (key: string, expanded: boolean) => void
+  /** Whether the folded workspace tail is expanded. */
+  workspaceOverflow: boolean
+  /** Persist the folded tail's expansion. */
+  setWorkspaceOverflow: (expanded: boolean) => void
   /** Save a drag order and select Manual. */
   setSessionOrder: (accountKey: string, order: readonly string[]) => void
   /** Registry-global archive set (hidden rows). */
@@ -259,7 +265,7 @@ function SessionTree({
   workspaceReady, usePanelInfo,
   onRenameRequest, onDeleteRequest, onSessionRename, onSessionArchive,
   insertWorkspaceBefore,
-  nestWorkspaces, groupExpansion, setGroupExpanded,
+  nestWorkspaces, groupExpansion, setGroupExpanded, workspaceOverflow, setWorkspaceOverflow,
   setSessionOrder, home, t, renderSlot, menu,
   revealSessionId, onSessionRevealed, animationResetKey,
 }: SessionTreeProps) {
@@ -637,9 +643,72 @@ function SessionTree({
     )
   }
 
-  // Project rows run in the caller's order; each row carries its own kind badge.
+  // The first page holds the most recently used Workspaces: the newest Session
+  // update inside one, or the Workspace's own last mutation when it has none.
+  // Rows beyond the page fold under one disclosure, in the caller's order.
+  const workspaceRoots = rootGroups.filter(group => group.workspaceId !== undefined)
+  const ungroupedRoots = rootGroups.filter(group => group.workspaceId === undefined)
+  const paged = workspaceRoots.length > WORKSPACE_FIRST_PAGE
+  const firstPage = new Set<string>()
+  if (paged) {
+    const recency = new Map<string, number>()
+    for (const workspace of workspaces) {
+      const mutated = Date.parse(workspace.updatedAt)
+      let latest = Number.isNaN(mutated) ? 0 : mutated
+      for (const sessionId of workspace.sessionIds) {
+        const updated = list.byId[sessionId]?.updatedAt
+        if (updated !== undefined && updated > latest) latest = updated
+      }
+      recency.set(workspace.workspaceId, latest)
+    }
+    const ranked = workspaceRoots
+      .map((group, index) => ({
+        workspaceId: group.workspaceId as string,
+        index,
+        recency: recency.get(group.workspaceId as string) ?? 0,
+      }))
+      .sort((left, right) => right.recency - left.recency || left.index - right.index)
+    for (const entry of ranked.slice(0, WORKSPACE_FIRST_PAGE)) firstPage.add(entry.workspaceId)
+  }
+  const shownRoots = paged ? workspaceRoots.filter(group => firstPage.has(group.workspaceId as string)) : workspaceRoots
+  const foldedRoots = paged ? workspaceRoots.filter(group => !firstPage.has(group.workspaceId as string)) : []
   const projectRows: ReactNode[] = []
-  for (const group of rootGroups) projectRows.push(renderGroup(group, 0))
+  for (const group of shownRoots) projectRows.push(renderGroup(group, 0))
+  if (foldedRoots.length > 0) {
+    if (workspaceOverflow) {
+      for (const group of foldedRoots) projectRows.push(renderGroup(group, 0))
+      rowKeys.push('workspaces:less')
+      projectRows.push((
+        <button
+          key="workspaces:less"
+          type="button"
+          className={css.moreRow}
+          data-row-key="workspaces:less"
+          aria-expanded
+          onClick={() => { setWorkspaceOverflow(false) }}
+        >
+          <IconTriangleRightFillRegular size={10} className={clsx(css.moreChevron, css.moreChevronOpen)} />
+          <span>{t('workspaces.less')}</span>
+        </button>
+      ))
+    } else {
+      rowKeys.push('workspaces:more')
+      projectRows.push((
+        <button
+          key="workspaces:more"
+          type="button"
+          className={css.moreRow}
+          data-row-key="workspaces:more"
+          aria-expanded={false}
+          onClick={() => { setWorkspaceOverflow(true) }}
+        >
+          <IconTriangleRightFillRegular size={10} className={css.moreChevron} />
+          <span>{t('workspaces.more', { n: foldedRoots.length })}</span>
+        </button>
+      ))
+    }
+  }
+  for (const group of ungroupedRoots) projectRows.push(renderGroup(group, 0))
   return (
     <div className={clsx(css.treeBody, css.wide)}>
       {workspaceDropAtListStart && <span className={css.listTopDropIndicator} aria-hidden="true" />}
@@ -932,6 +1001,7 @@ export function WorkspaceBrowser({
   const groupBy = useStore(s => s.groupBy)
   const orderBy = useStore(s => s.orderBy)
   const groupExpansion = useStore(s => s.groupExpansion)
+  const workspaceOverflow = useStore(s => s.workspaceOverflow) ?? false
   const sessionOrderByAccount = useStore(s => s.sessionOrderByAccount)
   const workspaceReady = workspacePhase === 'ready' && workspaceStreamState !== 'loading'
   const mainSessionId = Object.values(list.byId)
@@ -1514,6 +1584,8 @@ export function WorkspaceBrowser({
                 nestWorkspaces={groupBy === 'workspace-tree'}
                 groupExpansion={groupExpansion}
                 setGroupExpanded={actions.setGroupExpanded}
+                workspaceOverflow={workspaceOverflow}
+                setWorkspaceOverflow={actions.setWorkspaceOverflow}
                 setSessionOrder={saveSessionOrder}
                 archivedSessionIds={archivedSessionIds}
                 pinnedSessionIds={pinnedSessionIds}
