@@ -105,19 +105,27 @@
    column, so every row's icon and title start at the same x. */
 .kindBadge {
   flex: none;
-  width: 38px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 4px;
+  width: 36px;
+  height: 18px;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid var(--qilin-alias-border-l2);
+  border-radius: 5px;
   font-size: 10px;
+  font-weight: 500;
   line-height: 16px;
-  color: var(--qilin-alias-label-secondary);
-  background: var(--qilin-alias-fill-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   white-space: nowrap;
+}
+
+/* Repository rows carry the accent tint; a plain directory keeps the outline,
+   so the two kinds read apart at a glance without a second glyph. */
+.kindBadge[data-workspace-kind='repository'] {
+  border-color: transparent;
+  color: var(--qilin-alias-state-business-primary);
+  background: var(--qilin-alias-state-business-tertiary);
 }
 
 /* Compact one-line Workspace row after removing the session-count subtitle. */
