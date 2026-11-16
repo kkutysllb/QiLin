@@ -107,7 +107,7 @@ describe('workspace browser rows', () => {
     // row's primary state is idle; the title follows it.
     const cell = screen.getByText('Flat Session').previousElementSibling
     expect(cell?.className).toMatch(/slot/)
-    expect(seats).toEqual(['sidebar.session.row.leading'])
+    expect(seats).toEqual(['sidebar.session.row.leading', 'sidebar.session.row.trailing'])
     expect(screen.getByRole('treeitem').getAttribute('data-row-key')).toBe('session:flat')
 
     // A row that gains a state dot keeps that dot in the same cell and renders
@@ -115,7 +115,8 @@ describe('workspace browser rows', () => {
     view.rerender(<SessionNodeItem node={{ ...idle, running: true }} currentId={undefined} now={0}
       {...sessionActions()} onCopyId={vi.fn()} renderSlot={recordSeats(seats)} t={t} />)
     expect(screen.getByText('Flat Session').previousElementSibling?.querySelector('[data-state="ongoing"]')).toBeTruthy()
-    expect(seats).toEqual(['sidebar.session.row.leading'])
+    // The state dot replaces the leading seat; the trailing list is independent of it.
+    expect(seats).toEqual(['sidebar.session.row.leading', 'sidebar.session.row.trailing', 'sidebar.session.row.trailing'])
   })
 
   it('renders a selected content-search row and opens only its session', () => {

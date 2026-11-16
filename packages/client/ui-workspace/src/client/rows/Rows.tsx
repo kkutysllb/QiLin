@@ -431,7 +431,7 @@ function PinnedIndicator({ t }: { t: RowTranslate }) {
 }
 
 /** Child seats a Session row renders: its leading decoration and hover-card section. */
-type SessionRowRenderSlots = PropsRenderSlots<'sidebar.session.row.leading' | 'sidebar.session.row.hover'>['renderSlot']
+type SessionRowRenderSlots = PropsRenderSlots<'sidebar.session.row.leading' | 'sidebar.session.row.trailing' | 'sidebar.session.row.hover'>['renderSlot']
 
 /**
  * Hover-card body: full title, relative time, the Session's own scheduled-task
@@ -648,6 +648,7 @@ export function SessionNodeItem({
           (rename/fork/archive) would all act on content that does not
           exist — both trailing cells stay off until the first prompt. */}
       {!row.blank && <span className={css.time}>{timeLabel(row.updatedAt, now, t)}</span>}
+      {!row.blank && renderSlot('sidebar.session.row.trailing', { sessionId: node.id })}
       {/* Trails the time so the marker occupies the same right-edge cell as
           the hover pin button that replaces it. */}
       {row.pinned && !row.blank && <PinnedIndicator t={t} />}
