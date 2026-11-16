@@ -227,3 +227,24 @@ client-ui-session-status 引入 → ui-conversation 整包 → chat/workspace �
 5. **渲染期命名空间键**：`workspace.defaultName` 等跨命名空间 `t()`。
 
 结论：整包 conversation 等价于再做一轮「ui-slots + ui-renderer 代际升级」，与本目标（面板移植）正交；面板干跑只差引用插入/座席/归档通知等**增量**。为避免把主树长期停在红色状态，整包改动已整体回退（保留上述独立提交），后续按**增量路径**推进：conversation/chat 引用插入 → workspace 座席与归档通知 → 面板整包。待面板收口后，若仍需整包对齐，再单独立项升级 HOC 槽位与渲染器。
+
+### 面板整包移植（完成）
+
+`client-ui-forge` 已用 rc.3 上游整包替换并保持全绿：
+
+- 宿主 31 个源文件（layer/lens/review-cache/commit-range/parse/patch-cache/worktree）与 50 个测试文件（1,120 例）移植；
+- 基础层补口：`session-projection` 的 `ProjectionHandle` 注册（同步 disposer 兼 thenable、key 放宽到字符串）、
+  `ui-sidebar-right` 参数表交回 provider 声明（documentpreview/files/plan/panel 各自增强）、
+  `MarkdownLabels.mermaid` 可选（无图表 chrome 时以代码块回退）、`experimental-worktree/types` 源映射；
+- `ui-session-status`/`ui-conversation.insertQuote`/`ui-workspace` 行尾座席与归档瀑布事件在此之前完成；
+- CSS 令牌由 dsw/dsh 词汇收敛到 qilin 调色板，主题 162 例与样式门恢复。
+
+有意偏离（已记录）：
+
+1. 面板基准分支菜单的定位断言改为本仓 Menu 的实测锚点实现（未移植上游 CSS anchor positioning）；
+2. 图片上传仍走通用 `fileUploads/upload`（无专用 `uploadImage` 路由），面板与对话均只用 receipt；
+3. 归档后续提示只登记清理动作与 notice waterfall，workspace 未渲染上游的 follow-up toast；
+4. `ui-conversation` 未整包对齐（HOC 槽位/渲染器代际升级另行立项），改用引用插入等增量满足面板需要。
+
+验证：两个聚合 typecheck 0；面板 1,120 例、受影响套件（primitives/session-projection/workspace/sidebar-right/chat/themes）全绿；
+README 双语、翻译配对、md 链接、类型等价 536 块、Cordis 目录生成与 `test:docs` 21 项通过。
