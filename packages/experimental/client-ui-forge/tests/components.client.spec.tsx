@@ -6,7 +6,7 @@ import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import toastCss from '@qilin-agent/client-ui-primitives/src/Toast.module.css'
 import type { PaneId, SidebarRightTabInfo, TabId } from '@qilin-agent/client-ui-sidebar-right/client'
-import { SessionId } from '@qilin-agent/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import { ActionToast } from '../src/client/ActionToast.tsx'
 import { changesAddress } from '../src/client/changes-address.ts'
 import { ChangesTabTitle } from '../src/client/ChangesTabTitle.tsx'
@@ -16,6 +16,7 @@ import { en } from '../src/client/locales.ts'
 import { createNoticeSource, type PanelSnapshot } from '../src/client/source.ts'
 import type { ForgePanelState } from '../src/types.ts'
 import { entry, ready, snapshot } from './client-fixtures.client.ts'
+import { brandString } from '@qilin-agent/brand'
 
 afterEach(() => {
   cleanup()
@@ -113,13 +114,13 @@ describe('ChangesTabTitle', () => {
   }
 
   it('names the view from its address in the current language', () => {
-    const view = title(changesAddress({ sessionId: SessionId('s1'), source: { kind: 'change', url: 'https://github.com/octo/demo/pull/7' } }))
+    const view = title(changesAddress({ sessionId: brandString<SessionId>('s1'), source: { kind: 'change', url: 'https://github.com/octo/demo/pull/7' } }))
     expect(view.container.textContent).toBe('Changes in #7')
     expect(view.container.querySelector('svg')).not.toBeNull()
   })
 
   it('keeps the captured title of an address it did not mint', () => {
-    expect(title('qilin-resource://forge-changes/s1/remote').container.textContent).toBe('Captured')
+    expect(title('dsh-resource://forge-changes/s1/remote').container.textContent).toBe('Captured')
   })
 })
 

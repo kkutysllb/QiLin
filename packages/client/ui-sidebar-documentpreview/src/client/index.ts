@@ -137,3 +137,10 @@ export function apply(ctx: ClientContext): void {
   registerExcel(ctx, config.excel)
   registerVideo(ctx)
 }
+
+declare module '@qilin-agent/client-ui-sidebar-right/client' {
+  interface SidebarRightResourceParamsMap {
+    /** One file preview keyed by absolute path; `line` is the first row to reveal. */
+    file: { line?: number }
+  }
+}

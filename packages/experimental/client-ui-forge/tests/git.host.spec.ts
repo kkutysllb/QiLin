@@ -20,7 +20,7 @@ afterEach(async () => {
   for (const cleanup of cleanups.splice(0).reverse()) await cleanup()
 })
 
-async function directory(prefix = 'qilin-forge-git-'): Promise<string> {
+async function directory(prefix = 'dsh-forge-git-'): Promise<string> {
   const { path, remove } = await scratch(prefix)
   cleanups.push(remove)
   return path

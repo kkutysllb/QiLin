@@ -1314,11 +1314,24 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         throws: ['when the Host lacks the Session query, projection cache, storage, or Session store service.'],
       },
       {
+        signature: '@Remote async worktreeCleanup(session: Session, revision: number | null): Promise<WorktreeCleanup | null>',
+        description: 'Read or await the worktree service\'s archive cleanup of the Session\'s checkout.',
+        parameters: [{ name: 'session', description: 'Session whose cleanup is visible to the caller.' }, { name: 'revision', description: 'null reads now; a matching revision waits for completion.' }],
+        returns: 'the cleanup state, or null without a worktree service, an attempt, or a current revision.',
+      },
+      {
         signature: '@Remote async branches(session: Session, signal: AbortSignal): Promise<ForgeBranches>',
         description: 'List the local branches that can start a worktree of the Session\'s current checkout.',
         parameters: [{ name: 'session', description: 'Session whose current directory is listed.' }, { name: 'signal', description: 'request cancellation.' }],
         returns: 'the checked-out branch and at most `maxBranches` local branches, the checked-out one first.',
         throws: ['when the current directory is not inside a checkout or Git fails.'],
+      },
+      {
+        signature: '@Remote async diffBases(session: Session, query: string, signal: AbortSignal): Promise<ForgeBaseBranches>',
+        description: 'List the branches the `branch` scope of the Session\'s current checkout can compare with.',
+        parameters: [{ name: 'session', description: 'Session whose checkout is read.' }, { name: 'query', description: 'text the branch names must contain, ignoring case; empty for every branch.' }, { name: 'signal', description: 'request cancellation.' }],
+        returns: 'the automatic fork point and at most `maxBranches` remote-tracking and local branches each, most recently committed first, without the checked-out branch.',
+        throws: ['`forgePanel/not-a-checkout` outside a checkout; the Git error when Git fails or the listed refs exceed `maxDiffBytes`.'],
       },
       {
         signature: '@Remote async track(session: Session, url: string, signal: AbortSignal): Promise<void>',
@@ -1342,14 +1355,21 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Read the changes one scope covers in the checkout of the Session\'s current directory, with Git using the Session\'s sandbox policy.',
         parameters: [{ name: 'session', description: 'Session whose checkout is read.' }, { name: 'scope', description: 'which changes to read.' }, { name: 'signal', description: 'request cancellation.' }],
         returns: 'the files, the base of the `branch` scope, and the untracked files left out.',
-        throws: ['`forgePanel/not-a-checkout` outside a checkout; `forgePanel/no-fork-point` for the `branch` scope of a checkout without one; `forgePanel/filter-config-failed` when filter configuration cannot be read completely, before any comparison; `forgePanel/diff-too-large` over `maxDiffBytes`; the Git error when Git fails.'],
+        throws: ['`forgePanel/not-a-checkout` outside a checkout; `forgePanel/base-missing` when the base branch chosen for the `branch` scope does not exist; `forgePanel/no-fork-point` for the `branch` scope without a fork point; `forgePanel/commits-missing` when chosen commits are not between the fork point and HEAD in order; `forgePanel/commits-not-linear` when a chosen commit\'s first parent is not the commit listed before it; `forgePanel/filter-config-failed` when filter configuration cannot be read completely, before any comparison; `forgePanel/diff-too-large` over `maxDiffBytes`; the Git error when Git fails.'],
+      },
+      {
+        signature: '@Remote async localCommits(session: Session, base: string | null, signal: AbortSignal): Promise<ForgeLocalCommits>',
+        description: 'List the commits of the `branch` scope of the Session\'s current checkout, which the changes view can show one or several of instead of the whole scope.',
+        parameters: [{ name: 'session', description: 'Session whose checkout is read.' }, { name: 'base', description: 'the base ref of the `branch` scope, or null for its automatic fork point.' }, { name: 'signal', description: 'request cancellation.' }],
+        returns: 'the newest `maxCommits` commits between the fork point and HEAD, oldest first, and HEAD\'s commit.',
+        throws: ['`forgePanel/not-a-checkout` outside a checkout; `forgePanel/base-missing` when the base branch does not exist; `forgePanel/no-fork-point` without a fork point; the Git error when Git fails or the listing exceeds `maxDiffBytes`.'],
       },
       {
         signature: '@Remote async localText(session: Session, scope: ForgeLocalScope, path: string, signal: AbortSignal): Promise<string>',
-        description: 'Read the new side of one changed file in a scope, which supplies the unchanged lines between its hunks: the index for `staged`, else the working tree.',
+        description: 'Read the new side of one changed file in a scope, which supplies the unchanged lines between its hunks: the index for `staged`, the last chosen commit for chosen commits of the `branch` scope, else the working tree.',
         parameters: [{ name: 'session', description: 'Session whose checkout is read.' }, { name: 'scope', description: 'the scope the diff was read in.' }, { name: 'path', description: 'path relative to the checkout\'s top-level directory, as the diff names it.' }, { name: 'signal', description: 'request cancellation.' }],
         returns: 'the text.',
-        throws: ['`forgePanel/not-a-checkout` outside a checkout; `forgePanel/diff-too-large` over `maxDiffBytes`; an error for a path outside the checkout, binary content, or a failed read.'],
+        throws: ['`forgePanel/not-a-checkout` outside a checkout; `forgePanel/diff-too-large` over `maxDiffBytes`; `forgePanel/commits-missing` for a chosen commit that is not a full object name; an error for a path outside the checkout, binary content, or a failed read.'],
       },
       {
         signature: '@Remote async changeRequestChecks(session: Session, url: string, headSha: string, signal: AbortSignal): Promise<ChangeRequestSnapshot>',
@@ -1359,18 +1379,18 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         throws: ['`forgePanel/not-bound` for an invisible binding, `forgePanel/stale-head` for a moved head, or `forgePanel/checks-failed` when the provider cannot complete the read.'],
       },
       {
-        signature: '@Remote async reviewThreads(session: Session, url: string, signal: AbortSignal): Promise<ForgeReviewData>',
-        description: 'Read the review threads of a change request of a Session, which the changes view shows at the lines each thread is anchored to.',
+        signature: '@Remote async changeRequestCommits(session: Session, url: string, signal: AbortSignal): Promise<ForgeCommitList | null>',
+        description: 'List the commits of a change request of a Session at its current head, which the changes view can show one or several of instead of the whole change request.',
         parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'signal', description: 'request cancellation.' }],
-        returns: 'the threads in host order, empty when the provider exposes no review reads.',
-        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/review-reads-failed` when the provider cannot complete the read.'],
+        returns: 'the commits oldest first with the head they were read at, or null when the provider does not read commits.',
+        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/diff-failed` when the host does not list them.'],
       },
       {
-        signature: '@Remote async changeRequestDiff(session: Session, url: string, headSha: string | null, signal: AbortSignal): Promise<ForgeChangeRequestDiff>',
-        description: 'Read the changes of a change request of a Session as its code host computes them, at the head commit of its latest status. A patch already read at the same head commit and base branch is reused from memory, for any Session, until `maxCachedDiffBytes` evicts it.',
-        parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'headSha', description: 'head commit the caller is reviewing, so a review keeps its head; null follows the latest head.' }, { name: 'signal', description: 'request cancellation.' }],
-        returns: 'the files, the head commit that was read, each file\'s web page, and the commits the checkout has beyond that head.',
-        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/diff-too-large` when the host or its provider refuses the diff over a size limit; `forgePanel/diff-failed` before its status was read and when the host does not provide the diff otherwise.'],
+        signature: '@Remote async changeRequestDiff( session: Session, url: string, commits: ForgeCommitRange | null, signal: AbortSignal, ): Promise<ForgeChangeRequestDiff>',
+        description: 'Read the changes of a change request of a Session as its code host computes them, with each file\'s layer following the root `.gitattributes` of the commit the diff ends at. Without `commits` the diff covers the change request at the head commit of its latest status; a patch already read at the same head commit and base branch is reused from memory with its attributes, for any Session, until `maxCachedDiffBytes` evicts it. With `commits`, it covers those commits, from the first one\'s first parent to the last, and is read every time.',
+        parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'commits', description: 'consecutive commits of the change request, or null for all of it.' }, { name: 'signal', description: 'request cancellation.' }],
+        returns: 'the files, the commit they end at, each file\'s web page, and the commits the checkout has beyond the head.',
+        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/commits-missing` when chosen commits are not among the change request\'s commits in order; `forgePanel/commits-not-linear` when a chosen commit\'s first parent is not the commit listed before it; `forgePanel/stale-head` without `commits` when the head moved past the latest status, which is then polled again; `forgePanel/diff-too-large` when the host or its provider refuses the diff over a size limit; `forgePanel/diff-failed` before its status was read, for a first chosen commit without a parent, and when the host does not provide the commits, the diff, or an existing `.gitattributes` otherwise.'],
       },
       {
         signature: '@Remote async changeRequestText(session: Session, url: string, commit: string, path: string, signal: AbortSignal): Promise<string>',
@@ -1380,10 +1400,57 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/diff-too-large` when the host or its provider refuses the file over a size limit; `forgePanel/diff-failed` when the host does not provide the file otherwise.'],
       },
       {
+        signature: 'registerLens(lens: ForgeLens): () => Promise<void>',
+        description: 'Register a filter lens as an effect on the calling fiber. The changes views list it while it is registered; ending the registration aborts its running classifications and waits for them.',
+        parameters: [{ name: 'lens', description: 'the lens.' }],
+        returns: 'the disposer that unregisters the lens and waits for its classifications to stop.',
+        throws: ['when another registration holds `lens.id`.'],
+      },
+      {
+        signature: '@Remote({ mode: \'stream\' }) async *extensions(signal: AbortSignal): AsyncIterable<ForgeExtensionState>',
+        description: 'Stream the facts every changes view reads about the panel\'s extensions: the current facts first, then the facts after each lens registration or withdrawal. The stream ends when `signal` aborts or the Remote stops.',
+        parameters: [{ name: 'signal', description: 'ends the stream.' }],
+        returns: 'the registered lenses and the annotation limit, in publication order.',
+      },
+      {
+        signature: '@Remote({ mode: \'stream\' }) async *changesLens(session: Session, request: ForgeLensRequest, signal: AbortSignal): AsyncIterable<ForgeLensFrame>',
+        description: 'Classify the files a changes view of a Session shows with one registered lens: progress frames while the lens runs, then the files it keeps. Results for the same files, lens, and lens version are reused from memory until `maxCachedLensBytes` evicts them. Local changes are read with the Session\'s permissions; a change request\'s files are those `changeRequestDiff` reads.',
+        parameters: [{ name: 'session', description: 'Session whose checkout or binding the view shows.' }, { name: 'request', description: 'the view\'s source, the version of the files it shows, and the lens.' }, { name: 'signal', description: 'ends the classification.' }],
+        returns: 'progress frames, then one result frame.',
+        throws: ['`forgePanel/lens-missing` while no lens holds the identity or once its registration ends; `forgePanel/lens-stale` before a change request\'s status was read, when the files differ from `request.version`, and when local files changed while the lens ran; `forgePanel/lens-failed` when the lens fails, runs past `lensTimeoutMs`, reads past `maxLensReadBytes`, or answers over `maxCachedLensBytes`; the errors of `localDiff` and `changeRequestDiff` for the files.'],
+      },
+      {
+        signature: '@Remote async changeRequestViewed(session: Session, url: string, headSha: string, signal: AbortSignal): Promise<ForgeViewedFiles | null>',
+        description: 'Read the signed-in user\'s viewed marks on the files of a change request of a Session, which the host keeps for the whole change request.',
+        parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'headSha', description: 'head commit of the shown diff; marks read at another head are refused.' }, { name: 'signal', description: 'request cancellation.' }],
+        returns: 'the marks at `headSha`, or null when the provider keeps no viewed marks.',
+        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/stale-head` when the head moved past `headSha`, which is then polled again; `forgePanel/viewed-failed` when the host does not provide the marks otherwise.'],
+      },
+      {
+        signature: '@Remote async setFileViewed(session: Session, url: string, request: ForgeViewedRequest, signal: AbortSignal): Promise<void>',
+        description: 'Set or clear the signed-in user\'s viewed mark on one file of a change request of a Session.',
+        parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'request', description: 'the file, its mark, and the head commit of the shown diff.' }, { name: 'signal', description: 'request cancellation.' }],
+        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/stale-head` when the head moved past `request.headSha`; `forgePanel/action-failed` with the host\'s reason when the host refuses, cannot be reached, or keeps no viewed marks; `forgePanel/action-unknown` when the host did not confirm whether it saved the mark.'],
+      },
+      {
+        signature: '@Remote async changeRequestReview(session: Session, url: string, headSha: string, fresh: boolean, signal: AbortSignal): Promise<ForgeReviewData>',
+        description: 'Read the review threads of a change request of a Session at the head commit of its displayed diff. Threads read at the same head commit and update time are reused from memory, for any Session, until they are `reviewRefreshMs` old, `maxCachedReviewBytes` evicts them, or a review write through this panel drops them; a read again after that age, or a `fresh` read, shows threads resolved elsewhere since, which do not change a GitHub pull request\'s update time.',
+        parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'headSha', description: 'head commit of the displayed diff.' }, { name: 'fresh', description: 'whether to read from the host even when threads at this head and update time are kept, as after the reader refreshes the view; the result replaces the kept threads.' }, { name: 'signal', description: 'request cancellation.' }],
+        returns: 'the threads at `headSha`, with `current` positions numbering the files of that diff.',
+        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/stale-head` when the latest status or the host names another head, which a host answer polls again; `forgePanel/review-unsupported` when the provider cannot read reviews; `forgePanel/review-failed` before the status was read and when the host does not provide the threads otherwise.'],
+      },
+      {
         signature: '@Remote async submitReview(session: Session, url: string, request: ForgeReviewRequest, signal: AbortSignal): Promise<ForgeReviewResult>',
-        description: 'Publish a line comment or completed review for a visible Session binding.',
+        description: 'Publish a line comment or completed review for a visible Session binding. The threads kept for the change request are dropped once the host answers, so the next read shows the comments.',
         parameters: [{ name: 'session', description: 'Session retaining the change request.' }, { name: 'url', description: 'visible binding URL.' }, { name: 'request', description: 'reviewed head, ranges, plain text, and explicit review decision.' }, { name: 'signal', description: 'request cancellation.' }],
         returns: 'confirmed publication or a typed failure; unknown outcomes require reconciliation on the host.',
+      },
+      {
+        signature: '@Remote async changeRequestReviewWrite( session: Session, url: string, write: ForgeReviewWrite, signal: AbortSignal, ): Promise<ForgeReviewWriteResult>',
+        description: 'Write to the review threads or the pending review of a change request of a Session while its head is still the head the user saw. The threads kept for the change request are dropped once the host answers, so the next read shows the write, which a resolve does not show through a GitHub pull request\'s update time.',
+        parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'write', description: 'the write and the head commit of the threads the user saw.' }, { name: 'signal', description: 'request cancellation.' }],
+        returns: 'whether the host took the write; `stale` once the head moved, which polls the change request again, and `unknown` when the outcome must be checked on the host before the write is tried again.',
+        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; an error for a write without text, a head that is not a commit object name, or an invalid line range.'],
       },
       {
         signature: '@Remote async markReady(session: Session, url: string, signal: AbortSignal): Promise<void>',
@@ -1396,6 +1463,31 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Merge a change request of a Session while its head is still `headSha`; the change request is polled again once the host answers.',
         parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'method', description: 'how the commits enter the base branch.' }, { name: 'headSha', description: 'head commit the user confirmed.' }, { name: 'signal', description: 'request cancellation.' }],
         throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/stale-head` when the head moved past `headSha`; `forgePanel/action-failed` with the host\'s reason when the host refuses otherwise or cannot be reached.'],
+      },
+      {
+        signature: '@Remote async rerunChecks(session: Session, url: string, request: ForgeRerunRequest, signal: AbortSignal): Promise<void>',
+        description: 'Rerun the failed checks of a change request of a Session while its head is still the commit whose checks the user saw; the change request is polled again once the host answers.',
+        parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'request', description: 'the head commit whose checks the user saw.' }, { name: 'signal', description: 'request cancellation.' }],
+        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/stale-head` when the head moved past `request.headSha`; `forgePanel/action-failed` with the host\'s reason when the host refuses, cannot be reached, or reruns no checks; `forgePanel/action-unknown` when the host did not confirm whether it started the rerun.'],
+      },
+      {
+        signature: '@Remote async requestReviews( session: Session, url: string, reviewers: readonly Pick<ChangeRequestReviewer, \'kind\' | \'login\'>[], signal: AbortSignal, ): Promise<void>',
+        description: 'Request reviews of a change request of a Session from more reviewers; the change request is polled again once the host answers.',
+        parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'reviewers', description: 'the reviewers to ask, by kind and login.' }, { name: 'signal', description: 'request cancellation.' }],
+        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/action-failed` with the host\'s reason when the host refuses, cannot be reached, or requests no reviews; `forgePanel/action-unknown` when the host did not confirm whether it requested the reviews.'],
+      },
+      {
+        signature: '@Remote async reviewerCandidates(session: Session, url: string, query: string, signal: AbortSignal): Promise<readonly ForgeReviewerCandidate[]>',
+        description: 'List accounts a review of a change request of a Session can be requested from.',
+        parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'query', description: 'text the login or name contains; empty for the host\'s suggestions and first accounts.' }, { name: 'signal', description: 'request cancellation.' }],
+        returns: 'the accounts, the host\'s suggestions first.',
+        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/reviewers-failed` when the host does not list them.'],
+      },
+      {
+        signature: '@Remote async updateBranch(session: Session, url: string, method: BranchUpdateMethod, headSha: string, signal: AbortSignal): Promise<void>',
+        description: 'Bring the base branch\'s new commits into the head branch of a change request of a Session while its head is still `headSha`; the change request is polled again once the host answers.',
+        parameters: [{ name: 'session', description: 'Session the change request is bound to.' }, { name: 'url', description: 'binding URL of the change request.' }, { name: 'method', description: 'merge commit or rebase.' }, { name: 'headSha', description: 'head commit the user confirmed.' }, { name: 'signal', description: 'request cancellation.' }],
+        throws: ['`forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; `forgePanel/stale-head` when the head moved past `headSha`; `forgePanel/action-failed` with the host\'s reason when the host refuses, cannot be reached, or updates no branches; `forgePanel/action-unknown` when the host did not confirm whether it started the update.'],
       },
       {
         signature: '@Remote async requestWorktree(session: Session, from: string | null, signal: AbortSignal): Promise<void>',
@@ -1419,12 +1511,6 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Make another attempt, with a new branch name, at the worktree a message of the Session waits for after a failed or stopped attempt.',
         parameters: [{ name: 'session', description: 'Session whose message waits.' }, { name: 'signal', description: 'request cancellation.' }],
         throws: ['`forgePanel/not-waiting` when no message waits or an attempt is running.'],
-      },
-      {
-        signature: '@Remote async removeWorktree(session: Session, deleteBranch: boolean, signal: AbortSignal): Promise<void>',
-        description: 'Remove the created worktree of a Session at its recorded directory: the checkout leaves the filesystem and its registration, the Session moves to the source checkout first so no working directory points at a removed path, and the recorded projection clears. Without `deleteBranch` the branch stays. Runs as Agent maintenance; a checkout with uncommitted or untracked files is kept and reported. Changes that were never committed are lost with a removed checkout.',
-        parameters: [{ name: 'session', description: 'Session whose worktree leaves.' }, { name: 'signal', description: 'request cancellation, which aborts the removal.' }, { name: 'deleteBranch', description: 'whether the branch follows the checkout.' }],
-        throws: ['`forgePanel/no-worktree` without a created worktree; `forgePanel/worktrees-unavailable` without a worktree service; `forgePanel/session-busy` while the Session\'s Agent is not loaded or has other work; `forgePanel/remove-failed` when Git refuses or fails.'],
       },
       {
         signature: '@Remote async restoreWorktree(session: Session, signal: AbortSignal): Promise<void>',
@@ -2751,16 +2837,16 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     description: '`ctx.sessionProjections`: the projection unit table and its drive. The service subscribes to `session/event` once; every committed event passes every registered unit\'s `apply` (eager drive). A changed state reference computes the next client view; the change feed is notified only when its raw result changes by `Object.is`. Cells build lazily — a unit registered after events flowed, or a session older than the registry, folds `init` over the in-memory log on first touch (event or read). Registration is an effect (disposer rides the calling fiber): an unloaded domain plugin\'s key disappears from live drives, restores, and client snapshots, while checkpoints keep each Session\'s last cell of it until the key registers again and the new unit refolds the log. A host reader either declares `sessionProjections` in its plugin `inject` or fails explicitly when the registry or required key is absent. Contributors may preserve optional registration through `ctx.inject([\'sessionProjections\'], ...)`. Registrants sharing a key share one unit and are counted: the same tool package mounted in N agent presets registers N times, and the key survives until the last one unloads.',
     methods: [
       {
-        signature: 'register< K extends keyof SessionProjectionMap, S extends SessionProjectionStateMap[K], >( definition: Omit<ProjectionDefinition<K, S>, \'wire\'> & { wire: NonNullable<ProjectionDefinition<K, S>[\'wire\']> }, ): () => void',
+        signature: 'register<K extends keyof SessionProjectionMap, S>( definition: Omit<ProjectionDefinition<K, S>, \'wire\'> & { wire: NonNullable<ProjectionDefinition<K, S>[\'wire\']> }, ): ProjectionRegistration<S>',
         description: 'Register one domain\'s unit. The registration is an effect on the calling context\'s fiber: disposing the fiber (or calling the returned disposer) removes the key from subsequent drives, restores, and snapshots; its checkpoint rows survive until the key registers again.',
         parameters: [{ name: 'definition', description: 'key, state schema, pure unit functions, and stateVersion.' }],
         returns: 'the exact disposer that unregisters this unit.',
       },
       {
-        signature: 'register< K extends Exclude<keyof SessionProjectionStateMap, keyof SessionProjectionMap>, S extends SessionProjectionStateMap[K], >( definition: Omit<ProjectionDefinition<K, S>, \'wire\'>, ): () => void',
+        signature: 'register<K extends string, S>(definition: ProjectionDefinition<K, S>): ProjectionRegistration<S>',
         description: 'Register one host-only unit. Its state is omitted from client snapshots and always checkpointed like every other unit.',
         parameters: [{ name: 'definition', description: 'key, state schema, pure unit functions, and stateVersion.' }],
-        returns: 'the exact disposer that unregisters this unit.',
+        returns: 'an awaitable registration; calling it unregisters.',
       },
       {
         signature: 'onChanged(listener: ProjectionChangeListener): () => void',
@@ -6383,6 +6469,18 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ForgeAnchor {\n    readonly commit: string;\n    readonly startLine: number;\n    readonly endLine: number;\n}',
   },
   {
+    name: 'ForgeAutomaticBase',
+    declaration: 'export interface ForgeAutomaticBase {\n    readonly name: string;\n    readonly worktree: boolean;\n}',
+  },
+  {
+    name: 'ForgeBaseBranch',
+    declaration: 'export interface ForgeBaseBranch {\n    readonly ref: string;\n    readonly name: string;\n}',
+  },
+  {
+    name: 'ForgeBaseBranches',
+    declaration: 'export interface ForgeBaseBranches {\n    readonly automatic: ForgeAutomaticBase | null;\n    readonly remote: readonly ForgeBaseBranch[];\n    readonly local: readonly ForgeBaseBranch[];\n}',
+  },
+  {
     name: 'ForgeBranches',
     declaration: 'export interface ForgeBranches {\n    readonly current: string | null;\n    readonly branches: readonly string[];\n}',
   },
@@ -6431,8 +6529,12 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ForgeCommitList {\n    readonly headSha: string;\n    readonly commits: readonly ForgeCommit[];\n    readonly truncated: boolean;\n}',
   },
   {
+    name: 'ForgeCommitRange',
+    declaration: 'export interface ForgeCommitRange {\n    readonly from: string;\n    readonly to: string;\n}',
+  },
+  {
     name: 'ForgeDiffFile',
-    declaration: 'export interface ForgeDiffFile {\n    readonly path: string;\n    readonly previousPath: string | null;\n    readonly status: ForgeDiffStatus;\n    readonly binary: boolean;\n    readonly oversized: boolean;\n    readonly untracked: boolean;\n    readonly filtered?: \'lfs\' | \'filter\';\n    readonly additions: number;\n    readonly deletions: number;\n    readonly hunks: readonly ForgeDiffHunk[];\n}',
+    declaration: 'export interface ForgeDiffFile {\n    readonly path: string;\n    readonly previousPath: string | null;\n    readonly status: ForgeDiffStatus;\n    readonly binary: boolean;\n    readonly oversized: boolean;\n    readonly untracked: boolean;\n    readonly additions: number;\n    readonly deletions: number;\n    readonly hunks: readonly ForgeDiffHunk[];\n    readonly layer: ForgeFileLayer;\n    readonly digest: string;\n}',
   },
   {
     name: 'ForgeDiffHunk',
@@ -6443,16 +6545,68 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type ForgeDiffStatus = \'added\' | \'deleted\' | \'modified\' | \'renamed\';',
   },
   {
+    name: 'ForgeExtensionState',
+    declaration: 'export interface ForgeExtensionState {\n    readonly lenses: readonly ForgeRegisteredLens[];\n    readonly maxAnnotationsPerFile: number;\n}',
+  },
+  {
     name: 'ForgeFailure',
     declaration: 'export interface ForgeFailure {\n    readonly code: \'not-found\' | \'unauthenticated\' | \'too-large\' | \'stale\' | \'unsupported\' | \'unavailable\';\n    readonly message: string;\n}',
+  },
+  {
+    name: 'ForgeFileLayer',
+    declaration: 'export type ForgeFileLayer = \'interface\' | \'implementation\' | \'test\';',
+  },
+  {
+    name: 'ForgeLens',
+    declaration: 'export interface ForgeLens {\n    readonly id: ForgeLensId;\n    readonly version: string;\n    classify(input: ForgeLensInput, signal: AbortSignal): Promise<ForgeLensResult>;\n}',
+  },
+  {
+    name: 'ForgeLensFile',
+    declaration: 'export type ForgeLensFile = Pick<ForgeDiffFile, \'path\' | \'previousPath\' | \'status\' | \'binary\' | \'layer\' | \'hunks\' | \'digest\'>;',
+  },
+  {
+    name: 'ForgeLensFrame',
+    declaration: 'export type ForgeLensFrame = {\n    readonly kind: \'progress\';\n    readonly done: number;\n    readonly total: number;\n} | {\n    readonly kind: \'result\';\n    readonly files: Readonly<Record<string, ForgeLensKeep>>;\n};',
+  },
+  {
+    name: 'ForgeLensId',
+    declaration: 'export type ForgeLensId = Branded<\'ForgeLensId\'>;',
+  },
+  {
+    name: 'ForgeLensInput',
+    declaration: 'export interface ForgeLensInput {\n    readonly source: ForgeLensSource;\n    readonly files: readonly ForgeLensFile[];\n    text(side: \'old\' | \'new\', path: string, signal: AbortSignal): Promise<string | null>;\n    progress(done: number, total: number): void;\n}',
+  },
+  {
+    name: 'ForgeLensKeep',
+    declaration: 'export interface ForgeLensKeep {\n    readonly ranges?: {\n        readonly old: readonly ForgeLineRange[];\n        readonly new: readonly ForgeLineRange[];\n    };\n}',
+  },
+  {
+    name: 'ForgeLensRequest',
+    declaration: 'export interface ForgeLensRequest {\n    readonly source: {\n        readonly kind: \'local\';\n        readonly scope: ForgeLocalScope;\n    } | {\n        readonly kind: \'change\';\n        readonly url: string;\n        readonly commits: ForgeCommitRange | null;\n    };\n    readonly version: string;\n    readonly lens: string;\n}',
+  },
+  {
+    name: 'ForgeLensResult',
+    declaration: 'export interface ForgeLensResult {\n    readonly files: Readonly<Record<string, ForgeLensKeep>>;\n}',
+  },
+  {
+    name: 'ForgeLensSource',
+    declaration: 'export type ForgeLensSource = {\n    readonly kind: \'local\';\n    readonly scope: ForgeLocalScope;\n} | {\n    readonly kind: \'change\';\n    readonly ref: ChangeRequestRef;\n    readonly headSha: string;\n    readonly commits: ForgeCommitRange | null;\n};',
   },
   {
     name: 'ForgeLineComment',
     declaration: 'export interface ForgeLineComment {\n    readonly path: string;\n    readonly side: \'L\' | \'R\';\n    readonly startLine: number;\n    readonly endLine: number;\n    readonly body: string;\n}',
   },
   {
+    name: 'ForgeLineRange',
+    declaration: 'export interface ForgeLineRange {\n    readonly start: number;\n    readonly end: number;\n}',
+  },
+  {
     name: 'ForgeLocalChanges',
     declaration: 'export interface ForgeLocalChanges {\n    readonly base: string;\n    readonly files: readonly ForgeChangedFile[];\n}',
+  },
+  {
+    name: 'ForgeLocalCommits',
+    declaration: 'export interface ForgeLocalCommits {\n    readonly headSha: string;\n    readonly commits: readonly ForgeCommit[];\n    readonly truncated: boolean;\n}',
   },
   {
     name: 'ForgeLocalDiff',
@@ -6460,7 +6614,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ForgeLocalScope',
-    declaration: 'export type ForgeLocalScope = {\n    readonly kind: \'branch\';\n} | {\n    readonly kind: \'uncommitted\';\n} | {\n    readonly kind: \'unstaged\';\n} | {\n    readonly kind: \'staged\';\n} | {\n    readonly kind: \'commit\';\n    readonly commit: string;\n} | {\n    readonly kind: \'last-turn\';\n};',
+    declaration: 'export type ForgeLocalScope = {\n    readonly kind: \'branch\';\n    readonly base: string | null;\n    readonly commits: ForgeCommitRange | null;\n} | {\n    readonly kind: \'uncommitted\';\n} | {\n    readonly kind: \'unstaged\';\n} | {\n    readonly kind: \'staged\';\n};',
   },
   {
     name: 'ForgeMissingWorktree',
@@ -6468,11 +6622,11 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ForgePanelChangeRequest',
-    declaration: 'export interface ForgePanelChangeRequest extends SessionChangeRequest {\n    readonly snapshot: ChangeRequestSnapshot | null;\n}',
+    declaration: 'export interface ForgePanelChangeRequest extends SessionChangeRequest {\n    readonly snapshot: ChangeRequestSnapshot | null;\n    readonly reviewRevision: number;\n}',
   },
   {
     name: 'ForgePanelState',
-    declaration: 'export interface ForgePanelState {\n    readonly directory: string;\n    readonly checkout: ForgeCheckoutState;\n    readonly repository: ForgeRepository | null;\n    readonly readiness: ForgeReadiness | null;\n    readonly changeRequests: readonly ForgePanelChangeRequest[];\n    readonly worktree: ForgePanelWorktree;\n    readonly local: ForgeLocalChanges | null;\n    readonly lastTurn: number | null;\n}',
+    declaration: 'export interface ForgePanelState {\n    readonly directory: string;\n    readonly checkout: ForgeCheckoutState;\n    readonly repository: ForgeRepository | null;\n    readonly readiness: ForgeReadiness | null;\n    readonly changeRequests: readonly ForgePanelChangeRequest[];\n    readonly worktree: ForgePanelWorktree;\n    readonly local: ForgeLocalChanges | null;\n}',
   },
   {
     name: 'ForgePanelWorktree',
@@ -6489,6 +6643,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ForgeReadiness',
     declaration: 'export interface ForgeReadiness {\n    readonly state: \'ready\' | \'unauthenticated\' | \'unavailable\';\n    readonly message: string | null;\n}',
+  },
+  {
+    name: 'ForgeRegisteredLens',
+    declaration: 'export interface ForgeRegisteredLens {\n    readonly id: string;\n    readonly version: string;\n}',
   },
   {
     name: 'ForgeRepository',
@@ -7668,15 +7826,23 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'ProjectionDefinition',
-    declaration: 'export interface ProjectionDefinition<K extends keyof SessionProjectionStateMap, S extends SessionProjectionStateMap[K] = SessionProjectionStateMap[K]> {\n    key: K;\n    stateSchema: ZodType<S>;\n    init(header: SessionHeader, inheritedEventCount: SessionLogOffset): NoInfer<S>;\n    apply(state: NoInfer<S>, event: SessionEvent): NoInfer<S>;\n    wire?: K extends keyof SessionProjectionMap ? {\n        viewSchema: ZodType<SessionProjectionViewValue<SessionProjectionMap[K]>>;\n        view(state: NoInfer<S>): SessionProjectionViewValue<SessionProjectionMap[K]>;\n        summary?: boolean;\n    } : never;\n    stateVersion: number;\n}',
+    declaration: 'export interface ProjectionDefinition<K extends string, S = unknown> {\n    key: K;\n    stateSchema: ZodType<S>;\n    init(header: SessionHeader, inheritedEventCount: SessionLogOffset): NoInfer<S>;\n    apply(state: NoInfer<S>, event: SessionEvent): NoInfer<S>;\n    wire?: K extends keyof SessionProjectionMap ? {\n        viewSchema: ZodType<SessionProjectionViewValue<SessionProjectionMap[K]>>;\n        view(state: NoInfer<S>): SessionProjectionViewValue<SessionProjectionMap[K]>;\n        summary?: boolean;\n    } : never;\n    stateVersion: number;\n}',
   },
   {
     name: 'ProjectionEventChangeListener',
     declaration: 'export type ProjectionEventChangeListener = (session: Session, changes: readonly {\n    readonly key: Extract<keyof SessionProjectionMap, string>;\n    readonly val: unknown;\n}[], seq: SessionSeq) => void;',
   },
   {
+    name: 'ProjectionHandle',
+    declaration: 'export interface ProjectionHandle<S> {\n    stateOf(session: Session): S;\n    readerFor(session: Session): () => S;\n    dispose(): Promise<void>;\n}',
+  },
+  {
     name: 'ProjectionKeySelection',
     declaration: 'export type ProjectionKeySelection = readonly Extract<keyof SessionProjectionMap, string>[] | ReadonlySet<Extract<keyof SessionProjectionMap, string>>;',
+  },
+  {
+    name: 'ProjectionRegistration',
+    declaration: 'export type ProjectionRegistration<S> = (() => void) & PromiseLike<ProjectionHandle<S>>;',
   },
   {
     name: 'ProjectionSnapshot',

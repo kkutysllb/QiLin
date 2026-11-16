@@ -61,6 +61,16 @@ describe('MermaidDiagram render integration', () => {
     expect(view.getByRole('img', { name: 'Mermaid diagram (enlarged)' })).toBeTruthy()
   })
 
+  it('renders the fence as a plain code block when the consumer provides no diagram chrome', async () => {
+    const { MarkdownText } = await import('../src/markdown/MarkdownText.tsx')
+    const view = render(<MarkdownText
+      text={'```mermaid\ngraph TD\n  a --> b\n```'}
+      labels={{ code: { copyLabel: 'Copy', copiedLabel: 'Copied' }, footnotes: undefined } as never}
+    />)
+    expect(view.container.textContent).toContain('graph TD')
+    expect(view.queryByRole('button', { name: 'Mermaid diagram' })).toBeNull()
+  })
+
   it('renders the fenced source through the markdown pipeline when the library rejects it', async () => {
     const view = await renderDiagram(vi.fn().mockRejectedValue(new Error('diagram syntax error')))
     expect(await view.findByRole('alert')).toBeTruthy()

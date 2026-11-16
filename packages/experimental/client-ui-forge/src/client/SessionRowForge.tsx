@@ -1,14 +1,13 @@
 /**
  * Session row icons after the time label: a branch glyph while the Session
- * works in the worktree the panel created for it, a branch carrying a question
- * mark and the label "visible once opened" while the listed values hold no
- * worktree fact, and the state glyph of its most urgent change request. Glyphs
- * of open change requests stay in the row's subdued color with a dot for their
- * checks; merged and closed ones keep their state color.
+ * works in the worktree the panel created for it, and the state glyph of its
+ * most urgent change request. Glyphs of open change requests stay in the
+ * row's subdued color with their checks filling the head branch end; merged and closed ones keep
+ * their state color.
  */
 
 import type { ReactNode } from 'react'
-import { IconBranch, IconBranchQuestion } from '@qilin-agent/client-ui-primitives'
+import { IconBranchOutlineRegular } from '@qilin-agent/client-ui-primitives'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 // Type-only: pulls the ui-workspace SlotMap merge (the Session row seats).
 import type {} from '@qilin-agent/client-ui-workspace/client'
@@ -53,33 +52,22 @@ export function stateLine(entry: SessionListChangeRequest, t: Translate): string
 
 /** Full props of the row icons. */
 export type SessionRowForgeProps =
-  PropsRuntime<'sidebar.session.row.leading'> & PropsLocale<typeof NS> & InjectFace<SessionListInjected>
+  PropsRuntime<'sidebar.session.row.trailing'> & PropsLocale<typeof NS> & InjectFace<SessionListInjected>
 
 /**
  * Render a Session row's forge icons.
  * @param props - the row's Session, the shared hooks, and copy.
- * @returns the icons, or nothing for a Session with no change request and a
- *   worktree fact that says it works outside its worktree.
+ * @returns the icons, or nothing for a Session without a worktree or change requests.
  */
 export function SessionRowForge({ sessionId, useSessions, useStates, t }: SessionRowForgeProps): ReactNode {
   const facts = useSessionForgeFacts(useSessions, useStates, sessionId)
   const top = facts.changeRequests[0]
+  const checks = top === undefined ? 'none' : rowChecks(top)
   return (
     <>
       {facts.worktree !== null && (
         <span className={css.icon} role="img" aria-label={t('list.worktree')} data-forge-row-worktree="">
-          <IconBranch size={14} />
-        </span>
-      )}
-      {facts.worktreeUnknown && (
-        <span
-          className={css.icon}
-          role="img"
-          aria-label={t('list.worktreeUnknown')}
-          title={t('list.worktreeUnknown')}
-          data-forge-row-worktree="unknown"
-        >
-          <IconBranchQuestion size={14} />
+          <IconBranchOutlineRegular size={13} />
         </span>
       )}
       {top !== undefined && (
@@ -89,8 +77,8 @@ export function SessionRowForge({ sessionId, useSessions, useStates, t }: Sessio
           aria-label={t('change.stateAria', { state: stateLine(top, t) })}
           data-forge-row-change={top.tone}
         >
-          <ChangeRequestGlyph tone={top.tone} tinted={top.tone === 'merged' || top.tone === 'closed'} size={14} />
-          {rowChecks(top) !== 'none' && <span className={css.dot} data-checks={rowChecks(top)} />}
+          <ChangeRequestGlyph tone={top.tone} tinted={top.tone === 'merged' || top.tone === 'closed'} size={14}
+            checks={checks === 'none' ? undefined : checks} />
         </span>
       )}
     </>

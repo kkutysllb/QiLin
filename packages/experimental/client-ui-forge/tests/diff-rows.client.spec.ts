@@ -1,7 +1,7 @@
 /** Rows of a file diff: numbering, side-by-side pairing, and unchanged lines between hunks. */
 import { describe, expect, it } from 'vitest'
 import type { ForgeDiffFile, ForgeDiffHunk } from '../src/types.ts'
-import { DIFF_WINDOW_ROWS, drawnLines, hunkRows, matchesHunks, segmentsOf, splitRows, textLines, windowSegments } from '../src/client/diff-rows.ts'
+import { drawnLines, hunkRows, matchesHunks, segmentsOf, splitRows, textLines } from '../src/client/diff-rows.ts'
 
 /** Modified file whose hunks change lines 3–6 and 11 of its 13 new lines. */
 const NEW_SIDE = ['a1', 'a2', 'a3', 'y', 'z', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10', 't12', 't13']
@@ -12,7 +12,7 @@ const HUNKS: readonly ForgeDiffHunk[] = [
 
 function file(overrides: Partial<ForgeDiffFile> = {}): ForgeDiffFile {
   return {
-    path: 'src/a.ts', previousPath: null, status: 'modified', binary: false, oversized: false, untracked: false,
+    path: 'src/a.ts', previousPath: null, status: 'modified', binary: false, oversized: false, untracked: false, layer: 'implementation', digest: 'digest',
     additions: 2, deletions: 2, hunks: HUNKS, ...overrides,
   }
 }
@@ -82,7 +82,7 @@ describe('matchesHunks', () => {
 
 describe('segmentsOf', () => {
   it('collapses the lines before, between, and after the hunks, the last of unknown length', () => {
-    expect(segmentsOf(file(), undefined, new Set([0, 1])).map(segment => segment.kind === 'gap' ? segment : segment.rows.length)).toEqual([
+    expect(segmentsOf(file(), undefined, new Set([0, 1])).map(segment => segment.kind === 'rows' ? segment.rows.length : segment)).toEqual([
       { kind: 'gap', index: 0, count: 2 },
       5,
       { kind: 'gap', index: 1, count: 4 },
@@ -105,7 +105,7 @@ describe('segmentsOf', () => {
   })
 
   it('keeps unexpanded gaps collapsed once the new side is known, and counts the lines after the last hunk', () => {
-    expect(segmentsOf(file(), NEW_SIDE, new Set([1])).map(segment => segment.kind === 'gap' ? segment : segment.rows.length)).toEqual([
+    expect(segmentsOf(file(), NEW_SIDE, new Set([1])).map(segment => segment.kind === 'rows' ? segment.rows.length : segment)).toEqual([
       { kind: 'gap', index: 0, count: 2 },
       11,
       { kind: 'gap', index: 2, count: 2 },
@@ -133,6 +133,26 @@ describe('segmentsOf', () => {
     expect(segmentsOf(oldEnding, undefined, new Set()).map(segment => segment.kind)).toEqual(['gap', 'rows', 'gap'])
   })
 
+  it('draws consecutive folded hunks as one row that takes the lines between them, and the gap before a folded run', () => {
+    const three = file({ hunks: [...HUNKS, { oldStart: 13, oldLines: 1, newStart: 13, newLines: 1, lines: ['-u', '+t13'] }] })
+    expect(segmentsOf(three, undefined, new Set(), new Set([1, 2])).map(segment => segment.kind === 'rows' ? segment.rows.length : segment)).toEqual([
+      { kind: 'gap', index: 0, count: 2 },
+      5,
+      { kind: 'gap', index: 1, count: 4 },
+      { kind: 'folded', hunks: [1, 2] },
+      { kind: 'gap', index: 3, count: null },
+    ])
+    expect(segmentsOf(three, undefined, new Set(), new Set([0, 2])).map(segment => segment.kind === 'rows' ? segment.rows.length : segment)).toEqual([
+      { kind: 'gap', index: 0, count: 2 },
+      { kind: 'folded', hunks: [0] },
+      { kind: 'gap', index: 1, count: 4 },
+      2,
+      { kind: 'gap', index: 2, count: 1 },
+      { kind: 'folded', hunks: [2] },
+      { kind: 'gap', index: 3, count: null },
+    ])
+  })
+
   it('draws nothing for a file without hunks', () => {
     expect(segmentsOf(file({ status: 'renamed', previousPath: 'old.ts', hunks: [] }), undefined, new Set())).toEqual([])
   })
@@ -142,36 +162,5 @@ describe('drawnLines', () => {
   it('counts the lines of every hunk except missing-newline markers', () => {
     expect(drawnLines(file())).toBe(7)
     expect(drawnLines(file({ hunks: [{ oldStart: 1, oldLines: 1, newStart: 1, newLines: 1, lines: ['-a', '\\ No newline at end of file', '+b'] }] }))).toBe(2)
-  })
-})
-
-describe('windowSegments', () => {
-  const rows = (count: number): { kind: 'rows'; rows: { kind: 'add'; old: null; new: number; text: string }[] } =>
-    ({ kind: 'rows', rows: Array.from({ length: count }, (_, index) => ({ kind: 'add' as const, old: null, new: index + 1, text: `l${index + 1}` })) })
-
-  it('cuts a run at the budget and reports the drawn rows left out', () => {
-    const segment = rows(10)
-    const windowed = windowSegments([segment], 4)
-    expect(windowed.segments).toHaveLength(1)
-    expect(windowed.segments[0]!.kind === 'rows' && windowed.segments[0]!.rows).toHaveLength(4)
-    expect(windowed.hidden).toBe(6)
-  })
-
-  it('counts a gap as the single row that opens it', () => {
-    const windowed = windowSegments([rows(2), { kind: 'gap', index: 0, count: 40 }, rows(3)], 3)
-    expect(windowed.segments.map(segment => segment.kind)).toEqual(['rows', 'gap'])
-    expect(windowed.hidden).toBe(3)
-  })
-
-  it('keeps one row for a non-positive budget so the file is never blank', () => {
-    const windowed = windowSegments([rows(5)], 0)
-    expect(windowed.segments[0]!.kind === 'rows' && windowed.segments[0]!.rows).toHaveLength(1)
-    expect(windowed.hidden).toBe(4)
-  })
-
-  it('leaves a file inside the default window untouched', () => {
-    const windowed = windowSegments([rows(DIFF_WINDOW_ROWS)], DIFF_WINDOW_ROWS)
-    expect(windowed.hidden).toBe(0)
-    expect(windowed.segments[0]!.kind === 'rows' && windowed.segments[0]!.rows).toHaveLength(DIFF_WINDOW_ROWS)
   })
 })

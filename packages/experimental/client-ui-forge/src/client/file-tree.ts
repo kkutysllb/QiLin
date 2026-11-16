@@ -84,16 +84,3 @@ export function filterFileTree(nodes: readonly ChangedFileNode[], query: string)
     return children.length === 0 ? [] : [{ ...node, children }]
   })
 }
-
-/**
- * The index one step through the changed-file order.
- * @param count - how many files the diff lists.
- * @param selected - the selected file's index, or -1 before any selection.
- * @param delta - 1 for the next file, -1 for the previous one.
- * @returns the target index, or -1 when the diff lists no file.
- */
-export function stepFileIndex(count: number, selected: number, delta: number): number {
-  if (count === 0) return -1
-  if (selected < 0) return delta > 0 ? 0 : count - 1
-  return Math.max(0, Math.min(count - 1, selected + delta))
-}

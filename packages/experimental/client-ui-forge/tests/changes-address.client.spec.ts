@@ -1,36 +1,37 @@
 /** Changes tab addresses, titles, the tab type definition, and the per-tab store. */
 import { describe, expect, it } from 'vitest'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
-import { SessionId } from '@qilin-agent/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import {
   CHANGES_ID, CHANGES_KIND, changesAddress, changesDefinition, changesTitle, parseChangesAddress,
 } from '../src/client/changes-address.ts'
 import { createChangesStore } from '../src/client/changes-store.ts'
 import { en, zh } from '../src/client/locales.ts'
+import { brandString } from '@qilin-agent/brand'
 
-const SESSION = SessionId('s/1')
+const SESSION = brandString<SessionId>('s/1')
 const URL = 'https://github.com/octo/demo/pull/7'
 
 describe('changes addresses', () => {
   it('round-trip the Session and the source with each part percent-encoded', () => {
     const local = changesAddress({ sessionId: SESSION, source: { kind: 'local' } })
     const change = changesAddress({ sessionId: SESSION, source: { kind: 'change', url: URL } })
-    expect(local).toBe('qilin-resource://forge-changes/s%2F1/local')
-    expect(change).toBe(`qilin-resource://forge-changes/s%2F1/change/${encodeURIComponent(URL)}`)
+    expect(local).toBe('dsh-resource://forge-changes/s%2F1/local')
+    expect(change).toBe(`dsh-resource://forge-changes/s%2F1/change/${encodeURIComponent(URL)}`)
     expect(parseChangesAddress(local)).toEqual({ sessionId: SESSION, source: { kind: 'local' } })
     expect(parseChangesAddress(change)).toEqual({ sessionId: SESSION, source: { kind: 'change', url: URL } })
   })
 
   it.each([
-    'qilin-resource://file/session/s/a.ts',
-    'qilin-resource://forge-changes//local',
-    'qilin-resource://forge-changes/s',
-    'qilin-resource://forge-changes/s/remote',
-    'qilin-resource://forge-changes/s/local/extra',
-    'qilin-resource://forge-changes/s/change',
-    'qilin-resource://forge-changes/s/change/',
-    'qilin-resource://forge-changes/s/change/a/b',
-    'qilin-resource://forge-changes/%E0%A4%A/local',
+    'dsh-resource://file/session/s/a.ts',
+    'dsh-resource://forge-changes//local',
+    'dsh-resource://forge-changes/s',
+    'dsh-resource://forge-changes/s/remote',
+    'dsh-resource://forge-changes/s/local/extra',
+    'dsh-resource://forge-changes/s/change',
+    'dsh-resource://forge-changes/s/change/',
+    'dsh-resource://forge-changes/s/change/a/b',
+    'dsh-resource://forge-changes/%E0%A4%A/local',
   ])('reject %s', (address) => {
     expect(parseChangesAddress(address)).toBeUndefined()
   })
@@ -46,12 +47,12 @@ describe('changes addresses', () => {
 describe('changesDefinition', () => {
   it('claims and titles the addresses this package mints and leaves others named by their address', () => {
     const definition = changesDefinition(makeTranslate(en))
-    expect(definition).toMatchObject({ id: CHANGES_ID, kind: CHANGES_KIND, keepMounted: true, patterns: ['qilin-resource://forge-changes/**'] })
+    expect(definition).toMatchObject({ id: CHANGES_ID, kind: CHANGES_KIND, keepMounted: true, patterns: ['dsh-resource://forge-changes/**'] })
     const address = changesAddress({ sessionId: SESSION, source: { kind: 'change', url: URL } })
     expect(definition.canOpen?.(address)).toBe(true)
     expect(definition.title(address)).toBe('Changes in #7')
-    expect(definition.canOpen?.('qilin-resource://forge-changes/s/remote')).toBe(false)
-    expect(definition.title('qilin-resource://forge-changes/s/remote')).toBe('qilin-resource://forge-changes/s/remote')
+    expect(definition.canOpen?.('dsh-resource://forge-changes/s/remote')).toBe(false)
+    expect(definition.title('dsh-resource://forge-changes/s/remote')).toBe('dsh-resource://forge-changes/s/remote')
   })
 })
 
@@ -59,15 +60,46 @@ describe('createChangesStore', () => {
   it('seeds a tab on its first navigation, keeps its choices, and forgets it', () => {
     const store = createChangesStore().create()
     store.actions.navigated('tab-1', 1)
-    expect(store.getSnapshot().byTab['tab-1']).toEqual({ scope: 'branch', split: true, wrap: true, navigated: 1 })
+    expect(store.getSnapshot().byTab['tab-1']).toEqual({
+      scope: 'branch', base: null, commits: null, lens: 'all', filterLens: null, hideTests: false, split: true, wrap: true, navigated: 1,
+    })
     store.actions.scoped('tab-1', 'staged')
+    store.actions.based('tab-1', { ref: 'refs/heads/topic', name: 'topic' })
     store.actions.toggledSplit('tab-1')
     store.actions.toggledWrap('tab-1')
+    store.actions.lensed('tab-1', 'interface')
+    store.actions.toggledTests('tab-1')
+    store.actions.filtered('tab-1', 'fixture/exports')
     store.actions.navigated('tab-1', 2)
-    expect(store.getSnapshot().byTab['tab-1']).toEqual({ scope: 'staged', split: false, wrap: false, navigated: 2 })
+    expect(store.getSnapshot().byTab['tab-1']).toEqual({
+      scope: 'staged', base: { ref: 'refs/heads/topic', name: 'topic' }, commits: null, lens: 'interface', filterLens: 'fixture/exports',
+      hideTests: true, split: false, wrap: false, navigated: 2,
+    })
     store.actions.navigated('tab-2', 1)
     store.actions.forget('tab-1')
     expect(Object.keys(store.getSnapshot().byTab)).toEqual(['tab-2'])
     expect(() => { store.actions.toggledWrap('tab-1') }).toThrow('no changes state for tab "tab-1"')
+  })
+
+  it('shows all commits again after another scope or base, and leaves the test lens when test files hide', () => {
+    const store = createChangesStore().create()
+    const commits = { from: 'a'.repeat(40), to: 'b'.repeat(40) }
+    const tab = () => store.getSnapshot().byTab['tab-1']
+    store.actions.navigated('tab-1', 1)
+    store.actions.committed('tab-1', commits)
+    expect(tab()?.commits).toEqual(commits)
+    store.actions.based('tab-1', null)
+    expect(tab()?.commits).toBeNull()
+    store.actions.committed('tab-1', commits)
+    store.actions.scoped('tab-1', 'branch')
+    expect(tab()?.commits).toBeNull()
+
+    store.actions.lensed('tab-1', 'test')
+    store.actions.toggledTests('tab-1')
+    expect(tab()).toMatchObject({ lens: 'all', hideTests: true })
+    store.actions.lensed('tab-1', 'implementation')
+    store.actions.toggledTests('tab-1')
+    store.actions.toggledTests('tab-1')
+    expect(tab()).toMatchObject({ lens: 'implementation', hideTests: true })
   })
 })

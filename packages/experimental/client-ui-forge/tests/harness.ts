@@ -12,28 +12,29 @@ import type { Agent, PreStepDecision } from '@qilin-agent/agent'
 import { createInboxStub } from '@qilin-agent/agent-loop-testkit'
 import ForgeService, { changeRequestKey } from '@qilin-agent/experimental-forge'
 import type {
-  ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeProvider, ForgeReviewData,
+  ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeCommitList, ForgeFailure, ForgeProvider,
   ForgeReadiness, ForgeRepository, MergeRequest,
 } from '@qilin-agent/experimental-forge'
 import ForgeSessionService from '@qilin-agent/experimental-forge-session'
 import WorktreeService from '@qilin-agent/experimental-worktree'
 import LocalFileSystem from '@qilin-agent/fs-local'
-import { createAssistantMessage, createToolResultMessage, createUserMessage, ToolCallId } from '@qilin-agent/llm'
+import { createAssistantMessage, createToolResultMessage, createUserMessage, type ToolCallId } from '@qilin-agent/llm'
 import SandboxProvider from '@qilin-agent/sandbox'
 import LocalSandbox from '@qilin-agent/sandbox-local'
 import type { ConfinedArgv, SandboxPolicy } from '@qilin-agent/sandbox'
 import SandboxPolicyService from '@qilin-agent/sandbox-policy'
-import SessionStore, { pluginRecordOf, Session as SessionRecord, SESSION_FORMAT_VERSION, SessionId } from '@qilin-agent/session'
+import SessionStore, { pluginRecordOf, Session as SessionRecord, SESSION_FORMAT_VERSION, type SessionId } from '@qilin-agent/session'
 import type { Session, SessionEvent, UserMessage } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
-import { projectionReader } from '../src/projection-reader.ts'
-import type { ProjectionReader } from '../src/projection-reader.ts'
+import type { ProjectionHandle } from '@qilin-agent/session-projection'
 import LocalSubprocessRuntime from '@qilin-agent/subprocess-local'
 import SystemPrompt from '@qilin-agent/system-prompt'
 import WorkingDirectoryService from '@qilin-agent/working-directory'
 import ForgePanelController from '../src/index.ts'
 import type { Config, ForgePanelState, ForgeWorktreeState } from '../src/index.ts'
+import { CREATED_RECORD } from '@qilin-agent/experimental-worktree'
 import { forgeWorktreeProjection, WORKTREE_RECORD } from '../src/worktree.ts'
+import { brandString } from '@qilin-agent/brand'
 
 const execute = promisify(execFile)
 
@@ -142,7 +143,7 @@ export async function repository(parent: string, name = 'repo'): Promise<string>
  * @returns the Session.
  */
 export function plainSession(cwd: string): Session {
-  const id = SessionId('forge-git')
+  const id = brandString<SessionId>('forge-git')
   return SessionRecord.create(id, [], { version: SESSION_FORMAT_VERSION, id, createdAt: 0, isSeeded: false, cwd })
 }
 
@@ -257,19 +258,19 @@ export function snapshot(ref: ChangeRequestRef): ChangeRequestSnapshot {
     mergeability: 'mergeable',
     mergeReady: true,
     mergeMethods: ['squash', 'merge', 'rebase'],
+    branchUpdates: [],
     reviewDecision: 'none',
     reviewers: [],
     reviewersTruncated: false,
     canRequestReviews: false,
-    branchUpdates: [],
-    closingIssues: [],
-    closingIssuesTruncated: false,
     checks: [],
     checksRollup: 'success',
     checksTruncated: false,
     canRerunChecks: false,
-    threadsTruncated: false,
     unresolvedThreads: 0,
+    threadsTruncated: false,
+    closingIssues: [],
+    closingIssuesTruncated: false,
     updatedAt: '2026-10-09T00:00:00Z',
     closedAt: null,
   }
@@ -293,18 +294,25 @@ export class FakeProvider implements ForgeProvider {
   readonly patches = new Map<number, string | ForgeFailure>()
   /** Change request numbers in the order their diffs were read. */
   readonly diffs: number[] = []
-  /** Head commits in the order their diffs were read. */
+  /** Head commits the diff reads named, in the same order. */
   readonly diffHeads: string[] = []
-  /** Review reads by change request number; others read an empty thread list at the requested head. */
-  readonly reviews = new Map<number, ForgeReviewData | ForgeFailure>()
-  /** Review reads in call order, as `<number> <head>`. */
-  readonly reviewReads: string[] = []
   /** File texts or failures by `<commit>:<path>`; others return a not-found failure. */
   readonly texts = new Map<string, string | ForgeFailure>()
   /** Open change request numbers that a head lookup returns, by head branch. */
   readonly heads = new Map<string, readonly number[]>()
   /** Head lookups in call order, as `<owner>/<name> <branch>`. */
   readonly lookups: string[] = []
+  /** Commit lists or failures by change request number; others return a not-found failure. */
+  readonly commitLists = new Map<number, ForgeCommitList | ForgeFailure>()
+  /** Patches or failures between two commits by `<base>..<head>`; others return a not-found failure. */
+  readonly comparisons = new Map<string, string | ForgeFailure>()
+  /** Commit listing; a test deletes it to stand for a provider that does not read commits. */
+  commits?: (ref: ChangeRequestRef, signal: AbortSignal) => Promise<ForgeCommitList | ForgeFailure> = (ref: ChangeRequestRef) =>
+    Promise.resolve(this.commitLists.get(ref.number) ?? { code: 'not-found', message: `no commits of #${ref.number}` })
+  /** Comparison of two commits. */
+  compare?: (ref: ChangeRequestRef, base: string, head: string, signal: AbortSignal) => Promise<string | ForgeFailure> =
+    (_ref: ChangeRequestRef, base: string, head: string) =>
+      Promise.resolve(this.comparisons.get(`${base}..${head}`) ?? { code: 'not-found', message: `no comparison ${base}..${head}` })
 
   repositoryFromRemote(url: string): ForgeRepository | undefined {
     const [, host = '', owner = '', name = ''] = /^https:\/\/([a-z.]+\.test)\/([^/]+)\/([^/]+?)\.git$/.exec(url) ?? []
@@ -347,20 +355,13 @@ export class FakeProvider implements ForgeProvider {
     return Promise.resolve(this.actionResult)
   }
 
-  diff(ref: ChangeRequestRef, headSha: string): Promise<string | ForgeFailure> {
+  diff(ref: ChangeRequestRef, headSha: string, _signal: AbortSignal): Promise<string | ForgeFailure> {
     this.diffs.push(ref.number)
     this.diffHeads.push(headSha)
     return Promise.resolve(this.patches.get(ref.number) ?? { code: 'not-found', message: `no diff of #${ref.number}` })
   }
 
-  readReview(ref: ChangeRequestRef, headSha: string): Promise<ForgeReviewData | ForgeFailure> {
-    this.reviewReads.push(`${ref.number} ${headSha}`)
-    return Promise.resolve(this.reviews.get(ref.number) ?? {
-      headSha, viewer: null, threads: [], truncated: false, pendingReview: null, viewerCanReview: false,
-    })
-  }
-
-  fileText(_ref: ChangeRequestRef, commit: string, path: string): Promise<string | ForgeFailure> {
+  fileText(_ref: ChangeRequestRef, commit: string, path: string, _signal: AbortSignal): Promise<string | ForgeFailure> {
     return Promise.resolve(this.texts.get(`${commit}:${path}`) ?? { code: 'not-found', message: `no ${path} at ${commit}` })
   }
 
@@ -403,8 +404,9 @@ export function testAgent(ctx: Context, session: Session): TestAgent {
       agentEvents(ctx, agent).emit('agent/inbox/inserted', { message })
       if (wakeup) wake()
     },
+    // The panel never starts a retry; the double only satisfies the Agent face.
+    retry() {},
     followup(message) { agent.send(message, 'next-turn', true) },
-    retry() { throw new Error('retry is not supported by this Agent stand-in') },
     steer(message) { agent.send(message, 'next-step', true) },
     inject(message) { agent.send(message, 'next-step', false) },
     cancel(cause, options = {}) {
@@ -522,6 +524,8 @@ export interface Runtime {
   readonly agent: TestAgent
   /** Data of the Session's worktree records in log order. */
   readonly records: unknown[]
+  /** Data of the worktree service's creation records for the Session, in log order. */
+  readonly created: unknown[]
   /** Fiber of the worktree service, or undefined when it is not mounted. */
   readonly worktrees: ReturnType<Context['plugin']> | undefined
 }
@@ -531,7 +535,7 @@ export interface Bench extends Runtime {
   /** Fiber of the panel Remote. */
   readonly panel: ReturnType<Context['plugin']>
   /** Reads the `forgeWorktree` projection without holding a registration, so the panel's own registration decides its lifetime. */
-  readonly worktreeStates: ProjectionReader<ForgeWorktreeState>
+  readonly worktreeStates: ProjectionHandle<ForgeWorktreeState>
 }
 
 /** Optional services of a {@link runtime} or {@link bench}. */
@@ -565,15 +569,18 @@ export async function runtime(cwd: string, options: BenchOptions = {}): Promise<
     await ctx.plugin(ForgeSessionService, {})
     const worktrees = options.worktrees === true ? ctx.plugin(WorktreeService, {}) : undefined
     if (worktrees !== undefined) await worktrees
-    const session = ctx.sessions.create(SessionId(`forge-panel-${Math.random().toString(36).slice(2)}`), { meta: { cwd } })
+    const session = ctx.sessions.create(brandString<SessionId>(`forge-panel-${Math.random().toString(36).slice(2)}`), { meta: { cwd } })
     const records: unknown[] = []
+    const created: unknown[] = []
     ctx.on('session/event', (target: Session, event: SessionEvent) => {
       const record = pluginRecordOf(event)
-      if (target === session && record?.type === WORKTREE_RECORD) records.push(record.data)
+      if (target !== session) return
+      if (record?.type === WORKTREE_RECORD) records.push(record.data)
+      if (record?.type === CREATED_RECORD) created.push(record.data)
     })
     const agent = testAgent(ctx, session)
     await ctx.agents.register(agent)
-    return { ctx, provider, sandbox, session, agent, records, worktrees }
+    return { ctx, provider, sandbox, session, agent, records, created, worktrees }
   } catch (error) {
     await ctx.fiber.dispose()
     throw error
@@ -596,8 +603,8 @@ export async function bench(cwd: string, config: Config = {}, options: BenchOpti
     await base.ctx.fiber.dispose()
     throw error
   }
-  const worktreeStates = projectionReader<ForgeWorktreeState>(base.ctx, 'forgeWorktree', base.ctx.sessionProjections.register(forgeWorktreeProjection))
-  worktreeStates.dispose()
+  const worktreeStates = await base.ctx.sessionProjections.register(forgeWorktreeProjection)
+  await worktreeStates.dispose()
   return { ...base, panel, worktreeStates }
 }
 
@@ -660,16 +667,16 @@ export function shellTurn(session: Session, turn: number, calls: readonly { call
     step,
     stream: [],
     message: createAssistantMessage({
-      content: calls.map(call => ({ type: 'tool-call' as const, id: ToolCallId(call.callId), name: 'bash', arguments: callArguments(call.command) })),
+      content: calls.map(call => ({ type: 'tool-call' as const, id: brandString<ToolCallId>(call.callId), name: 'bash', arguments: callArguments(call.command) })),
       source: { provider: 'fixture', model: 'fixture' },
     }),
   }, { surfaceOp: 'append' })
-  for (const call of calls) session.append('tool/call', { turn, step, callId: ToolCallId(call.callId), name: 'bash', arguments: callArguments(call.command) })
+  for (const call of calls) session.append('tool/call', { turn, step, callId: brandString<ToolCallId>(call.callId), name: 'bash', arguments: callArguments(call.command) })
   for (const call of calls) {
     session.append('tool/result', {
       turn,
       step,
-      message: createToolResultMessage({ callId: ToolCallId(call.callId), content: [{ type: 'text', text: call.output }], isError: false }),
+      message: createToolResultMessage({ callId: brandString<ToolCallId>(call.callId), content: [{ type: 'text', text: call.output }], isError: false }),
     }, { surfaceOp: 'append' })
   }
   session.append('step/end', { turn, step })

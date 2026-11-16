@@ -1,14 +1,14 @@
 /** Live panel state of one followed Session, shared by all of its followers. */
 
+import { isDeepStrictEqual } from 'node:util'
 import type { Context } from '@qilin-agent/kylin'
-import type { ChangeRequestSnapshot, ForgeReadiness, ForgeRepository } from '@qilin-agent/experimental-forge'
+import type { ChangeRequestRef, ChangeRequestSnapshot, ForgeReadiness, ForgeRepository } from '@qilin-agent/experimental-forge'
 import type { SessionChangeRequest } from '@qilin-agent/experimental-forge-session'
 import type {} from '@qilin-agent/experimental-worktree'
 import type {} from '@qilin-agent/sandbox-policy'
 import { pluginRecordOf } from '@qilin-agent/session'
 import type { Session, SessionEvent } from '@qilin-agent/session'
-import type { ProjectionReader } from './projection-reader.ts'
-import type { ForgeTurnFilesState } from './turn-files.ts'
+import type { ProjectionHandle } from '@qilin-agent/session-projection'
 import { deadline } from '@qilin-agent/timeout'
 import type {} from '@qilin-agent/working-directory'
 import { gitIn, hasBranch, inspectCheckout } from './git.ts'
@@ -73,18 +73,18 @@ export class SessionPanel {
    * @param config - Git limits and the sign-in probe deadline.
    * @param session - Session the panel describes.
    * @param worktreeStates - reads the `forgeWorktree` projection of the Session.
-   * @param turnFiles - reads the `forgeTurnFiles` projection of the Session.
    * @param creations - reads the running creation and restoration, the last failed creation, and what a message of the
    * Session waits for.
+   * @param reviewRevision - reads how many review changes were announced for a change request.
    * @param onIdle - called when the last follower leaves.
    */
   constructor(
     private readonly ctx: Context,
     private readonly config: PanelConfig,
     readonly session: Session,
-    private readonly worktreeStates: ProjectionReader<ForgeWorktreeState>,
-    turnFiles: ProjectionReader<ForgeTurnFilesState>,
+    private readonly worktreeStates: ProjectionHandle<ForgeWorktreeState>,
     private readonly creations: Pick<WorktreeCreations, 'of' | 'restorationOf' | 'failureOf' | 'waitingOf'>,
+    private readonly reviewRevision: (ref: ChangeRequestRef) => number,
     private readonly onIdle: () => void,
   ) {
     this.current = {
@@ -95,7 +95,6 @@ export class SessionPanel {
       changeRequests: this.entries(ctx.forgeSession.changeRequests(session)),
       worktree: this.worktree(),
       local: null,
-      lastTurn: turnFiles.stateOf(session).turn,
     }
     this.stopWatching = ctx.forgeSession.watch(session, (changeRequests) => {
       this.publish({ ...this.current, changeRequests: this.entries(changeRequests) })
@@ -149,9 +148,6 @@ export class SessionPanel {
       void this.inspect()
     } else if (event.type === 'turn/start' || event.type === 'step/start' || pluginRecordOf(event)?.type === WORKTREE_RECORD) {
       this.updateWorktree()
-    } else if (event.type === 'turn/end') {
-      // The last-turn scope appears once a turn ends; its projection carries the number.
-      this.publish({ ...this.current, lastTurn: event.data.turn })
     }
   }
 
@@ -164,12 +160,6 @@ export class SessionPanel {
   /** Forget the missing worktree once it was checked out again; the next publication carries it, and a reinspection confirms it. */
   restored(): void {
     this.missing = null
-  }
-
-  /** Forget the missing worktree once it was removed at the reader's request; the projection no longer carries it. */
-  removed(): void {
-    this.missing = null
-    this.updateWorktree()
   }
 
   /** Reinspect the checkout, such as after its directory was created again. */
@@ -210,6 +200,11 @@ export class SessionPanel {
     await Promise.all([inspection, probe])
   }
 
+  /** Publish the review revisions of the bound change requests after a review change was announced. */
+  reviewChanged(): void {
+    this.publish({ ...this.current, changeRequests: this.entries(this.ctx.forgeSession.changeRequests(this.session)) })
+  }
+
   /**
    * Stop inspections, probes, and the change request watch, end every follower, and wait for pending work.
    * @returns settles once pending inspections and probes have ended.
@@ -223,7 +218,8 @@ export class SessionPanel {
   private entries(changeRequests: readonly SessionChangeRequest[]): ForgePanelChangeRequest[] {
     return changeRequests.map((entry) => {
       if (entry.update !== null && 'snapshot' in entry.update) this.snapshots.set(entry.url, entry.update.snapshot)
-      return { ...entry, snapshot: this.snapshots.get(entry.url) ?? null }
+      const reviewRevision = entry.ref === null ? 0 : this.reviewRevision(entry.ref)
+      return { ...entry, snapshot: this.snapshots.get(entry.url) ?? null, reviewRevision }
     })
   }
 
@@ -243,6 +239,8 @@ export class SessionPanel {
   }
 
   private publish(next: ForgePanelState): void {
+    // A reinspection after a tool result usually finds the same checkout; equal states reach no follower.
+    if (isDeepStrictEqual(next, this.current)) return
     this.current = next
     for (const notify of [...this.followers]) notify()
   }

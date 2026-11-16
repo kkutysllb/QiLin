@@ -19,11 +19,8 @@
  * synchronous (an async unit would tear the carriers' consistency cut), and
  * `state` MUST be plain JSON (the persisted-cache precondition).
  */
-interface ProjectionDefinition<
-  K extends keyof SessionProjectionStateMap,
-  S extends SessionProjectionStateMap[K] = SessionProjectionStateMap[K],
-> {
-  /** The projection key this unit owns (its `SessionProjectionStateMap` entry). */
+interface ProjectionDefinition<K extends string, S = unknown> {
+  /** The projection key this unit owns; host-only keys may stay outside the client map. */
   key: K
   /** Validates persisted state before it seeds a fold. */
   stateSchema: ZodType<S>
@@ -234,15 +231,15 @@ Source: [`packages/session/session-projection-cache/src/index.ts`](../../package
  * @param definition - key, state schema, pure unit functions, and stateVersion.
  * @returns the exact disposer that unregisters this unit.
  */
-register< K extends keyof SessionProjectionMap, S extends SessionProjectionStateMap[K], >( definition: Omit<ProjectionDefinition<K, S>, 'wire'> & { wire: NonNullable<ProjectionDefinition<K, S>['wire']> }, ): () => void
+register<K extends keyof SessionProjectionMap, S>( definition: Omit<ProjectionDefinition<K, S>, 'wire'> & { wire: NonNullable<ProjectionDefinition<K, S>['wire']> }, ): ProjectionRegistration<S>
 
 /**
  * Register one host-only unit. Its state is omitted from client snapshots
  * and always checkpointed like every other unit.
  * @param definition - key, state schema, pure unit functions, and stateVersion.
- * @returns the exact disposer that unregisters this unit.
+ * @returns an awaitable registration; calling it unregisters.
  */
-register< K extends Exclude<keyof SessionProjectionStateMap, keyof SessionProjectionMap>, S extends SessionProjectionStateMap[K], >( definition: Omit<ProjectionDefinition<K, S>, 'wire'>, ): () => void
+register<K extends string, S>(definition: ProjectionDefinition<K, S>): ProjectionRegistration<S>
 
 /**
  * Subscribe to the change feed. The registration is an effect on the

@@ -53,7 +53,8 @@ export interface MarkdownMermaidLabels {
 /** Localized chrome for a Markdown document. */
 export interface MarkdownLabels {
   code: MarkdownCodeLabels
-  mermaid: MarkdownMermaidLabels
+  /** Mermaid chrome; absent means mermaid fences render as plain code. */
+  mermaid?: MarkdownMermaidLabels
   footnotes: string
 }
 
@@ -445,9 +446,12 @@ function renderCode(node: Md.Code, key: Key, context: MarkdownRenderContext): Re
         copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel} streaming lang={lang} />
     }
     const mermaidLabels = context.labels.mermaid
-    return <MermaidDiagram key={key} code={node.value}
-      copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel}
-      diagramLabel={mermaidLabels.diagramLabel} enlargedLabel={mermaidLabels.enlargedLabel} />
+    if (mermaidLabels !== undefined) {
+      return <MermaidDiagram key={key} code={node.value}
+        copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel}
+        diagramLabel={mermaidLabels.diagramLabel} enlargedLabel={mermaidLabels.enlargedLabel} />
+    }
+    // Consumers without diagram chrome keep the fence as a plain code block.
   }
   if (!context.streaming && lang === 'math') {
     // ```math fences render as display TeX once settled (rehype-katex parity);

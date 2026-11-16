@@ -757,6 +757,14 @@ Serves the forge panel. Following a Session inspects the checkout of its current
 @Remote({ mode: 'stream' }) async *changeRequestStates(signal: AbortSignal): AsyncIterable<ForgeChangeRequestStatesFrame>
 
 /**
+ * Read or await the worktree service's archive cleanup of the Session's checkout.
+ * @param session - Session whose cleanup is visible to the caller.
+ * @param revision - null reads now; a matching revision waits for completion.
+ * @returns the cleanup state, or null without a worktree service, an attempt, or a current revision.
+ */
+@Remote async worktreeCleanup(session: Session, revision: number | null): Promise<WorktreeCleanup | null>
+
+/**
  * List the local branches that can start a worktree of the Session's current checkout.
  * @param session - Session whose current directory is listed.
  * @param signal - request cancellation.
@@ -764,6 +772,17 @@ Serves the forge panel. Following a Session inspects the checkout of its current
  * @throws when the current directory is not inside a checkout or Git fails.
  */
 @Remote async branches(session: Session, signal: AbortSignal): Promise<ForgeBranches>
+
+/**
+ * List the branches the `branch` scope of the Session's current checkout can compare with.
+ * @param session - Session whose checkout is read.
+ * @param query - text the branch names must contain, ignoring case; empty for every branch.
+ * @param signal - request cancellation.
+ * @returns the automatic fork point and at most `maxBranches` remote-tracking and local branches each,
+ * most recently committed first, without the checked-out branch.
+ * @throws `forgePanel/not-a-checkout` outside a checkout; the Git error when Git fails or the listed refs exceed `maxDiffBytes`.
+ */
+@Remote async diffBases(session: Session, query: string, signal: AbortSignal): Promise<ForgeBaseBranches>
 
 /**
  * Bind a change request to a Session by URL, or restore a dismissed binding.
@@ -798,22 +817,39 @@ Serves the forge panel. Following a Session inspects the checkout of its current
  * @param scope - which changes to read.
  * @param signal - request cancellation.
  * @returns the files, the base of the `branch` scope, and the untracked files left out.
- * @throws `forgePanel/not-a-checkout` outside a checkout; `forgePanel/no-fork-point` for the `branch`
- * scope of a checkout without one; `forgePanel/filter-config-failed` when filter configuration cannot be read
- * completely, before any comparison; `forgePanel/diff-too-large` over `maxDiffBytes`; the Git error when Git fails.
+ * @throws `forgePanel/not-a-checkout` outside a checkout; `forgePanel/base-missing` when the base branch
+ * chosen for the `branch` scope does not exist; `forgePanel/no-fork-point` for the `branch` scope without
+ * a fork point; `forgePanel/commits-missing` when chosen commits are not between the fork point and HEAD in order;
+ * `forgePanel/commits-not-linear` when a chosen commit's first parent is not the commit listed before it;
+ * `forgePanel/filter-config-failed` when filter configuration cannot be read completely, before
+ * any comparison; `forgePanel/diff-too-large` over `maxDiffBytes`; the Git error when Git fails.
  */
 @Remote async localDiff(session: Session, scope: ForgeLocalScope, signal: AbortSignal): Promise<ForgeLocalDiff>
 
 /**
+ * List the commits of the `branch` scope of the Session's current checkout, which the changes view can show one or
+ * several of instead of the whole scope.
+ * @param session - Session whose checkout is read.
+ * @param base - the base ref of the `branch` scope, or null for its automatic fork point.
+ * @param signal - request cancellation.
+ * @returns the newest `maxCommits` commits between the fork point and HEAD, oldest first, and HEAD's commit.
+ * @throws `forgePanel/not-a-checkout` outside a checkout; `forgePanel/base-missing` when the base branch does not
+ * exist; `forgePanel/no-fork-point` without a fork point; the Git error when Git fails or the listing exceeds `maxDiffBytes`.
+ */
+@Remote async localCommits(session: Session, base: string | null, signal: AbortSignal): Promise<ForgeLocalCommits>
+
+/**
  * Read the new side of one changed file in a scope, which supplies the
- * unchanged lines between its hunks: the index for `staged`, else the working tree.
+ * unchanged lines between its hunks: the index for `staged`, the last chosen commit for chosen commits of
+ * the `branch` scope, else the working tree.
  * @param session - Session whose checkout is read.
  * @param scope - the scope the diff was read in.
  * @param path - path relative to the checkout's top-level directory, as the diff names it.
  * @param signal - request cancellation.
  * @returns the text.
  * @throws `forgePanel/not-a-checkout` outside a checkout; `forgePanel/diff-too-large` over `maxDiffBytes`;
- * an error for a path outside the checkout, binary content, or a failed read.
+ * `forgePanel/commits-missing` for a chosen commit that is not a full object name; an error for a path outside
+ * the checkout, binary content, or a failed read.
  */
 @Remote async localText(session: Session, scope: ForgeLocalScope, path: string, signal: AbortSignal): Promise<string>
 
@@ -830,32 +866,39 @@ Serves the forge panel. Following a Session inspects the checkout of its current
 @Remote async changeRequestChecks(session: Session, url: string, headSha: string, signal: AbortSignal): Promise<ChangeRequestSnapshot>
 
 /**
- * Read the review threads of a change request of a Session, which the
- * changes view shows at the lines each thread is anchored to.
+ * List the commits of a change request of a Session at its current head, which the changes view can show one or
+ * several of instead of the whole change request.
  * @param session - Session the change request is bound to.
  * @param url - binding URL of the change request.
  * @param signal - request cancellation.
- * @returns the threads in host order, empty when the provider exposes no review reads.
+ * @returns the commits oldest first with the head they were read at, or null when the provider does not read commits.
  * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
- * `forgePanel/review-reads-failed` when the provider cannot complete the read.
+ * `forgePanel/diff-failed` when the host does not list them.
  */
-@Remote async reviewThreads(session: Session, url: string, signal: AbortSignal): Promise<ForgeReviewData>
+@Remote async changeRequestCommits(session: Session, url: string, signal: AbortSignal): Promise<ForgeCommitList | null>
 
 /**
  * Read the changes of a change request of a Session as its code host
- * computes them, at the head commit of its latest status. A patch already
- * read at the same head commit and base branch is reused from memory, for
- * any Session, until `maxCachedDiffBytes` evicts it.
+ * computes them, with each file's layer following the root `.gitattributes`
+ * of the commit the diff ends at. Without `commits` the diff covers the change
+ * request at the head commit of its latest status; a patch already read at the
+ * same head commit and base branch is reused from memory with its attributes, for
+ * any Session, until `maxCachedDiffBytes` evicts it. With `commits`, it covers those
+ * commits, from the first one's first parent to the last, and is read every time.
  * @param session - Session the change request is bound to.
  * @param url - binding URL of the change request.
- * @param headSha - head commit the caller is reviewing, so a review keeps its head; null follows the latest head.
+ * @param commits - consecutive commits of the change request, or null for all of it.
  * @param signal - request cancellation.
- * @returns the files, the head commit that was read, each file's web page, and the commits the checkout has beyond that head.
+ * @returns the files, the commit they end at, each file's web page, and the commits the checkout has beyond the head.
  * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
+ * `forgePanel/commits-missing` when chosen commits are not among the change request's commits in order;
+ * `forgePanel/commits-not-linear` when a chosen commit's first parent is not the commit listed before it;
+ * `forgePanel/stale-head` without `commits` when the head moved past the latest status, which is then polled again;
  * `forgePanel/diff-too-large` when the host or its provider refuses the diff over a size limit;
- * `forgePanel/diff-failed` before its status was read and when the host does not provide the diff otherwise.
+ * `forgePanel/diff-failed` before its status was read, for a first chosen commit without a parent, and when the host
+ * does not provide the commits, the diff, or an existing `.gitattributes` otherwise.
  */
-@Remote async changeRequestDiff(session: Session, url: string, headSha: string | null, signal: AbortSignal): Promise<ForgeChangeRequestDiff>
+@Remote async changeRequestDiff( session: Session, url: string, commits: ForgeCommitRange | null, signal: AbortSignal, ): Promise<ForgeChangeRequestDiff>
 
 /**
  * Read one file of a change request's repository at a commit, which
@@ -873,7 +916,89 @@ Serves the forge panel. Following a Session inspects the checkout of its current
 @Remote async changeRequestText(session: Session, url: string, commit: string, path: string, signal: AbortSignal): Promise<string>
 
 /**
- * Publish a line comment or completed review for a visible Session binding.
+ * Register a filter lens as an effect on the calling fiber. The changes views list it while it is registered; ending
+ * the registration aborts its running classifications and waits for them.
+ * @param lens - the lens.
+ * @returns the disposer that unregisters the lens and waits for its classifications to stop.
+ * @throws when another registration holds `lens.id`.
+ */
+registerLens(lens: ForgeLens): () => Promise<void>
+
+/**
+ * Stream the facts every changes view reads about the panel's extensions: the current facts first, then the facts
+ * after each lens registration or withdrawal. The stream ends when `signal` aborts or the Remote stops.
+ * @param signal - ends the stream.
+ * @returns the registered lenses and the annotation limit, in publication order.
+ */
+@Remote({ mode: 'stream' }) async *extensions(signal: AbortSignal): AsyncIterable<ForgeExtensionState>
+
+/**
+ * Classify the files a changes view of a Session shows with one registered lens: progress frames while the lens
+ * runs, then the files it keeps. Results for the same files, lens, and lens version are reused from memory until
+ * `maxCachedLensBytes` evicts them. Local changes are read with the Session's permissions; a change request's files
+ * are those `changeRequestDiff` reads.
+ * @param session - Session whose checkout or binding the view shows.
+ * @param request - the view's source, the version of the files it shows, and the lens.
+ * @param signal - ends the classification.
+ * @returns progress frames, then one result frame.
+ * @throws `forgePanel/lens-missing` while no lens holds the identity or once its registration ends;
+ * `forgePanel/lens-stale` before a change request's status was read, when the files differ from `request.version`, and
+ * when local files changed while the lens ran;
+ * `forgePanel/lens-failed` when the lens fails, runs past `lensTimeoutMs`, reads past `maxLensReadBytes`, or answers
+ * over `maxCachedLensBytes`; the errors of `localDiff` and `changeRequestDiff` for the files.
+ */
+@Remote({ mode: 'stream' }) async *changesLens(session: Session, request: ForgeLensRequest, signal: AbortSignal): AsyncIterable<ForgeLensFrame>
+
+/**
+ * Read the signed-in user's viewed marks on the files of a change request of a Session, which the host keeps for the
+ * whole change request.
+ * @param session - Session the change request is bound to.
+ * @param url - binding URL of the change request.
+ * @param headSha - head commit of the shown diff; marks read at another head are refused.
+ * @param signal - request cancellation.
+ * @returns the marks at `headSha`, or null when the provider keeps no viewed marks.
+ * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
+ * `forgePanel/stale-head` when the head moved past `headSha`, which is then polled again; `forgePanel/viewed-failed`
+ * when the host does not provide the marks otherwise.
+ */
+@Remote async changeRequestViewed(session: Session, url: string, headSha: string, signal: AbortSignal): Promise<ForgeViewedFiles | null>
+
+/**
+ * Set or clear the signed-in user's viewed mark on one file of a change request of a Session.
+ * @param session - Session the change request is bound to.
+ * @param url - binding URL of the change request.
+ * @param request - the file, its mark, and the head commit of the shown diff.
+ * @param signal - request cancellation.
+ * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
+ * `forgePanel/stale-head` when the head moved past `request.headSha`; `forgePanel/action-failed` with the host's
+ * reason when the host refuses, cannot be reached, or keeps no viewed marks; `forgePanel/action-unknown` when the host
+ * did not confirm whether it saved the mark.
+ */
+@Remote async setFileViewed(session: Session, url: string, request: ForgeViewedRequest, signal: AbortSignal): Promise<void>
+
+/**
+ * Read the review threads of a change request of a Session at the head commit of its displayed diff. Threads read
+ * at the same head commit and update time are reused from memory, for any Session, until they are
+ * `reviewRefreshMs` old, `maxCachedReviewBytes` evicts them, or a review write through this panel drops them; a read
+ * again after that age, or a `fresh` read, shows threads resolved elsewhere since, which do not change a GitHub pull
+ * request's update time.
+ * @param session - Session the change request is bound to.
+ * @param url - binding URL of the change request.
+ * @param headSha - head commit of the displayed diff.
+ * @param fresh - whether to read from the host even when threads at this head and update time are kept, as after the
+ * reader refreshes the view; the result replaces the kept threads.
+ * @param signal - request cancellation.
+ * @returns the threads at `headSha`, with `current` positions numbering the files of that diff.
+ * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
+ * `forgePanel/stale-head` when the latest status or the host names another head, which a host answer polls again;
+ * `forgePanel/review-unsupported` when the provider cannot read reviews; `forgePanel/review-failed` before the
+ * status was read and when the host does not provide the threads otherwise.
+ */
+@Remote async changeRequestReview(session: Session, url: string, headSha: string, fresh: boolean, signal: AbortSignal): Promise<ForgeReviewData>
+
+/**
+ * Publish a line comment or completed review for a visible Session binding. The threads kept for the change request
+ * are dropped once the host answers, so the next read shows the comments.
  * @param session - Session retaining the change request.
  * @param url - visible binding URL.
  * @param request - reviewed head, ranges, plain text, and explicit review decision.
@@ -881,6 +1006,21 @@ Serves the forge panel. Following a Session inspects the checkout of its current
  * @returns confirmed publication or a typed failure; unknown outcomes require reconciliation on the host.
  */
 @Remote async submitReview(session: Session, url: string, request: ForgeReviewRequest, signal: AbortSignal): Promise<ForgeReviewResult>
+
+/**
+ * Write to the review threads or the pending review of a change request of a Session while its head is still the
+ * head the user saw. The threads kept for the change request are dropped once the host answers, so the next read
+ * shows the write, which a resolve does not show through a GitHub pull request's update time.
+ * @param session - Session the change request is bound to.
+ * @param url - binding URL of the change request.
+ * @param write - the write and the head commit of the threads the user saw.
+ * @param signal - request cancellation.
+ * @returns whether the host took the write; `stale` once the head moved, which polls the change request again, and
+ * `unknown` when the outcome must be checked on the host before the write is tried again.
+ * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves; an error
+ * for a write without text, a head that is not a commit object name, or an invalid line range.
+ */
+@Remote async changeRequestReviewWrite( session: Session, url: string, write: ForgeReviewWrite, signal: AbortSignal, ): Promise<ForgeReviewWriteResult>
 
 /**
  * Mark a draft change request of a Session ready for review; the change
@@ -906,6 +1046,60 @@ Serves the forge panel. Following a Session inspects the checkout of its current
  * reason when the host refuses otherwise or cannot be reached.
  */
 @Remote async merge(session: Session, url: string, method: MergeMethod, headSha: string, signal: AbortSignal): Promise<void>
+
+/**
+ * Rerun the failed checks of a change request of a Session while its head is still the commit whose checks the user
+ * saw; the change request is polled again once the host answers.
+ * @param session - Session the change request is bound to.
+ * @param url - binding URL of the change request.
+ * @param request - the head commit whose checks the user saw.
+ * @param signal - request cancellation.
+ * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
+ * `forgePanel/stale-head` when the head moved past `request.headSha`; `forgePanel/action-failed` with the host's
+ * reason when the host refuses, cannot be reached, or reruns no checks; `forgePanel/action-unknown` when the host did
+ * not confirm whether it started the rerun.
+ */
+@Remote async rerunChecks(session: Session, url: string, request: ForgeRerunRequest, signal: AbortSignal): Promise<void>
+
+/**
+ * Request reviews of a change request of a Session from more reviewers; the change request is polled again once the
+ * host answers.
+ * @param session - Session the change request is bound to.
+ * @param url - binding URL of the change request.
+ * @param reviewers - the reviewers to ask, by kind and login.
+ * @param signal - request cancellation.
+ * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
+ * `forgePanel/action-failed` with the host's reason when the host refuses, cannot be reached, or requests no reviews;
+ * `forgePanel/action-unknown` when the host did not confirm whether it requested the reviews.
+ */
+@Remote async requestReviews( session: Session, url: string, reviewers: readonly Pick<ChangeRequestReviewer, 'kind' | 'login'>[], signal: AbortSignal, ): Promise<void>
+
+/**
+ * List accounts a review of a change request of a Session can be requested from.
+ * @param session - Session the change request is bound to.
+ * @param url - binding URL of the change request.
+ * @param query - text the login or name contains; empty for the host's suggestions and first accounts.
+ * @param signal - request cancellation.
+ * @returns the accounts, the host's suggestions first.
+ * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
+ * `forgePanel/reviewers-failed` when the host does not list them.
+ */
+@Remote async reviewerCandidates(session: Session, url: string, query: string, signal: AbortSignal): Promise<readonly ForgeReviewerCandidate[]>
+
+/**
+ * Bring the base branch's new commits into the head branch of a change request of a Session while its head is still
+ * `headSha`; the change request is polled again once the host answers.
+ * @param session - Session the change request is bound to.
+ * @param url - binding URL of the change request.
+ * @param method - merge commit or rebase.
+ * @param headSha - head commit the user confirmed.
+ * @param signal - request cancellation.
+ * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
+ * `forgePanel/stale-head` when the head moved past `headSha`; `forgePanel/action-failed` with the host's reason when
+ * the host refuses, cannot be reached, or updates no branches; `forgePanel/action-unknown` when the host did not
+ * confirm whether it started the update.
+ */
+@Remote async updateBranch(session: Session, url: string, method: BranchUpdateMethod, headSha: string, signal: AbortSignal): Promise<void>
 
 /**
  * Ask for a new worktree before the Session's first turn, replacing an open
@@ -953,23 +1147,6 @@ Serves the forge panel. Following a Session inspects the checkout of its current
 @Remote async retryWorktree(session: Session, signal: AbortSignal): Promise<void>
 
 /**
- * Remove the created worktree of a Session at its recorded directory: the
- * checkout leaves the filesystem and its registration, the Session moves to
- * the source checkout first so no working directory points at a removed path,
- * and the recorded projection clears. Without `deleteBranch` the branch stays.
- * Runs as Agent maintenance; a checkout with uncommitted or untracked files is
- * kept and reported. Changes that were never committed are lost with a
- * removed checkout.
- * @param session - Session whose worktree leaves.
- * @param signal - request cancellation, which aborts the removal.
- * @param deleteBranch - whether the branch follows the checkout.
- * @throws `forgePanel/no-worktree` without a created worktree; `forgePanel/worktrees-unavailable`
- * without a worktree service; `forgePanel/session-busy` while the Session's Agent is not loaded or
- * has other work; `forgePanel/remove-failed` when Git refuses or fails.
- */
-@Remote async removeWorktree(session: Session, deleteBranch: boolean, signal: AbortSignal): Promise<void>
-
-/**
  * Check out the created worktree of a Session again at its recorded
  * directory when that directory is gone: its branch when the branch still
  * exists, otherwise a new branch of the same name at the base commit. Changes
@@ -998,7 +1175,7 @@ Serves the forge panel. Following a Session inspects the checkout of its current
 @Remote async continueInProject(session: Session, signal: AbortSignal): Promise<void>
 ```
 
-Types: [Session](session.zh.md)
+Types: [Session](session.zh.md) · [WorktreeCleanup](worktrees.zh.md)
 
 Source: [`packages/experimental/client-ui-forge/src/index.ts`](../../packages/experimental/client-ui-forge/src/index.ts)
 

@@ -34,19 +34,19 @@ export function snapshot(number: number, overrides: Partial<ChangeRequestSnapsho
     mergeability: 'mergeable',
     mergeReady: false,
     mergeMethods: ['squash', 'merge', 'rebase'],
+    branchUpdates: [],
     reviewDecision: 'none',
     reviewers: [],
     reviewersTruncated: false,
     canRequestReviews: false,
-    branchUpdates: [],
-    closingIssues: [],
-    closingIssuesTruncated: false,
     checks: [],
     checksRollup: 'success',
     checksTruncated: false,
     canRerunChecks: false,
-    threadsTruncated: false,
     unresolvedThreads: 0,
+    threadsTruncated: false,
+    closingIssues: [],
+    closingIssuesTruncated: false,
     updatedAt: '2026-10-09T00:00:00Z',
     closedAt: null,
     ...overrides,
@@ -88,6 +88,8 @@ export interface EntryOptions {
   readonly origin?: BindingOrigin
   /** Snapshot an earlier poll returned, kept by a binding whose latest poll failed. */
   readonly kept?: ChangeRequestSnapshot
+  /** Review changes announced for the change request; defaults to none. */
+  readonly reviewRevision?: number
 }
 
 /** Binding of pull request `number` whose latest poll returned `status`, or that has not been polled yet. */
@@ -97,7 +99,7 @@ export function entry(
   options: EntryOptions = {},
 ): ForgePanelChangeRequest {
   const key = `github:github.com/octo/demo#${number}` as ChangeRequestKey
-  const binding = { url: `https://github.com/octo/demo/pull/${number}`, origin: options.origin ?? 'created', ref: ref(number) }
+  const binding = { url: `https://github.com/octo/demo/pull/${number}`, origin: options.origin ?? 'created', ref: ref(number), reviewRevision: options.reviewRevision ?? 0 }
   if (status === null) return { ...binding, update: null, snapshot: null }
   if ('code' in status) return { ...binding, update: { key, fetchedAt: 1, failure: status }, snapshot: options.kept ?? null }
   return { ...binding, update: { key, fetchedAt: 1, snapshot: status }, snapshot: status }
@@ -105,7 +107,7 @@ export function entry(
 
 /** Binding of a URL that no provider serves. */
 export function unserved(url: string): ForgePanelChangeRequest {
-  return { url, origin: 'created', ref: null, update: null, snapshot: null }
+  return { url, origin: 'created', ref: null, update: null, snapshot: null, reviewRevision: 0 }
 }
 
 /** Checkout of `/work/repo` on `main`. */
@@ -149,7 +151,6 @@ export function ready(overrides: Partial<ForgePanelState> = {}, checkoutOverride
     changeRequests: [],
     worktree: worktree(),
     local: null,
-    lastTurn: 1,
     ...overrides,
   }
 }

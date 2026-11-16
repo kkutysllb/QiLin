@@ -33,6 +33,10 @@ export type DiffSegment =
    * `count` is null while the length of the file is unknown.
    */
   | { readonly kind: 'gap'; readonly index: number; readonly count: number | null }
+  /** Consecutive hunks a filter lens folds, drawn as one row that shows them, with the unchanged lines between them. */
+  | { readonly kind: 'folded'; readonly hunks: readonly number[] }
+
+const NO_FOLDS: ReadonlySet<number> = new Set()
 
 /** A line as drawn: without the carriage return of a CRLF line ending. */
 function drawn(text: string): string {
@@ -142,13 +146,17 @@ function endsNewSide(hunk: ForgeDiffHunk): boolean {
  * Unchanged lines before a hunk, between hunks, and after the last hunk
  * collapse into one gap each; an open gap draws its lines from `lines` once
  * they are known. The lines after the last hunk are unknown until `lines`
- * arrives, unless the file is new, deleted, or its last hunk reaches its end.
+ * arrives, unless the file is new, deleted, or its last hunk reaches its end. Consecutive folded hunks draw as one
+ * folded segment that takes the unchanged lines between them too.
  * @param file - one file of a diff.
  * @param lines - the file's new side, which {@link matchesHunks} accepted, or undefined while it has not been read.
  * @param open - indexes of the gaps the user expanded.
+ * @param folded - indexes of the hunks a filter lens folds.
  * @returns the segments in file order.
  */
-export function segmentsOf(file: ForgeDiffFile, lines: readonly string[] | undefined, open: ReadonlySet<number>): DiffSegment[] {
+export function segmentsOf(
+  file: ForgeDiffFile, lines: readonly string[] | undefined, open: ReadonlySet<number>, folded: ReadonlySet<number> = NO_FOLDS,
+): DiffSegment[] {
   const segments: DiffSegment[] = []
   let rows: DiffRow[] = []
   const flush = (): void => {
@@ -168,9 +176,18 @@ export function segmentsOf(file: ForgeDiffFile, lines: readonly string[] | undef
   }
   let newEnd = 0
   let oldEnd = 0
+  let run: number[] | null = null
   for (const [index, hunk] of file.hunks.entries()) {
-    if (hunk.newStart - 1 > newEnd) gap(index, newEnd + 1, hunk.newStart - 1, hunk.oldStart - hunk.newStart)
-    rows.push(...hunkRows(hunk))
+    if (run !== null && folded.has(index)) run.push(index)
+    else {
+      run = null
+      if (hunk.newStart - 1 > newEnd) gap(index, newEnd + 1, hunk.newStart - 1, hunk.oldStart - hunk.newStart)
+      if (folded.has(index)) {
+        flush()
+        run = [index]
+        segments.push({ kind: 'folded', hunks: run })
+      } else rows.push(...hunkRows(hunk))
+    }
     newEnd = hunk.newStart + hunk.newLines - 1
     oldEnd = hunk.oldStart + hunk.oldLines - 1
   }
@@ -181,58 +198,6 @@ export function segmentsOf(file: ForgeDiffFile, lines: readonly string[] | undef
   }
   flush()
   return segments
-}
-
-/** Drawn rows one window of a long file shows before its next increment. */
-export const DIFF_WINDOW_ROWS = 600
-
-/** One file's rows cut to a row budget, and how many drawn rows the window leaves out. */
-export interface WindowedSegments {
-  /** The segments to draw, in file order. */
-  readonly segments: readonly DiffSegment[]
-  /** Drawn rows the budget leaves out; the next window adds another increment. */
-  readonly hidden: number
-}
-
-/**
- * Cut a file's segments to a row budget so a very large diff draws bounded DOM.
- * A gap counts as the one row that opens it; a rows segment may be cut mid-run,
- * and at least one drawn row is always kept.
- * @param segments - the file's segments in file order.
- * @param budget - the most drawn rows the window may show.
- * @returns the segments to draw and the number of drawn rows still hidden.
- */
-export function windowSegments(segments: readonly DiffSegment[], budget: number): WindowedSegments {
-  const limit = Math.max(1, Math.floor(budget))
-  const shown: DiffSegment[] = []
-  let hidden = 0
-  let drawn = 0
-  for (const segment of segments) {
-    const room = limit - drawn
-    if (segment.kind === 'gap') {
-      // A gap is the single row that opens it.
-      if (room <= 0) hidden += 1
-      else {
-        shown.push(segment)
-        drawn += 1
-      }
-      continue
-    }
-    const size = segment.rows.length
-    if (room <= 0) {
-      hidden += size
-      continue
-    }
-    if (size <= room) {
-      shown.push(segment)
-      drawn += size
-      continue
-    }
-    shown.push({ kind: 'rows', rows: segment.rows.slice(0, room) })
-    hidden += size - room
-    drawn = limit
-  }
-  return { segments: shown, hidden }
 }
 
 /**
