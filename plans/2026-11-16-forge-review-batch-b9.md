@@ -17,7 +17,7 @@ kind: "plan"
 
 ## 2. 本次对齐的口径
 
-本 checkout 不含上游源码，无法逐行 diff `client-ui-forge`（上游 churn +15,234/−1,015）。因此按发布说明的三项**承诺**在我们树上实现等价能力，并把 B9 里属于数据契约与归档语义的条目留在待办（§5）。这不是「逐行移植」，记录在案以免后续误判。
+本 checkout 当时不含上游源码，因此按发布说明的承诺做了**等价实现**。此后拿到本地 `dsh 0.2.2-rc.3` fork 复核，契约形状与上游不同：[rc.3 差距复核](2026-11-16-forge-rc3-gap.md) 逐项列出（pinned diff 的 `stale`/`diff(headSha)`、review reads 的 `readReview`/`unsupported`、overview 的七个字段、窗口化并非上游机制、worktree 记录式回收）。本文的「落地清单」应读作**等价实现**，不是逐行对齐；后续按差距复核的 B–E 阶段移植。
 
 ## 3. 落地清单
 
@@ -52,9 +52,9 @@ kind: "plan"
 
 ## 5. B9 状态
 
-B9 的四项都已落地：面板 15k 分批（600 行窗口）、worktree 归档清理 + `retainOnArchive`、bundle 行核对（现有 bundle 已含两条 insert，无需改动）、provider 契约三条（overview、pinned diff、review reads，均端到端）。
+B9 的四项都已有可用的实现，但按 rc.3 复核后确认契约与上游不同（见 [差距复核](2026-11-16-forge-rc3-gap.md)）：pinned diff 应改为 `diff(ref, headSha)` + `stale`，review reads 应为 `readReview` + `unsupported`，overview 需要七个字段与四项动作而非描述/提交数，大 diff 的上游机制是 memo + SectionReach 而非行窗口。worktree 的期限（单一 300000）与 `retainOnArchive`（可热改）已在 rc.3 复核中就地修正；bundle 行已改为顶层 `forge-panel`，与其指南一致。
 
-剩下的只有「以上游真实 diff 复核细节」：本 checkout 没有 rc.2 的上游源码与三篇指南原文，本批是按发布说明承诺做的等价实现；拿到快照后应复核交互细节（窗口粒度、窄屏阈值、评论导航、pinned 的基准语义）。
+剩余是按差距复核的阶段 B–E 移植；在此之前不要把本批的等价契约当成稳定 API。
 - **上游细节无法逐行比对**：若后续取得上游 `client-ui-forge` 的 rc.2 快照，应按真实 diff 复核三处的交互细节（评论导航、窄屏阈值、分窗粒度）。
 
 ## 6. 已知边界
