@@ -112,6 +112,14 @@ export interface ChangeRequestSnapshot {
   readonly closedAt: string | null
 }
 
+/** The commit pair a pinned diff read is addressed to. */
+export interface ForgeDiffRequest {
+  /** Head commit the read is pinned to. */
+  readonly headSha: string
+  /** Base branch the pinned head is compared with. */
+  readonly baseBranch: string
+}
+
 /** One review thread a code host holds on a change request's diff. */
 export interface ForgeReviewThread {
   /** Stable host identity of the thread. */
@@ -244,6 +252,12 @@ export interface ForgeProvider {
   merge(ref: ChangeRequestRef, request: MergeRequest, signal: AbortSignal): Promise<ForgeActionFailure | undefined>
   /** Read the changes of a change request as the host computes them, as one unified patch with `a/` and `b/` path prefixes. */
   diff(ref: ChangeRequestRef, signal: AbortSignal): Promise<string | ForgeFailure>
+  /**
+   * Read the changes between `request.baseBranch` and `request.headSha`, so a
+   * review keeps the head it started at. Omission declares that this provider
+   * cannot read a pinned head, and callers fall back to {@link diff}.
+   */
+  diffAt?(ref: ChangeRequestRef, request: ForgeDiffRequest, signal: AbortSignal): Promise<string | ForgeFailure>
   /** Read the text of `path` at `commit` in the change request's repository. */
   fileText(ref: ChangeRequestRef, commit: string, path: string, signal: AbortSignal): Promise<string | ForgeFailure>
   /** Build the web page of `path` at `commit` in the change request's repository. */

@@ -591,10 +591,39 @@ describe('forgePanel change request diffs', () => {
     shellTurn(opened.session, 1, [{ callId: 'create', command: 'gh pr create --fill', output: `${pullUrl(7)}\n` }])
     await reader(opened).until(state => polled(state, pullUrl(7)))
 
-    const diff = await opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), signal)
+    const diff = await opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), null, signal)
     expect(diff).toMatchObject({ headSha: head, localAhead: 1, fileUrls: { 'src/a.ts': `${pullUrl(7)}/files/${head}/src/a.ts` } })
     expect(diff.files.map(file => [file.path, file.additions, file.deletions])).toEqual([['src/a.ts', 1, 1]])
     await expect(opened.ctx.forgePanel.changeRequestText(opened.session, pullUrl(7), head, 'src/a.ts', signal)).resolves.toBe('new\n')
+  })
+
+  it('reads a moved head at the pinned commit and reports a provider without pinned reads', async () => {
+    const { repo } = await project()
+    const opened = await open(repo)
+    opened.provider.patches.set(7, PATCH)
+    shellTurn(opened.session, 1, [{ callId: 'create', command: 'gh pr create --fill', output: `${pullUrl(7)}\n` }])
+    const follower = reader(opened)
+    await follower.until(state => polled(state, pullUrl(7)))
+    const pinned = 'diff --git a/old.ts b/old.ts\n--- a/old.ts\n+++ b/old.ts\n@@ -1 +1 @@\n-old\n+old2\n'
+    const before = 'a'.repeat(40)
+    const moved = 'b'.repeat(40)
+    opened.provider.pinnedPatches.set(`${before}:main`, pinned)
+    opened.provider.overrides.set(7, { headSha: moved, baseBranch: 'main' })
+    await opened.ctx.forgePanel.refresh(opened.session, signal)
+    await follower.until(state => state.changeRequests[0]?.snapshot?.headSha === moved)
+
+    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), before, signal))
+      .resolves.toMatchObject({ headSha: before, files: [{ path: 'old.ts' }] })
+    expect(opened.provider.pinnedReads).toEqual([`${before} main`])
+    // The current-head read was never used, and the pinned patch is reused at the same pair.
+    expect(opened.provider.diffs).toEqual([])
+    await opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), before, signal)
+    expect(opened.provider.pinnedReads).toHaveLength(1)
+
+    // A pinned read that fails refuses the moved head instead of silently reading the latest one.
+    Object.assign(opened.provider, { diffAt: async () => ({ code: 'unavailable', message: 'Pinned reads are unavailable' }) })
+    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), 'c'.repeat(40), signal))
+      .rejects.toMatchObject({ code: 'forgePanel/diff-failed', message: 'Pinned reads are unavailable' })
   })
 
   it('counts no commits beyond the head when Git cannot answer', async () => {
@@ -605,7 +634,8 @@ describe('forgePanel change request diffs', () => {
     await reader(opened).until(state => polled(state, pullUrl(7)))
     opened.sandbox.failure = new Error('sandbox unavailable')
 
-    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), signal)).resolves.toMatchObject({ localAhead: null })
+    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), null, signal))
+      .resolves.toMatchObject({ localAhead: null })
   })
 
   it('downloads a diff once per head commit and base branch for every Session, keeping no failed read', async () => {
@@ -615,7 +645,7 @@ describe('forgePanel change request diffs', () => {
     const follower = reader(opened)
     await follower.until(state => polled(state, pullUrl(7)))
     const paths = async (session: Session = opened.session): Promise<string[]> =>
-      (await opened.ctx.forgePanel.changeRequestDiff(session, pullUrl(7), signal)).files.map(file => file.path)
+      (await opened.ctx.forgePanel.changeRequestDiff(session, pullUrl(7), null, signal)).files.map(file => file.path)
     const moved = async (snapshot: { headSha: string; baseBranch: string }): Promise<void> => {
       opened.provider.overrides.set(7, snapshot)
       await opened.ctx.forgePanel.refresh(opened.session, signal)
@@ -650,7 +680,7 @@ describe('forgePanel change request diffs', () => {
     shellTurn(opened.session, 1, [{ callId: 'create', command: 'gh pr create --fill', output: `${pullUrl(7)}\n` }])
     await reader(opened).until(state => polled(state, pullUrl(7)))
 
-    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), signal))
+    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), null, signal))
       .rejects.toMatchObject({ code: 'forgePanel/diff-too-large', message: 'the diff exceeded the maximum number of files (300)' })
     await expect(opened.ctx.forgePanel.changeRequestText(opened.session, pullUrl(7), head, 'big.bin', signal))
       .rejects.toMatchObject({ code: 'forgePanel/diff-too-large', message: 'big.bin is too large to fetch' })
@@ -666,10 +696,10 @@ describe('forgePanel change request diffs', () => {
     ])
     await reader(opened).until(state => polled(state, pullUrl(7)) && failing(state, pullUrl(8)))
 
-    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(9), signal)).rejects.toMatchObject({ code: 'forgePanel/not-bound' })
-    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(8), signal))
+    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(9), null, signal)).rejects.toMatchObject({ code: 'forgePanel/not-bound' })
+    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(8), null, signal))
       .rejects.toMatchObject({ code: 'forgePanel/diff-failed', message: 'The change request status has not been read yet' })
-    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), signal))
+    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), null, signal))
       .rejects.toMatchObject({ code: 'forgePanel/diff-failed', message: 'no diff of #7' })
     await expect(opened.ctx.forgePanel.changeRequestText(opened.session, pullUrl(7), 'a'.repeat(40), 'gone.ts', signal))
       .rejects.toMatchObject({ code: 'forgePanel/diff-failed', message: `no gone.ts at ${'a'.repeat(40)}` })
@@ -1779,7 +1809,7 @@ describe('forgePanel actions', () => {
     await expect(opened.ctx.forgePanel.refresh(opened.session, controller.signal)).rejects.toThrow('closed')
     await expect(opened.ctx.forgePanel.localDiff(opened.session, { kind: 'unstaged' }, controller.signal)).rejects.toThrow('closed')
     await expect(opened.ctx.forgePanel.localText(opened.session, { kind: 'unstaged' }, 'tracked.txt', controller.signal)).rejects.toThrow('closed')
-    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(1), controller.signal)).rejects.toThrow('closed')
+    await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(1), null, controller.signal)).rejects.toThrow('closed')
     await expect(opened.ctx.forgePanel.changeRequestText(opened.session, pullUrl(1), 'a'.repeat(40), 'x', controller.signal)).rejects.toThrow('closed')
     await expect(opened.ctx.forgePanel.markReady(opened.session, pullUrl(1), controller.signal)).rejects.toThrow('closed')
     await expect(opened.ctx.forgePanel.merge(opened.session, pullUrl(1), 'merge', 'a'.repeat(40), controller.signal)).rejects.toThrow('closed')

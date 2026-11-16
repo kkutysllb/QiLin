@@ -332,25 +332,31 @@ export class ForgePanelController extends TypertRemoteService {
    * any Session, until `maxCachedDiffBytes` evicts it.
    * @param session - Session the change request is bound to.
    * @param url - binding URL of the change request.
+   * @param headSha - head commit the caller is reviewing, so a review keeps its head; null follows the latest head.
    * @param signal - request cancellation.
-   * @returns the files, the head commit, each file's web page, and the commits the checkout has beyond the head.
+   * @returns the files, the head commit that was read, each file's web page, and the commits the checkout has beyond that head.
    * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
    * `forgePanel/diff-too-large` when the host or its provider refuses the diff over a size limit;
    * `forgePanel/diff-failed` before its status was read and when the host does not provide the diff otherwise.
    */
   @Remote
-  async changeRequestDiff(session: Session, url: string, signal: AbortSignal): Promise<ForgeChangeRequestDiff> {
+  async changeRequestDiff(session: Session, url: string, headSha: string | null, signal: AbortSignal): Promise<ForgeChangeRequestDiff> {
     signal.throwIfAborted()
     const { ref, update } = this.bound(session, url)
     if (update === null || !('snapshot' in update)) {
       throw new RemoteError('forgePanel/diff-failed', 'The change request status has not been read yet', {})
     }
-    const { headSha, headBranch, baseBranch } = update.snapshot
+    const { headSha: currentHead, headBranch, baseBranch } = update.snapshot
+    // A review keeps the head it started at; the latest head is read through the provider's own diff.
+    const pinned = headSha !== null && headSha !== currentHead ? headSha : null
+    const effective = pinned ?? currentHead
     const key = changeRequestKey(ref)
-    const version = JSON.stringify([headSha, baseBranch])
+    const version = JSON.stringify([effective, baseBranch])
     let patch = this.patches.get(key, version)
     if (patch === undefined) {
-      const read = await this.home.forge.diff(ref, signal)
+      const read = pinned === null
+        ? await this.home.forge.diff(ref, signal)
+        : await this.home.forge.diffAt(ref, { headSha: pinned, baseBranch }, signal)
       if (typeof read !== 'string') throw readError(read)
       this.patches.set(key, version, read)
       patch = read
@@ -359,14 +365,14 @@ export class ForgePanelController extends TypertRemoteService {
     let localAhead: number | null = null
     try {
       localAhead = await aheadOf(
-        gitIn(this.home, this.config, session, this.home.workingDirectory.get(session), signal), headBranch, headSha,
+        gitIn(this.home, this.config, session, this.home.workingDirectory.get(session), signal), headBranch, effective,
       )
     } catch (_error) {
       // The count only adds a notice; without Git the view still shows the host's diff.
     }
     signal.throwIfAborted()
-    const fileUrls = Object.fromEntries(files.map(file => [file.path, this.home.forge.fileUrl(ref, headSha, file.path)]))
-    return { headSha, files, localAhead, fileUrls }
+    const fileUrls = Object.fromEntries(files.map(file => [file.path, this.home.forge.fileUrl(ref, effective, file.path)]))
+    return { headSha: effective, files, localAhead, fileUrls }
   }
 
   /**

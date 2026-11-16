@@ -106,6 +106,21 @@ describe('forge registry', () => {
     expect(reviewThreads).toHaveBeenCalledWith(ref(3), expect.any(AbortSignal))
   })
 
+  it('reads a pinned diff when supported and reports unsupported providers', async () => {
+    ctx = await forgeContext()
+    const provider = new FakeProvider()
+    await provide(ctx, provider)
+    const signal = new AbortController().signal
+    const request = { headSha: 'a'.repeat(40), baseBranch: 'main' }
+    await expect(ctx.forge.diffAt(ref(3), request, signal))
+      .resolves.toEqual({ code: 'unavailable', message: 'This provider does not support pinned diff reads' })
+    const pinned = vi.fn(async () => 'diff --git a/x b/x')
+    Object.assign(provider, { diffAt: pinned })
+    await expect(ctx.forge.diffAt(ref(3), request, signal)).resolves.toBe('diff --git a/x b/x')
+    expect(pinned).toHaveBeenCalledWith(ref(3), request, expect.any(AbortSignal))
+    expect(provider.actions).toEqual([])
+  })
+
   it('delegates change request reads to the provider of their forge', async () => {
     ctx = await forgeContext()
     const provider = new FakeProvider()

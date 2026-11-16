@@ -120,7 +120,7 @@ it('does not announce provider withdrawal after its registry has stopped', async
   expect(observer).toHaveBeenCalledTimes(1)
 })
 
-it.each(['readiness', 'markReady', 'merge', 'diff', 'fileText', 'submitReview', 'fetchChecks', 'reviewThreads'] as const)(
+it.each(['readiness', 'markReady', 'merge', 'diff', 'diffAt', 'fileText', 'submitReview', 'fetchChecks', 'reviewThreads'] as const)(
   'cancels and drains %s when its provider stops', async (method) => {
     ctx = await forgeContext()
     const provider: ForgeProvider = new FakeProvider()
@@ -142,6 +142,7 @@ it.each(['readiness', 'markReady', 'merge', 'diff', 'fileText', 'submitReview', 
     provider.submitReview = async (_ref, _request, signal) => { await hold(signal); return { ok: true, url: 'https://fake.test/review' } }
     provider.fetchChecks = async (target, signal) => { await hold(signal); return snapshot(target) }
     provider.reviewThreads = async (_ref, signal) => { await hold(signal); return [] }
+    provider.diffAt = async (_ref, _request, signal) => { await hold(signal); return 'diff' }
     const fiber = await provide(ctx, provider)
     const service = ctx.forge
     const signal = new AbortController().signal
@@ -153,6 +154,7 @@ it.each(['readiness', 'markReady', 'merge', 'diff', 'fileText', 'submitReview', 
       markReady: () => service.markReady(ref(1), signal),
       merge: () => service.merge(ref(1), { method: 'squash', headSha: 'a'.repeat(40) }, signal),
       diff: () => service.diff(ref(1), signal),
+      diffAt: () => service.diffAt(ref(1), { headSha: 'a'.repeat(40), baseBranch: 'main' }, signal),
       fileText: () => service.fileText(ref(1), 'a'.repeat(40), 'file.txt', signal),
     }
     const rejected = expect(calls[method]()).rejects.toThrow('was unregistered')

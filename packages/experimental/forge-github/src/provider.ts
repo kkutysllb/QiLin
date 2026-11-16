@@ -3,7 +3,7 @@
 import { changeRequestKey } from '@qilin-agent/experimental-forge'
 import type {
   ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeProvider, ForgeReadiness,
-  ForgeRepository, ForgeReviewRequest, ForgeReviewResult, ForgeReviewThread, MergeRequest,
+  ForgeDiffRequest, ForgeRepository, ForgeReviewRequest, ForgeReviewResult, ForgeReviewThread, MergeRequest,
 } from '@qilin-agent/experimental-forge'
 import { GhOutputLimitError, GhTimeoutError, GhUnavailableError } from './gh.ts'
 import type { GhOutput, GhRunner } from './gh.ts'
@@ -154,6 +154,22 @@ export class GitHubProvider implements ForgeProvider {
     const failure = this.hostFailure(host)
     if (failure !== undefined) return failure
     return await this.read(['pr', 'diff', String(ref.number), '--repo', `${host}/${owner}/${name}`, '--color', 'never'], signal)
+  }
+
+  /**
+   * Read a pinned commit pair through the compare API, whose three-dot range
+   * uses the merge base, as one patch with the diff media type.
+   */
+  async diffAt(ref: ChangeRequestRef, request: ForgeDiffRequest, signal: AbortSignal): Promise<string | ForgeFailure> {
+    const { host, owner, name } = checkedRepository(ref)
+    const failure = this.hostFailure(host)
+    if (failure !== undefined) return failure
+    if (!COMMIT.test(request.headSha)) throw new Error(`forge-github: invalid head commit ${JSON.stringify(request.headSha)}`)
+    if (request.baseBranch.length === 0) throw new Error('forge-github: a pinned diff needs a base branch')
+    return await this.read([
+      'api', '--hostname', host, '-H', 'Accept: application/vnd.github.diff',
+      `repos/${owner}/${name}/compare/${encodeURIComponent(request.baseBranch)}...${request.headSha}`,
+    ], signal)
   }
 
   /** Read one file at a commit through the contents API in its raw form. */

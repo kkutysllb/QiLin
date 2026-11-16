@@ -212,7 +212,7 @@ function registerUi(ctx: Context): void {
       reconnect: store.panel.reconnect,
       localDiff: (scope, signal) => ctx.remote.forgePanel.localDiff(sessionId, scope, signal),
       localText: (scope, path) => ctx.remote.forgePanel.localText(sessionId, scope, path),
-      changeRequestDiff: (url, signal) => ctx.remote.forgePanel.changeRequestDiff(sessionId, url, signal),
+      changeRequestDiff: (url, headSha, signal) => ctx.remote.forgePanel.changeRequestDiff(sessionId, url, headSha, signal),
       changeRequestReviewThreads: (url, signal) => ctx.remote.forgePanel.reviewThreads(sessionId, url, signal),
       changeRequestText: (url, commit, path) => ctx.remote.forgePanel.changeRequestText(sessionId, url, commit, path),
       addReviewToInput: selection => addReviewToInput(sessionId, selection),

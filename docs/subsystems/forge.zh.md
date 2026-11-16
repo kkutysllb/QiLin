@@ -72,6 +72,12 @@ interface ForgeProvider {
   merge(ref: ChangeRequestRef, request: MergeRequest, signal: AbortSignal): Promise<ForgeActionFailure | undefined>
   /** Read the changes of a change request as the host computes them, as one unified patch with `a/` and `b/` path prefixes. */
   diff(ref: ChangeRequestRef, signal: AbortSignal): Promise<string | ForgeFailure>
+  /**
+   * Read the changes between `request.baseBranch` and `request.headSha`, so a
+   * review keeps the head it started at. Omission declares that this provider
+   * cannot read a pinned head, and callers fall back to {@link diff}.
+   */
+  diffAt?(ref: ChangeRequestRef, request: ForgeDiffRequest, signal: AbortSignal): Promise<string | ForgeFailure>
   /** Read the text of `path` at `commit` in the change request's repository. */
   fileText(ref: ChangeRequestRef, commit: string, path: string, signal: AbortSignal): Promise<string | ForgeFailure>
   /** Build the web page of `path` at `commit` in the change request's repository. */
@@ -452,6 +458,17 @@ async fetchChecks(ref: ChangeRequestRef, signal: AbortSignal): Promise<ChangeReq
 async diff(ref: ChangeRequestRef, signal: AbortSignal): Promise<string | ForgeFailure>
 
 /**
+ * Read the changes between a pinned base branch and head commit, so a
+ * review keeps the head it started at.
+ * @param ref - change request served by a registered provider.
+ * @param request - the commit pair the read is pinned to.
+ * @param signal - cancellation of the read.
+ * @returns one unified patch, or why the host did not provide it; a provider without pinned reads returns unavailable.
+ * @throws when no provider serves the change request's forge, or with `signal.reason` when it aborts.
+ */
+async diffAt(ref: ChangeRequestRef, request: ForgeDiffRequest, signal: AbortSignal): Promise<string | ForgeFailure>
+
+/**
  * Publish one comment or a completed review, then refresh the watched status.
  * @param ref - change request served by a registered provider.
  * @param request - explicitly selected commit, comments, and review decision.
@@ -633,13 +650,14 @@ Serves the forge panel. Following a Session inspects the checkout of its current
  * any Session, until `maxCachedDiffBytes` evicts it.
  * @param session - Session the change request is bound to.
  * @param url - binding URL of the change request.
+ * @param headSha - head commit the caller is reviewing, so a review keeps its head; null follows the latest head.
  * @param signal - request cancellation.
- * @returns the files, the head commit, each file's web page, and the commits the checkout has beyond the head.
+ * @returns the files, the head commit that was read, each file's web page, and the commits the checkout has beyond that head.
  * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
  * `forgePanel/diff-too-large` when the host or its provider refuses the diff over a size limit;
  * `forgePanel/diff-failed` before its status was read and when the host does not provide the diff otherwise.
  */
-@Remote async changeRequestDiff(session: Session, url: string, signal: AbortSignal): Promise<ForgeChangeRequestDiff>
+@Remote async changeRequestDiff(session: Session, url: string, headSha: string | null, signal: AbortSignal): Promise<ForgeChangeRequestDiff>
 
 /**
  * Read one file of a change request's repository at a commit, which

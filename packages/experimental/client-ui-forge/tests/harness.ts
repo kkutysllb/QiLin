@@ -12,8 +12,8 @@ import type { Agent, PreStepDecision } from '@qilin-agent/agent'
 import { createInboxStub } from '@qilin-agent/agent-loop-testkit'
 import ForgeService, { changeRequestKey } from '@qilin-agent/experimental-forge'
 import type {
-  ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeProvider, ForgeReadiness,
-  ForgeRepository, MergeRequest,
+  ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeDiffRequest, ForgeFailure, ForgeProvider,
+  ForgeReadiness, ForgeRepository, MergeRequest,
 } from '@qilin-agent/experimental-forge'
 import ForgeSessionService from '@qilin-agent/experimental-forge-session'
 import WorktreeService from '@qilin-agent/experimental-worktree'
@@ -285,6 +285,10 @@ export class FakeProvider implements ForgeProvider {
   actionResult: ForgeActionFailure | undefined
   /** Patches or failures the change request diff returns, by number; others return a not-found failure. */
   readonly patches = new Map<number, string | ForgeFailure>()
+  /** Patches or failures pinned reads return, by `<head>:<base>`; other pairs return a not-found failure. */
+  readonly pinnedPatches = new Map<string, string | ForgeFailure>()
+  /** Pinned reads in call order, as `<head> <base>`. */
+  readonly pinnedReads: string[] = []
   /** Change request numbers in the order their diffs were read. */
   readonly diffs: number[] = []
   /** File texts or failures by `<commit>:<path>`; others return a not-found failure. */
@@ -338,6 +342,12 @@ export class FakeProvider implements ForgeProvider {
   diff(ref: ChangeRequestRef): Promise<string | ForgeFailure> {
     this.diffs.push(ref.number)
     return Promise.resolve(this.patches.get(ref.number) ?? { code: 'not-found', message: `no diff of #${ref.number}` })
+  }
+
+  diffAt(ref: ChangeRequestRef, request: ForgeDiffRequest): Promise<string | ForgeFailure> {
+    const key = `${request.headSha}:${request.baseBranch}`
+    this.pinnedReads.push(`${request.headSha} ${request.baseBranch}`)
+    return Promise.resolve(this.pinnedPatches.get(key) ?? { code: 'not-found', message: `no pinned diff of #${ref.number} at ${key}` })
   }
 
   fileText(_ref: ChangeRequestRef, commit: string, path: string): Promise<string | ForgeFailure> {

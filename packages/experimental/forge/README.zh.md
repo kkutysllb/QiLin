@@ -38,6 +38,8 @@ kind: "package-reference"
 
 `diff(ref, signal)` 读取托管平台计算出的变更请求统一补丁，路径带 `a/` 与 `b/` 前缀；`fileText(ref, commit, path, signal)` 读取其仓库中某个提交下的一个文件。两者都委托给引用所属 forge 的提供方，没有注册提供方时抛错，resolve 为文本或 `ForgeFailure`；托管平台或提供方因结果超过其大小上限而拒绝时，失败为 `too-large`。`fileUrl(ref, commit, path)` 返回该文件在该提交下的网页地址。
 
+`diffAt(ref, { headSha, baseBranch }, signal)` 读取指定基准分支与 head 提交之间的变更，使评审在变更请求继续前进后仍停留在开始时的 head。未实现该方法的提供方返回 `unavailable`，原因为「This provider does not support pinned diff reads」，调用方据此拒绝移动后的 head，而不是悄悄读取最新的 head。不带钉住的 `diff(ref, signal)` 仍读取主机的当前 head。
+
 `reviewThreads(ref, signal)` 读取提供方主机持有的变更请求 diff 评审线程：每个线程的文件路径、所属侧、包含端点的行范围、首位作者、合并后的评论正文，以及已解决与已过期标记。它使用独立的 `fetchTimeoutMs` 时限；提供方未实现时返回 `unavailable`，原因为「This provider does not support review reads」。面板把这些线程只读地画在对应行旁；本地草稿与发布仍由评审队列管理。
 
 `fetchChecks(ref, signal)` 按需读取单个变更请求的完整检查，使用独立的 `fetchTimeoutMs` 时限，不占用轮询批次，也不向其监听方发布结果。读取失败时保留已有轮询快照。提供方未实现 `fetchChecks` 时返回 `unavailable`。调用方取消、提供方或服务销毁都会中止读取；销毁会等待读取结束。

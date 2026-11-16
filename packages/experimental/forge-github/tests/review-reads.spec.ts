@@ -24,7 +24,7 @@ function node(overrides: Record<string, unknown> = {}): Record<string, unknown> 
   }
 }
 
-function response(nodes: readonly unknown[]): Record<string, unknown> {
+function response(nodes: unknown): Record<string, unknown> {
   return { data: { repository: { pullRequest: { reviewThreads: { nodes } } } } }
 }
 

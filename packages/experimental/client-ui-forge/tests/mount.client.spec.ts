@@ -791,11 +791,11 @@ describe('mountForgePanel changes view', () => {
     const signal = new AbortController().signal
     expect(await view.localDiff({ kind: 'staged' }, signal)).toEqual({ ok: true, value: LOCAL })
     expect(await view.localText({ kind: 'staged' }, 'src/a.ts')).toEqual({ ok: true, value: 'a\n' })
-    expect(await view.changeRequestDiff('https://github.com/octo/demo/pull/7', signal)).toEqual({ ok: true, value: CHANGE })
+    expect(await view.changeRequestDiff('https://github.com/octo/demo/pull/7', null, signal)).toEqual({ ok: true, value: CHANGE })
     expect(await view.changeRequestText('https://github.com/octo/demo/pull/7', 'a'.repeat(40), 'src/a.ts')).toEqual({ ok: true, value: 'b\n' })
     expect(f.forgePanel.localDiff).toHaveBeenCalledWith(S1, { kind: 'staged' }, signal)
     expect(f.forgePanel.localText).toHaveBeenCalledWith(S1, { kind: 'staged' }, 'src/a.ts')
-    expect(f.forgePanel.changeRequestDiff).toHaveBeenCalledWith(S1, 'https://github.com/octo/demo/pull/7', signal)
+    expect(f.forgePanel.changeRequestDiff).toHaveBeenCalledWith(S1, 'https://github.com/octo/demo/pull/7', null, signal)
     expect(f.forgePanel.changeRequestText).toHaveBeenCalledWith(S1, 'https://github.com/octo/demo/pull/7', 'a'.repeat(40), 'src/a.ts')
     view.reconnect()
     expect(f.forgePanel.follow).not.toHaveBeenCalled()

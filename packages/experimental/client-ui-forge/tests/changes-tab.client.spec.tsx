@@ -1086,7 +1086,7 @@ describe('ChangesTab change requests', () => {
 
   it('reads the change request at its head and heads the view with its state, title, and number', async () => {
     const m = mount({ source })
-    expect(m.faces.changeRequestDiff).toHaveBeenCalledWith(URL7, expect.any(AbortSignal))
+    expect(m.faces.changeRequestDiff).toHaveBeenCalledWith(URL7, HEAD, expect.any(AbortSignal))
     expect(m.view.queryByRole('button', { name: 'Branch' })).toBeNull()
     expect(m.view.getByRole('img', { name: 'Change request state: Open' })).toBeTruthy()
     expect(m.view.getByText('Change 7')).toBeTruthy()
@@ -1142,12 +1142,24 @@ describe('ChangesTab change requests', () => {
     expect(m.faces.openLink).toHaveBeenLastCalledWith(URL7)
   })
 
-  it('reads again when the head moves', async () => {
-    const m = mount({ source })
+  it('keeps the head a review started at, says so when it moved, and refreshes to the latest one', async () => {
+    const m = mount({ source, setup: (faces) => {
+      // The host reads the head it was asked for, as the pinned provider read does.
+      faces.changeRequestDiff.mockImplementation(async (_url, headSha) => ok({ ...CHANGE, headSha: headSha ?? HEAD }))
+    } })
     await settle()
-    act(() => { m.panel.set({ state: ready({ changeRequests: [entry(7, snapshot(7, { headSha: 'b'.repeat(40) }))] }), disconnected: false }) })
+    const moved = 'b'.repeat(40)
+    act(() => { m.panel.set({ state: ready({ changeRequests: [entry(7, snapshot(7, { headSha: moved }))] }), disconnected: false }) })
+    await settle()
+    // A polled head change does not re-read the diff under the reviewer.
+    expect(m.faces.changeRequestDiff).toHaveBeenCalledTimes(1)
+    const pinned = en['diff.pinned'].replace('{head}', HEAD.slice(0, 7)).replace('{live}', moved.slice(0, 7))
+    expect(m.view.container.textContent).toContain(pinned)
+
+    fireEvent.click(m.view.getByRole('button', { name: en['diff.repin'] }))
     await settle()
     expect(m.faces.changeRequestDiff).toHaveBeenCalledTimes(2)
+    expect(m.faces.changeRequestDiff).toHaveBeenLastCalledWith(URL7, moved, expect.any(AbortSignal))
   })
 
   it.each([

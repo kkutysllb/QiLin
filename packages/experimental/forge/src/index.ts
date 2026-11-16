@@ -7,8 +7,8 @@ import { changeRequestKey } from './keys.ts'
 import { nextPollDelay } from './schedule.ts'
 import type {
   ChangeRequestKey, ChangeRequestListener, ChangeRequestRef, ChangeRequestSnapshot, ChangeRequestUpdate, Config,
-  ForgeActionFailure, ForgeFailure, ForgeProvider, ForgeReadiness, ForgeRepository, ForgeReviewRequest, ForgeReviewResult,
-  ForgeReviewThread, MergeRequest,
+  ForgeActionFailure, ForgeDiffRequest, ForgeFailure, ForgeProvider, ForgeReadiness, ForgeRepository, ForgeReviewRequest,
+  ForgeReviewResult, ForgeReviewThread, MergeRequest,
 } from './types.ts'
 
 export { changeRequestKey } from './keys.ts'
@@ -260,6 +260,21 @@ export class ForgeService extends Service {
   async diff(ref: ChangeRequestRef, signal: AbortSignal): Promise<string | ForgeFailure> {
     return await this.invoke(this.registration(ref.repository.forge), signal,
       (provider, operation) => provider.diff(ref, operation))
+  }
+
+  /**
+   * Read the changes between a pinned base branch and head commit, so a
+   * review keeps the head it started at.
+   * @param ref - change request served by a registered provider.
+   * @param request - the commit pair the read is pinned to.
+   * @param signal - cancellation of the read.
+   * @returns one unified patch, or why the host did not provide it; a provider without pinned reads returns unavailable.
+   * @throws when no provider serves the change request's forge, or with `signal.reason` when it aborts.
+   */
+  async diffAt(ref: ChangeRequestRef, request: ForgeDiffRequest, signal: AbortSignal): Promise<string | ForgeFailure> {
+    return await this.invoke(this.registration(ref.repository.forge), signal,
+      (provider, operation) => provider.diffAt?.(ref, request, operation)
+        ?? Promise.resolve({ code: 'unavailable', message: 'This provider does not support pinned diff reads' } as const))
   }
 
   /**

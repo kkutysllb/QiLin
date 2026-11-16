@@ -469,3 +469,42 @@ describe('GitHub provider review reads', () => {
       .resolves.toEqual({ code: 'unavailable', message: 'GitHub returned no JSON for the review read' })
   })
 })
+
+describe('GitHub provider pinned diffs', () => {
+  it('reads a pinned commit pair through the compare API with the diff media type', async () => {
+    const gh = fakeGh(() => output('diff --git a/x b/x'))
+    const patch = await provider(gh.run).diffAt(pull(4), { headSha: 'a'.repeat(40), baseBranch: 'release/2.0' }, signal)
+
+    expect(patch).toBe('diff --git a/x b/x')
+    expect(gh.calls[0]).toEqual([
+      'api', '--hostname', 'github.com', '-H', 'Accept: application/vnd.github.diff',
+      `repos/octo/demo/compare/release%2F2.0...${'a'.repeat(40)}`,
+    ])
+  })
+
+  it('refuses a host it does not serve without running gh', async () => {
+    const gh = fakeGh(() => output(''))
+    const subject = new GitHubProvider(gh.run, ['github.com'], 8_388_608)
+    await expect(subject.diffAt(pull(4, enterprise), { headSha: 'a'.repeat(40), baseBranch: 'main' }, signal))
+      .resolves.toMatchObject({ code: 'unavailable' })
+    expect(gh.calls).toEqual([])
+  })
+
+  it('refuses an invalid head or an empty base before running gh', async () => {
+    const gh = fakeGh(() => output(''))
+    await expect(provider(gh.run).diffAt(pull(4), { headSha: 'HEAD', baseBranch: 'main' }, signal))
+      .rejects.toThrow('invalid head commit')
+    await expect(provider(gh.run).diffAt(pull(4), { headSha: 'a'.repeat(40), baseBranch: '' }, signal))
+      .rejects.toThrow('needs a base branch')
+    expect(gh.calls).toEqual([])
+  })
+
+  it('maps a refused or oversized compare to a failure', async () => {
+    await expect(provider(fakeGh(() => output('', 1, 'gh: Not Found (HTTP 404)')).run)
+      .diffAt(pull(4), { headSha: 'a'.repeat(40), baseBranch: 'main' }, signal))
+      .resolves.toMatchObject({ code: 'not-found' })
+    await expect(provider(fakeGh(() => output({ message: 'too_large' }, 1)).run)
+      .diffAt(pull(4), { headSha: 'a'.repeat(40), baseBranch: 'main' }, signal))
+      .resolves.toMatchObject({ code: 'too-large' })
+  })
+})
