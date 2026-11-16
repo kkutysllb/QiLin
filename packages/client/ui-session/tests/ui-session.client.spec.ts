@@ -13,7 +13,7 @@ import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { HostObservable, RootStandardSourceContribution } from '@qilin-agent/client-ui-slots'
 import type { SessionId } from '@qilin-agent/session/types'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { apply, UiSession } from '../src/client/index.ts'
+import { apply, type SessionPendingInteractionBase, UiSession } from '../src/client/index.ts'
 import { apply as nodeApply } from '../src/index.ts'
 
 interface SessionsBench {
