@@ -253,6 +253,23 @@ describe('Conversation inject API', () => {
     }
   })
 
+  it('appends Markdown blockquote text through the quote action', async () => {
+    const b = await bench()
+    const { state, actions } = b.inputApi(ROOT)
+    try {
+      expect(state.getSnapshot().draft).toBe('')
+      expect(actions.insertQuote?.('first\nsecond', {
+        label: 'Quote', title: 'a.md', detail: '1-2', body: 'first second',
+      })).toBe(true)
+      expect(state.getSnapshot().draft).toBe('> first\n> second')
+      expect(actions.insertQuote?.('third')).toBe(true)
+      expect(state.getSnapshot().draft).toBe('> first\n> second\n> third')
+    } finally {
+      await b.runtime.dispose()
+    }
+    expect(actions.insertQuote?.('after dispose')).toBe(false)
+  })
+
   it('submits through the provided input machine and mirrors accepted draft edits', async () => {
     const b = await bench()
     const { injected } = b.conversationApi(ROOT)

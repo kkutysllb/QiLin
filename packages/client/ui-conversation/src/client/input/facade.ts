@@ -13,6 +13,7 @@ import type { InboxState } from '@qilin-agent/agent/types'
 import {
   createSnapshotStore, type ObservableSnapshot, type SnapshotStore,
 } from '@qilin-agent/client-store'
+import { formatQuoteText, type QuoteSummary } from '@qilin-agent/client-ui-primitives'
 import type { LexicalEditor } from 'lexical'
 import type {
   CommandClaim, ConsumeTokenRequest, DraftAttachmentId, DraftInitializationOptions, DraftInitializationResult,
@@ -131,6 +132,7 @@ export class SessionInputShell implements SessionInput {
       if (span.draftRev !== this.rev) return false
       return this.draftEditor.insertAsyncText(span, text)
     },
+    insertQuote: (text, summary) => this.insertQuote(text, summary),
     setDraft: (text) => { this.setDraft(text) },
     persistDraft: () => { this.persistCurrentDraft() },
     addAttachments: ids => this.addAttachments(ids),
@@ -214,6 +216,20 @@ export class SessionInputShell implements SessionInput {
   }
 
   // ---- SessionInput face ----
+
+  /**
+   * Append one quote as Markdown blockquote text (atomic quote nodes arrive with the editor upgrade).
+   * @param text - nonblank selected text.
+   * @param _summary - readable display reserved for the future quote chip.
+   * @returns whether the draft is writable now.
+   */
+  insertQuote(text: string, _summary?: QuoteSummary): boolean {
+    if (this.snapshot.phase === 'adjudicating' || this.snapshot.phase === 'submitting' || this.disposed) return false
+    const quoted = formatQuoteText(text)
+    const before = this.projection.clipboardText
+    this.draftEditor.appendDraft(quoted)
+    return before === '' || this.projection.clipboardText !== before
+  }
 
   /**
    * Replace the whole draft (persisted-draft seed and programmatic writes).

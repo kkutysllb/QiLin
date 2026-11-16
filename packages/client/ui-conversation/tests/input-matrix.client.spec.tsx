@@ -296,6 +296,7 @@ describe('matrix row: claimed with attachments', () => {
     let removed = true
     act(() => { removed = shell.removeAttachment(img) })
     expect(removed).toBe(false)
+    expect(shell.insertQuote('quoted')).toBe(false)
     expect(shell.snapshot.attachmentIds).toEqual([img])
   })
 })
