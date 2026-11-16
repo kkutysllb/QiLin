@@ -996,6 +996,26 @@ Ask the composed providers what still runs for a session before it is archived. 
 
 Source: [`packages/workspace/workspace/src/index.ts`](../../packages/workspace/workspace/src/index.ts)
 
+<a id="workspacesession-archived--parallel"></a>
+
+#### `workspace/session-archived` — parallel
+
+Release what a provider holds for a Session that is durably archived. The archive set is durable when this dispatches; listeners release only what is safe to release (a worktree still carrying local changes stays), and a rejection is logged without undoing the archive.
+
+```ts cordis-catalog
+/**
+ * Release what a provider holds for a Session that is durably archived.
+ * The archive set is durable when this dispatches; listeners release only
+ * what is safe to release (a worktree still carrying local changes stays),
+ * and a rejection is logged without undoing the archive.
+ * @param request - the archived session.
+ * @mode parallel
+ */
+'workspace/session-archived'(request: SessionActivityRequest): Promise<void> | void
+```
+
+Source: [`packages/workspace/workspace/src/index.ts`](../../packages/workspace/workspace/src/index.ts)
+
 <a id="workspacesession-stop--parallel"></a>
 
 #### `workspace/session-stop` — parallel
