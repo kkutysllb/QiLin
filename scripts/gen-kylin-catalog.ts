@@ -227,6 +227,8 @@ export const SERVICE_WALK_EXEMPTIONS: Record<string, string> = {
  */
 export const EVENT_SCOPE_PAGE: Record<string, string> = {
   'llm-pi-ai': 'llm-streaming.md',
+  worktree: 'worktrees.md',
+  'working-directory': 'working-directory.md',
   'app-boot': 'boot.md',
   hmr: 'boot.md',
   'plugin-manager': 'boot.md',
@@ -342,6 +344,7 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   ChangeRequestSnapshot: 'forge.md',
   ForgeLineComment: 'forge.md',
   ForgeDiffRequest: 'forge.md',
+  WorktreeCleanup: 'worktrees.md',
   ForgeReviewRequest: 'forge.md',
   ForgeReviewResult: 'forge.md',
   ForgeReviewThread: 'forge.md',

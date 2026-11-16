@@ -1041,4 +1041,22 @@ Stop a session's running work because the caller archived it with `stopActivity`
 ```
 
 Source: [`packages/workspace/workspace/src/index.ts`](../../packages/workspace/workspace/src/index.ts)
+
+<a id="workspacesession-unarchiving--parallel"></a>
+
+#### `workspace/session-unarchiving` — parallel
+
+Cancel or settle archive follow-up work before making a Session available again. A rejection retains the archived state.
+
+```ts cordis-catalog
+/**
+ * Cancel or settle archive follow-up work before making a Session available again.
+ * A rejection retains the archived state.
+ * @param request - Session about to leave the archive set.
+ * @mode parallel
+ */
+'workspace/session-unarchiving'(request: SessionActivityRequest): Promise<void> | void
+```
+
+Source: [`packages/workspace/workspace/src/index.ts`](../../packages/workspace/workspace/src/index.ts)
 <!-- END GENERATED kylin-surface -->

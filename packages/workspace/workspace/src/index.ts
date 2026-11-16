@@ -176,6 +176,13 @@ declare module '@qilin-agent/kylin' {
      * @mode parallel
      */
     'workspace/session-archived'(request: SessionActivityRequest): Promise<void> | void
+    /**
+     * Cancel or settle archive follow-up work before making a Session available again.
+     * A rejection retains the archived state.
+     * @param request - Session about to leave the archive set.
+     * @mode parallel
+     */
+    'workspace/session-unarchiving'(request: SessionActivityRequest): Promise<void> | void
   }
 }
 
@@ -430,6 +437,7 @@ export class WorkspaceRegistry extends Service {
       // check-then-write pair cannot interleave with a concurrent archive.
       const state = this.requireState()
       if (!state.archivedSessionIds.includes(sessionId)) return
+      await this.ctx.parallel('workspace/session-unarchiving', { sessionId })
       await this.setState({
         ...state,
         archivedSessionIds: state.archivedSessionIds.filter(id => id !== sessionId),

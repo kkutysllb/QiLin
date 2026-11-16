@@ -2773,6 +2773,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'a caller-owned observation lease.',
       },
       {
+        signature: 'inspectSession<T>(sessionId: SessionId, read: (session: Session) => T, signal?: AbortSignal): Promise<T>',
+        description: 'Inspect domain-owned state without attaching or resuming a cold Session. The getter runs synchronously after preparation and must not mutate or retain the Session.',
+        parameters: [{ name: 'sessionId', description: 'logical Session identity.' }, { name: 'read', description: 'domain getter returning detached data.' }, { name: 'signal', description: 'preparation cancellation.' }],
+        returns: 'the getter\'s value at the current live or prepared cut.',
+      },
+      {
         signature: 'abstract searchSessions( request: SessionSearchRequest, exec?: SessionSearchExecContext, ): Promise<SessionSearchPage<SessionSearchHit>>',
         description: 'Search the live-preferred logical corpus and group by session.',
         parameters: [{ name: 'request', description: 'query text, metadata filters, page size, and cursor.' }, { name: 'exec', description: 'optional cancellation control.' }],
@@ -4642,25 +4648,33 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
   },
   {
     key: 'worktrees',
-    summary: 'Creates retained Git worktrees under the mounted filesystem and sandbox providers.',
-    description: 'Creates retained Git worktrees under the mounted filesystem and sandbox providers.',
+    summary: 'Creates retained Git worktrees under the mounted filesystem and sandbox providers, records each creation in the Session log, and reclaims a clean, unreferenced checkout when the Session that created it is archived.',
+    description: 'Creates retained Git worktrees under the mounted filesystem and sandbox providers, records each creation in the Session log, and reclaims a clean, unreferenced checkout when the Session that created it is archived.',
     methods: [
       {
         signature: 'async create( agent: Agent, request: CreateWorktreeRequest = {}, signal?: AbortSignal, onPhase?: (phase: CreateWorktreePhase) => void, ): Promise<CreatedWorktree>',
         description: 'Create a fresh branch and checkout at a pinned local revision, then enter it. Existing branches or checkout paths fail. Uncommitted files stay in the source checkout. Checkout disables configured clean, smudge, and process filters without changing Git config. Repository-local replacement refs still apply; baseCommit reports the resolved object name. The new checkout becomes current only after Git setup succeeds. Failures may retain newly allocated Git/filesystem artifacts; no branch or checkout is removed automatically.',
         parameters: [{ name: 'agent', description: 'caller whose current directory selects the source repository and file policy.' }, { name: 'request', description: 'optional new name and local revision; defaults are generated name and HEAD.' }, { name: 'signal', description: 'cancellation of lookup, creation, and working-directory publication.' }, { name: 'onPhase', description: 'receives each stage before it begins; it must not throw.' }],
         returns: 'canonical checkout path, branch name, pinned commit, and source repository root.',
+        throws: ['{WorktreeError} for an invalid request, an existing branch or path, or a failed, oversized, or timed-out command; a failure after allocation keeps its `name` and `code` and adds retained-artifact context.'],
       },
       {
         signature: 'async restore( agent: Agent, request: RestoreWorktreeRequest, signal?: AbortSignal, onPhase?: (phase: CreateWorktreePhase) => void, ): Promise<RestoredWorktree>',
         description: 'Check out a removed worktree again at its recorded directory: its branch when the branch still exists, otherwise a new branch of the same name at `baseCommit`. Only the missing target\'s unlocked registration is removed, and an existing directory fails. Changes that were never committed are not recovered. Checkout disables configured clean, smudge, and process filters, as creation does. The calling Session\'s working directory does not change. Failures may retain newly allocated Git/filesystem artifacts.',
         parameters: [{ name: 'agent', description: 'caller whose sandbox policy confines the commands.' }, { name: 'request', description: 'recorded directory, branch, base commit, and source repository root.' }, { name: 'signal', description: 'cancellation of the restoration.' }, { name: 'onPhase', description: 'receives each stage before it begins; it must not throw.' }],
         returns: 'the directory and whether the branch was created again.',
+        throws: ['{WorktreeError} for an invalid request, an existing path, a locked registration, or a failed, oversized, or timed-out command; a failure after allocation keeps its `name` and `code` and adds retained-artifact context.'],
+      },
+      {
+        signature: 'async cleanupOf(session: Session, revision: number | null): Promise<WorktreeCleanup | null>',
+        description: 'Read the archive cleanup of a Session\'s created checkout; waiting never starts one. Absent without the Workspace and query providers.',
+        parameters: [{ name: 'session', description: 'archived Session whose cleanup is read.' }, { name: 'revision', description: 'null reads at once; a matching revision waits for that attempt to settle.' }],
+        returns: 'the attempt state, or null when none exists, the revision was superseded, or the service is stopping.',
       },
       {
         signature: 'async remove( agent: Agent, request: RemoveWorktreeRequest, signal?: AbortSignal, onPhase?: (phase: CreateWorktreePhase) => void, ): Promise<RemovedWorktree>',
-        description: 'Remove one retained worktree: its checkout directory and registration leave the filesystem, and its branch follows when `deleteBranch` is set and Git reports it as merged. A checkout with uncommitted or untracked files stays: Git refuses the removal without force, so no work is discarded implicitly, and the caller keeps its files. Validation matches restore: a canonical target inside the configured pool, a source checkout root, a relative branch name, and a full base commit.',
-        parameters: [{ name: 'agent', description: 'caller whose sandbox policy confines the commands.' }, { name: 'request', description: 'recorded directory, branch, base commit, source repository root, and branch intent.' }, { name: 'signal', description: 'cancellation of the removal.' }, { name: 'onPhase', description: 'receives each stage before it begins; it must not throw.' }],
+        description: 'Remove one retained checkout: its directory and registration leave the filesystem, and its branch follows when `deleteBranch` is set and Git reports it merged. A checkout that is locked, detached, or holds local changes stays and rejects, so no work is discarded implicitly.',
+        parameters: [{ name: 'agent', description: 'caller whose sandbox policy confines the commands.' }, { name: 'request', description: 'recorded directory, branch, base commit, source root, and branch intent.' }, { name: 'signal', description: 'cancellation of the removal.' }, { name: 'onPhase', description: 'receives `prepare` before validation.' }],
         returns: 'the addressed directory and whether the branch was deleted.',
       },
     ],
@@ -5334,6 +5348,14 @@ export const EVENT_API: readonly EventApiEntry[] = [
     parameters: [{ name: 'info', description: 'the run\'s identity snapshot (id + meta).' }],
   },
   {
+    name: 'working-directory/access',
+    mode: 'waterfall',
+    signature: '\'working-directory/access\'( request: { agent: Agent; path: string | null; signal: AbortSignal }, next: () => Promise<string>, ): Promise<string>',
+    summary: 'Coordinate directory validation and publication with a resource operation on the directory, such as a checkout being removed.',
+    description: 'Coordinate directory validation and publication with a resource operation on the directory, such as a checkout being removed. A listener that must wait awaits that operation, then calls `next()`; every other listener calls `next()` at once. A rejection fails this access and leaves the recorded directory unchanged; it is not a fallback.',
+    parameters: [{ name: 'request', description: 'owner, requested path (null validates the current directory), and the access\'s cancellation.' }, { name: 'next', description: 'perform validation and commit.' }],
+  },
+  {
     name: 'workspace/session-activity',
     mode: 'waterfall',
     signature: '\'workspace/session-activity\'( request: SessionActivityRequest, next: () => Promise<readonly SessionActivity[]>, ): Promise<readonly SessionActivity[]>',
@@ -5356,6 +5378,22 @@ export const EVENT_API: readonly EventApiEntry[] = [
     summary: 'Stop a session\'s running work because the caller archived it with `stopActivity`; the archive set is durable when this dispatches.',
     description: 'Stop a session\'s running work because the caller archived it with `stopActivity`; the archive set is durable when this dispatches. Each provider stops its own families — cancelling a turn, its subagent descendants, owned jobs, or active schedules — through the same cancel paths the user\'s own stop actions use, so the session log ends every open turn regularly and a later unarchive can continue the conversation. Listeners issue their stop requests without waiting for running work to settle; a listener may await its own durability barrier. A rejection is logged by the registry and does not undo the archive.',
     parameters: [{ name: 'request', description: 'the session being archived.' }],
+  },
+  {
+    name: 'workspace/session-unarchiving',
+    mode: 'parallel',
+    signature: '\'workspace/session-unarchiving\'(request: SessionActivityRequest): Promise<void> | void',
+    summary: 'Cancel or settle archive follow-up work before making a Session available again.',
+    description: 'Cancel or settle archive follow-up work before making a Session available again. A rejection retains the archived state.',
+    parameters: [{ name: 'request', description: 'Session about to leave the archive set.' }],
+  },
+  {
+    name: 'worktree/cleanup',
+    mode: 'emit',
+    signature: '\'worktree/cleanup\'(info: { sessionId: SessionId; path: string; cleanup: WorktreeCleanup }): void',
+    summary: 'A cleanup attempt changed state.',
+    description: 'A cleanup attempt changed state. Fires once at admission with `scheduled` and once at settlement with the final status.',
+    parameters: [{ name: 'info', description: 'the archived Session, the checkout, and the attempt state.' }],
   },
 ]
 
@@ -9916,6 +9954,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'WorkspaceView',
     declaration: 'export interface WorkspaceView {\n    readonly workspaceId: WorkspaceId;\n    readonly path: string;\n    readonly kind: WorkspaceDirectoryKind;\n    readonly title: string;\n    readonly sessionIds: readonly SessionId[];\n    readonly createdAt: string;\n    readonly updatedAt: string;\n}',
+  },
+  {
+    name: 'WorktreeCleanup',
+    declaration: 'export interface WorktreeCleanup {\n    readonly revision: number;\n    readonly status: \'scheduled\' | \'retained\' | \'removed\' | \'failed\';\n}',
   },
 ]
 

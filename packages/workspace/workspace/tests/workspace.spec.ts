@@ -1047,6 +1047,30 @@ describe('registry-global session archive', () => {
     expect(order).toEqual([])
   })
 
+  it('lets providers settle archive follow-up work before an unarchive writes, and a rejection keeps the archive', async () => {
+    const dir = await makeDir('unarchive-admission')
+    const result = await harness({ sessions: [header('kept', dir, 100)] })
+    await result.registry.archiveSession(SessionId('kept'))
+    const order: string[] = []
+    result.ctx.on('workspace/session-unarchiving', async ({ sessionId }) => {
+      order.push(`unarchiving:${sessionId}`)
+      await Promise.resolve()
+    })
+    result.ctx.on('domain/changed', (change) => { if (change.table === '') order.push('write') })
+
+    await result.registry.unarchiveSession(SessionId('kept'))
+    expect(order).toEqual(['unarchiving:kept', 'write'])
+    expect(result.registry.archivedSessionIds).toEqual([])
+
+    // A rejecting listener keeps the Session archived.
+    await result.registry.archiveSession(SessionId('kept'))
+    order.length = 0
+    result.ctx.on('workspace/session-unarchiving', () => { throw new Error('cleanup still running') })
+    await expect(result.registry.unarchiveSession(SessionId('kept'))).rejects.toThrow()
+    expect(result.registry.archivedSessionIds).toEqual(['kept'])
+    expect(order).toEqual(['unarchiving:kept'])
+  })
+
   it('asks about activity only after the session is known, and archives when every listener delegates', async () => {
     const dir = await makeDir('archive-quiet')
     const result = await harness({ sessions: [header('known', dir, 100)] })
