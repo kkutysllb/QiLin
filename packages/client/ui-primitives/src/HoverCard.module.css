@@ -12,9 +12,9 @@
   box-sizing: border-box;
   width: 244px;
   padding: 12px 16px;
-  border-radius: var(--dsw-radius-lg);
-  background: var(--dsw-alias-hovercard-bg);
-  box-shadow: var(--dsw-shadow-lv3);
+  border-radius: var(--qilin-radius-lg);
+  background: var(--qilin-hovercard-bg);
+  box-shadow: var(--qilin-shadow-lv3);
 }
 
 .copyable {
@@ -22,7 +22,7 @@
 }
 
 .copyable:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -33,7 +33,7 @@
 }
 
 .copied {
-  color: var(--dsw-alias-hovercard-label-primary);
+  color: var(--qilin-alias-text-primary);
   font-size: 14px;
   line-height: 20px;
   text-align: center;
@@ -54,10 +54,10 @@
   padding: 0;
   overflow: hidden;
   border: 0;
-  border-radius: var(--dsw-radius-lg);
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-label-primary);
-  box-shadow: var(--dsw-elevation-panel);
+  border-radius: var(--qilin-radius-lg);
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
+  box-shadow: var(--qilin-elevation-panel);
   opacity: 1;
   transition: opacity var(--dsh-hover-preview-fade) linear;
 }
@@ -77,15 +77,15 @@
 
 .inline { display: inline; }
 .media {
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
   overflow: auto;
   padding: 8px;
   border: 0;
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-specific-menu);
-  backdrop-filter: var(--dsw-menu-backdrop-filter);
-  box-shadow: var(--dsw-elevation-panel);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-specific-menu);
+  backdrop-filter: var(--qilin-menu-backdrop-filter);
+  box-shadow: var(--qilin-elevation-panel);
 }
 
 .fitContent {

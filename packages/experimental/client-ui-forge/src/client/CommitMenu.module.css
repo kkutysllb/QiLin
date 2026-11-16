@@ -15,9 +15,9 @@
   height: 28px;
   padding: 0 6px 0 8px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   white-space: nowrap;
   cursor: pointer;
@@ -28,17 +28,17 @@
 }
 
 .trigger[aria-expanded='true'] {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 @media (hover: hover) {
   .trigger:hover {
-    background: var(--dsw-alias-interactive-bg-hover);
+    background: var(--qilin-alias-interactive-bg-hover);
   }
 }
 
 .trigger:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -2px;
 }
 
@@ -60,7 +60,7 @@
   max-height: 360px;
   overflow: auto;
   padding: 4px;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: 12px;
 }
 
@@ -79,7 +79,7 @@
 
 .sha {
   flex: none;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-family: var(--ds-font-family-code);
 }
 
@@ -93,14 +93,14 @@
 
 .meta {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
 }
 
 .check {
   display: inline-flex;
   flex: none;
-  color: var(--dsw-alias-state-business-primary);
+  color: var(--qilin-alias-state-business-primary);
 }
 
 .unchecked {
@@ -109,7 +109,7 @@
 
 .label {
   padding: 6px 8px 4px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
   line-height: 15px;
 }
@@ -119,12 +119,12 @@
   align-items: center;
   gap: 8px;
   padding: 12px 8px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .note {
   padding: 8px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
   line-height: 16px;
 }
@@ -132,8 +132,8 @@
 /* Why a Shift click left the shown commits unchanged; outside the scrolled rows so it stays in view. */
 .rejected {
   padding: 8px 12px;
-  border-top: 0.5px solid var(--dsw-alias-border-l3);
-  color: var(--dsw-alias-label-secondary);
+  border-top: 1px solid var(--qilin-alias-border-l3);
+  color: var(--qilin-alias-label-secondary);
   font-size: 11px;
   line-height: 16px;
 }

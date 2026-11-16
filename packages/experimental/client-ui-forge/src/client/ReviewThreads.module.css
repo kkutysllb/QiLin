@@ -5,12 +5,12 @@
   width: calc(100% - 20px);
   max-width: 720px;
   margin: 10px;
-  border: 0.5px solid var(--dsw-alias-border-l3);
-  border-radius: var(--dsw-radius-md);
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-label-primary);
-  font: var(--dsw-font-xs-13);
-  font-family: Inter, var(--dsw-font-family);
+  border: 1px solid var(--qilin-alias-border-l3);
+  border-radius: var(--qilin-radius-md);
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
+  font: var(--qilin-font-xs-13);
+  font-family: Inter, var(--qilin-font-family);
   white-space: normal;
 }
 
@@ -20,7 +20,7 @@
 .card:focus { outline: none; }
 
 .card:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -1px;
 }
 
@@ -35,9 +35,9 @@
 .card[data-resolved] {
   /* An elevated surface: the excerpt and the file at that commit scroll inside it, so the thumb takes the l2 pair,
      which inherits down to them (see ui-theme styles/scrollbar.css for the rebinding contract). */
-  --dsh-scrollbar-thumb: var(--dsw-alias-scrollbar-bg-l2);
-  --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
-  background: var(--dsw-alias-bg-layer-2);
+  --qilin-scrollbar-thumb: var(--qilin-alias-scrollbar-bg-l2);
+  --qilin-scrollbar-thumb-hover: var(--qilin-alias-scrollbar-hover-l2);
+  background: var(--qilin-alias-bg-layer-2);
 }
 
 .folded {
@@ -46,10 +46,10 @@
   gap: 6px;
   min-height: 32px;
   padding: 4px 12px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
-.folded > svg { flex: none; color: var(--dsw-alias-state-success-primary); }
+.folded > svg { flex: none; color: var(--qilin-alias-state-success-primary); }
 
 .foldedText {
   min-width: 0;
@@ -68,7 +68,7 @@
 
 .place {
   min-width: 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   overflow-wrap: anywhere;
 }
@@ -84,17 +84,17 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--dsw-alias-state-business-primary);
+  color: var(--qilin-alias-state-business-primary);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
 
-.link:disabled { color: var(--dsw-alias-label-dimmed); cursor: default; }
+.link:disabled { color: var(--qilin-alias-label-dimmed); cursor: default; }
 
 .link:focus-visible {
-  border-radius: var(--dsw-radius-xs);
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  border-radius: var(--qilin-radius-xs);
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -124,8 +124,8 @@
   overflow: hidden;
   border-radius: 50%;
   corner-shape: round;
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-secondary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-secondary);
   font-weight: 500;
   line-height: 1;
   user-select: none;
@@ -155,7 +155,7 @@
 
 .login { font-weight: 500; overflow-wrap: anywhere; }
 
-.time { color: var(--dsw-alias-label-tertiary); font-size: 12px; }
+.time { color: var(--qilin-alias-label-tertiary); font-size: 12px; }
 
 .body {
   min-width: 0;
@@ -190,17 +190,17 @@
   min-height: 32px;
   margin-top: 10px;
   padding: 6px 12px;
-  border: 0.5px solid var(--dsw-alias-border-l4);
-  border-radius: var(--dsw-radius-md);
-  background: var(--dsw-alias-bg-layer-3);
-  color: var(--dsw-alias-label-dimmed);
+  border: 1px solid var(--qilin-alias-border-l4);
+  border-radius: var(--qilin-radius-md);
+  background: var(--qilin-alias-bg-layer-3);
+  color: var(--qilin-alias-label-dimmed);
   font: inherit;
   text-align: start;
   cursor: text;
 }
 
 .replyPrompt:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
@@ -215,21 +215,21 @@
   height: 20px;
   padding: 0;
   border: 0;
-  border-radius: var(--dsw-radius-xs);
+  border-radius: var(--qilin-radius-xs);
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
-.icon[aria-expanded="true"] { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
+.icon[aria-expanded="true"] { background: var(--qilin-alias-interactive-bg-hover); color: var(--qilin-alias-label-primary); }
 
 .icon:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 1px;
 }
 
 @media (hover: hover) {
-  .icon:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
+  .icon:hover { background: var(--qilin-alias-interactive-bg-hover); color: var(--qilin-alias-label-primary); }
 }
 
 /* Confirming a deletion replaces nothing: the comment stays readable above the question. */
@@ -241,7 +241,7 @@
   margin-top: 8px;
 }
 
-.confirmText { flex: 1 1 auto; min-width: 0; color: var(--dsw-alias-label-secondary); overflow-wrap: anywhere; }
+.confirmText { flex: 1 1 auto; min-width: 0; color: var(--qilin-alias-label-secondary); overflow-wrap: anywhere; }
 
 .confirmError,
 .actionError { flex-basis: 100%; margin-top: 0; }
@@ -253,9 +253,9 @@
 .original {
   margin-bottom: 10px;
   overflow-x: auto;
-  border: 0.5px solid var(--dsw-alias-border-l2);
-  border-radius: var(--dsw-radius-sm);
-  font: var(--dsw-font-markdown-code-block);
+  border: 1px solid var(--qilin-alias-border-l2);
+  border-radius: var(--qilin-radius-sm);
+  font: var(--qilin-font-markdown-code-block);
 }
 
 .excerptLine,
@@ -266,11 +266,11 @@
   white-space: pre;
 }
 
-.excerptHeader { color: var(--dsw-alias-label-tertiary); }
+.excerptHeader { color: var(--qilin-alias-label-tertiary); }
 
-.added { background: var(--dsw-alias-file-diff-added-bg); }
+.added { background: var(--qilin-alias-file-diff-added-bg); }
 
-.deleted { background: var(--dsw-alias-file-diff-deleted-bg); }
+.deleted { background: var(--qilin-alias-file-diff-deleted-bg); }
 
 .original {
   max-height: 320px;
@@ -285,22 +285,22 @@
 
 .originalNumber {
   min-width: 3ch;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   text-align: right;
   user-select: none;
 }
 
-.marked { background: var(--dsw-alias-interactive-bg-hover); }
+.marked { background: var(--qilin-alias-interactive-bg-hover); }
 
 .originalNote {
   padding: 8px 10px;
-  color: var(--dsw-alias-label-secondary);
-  font-family: Inter, var(--dsw-font-family);
+  color: var(--qilin-alias-label-secondary);
+  font-family: Inter, var(--qilin-font-family);
 }
 
 /* Outdated threads of one file, after its lines. */
 .outdated {
-  border-top: 0.5px solid var(--dsw-alias-border-l3);
+  border-top: 1px solid var(--qilin-alias-border-l3);
   padding-bottom: 2px;
 }
 
@@ -310,9 +310,9 @@
   gap: 6px;
   min-height: 32px;
   padding: 0 12px;
-  color: var(--dsw-alias-label-secondary);
-  font: var(--dsw-font-xs-13);
-  font-family: Inter, var(--dsw-font-family);
+  color: var(--qilin-alias-label-secondary);
+  font: var(--qilin-font-xs-13);
+  font-family: Inter, var(--qilin-font-family);
 }
 
 /* A changes view narrower than 480px gives the code more width; the query names no container, since CSS Modules rename

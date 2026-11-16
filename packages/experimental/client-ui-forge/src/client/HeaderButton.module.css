@@ -6,19 +6,19 @@
   flex: none;
   width: 28px;
   padding: 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* The forge tab is visible; the pressed fill outranks the Button's hover fill. */
 .trigger[aria-pressed='true'] {
-  color: var(--dsw-alias-label-primary);
-  background: var(--dsw-alias-interactive-bg-active);
+  color: var(--qilin-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-active);
 }
 
 @media (hover: hover) {
   .trigger[aria-pressed='true']:hover:not(:disabled) {
-    color: var(--dsw-alias-label-primary);
-    background: var(--dsw-alias-interactive-bg-active);
+    color: var(--qilin-alias-label-primary);
+    background: var(--qilin-alias-interactive-bg-active);
   }
 }
 

@@ -18,12 +18,12 @@
 }
 
 .avatars > .avatar {
-  box-shadow: 0 0 0 1.5px var(--dsw-alias-bg-layer-1);
+  box-shadow: 0 0 0 1.5px var(--qilin-alias-bg-layer-1);
 }
 
 .moreCount {
   margin-left: 4px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
@@ -36,8 +36,8 @@
   box-sizing: border-box;
   border-radius: 50%;
   corner-shape: round;
-  background: var(--dsw-alias-interactive-bg-active);
-  color: var(--dsw-alias-label-secondary);
+  background: var(--qilin-alias-interactive-bg-active);
+  color: var(--qilin-alias-label-secondary);
   font-size: 10px;
   font-weight: 600;
   line-height: 1;
@@ -46,7 +46,7 @@
 
 /* The update action named at the end of the merge row. */
 .action {
-  color: var(--dsw-alias-link);
+  color: var(--qilin-alias-link);
   white-space: nowrap;
 }
 
@@ -57,7 +57,7 @@
 
 .menuLabel {
   padding: 6px 8px 2px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
   line-height: 15px;
 }
@@ -68,7 +68,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 6px 8px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
 }
 
@@ -83,7 +83,7 @@
 .checkTime {
   flex: none;
   margin-left: auto;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -104,12 +104,12 @@
   align-items: baseline;
   gap: 6px;
   min-width: 0;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .kind {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
   white-space: nowrap;
 }
@@ -120,24 +120,24 @@
   flex: none;
   align-items: baseline;
   gap: 4px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
 }
 
 .outcome [data-tone='success'] {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .outcome [data-tone='error'] {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .outcome [data-tone='pending'] {
-  color: var(--dsw-alias-state-warn-label);
+  color: var(--qilin-alias-state-warn-label);
 }
 
 .older {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
 }
 
@@ -164,23 +164,23 @@
 .badge {
   flex: none;
   padding: 0 5px;
-  border-radius: var(--dsw-radius-xs);
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-secondary);
+  border-radius: var(--qilin-radius-xs);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-secondary);
   font-size: 11px;
   line-height: 17px;
 }
 
 /* An issue the change request closes, named by its number; a closed one takes the merged tone. */
 .issue {
-  border-radius: var(--dsw-radius-xs);
-  color: var(--dsw-alias-link);
+  border-radius: var(--qilin-radius-xs);
+  color: var(--qilin-alias-link);
   font-variant-numeric: tabular-nums;
   text-decoration: none;
 }
 
 .issue[data-state='closed'] {
-  color: var(--dsw-alias-state-done-primary);
+  color: var(--qilin-alias-state-done-primary);
 }
 
 @media (hover: hover) {
@@ -191,6 +191,6 @@
 }
 
 .issue:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 1px;
 }

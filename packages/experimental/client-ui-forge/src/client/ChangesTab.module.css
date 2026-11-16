@@ -2,15 +2,15 @@
    list of file sections whose headers stick while their lines scroll. */
 .root {
   container: forge-changes / inline-size;
-  --forge-changes-bg: var(--dsw-alias-bg-base);
-  --forge-fill: var(--dsw-alias-card-fill);
-  --forge-diff-empty: color-mix(in srgb, var(--dsw-alias-interactive-bg-hover) 50%, transparent);
+  --forge-changes-bg: var(--qilin-alias-bg-base);
+  --forge-fill: var(--qilin-alias-card-fill);
+  --forge-diff-empty: color-mix(in srgb, var(--qilin-alias-interactive-bg-hover) 50%, transparent);
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
   background: var(--forge-changes-bg);
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-size: 12px;
   line-height: 18px;
 }
@@ -24,13 +24,13 @@
   box-sizing: border-box;
   min-height: 44px;
   padding: 0 8px 0 14px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .headerIcon {
   display: inline-flex;
   flex: none;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .headerTitle {
@@ -45,14 +45,14 @@
 
 .headerNumber {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-family: var(--ds-font-family-code);
 }
 
 .headerNote {
   min-width: 0;
   overflow: hidden;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -62,7 +62,7 @@
   flex: 0 100 auto;
   min-width: 2.5em;
   overflow: hidden;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-family: var(--ds-font-family-code);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -70,11 +70,11 @@
 
 .headerArrow {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .headerSuffix {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 @container forge-changes (max-width: 520px) {
@@ -105,7 +105,7 @@
   flex: none;
   align-items: stretch;
   box-sizing: border-box;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 /* Spans the file tree's width with the tree's search inset, and its divider continues the tree's border. */
@@ -116,12 +116,12 @@
   box-sizing: border-box;
   width: var(--forge-tree-width);
   padding: 0 8px;
-  border-inline-end: 0.5px solid var(--dsw-alias-border-l3);
+  border-inline-end: 1px solid var(--qilin-alias-border-l3);
 }
 
 .toolbar[data-tree='right'] .lensCell {
   order: 1;
-  border-inline-start: 0.5px solid var(--dsw-alias-border-l3);
+  border-inline-start: 1px solid var(--qilin-alias-border-l3);
   border-inline-end: 0;
 }
 
@@ -175,26 +175,26 @@
   height: 28px;
   padding: 0 6px 0 8px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   cursor: pointer;
   font: inherit;
   white-space: nowrap;
 }
 
 .select[aria-expanded='true'] {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 @media (hover: hover) {
   .select:hover {
-    background: var(--dsw-alias-interactive-bg-hover);
+    background: var(--qilin-alias-interactive-bg-hover);
   }
 }
 
 .select:disabled {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: default;
 }
 
@@ -220,11 +220,11 @@
 }
 
 .added {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .deleted {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .tools {
@@ -243,28 +243,28 @@
   height: 28px;
   padding: 0;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
 .tool[aria-pressed='true'],
 .tool[aria-expanded='true'],
 .tool[data-expanded] {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 @media (hover: hover) {
   .tool:hover:not(:disabled) {
-    background: var(--dsw-alias-interactive-bg-hover);
-    color: var(--dsw-alias-label-primary);
+    background: var(--qilin-alias-interactive-bg-hover);
+    color: var(--qilin-alias-label-primary);
   }
 }
 
 .tool:disabled {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: default;
 }
 
@@ -334,9 +334,9 @@
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
   background: var(--forge-fill);
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .notice > svg {
@@ -392,7 +392,7 @@
   gap: 8px;
   box-sizing: border-box;
   padding: 24px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: var(--dsh-content-font-size-secondary, 13px);
   text-align: center;
 }
@@ -401,8 +401,8 @@
    rows. Diffs share R16; clip, unlike hidden, keeps the card from becoming the sticky header's scroll container. */
 .file {
   overflow: clip;
-  border: 0.5px solid var(--dsw-alias-border-l4);
-  border-radius: var(--dsw-radius-lg);
+  border: 1px solid var(--qilin-alias-border-l4);
+  border-radius: var(--qilin-radius-lg);
   background: var(--forge-changes-bg);
 }
 
@@ -432,9 +432,9 @@
   box-sizing: border-box;
   min-height: 36px;
   padding: 0 4px 0 8px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
   /* The hover tint over the view background stays opaque while code scrolls beneath the sticky header. */
-  background: linear-gradient(var(--dsw-alias-interactive-bg-hover), var(--dsw-alias-interactive-bg-hover)), var(--forge-changes-bg);
+  background: linear-gradient(var(--qilin-alias-interactive-bg-hover), var(--qilin-alias-interactive-bg-hover)), var(--forge-changes-bg);
 }
 
 /* A bare chevron: its rotation shows whether the file is expanded, so it takes no fill in any state. */
@@ -447,15 +447,15 @@
   height: 24px;
   padding: 0;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
 }
 
 @media (hover: hover) {
   .fileToggle:hover {
-    color: var(--dsw-alias-label-primary);
+    color: var(--qilin-alias-label-primary);
   }
 }
 
@@ -520,9 +520,9 @@
   box-sizing: border-box;
   height: 24px;
   padding: 0 8px 0 6px;
-  border: 0.5px solid var(--dsw-alias-border-l2);
-  border-radius: var(--dsw-radius-sm);
-  color: var(--dsw-alias-label-secondary);
+  border: 1px solid var(--qilin-alias-border-l2);
+  border-radius: var(--qilin-radius-sm);
+  color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
@@ -530,29 +530,29 @@
 
 .viewed input {
   margin: 0;
-  accent-color: var(--dsw-alias-state-business-primary);
+  accent-color: var(--qilin-alias-state-business-primary);
   cursor: pointer;
 }
 
 .viewed:has(input:checked) {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 @media (hover: hover) {
   .viewed:hover {
-    color: var(--dsw-alias-label-primary);
+    color: var(--qilin-alias-label-primary);
   }
 }
 
 /* While its write is in flight or the host's marks could not be read, the mark keeps its place and shows it cannot change. */
 .viewed[data-disabled],
 .viewed[data-disabled] input {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: default;
 }
 
 .viewed:has(input:focus-visible) {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -1px;
 }
 
@@ -578,7 +578,7 @@
   padding: 0 6px;
   border-radius: 4px;
   background: var(--forge-fill);
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 11px;
   line-height: 18px;
   text-overflow: ellipsis;
@@ -588,7 +588,7 @@
 /* Lines of one file: one column of grid rows, or two cells per row side by side. */
 .code {
   overflow-x: auto;
-  font: var(--dsw-font-markdown-code-block);
+  font: var(--qilin-font-markdown-code-block);
 }
 
 /* An expanded file the reader has not scrolled near yet: one 22px row (`.line`) per drawn line, so the scroll
@@ -632,7 +632,7 @@
 }
 
 .cell + .cell {
-  border-left: 0.5px solid var(--dsw-alias-border-l3);
+  border-left: 1px solid var(--qilin-alias-border-l3);
 }
 
 /* Unwrapped side-by-side cells cut long lines at the column edge. */
@@ -652,7 +652,7 @@
 .number {
   box-sizing: border-box;
   padding-right: 6px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   text-align: right;
   user-select: none;
 }
@@ -672,15 +672,15 @@
 }
 
 .add {
-  --forge-diff-gutter: var(--dsw-alias-file-diff-added-gutter);
-  --forge-diff-marker: var(--dsw-alias-file-diff-added-marker);
-  background: var(--dsw-alias-file-diff-added-bg);
+  --forge-diff-gutter: var(--qilin-alias-file-diff-added-gutter);
+  --forge-diff-marker: var(--qilin-alias-file-diff-added-marker);
+  background: var(--qilin-alias-file-diff-added-bg);
 }
 
 .del {
-  --forge-diff-gutter: var(--dsw-alias-file-diff-deleted-gutter);
-  --forge-diff-marker: var(--dsw-alias-file-diff-deleted-marker);
-  background: var(--dsw-alias-file-diff-deleted-bg);
+  --forge-diff-gutter: var(--qilin-alias-file-diff-deleted-gutter);
+  --forge-diff-marker: var(--qilin-alias-file-diff-deleted-marker);
+  background: var(--qilin-alias-file-diff-deleted-bg);
 }
 
 .add .number,
@@ -695,7 +695,7 @@
 }
 
 .context .text {
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .empty {
@@ -717,7 +717,7 @@
 }
 
 .noteCell + .noteCell {
-  border-left: 0.5px solid var(--dsw-alias-border-l3);
+  border-left: 1px solid var(--qilin-alias-border-l3);
 }
 
 .noteStack {
@@ -747,8 +747,8 @@
   padding: 0 12px;
   border: 0;
   background: var(--forge-fill);
-  color: var(--dsw-alias-label-tertiary);
-  font-family: var(--dsw-font-family);
+  color: var(--qilin-alias-label-tertiary);
+  font-family: var(--qilin-font-family);
   font-size: 12px;
   line-height: 18px;
   text-align: left;
@@ -760,8 +760,8 @@
 
 @media (hover: hover) {
   .gap:hover:not(:disabled) {
-    background: var(--dsw-alias-interactive-bg-hover);
-    color: var(--dsw-alias-label-primary);
+    background: var(--qilin-alias-interactive-bg-hover);
+    color: var(--qilin-alias-label-primary);
   }
 }
 
@@ -772,9 +772,9 @@
 /* The local changes card of the panel: its toggle and refs, the view link and create action, then its files. */
 .local {
   min-width: 0;
-  border: 0.5px solid var(--dsw-alias-border-l2);
-  border-radius: var(--dsw-radius-md);
-  background: var(--dsw-alias-bg-layer-1);
+  border: 1px solid var(--qilin-alias-border-l2);
+  border-radius: var(--qilin-radius-md);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 .localHead {
@@ -793,9 +793,9 @@
   min-height: 26px;
   padding: 0 6px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   cursor: pointer;
   font: inherit;
   font-weight: 500;
@@ -803,12 +803,12 @@
 
 @media (hover: hover) {
   .localToggle:hover {
-    background: var(--dsw-alias-interactive-bg-hover);
+    background: var(--qilin-alias-interactive-bg-hover);
   }
 }
 
 .localToggle svg {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   transition: transform 120ms ease;
 }
 
@@ -820,7 +820,7 @@
   min-width: 0;
   margin-left: auto;
   overflow: hidden;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-family: var(--ds-font-family-code);
   font-size: 12px;
   text-overflow: ellipsis;
@@ -844,16 +844,16 @@
   margin-left: -6px;
   padding: 0 6px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
   font: inherit;
 }
 
 @media (hover: hover) {
   .localView:hover {
-    background: var(--dsw-alias-interactive-bg-hover);
+    background: var(--qilin-alias-interactive-bg-hover);
   }
 }
 
@@ -865,7 +865,7 @@
 .localFiles {
   margin: 0;
   padding: 4px 6px 8px;
-  border-top: 0.5px solid var(--dsw-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
   list-style: none;
 }
 
@@ -878,9 +878,9 @@
   min-height: 28px;
   padding: 0 6px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   cursor: pointer;
   font: inherit;
   font-size: 12px;
@@ -889,7 +889,7 @@
 
 @media (hover: hover) {
   .localFile:hover {
-    background: var(--dsw-alias-interactive-bg-hover);
+    background: var(--qilin-alias-interactive-bg-hover);
   }
 }
 
@@ -903,7 +903,7 @@
 .localFile:focus-visible,
 .select:focus-visible,
 .gap:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -2px;
 }
 
@@ -927,9 +927,9 @@
   height: 20px;
   padding: 0 6px;
   border: 0;
-  border-radius: var(--dsw-radius-xs);
-  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 12%, transparent);
-  color: var(--dsw-alias-state-business-primary);
+  border-radius: var(--qilin-radius-xs);
+  background: color-mix(in srgb, var(--qilin-alias-state-business-primary) 12%, transparent);
+  color: var(--qilin-alias-state-business-primary);
   font: inherit;
   font-size: 11px;
   line-height: 20px;
@@ -939,12 +939,12 @@
 
 /* Drawn inside the button, since the file title clips what overflows it. */
 .threadCount:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -1px;
 }
 
 @media (hover: hover) {
-  .threadCount:hover { background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 20%, transparent); }
+  .threadCount:hover { background: color-mix(in srgb, var(--qilin-alias-state-business-primary) 20%, transparent); }
 }
 
 /* A view narrower than 480px shows the count alone. */
@@ -964,25 +964,25 @@
   height: 28px;
   padding: 0 8px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   white-space: nowrap;
   cursor: pointer;
 }
 
-.threadsToggle[aria-pressed='true'] { background: var(--dsw-alias-interactive-bg-hover); }
+.threadsToggle[aria-pressed='true'] { background: var(--qilin-alias-interactive-bg-hover); }
 
 @media (hover: hover) {
-  .threadsToggle:hover { background: var(--dsw-alias-interactive-bg-hover); }
+  .threadsToggle:hover { background: var(--qilin-alias-interactive-bg-hover); }
 }
 
 .threadsTotal {
   padding: 0 5px;
-  border-radius: var(--dsw-radius-xs);
+  border-radius: var(--qilin-radius-xs);
   background: var(--forge-fill);
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 11px;
   line-height: 16px;
 }
@@ -994,11 +994,11 @@
   max-width: 720px;
   margin: 10px;
   overflow: hidden;
-  border: 0.5px solid var(--dsw-alias-border-l3);
-  border-radius: var(--dsw-radius-md);
-  background: var(--dsw-alias-bg-layer-1);
-  color: var(--dsw-alias-label-primary);
-  font: var(--dsw-font-xs-13);
+  border: 1px solid var(--qilin-alias-border-l3);
+  border-radius: var(--qilin-radius-md);
+  background: var(--qilin-alias-bg-layer-1);
+  color: var(--qilin-alias-label-primary);
+  font: var(--qilin-font-xs-13);
   white-space: normal;
 }
 
@@ -1009,21 +1009,21 @@
 }
 
 .outdatedAnnotations {
-  border-top: 0.5px solid var(--dsw-alias-border-l3);
-  font-family: var(--dsw-font-family);
+  border-top: 1px solid var(--qilin-alias-border-l3);
+  font-family: var(--qilin-font-family);
 }
 
 .outdatedAnnotationsTitle {
   padding: 8px 12px 0;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   line-height: 18px;
 }
 
 /* Hunks a filter lens folds draw as one row like the collapsed unchanged lines, tinted to tell them apart. */
 .lensFold {
-  background: color-mix(in srgb, var(--dsw-alias-state-business-primary) 6%, var(--forge-fill));
-  color: var(--dsw-alias-label-secondary);
+  background: color-mix(in srgb, var(--qilin-alias-state-business-primary) 6%, var(--forge-fill));
+  color: var(--qilin-alias-label-secondary);
 }
 
 .lensFoldText {
@@ -1036,12 +1036,12 @@
 
 .lensFoldAction {
   flex: none;
-  color: var(--dsw-alias-state-business-primary);
+  color: var(--qilin-alias-state-business-primary);
 }
 
 /* A hairline above the first plugin row of a menu, drawn only when a plugin adds one. */
 .menuPlugins:has([role='menuitem']) {
   margin-top: 4px;
   padding-top: 4px;
-  border-top: 0.5px solid var(--dsw-alias-border-l3);
+  border-top: 1px solid var(--qilin-alias-border-l3);
 }

@@ -11,11 +11,11 @@
   box-sizing: border-box;
   width: 320px;
   min-height: 0;
-  border-inline-start: 0.5px solid var(--dsw-alias-border-l3);
-  background: var(--forge-changes-bg, var(--dsw-alias-bg-base));
-  color: var(--dsw-alias-label-primary);
-  font: var(--dsw-font-xs-13);
-  font-family: Inter, var(--dsw-font-family);
+  border-inline-start: 1px solid var(--qilin-alias-border-l3);
+  background: var(--forge-changes-bg, var(--qilin-alias-bg-base));
+  color: var(--qilin-alias-label-primary);
+  font: var(--qilin-font-xs-13);
+  font-family: Inter, var(--qilin-font-family);
 }
 
 .pane:focus { outline: none; }
@@ -38,22 +38,22 @@
   height: 28px;
   padding: 0 8px 0 4px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   cursor: pointer;
 }
 
 @media (hover: hover) {
-  .back:hover { background: var(--dsw-alias-interactive-bg-hover); }
+  .back:hover { background: var(--qilin-alias-interactive-bg-hover); }
 }
 
 .total {
   padding: 0 6px;
-  border-radius: var(--dsw-radius-xs);
-  background: var(--dsw-alias-card-fill);
-  color: var(--dsw-alias-label-secondary);
+  border-radius: var(--qilin-radius-xs);
+  background: var(--qilin-alias-card-fill);
+  color: var(--qilin-alias-label-secondary);
   font-size: 11px;
   line-height: 18px;
 }
@@ -68,19 +68,19 @@
   height: 28px;
   padding: 0;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   cursor: pointer;
 }
 
 @media (hover: hover) {
-  .close:hover { background: var(--dsw-alias-interactive-bg-hover); color: var(--dsw-alias-label-primary); }
+  .close:hover { background: var(--qilin-alias-interactive-bg-hover); color: var(--qilin-alias-label-primary); }
 }
 
 .filters {
   padding: 0 12px 10px;
-  border-bottom: 0.5px solid var(--dsw-alias-border-l3);
+  border-bottom: 1px solid var(--qilin-alias-border-l3);
 }
 
 .rows {
@@ -107,7 +107,7 @@
   width: 100%;
   padding: 8px 6px;
   border: 0;
-  border-radius: var(--dsw-radius-md);
+  border-radius: var(--qilin-radius-md);
   background: transparent;
   color: inherit;
   font: inherit;
@@ -116,11 +116,11 @@
 }
 
 @media (hover: hover) {
-  .item:hover { background: var(--dsw-alias-interactive-bg-hover); }
+  .item:hover { background: var(--qilin-alias-interactive-bg-hover); }
 }
 
 .item:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -1px;
 }
 
@@ -132,7 +132,7 @@
   min-width: 0;
 }
 
-.meta { color: var(--dsw-alias-label-tertiary); font-size: 12px; }
+.meta { color: var(--qilin-alias-label-tertiary); font-size: 12px; }
 
 .excerpt {
   display: -webkit-box;
@@ -152,14 +152,14 @@
 
 .note {
   padding: 24px 12px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   text-align: center;
 }
 
 .footer {
   padding: 10px 12px;
-  border-top: 0.5px solid var(--dsw-alias-border-l3);
-  color: var(--dsw-alias-label-secondary);
+  border-top: 1px solid var(--qilin-alias-border-l3);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
 }
 
@@ -170,7 +170,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--dsw-alias-state-business-primary);
+  color: var(--qilin-alias-state-business-primary);
   font: inherit;
   cursor: pointer;
 }
@@ -186,7 +186,7 @@
     z-index: 3;
     inset: 0;
     display: block;
-    background: var(--dsw-alias-bg-mask-1);
+    background: var(--qilin-alias-bg-mask-1);
   }
 
   .pane {
@@ -195,7 +195,7 @@
     inset-block: 0;
     inset-inline-end: 0;
     width: min(340px, calc(100% - 40px));
-    box-shadow: var(--dsw-elevation-panel);
+    box-shadow: var(--qilin-elevation-panel);
   }
 }
 

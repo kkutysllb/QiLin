@@ -18,12 +18,12 @@
   font-size: 13px;
   font-weight: 500;
   line-height: 1.5;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .description {
   margin: 0;
   font-size: 12px;
   line-height: 18px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }

@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   height: 20px;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 /* Hover card section: the card keeps one dark surface in both themes, so it
@@ -28,15 +28,15 @@
   flex: none;
   align-items: center;
   height: 16px;
-  color: var(--dsw-alias-hovercard-label-tertiary);
+  color: var(--qilin-alias-hovercard-label-tertiary);
 }
 
 .hoverIcon[data-tone='merged'] {
-  color: var(--dsw-alias-hovercard-state-done);
+  color: var(--qilin-alias-hovercard-state-done);
 }
 
 .hoverIcon[data-tone='closed'] {
-  color: var(--dsw-alias-hovercard-state-error);
+  color: var(--qilin-alias-hovercard-state-error);
 }
 
 .hoverBody {
@@ -48,7 +48,7 @@
 .hoverBranch,
 .hoverTitle {
   overflow: hidden;
-  color: var(--dsw-alias-hovercard-label-primary);
+  color: var(--qilin-alias-hovercard-label-primary);
   font-size: 12px;
   line-height: 16px;
   text-overflow: ellipsis;
@@ -61,7 +61,7 @@
 
 .hoverNote,
 .hoverMore {
-  color: var(--dsw-alias-hovercard-label-tertiary);
+  color: var(--qilin-alias-hovercard-label-tertiary);
   font-size: 12px;
   line-height: 16px;
 }
@@ -71,7 +71,7 @@
 }
 
 .hoverNote [data-checks='failure'] {
-  color: var(--dsw-alias-hovercard-state-error);
+  color: var(--qilin-alias-hovercard-state-error);
 }
 
 /* The state and checks as one phrase for assistive technology, which skips the separator glyph. */

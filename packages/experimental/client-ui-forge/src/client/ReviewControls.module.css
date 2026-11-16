@@ -11,8 +11,8 @@
   min-width: 0;
   height: 28px;
   padding: 2px;
-  border-radius: var(--dsw-radius-md);
-  background: var(--dsw-alias-interactive-bg-hover);
+  border-radius: var(--qilin-radius-md);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 .segment {
@@ -25,33 +25,33 @@
   height: 24px;
   padding: 0 4px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font: inherit;
   white-space: nowrap;
   cursor: pointer;
 }
 
 .segment[aria-checked='true'] {
-  background: var(--dsw-alias-bg-layer-1);
-  box-shadow: var(--dsw-elevation-soft);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-bg-layer-1);
+  box-shadow: var(--qilin-elevation-soft);
+  color: var(--qilin-alias-label-primary);
 }
 
 @media (hover: hover) {
   .segment:hover:not(:disabled) {
-    color: var(--dsw-alias-label-primary);
+    color: var(--qilin-alias-label-primary);
   }
 }
 
 .segment:disabled {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: default;
 }
 
 .segment:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: -2px;
 }
 
@@ -63,7 +63,7 @@
 
 .count {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
@@ -84,21 +84,21 @@
   height: 28px;
   padding: 0 6px 0 8px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   white-space: nowrap;
   cursor: pointer;
 }
 
 .trigger[aria-expanded='true'] {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 @media (hover: hover) {
   .trigger:hover {
-    background: var(--dsw-alias-interactive-bg-hover);
+    background: var(--qilin-alias-interactive-bg-hover);
   }
 }
 
@@ -109,7 +109,7 @@
   gap: 6px;
   height: 28px;
   padding: 0 4px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
   cursor: pointer;
 }
@@ -124,7 +124,7 @@
   align-items: center;
   gap: 6px;
   padding: 0 4px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
@@ -154,9 +154,9 @@
 }
 
 .ringTrack {
-  stroke: var(--dsw-alias-border-l3);
+  stroke: var(--qilin-alias-border-l3);
 }
 
 .ringFill {
-  stroke: var(--dsw-alias-state-success-primary);
+  stroke: var(--qilin-alias-state-success-primary);
 }
