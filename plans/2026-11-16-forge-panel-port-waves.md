@@ -188,3 +188,24 @@ session-status 的试跑结果：
 因此基础层顺序修正为：**api-session-controller（客户端模型与投影）→ ui-session 状态归属迁移 →
 client-ui-session-status 引入 → ui-conversation 整包 → chat/workspace → 面板**。
 试跑改动已整体回退，树保持绿色；`gen-typert` 双面包修复保留。
+
+### 基础层升级 · 第 1 步（完成）：api-session-controller 历史状态
+
+`SessionSnapshot` 增加 `historyWasPartial` 与 `historyLoadStatus`（idle/loading/pendingConsumption/error）：
+`loadOlder`/`loadThrough` 进入时 loading、失败 error、成功回 idle，暴露过 hasMore 的窗口把 historyWasPartial 置真；
+10 处测试快照默认值同步。session-controller 876 用例通过。
+
+### 基础层升级 · 第 2 步（完成）：会话状态归属迁移
+
+- 新增 `packages/client/ui-session-status`：宿主 `SessionReadFollower` 服务（`sessionStatus/follow`、`sessionStatus/mark`）
+  与客户端 `UiSessionStatus`（`uiSession.sessionStatus` 点号服务 + `useSessionStatus` root hook + reading 流）；
+- ui-session 交出状态类型/观测/root hook，保留 `pendingInteractions` 聚合（session-status 消费）；
+- api-remotes 挂载 sessionStatus remote；api-gateway 的流重试改按 `gateway/carrier-lost` code 判定
+  （新增 `isRemoteStreamCarrierFailure`，Host 的 RemoteError 即使带同 code 也终止）；
+- 11 个源码文件补类型增强导入，4 个客户端包与 web-app bundle/roster 补插件清单（本仓字段 `qilin.client`），
+  SlotTestRuntime 提供默认 `remoteAccess` 与空状态表；
+- 验证：状态包 71 用例、受影响 11 包 3,429 用例、两个聚合 typecheck、oxlint、test:docs 21 项、
+  `gen-kylin-catalog`、README/配对/仓库引用门全绿。
+
+下一步按目标顺序进入 **ui-conversation 整包移植**（src 17,810 + tests 18,624），需要同时做 locale 八语言登记放宽
+与 product-analytics 的可选适配；之后 ui-chat/ui-workspace 增量，最后 client-ui-forge 面板整包。
