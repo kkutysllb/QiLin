@@ -146,3 +146,22 @@ session-status：
 
 需要一次受控重构：把状态类型、`sessionStatus` 观测与服务、slot 标准 prop 的提供者从 ui-session 迁到
 session-status，并更新读取方（conversation/chat/其它使用 `useSessionStatus` 的包与测试）。该重构完成后再引入该包。
+
+### 状态归属迁移（试跑后回退，已列清单）
+
+把 `SessionStatus` 类型、`sessionStatus` 观测、root hook `sessionStatus` 的提供者从 ui-session 移到
+session-status 的试跑结果：
+
+1. ui-session 侧删除是机械的（类型 + 4 个字段 + 观测 + `publishStatus/observeRunning/reconcileStatus` +
+   `provideRoot({ hooks: { sessionStatus } })`），src 改动约 90 行。
+2. session-status 以 `super(ctx, 'uiSession.sessionStatus')` 注册**点号子服务**，并
+   `ctx.slots.provideRoot({ hooks: { sessionStatus } })`；两处都需要确认本仓支撑：
+   - vendored Cordis 的点号 service 注册与 `ctx.uiSession.sessionStatus` 解析是否可用；
+   - root hook 提供者换人后，原有 ui-session 测试台（以及 conversation/workspace/subagent/agent-team 的
+     slot props 构造）必须挂载 session-status 插件，否则运行时缺 `useSessionStatus`。
+3. 客户端聚合在迁移后会立刻出现 95 个错误：11 个源码文件缺 `client-ui-session-status/client` 的
+   **类型增强副作用导入**（conversation 2、workspace 2、subagent 1、agent-team 6），其余是各包测试台。
+
+因此该迁移应按以下顺序单独一批提交：先验证点号服务与 root hook 交接（含 ui-session 测试台），
+再上消费者类型导入与依赖声明，最后挂接测试台并引入 session-status 包与其 1,492 行测试。
+试跑改动已回退，树保持绿色。
