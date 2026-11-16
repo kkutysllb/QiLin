@@ -287,6 +287,7 @@ export class UiSession extends Service {
   private readonly current: BindingSource
   private readonly pendingDomains: RuntimePendingDomain[] = []
   private pendingSnapshot: ReadonlyMap<SessionId, SessionPendingInteractionBase> = new Map()
+  private readonly pendingListeners = new Set<() => void>()
   private readonly running = new Map<SessionId, boolean>()
   private readonly completionUnread = new Set<SessionId>()
   private statusSnapshot: SessionStatusSnapshot = new Map()
@@ -294,6 +295,17 @@ export class UiSession extends Service {
   private mainRetainId: SessionId | undefined
   private disposeMainRetain = (): void => {}
   private active = true
+  /**
+   * Read-only view of every Session's highest-precedence pending interaction.
+   * The snapshot keeps its reference until an effective request changes.
+   */
+  readonly pendingInteractions: HostObservable<ReadonlyMap<SessionId, SessionPendingInteraction>> = {
+    getSnapshot: () => this.pendingSnapshot,
+    subscribe: (listener) => {
+      this.pendingListeners.add(listener)
+      return () => { this.pendingListeners.delete(listener) }
+    },
+  }
   /** Root source combining running, pending-interaction, and completion-reminder facts. */
   readonly sessionStatus: HostObservable<SessionStatusSnapshot> = {
     getSnapshot: () => this.statusSnapshot,
@@ -501,6 +513,7 @@ export class UiSession extends Service {
     )
     if (samePendingInteractions(this.pendingSnapshot, projected)) return
     this.pendingSnapshot = projected
+    notifySubscribers(this.pendingListeners, '[ui-session] pending interactions')
     this.publishStatus()
   }
 

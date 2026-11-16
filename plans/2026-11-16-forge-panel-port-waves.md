@@ -93,3 +93,28 @@ projection、draft、contracts、facade、hub）加 3 个输入模块（`machine
 
 试跑改动已整体回退（含临时新增的 ui-session-status 包、locale 注册放宽与锁文件），树保持绿色；
 C 阶段（forge 数据面）与波次 1（primitives 增量）保留。
+
+### 基础层升级 · 第 0 步（完成）
+
+为面板链路先落两处不改变既有行为的契约补口：
+
+1. **api-gateway**：移植 `RemoteStreamCarrierFailure` 接口、`gateway/carrier-lost` 常量与
+   `isRemoteStreamCarrierFailure` 判定，`RemoteStreamCarrierError` 实现该接口并带 `code`；
+   判定沿用「本进程产生的 Error 才算可重试，Host 回来的 RemoteError 一律终止」语义。附单测。
+2. **ui-session**：服务新增公开的 `pendingInteractions`（`HostObservable<ReadonlyMap<SessionId, SessionPendingInteraction>>`），
+   在既有 pending 聚合变更时通知订阅者；原有 `sessionStatus` 行为不变。附聚合与订阅单测。
+
+两包测试 423 用例通过，两个聚合 typecheck、`oxlint`、`verify-export-jsdoc` 全绿，过滤覆盖下两个改动文件无阈值问题。
+
+### 基础层升级 · 下一步（session-status 的 Typert 阻塞，已定位）
+
+`client-ui-session-status`（739 src / 1,492 tests）的宿主面可对现有基础层编译通过，唯一阻塞是 `gen-typert`：
+
+- 该包声明 `./typert` 导出且含 `TypertRemoteService`，因此被判定为 Typert contributor；
+- contributor 的**全部**导出都要能在 host program 中找到源文件，而它的 `./client` 源码按上游 host tsconfig 的显式 `files` 不在 host program 里；
+- 把 host tsconfig 改为 `include: ["src"]`（session-controller 的口径）可以进入 host program，但会触发
+  `TS2878`（跨项目相对导入重写不安全），因为 client 面引用的 client 项目与 host 面的输出布局不一致；
+- 上游直接发布预构建 `lib/typert.*`，不跑本仓的 bundle-free 生成器，所以没有这个问题。
+
+下一步需要二选一：让生成器对双面包的 `./client` 导出改用 **client 面程序**解析，或给该包单独的 host 文件清单
+（只把 `src/client/index.ts` 加进 host program 并处理 TS2878）。两条都属生成器/构建设计改动，应与该包的引入一起验证。

@@ -591,6 +591,8 @@ describe('UiSession pending interactions', () => {
     const id = sessionId('s1')
     const listener = vi.fn()
     const off = service.sessionStatus.subscribe(listener)
+    const pendingListener = vi.fn()
+    const offPending = service.pendingInteractions.subscribe(pendingListener)
     const registerApproval = service.registerPendingInteraction<SessionPendingInteractionBase>(
       () => 0,
     )
@@ -610,6 +612,8 @@ describe('UiSession pending interactions', () => {
     const delegate = (): Promise<void> => Promise.resolve()
     const removeApproval = registerApproval(approval, delegate)
     expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(approval)
+    expect(service.pendingInteractions.getSnapshot().get(id)).toBe(approval)
+    expect(pendingListener).toHaveBeenCalled()
     const removeDuplicate = registerApproval(duplicate, delegate)
     expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(duplicate)
     const removeQuestion = registerQuestion(question, delegate)
@@ -622,6 +626,8 @@ describe('UiSession pending interactions', () => {
     removeBackground()
     removeQuestion()
     expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(plan)
+    expect(service.pendingInteractions.getSnapshot().get(id)).toBe(plan)
+    offPending()
     removePlan()
     expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(duplicate)
     removeDuplicate()
