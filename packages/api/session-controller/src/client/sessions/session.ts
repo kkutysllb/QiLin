@@ -138,6 +138,9 @@ export class Session implements SessionFace {
       readonly index: number | null
       readonly attachments: readonly (ImageAttachmentRef | FileAttachmentRef)[]
     }
+    /** Whether the Host accepted the prompt; one acceptance per echo. */
+    accepted: boolean
+    readonly onAccept?: (() => void) | undefined
     readonly onRetire?: ((retirement: PendingSubmissionRetirement) => void) | undefined
     retiring: boolean
   }>()
@@ -231,7 +234,9 @@ export class Session implements SessionFace {
       text: input.text,
       attachments: input.attachments,
     }]
-    this.submissionSettlements.set(requestId, { placement, onRetire: input.onRetire, retiring: false })
+    this.submissionSettlements.set(requestId, {
+      placement, accepted: false, onAccept: input.onAccept, onRetire: input.onRetire, retiring: false,
+    })
     // The blank → engaging edge flips here, ahead of prompt(): the composer
     // docks and the echo renders on the click's own frame.
     this.promptAttempted = true
@@ -305,6 +310,13 @@ export class Session implements SessionFace {
     if (this.blankBit) {
       this.blankBit = false
       this.notifier.markDirty()
+    }
+    if (requestId !== undefined) {
+      const settlement = this.submissionSettlements.get(requestId)
+      if (settlement !== undefined && !settlement.accepted) {
+        settlement.accepted = true
+        settlement.onAccept?.()
+      }
     }
     this.options.onEngaged?.(this)
     return result

@@ -105,6 +105,26 @@ describe('beginSubmission', () => {
     ])
   })
 
+  it('fires onAccept once when the Host accepts and never on rejection', async ({ mock, start }) => {
+    const session = await sessionBench(mock, start, SID)
+    const accepted = vi.fn()
+    const handle = session.beginSubmission({
+      mode: 'queue', text: '接受', attachments: [], onAccept: accepted,
+    })
+    const sent = await session.prompt([{ type: 'text', text: '接受' }], 'queue', undefined, handle.requestId)
+    expect(sent.ok).toBe(true)
+    expect(accepted).toHaveBeenCalledTimes(1)
+
+    mock.remote.session.prompt.mockResolvedValue(err(new RemoteError('session/agent-busy', '忙', { reason: 'busy' })))
+    const rejected = vi.fn()
+    const second = session.beginSubmission({
+      mode: 'queue', text: '拒绝', attachments: [], onAccept: rejected,
+    })
+    const failed = await session.prompt([{ type: 'text', text: '拒绝' }], 'queue', undefined, second.requestId)
+    expect(failed.ok).toBe(false)
+    expect(rejected).not.toHaveBeenCalled()
+  })
+
   it('abandon retires the echo as failed exactly once', async ({ mock, start }) => {
     const session = await sessionBench(mock, start, SID)
     const retirements: PendingSubmissionRetirement[] = []
