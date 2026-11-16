@@ -165,3 +165,26 @@ session-status 的试跑结果：
 因此该迁移应按以下顺序单独一批提交：先验证点号服务与 root hook 交接（含 ui-session 测试台），
 再上消费者类型导入与依赖声明，最后挂接测试台并引入 session-status 包与其 1,492 行测试。
 试跑改动已回退，树保持绿色。
+
+### 状态归属迁移（第二轮试跑，已回退；新增前置：api-session-controller 客户端模型）
+
+按清单执行到「引入 session-status」后，点号服务与 root hook 前提得到确认：
+
+- `vendor/cordis` 原生支持点号服务：`super(ctx, 'parent.child')` 同时可从 `ctx['parent.child']` 与 `ctx.parent.child`
+  读取，随 fiber 卸载清理，`inject`/`get` 也能解析。**无需改 Cordis。**
+- ui-session 侧删除机械完成（约 90 行），会话状态 root hook 改由 session-status 的
+  `provideRoot({ hooks: { sessionStatus } })` 提供；11 个源码文件补 `client-ui-session-status/client`
+  类型增强导入、4 个包补 tsconfig reference 与依赖后，**两个聚合 typecheck 归零**。
+- 真实装配需要清单式接线：`client-test-runtime` roster、`bundle/web-app` 依赖与 `cordis.patch.yml` 插件行，
+  且本仓插件清单字段是 `qilin.client`（不是上游的 `dsh.client`）；`verify-cordis-config` 通过。
+
+**测试暴露的新前置**：session-status 的用例依赖更新一代的 `api-session-controller` 客户端模型——
+
+- `mock.stream('sessionStatus/follow')` 可用，但状态计算读取的 Session 行字段（如 `historyLoadStatus`）与
+  `subagentCatalog` 投影在本仓会话模型里还不存在；
+- 结果是 `completionUnread`/`completionFailed` 语义与子会话状态无法复现（5 个用例失败、1 个测试套错误），
+  另有一处 `ctx.remote.$stream({ open })` 与生成的 stream handle 在测试装配下的接线差异。
+
+因此基础层顺序修正为：**api-session-controller（客户端模型与投影）→ ui-session 状态归属迁移 →
+client-ui-session-status 引入 → ui-conversation 整包 → chat/workspace → 面板**。
+试跑改动已整体回退，树保持绿色；`gen-typert` 双面包修复保留（c678d1e1b5）。
