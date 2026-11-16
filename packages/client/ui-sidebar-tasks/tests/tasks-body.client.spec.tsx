@@ -111,6 +111,19 @@ describe('TasksBody list', () => {
     expect(interruptChild).toHaveBeenCalledWith(sid('c1'), SESSION)
   })
 
+  it('leads a row with the task description its Session title projects', () => {
+    const entry = child('c1', { mode: 'continuable', label: 'Scout' })
+    const titled = { ...summary('c1', false)[1], title: '扫描项目依赖' }
+    const { view } = mountBody({
+      byId: Object.fromEntries([[sid('c1'), titled]]),
+      projectionsBySession: { [SESSION]: projection([entry]) },
+    })
+    const row = view.container.querySelector('[data-tasks-subagent]') as Element
+    // The task leads; the agent's own name follows beside its mode.
+    expect(row.textContent).toContain('扫描项目依赖')
+    expect(row.textContent).toContain('Scout · 可继续')
+  })
+
   it('draws a diagnostic row inert, phrased per reason', () => {
     // The projection's catalog values carry described children only; the row
     // view is mounted directly with the diagnostic rows subagentRows produces.
@@ -210,6 +223,20 @@ describe('TasksBody graph form', () => {
     expect(view.container.querySelector('[data-tasks-graph]')).not.toBeNull()
     fireEvent.click(view.container.querySelector('[data-tasks-view="list"]') as Element)
     expect(view.container.querySelector('[data-tasks-graph]')).toBeNull()
+  })
+
+  it('labels a folded graph card with the child task description', () => {
+    const entries = Array.from({ length: 6 }, (_, index) => child(`d${index}`, { mode: 'one-shot' }))
+    const titled = { ...summary('d0', false)[1], title: '整理依赖清单' }
+    const { view } = mountBody({
+      byId: Object.fromEntries([[sid('d0'), titled]]),
+      projectionsBySession: { [SESSION]: projection(entries) },
+    })
+    fireEvent.click(view.container.querySelector('[data-tasks-view="graph"]') as Element)
+    fireEvent.click(view.container.querySelector('[data-tasks-graph-node="done-agg:s-root"]') as Element)
+    const card = view.container.querySelector('[data-tasks-graph-node="d0"]') as Element
+    expect(card.getAttribute('aria-label')).toContain('整理依赖清单')
+    expect(card.getAttribute('aria-label')).toContain('d0 · 一次性')
   })
 
   it('keeps the toggle buttons pressed-state honest', () => {

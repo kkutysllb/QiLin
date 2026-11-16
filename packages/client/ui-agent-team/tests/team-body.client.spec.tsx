@@ -259,6 +259,25 @@ describe('TeamBody formation', () => {
     expect(rows.querySelector('[data-state="ongoing"]')).not.toBeNull()
   })
 
+  it('states each collaboration task\'s description under its subject', async () => {
+    await bodyBench()
+    const row = document.querySelector('[data-squad-task="task-1"]') as HTMLElement
+    const description = row.querySelector('[title="Build the Team runtime"]') as HTMLElement | null
+    expect(description).not.toBeNull()
+    // The full text stays reachable through the title attribute even where the
+    // compact line truncates it.
+    expect(description?.textContent).toBe('Build the Team runtime')
+    expect(row.textContent).toContain('Implement runtime')
+  })
+
+  it('drops the description line for a task that records none', async () => {
+    const bare: TeamTask = { ...TASK_2_VIEW, description: '' }
+    await bodyBench({ team: { members: [LEAD_MEMBER], tasks: [bare] } })
+    const row = document.querySelector('[data-squad-task="task-2"]') as HTMLElement
+    expect(row.querySelector('[class*="compactDescription"]')).toBeNull()
+    expect(row.textContent).toContain('Write tests')
+  })
+
   it('rows the delegation and its step count in the collaboration timeline', async () => {
     await bodyBench({
       parented: true,

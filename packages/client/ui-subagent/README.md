@@ -31,7 +31,7 @@ This package registers the `qilin-resource://subagentchat/session/<child>?parent
 
 ### Browsing the tree
 
-Rows display mode plus `running`/`inactive` activity and an optional log-backed title; the trailing column stacks total durable provider usage above active-turn duration. Keyboard navigation works with ArrowRight/ArrowLeft to expand and collapse branches and ArrowUp/ArrowDown, Home, End, and Escape to navigate or close the tree. An unlabeled one-shot row falls back to its session id; corrupt, unsupported, or unavailable rows remain readable but disabled.
+Rows lead with the task's log-backed title once the Host projects one, falling back to the catalog label, and state that label beside the mode and `running`/`inactive` activity; the trailing column stacks total durable provider usage above active-turn duration. Keyboard navigation works with ArrowRight/ArrowLeft to expand and collapse branches and ArrowUp/ArrowDown, Home, End, and Escape to navigate or close the tree. An unlabeled one-shot row falls back to its session id; corrupt, unsupported, or unavailable rows remain readable but disabled.
 
 ### Continuing a conversation
 
@@ -106,6 +106,7 @@ These limits define what the catalog can show and what `@` references mean; they
 
 - **The catalog has no durable outcome** — activity and timing do not distinguish completion, failure, or cancellation, and the UI exposes no Activation identity; stopping is limited to the composer's current-turn Stop for a running continuable child.
 - **`@` references remain display-title text** — duplicate or renamed labels are ambiguous, so they intentionally do not acquire continuation semantics.
+- **The row's leading line is the projected title, not the whole assignment** — a child row leads with its durable `session/title`, a deterministic fallback from its first task message (five words or forty bytes, capped at eighty bytes), so a long brief reads as its title; the full instruction stays in the child's own transcript. A child whose title has not been projected yet keeps its catalog label leading.
 
 <a id="dev-note"></a>
 ### Dev Note

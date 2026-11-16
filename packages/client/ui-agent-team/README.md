@@ -37,7 +37,7 @@ A card's facts come from the Session list itself: every summary projection (usag
 
 The canvas follows the measured stage: the tree re-flows on every width change, and when the leaves outgrow one row the levels pack into bands instead of overflowing sideways. Hovering or focusing a card keeps that agent, its parent, and its children lit and fades the rest; clicking or pressing Enter opens that agent's conversation through its durable subagent address. A solo formation states that the graph fills in once the Lead delegates.
 
-Beside the graph, the cross-agent collaboration panel rows the durable traffic the page holds, newest first: a parent handing a child its label (with the child's creation mode and step count), and every peer message an agent received (with its sender and a bounded preview, read from the recipient's `agentMessages` projection). The same column summarizes the shared tasks as read-only rows — status dot, subject, owner — while the editable board stays below. A wide pane seats graph and timeline side by side; a narrow one stacks them.
+Beside the graph, the cross-agent collaboration panel rows the durable traffic the page holds, newest first: a parent handing a child its label (with the child's creation mode and step count), and every peer message an agent received (with its sender and a bounded preview, read from the recipient's `agentMessages` projection). The same column summarizes the shared tasks as read-only rows — status dot, subject over its description, owner — while the editable board stays below. A wide pane seats graph and timeline side by side; a narrow one stacks them.
 
 The board below shares the hovered owner with the graph: hovering a card tints the rows that agent owns, and hovering a row lights its owner's card.
 
@@ -121,6 +121,7 @@ No direct effect; the Team tools and ordinary conversation submission own any la
 - **Model availability** — a model appears only when the shared store has a durable selection or request for that member. Missing cold-cache values stay absent until normal Session loading or a live update supplies them.
 - **Ordinary child continuation** — a human message sent after navigation uses the stable addressed-subagent prompt path, not the Team peer mailbox.
 - **No lifecycle or workspace controls** — the page cannot spawn, rename, delete, or interrupt teammates, and write scopes remain advisory metadata.
+- **The collaboration summary clamps descriptions** — its rows state a task's subject over one ellipsized description line whose full text rides the row's tooltip; the board below carries the whole description.
 - **Claim and release stay model-owned** — the browser edits tasks through edit, complete, reopen, delete, and reassign; claim and release remain Team-agent tool actions, and the board has no drag reordering or activity stream.
 
 <a id="dev-note"></a>

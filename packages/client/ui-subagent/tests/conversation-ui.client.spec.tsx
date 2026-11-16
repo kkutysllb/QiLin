@@ -255,7 +255,10 @@ describe('SubagentHeaderLineage', () => {
 
     expect(input.refreshProjection).not.toHaveBeenCalled()
     expect(screen.getAllByRole('treeitem')).toHaveLength(2)
-    expect(screen.getByText('正在扫描项目文件 · 可继续 · 正在运行')).toBeTruthy()
+    // The child's projected task title leads; its catalog name follows beside
+    // the mode and activity. A child without a title keeps its name leading.
+    expect(screen.getByText('正在扫描项目文件')).toBeTruthy()
+    expect(screen.getByText('worker · 可继续 · 正在运行')).toBeTruthy()
     expect(screen.getByText('一次性 · 当前未运行')).toBeTruthy()
     expect(screen.getByRole('button', { name: '展开 worker 的下级子代理' })).toBeTruthy()
     expect(screen.getByRole('button', { name: '展开 reviewer 的下级子代理' })).toBeTruthy()

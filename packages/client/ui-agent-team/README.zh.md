@@ -37,7 +37,7 @@ kind: "package-reference"
 
 画布跟随实测的 stage：每次宽度变化都会重新排布，叶节点放不进一行时层级改为分带排列，而不是向两侧溢出。悬停或聚焦卡片会让该 agent、其父与子保持点亮并淡化其余；点击或按 Enter 通过其持久 subagent 地址打开该 agent 的会话。只有 Lead 的编队会说明编队将在 Lead 委派后展开。
 
-图形旁是跨 Agent 协作面板，按时间倒序列出页面持有的持久流量：父节点把标签交给子节点（附子节点的创建模式与步数），以及每个 agent 收到的 peer 消息（附发送方与有界预览，读取收件人的 `agentMessages` 投影）。同一列还把共享任务汇总为只读行——状态点、主题、负责人——可编辑的任务板仍在下方。宽面板上图与时间线并排，窄面板上上下堆叠。
+图形旁是跨 Agent 协作面板，按时间倒序列出页面持有的持久流量：父节点把标签交给子节点（附子节点的创建模式与步数），以及每个 agent 收到的 peer 消息（附发送方与有界预览，读取收件人的 `agentMessages` 投影）。同一列还把共享任务汇总为只读行——状态点、主题及其描述、负责人——可编辑的任务板仍在下方。宽面板上图与时间线并排，窄面板上上下堆叠。
 
 下方任务板与图形共享悬停负责人：悬停卡片会给该 agent 拥有的行着色，悬停行会点亮其负责人的卡片。
 
@@ -121,6 +121,7 @@ Client export 通过 Cordis effect 注册 locale dictionary、会话页头的队
 - **模型可用性** — 仅当共享 store 包含该成员的持久选择或请求时才显示模型。冷缓存中缺少的值会保持缺失，直到正常 Session 加载或实时更新提供它们。
 - **普通 child continuation**——导航后发送的人类消息使用稳定 addressed-subagent 提示词路径，而不是 Team peer mailbox。
 - **没有 lifecycle 或 workspace control**——页面不能 spawn、rename、delete 或 interrupt teammate，write scope 仍只是提示性 metadata。
+- **协作汇总会压缩描述**：其行在主题下只显示一行省略的描述，全文放在该行 tooltip 里；完整描述在下方任务板卡片中。
 - **claim 与 release 仍归模型所有**——浏览器只通过编辑、完成、重新打开、删除与改派修改任务；claim 与 release 仍是 Team agent 工具操作，任务板没有拖拽排序与活动流。
 
 <a id="dev-note"></a>

@@ -130,9 +130,14 @@ export function SubagentRowView({ row, t, onOpen, onInterrupt }: {
     >
       <button type="button" className={css.open} onClick={() => { onOpen(row.address) }}>
         <StateDot state={row.running ? 'ongoing' : 'done'} className={css.dot} />
-        <span className={css.label}>{row.label}</span>
+        <span className={css.label} title={row.description ?? row.label}>
+          {row.description ?? row.label}
+        </span>
         <span className={css.secondary}>
-          {t(row.address.mode === 'one-shot' ? 'subagents.mode.oneShot' : 'subagents.mode.continuable')}
+          {[
+            row.description === undefined ? undefined : row.label,
+            t(row.address.mode === 'one-shot' ? 'subagents.mode.oneShot' : 'subagents.mode.continuable'),
+          ].filter(value => value !== undefined).join(' · ')}
         </span>
       </button>
       {row.running && row.address.mode === 'continuable' && (
@@ -193,7 +198,10 @@ export function TasksBody({
   const [allTasks, setAllTasks] = useState(false)
   const [now, setNow] = useState(() => Date.now())
 
-  const rows = useMemo(() => subagentRows(catalogs, sessionId), [catalogs, sessionId])
+  const rows = useMemo(
+    () => subagentRows(catalogs, sessionId, id => summaries[id]?.title),
+    [catalogs, sessionId, summaries],
+  )
   const total = useMemo(
     () => subagentTotal(childRowCount(rows), indexSubagentDescendants(summaries), sessionId),
     [rows, summaries, sessionId],
@@ -212,8 +220,11 @@ export function TasksBody({
     summaries,
     expanded: new Set(Object.keys(expandedKeys).filter(key => expandedKeys[key] === true)),
     currentSessionId: sessionId,
-    labelOf: (entry, summary) => entry.label ?? summary?.displayTitle ?? entry.id,
-    secondaryOf: entry => t(entry.mode === 'one-shot' ? 'subagents.mode.oneShot' : 'subagents.mode.continuable'),
+    labelOf: (entry, summary) => summary?.title ?? entry.label ?? entry.id,
+    secondaryOf: (entry, summary) => [
+      summary?.title === undefined ? undefined : entry.label ?? entry.id,
+      t(entry.mode === 'one-shot' ? 'subagents.mode.oneShot' : 'subagents.mode.continuable'),
+    ].filter(value => value !== undefined).join(' · '),
   }), [catalogs, summaries, expandedKeys, sessionId, t])
 
   /** One node activation: aggregates fold, placeholders read their level, cards navigate. */

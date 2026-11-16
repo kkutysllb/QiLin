@@ -247,7 +247,13 @@ function CatalogRows({
           : completed
             ? t('activity.completed')
             : t('activity.inactive')
-        const secondary = [summary?.title, mode, activity]
+        // The task a child was started for is what a reader scans for, and the
+        // durable title carries it; the catalog name then states which agent
+        // runs it. A child whose title has not been projected yet keeps its
+        // name as the leading line.
+        const description = summary?.title
+        const primary = description ?? label
+        const secondary = [description === undefined ? undefined : label, mode, activity]
           .filter(value => value !== undefined)
           .join(' · ')
         const totalTokens = tokenTotal(summary?.projectionValues?.tokenUsage)
@@ -310,7 +316,7 @@ function CatalogRows({
               tabIndex={0}
               aria-level={level}
               aria-current={isCurrent || undefined}
-              aria-label={[label, secondary, metrics].filter(value => value !== '').join(' ')}
+              aria-label={[primary, secondary, metrics].filter(value => value !== '').join(' ')}
               {...knownLeaf ? {} : { 'aria-expanded': isExpanded }}
               className={css.row}
               onClick={open}
@@ -334,7 +340,12 @@ function CatalogRows({
                   <StateDot state={entry.activity === 'running' ? 'ongoing' : completed ? 'done' : 'idle'} />
                 </span>
                 <span className={css.content}>
-                  <span className={`${css.label} ${isCurrent ? css.currentLabel : ''}`}>{label}</span>
+                  <span
+                    className={`${css.label} ${isCurrent ? css.currentLabel : ''}`}
+                    title={primary}
+                  >
+                    {primary}
+                  </span>
                   <span className={css.summary}>{secondary}</span>
                 </span>
                 {metrics !== '' && (
