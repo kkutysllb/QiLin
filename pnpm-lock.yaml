@@ -649,7 +649,7 @@ importers:
     devDependencies:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
-        version: 1.4.0(zod@4.4.3)
+        version: 1.4.0(zod@4.6.6)
       '@qilin-agent/acp':
         specifier: workspace:*
         version: link:../../packages/acp/acp
@@ -1202,7 +1202,7 @@ importers:
     dependencies:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
-        version: 1.4.0(zod@4.4.3)
+        version: 1.4.0(zod@4.6.6)
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
@@ -1402,6 +1402,9 @@ importers:
 
   packages/api/remotes:
     dependencies:
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../../client/ui-session-status
       '@qilin-agent/deque':
         specifier: workspace:*
         version: link:../../util/deque
@@ -2892,6 +2895,9 @@ importers:
       '@qilin-agent/client-ui-session':
         specifier: workspace:*
         version: link:../../client/ui-session
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../../client/ui-session-status
       '@qilin-agent/client-ui-settings':
         specifier: workspace:*
         version: link:../../client/ui-settings
@@ -3538,6 +3544,10 @@ importers:
         version: 18.3.1
 
   packages/client/ui-agent-team:
+    dependencies:
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../ui-session-status
     devDependencies:
       '@qilin-agent/agent-team':
         specifier: workspace:*
@@ -3996,6 +4006,9 @@ importers:
 
   packages/client/ui-conversation:
     dependencies:
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../ui-session-status
       '@qilin-agent/schemastery':
         specifier: link:../../../vendor/schemastery
         version: link:../../../vendor/schemastery
@@ -5461,6 +5474,67 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1
 
+  packages/client/ui-session-status:
+    dependencies:
+      '@qilin-agent/deque':
+        specifier: workspace:*
+        version: link:../../util/deque
+      '@qilin-agent/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
+      zod:
+        specifier: 4.6.6
+        version: 4.6.6
+    devDependencies:
+      '@qilin-agent/api-gateway':
+        specifier: workspace:*
+        version: link:../../api/gateway
+      '@qilin-agent/api-remote-access':
+        specifier: workspace:*
+        version: link:../../api/remote-access
+      '@qilin-agent/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
+      '@qilin-agent/api-session-controller':
+        specifier: workspace:*
+        version: link:../../api/session-controller
+      '@qilin-agent/client-connection':
+        specifier: workspace:*
+        version: link:../connection
+      '@qilin-agent/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin-agent/client-ui-session':
+        specifier: workspace:*
+        version: link:../ui-session
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/remote-mock':
+        specifier: workspace:*
+        version: link:../../test-support/remote-mock
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-persistence':
+        specifier: workspace:*
+        version: link:../../session/session-persistence
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/typert-registry':
+        specifier: workspace:*
+        version: link:../../typert/registry
+
   packages/client/ui-settings:
     dependencies:
       '@qilin-agent/schemastery':
@@ -6678,6 +6752,10 @@ importers:
         version: 18.3.31
 
   packages/client/ui-subagent:
+    dependencies:
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../ui-session-status
     devDependencies:
       '@qilin-agent/api-session-controller':
         specifier: workspace:*
@@ -7165,6 +7243,10 @@ importers:
         version: 18.3.1
 
   packages/client/ui-workspace:
+    dependencies:
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../ui-session-status
     devDependencies:
       '@qilin-agent/api-remotes':
         specifier: workspace:*
@@ -14720,7 +14802,7 @@ importers:
     dependencies:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
-        version: 1.4.0(zod@4.4.3)
+        version: 1.4.0(zod@4.6.6)
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
@@ -15509,6 +15591,9 @@ importers:
       '@qilin-agent/client-ui-session':
         specifier: workspace:*
         version: link:../../client/ui-session
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../../client/ui-session-status
       '@qilin-agent/client-ui-settings':
         specifier: workspace:*
         version: link:../../client/ui-settings
@@ -15724,7 +15809,7 @@ importers:
     dependencies:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
-        version: 1.4.0(zod@4.4.3)
+        version: 1.4.0(zod@4.6.6)
       '@qilin-agent/kylin-plugin-include':
         specifier: workspace:~
         version: link:../../../vendor/include
@@ -24583,6 +24668,9 @@ packages:
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
+  zod@4.6.6:
+    resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
+
   zustand@4.4.7:
     resolution: {integrity: sha512-QFJWJMdlETcI69paJwhSMJz7PPWjVP8Sjhclxmxmxv/RYI7ZOvR5BHX+ktH0we9gTWQMxcne8q1OY8xxz604gw==}
     engines: {node: '>=12.7.0'}
@@ -24603,9 +24691,9 @@ packages:
 
 snapshots:
 
-  '@agentclientprotocol/sdk@1.4.0(zod@4.4.3)':
+  '@agentclientprotocol/sdk@1.4.0(zod@4.6.6)':
     dependencies:
-      zod: 4.4.3
+      zod: 4.6.6
 
   '@algolia/abtesting@1.21.2':
     dependencies:
@@ -32611,6 +32699,8 @@ snapshots:
       zod: 4.4.3
 
   zod@4.4.3: {}
+
+  zod@4.6.6: {}
 
   zustand@4.4.7(@types/react@18.3.31)(immer@10.2.0)(react@18.3.1):
     dependencies:

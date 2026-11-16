@@ -187,4 +187,4 @@ session-status 的试跑结果：
 
 因此基础层顺序修正为：**api-session-controller（客户端模型与投影）→ ui-session 状态归属迁移 →
 client-ui-session-status 引入 → ui-conversation 整包 → chat/workspace → 面板**。
-试跑改动已整体回退，树保持绿色；`gen-typert` 双面包修复保留（c678d1e1b5）。
+试跑改动已整体回退，树保持绿色；`gen-typert` 双面包修复保留。

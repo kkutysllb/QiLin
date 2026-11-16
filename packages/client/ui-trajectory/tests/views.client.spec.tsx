@@ -36,7 +36,7 @@ import type {
 } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import { apply as localeApply, inject as localeInject } from '@qilin-agent/client-locale/client'
 import { apply, inject } from '@qilin-agent/client-ui-trajectory/client'
 import { apply as nodeApply } from '@qilin-agent/client-ui-trajectory'

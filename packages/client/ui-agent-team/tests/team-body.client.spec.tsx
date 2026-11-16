@@ -14,7 +14,7 @@ import type {
 import { RemoteError } from '@qilin-agent/typert-protocol'
 import type { RemoteResult } from '@qilin-agent/typert-protocol'
 import type { SessionListState, SessionSnapshot, SessionSummary } from '@qilin-agent/api-session-controller/client'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
@@ -152,7 +152,7 @@ async function bodyBench(options: BenchOptions = {}): Promise<Mounted> {
     },
   })
   const statusMap: SessionStatusSnapshot = new Map(Object.entries(options.running ?? {}).map(([id, isRunning]) => [
-    id as SessionId, { running: isRunning, pendingInteraction: undefined, completionUnread: false },
+    id as SessionId, { running: isRunning, pendingInteraction: undefined, completionUnread: false, completionFailed: false },
   ]))
   const statuses = createSnapshotStore<SessionStatusSnapshot>(statusMap)
   const session = createSnapshotStore<SessionSnapshot>({

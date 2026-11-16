@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 /**
  * Derives the workspace browser tree from caller-projected Workspace and
  * Session order. Unassigned Sessions trail under Ungrouped; only the selected
@@ -7,9 +8,7 @@ import {
   type SessionListState, type SessionSearchResultItem, type SessionSummary,
 } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceDirectoryKind, WorkspaceId, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
-import type {
-  SessionStatusSnapshot,
-} from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import { workspaceTitleOf } from '@qilin-agent/util-workspace-path'
 import {

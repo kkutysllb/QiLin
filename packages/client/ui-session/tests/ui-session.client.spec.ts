@@ -13,11 +13,7 @@ import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { HostObservable, RootStandardSourceContribution } from '@qilin-agent/client-ui-slots'
 import type { SessionId } from '@qilin-agent/session/types'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import {
-  apply,
-  type SessionPendingInteractionBase,
-  UiSession,
-} from '../src/client/index.ts'
+import { apply, UiSession } from '../src/client/index.ts'
 import { apply as nodeApply } from '../src/index.ts'
 
 interface SessionsBench {
@@ -525,176 +521,22 @@ describe('UiSession bindings', () => {
   })
 })
 
-describe('UiSession status', () => {
-  it('records non-main completions and lets main-view activity acknowledge them', () => {
-    const ctx = new Context()
-    const bench = createSessionsBench(ctx)
-    const id = sessionId('s1')
-    bench.binding(id)
-    const service = createUiSession(ctx, bench)
-    const changed = vi.fn()
-    const off = service.sessionStatus.subscribe(changed)
-
-    expect(service.sessionStatus.getSnapshot().get(id)).toEqual({
-      running: false,
-      pendingInteraction: undefined,
-      completionUnread: false,
-    })
-    bench.list.update((draft) => { draft.byId[id]!.running = true })
-    expect(service.sessionStatus.getSnapshot().get(id)?.running).toBe(true)
-    bench.list.update((draft) => { draft.byId[id]!.running = false })
-    expect(service.sessionStatus.getSnapshot().get(id)?.completionUnread).toBe(true)
-    bench.setMainView(id, 1)
-    expect(service.sessionStatus.getSnapshot().get(id)?.completionUnread).toBe(false)
-    bench.setMainView(id, 0)
-
-    bench.emitStatus(id, true)
-    bench.emitStatus(id, false)
-    expect(service.sessionStatus.getSnapshot().get(id)?.completionUnread).toBe(true)
-
-    bench.setMainView(id, 1)
-    expect(service.sessionStatus.getSnapshot().get(id)?.completionUnread).toBe(false)
-    bench.emitStatus(id, true)
-    bench.emitStatus(id, false)
-    expect(service.sessionStatus.getSnapshot().get(id)?.completionUnread).toBe(false)
-
-    bench.setMainView(id, 0)
-    bench.emitStatus(id, false)
-    expect(service.sessionStatus.getSnapshot().get(id)?.completionUnread).toBe(false)
-    bench.emitStatus(id, true)
-    bench.emitStatus(id, false)
-    expect(service.sessionStatus.getSnapshot().get(id)?.completionUnread).toBe(true)
-    bench.emitStatus(id, true)
-    expect(service.sessionStatus.getSnapshot().get(id)?.completionUnread).toBe(false)
-    expect(changed).toHaveBeenCalled()
-    off()
-  })
-
-  it('records an idle event before the initial catalog baseline and retires absent status later', () => {
-    const ctx = new Context()
-    const bench = createSessionsBench(ctx)
-    const id = sessionId('early')
-    bench.list.update((draft) => { draft.phase = 'pending' })
-    const service = createUiSession(ctx, bench)
-
-    bench.emitStatus(id, false)
-    expect(service.sessionStatus.getSnapshot().get(id)).toEqual({
-      running: false,
-      pendingInteraction: undefined,
-      completionUnread: true,
-    })
-    bench.list.update((draft) => { draft.phase = 'ready' })
-    expect(service.sessionStatus.getSnapshot().has(id)).toBe(false)
-  })
-})
-
-describe('UiSession pending interactions', () => {
-  it('publishes the highest-precedence exact object and removes each source independently', async () => {
+describe('ui-session pending domains', () => {
+  it('rejects duplicate keys and keeps removal idempotent after a domain release', async () => {
     const ctx = new Context()
     const bench = createSessionsBench(ctx)
     const service = createUiSession(ctx, bench)
-    const id = sessionId('s1')
-    const listener = vi.fn()
-    const off = service.sessionStatus.subscribe(listener)
-    const pendingListener = vi.fn()
-    const offPending = service.pendingInteractions.subscribe(pendingListener)
-    const registerApproval = service.registerPendingInteraction<SessionPendingInteractionBase>(
-      () => 0,
-    )
-    const registerQuestion = service.registerPendingInteraction<SessionPendingInteractionBase>(
-      interaction => interaction.kind === 'plan-review' ? 2 : 1,
-    )
-    const registerBackground = service.registerPendingInteraction<SessionPendingInteractionBase>(
-      () => -1,
-    )
-    listener.mockClear()
-
-    const approval = { key: 'approval:1', kind: 'approval', sessionId: id }
-    const duplicate = { key: 'approval:2', kind: 'approval', sessionId: id }
-    const question = { key: 'question:1', kind: 'question', sessionId: id }
-    const plan = { key: 'question:2', kind: 'plan-review', sessionId: id }
-    const background = { key: 'background:1', kind: 'background', sessionId: id }
-    const delegate = (): Promise<void> => Promise.resolve()
-    const removeApproval = registerApproval(approval, delegate)
-    expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(approval)
-    expect(service.pendingInteractions.getSnapshot().get(id)).toBe(approval)
-    expect(pendingListener).toHaveBeenCalled()
-    const removeDuplicate = registerApproval(duplicate, delegate)
-    expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(duplicate)
-    const removeQuestion = registerQuestion(question, delegate)
-    expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(question)
-    const removePlan = registerQuestion(plan, delegate)
-    expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(plan)
-    const removeBackground = registerBackground(background, delegate)
-    expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(plan)
-
-    removeBackground()
-    removeQuestion()
-    expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(plan)
-    expect(service.pendingInteractions.getSnapshot().get(id)).toBe(plan)
-    offPending()
-    removePlan()
-    expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(duplicate)
-    removeDuplicate()
-    expect(service.sessionStatus.getSnapshot().get(id)?.pendingInteraction).toBe(approval)
-    removeApproval()
-    removeApproval()
-    expect(service.sessionStatus.getSnapshot().has(id)).toBe(false)
-    off()
-    await ctx.fiber.dispose()
-  })
-
-  it('rejects duplicate keys and contains a failing aggregate subscriber', () => {
-    const ctx = new Context()
-    const bench = createSessionsBench(ctx)
-    const service = createUiSession(ctx, bench)
-    const registerPendingInteraction = service.registerPendingInteraction<SessionPendingInteractionBase>(
-      () => 1,
-    )
+    const register = service.registerPendingInteraction<SessionPendingInteractionBase>(() => 0)
+    const delegate = vi.fn(() => Promise.resolve())
     const interaction = { key: 'question:1', kind: 'question', sessionId: sessionId('s1') }
-    const delegate = () => Promise.resolve()
-    const remove = registerPendingInteraction(interaction, delegate)
-    expect(() => { registerPendingInteraction(interaction, delegate) })
-      .toThrow("ui-session: duplicate pending interaction key 'question:1'")
-
-    const failure = new Error('pending subscriber failed')
-    const report = vi.spyOn(console, 'error').mockImplementation(() => {})
-    service.sessionStatus.subscribe(() => { throw failure })
-    const after = vi.fn()
-    service.sessionStatus.subscribe(after)
-
+    const remove = register(interaction, delegate)
+    expect(() => register(interaction, delegate)).toThrow("ui-session: duplicate pending interaction key 'question:1'")
     remove()
-
-    expect(after).toHaveBeenCalledOnce()
-    expect(report).toHaveBeenCalledWith(
-      '[ui-session] Session status subscriber failed:',
-      failure,
-    )
-  })
-
-  it('removes active values before awaiting their teardown delegation', async () => {
-    const ctx = new Context()
-    const bench = createSessionsBench(ctx)
-    const service = createUiSession(ctx, bench)
-    const gate = Promise.withResolvers<undefined>()
-    const delegate = vi.fn(() => gate.promise)
-    const publish = service.registerPendingInteraction<SessionPendingInteractionBase>(() => 1)
-    const remove = publish(
-      { key: 'question:1', kind: 'question', sessionId: sessionId('s1') },
-      delegate,
-    )
-
-    let disposed = false
-    const disposal = ctx.fiber.dispose().then(() => { disposed = true })
-    await vi.waitFor(() => { expect(delegate).toHaveBeenCalledOnce() })
-    expect(service.sessionStatus.getSnapshot()).toEqual(new Map())
-    expect(disposed).toBe(false)
-    remove()
-    remove()
-
-    gate.resolve(undefined)
-    await disposal
-    expect(disposed).toBe(true)
+    // A later release clears the cell; the stale removal must stay inert.
+    const stale = register({ key: 'question:2', kind: 'question', sessionId: sessionId('s1') }, delegate)
+    await ctx.fiber.dispose()
+    stale()
+    expect(delegate).toHaveBeenCalledOnce()
   })
 })
 
@@ -715,7 +557,6 @@ describe('ui-session apply', () => {
     expect(slots.provideRoot).toHaveBeenCalledWith({
       hooks: {
         sessions: bench.sessions.list,
-        sessionStatus: ctx.uiSession.sessionStatus,
       },
       keyedHooks: { sessionRetainInfo: expect.any(Function) as unknown },
     })

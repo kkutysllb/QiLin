@@ -9,7 +9,7 @@ import type {
 import type {} from '@qilin-agent/client-locale/client'
 import { allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import type { DirectoryFlowOwnerProps, WorkspacePickerProps } from '../src/client/contract/slots.ts'
 import { WorkspacePicker } from '../src/client/WorkspacePicker.tsx'
 import { zh } from '../src/client/locales.ts'

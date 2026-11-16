@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 /**
  * The workspace/session browsing region filling the sidebar shell's
  * `sidebar.workspaces` hole: section header (title + view options + add

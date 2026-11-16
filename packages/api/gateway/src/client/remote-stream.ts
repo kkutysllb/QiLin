@@ -2,7 +2,7 @@
 
 import { RemoteError, remoteErrorOf } from '@qilin-agent/typert-protocol'
 import type { ConnectionHandle } from '@qilin-agent/client-connection/client'
-import { RemoteStreamCarrierError } from './stream-client.ts'
+import { isRemoteStreamCarrierFailure, type RemoteStreamCarrierFailure } from './stream-client.ts'
 
 /** One item annotated with the physical Remote-stream generation that delivered it. */
 export interface RemoteStreamItem<Item> {
@@ -25,7 +25,7 @@ export interface RemoteStreamOptions<Item> {
   /** Classify a normal generation end after or before its opening item was accepted. */
   readonly ended: (accepted: boolean) => Error
   /** Observe a retryable carrier loss before the supervisor waits or reopens. */
-  readonly carrierFailed?: (error: RemoteStreamCarrierError) => void
+  readonly carrierFailed?: (error: RemoteStreamCarrierFailure) => void
 }
 
 /**
@@ -129,7 +129,7 @@ export class RemoteStream<Item> implements AsyncIterable<RemoteStreamItem<Item>>
         } catch (error) {
           if (isAborted(this.lifetime.signal)) return
           if (revision !== this.revision) continue
-          if (!(error instanceof RemoteStreamCarrierError)) throw terminalStreamFailure(error)
+          if (!isRemoteStreamCarrierFailure(error)) throw terminalStreamFailure(error)
           this.options.carrierFailed?.(error)
           if (revision !== this.revision) continue
           attempt++
@@ -159,7 +159,7 @@ export class RemoteStream<Item> implements AsyncIterable<RemoteStreamItem<Item>>
 
 async function waitForRemoteStreamRetry(
   connection: Pick<ConnectionHandle, 'generation'>,
-  error: RemoteStreamCarrierError,
+  error: RemoteStreamCarrierFailure,
   attempt: number,
   signal: AbortSignal,
 ): Promise<void> {

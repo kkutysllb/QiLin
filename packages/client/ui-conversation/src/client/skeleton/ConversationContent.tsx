@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import type { WorkspaceId } from '@qilin-agent/workspace/types'

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-controller/client'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import {
@@ -159,7 +159,9 @@ describe('squadAgentsOf', () => {
       }),
     }
     const byId = { [LEAD]: summary(LEAD), [A]: row(A, LEAD, { running: false }) }
-    const statuses: SessionStatusSnapshot = new Map([[LEAD, { running: true, pendingInteraction: undefined, completionUnread: false }]])
+    const statuses: SessionStatusSnapshot = new Map([[
+      LEAD, { running: true, pendingInteraction: undefined, completionUnread: false, completionFailed: false },
+    ]])
     const agents = squadAgentsOf({ byId, projections, statuses, sessionId: LEAD })
     expect(agents[0]).toMatchObject({
       activity: 'running', tokens: 18, durationMs: 3_500, pressure: 45, model: 'lead-model',

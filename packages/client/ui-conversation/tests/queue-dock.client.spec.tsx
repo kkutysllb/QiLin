@@ -19,7 +19,7 @@ import { createSnapshotStore } from '@qilin-agent/client-store'
 import {
   bindSnapshotSelector, contextMenuHook, conversationSnapshot, makeTranslate,
 } from '@qilin-agent/client-test-runtime'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import type { InputState } from '../src/client/contract/input.ts'
 import { zh } from '../src/client/locales.ts'

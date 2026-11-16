@@ -1,3 +1,5 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 /** Fixed Escape routing into the current Conversation turn's scoped cancellation. */
 import type { ISessions, SessionBinding } from '@qilin-agent/api-session-controller/client'
 import type { Shortcuts } from '@qilin-agent/client-shortcuts/client'
@@ -5,6 +7,17 @@ import type { UiSession } from '@qilin-agent/client-ui-session/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import { StopSequence } from './stop-sequence.ts'
+
+/** The Session UI status service session-status installs under `uiSession`. */
+interface SessionStatusService {
+  getSnapshot(): SessionStatusSnapshot
+  subscribe(listener: () => void): () => void
+}
+
+/** Read the status service session-status installs on the Session UI service. */
+function statusOf(uiSession: UiSession): SessionStatusService {
+  return (uiSession as unknown as { sessionStatus: SessionStatusService }).sessionStatus
+}
 
 /**
  * Subscribe fixed input to the same Session cancellation used by the stop button.
@@ -15,6 +28,8 @@ import { StopSequence } from './stop-sequence.ts'
  * @param cancel - scoped stop operation that preserves Queue and reports failures.
  * @returns disposer releasing the input subscription, pending watches and expiry timer.
  */
+
+
 export function installStopShortcut(
   shortcuts: Shortcuts,
   sessions: ISessions,
@@ -47,7 +62,7 @@ export function installStopShortcut(
       const session = binding.session.getSnapshot()
       if (!session.running || session.removed
         || (session.subagent !== null && session.subagent.address.mode !== 'continuable')
-        || uiSession.sessionStatus.getSnapshot().get(sessionId)?.pendingInteraction !== undefined) return undefined
+        || statusOf(uiSession).getSnapshot().get(sessionId)?.pendingInteraction !== undefined) return undefined
       return turnSource.getSnapshot()
     }
     const turn = currentTurn()
@@ -58,7 +73,9 @@ export function installStopShortcut(
     const changed = (): void => {
       if (sessions.binding(sessionId) !== binding || currentTurn() !== turn) reset()
     }
-    const disposers = [turnSource.subscribe(changed), binding.session.subscribe(changed), uiSession.sessionStatus.subscribe(changed)]
+    const disposers = [
+      turnSource.subscribe(changed), binding.session.subscribe(changed), statusOf(uiSession).subscribe(changed),
+    ]
     unwatch = () => { for (const dispose of disposers) dispose() }
   })
   return () => { off(); reset() }

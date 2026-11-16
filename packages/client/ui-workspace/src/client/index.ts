@@ -83,7 +83,8 @@ const NS = 'workspace'
 export const inject = [
   'contextMenus',
   'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker',
-  'layout', 'shortcuts',
+  'layout', 'shortcuts', 'remoteAccess',
+  'uiSession', 'uiSession.sessionStatus',
 ]
 
 /**

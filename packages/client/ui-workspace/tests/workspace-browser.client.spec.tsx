@@ -7,7 +7,7 @@ import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-
 import type {
   WorkspaceId, WorkspaceSnapshot, WorkspaceView,
 } from '@qilin-agent/api-workspace-controller/client'
-import type { SessionStatus, SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatus, SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { MainPanelId } from '@qilin-agent/client-ui-layout/client'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
@@ -724,7 +724,7 @@ describe('WorkspaceBrowser', () => {
   describe('session watermarks', () => {
     const statusOf = (entries: Record<string, Partial<SessionStatus>>) =>
       hook<SessionStatusSnapshot>(new Map(Object.entries(entries).map(([id, value]) => [sid(id), {
-        running: false, pendingInteraction: undefined, completionUnread: false, ...value,
+        running: false, pendingInteraction: undefined, completionUnread: false, completionFailed: false, ...value,
       }])))
     const titles = () =>
       screen.getAllByRole('treeitem').map(row => within(row).getByText(/^(alpha|session-\d+)$/u).textContent)

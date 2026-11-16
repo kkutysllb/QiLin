@@ -11,7 +11,7 @@ import {
   allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate, RemoteError, sessionSnapshot as sessionFixture,
 } from '@qilin-agent/client-test-runtime'
 import type { SessionId } from '@qilin-agent/session/types'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import type { WorkspaceId } from '@qilin-agent/workspace/types'
 import { en as commonEn } from '@qilin-agent/client-locale/src/locales/en.ts'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'

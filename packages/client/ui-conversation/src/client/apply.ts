@@ -71,7 +71,8 @@ function hostPathBridge(): HostPathBridge | undefined {
 
 /** Services required by the Conversation plugin. */
 export const inject = [
-  'slots', 'sessions', 'fileUpload', 'uiSession', 'uiWorkspace', 'locale', 'configForms', 'shortcuts',
+  'slots', 'sessions', 'fileUpload', 'uiSession', 'uiSession.sessionStatus', 'uiWorkspace', 'locale', 'configForms',
+  'shortcuts',
 ]
 
 /** Conversation runtime configuration. */

@@ -61,6 +61,7 @@ async function bench(options: { addressed?: boolean; mount?: boolean } = {}) {
   ctx.provide('uiWorkspace', {
     openSession: (target: unknown) => { navigation.push(['open', target]) },
   } as never)
+  ctx.provide('uiSession.sessionStatus', { getSnapshot: () => new Map(), subscribe: () => () => {} } as never)
   const sidebarOpenTabIn = vi.fn((sessionId: SessionId, kind: string) => {
     navigation.push(['tab', sessionId, kind])
   })
@@ -143,6 +144,7 @@ describe('ui-team browser plugin', () => {
     // activates (see default-product-isolation.e2e.ts).
     expect(inject).toEqual([
       'sessions', 'uiWorkspace', 'slots', 'locale', 'remote', 'sidebarRight', 'sidebarRightTabs',
+      'uiSession.sessionStatus',
     ])
     expect(b.mounts).toHaveLength(1)
     const t = b.ctx.locale.bind('agent-team')

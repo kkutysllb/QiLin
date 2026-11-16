@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceId, WorkspaceView } from '@qilin-agent/api-workspace-controller/client'
-import type {
-  SessionPendingInteraction, SessionStatus, SessionStatusSnapshot,
-} from '@qilin-agent/client-ui-session/client'
+import type { SessionPendingInteraction } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatus, SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import {
   deriveFlat, deriveGroups, deriveSearchResults, orderByRecency, owningGroupKey, owningParentFolder,
@@ -44,7 +43,7 @@ const noAttention: SessionStatusSnapshot = new Map()
 const status = (
   pendingInteraction: SessionPendingInteraction | undefined,
   overrides: Partial<SessionStatus> = {},
-): SessionStatus => ({ running: undefined, pendingInteraction, completionUnread: false, ...overrides })
+): SessionStatus => ({ running: undefined, pendingInteraction, completionUnread: false, completionFailed: false, ...overrides })
 const archived = (...ids: string[]): SessionRowState => ({ pinnedSessionIds: [], archivedSessionIds: ids.map(sid) })
 const pinned = (...ids: string[]): SessionRowState => ({ pinnedSessionIds: pinnedIds(...ids), archivedSessionIds: [] })
 const pinnedIds = (...ids: string[]): readonly SessionId[] => ids.map(sid)

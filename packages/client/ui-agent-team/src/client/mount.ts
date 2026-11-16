@@ -31,7 +31,8 @@ declare module '@qilin-agent/client-ui-slots' {
  * mounts it, so declaring it here would leave the fiber PENDING forever waiting
  * for its own output.
  */
-export const inject = ['sessions', 'uiWorkspace', 'slots', 'locale', 'remote', 'sidebarRight', 'sidebarRightTabs']
+export const inject = ['sessions', 'uiWorkspace', 'slots', 'locale', 'remote', 'sidebarRight', 'sidebarRightTabs',
+  'uiSession.sessionStatus']
 
 /** What the UI registration itself needs: the services above plus the namespace {@link mountAgentTeamUi} mounts first. */
 const UI_INJECT = [...inject, 'remote.agentTeams']

@@ -80,6 +80,7 @@ async function fullBench(sessions: SessionSummary[]) {
       face.actionCalls.push({ method: 'openSession', args: [address] })
     },
   } as never)
+  ctx.provide('uiSession.sessionStatus', { getSnapshot: () => new Map(), subscribe: () => () => {} } as never)
   ctx.provide('sidebarRight', {
     openResource: (address: string, options: unknown) => {
       face.actionCalls.push({ method: 'openResource', args: [address, options] })
@@ -105,7 +106,7 @@ const FAMILY: SessionSummary[] = [
 
 describe('apply', () => {
   it('declares the services it binds', () => {
-    expect(inject).toEqual(['sessions', 'uiWorkspace', 'slots', 'locale', 'sidebarRight'])
+    expect(inject).toEqual(['sessions', 'uiWorkspace', 'slots', 'locale', 'sidebarRight', 'uiSession.sessionStatus'])
   })
 
   it('registers catalog actions and selects read-only subagent composers from session facts', async () => {

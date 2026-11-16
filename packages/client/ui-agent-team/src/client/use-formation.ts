@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 /**
  * The one derivation both fleet surfaces read: the conversation's agent family
  * and its Team, from the standing Session seats. Kept as a hook so the graph and
@@ -5,7 +6,8 @@
  */
 import { useMemo } from 'react'
 import type { SessionId } from '@qilin-agent/session/types'
-import type { UseSessionStatus, UseSessions } from '@qilin-agent/client-ui-session/client'
+import type { UseSessions } from '@qilin-agent/client-ui-session/client'
+import type { UseSessionStatus } from '@qilin-agent/client-ui-session-status/client'
 import { squadAgentsOf, squadCounts, squadLeadOf, type SquadAgent, type SquadCounts } from './squad-model.ts'
 import type { TeamProjection } from '@qilin-agent/agent-team/client'
 

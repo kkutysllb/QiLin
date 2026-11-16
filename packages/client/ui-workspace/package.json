@@ -42,6 +42,7 @@
         "@qilin-agent/client-ui-layout",
         "@qilin-agent/client-ui-renderer",
         "@qilin-agent/client-ui-session",
+        "@qilin-agent/client-ui-session-status",
         "@qilin-agent/client-ui-sidebar"
       ],
       "platform": "web"
@@ -53,6 +54,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
+    "@qilin-agent/client-ui-session-status": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
@@ -70,6 +72,7 @@
     "@qilin-agent/client-ui-primitives": "workspace:*",
     "@qilin-agent/client-ui-renderer": "workspace:*",
     "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-session-status": "workspace:*",
     "@qilin-agent/client-ui-sidebar": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
     "@qilin-agent/kylin": "workspace:~",
@@ -86,5 +89,8 @@
     "lib/index.js",
     "lib/client.js",
     "lib/types/**/*.d.ts"
-  ]
+  ],
+  "dependencies": {
+    "@qilin-agent/client-ui-session-status": "workspace:*"
+  }
 }

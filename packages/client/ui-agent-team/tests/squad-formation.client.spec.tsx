@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-controller/client'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import type { TeamProjection } from '@qilin-agent/agent-team/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
@@ -107,7 +107,7 @@ function bench(options: BenchOptions = {}) {
     ids: [LEAD, A, B], byId, phase: 'ready', projectionsBySession: projections,
   })
   const statuses = createSnapshotStore<SessionStatusSnapshot>(
-    options.statuses ?? new Map([[A, { running: true, pendingInteraction: undefined, completionUnread: false }]]),
+    options.statuses ?? new Map([[A, { running: true, pendingInteraction: undefined, completionUnread: false, completionFailed: false }]]),
   )
   const onHoverOwner = vi.fn()
   const openAgent = vi.fn()

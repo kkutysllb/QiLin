@@ -1245,6 +1245,34 @@ Types: [CreateSessionOptions](persistence.zh.md) · [PrepareSessionOptions](pers
 
 Source: [`packages/core/session/src/index.ts`](../../packages/core/session/src/index.ts)
 
+<a id="ctxsessionstatus--sessionstatusservice"></a>
+
+### `ctx.sessionStatus` — `SessionStatusService`
+
+Shared owner reading records; no reading operation changes model history.
+
+```ts cordis-catalog
+/**
+ * Update one Session; read positions advance only through Client-observed completions.
+ * @param sessionId - Session identity.
+ * @param action - Explicit reminder change or automatic read-position acknowledgement.
+ * @throws RemoteError when closing, the Session is missing, or its metadata cannot be read.
+ */
+@Remote async mark(sessionId: SessionId, action: SessionReadAction): Promise<void>
+
+/**
+ * Follow accessible reading records; every connection starts with a complete baseline.
+ * @param signal - generation cancellation.
+ * @returns the baseline and whole-record changes, filtered by Session access.
+ * @throws RemoteError when the service is closing.
+ */
+@Remote({ mode: 'stream' }) async *follow(signal: AbortSignal): AsyncIterable<SessionReadFrame>
+```
+
+Types: [SessionId](core.zh.md)
+
+Source: [`packages/client/ui-session-status/src/index.ts`](../../packages/client/ui-session-status/src/index.ts)
+
 <a id="api-session-events"></a>
 
 ### `api-session/*` events

@@ -7,7 +7,7 @@ import type {
 } from '@qilin-agent/api-session-controller/client'
 import type { SubagentAddress, SubagentCatalogRow } from '@qilin-agent/subagent/client'
 import type { SessionId } from '@qilin-agent/session/types'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import {
   SubagentCatalogAction, SubagentHeaderLineage,
   type SubagentCatalogActionProps, type SubagentHeaderLineageProps,
@@ -165,7 +165,7 @@ describe('SubagentHeaderLineage', () => {
     const input = props(catalog({ entries: [{ id: CHILD, mode: 'continuable', label: 'worker', activity: 'inactive' }] }))
     const initial = input.useSessions(state => state)
     const statuses: SessionStatusSnapshot = new Map([[CHILD, {
-      running: true, completionUnread: false, pendingInteraction: undefined,
+      running: true, completionUnread: false, completionFailed: false, pendingInteraction: undefined,
     }]])
     render(<HeaderCatalog {...input}
       useSessions={select => select({ ...initial, ids: [] })}

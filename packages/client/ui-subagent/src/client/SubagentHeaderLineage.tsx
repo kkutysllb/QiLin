@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 import { useMemo, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import {

@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 /**
  * The `agent-team` right-Sidebar page: roster, shared-task board, and the
  * create/edit forms, driven by the `agentTeams` write bridge.

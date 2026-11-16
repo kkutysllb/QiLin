@@ -31,6 +31,7 @@ import {
 import type { SessionReference } from '@qilin-agent/api-session-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import { createSnapshotStore } from '@qilin-agent/client-store'
+import { StaticRemoteAccess } from './access.ts'
 import type { PanelInfo } from '@qilin-agent/client-ui-layout/client'
 import type {
   ChildrenDecl, ComposedProps, HostObservable, OwnerOf, RenderOpts, SlotComponent, SlotMap, SlotRenderer,
@@ -240,6 +241,9 @@ export class SlotTestRuntime {
   readonly workspaces: TestWorkspaces
   /** Test-owned panel selection used by the framework's usePanelInfo hook. */
   readonly panelInfo = createSnapshotStore<PanelInfo>({ activePanelId: null })
+  /** Empty Session status table and root hook; a spec that renders status-dependent surfaces overrides it. */
+  readonly sessionStatus = createSnapshotStore<ReadonlyMap<string, never>>(new Map<string, never>())
+  private disposeSessionStatusSource = (): void => {}
   /** Mutable file-upload stub; replace `upload` in suites that exercise the capability. */
   readonly fileUpload: TestFileUpload
 
@@ -290,6 +294,8 @@ export class SlotTestRuntime {
     } as never)
     this.disposeWorkspaceSource = slots.provideRoot({ hooks: { workspaces: this.workspaces.list } })
     this.disposePanelInfoSource = slots.provideRoot({ hooks: { panelInfo: this.panelInfo } })
+    this.disposeSessionStatusSource = slots.provideRoot({ hooks: { sessionStatus: this.sessionStatus } as never })
+    ctx.provide('uiSession.sessionStatus', this.sessionStatus as never)
     // Capturing install: the production renderer does the rendering; the
     // wrapper only takes the host face for storeOf (no machinery copied).
     const renderer = createSlotRenderer()
@@ -315,6 +321,8 @@ export class SlotTestRuntime {
     await fiber.await()
     const runtime = new SlotTestRuntime(ctx, ctx.get('slots') as SlotRegistry, options)
     await ctx.plugin({ inject: [...uiSessionInject], apply: applyUiSession }).await()
+    // Most surfaces ask the access service; a spec of a refused path provides its own before mount.
+    if (ctx.get('remoteAccess') === undefined) await ctx.plugin(StaticRemoteAccess).await()
     return runtime
   }
 
@@ -505,6 +513,7 @@ export class SlotTestRuntime {
     this.root.release()
     this.disposeWorkspaceSource()
     this.disposePanelInfoSource()
+    this.disposeSessionStatusSource()
     await this.sessions.disposeScopes()
     await this.stabilizer(() => this.ctx.fiber.dispose())
     localStorage.clear()

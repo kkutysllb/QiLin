@@ -28,7 +28,7 @@ import type {
 import {
   allowAllAccess, bindSnapshotSelector, contextMenuHook, conversationSnapshot, makeTranslate, sessionSnapshot, SlotTestRuntime,
 } from '@qilin-agent/client-test-runtime'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import type { DraftAttachmentId } from '../src/client/contract/input.ts'

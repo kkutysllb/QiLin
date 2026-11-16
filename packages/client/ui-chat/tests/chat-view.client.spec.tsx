@@ -24,7 +24,7 @@ import type {
 } from '@qilin-agent/client-ui-conversation/client'
 import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
 import { SessionSeq, type SessionId } from '@qilin-agent/session/types'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import type { KeyedSnapshotSelectorHook, SnapshotSelectorHook } from '@qilin-agent/client-ui-slots'
 import { allowAllAccess, bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { createSnapshotStore, type ObservableSnapshot } from '@qilin-agent/client-store'
