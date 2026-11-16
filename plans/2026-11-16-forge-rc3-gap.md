@@ -83,4 +83,21 @@ C/D/E 必须成组推进：契约一改，host 与客户端同时不编译。E �
 ## 9. 当前结论
 
 - B9 的**能力方向**已具备，但**契约与交互不是上游口径**；上一轮记录中「B9 四项落地」应理解为「等价实现完成」，不能当作逐行对齐。
-- 下一步建议先做 B（worktree 自包含、风险低），再做 C+D 的 forge 契约与 host，最后 E；每阶段独立提交并保留本仓既有测试。
+- B 阶段已完成（见 §10），C+D 的 forge 契约与 host 是下一步，最后 E；每阶段独立提交并保留本仓既有测试。
+
+## 10. B 阶段实施记录（2026-11-16）
+
+上游 `experimental/worktree` 的 9 个源文件与 8 个测试文件（含 harness、locale、package/tsconfig）已移植，并按本仓 API 适配：
+
+| 上游依赖 | 本仓适配 |
+|---|---|
+| `ProjectionHandle`（`register()` 返回句柄，`handle.stateOf(session)`） | 本仓注册表返回 disposer；改为 `ctx.sessionProjections.stateOf(session, 'worktree')`，回收器接收读取函数 |
+| `workspace/session-unarchiving` | 已补：归档集合写入前派发，拒绝时保持归档 |
+| `working-directory/access`（waterfall） | 已补：`ensure`/`set` 在验证与提交外包裹 waterfall |
+| `sessionQuery.inspectSession` | 已补：`SessionObservationReader` 增加 `acquire`/`inspect`，冷会话按需准备后同步读取 |
+| `unsupportedModel` 等新 testkit 导出 | 测试用本仓既有 Agent 替身，不依赖新导出 |
+| 上游已删除的公开 `remove` | 本仓面板仍在使用，保留兼容实现（非强制移除 + 可删已合并分支），E 阶段随面板移植再决定去留 |
+| 分支前缀 `dsh-` | 改为 `qilin-`（本仓品牌），文档、测试与配置目录同步 |
+| 中文 README 引用的 Agent Note | 移植上游 35 行的创建决策（双语 + 配对记录） |
+
+验证：worktree 106 用例、受影响六包 1199 用例通过；两个聚合 `tsc -b`、`oxlint`、`verify-cordis-config`、`verify-package-dependencies`、`verify-export-jsdoc`、`test:docs` 21 项、双语配对 1206 对全绿；过滤覆盖下 worktree `src/` 全部 100%。
