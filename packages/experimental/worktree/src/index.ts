@@ -1,6 +1,6 @@
 /** Creates a new Git branch and checkout, then changes the calling Session's working directory; restores a removed checkout. */
 
-import { Context, Service } from '@qilin-agent/kylin'
+import { Context, Service, type Volatile } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
 import type { Agent } from '@qilin-agent/agent'
 import type { Session, SessionId } from '@qilin-agent/session'
@@ -26,8 +26,10 @@ export type {
 } from './types.ts'
 export { generatedWorktreeName } from './name.ts'
 
-/** Worktree location, generated names, executables, and subprocess resource limits. */
+/** Worktree location, generated names, executables, subprocess resource limits, and the archive cleanup switch. */
 export interface Config {
+  /** Keep every checkout when its Session is archived; editable live from the Settings page. */
+  retainOnArchive: Volatile<boolean>
   /** Relative checkout pool inside the source repository. */
   directory?: string
   /** Prefix for automatically generated branch and checkout names. */
@@ -36,25 +38,12 @@ export interface Config {
   gitCommand?: string
   /** Node executable used for sandboxed directory allocation. */
   nodeCommand?: string
-  /** Deadline in milliseconds for one command. */
+  /** Deadline in milliseconds for one command, including a large repository's checkout. */
   timeoutMs?: number
-  /**
-   * Deadline in milliseconds for creating or restoring a checkout. A large
-   * repository's `worktree add` and reset take longer than a Git query, so
-   * creation waits under this wider deadline while queries keep `timeoutMs`.
-   */
-  createTimeoutMs?: number
   /** Subprocess termination grace in milliseconds. */
   graceMs?: number
   /** Maximum captured bytes per subprocess output stream. */
   maxOutputBytes?: number
-  /**
-   * Keep a Session's created checkouts when that Session is archived. By
-   * default an archive removes the checkouts this process still owns but the
-   * branches and commits stay; a checkout with uncommitted or untracked files
-   * always stays, because removal is never forced.
-   */
-  retainOnArchive?: boolean
 }
 
 type ResolvedConfig = Required<Config> & ProcessConfig
@@ -86,16 +75,15 @@ type OwnedCheckout = Pick<CreatedWorktree, 'path' | 'branch' | 'baseCommit' | 'r
 export class WorktreeService extends Service {
   static inject = ['workingDirectory', 'fs', 'subprocess', 'sandbox', 'sandboxPolicy']
 
-  static Config: z<Config> = z.object({
+  static Config = z.object({
     directory: z.string().default('.agents/worktrees'),
     namePrefix: z.string().default('qilin-'),
     gitCommand: z.string().default('git'),
     nodeCommand: z.string().default('node'),
-    timeoutMs: z.number().default(60_000),
-    createTimeoutMs: z.number().default(300_000),
+    timeoutMs: z.number().default(300_000),
     graceMs: z.number().default(3_000),
     maxOutputBytes: z.number().default(65_536),
-    retainOnArchive: z.boolean().default(false),
+    retainOnArchive: z.boolean().default(false).volatile(),
   })
 
   private readonly config: ResolvedConfig
@@ -114,7 +102,7 @@ export class WorktreeService extends Service {
     for (const key of ['gitCommand', 'nodeCommand'] as const) {
       if (this.config[key].trim().length === 0) throw new Error(`worktree: ${key} must not be empty`)
     }
-    for (const key of ['timeoutMs', 'createTimeoutMs', 'graceMs', 'maxOutputBytes'] as const) {
+    for (const key of ['timeoutMs', 'graceMs', 'maxOutputBytes'] as const) {
       const value = this.config[key]
       if (!Number.isSafeInteger(value) || value <= 0 || value > MAX_TIMER_DELAY_MS) {
         throw new Error(`worktree: ${key} must be a positive integer no greater than ${MAX_TIMER_DELAY_MS}`)
@@ -294,7 +282,7 @@ export class WorktreeService extends Service {
     onPhase?.('prepare')
     const cwd = await this.ctx.workingDirectory.ensure(agent, signal)
     const policy = this.ctx.sandboxPolicy.resolve({ session: agent.session })
-    const run = this.gitRunner(policy, signal, this.config.createTimeoutMs)
+    const run = this.gitRunner(policy, signal)
     await run(cwd, ['check-ref-format', `refs/heads/${branch}`])
     const rootOutput = await run(cwd, ['rev-parse', '--show-toplevel'])
     const rootTarget = await this.ctx.fs.resolve(rootOutput.stdout.replace(/\r?\n$/, ''), { cwd, signal })
@@ -329,7 +317,7 @@ export class WorktreeService extends Service {
   ): Promise<RestoredWorktree> {
     onPhase?.('prepare')
     const policy = this.ctx.sandboxPolicy.resolve({ session: agent.session })
-    const run = this.gitRunner(policy, signal, this.config.createTimeoutMs)
+    const run = this.gitRunner(policy, signal)
     if (await this.ctx.fs.lstat(path, undefined, signal) !== undefined) throw new Error(`worktree path already exists: ${path}`)
     const root = await this.ctx.fs.resolve(repositoryRoot, { signal })
     const pool = await this.ctx.fs.resolve(this.config.directory, { cwd: repositoryRoot, signal })
@@ -397,7 +385,7 @@ export class WorktreeService extends Service {
    * @param sessionId - the Session whose archived checkouts are released.
    */
   private async archiveCleanup(sessionId: SessionId): Promise<void> {
-    if (this.config.retainOnArchive) return
+    if (this.config.retainOnArchive.get()) return
     const checkouts = this.owned.get(sessionId)
     if (checkouts === undefined) return
     const session = this.ctx.get('sessions')?.get(sessionId) ?? this.ctx.get('agents')?.get(sessionId)?.session
@@ -414,11 +402,11 @@ export class WorktreeService extends Service {
   }
 
   /** Confine Git commands to the caller's sandbox policy, with hooks and the filesystem monitor disabled. */
-  private gitRunner(policy: SandboxExecutionPolicy, signal: AbortSignal, timeoutMs?: number): GitRun {
+  private gitRunner(policy: SandboxExecutionPolicy, signal: AbortSignal): GitRun {
     return (directory, args, allowedExitCodes, env) => runCommand(
       this.ctx, this.config, policy, directory,
       [this.config.gitCommand, '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false', ...args],
-      signal, allowedExitCodes, env, timeoutMs,
+      signal, allowedExitCodes, env,
     )
   }
 
@@ -432,7 +420,7 @@ export class WorktreeService extends Service {
   ): Promise<void> {
     await runCommand(this.ctx, this.config, policy, repositoryRoot,
       [this.config.nodeCommand, '--input-type=module', '-e', PREPARE_DIRECTORY, poolPath, path], signal,
-      [0], {}, this.config.createTimeoutMs)
+      [0])
   }
 }
 

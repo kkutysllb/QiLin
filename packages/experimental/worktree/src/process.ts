@@ -46,9 +46,8 @@ export async function runCommand(
   signal: AbortSignal,
   allowedExitCodes: readonly number[] = [0],
   env: NodeJS.ProcessEnv = {},
-  timeoutMs: number = config.timeoutMs,
 ): Promise<{ stdout: string; exitCode: number }> {
-  using timeout = deadline(signal, timeoutMs, 'WORKTREE_TIMEOUT')
+  using timeout = deadline(signal, config.timeoutMs, 'WORKTREE_TIMEOUT')
   timeout.signal.throwIfAborted()
   const program = await ctx.subprocess.resolveExecutable(argv[0], undefined, timeout.signal)
   const command = [program, ...argv.slice(1)]

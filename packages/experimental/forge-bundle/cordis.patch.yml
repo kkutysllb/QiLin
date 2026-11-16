@@ -9,9 +9,5 @@
       name: '@qilin-agent/experimental-forge-github'
     - id: forge-session
       name: '@qilin-agent/experimental-forge-session'
-    - id: optional-forge-panel
-      name: cordis:group
-      group: true
-      config:
-        - id: forge-panel
-          name: '@qilin-agent/experimental-client-ui-forge'
+    - id: forge-panel
+      name: '@qilin-agent/experimental-client-ui-forge'

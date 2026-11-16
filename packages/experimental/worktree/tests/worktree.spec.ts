@@ -397,7 +397,7 @@ describe('creating and entering retained worktrees', () => {
 
   it('rejects cancellation and invalid deployment config before allocating a checkout', async () => {
     const root = await repo()
-    for (const config of [{ directory: '../escape' }, { namePrefix: '-bad' }, { gitCommand: '' }, { timeoutMs: 0 }, { createTimeoutMs: 0 }]) {
+    for (const config of [{ directory: '../escape' }, { namePrefix: '-bad' }, { gitCommand: '' }, { timeoutMs: 0 }]) {
       await expect(harness(root, config)).rejects.toThrow('worktree:')
     }
     ctx = await harness(root)
@@ -696,18 +696,16 @@ describe('archive release', () => {
 })
 
 describe('command deadlines', () => {
-  it('runs one command under the deadline its caller passes', async () => {
+  it('runs one command under the configured deadline', async () => {
     const root = await repo()
     ctx = await harness(root)
     const agent = testAgent(ctx, root)
     const policy = ctx.sandboxPolicy.resolve({ session: agent.session })
     const sleep: [string, ...string[]] = [process.execPath, '-e', 'setTimeout(() => {}, 60000)']
 
-    // Creation passes its own wider deadline; this call proves the argument
-    // reaches the command's timer rather than the service's default one.
     await expect(runCommand(
-      ctx, { timeoutMs: 60_000, graceMs: 1_000, maxOutputBytes: 65_536 }, policy, root,
-      sleep, new AbortController().signal, [0], {}, 50,
+      ctx, { timeoutMs: 50, graceMs: 1_000, maxOutputBytes: 65_536 }, policy, root,
+      sleep, new AbortController().signal,
     )).rejects.toThrow('WORKTREE_TIMEOUT after 50ms')
   })
 })

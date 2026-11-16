@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-从本地提交创建隔离的检出目录，并在其中继续同一个 Session。每次操作创建新的具名分支，源检出目录保持不变。所有写入均受现有沙箱约束。离开检出目录会保留文件与分支。归档持有者会话时，本进程创建的检出目录会被移除，而分支与提交保留；含未提交或未跟踪文件的检出保留（移除从不强制），`retainOnArchive` 则保留全部检出。
+从本地提交创建隔离的检出目录，并在其中继续同一个 Session。每次操作创建新的具名分支，源检出目录保持不变。所有写入均受现有沙箱约束。离开检出目录会保留文件与分支。归档持有者会话时，本进程创建的检出目录会被移除，而分支与提交保留；含未提交或未跟踪文件的检出保留（移除从不强制），`retainOnArchive`（默认关闭，可在插件页实时修改）则保留全部检出。
 
 ## 目录
 
@@ -32,7 +32,7 @@ kind: "package-reference"
 - name: '@qilin-agent/experimental-tool-worktree'
 ```
 
-`ctx.worktrees.create(agent, { name?, from? }, signal?, onPhase?)` 创建新分支与检出目录，再通过 `ctx.workingDirectory.set` 进入规范化的检出目录。`from` 在创建前解析为本地提交，默认是 `HEAD`；暂存、未暂存、未跟踪以及被忽略的源文件均不复制。`baseCommit` 报告解析出的提交对象名称；仓库本地的替换引用仍作用于检出的内容。检出操作禁用已配置的 Git clean、smudge 和 process 过滤器，不修改仓库配置。分支或检出路径已存在时会报错。返回记录包含 `path`、`branch`、`baseCommit` 和 `repositoryRoot`。创建与恢复使用 `createTimeoutMs`（默认 300000）而不是单命令的 `timeoutMs`（默认 60000），因此大型仓库的检出不会因更短的读命令期限被切断。可选的第四个参数 `onPhase` 在校验、分配目录与创建分支之前收到 `prepare`，在写入文件并进入检出之前收到 `checkout`；它不得抛出异常。
+`ctx.worktrees.create(agent, { name?, from? }, signal?, onPhase?)` 创建新分支与检出目录，再通过 `ctx.workingDirectory.set` 进入规范化的检出目录。`from` 在创建前解析为本地提交，默认是 `HEAD`；暂存、未暂存、未跟踪以及被忽略的源文件均不复制。`baseCommit` 报告解析出的提交对象名称；仓库本地的替换引用仍作用于检出的内容。检出操作禁用已配置的 Git clean、smudge 和 process 过滤器，不修改仓库配置。分支或检出路径已存在时会报错。返回记录包含 `path`、`branch`、`baseCommit` 和 `repositoryRoot`。所有命令（包括大型仓库的检出）共用 `timeoutMs` 一个期限，默认 300000。可选的第四个参数 `onPhase` 在校验、分配目录与创建分支之前收到 `prepare`，在写入文件并进入检出之前收到 `checkout`；它不得抛出异常。
 
 `ctx.worktrees.restore(agent, { path, branch, baseCommit, repositoryRoot }, signal?, onPhase?)` `ctx.worktrees.remove(agent, { path, branch, baseCommit, repositoryRoot, deleteBranch? }, signal?, onPhase?)` 移除一个保留的 worktree：它校验与恢复相同的记录事实与规范目标，拒绝锁定的登记，并用 `git worktree remove` 移除检出（不加 force），因此有未提交或未跟踪文件时检出保留、调用报告 Git 失败。目录缺失但仍登记时清理登记；目录存在却无登记时拒绝。`deleteBranch` 为真时在检出离开后删除分支，Git 会拒绝删除仍含未合并提交的分支，此时检出已移除、错误信息指出被保留的分支。返回记录含 `path` 与 `branchDeleted`。调用方 Session 的工作目录不变。
 
