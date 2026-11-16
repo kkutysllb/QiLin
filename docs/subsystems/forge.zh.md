@@ -145,6 +145,8 @@ interface ChangeRequestSnapshot {
   readonly url: string
   /** Title as the author wrote it. */
   readonly title: string
+  /** Description the author wrote, empty when the change request has none. */
+  readonly body: string
   /** Lifecycle state. */
   readonly state: ChangeRequestState
   /** Whether the author marked the change request as a draft. */
@@ -157,6 +159,8 @@ interface ChangeRequestSnapshot {
   readonly headSha: string
   /** Branch the change request merges into. */
   readonly baseBranch: string
+  /** Number of commits the change request carries. */
+  readonly commitCount: number
   /** Lines the change request adds. */
   readonly additions: number
   /** Lines the change request deletes. */
@@ -421,6 +425,15 @@ async markReady(ref: ChangeRequestRef, signal: AbortSignal): Promise<ForgeAction
 async merge(ref: ChangeRequestRef, request: MergeRequest, signal: AbortSignal): Promise<ForgeActionFailure | undefined>
 
 /**
+ * Read the review threads a change request's diff holds.
+ * @param ref - change request served by a registered provider.
+ * @param signal - cancellation of the read.
+ * @returns the threads in host order, or the provider's failure; unsupported providers return unavailable.
+ * @throws when no provider serves the change request's forge, or with `signal.reason` when it aborts.
+ */
+async reviewThreads(ref: ChangeRequestRef, signal: AbortSignal): Promise<readonly ForgeReviewThread[] | ForgeFailure>
+
+/**
  * Read complete check details independently of periodic polling.
  * @param ref - change request served by a registered provider.
  * @param signal - cancellation of the detail view.
@@ -600,6 +613,18 @@ Serves the forge panel. Following a Session inspects the checkout of its current
  * or `forgePanel/checks-failed` when the provider cannot complete the read.
  */
 @Remote async changeRequestChecks(session: Session, url: string, headSha: string, signal: AbortSignal): Promise<ChangeRequestSnapshot>
+
+/**
+ * Read the review threads of a change request of a Session, which the
+ * changes view shows at the lines each thread is anchored to.
+ * @param session - Session the change request is bound to.
+ * @param url - binding URL of the change request.
+ * @param signal - request cancellation.
+ * @returns the threads in host order, empty when the provider exposes no review reads.
+ * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
+ * `forgePanel/review-reads-failed` when the provider cannot complete the read.
+ */
+@Remote async reviewThreads(session: Session, url: string, signal: AbortSignal): Promise<readonly ForgeReviewThread[]>
 
 /**
  * Read the changes of a change request of a Session as its code host

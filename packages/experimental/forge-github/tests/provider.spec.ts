@@ -56,7 +56,7 @@ describe('GitHub provider addressing', () => {
 })
 
 describe('GitHub provider fetch', () => {
-  const firstPage = () => pullRequestNode(1, { commits: { nodes: [{ commit: { statusCheckRollup: {
+  const firstPage = () => pullRequestNode(1, { commits: { totalCount: 1, nodes: [{ commit: { statusCheckRollup: {
     id: 'fixed-rollup', state: 'SUCCESS', contexts: { pageInfo: { hasNextPage: true, endCursor: 'page-1' },
       nodes: Array.from({ length: 100 }, (_, index) => ({ ...checkRun('lint', 'COMPLETED', 'FAILURE'), databaseId: index + 1 })) },
   } } }] } })

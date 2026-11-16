@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Read GitHub and GitHub Enterprise pull requests for `ctx.forge` with the GitHub CLI that is already signed in on the host. Each poll batches pull requests by host to read state, changed lines, checks, review decision, mergeability, and unresolved review threads for every due pull request.
+Read GitHub and GitHub Enterprise pull requests for `ctx.forge` with the GitHub CLI that is already signed in on the host. Each poll batches pull requests by host to read state, description, commit count, changed lines, checks, review decision, mergeability, and unresolved review threads for every due pull request.
 
 ## Table of Contents
 

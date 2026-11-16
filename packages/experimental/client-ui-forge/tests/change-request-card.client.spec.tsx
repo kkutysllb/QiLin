@@ -221,7 +221,7 @@ describe('expanded ChangeRequestCard', () => {
     const b = card(value, { expanded: true })
     expect(b.item.getAttribute('data-forge-change')).toBe('https://github.com/octo/demo/pull/7')
     expect(b.item.hasAttribute('data-expanded')).toBe(true)
-    expect(metaOf(b).textContent).toBe('#7·feat → main')
+    expect(metaOf(b).textContent).toBe('#7·feat → main·4 commits')
     expect(within(b.head).getByRole('button', { name: 'Collapse #7' }).getAttribute('aria-expanded')).toBe('true')
     expect(rowValue(b.item, en['change.row.checks']).textContent).toBe(en['change.ci.none'])
     expect(within(b.item).getByText(en['change.row.checks']).closest('button')).toBeNull()
@@ -239,10 +239,26 @@ describe('expanded ChangeRequestCard', () => {
     expect(b.remove).toHaveBeenCalledWith(value)
   })
 
+  it('shows the description with the whole text on hover and hides an empty one', () => {
+    const shown = card(entry(7, snapshot(7, { body: 'A first line\nA second line\nA third line' })), { expanded: true })
+    const description = shown.head.querySelector('p')
+    expect(description?.textContent).toBe('A first line\nA second line\nA third line')
+    expect(description?.getAttribute('title')).toBe('A first line\nA second line\nA third line')
+    const hidden = card(entry(7, snapshot(7, { body: '   ' })), { expanded: true })
+    expect(hidden.head.querySelector('p')).toBeNull()
+  })
+
+  it('names a single commit in the singular', () => {
+    const one = card(entry(7, snapshot(7, { commitCount: 1 })), { expanded: true })
+    expect(metaOf(one).textContent).toBe('#7·feat → main·1 commit')
+    const none = card(entry(7, snapshot(7, { commitCount: 0 })), { expanded: true })
+    expect(metaOf(none).textContent).toBe('#7·feat → main')
+  })
+
   it('marks a draft before its branches', () => {
     const meta = metaOf(card(entry(7, snapshot(7, { draft: true })), { expanded: true }))
     expect(within(meta).getByText(en['change.state.draft'])).toBeTruthy()
-    expect(meta.textContent).toBe('#7·Draftfeat → main')
+    expect(meta.textContent).toBe('#7·Draftfeat → main·4 commits')
   })
 
   it.each([
@@ -435,7 +451,7 @@ describe('expanded ChangeRequestCard', () => {
   it('shows the branches and opens the snapshot URL of an unnumbered change request', () => {
     const b = card({ ...unserved('https://example.test/review/latest'), snapshot: snapshot(3, { url: 'https://example.test/review/latest#web' }) }, { expanded: true })
     expect(b.title.textContent).toBe('Change 3')
-    expect(metaOf(b).textContent).toBe('feat → main')
+    expect(metaOf(b).textContent).toBe('feat → main·4 commits')
     fireEvent.click(within(b.head).getByRole('button', { name: 'Remove Change 3 from this Session' }))
     expect(b.remove).toHaveBeenCalledOnce()
     fireEvent.click(within(b.head).getByRole('button', { name: en['change.view'] }))

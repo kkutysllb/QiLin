@@ -45,6 +45,7 @@ export function pullRequestNode(number: number, overrides: Record<string, unknow
     number,
     url: `https://github.com/octo/demo/pull/${number}`,
     title: `Change ${number}`,
+    body: `Description of change ${number}`,
     state: 'OPEN',
     isDraft: false,
     updatedAt: '2026-10-09T01:02:03Z',
@@ -60,6 +61,7 @@ export function pullRequestNode(number: number, overrides: Record<string, unknow
     reviewDecision: null,
     reviewThreads: { nodes: [{ isResolved: true }, { isResolved: false }, { isResolved: false }] },
     commits: {
+      totalCount: 3,
       nodes: [{
         commit: {
           statusCheckRollup: rollupState === null ? null : {

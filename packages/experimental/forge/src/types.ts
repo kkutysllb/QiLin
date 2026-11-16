@@ -67,6 +67,8 @@ export interface ChangeRequestSnapshot {
   readonly url: string
   /** Title as the author wrote it. */
   readonly title: string
+  /** Description the author wrote, empty when the change request has none. */
+  readonly body: string
   /** Lifecycle state. */
   readonly state: ChangeRequestState
   /** Whether the author marked the change request as a draft. */
@@ -79,6 +81,8 @@ export interface ChangeRequestSnapshot {
   readonly headSha: string
   /** Branch the change request merges into. */
   readonly baseBranch: string
+  /** Number of commits the change request carries. */
+  readonly commitCount: number
   /** Lines the change request adds. */
   readonly additions: number
   /** Lines the change request deletes. */

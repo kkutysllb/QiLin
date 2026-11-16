@@ -42,12 +42,14 @@ describe('snapshot mapping', () => {
       ref: pull(1),
       url: 'https://github.com/octo/demo/pull/1',
       title: 'Change 1',
+      body: 'Description of change 1',
       state: 'open',
       draft: false,
       author: 'octo',
       headBranch: 'topic-1',
       headSha: 'f'.repeat(40),
       baseBranch: 'master',
+      commitCount: 3,
       additions: 128,
       deletions: 14,
       mergeability: 'mergeable',
@@ -256,7 +258,7 @@ describe('snapshot mapping', () => {
 
   it('keeps a hidden author, drafts, and a commit without rollup', async () => {
     expect(await single(pullRequestNode(1, { isDraft: true, author: null }))).toMatchObject({ draft: true, author: null })
-    expect(await single(pullRequestNode(1, { commits: { nodes: [] } }))).toMatchObject({ checks: [], checksRollup: 'none', checksTruncated: false })
+    expect(await single(pullRequestNode(1, { commits: { totalCount: 0, nodes: [] } }))).toMatchObject({ checks: [], checksRollup: 'none', checksTruncated: false })
   })
 
   it('maps path-scoped and global errors from the partial-error response', async () => {

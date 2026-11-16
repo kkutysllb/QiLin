@@ -277,6 +277,20 @@
   outline-offset: 1px;
 }
 
+/* The author's description: two clamped lines with the whole text on hover. */
+.description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 1px 0 0;
+  color: var(--dsw-alias-label-secondary);
+  font-size: 12px;
+  line-height: 17px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 /* Number line below the title: the status while collapsed, the branches while expanded. */
 .meta {
   display: flex;

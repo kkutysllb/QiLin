@@ -70,6 +70,7 @@ const node = (number) => ({
   number,
   url: 'https://github.com/octo/demo/pull/' + number,
   title: 'Change ' + number,
+  body: 'Description ' + number,
   state: 'OPEN',
   isDraft: false,
   updatedAt: '2026-10-09T00:00:00Z',
@@ -84,7 +85,7 @@ const node = (number) => ({
   mergeStateStatus: number === 7 ? 'BLOCKED' : 'CLEAN',
   reviewDecision: null,
   reviewThreads: { nodes: [] },
-  commits: { nodes: [{ commit: { statusCheckRollup: {
+  commits: { totalCount: 1, nodes: [{ commit: { statusCheckRollup: {
     id: 'rollup-' + number, state: number === 7 ? 'PENDING' : 'SUCCESS',
     contexts: { pageInfo: { hasNextPage: false, endCursor: null }, nodes: [{
       __typename: 'CheckRun', id: 'check-1', databaseId: 1, name: 'test', status: number === 7 ? 'IN_PROGRESS' : 'COMPLETED', conclusion: number === 7 ? null : 'SUCCESS',

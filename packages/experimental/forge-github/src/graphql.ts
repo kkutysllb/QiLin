@@ -19,11 +19,11 @@ const CHECK_FIELDS = `pageInfo { hasNextPage endCursor }
     ... on StatusContext { context state targetUrl createdAt }
   }`
 
-const PULL_REQUEST_FIELDS = `number url title state isDraft updatedAt closedAt
+const PULL_REQUEST_FIELDS = `number url title body state isDraft updatedAt closedAt
   author { login }
   headRefName headRefOid baseRefName additions deletions mergeable mergeStateStatus reviewDecision
   reviewThreads(first: 100) { nodes { isResolved } }
-  commits(last: 1) { nodes { commit { statusCheckRollup { id state contexts(first: 100) {
+  commits(last: 1) { totalCount nodes { commit { statusCheckRollup { id state contexts(first: 100) {
     ${CHECK_FIELDS}
   } } } } }`
 
@@ -81,6 +81,7 @@ type RollupId = Branded<'GitHubStatusCheckRollupId'>
 const pullRequestSchema = z.object({
   url: z.string(),
   title: z.string(),
+  body: z.string(),
   state: z.enum(['OPEN', 'CLOSED', 'MERGED']),
   isDraft: z.boolean(),
   updatedAt: z.string(),
@@ -96,6 +97,7 @@ const pullRequestSchema = z.object({
   reviewDecision: z.string().nullable(),
   reviewThreads: z.object({ nodes: z.array(z.object({ isResolved: z.boolean() })) }),
   commits: z.object({
+    totalCount: z.number().int().nonnegative(),
     nodes: z.array(z.object({
       commit: z.object({
         statusCheckRollup: z.object({
@@ -349,12 +351,14 @@ function toSnapshot(
     ref,
     url: node.url,
     title: node.title,
+    body: node.body,
     state: changeRequestState(node.state),
     draft: node.isDraft,
     author: node.author?.login ?? null,
     headBranch: node.headRefName,
     headSha: node.headRefOid,
     baseBranch: node.baseRefName,
+    commitCount: node.commits.totalCount,
     additions: node.additions,
     deletions: node.deletions,
     mergeability: mergeability(node.mergeable),

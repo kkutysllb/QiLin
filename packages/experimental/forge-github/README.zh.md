@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-借助宿主上已登录的 GitHub CLI，为 `ctx.forge` 读取 GitHub 与 GitHub Enterprise 的 pull request。每次轮询按主机批量查询，读取所有到期 pull request 的状态、改动行数、检查、评审结论、可合并性与未解决的评审讨论。
+借助宿主上已登录的 GitHub CLI，为 `ctx.forge` 读取 GitHub 与 GitHub Enterprise 的 pull request。每次轮询按主机批量查询，读取所有到期 pull request 的状态、描述、提交数、改动行数、检查、评审结论、可合并性与未解决的评审讨论。
 
 ## 目录
 

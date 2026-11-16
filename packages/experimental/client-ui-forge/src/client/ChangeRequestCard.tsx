@@ -185,6 +185,14 @@ function Target({ snapshot, t }: { readonly snapshot: ChangeRequestSnapshot; rea
     <>
       {snapshot.state === 'open' && snapshot.draft && <span>{t('change.state.draft')}</span>}
       <span className={css.ellipsis}>{`${snapshot.headBranch} → ${snapshot.baseBranch}`}</span>
+      {snapshot.commitCount > 0 && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span className={css.ellipsis}>
+            {snapshot.commitCount === 1 ? t('change.commitOne') : t('change.commits', { count: snapshot.commitCount.toLocaleString('en-US') })}
+          </span>
+        </>
+      )}
     </>
   )
 }
@@ -481,6 +489,9 @@ export function ChangeRequestCard({ entry, expanded, onToggle, now, actions, loc
           >
             {snapshot?.title ?? url.replace(/^https?:\/\//i, '')}
           </a>
+          {snapshot !== null && snapshot.body.trim().length > 0 && (
+            <p className={css.description} title={snapshot.body}>{snapshot.body}</p>
+          )}
           {(number !== null || meta !== null) && (
             <div className={css.meta}>
               {number !== null && <span>{t('change.number', { number })}</span>}
