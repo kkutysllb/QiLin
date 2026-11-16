@@ -49,3 +49,12 @@ C 阶段已把 `experimental/forge`、`experimental/forge-github` 提升到 rc.3
 6. **收口**：`docs/subsystems/forge.md` 正文按上游重写（当前仍描述 C 之前契约）、面板 README 双语、Kylin 目录、覆盖率补齐（`turn-files.ts`/`ForgeTab` 等缺口随替换消失或补测）。
 
 波次 1–4 是纯增量，可随时停在绿树；波次 5 是唯一的大爆炸提交，只有在 1–4 完成后才开始。
+
+## 进度
+
+### 波次 1：primitives 增量（完成）
+
+- `QuotePreview` 扩展：新增 `QuoteSummary`、`QuotePreviewRemoval`；摘要模式把正文换成 label + 可读 title/detail + 内联 body，浮层显示 title/detail/body；移除模式把引号标记换成可聚焦的移除控件；旧调用（labels + onJump）保持不变，摘要模式不渲染复制/跳转。
+- `MarkdownText` 新增 `omitHtml`：原始 HTML 节点渲染为空，settled 与 streaming 两条路径一致，缓存失效条件包含该开关。
+- 新增产品图标 `IconLayersOutlineRegular`/`Medium`（layers-outline 100→101 个字形）。
+- 测试：新增摘要/移除/omitHtml 用例；`ui-primitives` 1,530 用例通过；两个聚合 typecheck、`oxlint`、`verify-client-ui-i18n`、`verify-export-jsdoc`、`test:docs` 21 项、双语配对全绿。

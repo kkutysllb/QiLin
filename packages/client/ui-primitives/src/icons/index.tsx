@@ -29,6 +29,24 @@ export const IconNewChatOutlineRegular = (props: IconProps) => (
   <NewChatOutlineArtwork {...props} strokeWidth={ICON_REGULAR_STROKE} />
 )
 
+const IconLayersOutlineArtwork = ({ size = 16, className, strokeWidth }: WeightedIconProps) => (
+  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M8.481371 2.304371a1.159971 1.159971 0 0 0-.962742 0L2.547971 4.566371a.580029.580029 0 0 0 0 1.0614l4.9764 2.267829a1.159971 1.159971 0 0 0 .962829 0l4.9764-2.262a.580029.580029 0 0 0 0-1.0614Z" stroke="currentColor" />
+    <path d="M2.199971 8a.580029.580029 0 0 0 .336429.527829l4.987971 2.267742a1.159971 1.159971 0 0 0 .957 0l4.9764-2.262A.580029.580029 0 0 0 13.800029 8" stroke="currentColor" />
+    <path d="M2.199971 10.899971a.580029.580029 0 0 0 .336429.527829l4.987971 2.267829a1.159971 1.159971 0 0 0 .957 0l4.9764-2.262A.580029.580029 0 0 0 13.800029 10.899971" stroke="currentColor" />
+  </svg>
+)
+
+/** Regular one-pixel IconLayersOutline artwork: stacked layers. */
+export const IconLayersOutlineRegular = (props: IconProps) => (
+  <IconLayersOutlineArtwork {...props} strokeWidth={ICON_REGULAR_STROKE} />
+)
+
+/** Medium IconLayersOutline artwork with a 1.3px stroke. */
+export const IconLayersOutlineMedium = (props: IconProps) => (
+  <IconLayersOutlineArtwork {...props} strokeWidth={ICON_MEDIUM_STROKE} />
+)
+
 /** Medium IconNewChatOutline artwork with a 1.3px stroke. */
 export const IconNewChatOutlineMedium = (props: IconProps) => (
   <NewChatOutlineArtwork {...props} strokeWidth={ICON_MEDIUM_STROKE} />

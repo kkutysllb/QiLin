@@ -74,7 +74,7 @@ export {
   projectUserText, type UserTextQuotes, type UserTextReferences, type UserTextSecretLabels,
 } from './user-text.tsx'
 export { QuotePreview } from './QuotePreview.tsx'
-export type { QuotePreviewLabels, QuotePreviewProps } from './QuotePreview.tsx'
+export type { QuotePreviewLabels, QuotePreviewProps, QuotePreviewRemoval, QuoteSummary } from './QuotePreview.tsx'
 export {
   QUOTE_WIRE_SCHEME, messageQuoteRanges, quoteBlockTextOf, quoteInsertionOf, quoteTextOf, quotedExcerptOf,
 } from './quote-text.ts'

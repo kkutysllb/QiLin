@@ -231,6 +231,8 @@ export interface MarkdownRenderContext {
    * untrusted model output gets unless it installs a sanitizer of its own.
    */
   readonly html: MarkdownHtmlRenderer | undefined
+  /** Raw HTML renders nothing instead of the renderer or literal text. */
+  readonly omitHtml?: boolean
   /** Inside an anchor's children: interactive mentions must not nest there. */
   readonly inLink?: boolean
   /** Reference targets visible to this pass. */
@@ -380,6 +382,7 @@ function renderNode(node: Md.RootContent, key: Key, context: MarkdownRenderConte
       // Without an owner-supplied renderer no HTML parser enters the pipeline:
       // raw HTML stays literal text. An owner that installs one has taken on
       // sanitizing untrusted runs itself.
+      if (context.omitHtml === true) return null
       return context.html === undefined ? node.value : context.html(node.value)
     case 'code':
       return renderCode(node, key, context)
