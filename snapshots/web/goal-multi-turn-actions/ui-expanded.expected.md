@@ -1,7 +1,6 @@
 - banner:
   - navigation "Session hierarchy":
     - button "workspace" [disabled]
-  - text: Standard mode
   - button "Open right sidebar"
 - navigation "Turn navigation":
   - button "Jump to turn 1"

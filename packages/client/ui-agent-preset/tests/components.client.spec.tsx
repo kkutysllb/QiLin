@@ -1,9 +1,8 @@
 // @vitest-environment jsdom
 /**
- * The two conversation-adjacent surfaces: the new-session chip naming the
- * next session's preset, and the session header's read-only label. The split
- * is the host's rule — a session's history is produced under its preset's
- * tools, so the choice is only ever offered before one starts.
+ * The new-session chip naming the next session's preset. The host fixes a
+ * session's preset when it starts — its history is produced under those
+ * tools — so the choice is only ever offered before one starts.
  */
 
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
@@ -12,21 +11,12 @@ import { bindSnapshotSelector } from '@qilin-agent/client-test-runtime'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { SessionRetainInfo } from '@qilin-agent/api-session-controller/client'
 import { SessionId } from '@qilin-agent/session/types'
-import { AgentPresetLabel } from '../src/client/AgentPresetLabel.tsx'
-import type { AgentPresetLabelProps } from '../src/client/AgentPresetLabel.tsx'
 import { AgentPresetSeat } from '../src/client/AgentPresetSeat.tsx'
 import type { AgentPresetSeatProps } from '../src/client/AgentPresetSeat.tsx'
-import type { AgentPresetSettingsState } from '../src/client/settings-store.ts'
 import type { AgentPresetSeatState } from '../src/client/seat-store.ts'
 import { en } from '../src/client/locales.ts'
 
 afterEach(cleanup)
-
-const ROSTER_READY: AgentPresetSettingsState = {
-  status: 'ready',
-  error: null,
-  options: [{ id: 'coding', trust: 'system', name: '标准模式' }, { id: 'mine', trust: 'user' }],
-}
 
 const SEAT_READY: AgentPresetSeatState = {
   current: 'coding',
@@ -77,26 +67,6 @@ function renderSeat(
     t: translate,
   } as unknown as AgentPresetSeatProps)} />)
   return actions
-}
-
-function renderLabel(
-  summary: { blank: boolean; projectionValues?: { agentPreset?: string | null } } | undefined,
-  roster: Partial<AgentPresetSettingsState> = {},
-) {
-  // The chip and the label read the same roster, metadata included.
-  const store = createSnapshotStore<AgentPresetSettingsState>({
-    ...ROSTER_READY, options: SEAT_READY.options, ...roster,
-  })
-  const sessions = createSnapshotStore({ byId: summary === undefined ? {} : { s1: summary } })
-  const load = vi.fn(() => Promise.resolve())
-  const view = render(<AgentPresetLabel {...({
-    load,
-    sessionId: 's1',
-    useSessions: bindSnapshotSelector(sessions),
-    useAgentPresets: bindSnapshotSelector(store),
-    t: (key: keyof typeof en) => en[key],
-  } as unknown as AgentPresetLabelProps)} />)
-  return { load, view }
 }
 
 describe('the new-session chip', () => {
@@ -313,50 +283,5 @@ describe('the chip introduce cue', () => {
 
     expect(actions.introduced).toHaveBeenCalledTimes(1)
     expect(delayedChars()).toHaveLength(0)
-  })
-})
-
-describe('the session-header label', () => {
-  it('names the preset the session runs, and never offers a switch', async () => {
-    const { load } = renderLabel({
-      blank: false,
-      projectionValues: { agentPreset: 'coding' },
-    })
-
-    await waitFor(() => { expect(load).toHaveBeenCalledTimes(1) })
-    // A control here would promise a switch the host refuses outright.
-    expect(screen.queryByRole('button')).toBeNull()
-    expect(screen.getByTitle(en.presetCodingDescription).textContent).toBe(en.presetCodingName)
-  })
-
-  it('falls back to the id, and to the generic hint, when metadata is absent', () => {
-    renderLabel({ blank: true, projectionValues: { agentPreset: 'mine' } })
-
-    expect(screen.getByTitle(en.headerHint).textContent).toBe('mine')
-  })
-
-  it('shows the id until the roster resolves it', () => {
-    renderLabel({
-      blank: false,
-      projectionValues: { agentPreset: 'coding' },
-    }, { options: [] })
-
-    // The session's own summary is the authority on which preset it runs; the
-    // roster only supplies the display name, and its arrival is a later frame.
-    expect(screen.getByTitle(en.headerHint).textContent).toBe('coding')
-  })
-
-  it('renders nothing, and reads no roster, when the session records no preset', async () => {
-    const absent = renderLabel({ blank: true })
-    expect(absent.view.container.firstChild).toBeNull()
-    cleanup()
-
-    // A session the list has not caught up to is the same answer: a deployment
-    // that composes no presets must not pay for a roster read per header.
-    const unknown = renderLabel(undefined)
-    expect(unknown.view.container.firstChild).toBeNull()
-    await act(async () => { await Promise.resolve() })
-    expect(absent.load).not.toHaveBeenCalled()
-    expect(unknown.load).not.toHaveBeenCalled()
   })
 })

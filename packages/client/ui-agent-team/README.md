@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-This package adds two Agent Teams actions to the Web conversation header: a roster popover, and a squad chip stating the agent formation and opening the Team tab. The tab draws the formation graph above the roster and shared task board, reads the Lead Session's `agentTeam` projection, and edits tasks through the Host's `agentTeams` write bridge — create, edit, complete, reopen, delete, and reassign travel as wire actions. Navigation stays on the stable addressed-subagent path. Choose it through the experimental Agent Teams Web profile. The projection does not extend the stable API Proxy, store Team state, or register model-facing input.
+This package adds one Agent Teams action to the Web conversation header: a squad chip stating the agent formation and opening the Team tab. The tab draws the formation graph above the roster and shared task board, reads the Lead Session's `agentTeam` projection, and edits tasks through the Host's `agentTeams` write bridge — create, edit, complete, reopen, delete, and reassign travel as wire actions. Navigation stays on the stable addressed-subagent path. Choose it through the experimental Agent Teams Web profile. The projection does not extend the stable API Proxy, store Team state, or register model-facing input.
 
 ## Table of Contents
 
@@ -43,7 +43,7 @@ The board below shares the hovered owner with the graph: hovering a card tints t
 
 ### Inspect and navigate the roster
 
-The panel shows the Lead Session's roster and task board from the shared Session store. Task and roster updates appear while the panel stays open. Opening the panel performs no projection requests. The panel shows a loading notice while the conversation or Session list is loading, and an unavailable notice when no Team value is present afterward.
+The page shows the Lead Session's roster from the shared Session store, and updates appear while it stays open. It shows a loading notice while the conversation or Session list is loading, and an unavailable notice when no Team value is present afterward.
 
 Roster rows show durable names and phases. Provisioning and running members use the shared ongoing loader, inactive members use a person icon, and failed members use error. Live Session status supplies running activity; the shared `modelSelection` projection supplies a model when available. The current conversation carries a Current chat tag and cannot be selected. Selecting the Lead from a teammate conversation opens the Lead Session directly. Selecting an active teammate opens its ordinary continuable child address. The Host validates the parent, child, and mode when history opens; later human prompts use the same addressed-subagent conversation.
 
@@ -51,7 +51,7 @@ Roster rows show durable names and phases. Provisioning and running members use 
 
 Ready pending tasks use idle, blocked pending tasks use warning, in-progress tasks use ongoing, and completed tasks use done.
 
-The task board shows task identity, owner, blockers, readiness, advisory write scopes, and overlap warnings. Section headings show member and task counts; an empty board shows a short description, and a lone member with no tasks uses a single-column panel. When the projection reports a rejected persisted Team record, the tab shows that failure above the last valid roster and tasks.
+The task board shows task identity, owner, blockers, readiness, advisory write scopes, and overlap warnings. Section headings show member and task counts, and an empty board shows a short description. When the projection reports a rejected persisted Team record, the tab shows that failure above the last valid roster and tasks.
 
 ### Edit tasks from the browser
 
@@ -67,16 +67,14 @@ While one write is in flight the page locks its controls and shows a busy notice
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-The Client export registers its locale dictionaries, two conversation-header slots, and the right-sidebar Team tab through Kylin effects; it mounts the `agentTeams` Remote namespace for its write bridge. Disposing the plugin fiber removes the registrations and withdraws the namespace.
+The Client export registers its locale dictionaries, the conversation-header squad chip, and the right-sidebar Team tab through Kylin effects; it mounts the `agentTeams` Remote namespace for its write bridge. Disposing the plugin fiber removes the registrations and withdraws the namespace.
 
 The squad chip and the graph read the standing `useSessions` and `useSessionStatus` seats only. `squad-model.ts` resolves the family root by walking `parentId`, collects descendants in the parent's durable `subagentCatalog` order and appends rows the catalog does not know yet, then takes each agent's label, mode, running activity, ordinal, tokens, timing, occupancy, composition, and model from the projection values. `squadBarSegments` splits one card's occupancy into the reported composition plus the free remainder, and `layoutSquad` computes the tidy tree: leaves take slots on one row per depth level and each parent centers over its children, while a leaf count above the row capacity packs level bands instead. The chip opens the tab with `ctx.sidebarRight.openTabIn(sessionId, 'agent-team')`, so no page of its own is created. `SquadFormation` measures its stage, draws the edges as one SVG behind absolutely positioned cards, and reports the hovered owner name; `TeamBody` holds that name and passes it back down, which is how a board row and its card light each other.
 
-The panel renders outside the conversation container and stays within the viewport. Member cards use the shared elevation stroke for their outlines in resting, selected, and hover states. Hovering the trigger opens the panel after 150ms; leaving both trigger and panel closes it after a 120ms grace period. Clicking the trigger pins the panel and moves focus into it. Outside clicks and Escape dismiss the panel; Escape returns focus to the trigger only when focus was inside the panel. In a narrow header, the trigger becomes an icon and opens only on click. The component derives every row from the `useSessions`, `useSessionStatus`, and `useSession` seats: the Lead identity comes from the current Session's subagent address, the Team view from `projectionsBySession[lead].values.agentTeam`, member activity from Session status with the list summary as fallback, and the model from `projectionsBySession[member].values.modelSelection.next`. Each roster row selects its own running state. The only injected callback opens a roster Session using the current and target Session ids. Switching conversations closes the panel and clears a navigation failure.
 
 | File | Role |
 |---|---|
 | [`src/client/mount.ts`](src/client/mount.ts) | Locale, tab, navigation, slot, and Remote-namespace registrations |
-| [`src/client/TeamAction.tsx`](src/client/TeamAction.tsx) | Projection-derived roster and task board popover with panel interaction state |
 | [`src/client/SquadChip.tsx`](src/client/SquadChip.tsx) | Header chip stating the Team and formation sizes and opening the Team tab |
 | [`src/client/SquadFormation.tsx`](src/client/SquadFormation.tsx) | Formation graph: agent cards, branch edges, hover neighbourhood, and card navigation |
 | [`src/client/squad-model.ts`](src/client/squad-model.ts) | Pure family, count, layout, and formatting arithmetic for the chip and graph |
@@ -85,7 +83,7 @@ The panel renders outside the conversation container and stays within the viewpo
 | [`src/client/team-page-store.ts`](src/client/team-page-store.ts) | Page busy and notice state |
 | [`src/client/team-model.ts`](src/client/team-model.ts) | Pure roster, board, and form helpers |
 | [`src/client/definition.tsx`](src/client/definition.tsx) | Sidebar tab registration and guide entry |
-| [`src/client/locales.ts`](src/client/locales.ts) | English and Chinese panel and page copy |
+| [`src/client/locales.ts`](src/client/locales.ts) | English and Chinese page copy |
 | [`src/index.ts`](src/index.ts) | Inert Host entry |
 
 </details>
@@ -122,7 +120,7 @@ No direct effect; the Team tools and ordinary conversation submission own any la
 - **Late plugin activation** — after enabling Agent Teams in an already-open conversation, reload the page to receive its Team projection.
 - **Model availability** — a model appears only when the shared store has a durable selection or request for that member. Missing cold-cache values stay absent until normal Session loading or a live update supplies them.
 - **Ordinary child continuation** — a human message sent after navigation uses the stable addressed-subagent prompt path, not the Team peer mailbox.
-- **No lifecycle or workspace controls** — the panel cannot spawn, rename, delete, or interrupt teammates, and write scopes remain advisory metadata.
+- **No lifecycle or workspace controls** — the page cannot spawn, rename, delete, or interrupt teammates, and write scopes remain advisory metadata.
 - **Claim and release stay model-owned** — the browser edits tasks through edit, complete, reopen, delete, and reassign; claim and release remain Team-agent tool actions, and the board has no drag reordering or activity stream.
 
 <a id="dev-note"></a>

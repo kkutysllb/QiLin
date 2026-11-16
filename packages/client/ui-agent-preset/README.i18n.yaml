@@ -3,20 +3,20 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-agent-preset/README.md
 /:
-  en: a5d64eca9f36cffc
-  zh: 0b016c028fc07ddf
+  en: 35aa1e82f9cacdb5
+  zh: d0e31db04ee6b464
 /qilin-agent-client-ui-agent-preset:
   en: 57cad1b674089edc
   zh: 215d74e1d8c73b51
 /qilin-agent-client-ui-agent-preset/summary:
-  en: e97266fed337406e
-  zh: 140980ece51c3f30
+  en: 283b312986777653
+  zh: 1fe3f3efceab3a56
 /qilin-agent-client-ui-agent-preset/table-of-contents:
   en: d152484eb41ac6b4
   zh: 09388d293f9be9cb
 /qilin-agent-client-ui-agent-preset/use-this-package:
-  en: f9c59efd982bf1e4
-  zh: f62ea631ba9d15e8
+  en: 7d08d07a862ab512
+  zh: a004757eb73c1bb2
 /qilin-agent-client-ui-agent-preset/use-this-package/managing-the-roster:
   en: 1e56e5a42256c2a1
   zh: 882100534f3b4780
@@ -24,11 +24,11 @@
   en: e743032afef9a238
   zh: c8de6e80bc019756
 /qilin-agent-client-ui-agent-preset/understand-the-implementation:
-  en: 00ee35776cfb1bc8
-  zh: 9be443ffb82ab5c9
+  en: 537b2857486e121f
+  zh: 00de637e5b5c8c4d
 /qilin-agent-client-ui-agent-preset/further-exploration:
-  en: cc90b6aadafd4a8c
-  zh: f902b665bfa9ad53
+  en: a40b2c17fcd4d211
+  zh: a250664f94f747ba
 /qilin-agent-client-ui-agent-preset/model-experience:
   en: 5174dc16b8930a37
   zh: 46a31904e17bd5ad

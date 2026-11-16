@@ -1,4 +1,4 @@
-/** Source-safe Agent Teams browser registration: write bridge, popover, and Team page. */
+/** Source-safe Agent Teams browser registration: write bridge, squad chip, and Team page. */
 
 import type { Context as ClientContext } from '@qilin-agent/kylin'
 import type { TypertRemoteContribution } from '@qilin-agent/typert-protocol'
@@ -12,11 +12,10 @@ import type {} from '@qilin-agent/client-ui-workspace/client'
 import type {} from '@qilin-agent/agent-team/remote'
 import type {} from '@qilin-agent/client-ui-conversation/client'
 import { TeamBody, TeamTitle } from './TeamBody.tsx'
-import { TeamAction } from './TeamAction.tsx'
 import { SquadChip } from './SquadChip.tsx'
 import { TEAM_ID, TEAM_KIND, teamDefinition } from './definition.tsx'
 import { createTeamPageStore } from './team-page-store.ts'
-import { teamOpenTeammate, teamWritesFace, type TeamWriteDeps } from './team-writes.ts'
+import { teamWritesFace, type TeamWriteDeps } from './team-writes.ts'
 import { en, NS, zh, type TeamKey } from './locales.ts'
 
 declare module '@qilin-agent/client-ui-slots' {
@@ -38,8 +37,8 @@ export const inject = ['sessions', 'uiWorkspace', 'slots', 'locale', 'remote', '
 const UI_INJECT = [...inject, 'remote.agentTeams']
 
 /**
- * Register the Team locale dictionaries, the conversation-header action, and
- * the right-Sidebar Team page. The page reads the Lead Session's `agentTeam`
+ * Register the Team locale dictionaries, the conversation-header squad chip,
+ * and the right-Sidebar Team page. The page reads the Lead Session's `agentTeam`
  * projection from the shared Session store and writes through the mounted
  * `agentTeams` Remote namespace; the registration itself performs no call.
  * @param ctx - Client Context carrying the injected services.
@@ -65,18 +64,6 @@ export function registerAgentTeamUi(ctx: ClientContext): void {
     mainViewCount: (sessionId: SessionId) => sessions.retainInfo(sessionId).getSnapshot().retainedBy.mainView ?? 0,
     openSession: (target) => { ctx.uiWorkspace.openSession(target) },
   }
-  const openTeammate = teamOpenTeammate(deps)
-
-  ctx.slots.inject(
-    'conversation.session.header.actions',
-    () => ctx.slots.register({
-      name: 'conversation.session.header.actions',
-      id: 'agent-team',
-      order: -20,
-      locale: NS,
-      inject: () => ({ openTeammate }),
-    }, TeamAction),
-  )
   // The squad chip states the formation and opens this package's Team page in
   // the right Sidebar; the page draws both the graph and the shared board.
   ctx.slots.inject(

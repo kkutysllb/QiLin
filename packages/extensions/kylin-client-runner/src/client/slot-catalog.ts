@@ -1754,8 +1754,6 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     slotInject: '',
     declaredBy: 'an entry in \'conversation.session.header\' (client-ui-conversation), so it exists while that entry is mounted',
     occupants: [
-      'client-ui-agent-preset AgentPresetLabel id \'agent-preset\'',
-      'client-ui-agent-team TeamAction id \'agent-team\'',
       'client-ui-agent-team SquadChip id \'agent-team-squad\'',
       'client-ui-jobs JobListAction id \'job-list\'',
       'client-ui-sidebar-terminal TerminalRecovery',
@@ -2116,6 +2114,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     declaredBy: 'an entry in \'root\' (client-ui-layout), so it exists while that entry is mounted',
     occupants: [
       'client-ui-conversation ConversationPanel key \'conversation\'',
+      'client-ui-model-selection ModelManagerPage',
       'client-ui-schedule TaskManagerPage',
       'client-ui-settings-mcp McpPanelPage',
     ],
@@ -3481,10 +3480,10 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     slotInject: '',
     declaredBy: 'an entry in \'sidebar\' (client-ui-sidebar), so it exists while that entry is mounted',
     occupants: [
+      'client-ui-model-selection ModelManagerNavIcon',
       'client-ui-plugin-manager PluginsNavIcon',
       'client-ui-schedule TaskManagerIcon',
       'client-ui-settings-mcp McpNavIcon',
-      'client-ui-settings-models ModelsNavIcon',
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'sidebar.panellist\', () => ctx.slots.register(\n      { name: \'sidebar.panellist\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',

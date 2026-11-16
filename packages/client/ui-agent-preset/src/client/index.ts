@@ -1,15 +1,15 @@
 /**
- * Agent-preset surface plugin, browser half — three surfaces over one roster:
- * a chip on the new-session screen for the session about to start, a
- * read-only label in the session header, and a settings section that manages
- * the roster (copy, delete, default, and the way into a preset's own files).
+ * Agent-preset surface plugin, browser half — two surfaces over one roster:
+ * a chip on the new-session screen for the session about to start, and a
+ * settings section that manages the roster (copy, delete, default, and the
+ * way into a preset's own files).
  *
  * A running session keeps the composition it began with (the host refuses to
- * adopt an existing session under a different preset). That is what splits
- * the choice from the display: the hero chip is before-the-fact, while the
- * header only reports what a session already runs. The default preset is
- * edited where the roster is visible — the settings section's "make default"
- * — so General settings carries no duplicate control for the same field.
+ * adopt an existing session under a different preset), so the choice is
+ * before-the-fact and lives on the new-session screen alone. The default
+ * preset is edited where the roster is visible — the settings section's
+ * "make default" — so General settings carries no duplicate control for the
+ * same field.
  */
 
 // Type-only: pulls the Session Controller service merge (ctx.sessions).
@@ -29,8 +29,6 @@ import type {} from '@qilin-agent/client-ui-workspace/client'
 // Type-only: pulls the plugin page's SlotMap merge (the 'plugins.add.actions' entry).
 import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import type { Context as ClientContext } from '@qilin-agent/kylin'
-import { AgentPresetLabel } from './AgentPresetLabel.tsx'
-import type { AgentPresetLabelInjected } from './AgentPresetLabel.tsx'
 import { AgentPresetSeat } from './AgentPresetSeat.tsx'
 import type { AgentPresetSeatInjected } from './AgentPresetSeat.tsx'
 import { CreatePluginMenuItem } from './CreatePluginMenuItem.tsx'
@@ -50,7 +48,6 @@ declare module '@qilin-agent/client-ui-slots' {
   }
 }
 
-export type { AgentPresetLabelInjected, AgentPresetLabelProps } from './AgentPresetLabel.tsx'
 export type { AgentPresetSeatInjected, AgentPresetSeatProps } from './AgentPresetSeat.tsx'
 export type { AgentPresetSectionInjected, AgentPresetSectionProps } from './AgentPresetSection.tsx'
 export type { AgentPresetSeatState } from './seat-store.ts'
@@ -165,11 +162,6 @@ export function apply(ctx: ClientContext): void {
       }
     }
 
-    const labelInjected = (): AgentPresetLabelInjected => ({
-      hooks: { agentPresets: controller.store },
-      load: () => controller.load(),
-    })
-
     // One creator flow, two entries: the settings section's creator button and
     // the plugin page's 让 Agent 创建插件 menu item both stage the
     // self-referential preset and land a new session on it. Nothing reaches
@@ -191,14 +183,6 @@ export function apply(ctx: ClientContext): void {
         locale: 'settings.agentPreset',
         inject: seatInjected,
       }, AgentPresetSeat)
-      const label = scope.slots.register({
-        name: 'conversation.session.header.actions',
-        id: 'agent-preset',
-        // Static session context occupies the header's leading negative-order band.
-        order: -10,
-        locale: 'settings.agentPreset',
-        inject: labelInjected,
-      }, AgentPresetLabel)
       const createPlugin = scope.slots.inject('plugins.add.actions', () => scope.slots.register({
         name: 'plugins.add.actions',
         id: 'create-plugin',
@@ -212,10 +196,9 @@ export function apply(ctx: ClientContext): void {
       return () => {
         creatorDraft = undefined
         chip()
-        label()
         createPlugin()
       }
-    }, 'ui-agent-preset: new-session chip and header label')
+    }, 'ui-agent-preset: new-session chip and plugins menu item')
   })
 
   /** Capture the exact blank Session one Settings action may update. */

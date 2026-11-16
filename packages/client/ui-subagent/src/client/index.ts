@@ -84,8 +84,8 @@ export function apply(ctx: ClientContext): void {
     () => ctx.slots.register({
       name: 'conversation.session.header.actions',
       id: 'subagent-catalog',
-      // After the task list: the preset label leads, running work follows,
-      // and delegation navigation closes the band.
+      // After the task list: running work follows, and delegation navigation
+      // closes the band.
       order: 30,
       locale: NS,
       inject: catalogActions,

@@ -1,7 +1,6 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Reply with a one-sentence description" [disabled]
-  - text: Standard mode
   - button "Open right sidebar"
 - navigation "Turn navigation":
   - button "Jump to turn 1"
