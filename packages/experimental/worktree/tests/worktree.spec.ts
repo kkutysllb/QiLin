@@ -645,6 +645,56 @@ it('does not remove a registration when its directory reappears during restorati
   } finally { probe.mockRestore() }
 })
 
+describe('archive release', () => {
+  it('removes the clean checkout of an archived session and keeps its branch', async () => {
+    const root = await repo()
+    ctx = await harness(root)
+    const agent = testAgent(ctx, root)
+    const created = await ctx.worktrees.create(agent, { name: 'archived' })
+
+    await ctx.parallel('workspace/session-archived', { sessionId: agent.session.id })
+
+    await expect(access(created.path)).rejects.toMatchObject({ code: 'ENOENT' })
+    expect(await git(root, 'branch', '--list', 'archived')).toContain('archived')
+    expect(await git(root, 'worktree', 'list', '--porcelain')).not.toContain(created.path)
+  })
+
+  it('keeps a checkout that still holds local changes', async () => {
+    const root = await repo()
+    ctx = await harness(root)
+    const agent = testAgent(ctx, root)
+    const created = await ctx.worktrees.create(agent, { name: 'dirty' })
+    await writeFile(join(created.path, 'untracked.txt'), 'kept\n')
+    const warn = vi.spyOn(ctx.logger, 'warn').mockImplementation(() => {})
+
+    await ctx.parallel('workspace/session-archived', { sessionId: agent.session.id })
+
+    expect(existsSync(created.path)).toBe(true)
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('keeping'))
+  })
+
+  it('keeps every checkout when retainOnArchive is set', async () => {
+    const root = await repo()
+    ctx = await harness(root, { retainOnArchive: true })
+    const agent = testAgent(ctx, root)
+    const created = await ctx.worktrees.create(agent, { name: 'retained' })
+
+    await ctx.parallel('workspace/session-archived', { sessionId: agent.session.id })
+
+    expect(existsSync(created.path)).toBe(true)
+    expect(await git(root, 'worktree', 'list', '--porcelain')).toContain(created.path)
+  })
+
+  it('leaves a session without owned checkouts alone', async () => {
+    const root = await repo()
+    ctx = await harness(root)
+    const agent = testAgent(ctx, root)
+
+    await ctx.parallel('workspace/session-archived', { sessionId: agent.session.id })
+    expect(await readdir(root)).toEqual(['.git', 'tracked.txt'])
+  })
+})
+
 describe('command deadlines', () => {
   it('runs one command under the deadline its caller passes', async () => {
     const root = await repo()

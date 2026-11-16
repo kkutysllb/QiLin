@@ -3,10 +3,13 @@
 import { Context, Service } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
 import type { Agent } from '@qilin-agent/agent'
+import type { Session, SessionId } from '@qilin-agent/session'
 import type {} from '@qilin-agent/fs'
 import type { SandboxExecutionPolicy } from '@qilin-agent/sandbox'
 import type {} from '@qilin-agent/sandbox-policy'
 import type {} from '@qilin-agent/working-directory'
+// Type-only: pulls the Workspace registry's archive-release event into this program.
+import type {} from '@qilin-agent/workspace'
 import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
 import { PREPARE_DIRECTORY } from './directory.ts'
 import { generatedWorktreeName } from './name.ts'
@@ -45,6 +48,13 @@ export interface Config {
   graceMs?: number
   /** Maximum captured bytes per subprocess output stream. */
   maxOutputBytes?: number
+  /**
+   * Keep a Session's created checkouts when that Session is archived. By
+   * default an archive removes the checkouts this process still owns but the
+   * branches and commits stay; a checkout with uncommitted or untracked files
+   * always stays, because removal is never forced.
+   */
+  retainOnArchive?: boolean
 }
 
 type ResolvedConfig = Required<Config> & ProcessConfig
@@ -69,6 +79,9 @@ function relativePath(value: string): boolean {
     && value.split('/').every(part => part.length > 0 && part !== '.' && part !== '..')
 }
 
+/** What releasing one owned checkout after archive needs. */
+type OwnedCheckout = Pick<CreatedWorktree, 'path' | 'branch' | 'baseCommit' | 'repositoryRoot'>
+
 /** Creates retained Git worktrees under the mounted filesystem and sandbox providers. */
 export class WorktreeService extends Service {
   static inject = ['workingDirectory', 'fs', 'subprocess', 'sandbox', 'sandboxPolicy']
@@ -82,11 +95,14 @@ export class WorktreeService extends Service {
     createTimeoutMs: z.number().default(300_000),
     graceMs: z.number().default(3_000),
     maxOutputBytes: z.number().default(65_536),
+    retainOnArchive: z.boolean().default(false),
   })
 
   private readonly config: ResolvedConfig
   private readonly lifetime = new AbortController()
   private readonly pending = new Set<Promise<unknown>>()
+  /** Checkouts this process created or restored, by owning Session. */
+  private readonly owned = new Map<SessionId, Map<string, OwnedCheckout>>()
 
   constructor(ctx: Context, config: Config) {
     super(ctx, 'worktrees')
@@ -108,6 +124,7 @@ export class WorktreeService extends Service {
       this.lifetime.abort(new Error('worktree service disposed'))
       await Promise.allSettled(this.pending)
     })
+    ctx.on('workspace/session-archived', async ({ sessionId }) => { await this.archiveCleanup(sessionId) })
   }
 
   /**
@@ -134,7 +151,9 @@ export class WorktreeService extends Service {
     const operation = this.createCheckout(agent, this.resolve(agent, request), operationSignal, onPhase)
     this.pending.add(operation)
     try {
-      return await operation
+      const created = await operation
+      this.record(agent.session.id, created)
+      return created
     } finally {
       this.pending.delete(operation)
     }
@@ -165,7 +184,11 @@ export class WorktreeService extends Service {
     const operation = this.restoreCheckout(agent, request, operationSignal, onPhase)
     this.pending.add(operation)
     try {
-      return await operation
+      const restored = await operation
+      this.record(agent.session.id, {
+        path: request.path, branch: request.branch, baseCommit: request.baseCommit, repositoryRoot: request.repositoryRoot,
+      })
+      return restored
     } finally {
       this.pending.delete(operation)
     }
@@ -193,23 +216,25 @@ export class WorktreeService extends Service {
   ): Promise<RemovedWorktree> {
     const operationSignal = signal === undefined ? this.lifetime.signal : AbortSignal.any([this.lifetime.signal, signal])
     operationSignal.throwIfAborted()
-    const operation = this.removeCheckout(agent, request, operationSignal, onPhase)
+    const operation = this.removeCheckout(agent.session, request, operationSignal, onPhase)
     this.pending.add(operation)
     try {
-      return await operation
+      const removed = await operation
+      this.forget(agent.session.id, request.path)
+      return removed
     } finally {
       this.pending.delete(operation)
     }
   }
 
   private async removeCheckout(
-    agent: Agent,
+    session: Session,
     { path, branch, baseCommit, repositoryRoot, deleteBranch = false }: RemoveWorktreeRequest,
     signal: AbortSignal,
     onPhase: ((phase: CreateWorktreePhase) => void) | undefined,
   ): Promise<RemovedWorktree> {
     onPhase?.('prepare')
-    const policy = this.ctx.sandboxPolicy.resolve({ session: agent.session })
+    const policy = this.ctx.sandboxPolicy.resolve({ session })
     const run = this.gitRunner(policy, signal)
     const root = await this.ctx.fs.resolve(repositoryRoot, { signal })
     const pool = await this.ctx.fs.resolve(this.config.directory, { cwd: repositoryRoot, signal })
@@ -346,6 +371,46 @@ export class WorktreeService extends Service {
     } catch (error) {
       throw new Error(`Could not restore worktree ${branch} at ${path}. Any created checkout and branch are retained. ${error instanceof Error ? error.message : String(error)}`, { cause: error })
     }
+  }
+
+  /** Remember one checkout this process owns, so archiving its Session can release it. */
+  private record(sessionId: SessionId, checkout: OwnedCheckout): void {
+    const checkouts = this.owned.get(sessionId)
+    if (checkouts === undefined) this.owned.set(sessionId, new Map([[checkout.path, checkout]]))
+    else checkouts.set(checkout.path, checkout)
+  }
+
+  /** Forget one checkout the Session no longer owns. */
+  private forget(sessionId: SessionId, path: string): void {
+    const checkouts = this.owned.get(sessionId)
+    if (checkouts === undefined) return
+    checkouts.delete(path)
+    if (checkouts.size === 0) this.owned.delete(sessionId)
+  }
+
+  /**
+   * Release the checkouts this process still owns after a Session is archived.
+   * Branches and commits stay. A checkout with uncommitted or untracked files
+   * stays because removal is never forced, and a Session no longer loaded
+   * leaves its checkouts untouched because without its policy the removal
+   * cannot be confined. Every other failure is logged and keeps that checkout.
+   * @param sessionId - the Session whose archived checkouts are released.
+   */
+  private async archiveCleanup(sessionId: SessionId): Promise<void> {
+    if (this.config.retainOnArchive) return
+    const checkouts = this.owned.get(sessionId)
+    if (checkouts === undefined) return
+    const session = this.ctx.get('sessions')?.get(sessionId) ?? this.ctx.get('agents')?.get(sessionId)?.session
+    for (const checkout of [...checkouts.values()]) {
+      try {
+        if (session === undefined) throw new Error('its Session is no longer loaded, so the removal cannot be confined')
+        await this.removeCheckout(session, { ...checkout, deleteBranch: false }, this.lifetime.signal, undefined)
+        checkouts.delete(checkout.path)
+      } catch (error: unknown) {
+        this.ctx.logger.warn(`worktree: keeping '${checkout.path}' of archived session '${sessionId}': ${String(error)}`)
+      }
+    }
+    if (checkouts.size === 0) this.owned.delete(sessionId)
   }
 
   /** Confine Git commands to the caller's sandbox policy, with hooks and the filesystem monitor disabled. */

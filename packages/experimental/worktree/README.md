@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Create an isolated checkout from a local commit and continue the same Session in it. Each operation creates a new named branch and leaves the source checkout intact. The existing sandbox governs all writes. Leaving the checkout retains its files and branch.
+Create an isolated checkout from a local commit and continue the same Session in it. Each operation creates a new named branch and leaves the source checkout intact. The existing sandbox governs all writes. Leaving the checkout retains its files and branch. Archiving the Session that owns a checkout created in this process removes that checkout and keeps its branch and commits; a checkout with uncommitted or untracked files stays because removal is never forced, and `retainOnArchive` keeps every checkout.
 
 ## Table of Contents
 

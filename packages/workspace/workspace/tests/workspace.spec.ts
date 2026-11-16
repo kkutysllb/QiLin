@@ -1024,6 +1024,29 @@ describe('registry-global session archive', () => {
     expect(order).toEqual([])
   })
 
+  it('reports the durable archive to providers after any stop, and a failing listener does not undo it', async () => {
+    const dir = await makeDir('archive-release')
+    const result = await harness({ sessions: [header('busy', dir, 100)] })
+    const order: string[] = []
+    result.ctx.on('workspace/session-stop', ({ sessionId }) => { order.push(`stop:${sessionId}`) })
+    result.ctx.on('workspace/session-archived', ({ sessionId }) => { order.push(`released:${sessionId}`) })
+    result.ctx.on('workspace/session-archived', () => { throw new Error('release exploded') })
+    result.ctx.on('domain/changed', (change) => { if (change.table === '') order.push('write') })
+    const warn = vi.spyOn(result.ctx.logger, 'warn').mockImplementation(() => {})
+
+    await result.registry.archiveSession(SessionId('busy'), { stopActivity: true })
+    expect(result.registry.archivedSessionIds).toEqual(['busy'])
+    expect(storedState(result.pool).archivedSessionIds).toEqual(['busy'])
+    // The archive write lands first, then stops, then the release report.
+    expect(order).toEqual(['write', 'stop:busy', 'released:busy'])
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('release exploded'))
+
+    // A repeat resolves before reporting anything again.
+    order.length = 0
+    await result.registry.archiveSession(SessionId('busy'), { stopActivity: true })
+    expect(order).toEqual([])
+  })
+
   it('asks about activity only after the session is known, and archives when every listener delegates', async () => {
     const dir = await makeDir('archive-quiet')
     const result = await harness({ sessions: [header('known', dir, 100)] })
