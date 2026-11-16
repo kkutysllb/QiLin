@@ -23,7 +23,7 @@ import { fileAddressFor, pathPartsOf } from '@qilin-agent/util-workspace-path'
 import type {
   ForgeChangeRequestDiff, ForgeDiffFile, ForgeLocalDiff, ForgeLocalScope, ForgePanelChangeRequest, ForgePanelState,
 } from '../types.ts'
-import type { ForgeReviewRequest, ForgeReviewResult } from '@qilin-agent/experimental-forge/types'
+import type { ForgeReviewRequest, ForgeReviewResult, ForgeReviewThread } from '@qilin-agent/experimental-forge/types'
 import { sameReviewSource, type ReviewQueue } from './review-queue.ts'
 import { ReviewThread, useFileReview } from './ReviewThread.tsx'
 import type { ReviewActions } from './ReviewComposer.tsx'
@@ -66,6 +66,8 @@ export interface ChangesTabInjected {
   readonly localText: (scope: ForgeLocalScope, path: string) => Promise<RemoteResult<string>>
   /** Read the changes of a change request by its binding URL; `signal` aborts the read. */
   readonly changeRequestDiff: (url: string, signal: AbortSignal) => Promise<RemoteResult<ForgeChangeRequestDiff>>
+  /** Read the review threads the code host holds; omitted when the composition exposes no review reads. */
+  readonly changeRequestReviewThreads?: (url: string, signal: AbortSignal) => Promise<RemoteResult<readonly ForgeReviewThread[]>>
   /** Read one file of a change request at a commit. */
   readonly changeRequestText: (url: string, commit: string, path: string) => Promise<RemoteResult<string>>
   /** Open a URL outside the app. */
@@ -124,6 +126,7 @@ const LARGE_FILE_LINES = 1000
 const OPEN_LINES = 5000
 
 const NO_GAPS: ReadonlySet<number> = new Set()
+const NO_THREADS: readonly ForgeReviewThread[] = []
 
 const SCOPE_LABEL: Record<ScopeKind, ForgePanelKey> = {
   branch: 'diff.scope.branch',
@@ -338,7 +341,7 @@ function OrphanReviews({ path, actions, t }: PropsLocale<typeof NS> & {
  */
 export function ChangesTab({
   useTabInfo, sessionId, useStore, actions, usePanel, reconnect, localDiff, localText, changeRequestDiff, changeRequestText,
-  openLink, copyPath, createChangeRequest, addReviewToInput, reviewQueue, submitReview, report, t,
+  changeRequestReviewThreads, openLink, copyPath, createChangeRequest, addReviewToInput, reviewQueue, submitReview, report, t,
 }: ChangesTabProps): ReactNode {
   const { tab } = useTabInfo()
   const { navigation, signal } = tab
@@ -448,6 +451,37 @@ export function ChangesTab({
   }, [tab.visible, read, source, scope, checkoutCommit, dataKey, localDiff, changeRequestDiff])
   const data = loaded !== null && loaded.key === dataKey ? loaded.data : null
   const files = useMemo(() => filesInTreeOrder(changedFileTree(data?.files ?? [])), [data])
+  // Review threads the code host holds on the change request, grouped by file.
+  const [remoteThreads, setRemoteThreads] = useState<Readonly<Record<string, readonly ForgeReviewThread[]>>>({})
+  const loadRemoteThreads = useRef(changeRequestReviewThreads)
+  useEffect(() => { loadRemoteThreads.current = changeRequestReviewThreads })
+  const reviewUrl = data?.kind === 'change' ? data.url : null
+  const reviewHead = data?.kind === 'change' ? data.headSha : null
+  useEffect(() => {
+    const load = loadRemoteThreads.current
+    if (reviewUrl === null || reviewHead === null || !tab.visible || load === undefined) {
+      setRemoteThreads({})
+      return
+    }
+    const controller = new AbortController()
+    void (async () => {
+      try {
+        const result = await load(reviewUrl, controller.signal)
+        if (controller.signal.aborted) return
+        if (!result.ok) {
+          setRemoteThreads({})
+          return
+        }
+        const byPath: Record<string, ForgeReviewThread[]> = {}
+        for (const thread of result.value) (byPath[thread.path] ??= []).push(thread)
+        setRemoteThreads(byPath)
+      } catch (error) {
+        void error // Reading host reviews is optional; the local queue and the diff stay usable without them.
+        if (!controller.signal.aborted) setRemoteThreads({})
+      }
+    })()
+    return () => { controller.abort() }
+  }, [reviewUrl, reviewHead, tab.visible])
   // The centered loader marks a first read; the toolbar's glyph turns only while shown changes are read again.
   const rereading = read !== null && finished !== read && data !== null
   const failed = failure !== null && failure.key === dataKey ? failure.code : null
@@ -627,6 +661,7 @@ export function ChangesTab({
               key={path}
               visible={tab.visible}
               file={file}
+              remote={remoteThreads[path] ?? NO_THREADS}
               review={{ source: data.kind === 'local' ? { kind: 'local', scope: data.scope } : { kind: 'change', url: data.url, headSha: data.headSha },
                 addToInput: addReviewToInput,
                 records: queue, openLink, reviewStarted: reviewState.comments.length > 0,

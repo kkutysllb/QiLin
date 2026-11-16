@@ -5,7 +5,9 @@ import z from '@qilin-agent/schemastery'
 import type { Agent } from '@qilin-agent/agent'
 import type {} from '@qilin-agent/api-remote-access'
 import { changeRequestKey } from '@qilin-agent/experimental-forge'
-import type { ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeReviewRequest, ForgeReviewResult, MergeMethod } from '@qilin-agent/experimental-forge'
+import type {
+  ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeReviewRequest, ForgeReviewResult, ForgeReviewThread, MergeMethod,
+} from '@qilin-agent/experimental-forge'
 import type { SessionChangeRequest } from '@qilin-agent/experimental-forge-session'
 import type {} from '@qilin-agent/experimental-worktree'
 import { appendPluginRecord } from '@qilin-agent/session'
@@ -302,6 +304,24 @@ export class ForgePanelController extends TypertRemoteService {
     this.bound(session, url)
     if ('code' in result) throw new RemoteError('forgePanel/checks-failed', result.message, {})
     if (result.headSha !== headSha) throw new RemoteError('forgePanel/stale-head', 'The change request head changed; refresh its status', {})
+    return result
+  }
+
+  /**
+   * Read the review threads of a change request of a Session, which the
+   * changes view shows at the lines each thread is anchored to.
+   * @param session - Session the change request is bound to.
+   * @param url - binding URL of the change request.
+   * @param signal - request cancellation.
+   * @returns the threads in host order, empty when the provider exposes no review reads.
+   * @throws `forgePanel/not-bound` unless the URL is a visible binding of the Session that a provider serves;
+   * `forgePanel/review-reads-failed` when the provider cannot complete the read.
+   */
+  @Remote
+  async reviewThreads(session: Session, url: string, signal: AbortSignal): Promise<readonly ForgeReviewThread[]> {
+    signal.throwIfAborted()
+    const result = await this.home.forge.reviewThreads(this.bound(session, url).ref, signal)
+    if ('code' in result) throw new RemoteError('forgePanel/review-reads-failed', result.message, {})
     return result
   }
 

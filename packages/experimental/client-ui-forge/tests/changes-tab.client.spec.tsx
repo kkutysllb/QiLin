@@ -4,6 +4,7 @@ import { useSyncExternalStore } from 'react'
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PaneId, SidebarRightTabActions, SidebarRightTabInfo, TabId } from '@qilin-agent/client-ui-sidebar-right/client'
+import type { ForgeReviewThread } from '@qilin-agent/experimental-forge/types'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { SessionId } from '@qilin-agent/session/types'
@@ -128,8 +129,9 @@ function navigationParams(params: ChangesParams | undefined): SidebarRightTabInf
 /** A promise the test settles by hand. */
 function deferred<T>() {
   let settle: (value: T) => void = () => {}
-  const promise = new Promise<T>((resolve) => { settle = resolve })
-  return { promise, settle }
+  let fail: (reason: unknown) => void = () => {}
+  const promise = new Promise<T>((resolve, reject) => { settle = resolve; fail = reject })
+  return { promise, settle, fail }
 }
 
 /** Test-local selector hook over a framework-neutral store instance. */
@@ -144,7 +146,9 @@ async function settle(): Promise<void> {
   await act(async () => { await new Promise(resolve => setTimeout(resolve, 0)) })
 }
 
-type Faces = { -readonly [K in Exclude<keyof ChangesTabInjected, 'keyedHooks'>]: ReturnType<typeof vi.fn<ChangesTabInjected[K]>> }
+type Faces = {
+  -readonly [K in Exclude<keyof ChangesTabInjected, 'keyedHooks'>]: ReturnType<typeof vi.fn<NonNullable<ChangesTabInjected[K]>>>
+}
 
 interface MountOptions {
   readonly translate?: typeof t
@@ -204,6 +208,7 @@ function mount(options: MountOptions = {}) {
     localDiff: vi.fn<ChangesTabInjected['localDiff']>(async () => ok(LOCAL)),
     localText: vi.fn<ChangesTabInjected['localText']>(async () => ok(APP_TEXT)),
     changeRequestDiff: vi.fn<ChangesTabInjected['changeRequestDiff']>(async () => ok(CHANGE)),
+    changeRequestReviewThreads: vi.fn<NonNullable<ChangesTabInjected['changeRequestReviewThreads']>>(async () => ok([])),
     changeRequestText: vi.fn<ChangesTabInjected['changeRequestText']>(async () => ok(APP_TEXT)),
     openLink: vi.fn<ChangesTabInjected['openLink']>(),
     copyPath: vi.fn<ChangesTabInjected['copyPath']>(),
@@ -761,6 +766,84 @@ describe('ChangesTab layout', () => {
     expect(wrap.getAttribute('aria-pressed')).toBe('false')
     expect(code?.hasAttribute('data-wrap')).toBe(false)
     expect(m.store.getSnapshot().byTab[TAB]).toMatchObject({ split: false, wrap: false })
+  })
+
+  it('draws the review threads the code host holds on their lines', async () => {
+    const m = mount({ source: { kind: 'change', url: URL7 }, setup: (faces) => {
+      faces.changeRequestReviewThreads.mockResolvedValue(ok([
+        {
+          id: 'T1', path: 'src/app.ts', side: 'R', startLine: 3, endLine: 4,
+          author: 'octocat', body: 'Host note', resolved: false, outdated: false,
+        },
+        {
+          id: 'T2', path: 'src/app.ts', side: 'R', startLine: 90, endLine: 90,
+          author: null, body: 'Resolved note', resolved: true, outdated: false,
+        },
+        {
+          id: 'T3', path: 'docs/gone.txt', side: 'L', startLine: 1, endLine: 1,
+          author: null, body: 'Deleted-line note', resolved: false, outdated: true,
+        },
+      ]))
+    } })
+    await settle()
+    const section = m.section('src/app.ts')
+    expect(m.faces.changeRequestReviewThreads).toHaveBeenCalledTimes(1)
+    const anchored = section.querySelector('[data-forge-remote-thread="T1"]')
+    expect(anchored?.textContent).toContain('octocat')
+    expect(anchored?.textContent).toContain('Host note')
+    expect(anchored?.textContent).toContain('R3–4')
+    // A thread whose line the file no longer draws keeps its text at the end, resolved in this case.
+    expect(section.querySelector('[data-forge-remote-thread="T2"]')?.textContent).toContain('Resolved note')
+    expect(section.textContent).toContain(en['review.resolved'])
+    // A deleted line anchors a left-side thread, whose author and outdated state come from the host.
+    const deleted = m.section('docs/gone.txt').querySelector('[data-forge-remote-thread="T3"]')
+    expect(deleted?.textContent).toContain('Deleted-line note')
+    expect(deleted?.textContent).toContain(en['review.remoteAuthor'])
+    expect(deleted?.textContent).toContain(en['review.outdated'])
+  })
+
+  it('drops host review reads that report a failure', async () => {
+    const m = mount({ source: { kind: 'change', url: URL7 }, setup: (faces) => {
+      faces.changeRequestReviewThreads.mockResolvedValue({ ok: false, error: new RemoteError('forgePanel/review-reads-failed', 'unavailable', {}) })
+    } })
+    await settle()
+    expect(m.section('src/app.ts').querySelector('[data-forge-remote-thread]')).toBeNull()
+  })
+
+  it('ignores host review reads that settle after the tab hides', async () => {
+    const pending = deferred<RemoteResult<readonly ForgeReviewThread[]>>()
+    const m = mount({ source: { kind: 'change', url: URL7 }, setup: (faces) => {
+      faces.changeRequestReviewThreads.mockReturnValue(pending.promise)
+    } })
+    await settle()
+    act(() => { m.visibility.set(false) })
+    pending.settle(ok([{
+      id: 'T1', path: 'src/app.ts', side: 'R', startLine: 4, endLine: 4,
+      author: 'octocat', body: 'Late note', resolved: false, outdated: false,
+    }]))
+    await settle()
+    expect(m.section('src/app.ts').querySelector('[data-forge-remote-thread]')).toBeNull()
+  })
+
+  it('ignores a host review read that fails after the tab hides', async () => {
+    const pending = deferred<RemoteResult<readonly ForgeReviewThread[]>>()
+    const m = mount({ source: { kind: 'change', url: URL7 }, setup: (faces) => {
+      faces.changeRequestReviewThreads.mockReturnValue(pending.promise)
+    } })
+    await settle()
+    act(() => { m.visibility.set(false) })
+    pending.fail(new Error('review reads unavailable'))
+    await settle()
+    expect(m.section('src/app.ts').querySelector('[data-forge-remote-thread]')).toBeNull()
+  })
+
+  it('keeps the local review queue usable when host review reads fail', async () => {
+    const m = mount({ source: { kind: 'change', url: URL7 }, setup: (faces) => {
+      faces.changeRequestReviewThreads.mockRejectedValue(new Error('review reads unavailable'))
+    } })
+    await settle()
+    expect(m.section('src/app.ts').querySelector('[data-forge-remote-thread]')).toBeNull()
+    expect(m.paths()).toEqual(['docs/gone.txt', 'docs/notes.txt', 'src/app.ts'])
   })
 
   it('collapses and expands a file, and starts large files behind a notice and files past the line budget collapsed', async () => {

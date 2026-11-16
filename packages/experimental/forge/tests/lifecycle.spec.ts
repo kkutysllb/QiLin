@@ -120,7 +120,7 @@ it('does not announce provider withdrawal after its registry has stopped', async
   expect(observer).toHaveBeenCalledTimes(1)
 })
 
-it.each(['readiness', 'markReady', 'merge', 'diff', 'fileText', 'submitReview', 'fetchChecks'] as const)(
+it.each(['readiness', 'markReady', 'merge', 'diff', 'fileText', 'submitReview', 'fetchChecks', 'reviewThreads'] as const)(
   'cancels and drains %s when its provider stops', async (method) => {
     ctx = await forgeContext()
     const provider: ForgeProvider = new FakeProvider()
@@ -141,11 +141,13 @@ it.each(['readiness', 'markReady', 'merge', 'diff', 'fileText', 'submitReview', 
     vi.spyOn(provider, 'fileText').mockImplementation(async (_ref, _commit, _path, signal) => { await hold(signal); return 'file' })
     provider.submitReview = async (_ref, _request, signal) => { await hold(signal); return { ok: true, url: 'https://fake.test/review' } }
     provider.fetchChecks = async (target, signal) => { await hold(signal); return snapshot(target) }
+    provider.reviewThreads = async (_ref, signal) => { await hold(signal); return [] }
     const fiber = await provide(ctx, provider)
     const service = ctx.forge
     const signal = new AbortController().signal
     const calls = {
       fetchChecks: () => service.fetchChecks(ref(1), signal),
+      reviewThreads: () => service.reviewThreads(ref(1), signal),
       submitReview: () => service.submitReview(ref(1), { kind: 'review', headSha: 'a'.repeat(40), event: 'approve', body: '', comments: [] }, signal),
       readiness: () => service.readiness(demo, signal),
       markReady: () => service.markReady(ref(1), signal),

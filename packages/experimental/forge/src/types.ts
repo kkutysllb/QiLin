@@ -108,6 +108,28 @@ export interface ChangeRequestSnapshot {
   readonly closedAt: string | null
 }
 
+/** One review thread a code host holds on a change request's diff. */
+export interface ForgeReviewThread {
+  /** Stable host identity of the thread. */
+  readonly id: string
+  /** File the thread is anchored to, relative to the repository root. */
+  readonly path: string
+  /** Side of the diff the anchored lines belong to. */
+  readonly side: 'L' | 'R'
+  /** First anchored line on that side. */
+  readonly startLine: number
+  /** Last anchored line on that side. */
+  readonly endLine: number
+  /** Author login of the thread's first comment, or null when the host hides it. */
+  readonly author: string | null
+  /** The thread's comments in host order, joined as plain text. */
+  readonly body: string
+  /** Whether the host marks the thread resolved. */
+  readonly resolved: boolean
+  /** Whether the host marks the thread outdated against the current head. */
+  readonly outdated: boolean
+}
+
 /** Why a provider could not read a change request. */
 export interface ForgeFailure {
   /**
@@ -193,6 +215,8 @@ export interface ForgeProvider {
   readonly forge: string
   /** Publish a comment or completed review. Omission declares that this provider cannot write reviews. */
   submitReview?(ref: ChangeRequestRef, request: ForgeReviewRequest, signal: AbortSignal): Promise<ForgeReviewResult>
+  /** Read the review threads the change request's diff holds. Omission declares that this provider cannot read reviews. */
+  reviewThreads?(ref: ChangeRequestRef, signal: AbortSignal): Promise<readonly ForgeReviewThread[] | ForgeFailure>
   /** Map a Git remote URL to its repository, or undefined when this provider does not serve it. */
   repositoryFromRemote(url: string): ForgeRepository | undefined
   /** Map a change request web URL to its reference, or undefined when this provider does not serve it. */

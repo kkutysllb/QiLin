@@ -7,7 +7,8 @@ import { changeRequestKey } from './keys.ts'
 import { nextPollDelay } from './schedule.ts'
 import type {
   ChangeRequestKey, ChangeRequestListener, ChangeRequestRef, ChangeRequestSnapshot, ChangeRequestUpdate, Config,
-  ForgeActionFailure, ForgeFailure, ForgeProvider, ForgeReadiness, ForgeRepository, ForgeReviewRequest, ForgeReviewResult, MergeRequest,
+  ForgeActionFailure, ForgeFailure, ForgeProvider, ForgeReadiness, ForgeRepository, ForgeReviewRequest, ForgeReviewResult,
+  ForgeReviewThread, MergeRequest,
 } from './types.ts'
 
 export { changeRequestKey } from './keys.ts'
@@ -219,6 +220,20 @@ export class ForgeService extends Service {
       (provider, operation) => provider.merge(ref, request, operation))
     this.refresh(ref)
     return failure
+  }
+
+  /**
+   * Read the review threads a change request's diff holds.
+   * @param ref - change request served by a registered provider.
+   * @param signal - cancellation of the read.
+   * @returns the threads in host order, or the provider's failure; unsupported providers return unavailable.
+   * @throws when no provider serves the change request's forge, or with `signal.reason` when it aborts.
+   */
+  async reviewThreads(ref: ChangeRequestRef, signal: AbortSignal): Promise<readonly ForgeReviewThread[] | ForgeFailure> {
+    using timeout = deadline(signal, this.config.fetchTimeoutMs, 'FORGE_FETCH_TIMEOUT')
+    return await this.invoke(this.registration(ref.repository.forge), timeout.signal,
+      (provider, operation) => provider.reviewThreads?.(ref, operation)
+        ?? Promise.resolve({ code: 'unavailable', message: 'This provider does not support review reads' } as const))
   }
 
   /**

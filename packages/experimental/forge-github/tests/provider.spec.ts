@@ -431,3 +431,41 @@ it('rejects readiness, actions, and content reads for an unconfigured host witho
   await expect(subject.fileText(target, 'a'.repeat(40), 'file.txt', signal)).resolves.toEqual({ code: 'unavailable', message })
   expect(gh.calls).toEqual([])
 })
+
+describe('GitHub provider review reads', () => {
+  const threads = (nodes: unknown[]): GhOutput =>
+    output({ data: { repository: { pullRequest: { reviewThreads: { nodes } } } } })
+
+  it('reads anchored threads with their authors and joined comments', async () => {
+    const gh = fakeGh(() => threads([
+      {
+        id: 'T1', isResolved: false, isOutdated: false, path: 'src/app.ts', line: 6, startLine: 4, diffSide: 'RIGHT',
+        comments: { nodes: [{ author: { login: 'octocat' }, body: 'First' }, { author: null, body: ' Second ' }] },
+      },
+      {
+        id: 'T2', isResolved: true, isOutdated: true, path: 'src/gone.ts', line: null, startLine: 2, diffSide: 'LEFT',
+        comments: { nodes: [{ author: { login: 'hubot' }, body: '  ' }] },
+      },
+      { id: 'T3', isResolved: false, isOutdated: false, path: null, line: 1, startLine: null, diffSide: 'RIGHT', comments: { nodes: [] } },
+    ]))
+    await expect(provider(gh.run).reviewThreads(pull(4), signal)).resolves.toEqual([
+      {
+        id: 'T1', path: 'src/app.ts', side: 'R', startLine: 4, endLine: 6,
+        author: 'octocat', body: 'First\n\nSecond', resolved: false, outdated: false,
+      },
+    ])
+    expect(gh.calls[0]).toContain('graphql')
+    expect(gh.calls[0]).toContain('-F')
+    expect(gh.calls[0]).toContain('number=4')
+  })
+
+  it('reports refusals, GraphQL errors, and answers without JSON as failures', async () => {
+    await expect(provider(fakeGh(() => output('', 1, 'HTTP 401: Bad credentials')).run).reviewThreads(pull(4), signal))
+      .resolves.toEqual({ code: 'unauthenticated', message: 'HTTP 401: Bad credentials' })
+    await expect(provider(fakeGh(() => output({ errors: [{ message: 'Could not resolve to a PullRequest' }] })).run)
+      .reviewThreads(pull(4), signal))
+      .resolves.toEqual({ code: 'unavailable', message: 'Could not resolve to a PullRequest' })
+    await expect(provider(fakeGh(() => output('not json')).run).reviewThreads(pull(4), signal))
+      .resolves.toEqual({ code: 'unavailable', message: 'GitHub returned no JSON for the review read' })
+  })
+})

@@ -47,6 +47,8 @@ interface ForgeProvider {
   readonly forge: string
   /** Publish a comment or completed review. Omission declares that this provider cannot write reviews. */
   submitReview?(ref: ChangeRequestRef, request: ForgeReviewRequest, signal: AbortSignal): Promise<ForgeReviewResult>
+  /** Read the review threads the change request's diff holds. Omission declares that this provider cannot read reviews. */
+  reviewThreads?(ref: ChangeRequestRef, signal: AbortSignal): Promise<readonly ForgeReviewThread[] | ForgeFailure>
   /** Map a Git remote URL to its repository, or undefined when this provider does not serve it. */
   repositoryFromRemote(url: string): ForgeRepository | undefined
   /** Map a change request web URL to its reference, or undefined when this provider does not serve it. */

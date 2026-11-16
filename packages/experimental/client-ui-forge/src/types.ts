@@ -404,6 +404,8 @@ declare module '@qilin-agent/typert-protocol' {
     'forgePanel/diff-too-large': Record<string, never>
     /** Complete checks could not be loaded; the polling preview remains available. */
     'forgePanel/checks-failed': Record<string, never>
+    /** Review threads could not be loaded from the code host; the view keeps the local queue. */
+    'forgePanel/review-reads-failed': Record<string, never>
     /** The code host did not provide the change request's diff or file, or its status has not been read yet; the message says why. */
     'forgePanel/diff-failed': Record<string, never>
   }

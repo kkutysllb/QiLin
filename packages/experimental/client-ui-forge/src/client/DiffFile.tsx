@@ -13,10 +13,12 @@ import {
   languageForPath, Menu, MenuItemButton, useCodeHighlighter, type CodeHighlighter, type HighlightSpan,
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
+import type { ForgeReviewThread } from '@qilin-agent/experimental-forge/types'
 import type { ForgeDiffFile } from '../types.ts'
 import { DIFF_WINDOW_ROWS, segmentsOf, splitRows, windowSegments, type DiffRow, type SplitCell, type SplitRow } from './diff-rows.ts'
 import { codeSideAt, readCodeSelection } from './code-selection.ts'
 import { reviewMatches, selectReviewLines, type ReviewSelection } from './review.ts'
+import { RemoteThread } from './RemoteThread.tsx'
 import { ReviewThread, useFileReview } from './ReviewThread.tsx'
 import type { FileReviewState } from './review-queue.ts'
 import { ReviewComposer, type ReviewActions } from './ReviewComposer.tsx'
@@ -44,6 +46,8 @@ export interface DiffFileProps {
   readonly visible: boolean
   /** Comment destinations and the source being reviewed. */
   readonly review?: ReviewActions
+  /** Review threads the code host holds on this file. */
+  readonly remote?: readonly ForgeReviewThread[]
   /** The file and its hunks. */
   readonly file: ForgeDiffFile
   /** Whether the section shows its lines. */
@@ -141,8 +145,8 @@ function pairKind(pair: SplitRow): 'context' | 'change' {
 }
 
 /** The hunks of one file with their collapsed and expanded unchanged lines. */
-function Lines({ file, text, open, onExpand, split, wrap, review, visible, comments, t }: Pick<DiffFileProps,
-  'file' | 'text' | 'open' | 'onExpand' | 'split' | 'wrap' | 'review' | 'visible' | 't'> & { readonly comments: FileReviewState }): ReactNode {
+function Lines({ file, text, open, onExpand, split, wrap, review, remote, visible, comments, t }: Pick<DiffFileProps,
+  'file' | 'text' | 'open' | 'onExpand' | 'split' | 'wrap' | 'review' | 'remote' | 'visible' | 't'> & { readonly comments: FileReviewState }): ReactNode {
   const lines = typeof text === 'object' ? text : undefined
   const columns = split && file.additions > 0 && file.deletions > 0
   const singleSide = file.status === 'added' ? 'R' : file.status === 'deleted' ? 'L' : null
@@ -276,6 +280,14 @@ function Lines({ file, text, open, onExpand, split, wrap, review, visible, comme
       origin.current = null
     }} t={t} />
   const remaining = new Set(comments.threads)
+  const remoteRemaining = new Set(remote ?? [])
+  const appendRemote = (old: number | null, next: number | null): void => {
+    for (const thread of remoteRemaining) {
+      if ((thread.side === 'L' ? old : next) !== thread.endLine) continue
+      rows.push(<RemoteThread key={`remote-${thread.id}`} thread={thread} split={columns} t={t} />)
+      remoteRemaining.delete(thread)
+    }
+  }
   const appendComments = (old: number | null, next: number | null): void => {
     if (review === undefined) return
     for (const thread of remaining) {
@@ -304,6 +316,7 @@ function Lines({ file, text, open, onExpand, split, wrap, review, visible, comme
           inserted = true
         }
         appendComments(pair.left?.no ?? null, pair.right?.no ?? null)
+        appendRemote(pair.left?.no ?? null, pair.right?.no ?? null)
       }
     } else {
       for (const [index, row] of segment.rows.entries()) {
@@ -316,6 +329,7 @@ function Lines({ file, text, open, onExpand, split, wrap, review, visible, comme
           inserted = true
         }
         appendComments(row.old, row.new)
+        appendRemote(row.old, row.new)
       }
     }
   }
@@ -329,6 +343,8 @@ function Lines({ file, text, open, onExpand, split, wrap, review, visible, comme
   if (review !== undefined) for (const thread of remaining) {
     rows.push(<ReviewThread key={`record-${thread.key}`} thread={thread} actions={review} locked={comments.locked} outdated split={false} t={t} />)
   }
+  // Threads the host reports without a line this file still draws keep their text at the end.
+  for (const thread of remoteRemaining) rows.push(<RemoteThread key={`remote-${thread.id}`} thread={thread} split={false} t={t} />)
   if (!inserted) rows.push(editor)
   return <div ref={root} className={css.code} style={style} data-single-side={singleSide ?? undefined} data-split={columns ? '' : undefined} data-wrap={wrap ? '' : undefined}
     data-native-side={nativeSide ?? undefined}

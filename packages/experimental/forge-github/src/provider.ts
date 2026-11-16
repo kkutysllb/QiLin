@@ -3,13 +3,14 @@
 import { changeRequestKey } from '@qilin-agent/experimental-forge'
 import type {
   ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeProvider, ForgeReadiness,
-  ForgeRepository, ForgeReviewRequest, ForgeReviewResult, MergeRequest,
+  ForgeRepository, ForgeReviewRequest, ForgeReviewResult, ForgeReviewThread, MergeRequest,
 } from '@qilin-agent/experimental-forge'
 import { GhOutputLimitError, GhTimeoutError, GhUnavailableError } from './gh.ts'
 import type { GhOutput, GhRunner } from './gh.ts'
 import { CHECKS_QUERY, hasGraphqlFields, HEAD_QUERY, mapCheckPageResponse, mapHeadResponse, mapSnapshotResponse, snapshotQuery } from './graphql.ts'
 import { checkedRepository, parsePullRequestUrl, parseRemoteUrl } from './urls.ts'
 import { submitGitHubReview } from './review.ts'
+import { readGitHubReviewThreads } from './review-reads.ts'
 
 const AUTHENTICATION = /gh auth login|authentication|bad credentials|HTTP 401/i
 
@@ -82,6 +83,13 @@ export class GitHubProvider implements ForgeProvider {
       for (const [key, result] of await this.fetchHost(host, group, signal)) results.set(key, result)
     }
     return results
+  }
+
+  /** Read the pull request's review threads with one GraphQL read. */
+  async reviewThreads(ref: ChangeRequestRef, signal: AbortSignal): Promise<readonly ForgeReviewThread[] | ForgeFailure> {
+    const failure = this.hostFailure(ref.repository.host)
+    if (failure !== undefined) return failure
+    return await readGitHubReviewThreads(ref, signal, (args, operation) => this.read(args, operation))
   }
 
   async fetchChecks(ref: ChangeRequestRef, signal: AbortSignal): Promise<ChangeRequestSnapshot | ForgeFailure> {

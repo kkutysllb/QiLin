@@ -90,6 +90,22 @@ describe('forge registry', () => {
     expect(provider.fetches).toEqual([])
   })
 
+  it('reads review threads when supported and reports unsupported providers', async () => {
+    ctx = await forgeContext()
+    const provider = new FakeProvider()
+    await provide(ctx, provider)
+    const signal = new AbortController().signal
+    await expect(ctx.forge.reviewThreads(ref(3), signal)).resolves.toMatchObject({ code: 'unavailable' })
+    const threads = [{
+      id: 'T1', path: 'src/a.ts', side: 'R' as const, startLine: 2, endLine: 4,
+      author: 'octocat', body: 'First', resolved: false, outdated: false,
+    }]
+    const reviewThreads = vi.fn(async () => threads)
+    Object.assign(provider, { reviewThreads })
+    await expect(ctx.forge.reviewThreads(ref(3), signal)).resolves.toEqual(threads)
+    expect(reviewThreads).toHaveBeenCalledWith(ref(3), expect.any(AbortSignal))
+  })
+
   it('delegates change request reads to the provider of their forge', async () => {
     ctx = await forgeContext()
     const provider = new FakeProvider()

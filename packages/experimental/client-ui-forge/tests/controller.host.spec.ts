@@ -549,6 +549,33 @@ describe('forgePanel complete checks', () => {
   })
 })
 
+describe('forgePanel review reads', () => {
+  it('reads review threads of a visible binding and reports provider failures', async () => {
+    const { repo } = await project()
+    const opened = await open(repo)
+    shellTurn(opened.session, 1, [{ callId: 'create', command: 'gh pr create --fill', output: `${pullUrl(7)}\n` }])
+    await reader(opened).until(state => ready(state) && polled(state, pullUrl(7)))
+    const threads = [{
+      id: 'T1', path: 'src/a.ts', side: 'R' as const, startLine: 2, endLine: 4,
+      author: 'octocat', body: 'First', resolved: false, outdated: false,
+    }]
+    const read = vi.fn(async () => threads)
+    Object.assign(opened.provider, { reviewThreads: read })
+    await expect(opened.ctx.forgePanel.reviewThreads(opened.session, pullUrl(7), signal)).resolves.toEqual(threads)
+    expect(read).toHaveBeenCalledTimes(1)
+    await expect(opened.ctx.forgePanel.reviewThreads(opened.session, pullUrl(8), signal))
+      .rejects.toMatchObject({ code: 'forgePanel/not-bound' })
+    Object.assign(opened.provider, { reviewThreads: async () => ({ code: 'unavailable', message: 'Reviews unavailable' }) })
+    await expect(opened.ctx.forgePanel.reviewThreads(opened.session, pullUrl(7), signal))
+      .rejects.toMatchObject({ code: 'forgePanel/review-reads-failed', message: 'Reviews unavailable' })
+    // A provider without review reads reports the service's own refusal.
+    const removable = opened.provider as { reviewThreads?: unknown }
+    delete removable.reviewThreads
+    await expect(opened.ctx.forgePanel.reviewThreads(opened.session, pullUrl(7), signal))
+      .rejects.toMatchObject({ code: 'forgePanel/review-reads-failed', message: 'This provider does not support review reads' })
+  })
+})
+
 describe('forgePanel change request diffs', () => {
   const PATCH = 'diff --git a/src/a.ts b/src/a.ts\n--- a/src/a.ts\n+++ b/src/a.ts\n@@ -1 +1 @@\n-old\n+new\n'
 
