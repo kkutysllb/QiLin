@@ -6,7 +6,7 @@ import type { Agent } from '@qilin-agent/agent'
 import type {} from '@qilin-agent/api-remote-access'
 import { changeRequestKey } from '@qilin-agent/experimental-forge'
 import type {
-  ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeReviewRequest, ForgeReviewResult, ForgeReviewThread, MergeMethod,
+  ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeReviewData, ForgeReviewRequest, ForgeReviewResult, MergeMethod,
 } from '@qilin-agent/experimental-forge'
 import type { SessionChangeRequest } from '@qilin-agent/experimental-forge-session'
 import type {} from '@qilin-agent/experimental-worktree'
@@ -318,9 +318,15 @@ export class ForgePanelController extends TypertRemoteService {
    * `forgePanel/review-reads-failed` when the provider cannot complete the read.
    */
   @Remote
-  async reviewThreads(session: Session, url: string, signal: AbortSignal): Promise<readonly ForgeReviewThread[]> {
+  async reviewThreads(session: Session, url: string, signal: AbortSignal): Promise<ForgeReviewData> {
     signal.throwIfAborted()
-    const result = await this.home.forge.reviewThreads(this.bound(session, url).ref, signal)
+    const ref = this.bound(session, url).ref
+    const update = this.home.forge.latest(ref)
+    const snapshot = update !== undefined && 'snapshot' in update ? update.snapshot : undefined
+    if (snapshot === undefined) {
+      throw new RemoteError('forgePanel/review-reads-failed', 'The change request status has not been read yet', {})
+    }
+    const result = await this.home.forge.readReview(ref, snapshot.headSha, signal)
     if ('code' in result) throw new RemoteError('forgePanel/review-reads-failed', result.message, {})
     return result
   }
@@ -347,17 +353,18 @@ export class ForgePanelController extends TypertRemoteService {
       throw new RemoteError('forgePanel/diff-failed', 'The change request status has not been read yet', {})
     }
     const { headSha: currentHead, headBranch, baseBranch } = update.snapshot
-    // A review keeps the head it started at; the latest head is read through the provider's own diff.
-    const pinned = headSha !== null && headSha !== currentHead ? headSha : null
-    const effective = pinned ?? currentHead
+    // A review keeps the head it started at; the provider answers `stale` once the head moved.
+    const effective = headSha ?? currentHead
     const key = changeRequestKey(ref)
     const version = JSON.stringify([effective, baseBranch])
     let patch = this.patches.get(key, version)
     if (patch === undefined) {
-      const read = pinned === null
-        ? await this.home.forge.diff(ref, signal)
-        : await this.home.forge.diffAt(ref, { headSha: pinned, baseBranch }, signal)
-      if (typeof read !== 'string') throw readError(read)
+      const read = await this.home.forge.diff(ref, effective, signal)
+      if (typeof read !== 'string') {
+        throw read.code === 'stale'
+          ? new RemoteError('forgePanel/stale-head', 'The change request head changed; refresh its status', {})
+          : readError(read)
+      }
       this.patches.set(key, version, read)
       patch = read
     }

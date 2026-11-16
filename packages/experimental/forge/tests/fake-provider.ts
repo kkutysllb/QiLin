@@ -23,24 +23,30 @@ export function snapshot(target: ChangeRequestRef, overrides: Partial<ChangeRequ
     ref: target,
     url: `https://${target.repository.host}/${target.repository.owner}/${target.repository.name}/change/${target.number}`,
     title: `Change ${target.number}`,
-    body: `Description ${target.number}`,
     state: 'open',
     draft: false,
     author: 'octo',
     headBranch: 'topic',
     headSha: 'a'.repeat(40),
     baseBranch: 'main',
-    commitCount: 1,
     additions: 12,
     deletions: 3,
     mergeability: 'mergeable',
     mergeReady: true,
     mergeMethods: ['squash', 'merge', 'rebase'],
+    branchUpdates: [],
     reviewDecision: 'none',
+    reviewers: [],
+    reviewersTruncated: false,
+    canRequestReviews: false,
     checks: [],
     checksRollup: 'success',
     checksTruncated: false,
+    canRerunChecks: false,
     unresolvedThreads: 0,
+    threadsTruncated: false,
+    closingIssues: [],
+    closingIssuesTruncated: false,
     updatedAt: '2026-10-09T00:00:00Z',
     closedAt: null,
     ...overrides,
@@ -112,8 +118,8 @@ export class FakeProvider implements ForgeProvider {
     return this.actionResult
   }
 
-  async diff(target: ChangeRequestRef): Promise<string | ForgeFailure> {
-    this.actions.push(`diff ${target.number}`)
+  async diff(target: ChangeRequestRef, headSha: string, _signal: AbortSignal, _base?: string): Promise<string | ForgeFailure> {
+    this.actions.push(`diff ${target.number} ${headSha}`)
     return this.readResult
   }
 

@@ -4,7 +4,7 @@ import { useSyncExternalStore } from 'react'
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { PaneId, SidebarRightTabActions, SidebarRightTabInfo, TabId } from '@qilin-agent/client-ui-sidebar-right/client'
-import type { ForgeReviewThread } from '@qilin-agent/experimental-forge/types'
+import type { ForgeReviewData, ForgeReviewThread } from '@qilin-agent/experimental-forge/types'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { SessionId } from '@qilin-agent/session/types'
@@ -90,6 +90,29 @@ const BIG = file('logs/big.log', { status: 'added', untracked: true, oversized: 
 const NOTES = file('docs/notes.txt', { additions: 1, deletions: 1, hunks: [{ oldStart: 2, oldLines: 1, newStart: 2, newLines: 1, lines: ['-old', '+new'] }] })
 
 const LOCAL: ForgeLocalDiff = { base: BASE, files: [APP, ADDED, LOGO, GONE, MOVED, BIG], omitted: 2 }
+
+/** One review thread as the host reads it at the change request head. */
+function remoteThread(
+  id: string, path: string, overrides: Partial<ForgeReviewThread> = {},
+): ForgeReviewThread {
+  const anchor = { commit: HEAD, startLine: 1, endLine: 1 }
+  return {
+    id: id as ForgeReviewThread['id'], path, side: 'R', subject: 'line',
+    current: anchor, original: anchor, diffHunk: null, resolved: false,
+    viewerCanReply: false, viewerCanResolve: false,
+    comments: [{
+      id: `${id}-c` as ForgeReviewThread['comments'][number]['id'],
+      author: { login: 'octocat', avatarUrl: null, bot: false },
+      body: 'Host note', createdAt: '2026-10-09T00:00:00Z', pending: false, url: null, viewerCanEdit: false, viewerCanDelete: false,
+    }],
+    ...overrides,
+  }
+}
+
+/** One review read whose threads start at the change request head. */
+function reviewData(threads: readonly ForgeReviewThread[]): ForgeReviewData {
+  return { headSha: HEAD, viewer: null, threads, truncated: false, pendingReview: null, viewerCanReview: false }
+}
 const CHANGE: ForgeChangeRequestDiff = {
   headSha: HEAD,
   files: [APP, NOTES, GONE],
@@ -208,7 +231,7 @@ function mount(options: MountOptions = {}) {
     localDiff: vi.fn<ChangesTabInjected['localDiff']>(async () => ok(LOCAL)),
     localText: vi.fn<ChangesTabInjected['localText']>(async () => ok(APP_TEXT)),
     changeRequestDiff: vi.fn<ChangesTabInjected['changeRequestDiff']>(async () => ok(CHANGE)),
-    changeRequestReviewThreads: vi.fn<NonNullable<ChangesTabInjected['changeRequestReviewThreads']>>(async () => ok([])),
+    changeRequestReviewThreads: vi.fn<NonNullable<ChangesTabInjected['changeRequestReviewThreads']>>(async () => ok(reviewData([]))),
     changeRequestText: vi.fn<ChangesTabInjected['changeRequestText']>(async () => ok(APP_TEXT)),
     openLink: vi.fn<ChangesTabInjected['openLink']>(),
     copyPath: vi.fn<ChangesTabInjected['copyPath']>(),
@@ -770,20 +793,28 @@ describe('ChangesTab layout', () => {
 
   it('draws the review threads the code host holds on their lines', async () => {
     const m = mount({ source: { kind: 'change', url: URL7 }, setup: (faces) => {
-      faces.changeRequestReviewThreads.mockResolvedValue(ok([
-        {
-          id: 'T1', path: 'src/app.ts', side: 'R', startLine: 3, endLine: 4,
-          author: 'octocat', body: 'Host note', resolved: false, outdated: false,
-        },
-        {
-          id: 'T2', path: 'src/app.ts', side: 'R', startLine: 90, endLine: 90,
-          author: null, body: 'Resolved note', resolved: true, outdated: false,
-        },
-        {
-          id: 'T3', path: 'docs/gone.txt', side: 'L', startLine: 1, endLine: 1,
-          author: null, body: 'Deleted-line note', resolved: false, outdated: true,
-        },
-      ]))
+      faces.changeRequestReviewThreads.mockResolvedValue(ok(reviewData([
+        remoteThread('T1', 'src/app.ts', {
+          current: { commit: HEAD, startLine: 3, endLine: 4 },
+          original: { commit: HEAD, startLine: 3, endLine: 4 },
+        }),
+        remoteThread('T2', 'src/app.ts', {
+          current: null, original: { commit: HEAD, startLine: 90, endLine: 90 }, resolved: true,
+          comments: [{
+            id: 'T2-c' as ForgeReviewThread['comments'][number]['id'],
+            author: null, body: 'Resolved note', createdAt: '2026-10-09T00:00:00Z', pending: false, url: null, viewerCanEdit: false, viewerCanDelete: false,
+          }],
+        }),
+        remoteThread('T3', 'docs/gone.txt', {
+          side: 'L',
+          current: null,
+          original: { commit: HEAD, startLine: 1, endLine: 1 },
+          comments: [{
+            id: 'T3-c' as ForgeReviewThread['comments'][number]['id'],
+            author: null, body: 'Deleted-line note', createdAt: '2026-10-09T00:00:00Z', pending: false, url: null, viewerCanEdit: false, viewerCanDelete: false,
+          }],
+        }),
+      ])))
     } })
     await settle()
     const section = m.section('src/app.ts')
@@ -811,22 +842,19 @@ describe('ChangesTab layout', () => {
   })
 
   it('ignores host review reads that settle after the tab hides', async () => {
-    const pending = deferred<RemoteResult<readonly ForgeReviewThread[]>>()
+    const pending = deferred<RemoteResult<ForgeReviewData>>()
     const m = mount({ source: { kind: 'change', url: URL7 }, setup: (faces) => {
       faces.changeRequestReviewThreads.mockReturnValue(pending.promise)
     } })
     await settle()
     act(() => { m.visibility.set(false) })
-    pending.settle(ok([{
-      id: 'T1', path: 'src/app.ts', side: 'R', startLine: 4, endLine: 4,
-      author: 'octocat', body: 'Late note', resolved: false, outdated: false,
-    }]))
+    pending.settle(ok(reviewData([remoteThread('T1', 'src/app.ts')])))
     await settle()
     expect(m.section('src/app.ts').querySelector('[data-forge-remote-thread]')).toBeNull()
   })
 
   it('ignores a host review read that fails after the tab hides', async () => {
-    const pending = deferred<RemoteResult<readonly ForgeReviewThread[]>>()
+    const pending = deferred<RemoteResult<ForgeReviewData>>()
     const m = mount({ source: { kind: 'change', url: URL7 }, setup: (faces) => {
       faces.changeRequestReviewThreads.mockReturnValue(pending.promise)
     } })
@@ -1142,24 +1170,28 @@ describe('ChangesTab change requests', () => {
     expect(m.faces.openLink).toHaveBeenLastCalledWith(URL7)
   })
 
-  it('keeps the head a review started at, says so when it moved, and refreshes to the latest one', async () => {
+  it('reads again when the head moves and keeps a stale read in flight until a later status', async () => {
+    const moved = 'b'.repeat(40)
+    let staleOnce = true
     const m = mount({ source, setup: (faces) => {
-      // The host reads the head it was asked for, as the pinned provider read does.
-      faces.changeRequestDiff.mockImplementation(async (_url, headSha) => ok({ ...CHANGE, headSha: headSha ?? HEAD }))
+      faces.changeRequestDiff.mockImplementation(async (_url, headSha) => {
+        if (headSha === HEAD && staleOnce) {
+          staleOnce = false
+          return { ok: false, error: new RemoteError('forgePanel/stale-head', 'the head moved', {}) }
+        }
+        return ok({ ...CHANGE, headSha: headSha ?? HEAD })
+      })
     } })
     await settle()
-    const moved = 'b'.repeat(40)
-    act(() => { m.panel.set({ state: ready({ changeRequests: [entry(7, snapshot(7, { headSha: moved }))] }), disconnected: false }) })
-    await settle()
-    // A polled head change does not re-read the diff under the reviewer.
+    // The refused read stays in flight instead of failing the view.
     expect(m.faces.changeRequestDiff).toHaveBeenCalledTimes(1)
-    const pinned = en['diff.pinned'].replace('{head}', HEAD.slice(0, 7)).replace('{live}', moved.slice(0, 7))
-    expect(m.view.container.textContent).toContain(pinned)
+    expect(m.view.container.textContent).not.toContain(en['diff.error'])
 
-    fireEvent.click(m.view.getByRole('button', { name: en['diff.repin'] }))
+    act(() => { m.panel.set({ state: ready({ changeRequests: [entry(7, snapshot(7, { headSha: moved }))] }), disconnected: false }) })
     await settle()
     expect(m.faces.changeRequestDiff).toHaveBeenCalledTimes(2)
     expect(m.faces.changeRequestDiff).toHaveBeenLastCalledWith(URL7, moved, expect.any(AbortSignal))
+    expect(m.section('src/app.ts')).toBeTruthy()
   })
 
   it.each([

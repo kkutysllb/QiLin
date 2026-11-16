@@ -12,7 +12,7 @@ import type { Agent, PreStepDecision } from '@qilin-agent/agent'
 import { createInboxStub } from '@qilin-agent/agent-loop-testkit'
 import ForgeService, { changeRequestKey } from '@qilin-agent/experimental-forge'
 import type {
-  ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeDiffRequest, ForgeFailure, ForgeProvider,
+  ChangeRequestKey, ChangeRequestRef, ChangeRequestSnapshot, ForgeActionFailure, ForgeFailure, ForgeProvider, ForgeReviewData,
   ForgeReadiness, ForgeRepository, MergeRequest,
 } from '@qilin-agent/experimental-forge'
 import ForgeSessionService from '@qilin-agent/experimental-forge-session'
@@ -246,23 +246,29 @@ export function snapshot(ref: ChangeRequestRef): ChangeRequestSnapshot {
     ref,
     url: pullUrl(ref.number),
     title: `Change ${ref.number}`,
-    body: `Description ${ref.number}`,
     state: 'open',
     draft: false,
     author: 'octo',
     headBranch: 'feat',
     headSha: 'a'.repeat(40),
     baseBranch: 'main',
-    commitCount: 4,
     additions: 12,
     deletions: 3,
     mergeability: 'mergeable',
     mergeReady: true,
     mergeMethods: ['squash', 'merge', 'rebase'],
     reviewDecision: 'none',
+    reviewers: [],
+    reviewersTruncated: false,
+    canRequestReviews: false,
+    branchUpdates: [],
+    closingIssues: [],
+    closingIssuesTruncated: false,
     checks: [],
     checksRollup: 'success',
     checksTruncated: false,
+    canRerunChecks: false,
+    threadsTruncated: false,
     unresolvedThreads: 0,
     updatedAt: '2026-10-09T00:00:00Z',
     closedAt: null,
@@ -285,12 +291,14 @@ export class FakeProvider implements ForgeProvider {
   actionResult: ForgeActionFailure | undefined
   /** Patches or failures the change request diff returns, by number; others return a not-found failure. */
   readonly patches = new Map<number, string | ForgeFailure>()
-  /** Patches or failures pinned reads return, by `<head>:<base>`; other pairs return a not-found failure. */
-  readonly pinnedPatches = new Map<string, string | ForgeFailure>()
-  /** Pinned reads in call order, as `<head> <base>`. */
-  readonly pinnedReads: string[] = []
   /** Change request numbers in the order their diffs were read. */
   readonly diffs: number[] = []
+  /** Head commits in the order their diffs were read. */
+  readonly diffHeads: string[] = []
+  /** Review reads by change request number; others read an empty thread list at the requested head. */
+  readonly reviews = new Map<number, ForgeReviewData | ForgeFailure>()
+  /** Review reads in call order, as `<number> <head>`. */
+  readonly reviewReads: string[] = []
   /** File texts or failures by `<commit>:<path>`; others return a not-found failure. */
   readonly texts = new Map<string, string | ForgeFailure>()
   /** Open change request numbers that a head lookup returns, by head branch. */
@@ -339,15 +347,17 @@ export class FakeProvider implements ForgeProvider {
     return Promise.resolve(this.actionResult)
   }
 
-  diff(ref: ChangeRequestRef): Promise<string | ForgeFailure> {
+  diff(ref: ChangeRequestRef, headSha: string): Promise<string | ForgeFailure> {
     this.diffs.push(ref.number)
+    this.diffHeads.push(headSha)
     return Promise.resolve(this.patches.get(ref.number) ?? { code: 'not-found', message: `no diff of #${ref.number}` })
   }
 
-  diffAt(ref: ChangeRequestRef, request: ForgeDiffRequest): Promise<string | ForgeFailure> {
-    const key = `${request.headSha}:${request.baseBranch}`
-    this.pinnedReads.push(`${request.headSha} ${request.baseBranch}`)
-    return Promise.resolve(this.pinnedPatches.get(key) ?? { code: 'not-found', message: `no pinned diff of #${ref.number} at ${key}` })
+  readReview(ref: ChangeRequestRef, headSha: string): Promise<ForgeReviewData | ForgeFailure> {
+    this.reviewReads.push(`${ref.number} ${headSha}`)
+    return Promise.resolve(this.reviews.get(ref.number) ?? {
+      headSha, viewer: null, threads: [], truncated: false, pendingReview: null, viewerCanReview: false,
+    })
   }
 
   fileText(_ref: ChangeRequestRef, commit: string, path: string): Promise<string | ForgeFailure> {

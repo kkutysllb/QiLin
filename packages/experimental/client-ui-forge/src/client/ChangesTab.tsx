@@ -23,7 +23,7 @@ import { fileAddressFor, pathPartsOf } from '@qilin-agent/util-workspace-path'
 import type {
   ForgeChangeRequestDiff, ForgeDiffFile, ForgeLocalDiff, ForgeLocalScope, ForgePanelChangeRequest, ForgePanelState,
 } from '../types.ts'
-import type { ForgeReviewRequest, ForgeReviewResult, ForgeReviewThread } from '@qilin-agent/experimental-forge/types'
+import type { ForgeReviewData, ForgeReviewRequest, ForgeReviewResult, ForgeReviewThread } from '@qilin-agent/experimental-forge/types'
 import { sameReviewSource, type ReviewQueue } from './review-queue.ts'
 import { ReviewThread, useFileReview } from './ReviewThread.tsx'
 import type { ReviewActions } from './ReviewComposer.tsx'
@@ -67,7 +67,7 @@ export interface ChangesTabInjected {
   /** Read the changes of a change request by its binding URL; `signal` aborts the read. */
   readonly changeRequestDiff: (url: string, headSha: string | null, signal: AbortSignal) => Promise<RemoteResult<ForgeChangeRequestDiff>>
   /** Read the review threads the code host holds; omitted when the composition exposes no review reads. */
-  readonly changeRequestReviewThreads?: (url: string, signal: AbortSignal) => Promise<RemoteResult<readonly ForgeReviewThread[]>>
+  readonly changeRequestReviewThreads?: (url: string, signal: AbortSignal) => Promise<RemoteResult<ForgeReviewData>>
   /** Read one file of a change request at a commit. */
   readonly changeRequestText: (url: string, commit: string, path: string) => Promise<RemoteResult<string>>
   /** Open a URL outside the app. */
@@ -425,16 +425,12 @@ export function ChangesTab({
   // also waits for its first status, which names the head, unless no provider serves it or its first poll failed.
   const pending = entry !== undefined && entry.ref !== null && entry.update === null
   const head = entry?.snapshot?.headSha ?? (pending ? null : '')
-  // A change review keeps the head it started at; an explicit refresh follows the latest one.
-  const [pinnedHead, setPinnedHead] = useState<string | null>(null)
-  const sourceUrl = source.kind === 'change' ? source.url : null
-  useEffect(() => { setPinnedHead(null) }, [sourceUrl])
   // The commit the checkout stands on: the only commit the tab can show by
   // itself, without a picker this view does not have.
   const checkoutCommit = state !== null && state.checkout.state === 'ready' ? state.checkout.checkout.commit : null
   const version = state === null ? null
-    : source.kind === 'local' ? `${scope}\n${JSON.stringify(state.local)}` : pinnedHead ?? head
-  const readHead = source.kind === 'change' ? pinnedHead ?? (head === '' ? null : head) : null
+    : source.kind === 'local' ? `${scope}\n${JSON.stringify(state.local)}` : head
+  const readHead = source.kind === 'change' ? (head === '' ? null : head) : null
   const dataKey = source.kind === 'local' ? scope : 'change'
   const [loaded, setLoaded] = useState<{ readonly key: string; readonly data: ChangesData } | null>(null)
   const [failure, setFailure] = useState<{ readonly key: string; readonly code: string } | null>(null)
@@ -446,6 +442,9 @@ export function ChangesTab({
     const controller = new AbortController()
     void readChanges(source, scope, checkoutCommit, readHead, { localDiff, changeRequestDiff }, controller.signal).then((result) => {
       if (controller.signal.aborted) return
+      // A read refused because the head moved stays in flight until a status later than the
+      // refused one arrives; that status changes `version`, which reads again at its head.
+      if (!result.ok && result.error.code === 'forgePanel/stale-head') return
       setFinished(read)
       if (result.ok) {
         setLoaded({ key: dataKey, data: result.value })
@@ -457,8 +456,6 @@ export function ChangesTab({
     return () => { controller.abort() }
   }, [tab.visible, read, source, scope, checkoutCommit, readHead, dataKey, localDiff, changeRequestDiff])
   const data = loaded !== null && loaded.key === dataKey ? loaded.data : null
-  // Pin the head once the review has data, so a later poll does not move it.
-  useEffect(() => { if (data?.kind === 'change') setPinnedHead(data.headSha) }, [data])
   const files = useMemo(() => filesInTreeOrder(changedFileTree(data?.files ?? [])), [data])
   // Review threads the code host holds on the change request, grouped by file.
   const [remoteThreads, setRemoteThreads] = useState<Readonly<Record<string, readonly ForgeReviewThread[]>>>({})
@@ -482,7 +479,7 @@ export function ChangesTab({
           return
         }
         const byPath: Record<string, ForgeReviewThread[]> = {}
-        for (const thread of result.value) (byPath[thread.path] ??= []).push(thread)
+        for (const thread of result.value.threads) (byPath[thread.path] ??= []).push(thread)
         setRemoteThreads(byPath)
       } catch (error) {
         void error // Reading host reviews is optional; the local queue and the diff stay usable without them.
@@ -510,7 +507,7 @@ export function ChangesTab({
     if (scrollport.current !== null) jumpPosition.current = { data, top: scrollport.current.scrollTop }
     setWanted(null)
   }, [tab.visible, wanted, data])
-  const refresh = (): void => { setPinnedHead(null); setAttempt(value => value + 1) }
+  const refresh = (): void => { setAttempt(value => value + 1) }
   const root = state !== null && state.checkout.state === 'ready' ? state.checkout.checkout.root : null
   // Configuration reads may recover after the user fixes Git settings or raises the output limit.
   const message = failed === null ? undefined : FAILURE[failed]
@@ -747,11 +744,6 @@ export function ChangesTab({
         <Button size="sm" variant="outline" onClick={() => { queue.finish(false); setReviewError(null) }}>{t('review.confirmRetry')}</Button>
       </div>}
       {!reviewOpen && reviewError !== null && reviewState.uncertain === null && <Notice>{reviewError}</Notice>}
-      {pinnedHead !== null && head !== null && head !== '' && pinnedHead !== head && (
-        <Notice action={<Button size="sm" variant="outline" className={css.noticeAction} onClick={refresh}>{t('diff.repin')}</Button>}>
-          {t('diff.pinned', { head: pinnedHead.slice(0, 7), live: head.slice(0, 7) })}
-        </Notice>
-      )}
       <div className={css.toolbar}>
         {tab.visible && source.kind === 'local' && (
           <ScopeMenu scope={scope} commit={checkoutCommit} lastTurn={state?.lastTurn ?? null}

@@ -9,7 +9,7 @@ import type { RemoteHostFacts } from '@qilin-agent/api-remotes/client'
 import { LocaleRuntime } from '@qilin-agent/client-locale/client'
 import { SlotRegistry } from '@qilin-agent/client-ui-renderer/client'
 import type { SidebarRightTabDefinition, TabId } from '@qilin-agent/client-ui-sidebar-right/client'
-import type { ChangeRequestSnapshot, ForgeReviewRequest, ForgeReviewResult } from '@qilin-agent/experimental-forge/types'
+import type { ChangeRequestSnapshot, ForgeReviewData, ForgeReviewRequest, ForgeReviewResult } from '@qilin-agent/experimental-forge/types'
 import { SessionId } from '@qilin-agent/session/types'
 import { RemoteError, type RemoteResult, type TypertRemoteContribution } from '@qilin-agent/typert-protocol'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -165,6 +165,10 @@ async function base() {
     changeRequestDiff: vi.fn(async (_sessionId: SessionId, _url: string, _signal?: AbortSignal): Read<ForgeChangeRequestDiff> =>
       ({ ok: true, value: CHANGE })),
     changeRequestText: vi.fn(async (_sessionId: SessionId, _url: string, _commit: string, _path: string): Read<string> => ({ ok: true, value: 'b\n' })),
+    reviewThreads: vi.fn(async (_sessionId: SessionId, _url: string, _signal?: AbortSignal): Read<ForgeReviewData> => ({
+      ok: true,
+      value: { headSha: 'a'.repeat(40), viewer: null, threads: [], truncated: false, pendingReview: null, viewerCanReview: false },
+    })),
     submitReview: vi.fn(async (_sessionId: SessionId, _url: string, _request: ForgeReviewRequest): Read<ForgeReviewResult> => ({ ok: true, value: { ok: true, url: 'https://github.com/review' } })),
   }
   ctx.provide('remote.forgePanel', forgePanel)
@@ -793,10 +797,15 @@ describe('mountForgePanel changes view', () => {
     expect(await view.localText({ kind: 'staged' }, 'src/a.ts')).toEqual({ ok: true, value: 'a\n' })
     expect(await view.changeRequestDiff('https://github.com/octo/demo/pull/7', null, signal)).toEqual({ ok: true, value: CHANGE })
     expect(await view.changeRequestText('https://github.com/octo/demo/pull/7', 'a'.repeat(40), 'src/a.ts')).toEqual({ ok: true, value: 'b\n' })
+    expect(await view.changeRequestReviewThreads?.('https://github.com/octo/demo/pull/7', signal)).toEqual({
+      ok: true,
+      value: { headSha: 'a'.repeat(40), viewer: null, threads: [], truncated: false, pendingReview: null, viewerCanReview: false },
+    })
     expect(f.forgePanel.localDiff).toHaveBeenCalledWith(S1, { kind: 'staged' }, signal)
     expect(f.forgePanel.localText).toHaveBeenCalledWith(S1, { kind: 'staged' }, 'src/a.ts')
     expect(f.forgePanel.changeRequestDiff).toHaveBeenCalledWith(S1, 'https://github.com/octo/demo/pull/7', null, signal)
     expect(f.forgePanel.changeRequestText).toHaveBeenCalledWith(S1, 'https://github.com/octo/demo/pull/7', 'a'.repeat(40), 'src/a.ts')
+    expect(f.forgePanel.reviewThreads).toHaveBeenCalledWith(S1, 'https://github.com/octo/demo/pull/7', signal)
     view.reconnect()
     expect(f.forgePanel.follow).not.toHaveBeenCalled()
     await f.dispose()

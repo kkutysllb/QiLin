@@ -550,29 +550,35 @@ describe('forgePanel complete checks', () => {
 })
 
 describe('forgePanel review reads', () => {
+  it('refuses review reads before the change request status is read', async () => {
+    const { repo } = await project()
+    const opened = await open(repo)
+    await opened.ctx.forgePanel.track(opened.session, pullUrl(7), signal)
+    await expect(opened.ctx.forgePanel.reviewThreads(opened.session, pullUrl(7), signal))
+      .rejects.toMatchObject({ code: 'forgePanel/review-reads-failed', message: 'The change request status has not been read yet' })
+  })
+
   it('reads review threads of a visible binding and reports provider failures', async () => {
     const { repo } = await project()
     const opened = await open(repo)
     shellTurn(opened.session, 1, [{ callId: 'create', command: 'gh pr create --fill', output: `${pullUrl(7)}\n` }])
     await reader(opened).until(state => ready(state) && polled(state, pullUrl(7)))
-    const threads = [{
-      id: 'T1', path: 'src/a.ts', side: 'R' as const, startLine: 2, endLine: 4,
-      author: 'octocat', body: 'First', resolved: false, outdated: false,
-    }]
-    const read = vi.fn(async () => threads)
-    Object.assign(opened.provider, { reviewThreads: read })
-    await expect(opened.ctx.forgePanel.reviewThreads(opened.session, pullUrl(7), signal)).resolves.toEqual(threads)
-    expect(read).toHaveBeenCalledTimes(1)
+    const data = {
+      headSha: 'a'.repeat(40), viewer: null, threads: [], truncated: false, pendingReview: null, viewerCanReview: false,
+    }
+    const read = vi.fn(async () => data)
+    Object.assign(opened.provider, { readReview: read })
+
+    await expect(opened.ctx.forgePanel.reviewThreads(opened.session, pullUrl(7), signal)).resolves.toEqual(data)
+    expect(read).toHaveBeenCalledWith(expect.objectContaining({ number: 7 }), data.headSha, expect.any(AbortSignal))
     await expect(opened.ctx.forgePanel.reviewThreads(opened.session, pullUrl(8), signal))
       .rejects.toMatchObject({ code: 'forgePanel/not-bound' })
-    Object.assign(opened.provider, { reviewThreads: async () => ({ code: 'unavailable', message: 'Reviews unavailable' }) })
+    Object.assign(opened.provider, { readReview: async () => ({ code: 'unavailable', message: 'Reviews unavailable' }) })
     await expect(opened.ctx.forgePanel.reviewThreads(opened.session, pullUrl(7), signal))
       .rejects.toMatchObject({ code: 'forgePanel/review-reads-failed', message: 'Reviews unavailable' })
-    // A provider without review reads reports the service's own refusal.
-    const removable = opened.provider as { reviewThreads?: unknown }
-    delete removable.reviewThreads
+    Object.assign(opened.provider, { readReview: async () => ({ code: 'unsupported', message: 'no review reads' }) })
     await expect(opened.ctx.forgePanel.reviewThreads(opened.session, pullUrl(7), signal))
-      .rejects.toMatchObject({ code: 'forgePanel/review-reads-failed', message: 'This provider does not support review reads' })
+      .rejects.toMatchObject({ code: 'forgePanel/review-reads-failed', message: 'no review reads' })
   })
 })
 
@@ -597,33 +603,26 @@ describe('forgePanel change request diffs', () => {
     await expect(opened.ctx.forgePanel.changeRequestText(opened.session, pullUrl(7), head, 'src/a.ts', signal)).resolves.toBe('new\n')
   })
 
-  it('reads a moved head at the pinned commit and reports a provider without pinned reads', async () => {
+  it('reads the head the caller reviews and reports a stale head instead of another commit', async () => {
     const { repo } = await project()
     const opened = await open(repo)
     opened.provider.patches.set(7, PATCH)
     shellTurn(opened.session, 1, [{ callId: 'create', command: 'gh pr create --fill', output: `${pullUrl(7)}\n` }])
     const follower = reader(opened)
     await follower.until(state => polled(state, pullUrl(7)))
-    const pinned = 'diff --git a/old.ts b/old.ts\n--- a/old.ts\n+++ b/old.ts\n@@ -1 +1 @@\n-old\n+old2\n'
     const before = 'a'.repeat(40)
-    const moved = 'b'.repeat(40)
-    opened.provider.pinnedPatches.set(`${before}:main`, pinned)
-    opened.provider.overrides.set(7, { headSha: moved, baseBranch: 'main' })
-    await opened.ctx.forgePanel.refresh(opened.session, signal)
-    await follower.until(state => state.changeRequests[0]?.snapshot?.headSha === moved)
 
+    // The provider answers at the requested head and the controller reads it once per head.
     await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), before, signal))
-      .resolves.toMatchObject({ headSha: before, files: [{ path: 'old.ts' }] })
-    expect(opened.provider.pinnedReads).toEqual([`${before} main`])
-    // The current-head read was never used, and the pinned patch is reused at the same pair.
-    expect(opened.provider.diffs).toEqual([])
+      .resolves.toMatchObject({ headSha: before, files: [{ path: 'src/a.ts' }] })
+    expect(opened.provider.diffHeads).toEqual([before])
     await opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), before, signal)
-    expect(opened.provider.pinnedReads).toHaveLength(1)
+    expect(opened.provider.diffHeads).toHaveLength(1)
 
-    // A pinned read that fails refuses the moved head instead of silently reading the latest one.
-    Object.assign(opened.provider, { diffAt: async () => ({ code: 'unavailable', message: 'Pinned reads are unavailable' }) })
+    // A provider that no longer has that head refuses with the stale-head code.
+    Object.assign(opened.provider, { diff: async () => ({ code: 'stale', message: 'the head moved' }) })
     await expect(opened.ctx.forgePanel.changeRequestDiff(opened.session, pullUrl(7), 'c'.repeat(40), signal))
-      .rejects.toMatchObject({ code: 'forgePanel/diff-failed', message: 'Pinned reads are unavailable' })
+      .rejects.toMatchObject({ code: 'forgePanel/stale-head' })
   })
 
   it('counts no commits beyond the head when Git cannot answer', async () => {

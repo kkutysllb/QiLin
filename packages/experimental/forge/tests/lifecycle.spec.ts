@@ -120,7 +120,7 @@ it('does not announce provider withdrawal after its registry has stopped', async
   expect(observer).toHaveBeenCalledTimes(1)
 })
 
-it.each(['readiness', 'markReady', 'merge', 'diff', 'diffAt', 'fileText', 'submitReview', 'fetchChecks', 'reviewThreads'] as const)(
+it.each(['readiness', 'markReady', 'merge', 'diff', 'fileText', 'submitReview', 'fetchChecks', 'commits', 'compare'] as const)(
   'cancels and drains %s when its provider stops', async (method) => {
     ctx = await forgeContext()
     const provider: ForgeProvider = new FakeProvider()
@@ -137,25 +137,25 @@ it.each(['readiness', 'markReady', 'merge', 'diff', 'diffAt', 'fileText', 'submi
     })
     vi.spyOn(provider, 'markReady').mockImplementation(async (_ref, signal) => { await hold(signal); return undefined })
     vi.spyOn(provider, 'merge').mockImplementation(async (_ref, _request, signal) => { await hold(signal); return undefined })
-    vi.spyOn(provider, 'diff').mockImplementation(async (_ref, signal) => { await hold(signal); return 'diff' })
+    vi.spyOn(provider, 'diff').mockImplementation(async (_ref, _headSha, signal) => { await hold(signal); return 'diff' })
     vi.spyOn(provider, 'fileText').mockImplementation(async (_ref, _commit, _path, signal) => { await hold(signal); return 'file' })
     provider.submitReview = async (_ref, _request, signal) => { await hold(signal); return { ok: true, url: 'https://fake.test/review' } }
     provider.fetchChecks = async (target, signal) => { await hold(signal); return snapshot(target) }
-    provider.reviewThreads = async (_ref, signal) => { await hold(signal); return [] }
-    provider.diffAt = async (_ref, _request, signal) => { await hold(signal); return 'diff' }
+    provider.commits = async (_ref, signal) => { await hold(signal); return { headSha: 'a'.repeat(40), commits: [], truncated: false } }
+    provider.compare = async (_ref, _base, _head, signal) => { await hold(signal); return 'diff' }
     const fiber = await provide(ctx, provider)
     const service = ctx.forge
     const signal = new AbortController().signal
     const calls = {
       fetchChecks: () => service.fetchChecks(ref(1), signal),
-      reviewThreads: () => service.reviewThreads(ref(1), signal),
       submitReview: () => service.submitReview(ref(1), { kind: 'review', headSha: 'a'.repeat(40), event: 'approve', body: '', comments: [] }, signal),
       readiness: () => service.readiness(demo, signal),
       markReady: () => service.markReady(ref(1), signal),
       merge: () => service.merge(ref(1), { method: 'squash', headSha: 'a'.repeat(40) }, signal),
-      diff: () => service.diff(ref(1), signal),
-      diffAt: () => service.diffAt(ref(1), { headSha: 'a'.repeat(40), baseBranch: 'main' }, signal),
+      diff: () => service.diff(ref(1), 'a'.repeat(40), signal),
       fileText: () => service.fileText(ref(1), 'a'.repeat(40), 'file.txt', signal),
+      commits: () => service.commits(ref(1), signal),
+      compare: () => service.compare(ref(1), 'a'.repeat(40), 'b'.repeat(40), signal),
     }
     const rejected = expect(calls[method]()).rejects.toThrow('was unregistered')
     let disposed = false

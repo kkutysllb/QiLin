@@ -101,3 +101,16 @@ C/D/E 必须成组推进：契约一改，host 与客户端同时不编译。E �
 | 中文 README 引用的 Agent Note | 移植上游 35 行的创建决策（双语 + 配对记录） |
 
 验证：worktree 106 用例、受影响六包 1199 用例通过；两个聚合 `tsc -b`、`oxlint`、`verify-cordis-config`、`verify-package-dependencies`、`verify-export-jsdoc`、`test:docs` 21 项、双语配对 1206 对全绿；过滤覆盖下 worktree `src/` 全部 100%。
+
+## 11. C 阶段实施记录（2026-11-16）
+
+上游 `experimental/forge`（1,394 行）与 `experimental/forge-github`（2,573 行）连同上游测试（4,221 行）已整体移植：
+
+- 契约：`ChangeRequestSnapshot` 增加 reviewers/closingIssues/branchUpdates/canRequestReviews/canRerunChecks/threadsTruncated 等概览字段；`Check.rerun`；`ForgeFailure` 增加 `stale`/`unsupported`；`diff(ref, headSha, signal, base?)`、`readReview`/`writeReview`、commits/compare/mergeBase/viewed/rerunChecks/requestReviews/updateBranch 全部就位；事件 `forge/providers-changed`、`forge/review-changed`。
+- GitHub provider：threads/viewed/review-writes/overview/commits/compare/mutation 等 14 个源文件与 11 个测试文件；locale 8 语言。
+- 面板宿主做最小迁移以保持现有 UI 可用：`changeRequestDiff` 传当前快照 head（不再钉住旧 head），`reviewThreads` 改读 `readReview(最新 head)` 并返回 `ForgeReviewData`；客户端移除 head 钉住与提示，`stale-head` 读取保持 in-flight 等下一次状态；卡片移除作者描述与提交数，只读 thread 改为渲染上游 thread（comments/anchor/subject）。
+- `forge-session` 保持本仓实现：上游版本依赖本仓没有的 ptc-runtime / tool-executor / 新版 Shell API；只调整其测试 fixture 以符合新快照与 check 字段。
+
+验证：forge/forge-github/forge-session/client-ui-forge/tool-worktree 共 1,449 用例通过；两个聚合 `tsc -b`、`oxlint`、`test:docs` 21 项、`verify-client-ui-i18n`、双语配对全绿；forge 与 forge-github 过滤覆盖 100%。
+
+遗留：`client-ui-forge` 覆盖率仍有缺口（`turn-files.ts`、`ForgeTab` 等既有 + 本轮适配），留待 D/E 重写收口；`docs/subsystems/forge.md` 正文仍描述旧契约，需随 D/E 按上游重写。

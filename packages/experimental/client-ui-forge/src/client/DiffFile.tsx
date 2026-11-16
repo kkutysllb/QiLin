@@ -283,7 +283,8 @@ function Lines({ file, text, open, onExpand, split, wrap, review, remote, visibl
   const remoteRemaining = new Set(remote ?? [])
   const appendRemote = (old: number | null, next: number | null): void => {
     for (const thread of remoteRemaining) {
-      if ((thread.side === 'L' ? old : next) !== thread.endLine) continue
+      const anchor = thread.current
+      if (anchor === null || (thread.side === 'L' ? old : next) !== anchor.endLine) continue
       rows.push(<RemoteThread key={`remote-${thread.id}`} thread={thread} split={columns} t={t} />)
       remoteRemaining.delete(thread)
     }
