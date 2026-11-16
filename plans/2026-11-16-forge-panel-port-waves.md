@@ -58,3 +58,18 @@ C 阶段已把 `experimental/forge`、`experimental/forge-github` 提升到 rc.3
 - `MarkdownText` 新增 `omitHtml`：原始 HTML 节点渲染为空，settled 与 streaming 两条路径一致，缓存失效条件包含该开关。
 - 新增产品图标 `IconLayersOutlineRegular`/`Medium`（layers-outline 100→101 个字形）。
 - 测试：新增摘要/移除/omitHtml 用例；`ui-primitives` 1,530 用例通过；两个聚合 typecheck、`oxlint`、`verify-client-ui-i18n`、`verify-export-jsdoc`、`test:docs` 21 项、双语配对全绿。
+
+### 波次 2 试跑记录（已回退，结论：改为整包）
+
+按「只摘引用插入」的方式试跑，移植上游 conversation 的 12 个文件（`QuoteNode.tsx`、editor runtime、
+projection、draft、contracts、facade、hub）加 3 个输入模块（`machine`、`prompt`、`file-intake`）：
+
+1. 包内类型检查可归零，仅需 3 处增量：primitives 补 `formatQuoteText`、`ModelSelectionProjection`
+   改从 `api-session-controller` 取、conversation locale 补 `quote.remove`。
+2. 客户端聚合随 `InputActions.insertQuote` 扩散到 11 个测试 mock，机械补齐后聚合归零。
+3. **但包内测试 37 个失败**：`machine`/`hub`/`facade` 与上游是同一代，`submit` 事件（`send-committed`）、
+   `SubmitAttempt` 新字段（`occurrences`/`quotes`/`attachmentIds`）、草稿清空时机、提交调用形状都变了；
+   把上游对应测试整份拷入会再引入 71 个错误（它们依赖新 testkit、文件粘贴路由与 `ComposerFileIntake` 座席）。
+
+结论：引用插入不是可外科摘除的特性，它与 submit 机器、hub、facade、document paste route 同代。
+波次 2 的正式口径应为 **ui-conversation 整包移植（src + tests）**，随后再做 ui-chat 的增量；干跑改动已整体回退，树保持绿色。
