@@ -118,3 +118,31 @@ C 阶段（forge 数据面）与波次 1（primitives 增量）保留。
 
 下一步需要二选一：让生成器对双面包的 `./client` 导出改用 **client 面程序**解析，或给该包单独的 host 文件清单
 （只把 `src/client/index.ts` 加进 host program 并处理 TS2878）。两条都属生成器/构建设计改动，应与该包的引入一起验证。
+
+### 基础层升级 · gen-typert 双面包导出（完成）
+
+`gen-typert` 的 contributor 校验原先要求**所有**导出都能在 Host program 里找到源文件，导致
+`./client` 这类 client-only 导出被误判为缺失源。现改为：
+
+- Host program 里没有、但磁盘上存在的导出源 → 跳过符号分析（Host 产物本就不应包含 client 面）；
+- 磁盘上也不存在 → 仍然抛出 `resolves to missing source`。
+
+回归用例：在 remote-model fixture 中给 contributor 增加 `./client` 导出与源文件，生成不抛错；
+删除该源文件后按原错误信息失败。`parn/typert` 生成器 57 用例通过，两个聚合 typecheck 0 错误，
+`gen-typert` 恢复 33 个产物。
+
+说明：这与「用 client 面程序解析」的完整方案等价于「Host 面不分析 client 导出」，因为目前没有任何
+消费者需要 client 导出进入 Typert 产物；若将来需要把 client API 编目，再引入独立的 client program/checker。
+
+### 下一个阻塞：session-status 与 ui-session 的状态归属
+
+引入 `client-ui-session-status` 后仅剩 1 个源码错误：`status.ts` 与 ui-session 各自声明同名
+`GlobalStandardProps.useSessionStatus`（TS2717）。根因是上游把会话状态的所有权从 ui-session 移到了
+session-status：
+
+- 上游 `SessionStatus` 含 `completionFailed`，本仓 ui-session 的只有 `running`/`pendingInteraction`/`completionUnread`；
+- 上游 ui-session 不再声明/提供 `sessionStatus`，改由 session-status 以 `uiSession.sessionStatus` 服务提供，
+  并通过其自身贡献挂到标准 props。
+
+需要一次受控重构：把状态类型、`sessionStatus` 观测与服务、slot 标准 prop 的提供者从 ui-session 迁到
+session-status，并更新读取方（conversation/chat/其它使用 `useSessionStatus` 的包与测试）。该重构完成后再引入该包。
