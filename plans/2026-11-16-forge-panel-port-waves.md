@@ -73,3 +73,23 @@ projection、draft、contracts、facade、hub）加 3 个输入模块（`machine
 
 结论：引用插入不是可外科摘除的特性，它与 submit 机器、hub、facade、document paste route 同代。
 波次 2 的正式口径应为 **ui-conversation 整包移植（src + tests）**，随后再做 ui-chat 的增量；干跑改动已整体回退，树保持绿色。
+
+### 波次 2 整包试跑记录（已回退，结论：客户端基础层需要成波升级）
+
+按修正口径把上游 `ui-conversation` 整包（src 17,810 行、tests 18,624 行、8 语言字典、三份 tsconfig）
+复制进来后，缺口继续向两侧扩散：
+
+1. **新增两个本仓没有的包**：`client-product-analytics`（495 行 src / 740 行测试）与
+   `client-ui-session-status`（739 / 1,492）都在 conversation 的 inject 与类型增强里。
+2. **会话状态包又依赖更新的基础层**：`UiSession.pendingInteractions`（本仓 ui-session 无）、
+   api-gateway 的 `RemoteStreamCarrierFailure`（本仓叫 `RemoteStreamCarrierError`）、
+   以及尚未生成的 `sessionStatus` Remote（需要更新的 api-gateway / typert 管线）。
+3. 本地把 analytics 依赖降级为「可选服务 + 局部类型」后，conversation 仍无法通过基础层类型检查。
+
+结论：rc.3 面板不是一个包的事，它要求**客户端基础层整体升级**——至少涉及
+`api-gateway`、`ui-session`、`client-ui-session-status`、`client-product-analytics`、`client-locale`（8 语言）、
+`ui-conversation`、`ui-chat`、`ui-workspace`、`ui-primitives`（与上游收敛）、`ui-slots`/`ui-renderer` 的座席与导航面。
+按本仓与上游的 src 行数差估算约 8–12k 行的净增量，属于多日、需要逐波验证的工程，而不是「再移一个包」。
+
+试跑改动已整体回退（含临时新增的 ui-session-status 包、locale 注册放宽与锁文件），树保持绿色；
+C 阶段（forge 数据面）与波次 1（primitives 增量）保留。
