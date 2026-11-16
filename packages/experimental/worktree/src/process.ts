@@ -33,6 +33,8 @@ const GIT_ENV: NodeJS.ProcessEnv = Object.fromEntries([
  * @param signal - operation cancellation.
  * @param allowedExitCodes - command-specific successful statuses.
  * @param env - command-local environment overrides, applied after Git selector removal.
+ * @param timeoutMs - the deadline this command runs under; creation passes the
+ *   wider create deadline so a large repository's checkout is not cut short.
  * @returns complete bounded stdout and the exit code.
  */
 export async function runCommand(
@@ -44,8 +46,9 @@ export async function runCommand(
   signal: AbortSignal,
   allowedExitCodes: readonly number[] = [0],
   env: NodeJS.ProcessEnv = {},
+  timeoutMs: number = config.timeoutMs,
 ): Promise<{ stdout: string; exitCode: number }> {
-  using timeout = deadline(signal, config.timeoutMs, 'WORKTREE_TIMEOUT')
+  using timeout = deadline(signal, timeoutMs, 'WORKTREE_TIMEOUT')
   timeout.signal.throwIfAborted()
   const program = await ctx.subprocess.resolveExecutable(argv[0], undefined, timeout.signal)
   const command = [program, ...argv.slice(1)]

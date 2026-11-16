@@ -183,6 +183,58 @@ export function segmentsOf(file: ForgeDiffFile, lines: readonly string[] | undef
   return segments
 }
 
+/** Drawn rows one window of a long file shows before its next increment. */
+export const DIFF_WINDOW_ROWS = 600
+
+/** One file's rows cut to a row budget, and how many drawn rows the window leaves out. */
+export interface WindowedSegments {
+  /** The segments to draw, in file order. */
+  readonly segments: readonly DiffSegment[]
+  /** Drawn rows the budget leaves out; the next window adds another increment. */
+  readonly hidden: number
+}
+
+/**
+ * Cut a file's segments to a row budget so a very large diff draws bounded DOM.
+ * A gap counts as the one row that opens it; a rows segment may be cut mid-run,
+ * and at least one drawn row is always kept.
+ * @param segments - the file's segments in file order.
+ * @param budget - the most drawn rows the window may show.
+ * @returns the segments to draw and the number of drawn rows still hidden.
+ */
+export function windowSegments(segments: readonly DiffSegment[], budget: number): WindowedSegments {
+  const limit = Math.max(1, Math.floor(budget))
+  const shown: DiffSegment[] = []
+  let hidden = 0
+  let drawn = 0
+  for (const segment of segments) {
+    const room = limit - drawn
+    if (segment.kind === 'gap') {
+      // A gap is the single row that opens it.
+      if (room <= 0) hidden += 1
+      else {
+        shown.push(segment)
+        drawn += 1
+      }
+      continue
+    }
+    const size = segment.rows.length
+    if (room <= 0) {
+      hidden += size
+      continue
+    }
+    if (size <= room) {
+      shown.push(segment)
+      drawn += size
+      continue
+    }
+    shown.push({ kind: 'rows', rows: segment.rows.slice(0, room) })
+    hidden += size - room
+    drawn = limit
+  }
+  return { segments: shown, hidden }
+}
+
 /**
  * Count the rows a file's hunks draw.
  * @param file - one file of a diff.

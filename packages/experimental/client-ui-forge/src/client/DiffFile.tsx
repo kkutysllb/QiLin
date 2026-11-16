@@ -14,7 +14,7 @@ import {
 } from '@qilin-agent/client-ui-primitives'
 import type { PropsLocale } from '@qilin-agent/client-ui-slots'
 import type { ForgeDiffFile } from '../types.ts'
-import { segmentsOf, splitRows, type DiffRow, type SplitCell, type SplitRow } from './diff-rows.ts'
+import { DIFF_WINDOW_ROWS, segmentsOf, splitRows, windowSegments, type DiffRow, type SplitCell, type SplitRow } from './diff-rows.ts'
 import { codeSideAt, readCodeSelection } from './code-selection.ts'
 import { reviewMatches, selectReviewLines, type ReviewSelection } from './review.ts'
 import { ReviewThread, useFileReview } from './ReviewThread.tsx'
@@ -204,9 +204,14 @@ function Lines({ file, text, open, onExpand, split, wrap, review, visible, comme
       window.removeEventListener('pointercancel', finish)
     }
   }, [selecting, nativeSelection])
-  const prepared = useMemo(() => segmentsOf(file, lines, open).map((segment): Prepared => segment.kind === 'gap'
+  // A very large file draws one window at a time: the budget bounds both the
+  // DOM and the highlighted text, and the next window extends it.
+  const [budget, setBudget] = useState(DIFF_WINDOW_ROWS)
+  useEffect(() => { setBudget(DIFF_WINDOW_ROWS) }, [file.path])
+  const windowed = useMemo(() => windowSegments(segmentsOf(file, lines, open), budget), [file, lines, open, budget])
+  const prepared = useMemo(() => windowed.segments.map((segment): Prepared => segment.kind === 'gap'
     ? segment
-    : { ...segment, old: sideSpans(segment.rows, 'old', highlighter), new: sideSpans(segment.rows, 'new', highlighter) }), [file, lines, open, highlighter])
+    : { ...segment, old: sideSpans(segment.rows, 'old', highlighter), new: sideSpans(segment.rows, 'new', highlighter) }), [windowed, highlighter])
   const choose = (side: 'L' | 'R', line: number, extend: boolean): void => {
     if (review === undefined || editing) return
     const from = extend && origin.current?.side === side ? origin.current.line : line
@@ -313,6 +318,13 @@ function Lines({ file, text, open, onExpand, split, wrap, review, visible, comme
         appendComments(row.old, row.new)
       }
     }
+  }
+  if (windowed.hidden > 0) {
+    rows.push(<button key="more" type="button" className={css.gap} data-forge-diff-more=""
+      onClick={() => { setBudget(current => current + DIFF_WINDOW_ROWS) }}>
+      <IconChevronsUpDownOutlineRegular size={12} />
+      {t('diff.showMoreRows', { count: windowed.hidden.toLocaleString('en-US') })}
+    </button>)
   }
   if (review !== undefined) for (const thread of remaining) {
     rows.push(<ReviewThread key={`record-${thread.key}`} thread={thread} actions={review} locked={comments.locked} outdated split={false} t={t} />)

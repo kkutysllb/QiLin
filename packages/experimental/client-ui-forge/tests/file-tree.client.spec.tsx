@@ -2,11 +2,11 @@
 /** Changed-file directories, searching, and keyboard disclosure without reading repository contents. */
 import { useState } from 'react'
 import { act, cleanup, fireEvent, render } from '@testing-library/react'
-import { afterEach, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
 import type { ForgeDiffFile } from '../src/types.ts'
 import { ChangedFiles, type ChangedFilesState } from '../src/client/ChangedFiles.tsx'
-import { changedFileTree, filesInTreeOrder, filterFileTree } from '../src/client/file-tree.ts'
+import { changedFileTree, filesInTreeOrder, filterFileTree, stepFileIndex } from '../src/client/file-tree.ts'
 import { en } from '../src/client/locales.ts'
 import { FileTreePane } from '../src/client/FileTreePane.tsx'
 
@@ -156,4 +156,23 @@ it('can mount into a detached fragment without measuring a nonexistent parent el
     filter={vi.fn()} toggle={vi.fn()} jump={vi.fn()} id="detached-tree" position="right" />, { container: document.createDocumentFragment() })
   expect(observe).not.toHaveBeenCalled()
   view.unmount()
+})
+
+describe('stepFileIndex', () => {
+  it('starts at the nearest end before any selection', () => {
+    expect(stepFileIndex(6, -1, 1)).toBe(0)
+    expect(stepFileIndex(6, -1, -1)).toBe(5)
+  })
+
+  it('moves one step and stops at either end', () => {
+    expect(stepFileIndex(6, 2, 1)).toBe(3)
+    expect(stepFileIndex(6, 2, -1)).toBe(1)
+    expect(stepFileIndex(6, 0, -1)).toBe(0)
+    expect(stepFileIndex(6, 5, 1)).toBe(5)
+  })
+
+  it('reports no target for an empty diff', () => {
+    expect(stepFileIndex(0, -1, 1)).toBe(-1)
+    expect(stepFileIndex(0, 0, -1)).toBe(-1)
+  })
 })

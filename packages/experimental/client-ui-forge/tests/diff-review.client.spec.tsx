@@ -165,3 +165,21 @@ it('places left and right records in unified rows and retains outdated records f
   expect(m.container.querySelectorAll('[data-forge-review-thread]')).toHaveLength(3)
   expect(within(m.container).getByRole('button', { name: /changed lines/ })).toBeTruthy()
 })
+
+it('draws a very large file one window at a time and extends it on demand', () => {
+  const lines = Array.from({ length: 900 }, (_, index) => `+line ${index + 1}`)
+  const big: ForgeDiffFile = {
+    ...file, path: 'big.txt', additions: 900, deletions: 0,
+    hunks: [{ oldStart: 1, oldLines: 0, newStart: 1, newLines: 900, lines }],
+  }
+  // The new side is known, so no trailing unknown gap follows the hunk.
+  const view = mount({ file: big, split: false, text: lines.map(line => line.slice(1)) })
+
+  expect(view.container.querySelectorAll('[data-diff-line]')).toHaveLength(600)
+  const more = view.container.querySelector('[data-forge-diff-more]') as HTMLElement
+  expect(more.textContent).toContain('300')
+
+  fireEvent.click(more)
+  expect(view.container.querySelectorAll('[data-diff-line]')).toHaveLength(900)
+  expect(view.container.querySelector('[data-forge-diff-more]')).toBeNull()
+})

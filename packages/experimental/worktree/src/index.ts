@@ -35,6 +35,12 @@ export interface Config {
   nodeCommand?: string
   /** Deadline in milliseconds for one command. */
   timeoutMs?: number
+  /**
+   * Deadline in milliseconds for creating or restoring a checkout. A large
+   * repository's `worktree add` and reset take longer than a Git query, so
+   * creation waits under this wider deadline while queries keep `timeoutMs`.
+   */
+  createTimeoutMs?: number
   /** Subprocess termination grace in milliseconds. */
   graceMs?: number
   /** Maximum captured bytes per subprocess output stream. */
@@ -73,6 +79,7 @@ export class WorktreeService extends Service {
     gitCommand: z.string().default('git'),
     nodeCommand: z.string().default('node'),
     timeoutMs: z.number().default(60_000),
+    createTimeoutMs: z.number().default(300_000),
     graceMs: z.number().default(3_000),
     maxOutputBytes: z.number().default(65_536),
   })
@@ -91,7 +98,7 @@ export class WorktreeService extends Service {
     for (const key of ['gitCommand', 'nodeCommand'] as const) {
       if (this.config[key].trim().length === 0) throw new Error(`worktree: ${key} must not be empty`)
     }
-    for (const key of ['timeoutMs', 'graceMs', 'maxOutputBytes'] as const) {
+    for (const key of ['timeoutMs', 'createTimeoutMs', 'graceMs', 'maxOutputBytes'] as const) {
       const value = this.config[key]
       if (!Number.isSafeInteger(value) || value <= 0 || value > MAX_TIMER_DELAY_MS) {
         throw new Error(`worktree: ${key} must be a positive integer no greater than ${MAX_TIMER_DELAY_MS}`)
@@ -262,7 +269,7 @@ export class WorktreeService extends Service {
     onPhase?.('prepare')
     const cwd = await this.ctx.workingDirectory.ensure(agent, signal)
     const policy = this.ctx.sandboxPolicy.resolve({ session: agent.session })
-    const run = this.gitRunner(policy, signal)
+    const run = this.gitRunner(policy, signal, this.config.createTimeoutMs)
     await run(cwd, ['check-ref-format', `refs/heads/${branch}`])
     const rootOutput = await run(cwd, ['rev-parse', '--show-toplevel'])
     const rootTarget = await this.ctx.fs.resolve(rootOutput.stdout.replace(/\r?\n$/, ''), { cwd, signal })
@@ -297,7 +304,7 @@ export class WorktreeService extends Service {
   ): Promise<RestoredWorktree> {
     onPhase?.('prepare')
     const policy = this.ctx.sandboxPolicy.resolve({ session: agent.session })
-    const run = this.gitRunner(policy, signal)
+    const run = this.gitRunner(policy, signal, this.config.createTimeoutMs)
     if (await this.ctx.fs.lstat(path, undefined, signal) !== undefined) throw new Error(`worktree path already exists: ${path}`)
     const root = await this.ctx.fs.resolve(repositoryRoot, { signal })
     const pool = await this.ctx.fs.resolve(this.config.directory, { cwd: repositoryRoot, signal })
@@ -342,11 +349,11 @@ export class WorktreeService extends Service {
   }
 
   /** Confine Git commands to the caller's sandbox policy, with hooks and the filesystem monitor disabled. */
-  private gitRunner(policy: SandboxExecutionPolicy, signal: AbortSignal): GitRun {
+  private gitRunner(policy: SandboxExecutionPolicy, signal: AbortSignal, timeoutMs?: number): GitRun {
     return (directory, args, allowedExitCodes, env) => runCommand(
       this.ctx, this.config, policy, directory,
       [this.config.gitCommand, '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false', ...args],
-      signal, allowedExitCodes, env,
+      signal, allowedExitCodes, env, timeoutMs,
     )
   }
 
@@ -359,7 +366,8 @@ export class WorktreeService extends Service {
     signal: AbortSignal,
   ): Promise<void> {
     await runCommand(this.ctx, this.config, policy, repositoryRoot,
-      [this.config.nodeCommand, '--input-type=module', '-e', PREPARE_DIRECTORY, poolPath, path], signal)
+      [this.config.nodeCommand, '--input-type=module', '-e', PREPARE_DIRECTORY, poolPath, path], signal,
+      [0], {}, this.config.createTimeoutMs)
   }
 }
 

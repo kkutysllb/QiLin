@@ -335,6 +335,51 @@ describe('ChangesTab keyboard file navigation', () => {
     expect(scrolled.mock.contexts.at(-1)).toBe(nodes[2])
   })
 
+  it('steps files from the toolbar buttons and with Alt+Arrow', async () => {
+    const m = mount()
+    await settle()
+    const root = m.view.container.querySelector('[data-forge-changes]') as HTMLElement
+    const next = m.view.getByRole('button', { name: en['diff.nextFile'] })
+    const previous = m.view.getByRole('button', { name: en['diff.previousFile'] })
+    /** Which file section the last jump scrolled to. */
+    const scrolledPath = (): string | undefined => {
+      const target = scrolled.mock.contexts.at(-1)
+      return m.paths().find(path => path !== null && m.section(path) === target) ?? undefined
+    }
+
+    fireEvent.click(next)
+    const first = scrolledPath()
+    expect(first).toBeDefined()
+    fireEvent.click(next)
+    const second = scrolledPath()
+    expect(second).toBeDefined()
+    expect(second).not.toBe(first)
+
+    fireEvent.keyDown(root, { key: 'ArrowDown', altKey: true })
+    const third = scrolledPath()
+    expect(third).not.toBe(second)
+    fireEvent.keyDown(root, { key: 'ArrowUp', altKey: true })
+    expect(scrolledPath()).toBe(second)
+
+    fireEvent.click(previous)
+    expect(scrolledPath()).toBe(first)
+
+    // The filter field keeps its own arrow keys.
+    const treeSearch = within(m.view.getByRole('navigation')).getByRole('textbox')
+    treeSearch.focus()
+    const before = scrolled.mock.calls.length
+    fireEvent.keyDown(treeSearch, { key: 'ArrowDown', altKey: true })
+    expect(scrolled.mock.calls.length).toBe(before)
+    expect(previous.hasAttribute('disabled')).toBe(false)
+  })
+
+  it('does nothing without a listed file', async () => {
+    const empty = mount({ setup: (faces) => { faces.localDiff.mockResolvedValue(ok({ ...LOCAL, files: [] })) } })
+    await settle()
+    fireEvent.keyDown(empty.view.container.querySelector('[data-forge-changes]') as HTMLElement, { key: 'ArrowUp', altKey: true })
+    expect(scrolled).not.toHaveBeenCalled()
+  })
+
   it('leaves vertical arrows, modifiers, composition and handled keys to their owners', async () => {
     const m = mount()
     await settle()
@@ -738,8 +783,14 @@ describe('ChangesTab layout', () => {
 
     const first = m.section('data/huge-1.txt')
     fireEvent.click(within(first).getByRole('button', { name: 'Large file: 1,001 changed lines collapsed' }))
-    // A file with additions only keeps one column in the side-by-side layout.
+    // A revealed file past the window budget draws one window at a time.
+    expect(first.querySelectorAll('[data-diff-line="add"]')).toHaveLength(600)
+    const more = first.querySelector('[data-forge-diff-more]') as HTMLElement
+    expect(more.textContent).toContain('402')
+    fireEvent.click(more)
     expect(first.querySelectorAll('[data-diff-line="add"]')).toHaveLength(1001)
+    expect(first.querySelector('[data-forge-diff-more]')).toBeNull()
+    // A file with additions only keeps one column in the side-by-side layout.
     expect(first.querySelector('[data-diff-pair]')).toBeNull()
     fireEvent.click(within(m.section('data/huge-6.txt')).getByRole('button', { name: 'Expand huge-6.txt' }))
     expect(within(m.section('data/huge-6.txt')).getByRole('button', { name: 'Large file: 1,001 changed lines collapsed' })).toBeTruthy()

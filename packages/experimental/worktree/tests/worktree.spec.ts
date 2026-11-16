@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Context } from '@qilin-agent/kylin'
 import WorktreeService from '../src/index.ts'
 import type { RestoreWorktreeRequest } from '../src/index.ts'
+import { runCommand } from '../src/process.ts'
 import { contents, git, harness, repository, testAgent } from './harness.ts'
 
 let ctx: Context | undefined
@@ -396,7 +397,7 @@ describe('creating and entering retained worktrees', () => {
 
   it('rejects cancellation and invalid deployment config before allocating a checkout', async () => {
     const root = await repo()
-    for (const config of [{ directory: '../escape' }, { namePrefix: '-bad' }, { gitCommand: '' }, { timeoutMs: 0 }]) {
+    for (const config of [{ directory: '../escape' }, { namePrefix: '-bad' }, { gitCommand: '' }, { timeoutMs: 0 }, { createTimeoutMs: 0 }]) {
       await expect(harness(root, config)).rejects.toThrow('worktree:')
     }
     ctx = await harness(root)
@@ -642,4 +643,21 @@ it('does not remove a registration when its directory reappears during restorati
     expect(targetReads).toBe(2)
     expect(await git(root, 'worktree', 'list', '--porcelain')).toContain(`worktree ${created.path.split(sep).join('/')}`)
   } finally { probe.mockRestore() }
+})
+
+describe('command deadlines', () => {
+  it('runs one command under the deadline its caller passes', async () => {
+    const root = await repo()
+    ctx = await harness(root)
+    const agent = testAgent(ctx, root)
+    const policy = ctx.sandboxPolicy.resolve({ session: agent.session })
+    const sleep: [string, ...string[]] = [process.execPath, '-e', 'setTimeout(() => {}, 60000)']
+
+    // Creation passes its own wider deadline; this call proves the argument
+    // reaches the command's timer rather than the service's default one.
+    await expect(runCommand(
+      ctx, { timeoutMs: 60_000, graceMs: 1_000, maxOutputBytes: 65_536 }, policy, root,
+      sleep, new AbortController().signal, [0], {}, 50,
+    )).rejects.toThrow('WORKTREE_TIMEOUT after 50ms')
+  })
 })

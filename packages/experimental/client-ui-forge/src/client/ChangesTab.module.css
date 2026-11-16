@@ -234,11 +234,39 @@
   min-height: 0;
 }
 
-.treeToggle { display: none; }
+/* The navigator is always reachable: wide layouts seat it as a column, narrow
+   ones float it over the diff so neither surface shrinks below its reading width. */
+.treeToggle { display: inline-flex; }
 
 @container forge-changes (min-width: 760px) {
-  .treeToggle { display: inline-flex; }
   .treePane:not([hidden]) { display: block; }
+}
+
+@container forge-changes (max-width: 759px) {
+  .body { position: relative; }
+  .treePane:not([hidden]) {
+    display: block;
+    position: absolute;
+    z-index: 3;
+    inset-block: 0;
+    max-width: 100%;
+    background: var(--forge-changes-bg);
+    box-shadow: 0 6px 24px rgb(0 0 0 / 18%);
+  }
+  .treePane[data-position='left']:not([hidden]) {
+    inset-inline-start: 0;
+    border-inline-end: 1px solid var(--dsw-alias-border-l3);
+  }
+  .treePane[data-position='right']:not([hidden]) {
+    inset-inline-end: 0;
+    border-inline-start: 1px solid var(--dsw-alias-border-l3);
+  }
+  /* A floating navigator shares no width with the diff, so its drag target goes. */
+  .treePane [role='separator'] { display: none; }
+  .toolbar {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
 }
 
 .files {

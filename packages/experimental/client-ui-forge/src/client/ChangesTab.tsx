@@ -10,7 +10,8 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from 'react'
 import clsx from 'clsx'
 import {
-  Button, IconChevronDownOutlineRegular, IconChevronsUpDownOutlineRegular, IconCompareSplitOutlineRegular, IconInfoOutlineRegular,
+  Button, IconChevronDownOutlineRegular, IconChevronLeftOutlineRegular, IconChevronRightOutlineRegular,
+  IconChevronsUpDownOutlineRegular, IconCompareSplitOutlineRegular, IconInfoOutlineRegular,
   IconListPenOutlineRegular, IconNowrapFillRegular, IconRightUpOutlineRegular, IconWorkspaceTreeOutlineRegular, IconWrapFillRegular,
   Menu, StateDot, Tooltip,
   type MenuEntry,
@@ -32,7 +33,7 @@ import { parseChangesAddress, type ChangesSource } from './changes-address.ts'
 import type { createChangesStore } from './changes-store.ts'
 import { Counts, DiffFile, type DiffFileAction } from './DiffFile.tsx'
 import { FileTreePane, type FileTreePosition } from './FileTreePane.tsx'
-import { changedFileTree, filesInTreeOrder } from './file-tree.ts'
+import { changedFileTree, filesInTreeOrder, stepFileIndex } from './file-tree.ts'
 import { ChangedFilesMenu, type ChangedFilesProps, type ChangedFilesState } from './ChangedFiles.tsx'
 import { drawnLines, matchesHunks, textLines } from './diff-rows.ts'
 import { ChangeRequestGlyph } from './glyphs.tsx'
@@ -540,6 +541,13 @@ export function ChangesTab({
     .filter(path => !data?.files.some(file => file.path === path))
   const orphanRecords = absentPaths.map(path => <OrphanReviews key={path} path={path} actions={recordActions} t={t} />)
 
+  /** Move one file in the navigator's order, from no selection to an end of it. */
+  const stepFile = (delta: number): void => {
+    const at = treeState.selected === null ? -1 : files.findIndex(file => file.path === treeState.selected)
+    const next = files[stepFileIndex(files.length, at, delta)]
+    if (next !== undefined) jump(next.path)
+  }
+
   const jump = (path: string): void => {
     setTreeState(value => ({ ...value, selected: path }))
     setChosen(value => ({ ...value, [path]: true }))
@@ -675,7 +683,14 @@ export function ChangesTab({
     deletions += file.deletions
   }
   return (
-    <div className={css.root} data-forge-changes={source.kind}>
+    <div className={css.root} data-forge-changes={source.kind}
+      onKeyDown={(event) => {
+        if (!event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+        if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return
+        if (event.target instanceof Element && event.target.closest('input, textarea, [contenteditable="true"]') !== null) return
+        event.preventDefault()
+        stepFile(event.key === 'ArrowDown' ? 1 : -1)
+      }}>
       {source.kind === 'local'
         ? <LocalHeader state={state} scope={scope} createChangeRequest={createChangeRequest} t={t} />
         : <ChangeHeader url={source.url} entry={entry} openLink={openLink} reviewCount={reviewState.comments.length}
@@ -696,6 +711,20 @@ export function ChangesTab({
         {tab.visible && <ChangedFilesMenu {...navigator} visible />}
         {files.length > 0 && <span className={css.totals}><Counts file={{ additions, deletions, binary: false }} t={t} /></span>}
         <span className={css.tools}>
+          <Tooltip label={t('diff.previousFile')} side="bottom">
+            <button type="button" className={css.tool} aria-label={t('diff.previousFile')} data-forge-file-nav="previous"
+              disabled={files.length === 0}
+              onClick={() => { stepFile(-1) }}>
+              <IconChevronLeftOutlineRegular />
+            </button>
+          </Tooltip>
+          <Tooltip label={t('diff.nextFile')} side="bottom">
+            <button type="button" className={css.tool} aria-label={t('diff.nextFile')} data-forge-file-nav="next"
+              disabled={files.length === 0}
+              onClick={() => { stepFile(1) }}>
+              <IconChevronRightOutlineRegular />
+            </button>
+          </Tooltip>
           <Tooltip label={t('diff.refresh')} side="bottom">
             <button type="button" className={css.tool} aria-label={t('diff.refresh')} onClick={refresh}>
               <RefreshGlyph busy={rereading} size={16} />
