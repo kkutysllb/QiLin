@@ -157,6 +157,11 @@ function sessionSnapshot(nodes: LegacyConversationSlice['nodes']): SessionSnapsh
     openState: 'open',
     openError: null,
     hasMore: false,
+
+    historyWasPartial: false,
+
+    historyLoadStatus: 'idle',
+
     loadingOlder: false,
     promptError: null,
     blank: nodes.length === 0,

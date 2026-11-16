@@ -95,6 +95,11 @@ function createSessionsBench(ctx: Context): SessionsBench {
         openState: 'open',
         openError: null,
         hasMore: false,
+
+        historyWasPartial: false,
+
+        historyLoadStatus: 'idle',
+
         loadingOlder: false,
         promptError: null,
         blank: false,

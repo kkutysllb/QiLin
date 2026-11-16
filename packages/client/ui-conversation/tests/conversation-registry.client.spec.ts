@@ -31,6 +31,11 @@ function sessionSnapshot(): SessionSnapshot {
     openState: 'open',
     openError: null,
     hasMore: false,
+
+    historyWasPartial: false,
+
+    historyLoadStatus: 'idle',
+
     loadingOlder: false,
     promptError: null,
     blank: true,

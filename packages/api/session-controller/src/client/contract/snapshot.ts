@@ -80,6 +80,10 @@ export interface SessionSnapshot {
   readonly openState: OpenState
   readonly openError: RemoteFailure | null
   readonly hasMore: boolean
+  /** This Client Session has exposed an incomplete history window; remains true across replacements. */
+  readonly historyWasPartial: boolean
+  /** History request status; `pendingConsumption` retains a page not yet published. */
+  readonly historyLoadStatus: 'idle' | 'loading' | 'pendingConsumption' | 'error'
   readonly loadingOlder: boolean
   readonly promptError: PromptError | null
   readonly blank: boolean

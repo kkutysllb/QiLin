@@ -97,6 +97,12 @@ export class Session implements SessionFace {
    *  passes drop all writes once the generation moves on. */
   private openGeneration = 0
   private loadingOlder = false
+  private historyWasPartial = false
+  private historyLoadError = false
+  private get historyLoadStatus(): SessionSnapshot['historyLoadStatus'] {
+    if (this.loadingOlder) return 'loading'
+    return this.historyLoadError ? 'error' : 'idle'
+  }
   /** Shared low-water target of the running jump loop; null when no jump is paging. */
   private jumpTargetSeq: SessionSeq | null = null
   /** The running jump loop's completion, shared by retargeting callers. */
@@ -424,10 +430,12 @@ export class Session implements SessionFace {
     const events = this.events
     if (events === undefined) return
     this.loadingOlder = true
+    this.historyLoadError = false
     this.notifier.markDirty()
     try {
       await events.prepend({ beforeSeq: this.baseSeq, maxMessages: PAGE_MESSAGES })
     } catch (error) {
+      this.historyLoadError = true
       if (!isRemoteFailure(error)) {
         console.error('[session-controller] loadOlder failed:', error)
       }
@@ -460,6 +468,7 @@ export class Session implements SessionFace {
     this.pendingHistory = pending
     this.jumpTargetSeq = seq
     this.loadingOlder = true
+    this.historyLoadError = false
     this.notifier.markDirty()
     // Stale-pass guard (the doOpen pattern): a resync mid-loop replaces the
     // stream generation; this pass then stops instead of paging the new
@@ -476,6 +485,7 @@ export class Session implements SessionFace {
           if (pending.beforeSeq >= before) return
         }
       } catch (error) {
+        this.historyLoadError = true
         if (!isRemoteFailure(error)) {
           console.error('[session-controller] loadThrough failed:', error)
         }
@@ -690,6 +700,7 @@ export class Session implements SessionFace {
     const visible = this.assistantStream.replace(entries, assistantStream)
     this.baseSeq = SessionLogOffset(entries[0]?.event.seq ?? 0)
     this.hasMore = hasMore
+    this.historyWasPartial ||= hasMore
     if (this.pendingHistory !== null) {
       this.pendingHistory.beforeSeq = this.baseSeq
       this.pendingHistory.hasMore = hasMore
@@ -755,6 +766,7 @@ export class Session implements SessionFace {
     }
     this.baseSeq = entries[0] === undefined ? this.baseSeq : SessionLogOffset(entries[0].event.seq)
     this.hasMore = hasMore
+    this.historyWasPartial ||= hasMore
     this.eventSource.prepend(entries, hasMore)
   }
 
@@ -893,6 +905,8 @@ export class Session implements SessionFace {
       openState: this.openState,
       openError: this.openError,
       hasMore: this.hasMore,
+      historyWasPartial: this.historyWasPartial,
+      historyLoadStatus: this.historyLoadStatus,
       loadingOlder: this.loadingOlder,
       promptError: this.promptError,
       blank: this.blankBit,

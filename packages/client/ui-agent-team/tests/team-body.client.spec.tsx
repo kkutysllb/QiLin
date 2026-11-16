@@ -166,6 +166,11 @@ async function bodyBench(options: BenchOptions = {}): Promise<Mounted> {
     openState: options.openState ?? 'open',
     openError: null,
     hasMore: false,
+
+    historyWasPartial: false,
+
+    historyLoadStatus: 'idle',
+
     loadingOlder: false,
     promptError: null,
     blank: false,
