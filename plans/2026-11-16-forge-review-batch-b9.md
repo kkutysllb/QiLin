@@ -27,6 +27,7 @@ kind: "plan"
 | 窄屏布局 | 文件树在容器 ≥760px 时是并排的一列；<760px 时改为浮层覆盖 diff（按左右位置贴边、带描边与投影、隐藏拖拽分隔条），diff 不再被压到最小宽度以下；树按钮在所有宽度都留在工具栏；窄屏工具栏允许换行。 | [ChangesTab.module.css](../packages/experimental/client-ui-forge/src/client/ChangesTab.module.css) |
 | 文件导航 | 工具栏新增「上一个文件 / 下一个文件」，以及标签页内（文本框之外）的 Alt+↑ / Alt+↓；与既有的 diff 内 ←/→ 使用同一顺序（数据顺序，首尾夹紧）。索引进位抽成纯函数便于测试。 | [ChangesTab.tsx](../packages/experimental/client-ui-forge/src/client/ChangesTab.tsx)、[file-tree.ts](../packages/experimental/client-ui-forge/src/client/file-tree.ts)（`stepFileIndex`） |
 | 大仓库 worktree 等待 | 新增 `createTimeoutMs`（默认 300000）：创建与恢复的 Git 命令、目录分配走这一期限；其余查询仍用 `timeoutMs`（默认 60000）。`runCommand` 接受调用方传入的期限。 | [worktree/src/process.ts](../packages/experimental/worktree/src/process.ts)、[worktree/src/index.ts](../packages/experimental/worktree/src/index.ts) |
+| pinned diff（provider 契约第三条） | 提供方新增可选 `diffAt(ref, { headSha, baseBranch }, signal)`：GitHub 走 compare `base...head`（三点、合并基准）的 diff 媒体类型，base ref 百分号编码；forge 服务按 forge 委托，未实现返回 `unavailable`。`forgePanel.changeRequestDiff` 接受调用方正在评审的 head，缓存按 `(head, base)` 分桶；变更视图读到某个 head 后停留在此，轮询发现 head 移动只显示提示与「刷新到最新 head」，不自动重读。 | [forge/src/types.ts](../packages/experimental/forge/src/types.ts)、[forge-github/src/provider.ts](../packages/experimental/forge-github/src/provider.ts)、[client-ui-forge/src/index.ts](../packages/experimental/client-ui-forge/src/index.ts)、[client-ui-forge/src/client/ChangesTab.tsx](../packages/experimental/client-ui-forge/src/client/ChangesTab.tsx) |
 | overview（provider 契约第二条） | `ChangeRequestSnapshot` 增加 `body`（作者描述，缺省为空串）与 `commitCount`（提交数）；GitHub 轮询查询同时读取 `body` 与 `commits.totalCount`。变更请求卡片展开后把描述显示为两行截断（`title` 给出全文），并在分支后显示提交数（1 个时用单数键）。 | [forge/src/types.ts](../packages/experimental/forge/src/types.ts)、[forge-github/src/graphql.ts](../packages/experimental/forge-github/src/graphql.ts)、[client-ui-forge/src/client/ChangeRequestCard.tsx](../packages/experimental/client-ui-forge/src/client/ChangeRequestCard.tsx) |
 | review reads（发布说明「代码审阅评论」） | 提供方新增可选 `reviewThreads(ref, signal)`：返回每个线程的文件、侧、包含端点的行范围、首位作者、合并后的正文、已解决/已过期。forge 服务按 `fetchTimeoutMs` 委托，未实现返回 `unavailable`；`forgePanel.reviewThreads` Remote 仅接受可见绑定，失败抛 `forgePanel/review-reads-failed`。变更视图在 change 范围内读取一次，把线程只读地画在对应行旁（左侧删除行同样锚定），行不在绘制范围内的线程落到文件末尾；读取失败或提供方不支持时，本地评审队列与 diff 照常可用。GitHub 用一次 GraphQL 查询读取前 100 个线程、每线程最多 50 条评论。 | [forge/src/types.ts](../packages/experimental/forge/src/types.ts)、[forge-github/src/review-reads.ts](../packages/experimental/forge-github/src/review-reads.ts)、[client-ui-forge/src/client/RemoteThread.tsx](../packages/experimental/client-ui-forge/src/client/RemoteThread.tsx)、[client-ui-forge/src/client/ChangesTab.tsx](../packages/experimental/client-ui-forge/src/client/ChangesTab.tsx) |
 | worktree 归档清理（delta 第 58 条） | Workspace 在归档落盘后派发 `workspace/session-archived`（parallel，抛错只记日志）；worktree 服务据此移除本进程仍持有的该会话检出，**保留分支与提交**；含未提交/未跟踪文件的检出保留（移除从不加 `--force`），会话不再加载时保留全部；`retainOnArchive`（默认 `false`）保留所有检出。 | [workspace/src/index.ts](../packages/workspace/workspace/src/index.ts)、[worktree/src/index.ts](../packages/experimental/worktree/src/index.ts) |
@@ -41,6 +42,7 @@ kind: "plan"
 | 归档相关回归 | `vitest run packages/workspace packages/core/agent packages/jobs packages/schedule packages/experimental/worktree` | 74 文件 / 1706 用例通过 |
 | 评审读取三包 | `vitest run packages/experimental/forge packages/experimental/forge-github packages/experimental/client-ui-forge` | 45 文件 / 1222 用例通过（过滤运行覆盖：`review-reads.ts`、`RemoteThread.tsx`、`DiffFile.tsx`、`ChangesTab.tsx` 的本批新增分支 100%） |
 | overview 四包 | `vitest run packages/experimental/{forge,forge-github,forge-session,client-ui-forge}` | 46 文件 / 1233 用例通过（过滤运行覆盖：`ChangeRequestCard.tsx` 与 `graphql.ts` 的本批新增分支 100%） |
+| pinned diff 四包 | `vitest run packages/experimental/{forge,forge-github,forge-session,client-ui-forge}` | 46 文件 / 1240 用例通过（过滤运行覆盖：`provider.ts` 的 `diffAt`、`ChangesTab.tsx` 的钉住分支 100%；仅剩既有的过滤运行缺口） |
 | 类型与静态检查 | `typecheck:contracts-ready`、`oxlint <两包>` | 通过（0 warning / 0 error） |
 | 客户端文案归属 | `verify-client-ui-i18n` | 通过 |
 | 双语配对 | `verify-translation-pairing` | 1205 对一致 |
@@ -48,10 +50,11 @@ kind: "plan"
 
 新增测试：窗口切割与展示（4 例）、900 行文件分窗与「再显示」（1 例）、`stepFileIndex` 三态（3 例）、工具栏/Alt 跳转与空列表（2 例）、worktree 期限参数（1 例）与 `createTimeoutMs` 校验。
 
-## 5. B9 剩余待办（本批未做）
+## 5. B9 状态
 
-- **provider 契约剩余一条**：pinned diff（按评审时的 head 读取）。需要先裁决基准 ref 语义（GitHub compare `base...head` 与 PR diff 的等价性），再动契约。
-- **bundle 行迁移复核**：已核对，当前 `forge-bundle` 含 `worktree` 与 `tool-worktree` 两条顶层 insert，与 alpha.3 分析的缺口描述不一致；以当前树为准，无需改动。
+B9 的四项都已落地：面板 15k 分批（600 行窗口）、worktree 归档清理 + `retainOnArchive`、bundle 行核对（现有 bundle 已含两条 insert，无需改动）、provider 契约三条（overview、pinned diff、review reads，均端到端）。
+
+剩下的只有「以上游真实 diff 复核细节」：本 checkout 没有 rc.2 的上游源码与三篇指南原文，本批是按发布说明承诺做的等价实现；拿到快照后应复核交互细节（窗口粒度、窄屏阈值、评论导航、pinned 的基准语义）。
 - **上游细节无法逐行比对**：若后续取得上游 `client-ui-forge` 的 rc.2 快照，应按真实 diff 复核三处的交互细节（评论导航、窄屏阈值、分窗粒度）。
 
 ## 6. 已知边界
@@ -63,4 +66,6 @@ kind: "plan"
 - 归档清理与用户手动移除并发时按先到者处理；移除失败（脏检出、锁定、会话未加载）只记日志并保留目录。
 - review reads 只读前 100 个线程、每线程前 50 条评论（与上游「前 100」边界一致），不翻页；线程正文是纯文本，不解析 Markdown；`resolved`/`outdated` 只用于标签，不改变可操作性。
 - review reads 的失败不弹错误，只让该文件没有外部线程；本地草稿、发布与添加引用不受影响。
+- pinned diff 以 GitHub compare 的三点范围为准：对打开中的 PR 与「文件变更」一致，base 前进或历史被改写后可能与 PR 页面不同；客户端始终显示自己读到的 head，不会把新 head 的 diff 当成旧的。
+- 提供方未实现 `diffAt` 时，钉住的旧 head 会以 `forgePanel/diff-failed` 失败（消息说明不支持）；刷新会回到最新 head 并用普通 `diff` 读取，因此不会静默换内容。
 - overview 只增加描述与提交数：描述是纯文本、两行截断（全文走悬停提示），提交数来自 GitHub 的 `commits.totalCount`；审阅者列表、标签、里程碑等未纳入本批，避免在契约里加入没有消费者的字段。
