@@ -209,3 +209,21 @@ client-ui-session-status 引入 → ui-conversation 整包 → chat/workspace �
 
 下一步按目标顺序进入 **ui-conversation 整包移植**（src 17,810 + tests 18,624），需要同时做 locale 八语言登记放宽
 与 product-analytics 的可选适配；之后 ui-chat/ui-workspace 增量，最后 client-ui-forge 面板整包。
+
+### 基础层升级 · 第 3 步（中止）：ui-conversation 整包移植受阻于 HOC 槽位子系统
+
+按计划整包复制 `ui-conversation`（src + tests + 8 语言字典）后，逐项修复暴露的基础层缺口：
+
+已补齐并独立提交：
+- `client-ui-primitives`：`HoverCard`/`HoverCardGroup`/`DraggableImage`/`image-drag`/`file-drag-actions`/`formatQuoteText`/`FishLogo`/`ReferenceIcon`/`UserTextRun`（1,576 例测试通过）；
+- `client-locale`：命名空间字典登记支持任意语言；
+- `api-session-controller`：`BeginSubmissionInput.onAccept` 接受回调。
+
+仍缺且超出单包范围：
+1. **HOC 槽位家族**：上游 `ui-slots` 有 `hoc` 槽位类型（`HocRenderOpts.children` 包装 owner 内容），本仓 `ui-slots`/`ui-renderer` 整代为旧（1,591 vs 1,345 行渲染面）；
+2. **context-menu 工厂座席**：上游 `contextMenu.button` factory 未在本仓 `ui-context-menu`；
+3. **会话续接投影**：`conversationContinuation` 宿主投影；
+4. **文件上传图片通道**：`uploadImage` 与其 HTTP 路由；
+5. **渲染期命名空间键**：`workspace.defaultName` 等跨命名空间 `t()`。
+
+结论：整包 conversation 等价于再做一轮「ui-slots + ui-renderer 代际升级」，与本目标（面板移植）正交；面板干跑只差引用插入/座席/归档通知等**增量**。为避免把主树长期停在红色状态，整包改动已整体回退（保留上述独立提交），后续按**增量路径**推进：conversation/chat 引用插入 → workspace 座席与归档通知 → 面板整包。待面板收口后，若仍需整包对齐，再单独立项升级 HOC 槽位与渲染器。
