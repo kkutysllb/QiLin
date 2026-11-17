@@ -55,7 +55,6 @@
     "lib/types/**/*.d.ts"
   ],
   "dependencies": {
-    "@qilin-agent/client-ui-session-status": "workspace:*",
     "@qilin-agent/deque": "workspace:*",
     "@qilin-agent/util-values": "workspace:*"
   },

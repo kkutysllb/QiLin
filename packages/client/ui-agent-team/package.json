@@ -50,7 +50,6 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "@qilin-agent/client-ui-session-status": "workspace:*",
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
@@ -84,7 +83,5 @@
     "lib/client.js",
     "lib/types/**/*.d.ts"
   ],
-  "dependencies": {
-    "@qilin-agent/client-ui-session-status": "workspace:*"
-  }
+  "dependencies": {}
 }
