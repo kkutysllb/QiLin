@@ -181,7 +181,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
               <span className={css.status} role="status">{t('queue.sending')}</span>
             )}
             <span className={css.chevron} aria-hidden>
-              {expanded ? <IconChevronDown /> : <IconChevronUp />}
+              {expanded ? <IconChevronDown size={14} /> : <IconChevronUp size={14} />}
             </span>
           </button>
         )}

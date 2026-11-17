@@ -282,6 +282,9 @@ describe('QueueDock', () => {
     const header = view.getByRole('button', { name: '2 条排队消息' })
     expect(header.getAttribute('aria-expanded')).toBe('false')
     expect(document.getElementById(header.getAttribute('aria-controls')!)).toBeTruthy()
+    // The disclosure glyph fills the 14px header cell instead of drawing at the 24-grid default.
+    const glyphs = header.querySelectorAll('span[aria-hidden] svg')
+    expect(glyphs[glyphs.length - 1]?.getAttribute('width')).toBe('14')
     expect(view.queryByText('one')).toBeNull()
     expect(view.queryByText('two')).toBeNull()
 
