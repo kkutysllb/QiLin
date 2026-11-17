@@ -52,6 +52,9 @@
     },
     {
       "path": "../../client/ui-sidebar-right"
+    },
+    {
+      "path": "../ui-session-status/tsconfig.client.json"
     }
   ]
 }

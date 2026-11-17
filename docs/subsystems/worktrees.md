@@ -52,7 +52,7 @@ Generated from source by `scripts/gen-kylin-catalog.ts` (verified fresh by `pnpm
 
 ### `ctx.worktrees` — `WorktreeService`
 
-Creates retained Git worktrees under the mounted filesystem and sandbox providers.
+Creates retained Git worktrees under the mounted filesystem and sandbox providers, records each creation in the Session log, and reclaims a clean, unreferenced checkout when the Session that created it is archived.
 
 ```ts cordis-catalog
 /**
@@ -67,6 +67,8 @@ Creates retained Git worktrees under the mounted filesystem and sandbox provider
  * @param signal - cancellation of lookup, creation, and working-directory publication.
  * @param onPhase - receives each stage before it begins; it must not throw.
  * @returns canonical checkout path, branch name, pinned commit, and source repository root.
+ * @throws {WorktreeError} for an invalid request, an existing branch or path, or a failed, oversized, or timed-out
+ *   command; a failure after allocation keeps its `name` and `code` and adds retained-artifact context.
  */
 async create( agent: Agent, request: CreateWorktreeRequest = {}, signal?: AbortSignal, onPhase?: (phase: CreateWorktreePhase) => void, ): Promise<CreatedWorktree>
 
@@ -83,27 +85,59 @@ async create( agent: Agent, request: CreateWorktreeRequest = {}, signal?: AbortS
  * @param signal - cancellation of the restoration.
  * @param onPhase - receives each stage before it begins; it must not throw.
  * @returns the directory and whether the branch was created again.
+ * @throws {WorktreeError} for an invalid request, an existing path, a locked registration, or a failed, oversized,
+ *   or timed-out command; a failure after allocation keeps its `name` and `code` and adds retained-artifact context.
  */
 async restore( agent: Agent, request: RestoreWorktreeRequest, signal?: AbortSignal, onPhase?: (phase: CreateWorktreePhase) => void, ): Promise<RestoredWorktree>
 
 /**
- * Remove one retained worktree: its checkout directory and registration leave
- * the filesystem, and its branch follows when `deleteBranch` is set and Git
- * reports it as merged. A checkout with uncommitted or untracked files stays:
- * Git refuses the removal without force, so no work is discarded implicitly,
- * and the caller keeps its files. Validation matches {@link restore}: a
- * canonical target inside the configured pool, a source checkout root, a
- * relative branch name, and a full base commit.
+ * Read the archive cleanup of a Session's created checkout; waiting never
+ * starts one. Absent without the Workspace and query providers.
+ * @param session - archived Session whose cleanup is read.
+ * @param revision - null reads at once; a matching revision waits for that attempt to settle.
+ * @returns the attempt state, or null when none exists, the revision was superseded, or the service is stopping.
+ */
+async cleanupOf(session: Session, revision: number | null): Promise<WorktreeCleanup | null>
+
+/**
+ * Remove one retained checkout: its directory and registration leave the
+ * filesystem, and its branch follows when `deleteBranch` is set and Git
+ * reports it merged. A checkout that is locked, detached, or holds local
+ * changes stays and rejects, so no work is discarded implicitly.
  * @param agent - caller whose sandbox policy confines the commands.
- * @param request - recorded directory, branch, base commit, source repository root, and branch intent.
+ * @param request - recorded directory, branch, base commit, source root, and branch intent.
  * @param signal - cancellation of the removal.
- * @param onPhase - receives each stage before it begins; it must not throw.
+ * @param onPhase - receives `prepare` before validation.
  * @returns the addressed directory and whether the branch was deleted.
  */
 async remove( agent: Agent, request: RemoveWorktreeRequest, signal?: AbortSignal, onPhase?: (phase: CreateWorktreePhase) => void, ): Promise<RemovedWorktree>
 ```
 
-Types: [Agent](core.md)
+Types: [Agent](core.md) · [Session](session.md)
 
 Source: [`packages/experimental/worktree/src/index.ts`](../../packages/experimental/worktree/src/index.ts)
+
+<a id="worktree-events"></a>
+
+### `worktree/*` events
+
+<a id="worktreecleanup--emit"></a>
+
+#### `worktree/cleanup` — emit
+
+A cleanup attempt changed state. Fires once at admission with `scheduled` and once at settlement with the final status.
+
+```ts cordis-catalog
+/**
+ * A cleanup attempt changed state. Fires once at admission with
+ * `scheduled` and once at settlement with the final status.
+ * @param info - the archived Session, the checkout, and the attempt state.
+ * @mode emit
+ */
+'worktree/cleanup'(info: { sessionId: SessionId; path: string; cleanup: WorktreeCleanup }): void
+```
+
+Types: [SessionId](core.md)
+
+Source: [`packages/experimental/worktree/src/archive.ts`](../../packages/experimental/worktree/src/archive.ts)
 <!-- END GENERATED kylin-surface -->

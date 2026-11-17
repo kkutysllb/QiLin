@@ -49,6 +49,27 @@ export type {
   SessionProjectionViewValues,
 } from './types.ts'
 
+/** An effect-owned registration with a reader retained independently of registration. */
+export interface ProjectionHandle<S> {
+  /**
+   * Read the current state by folding committed Session events with this handle's unit.
+   * @param session - Session whose committed events are folded.
+   * @returns the projection state at the Session's current cursor.
+   */
+  stateOf(session: Session): S
+  /**
+   * Create a reader for one exact Session without reading state or preparing it.
+   * @param session - Session whose committed events the bound reader folds.
+   * @returns a synchronous callback with the same state and failures as `stateOf(session)`.
+   */
+  readerFor(session: Session): () => S
+  /** Unregister from global drives and snapshots without invalidating this reader. */
+  dispose(): Promise<void>
+}
+
+/** Registration disposer that also resolves to its {@link ProjectionHandle} when awaited. */
+export type ProjectionRegistration<S> = (() => void) & PromiseLike<ProjectionHandle<S>>
+
 /**
  * One domain's state-driven computation unit: a pure synchronous fold plus
  * declarations and an optional client view — never an opaque getter. The framework drives
@@ -57,11 +78,8 @@ export type {
  * synchronous (an async unit would tear the carriers' consistency cut), and
  * `state` MUST be plain JSON (the persisted-cache precondition).
  */
-export interface ProjectionDefinition<
-  K extends keyof SessionProjectionStateMap,
-  S extends SessionProjectionStateMap[K] = SessionProjectionStateMap[K],
-> {
-  /** The projection key this unit owns (its `SessionProjectionStateMap` entry). */
+export interface ProjectionDefinition<K extends string, S = unknown> {
+  /** The projection key this unit owns; host-only keys may stay outside the client map. */
   key: K
   /** Validates persisted state before it seeds a fold. */
   stateSchema: ZodType<S>
@@ -301,29 +319,19 @@ export class SessionProjectionRegistry extends Service {
    * @param definition - key, state schema, pure unit functions, and stateVersion.
    * @returns the exact disposer that unregisters this unit.
    */
-  register<
-    K extends keyof SessionProjectionMap,
-    S extends SessionProjectionStateMap[K],
-  >(
+  register<K extends keyof SessionProjectionMap, S>(
     definition: Omit<ProjectionDefinition<K, S>, 'wire'> & {
       wire: NonNullable<ProjectionDefinition<K, S>['wire']>
     },
-  ): () => void
+  ): ProjectionRegistration<S>
   /**
    * Register one host-only unit. Its state is omitted from client snapshots
    * and always checkpointed like every other unit.
    * @param definition - key, state schema, pure unit functions, and stateVersion.
-   * @returns the exact disposer that unregisters this unit.
+   * @returns an awaitable registration; calling it unregisters.
    */
-  register<
-    K extends Exclude<keyof SessionProjectionStateMap, keyof SessionProjectionMap>,
-    S extends SessionProjectionStateMap[K],
-  >(
-    definition: Omit<ProjectionDefinition<K, S>, 'wire'>,
-  ): () => void
-  register<K extends keyof SessionProjectionStateMap, S extends SessionProjectionStateMap[K]>(
-    definition: ProjectionDefinition<K, S>,
-  ): () => void {
+  register<K extends string, S>(definition: ProjectionDefinition<K, S>): ProjectionRegistration<S>
+  register<K extends string, S>(definition: ProjectionDefinition<K, S>): ProjectionRegistration<S> {
     const wire = definition.wire as {
       viewSchema: ZodType
       view(state: S): unknown
@@ -369,7 +377,22 @@ export class SessionProjectionRegistry extends Service {
         if (registration.refs === 0) this.summaryKeySet = undefined
       }
     }.bind(this), 'sessionProjections.register()')
-    return () => void dispose()
+    const handle: ProjectionHandle<S> = {
+      stateOf: (session: Session): S => {
+        this.materializeCells(session)
+        return this.cellFor(registration, session).state as S
+      },
+      readerFor: (session: Session): (() => S) => () => handle.stateOf(session),
+      dispose: async () => { await dispose() },
+    }
+    return Object.assign((): void => { void dispose() }, {
+      then<TResult1 = ProjectionHandle<S>, TResult2 = never>(
+        onFulfilled?: ((value: ProjectionHandle<S>) => TResult1 | PromiseLike<TResult1>) | null,
+        onRejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+      ): PromiseLike<TResult1 | TResult2> {
+        return Promise.resolve(handle).then(onFulfilled, onRejected)
+      },
+    })
   }
 
   /**

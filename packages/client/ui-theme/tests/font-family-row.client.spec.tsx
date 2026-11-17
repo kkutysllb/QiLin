@@ -7,7 +7,7 @@ import { allowAllAccess, bindSnapshotSelector, contextMenuHook, makeTranslate } 
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import type { SessionListState } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import { DEFAULT_FONT_SIZES, type FontFamilies, type FontRole } from '../src/theme-settings.ts'
 import { FontFamilyRow, type FontFamilyRowComponentProps } from '../src/client/FontFamilyRow.tsx'
 import { createFontRowStore } from '../src/client/settings-store.ts'

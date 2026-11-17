@@ -15,7 +15,7 @@ import { createSnapshotStore } from '@qilin-agent/client-store'
 import {
   allowAllAccess, bindSnapshotSelector, contextMenuHook, conversationSnapshot, sessionSnapshot,
 } from '@qilin-agent/client-test-runtime'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { SubmitAttachment, SubmitOutcome } from '../src/client/contract/input.ts'
 import { makeTranslate } from '@qilin-agent/client-test-runtime'
@@ -296,6 +296,7 @@ describe('matrix row: claimed with attachments', () => {
     let removed = true
     act(() => { removed = shell.removeAttachment(img) })
     expect(removed).toBe(false)
+    expect(shell.insertQuote('quoted')).toBe(false)
     expect(shell.snapshot.attachmentIds).toEqual([img])
   })
 })

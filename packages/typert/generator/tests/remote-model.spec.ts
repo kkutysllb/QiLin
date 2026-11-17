@@ -59,6 +59,23 @@ afterEach(() => {
 })
 
 describe('Remote model generation', { timeout: 60_000 }, () => {
+  it('ignores a contributor export outside the Host program while its source exists, and rejects a missing one', () => {
+    const root = copyFixture()
+    const manifestPath = join(root, 'packages/remote/package.json')
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { exports: Record<string, unknown> }
+    manifest.exports['./client'] = './src/client/index.ts'
+    writeFileSync(manifestPath, JSON.stringify(manifest))
+    const clientSource = join(root, 'packages/remote/src/client/index.ts')
+    mkdirSync(join(root, 'packages/remote/src/client'), { recursive: true })
+    writeFileSync(clientSource, 'export const ready = true\n')
+    // The Host program does not include client sources; the Client build type-checks
+    // them, so generation only fails when the exported source is absent from disk.
+    expect(() => new WorkspaceTypertGenerator(root).generate()).not.toThrow()
+    rmSync(clientSource)
+    expect(() => new WorkspaceTypertGenerator(root).generate())
+      .toThrow(/export \.\/client resolves to missing source/)
+  })
+
   it('projects ordinary unary binary results and metadata without copying or freezing bytes', async () => {
     const root = copyFixture()
     editFile(root, 'packages/remote/src/types.ts', source => `${source}\nexport type BinaryFile<Data extends Uint8Array = Uint8Array> = {\n  readonly data: Data\n} & { readonly size: number }\n`)

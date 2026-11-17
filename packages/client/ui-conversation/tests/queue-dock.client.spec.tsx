@@ -19,7 +19,7 @@ import { createSnapshotStore } from '@qilin-agent/client-store'
 import {
   bindSnapshotSelector, contextMenuHook, conversationSnapshot, makeTranslate,
 } from '@qilin-agent/client-test-runtime'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
 import type { InputState } from '../src/client/contract/input.ts'
 import { zh } from '../src/client/locales.ts'
@@ -54,7 +54,7 @@ interface TestSnapshot extends SessionSnapshot {
 function snapshotWith(queue: UserMessage[], nextStep: UserMessage[] = []): TestSnapshot {
   return {
     sessionId: SID, running: true, removed: false, openState: 'open', openError: null,
-    hasMore: false, loadingOlder: false, promptError: null, blank: false, subagent: null,
+    hasMore: false, historyWasPartial: false, historyLoadStatus: 'idle', loadingOlder: false, promptError: null, blank: false, subagent: null,
     pendingSubmissions: [],
     lastAgentError: null, promptAttempted: true, awaitingFirstTurn: false,
     testInbox: { 'next-turn': queue, 'next-step': nextStep },
@@ -282,6 +282,9 @@ describe('QueueDock', () => {
     const header = view.getByRole('button', { name: '2 条排队消息' })
     expect(header.getAttribute('aria-expanded')).toBe('false')
     expect(document.getElementById(header.getAttribute('aria-controls')!)).toBeTruthy()
+    // The disclosure glyph fills the 14px header cell instead of drawing at the 24-grid default.
+    const glyphs = header.querySelectorAll('span[aria-hidden] svg')
+    expect(glyphs[glyphs.length - 1]?.getAttribute('width')).toBe('14')
     expect(view.queryByText('one')).toBeNull()
     expect(view.queryByText('two')).toBeNull()
 

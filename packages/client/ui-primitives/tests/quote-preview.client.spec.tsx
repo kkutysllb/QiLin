@@ -5,7 +5,7 @@
  * excerpt text, and a caller that offers no quotes keeps the literal characters.
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { act, fireEvent, render } from '@testing-library/react'
+import { act, cleanup, fireEvent, render } from '@testing-library/react'
 import { QuotePreview } from '../src/QuotePreview.tsx'
 import { projectUserText } from '../src/user-text.tsx'
 import type { UserTextQuotes } from '../src/user-text.tsx'
@@ -29,6 +29,34 @@ const project = (text: string, quotes?: UserTextQuotes) =>
     .container.querySelector('[data-host]')!
 
 describe('QuotePreview', () => {
+  it('renders an owner summary inline and its readable form in the popover', () => {
+    const host = render(<QuotePreview text="长结构化引用" summary={{
+      label: '评论', title: 'src/app.ts', detail: 'L3–4', body: 'Host note',
+    }} />).container
+    const source = host.querySelector('[data-quote-preview-text]')!
+    expect(source.textContent).toBe('评论src/app.ts L3–4 Host note')
+    expect(source.querySelector('[aria-hidden="true"]')!.textContent).toBe('评论')
+    expect(host.querySelector('[data-quote-copy]')).toBeNull()
+    expect(host.querySelector('[data-quote-jump]')).toBeNull()
+    expect(host.querySelector('[data-quote-preview]')!.hasAttribute('data-removable')).toBe(false)
+    // Without a detail the accessible text is the title alone.
+    cleanup()
+    const noDetail = render(<QuotePreview text="长引用" summary={{ label: '评论', title: 'src/app.ts', body: 'Host note' }} />).container
+    expect(noDetail.querySelector('[data-quote-preview-text]')!.textContent).toBe('评论src/app.ts Host note')
+  })
+
+  it('removes the whole quote from the marker and keeps the press local', () => {
+    const onRemove = vi.fn()
+    const host = render(<QuotePreview text="引用" removal={{ label: '移除引用', onRemove }} />).container
+    const remove = host.querySelector<HTMLButtonElement>('[data-quote-remove]')!
+    expect(remove.getAttribute('aria-label')).toBe('移除引用')
+    expect(host.querySelector('[data-quote-preview]')!.hasAttribute('data-removable')).toBe(true)
+    expect(fireEvent.pointerDown(remove)).toBe(false)
+    fireEvent.keyDown(remove)
+    fireEvent.click(remove)
+    expect(onRemove).toHaveBeenCalledTimes(1)
+  })
+
   it('renders the excerpt and copies exactly its text', async () => {
     const writeText = stubClipboard()
     const host = render(<QuotePreview text={'被引用的字'} labels={labels} />).container

@@ -1,8 +1,8 @@
 /**
  * The changes view's tab type: the right-Sidebar view of one Session's local
  * changes or of one change request bound to it. Its addresses name the Session
- * and the source, `qilin-resource://forge-changes/<session>/local` or
- * `qilin-resource://forge-changes/<session>/change/<url>`, each part
+ * and the source, `dsh-resource://forge-changes/<session>/local` or
+ * `dsh-resource://forge-changes/<session>/change/<url>`, each part
  * percent-encoded; the source names the tab.
  */
 
@@ -18,7 +18,7 @@ export const CHANGES_KIND = 'forge-changes'
 /** Registry id of the changes tab type, also the key its body and title register under. */
 export const CHANGES_ID = '@qilin-agent/experimental-client-ui-forge/changes'
 
-const PREFIX = 'qilin-resource://forge-changes/'
+const PREFIX = 'dsh-resource://forge-changes/'
 
 /** What a changes view shows. */
 export type ChangesSource =
@@ -39,11 +39,13 @@ export interface ChangesTarget {
 export interface ChangesParams {
   /** File to scroll to, by its path in the diff. */
   readonly path?: string
+  /** Identity of the filter lens to choose. */
+  readonly lens?: string
 }
 
 declare module '@qilin-agent/client-ui-sidebar-right/client' {
   interface SidebarRightResourceParamsMap {
-    /** The file a changes tab scrolls to. */
+    /** The file a changes tab scrolls to and the lens it chooses. */
     'forge-changes': ChangesParams
   }
 }
@@ -51,7 +53,7 @@ declare module '@qilin-agent/client-ui-sidebar-right/client' {
 /**
  * Mint the address of a changes view.
  * @param target - Session and source.
- * @returns the `qilin-resource://forge-changes/…` address.
+ * @returns the `dsh-resource://forge-changes/…` address.
  */
 export function changesAddress(target: ChangesTarget): string {
   const session = `${PREFIX}${encodeURIComponent(target.sessionId)}/`

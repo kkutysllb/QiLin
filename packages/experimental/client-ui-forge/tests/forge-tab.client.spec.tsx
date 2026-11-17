@@ -11,7 +11,7 @@ import type { PaneId, SidebarRightTabActions, SidebarRightTabInfo, TabId } from 
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { IconBranchOutlineRegular, IconFolderCloseRegular, IconWarningTriangleOutlineRegular } from '@qilin-agent/client-ui-primitives'
-import { SessionId } from '@qilin-agent/session/types'
+import type { SessionId } from '@qilin-agent/session/types'
 import { changesAddress } from '../src/client/changes-address.ts'
 import { ForgeTab, type ForgeTabProps } from '../src/client/ForgeTab.tsx'
 import { en } from '../src/client/locales.ts'
@@ -19,11 +19,12 @@ import type { PanelSnapshot } from '../src/client/source.ts'
 import css from '../src/client/ForgeTab.module.css'
 import type { ForgePanelChangeRequest, ForgePanelState } from '../src/types.ts'
 import { created, entry, ready, removed, snapshot, worktree } from './client-fixtures.client.ts'
+import { brandString } from '@qilin-agent/brand'
 
 afterEach(cleanup)
 
 const t = makeTranslate(en)
-const SESSION = SessionId('s1')
+const SESSION = brandString<SessionId>('s1')
 const unused = (): never => { throw new Error('the forge tab does not call this tab action') }
 
 /** Tab information of a forge tab whose visibility the test sets. */
@@ -55,28 +56,32 @@ function tab(state: ForgePanelState | null, options: { disconnected?: boolean; v
   const markReady = vi.fn<(entry: ForgePanelChangeRequest) => Promise<void>>(async () => {})
   const merge = vi.fn<(entry: ForgePanelChangeRequest, request: MergeRequest) => Promise<void>>(async () => {})
   const readChecks = vi.fn<ForgeTabProps['readChecks']>(async () => snapshot(1))
+  const rerunChecks = vi.fn<ForgeTabProps['rerunChecks']>(async () => {})
+  const requestReviews = vi.fn<ForgeTabProps['requestReviews']>(async () => {})
+  const reviewerCandidates = vi.fn<ForgeTabProps['reviewerCandidates']>(async () => [])
+  const updateBranch = vi.fn<ForgeTabProps['updateBranch']>(async () => {})
   const restore = vi.fn<() => void>()
-  const removeWorktree = vi.fn<ForgeTabProps['removeWorktree']>(async () => undefined)
   const openLink = vi.fn<(url: string) => void>()
   const copyText = vi.fn<(text: string) => void>()
   const copyPath = vi.fn<(path: string) => void>()
   const reportVisible = vi.fn<(visible: boolean) => void>()
   const createChangeRequest = vi.fn<() => void>()
   const openResource = vi.fn<SidebarRightTabActions['openResource']>()
+  // Draws nothing for the card's plugin slot.
+  const renderSlot = (() => null) as ForgeTabProps['renderSlot']
   const props: ForgeTabProps = {
     useTabInfo: () => tabInfo(useVisibility(current => current), openResource),
     sessionId: SESSION,
     usePanel: bindSnapshotSelector(panel),
     useHost: bindSnapshotSelector(host),
     useLocale: bindSnapshotSelector(createSnapshotStore<string>('en')),
-    reconnect, refresh, remove, markReady, merge, readChecks, restore, removeWorktree, openLink, copyText, copyPath,
-    reportVisible, createChangeRequest,
-    t,
+    reconnect, refresh, remove, markReady, merge, readChecks, rerunChecks, requestReviews, reviewerCandidates, updateBranch, restore,
+    openLink, copyText, copyPath, reportVisible, createChangeRequest, renderSlot, t,
   }
   const view = render(<ForgeTab {...props} />)
   return {
-    view, panel, visibility, reconnect, refresh, remove, markReady, merge, readChecks, restore, removeWorktree, openLink, copyText,
-    copyPath, reportVisible, createChangeRequest, openResource,
+    view, panel, visibility, reconnect, refresh, remove, markReady, merge, readChecks, restore, openLink, copyText, copyPath, reportVisible,
+    createChangeRequest, openResource,
   }
 }
 
@@ -209,34 +214,6 @@ describe('ForgeTab checkout', () => {
     // A removed worktree still offers the path it was created at.
     fireEvent.click(within(row).getByRole('button', { name: en['checkout.copyWorktreePath'] }))
     expect(b.copyPath).toHaveBeenCalledWith('/work/repo-dsh')
-  })
-
-  it('removes the created worktree after confirmation, keeping the branch unless asked', async () => {
-    const b = tab(ready({ directory: '/work/repo-dsh', worktree: worktree({ created: created({ path: '/work/repo-dsh' }) }) },
-      { root: '/work/repo-dsh', branch: 'other', linked: true }))
-    const row = checkoutRow(b.view)
-    if (row === null) throw new Error('no checkout row')
-    fireEvent.click(within(row).getByRole('button', { name: en['checkout.removeWorktree'] }))
-    expect(b.view.getByRole('dialog', { name: en['checkout.removeWorktreeTitle'] })).toBeTruthy()
-    await act(async () => {
-      fireEvent.click(b.view.getByRole('button', { name: en['checkout.removeWorktreeConfirm'] }))
-    })
-    expect(b.removeWorktree).toHaveBeenCalledWith(false)
-  })
-
-  it('asks for the branch too and reports a refusal without closing the dialog', async () => {
-    const b = tab(ready({ directory: '/work/repo-dsh', worktree: worktree({ created: created({ path: '/work/repo-dsh' }) }) },
-      { root: '/work/repo-dsh', branch: 'other', linked: true }))
-    b.removeWorktree.mockResolvedValueOnce('branch has unmerged commits')
-    const row = checkoutRow(b.view)
-    if (row === null) throw new Error('no checkout row')
-    fireEvent.click(within(row).getByRole('button', { name: en['checkout.removeWorktree'] }))
-    fireEvent.click(b.view.getByRole('checkbox'))
-    await act(async () => {
-      fireEvent.click(b.view.getByRole('button', { name: en['checkout.removeWorktreeConfirm'] }))
-    })
-    expect(b.removeWorktree).toHaveBeenCalledWith(true)
-    expect(b.view.getByRole('alert').textContent).toBe('branch has unmerged commits')
   })
 
   it('turns the restore button into a disabled spinner while a restoration runs', () => {

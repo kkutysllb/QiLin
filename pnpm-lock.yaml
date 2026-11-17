@@ -631,15 +631,6 @@ importers:
       commander:
         specifier: ^15.0.0
         version: 15.0.0
-      dsh-animations:
-        specifier: ^2.0.0
-        version: 2.0.0
-      dsh-kylin-images:
-        specifier: ^0.1.3
-        version: 0.1.3
-      dsh-skills-bundle:
-        specifier: ^1.3.1
-        version: 1.3.1
       js-yaml:
         specifier: ^4.3.2
         version: 4.3.2
@@ -649,7 +640,7 @@ importers:
     devDependencies:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
-        version: 1.4.0(zod@4.4.3)
+        version: 1.4.0(zod@4.6.6)
       '@qilin-agent/acp':
         specifier: workspace:*
         version: link:../../packages/acp/acp
@@ -1202,7 +1193,7 @@ importers:
     dependencies:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
-        version: 1.4.0(zod@4.4.3)
+        version: 1.4.0(zod@4.6.6)
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
@@ -1448,6 +1439,9 @@ importers:
       '@qilin-agent/client-ui-plugin-manager':
         specifier: workspace:*
         version: link:../../client/ui-plugin-manager
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../../client/ui-session-status
       '@qilin-agent/command-feedback':
         specifier: workspace:*
         version: link:../../feedback/command-feedback
@@ -2892,6 +2886,9 @@ importers:
       '@qilin-agent/client-ui-session':
         specifier: workspace:*
         version: link:../../client/ui-session
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../../client/ui-session-status
       '@qilin-agent/client-ui-settings':
         specifier: workspace:*
         version: link:../../client/ui-settings
@@ -3569,6 +3566,9 @@ importers:
       '@qilin-agent/client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../ui-session-status
       '@qilin-agent/client-ui-sidebar-right':
         specifier: workspace:*
         version: link:../ui-sidebar-right
@@ -4063,6 +4063,9 @@ importers:
       '@qilin-agent/client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../ui-session-status
       '@qilin-agent/client-ui-settings':
         specifier: workspace:*
         version: link:../ui-settings
@@ -5461,6 +5464,67 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1
 
+  packages/client/ui-session-status:
+    dependencies:
+      '@qilin-agent/deque':
+        specifier: workspace:*
+        version: link:../../util/deque
+      '@qilin-agent/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
+      zod:
+        specifier: 4.6.6
+        version: 4.6.6
+    devDependencies:
+      '@qilin-agent/api-gateway':
+        specifier: workspace:*
+        version: link:../../api/gateway
+      '@qilin-agent/api-remote-access':
+        specifier: workspace:*
+        version: link:../../api/remote-access
+      '@qilin-agent/api-remotes':
+        specifier: workspace:*
+        version: link:../../api/remotes
+      '@qilin-agent/api-session-controller':
+        specifier: workspace:*
+        version: link:../../api/session-controller
+      '@qilin-agent/client-connection':
+        specifier: workspace:*
+        version: link:../connection
+      '@qilin-agent/client-store':
+        specifier: workspace:*
+        version: link:../store
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../ui-renderer
+      '@qilin-agent/client-ui-session':
+        specifier: workspace:*
+        version: link:../ui-session
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../ui-slots
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/remote-mock':
+        specifier: workspace:*
+        version: link:../../test-support/remote-mock
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-persistence':
+        specifier: workspace:*
+        version: link:../../session/session-persistence
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/typert-registry':
+        specifier: workspace:*
+        version: link:../../typert/registry
+
   packages/client/ui-settings:
     dependencies:
       '@qilin-agent/schemastery':
@@ -6712,6 +6776,9 @@ importers:
       '@qilin-agent/client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../ui-session-status
       '@qilin-agent/client-ui-sidebar-right':
         specifier: workspace:*
         version: link:../ui-sidebar-right
@@ -7208,6 +7275,9 @@ importers:
       '@qilin-agent/client-ui-session':
         specifier: workspace:*
         version: link:../ui-session
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../ui-session-status
       '@qilin-agent/client-ui-sidebar':
         specifier: workspace:*
         version: link:../ui-sidebar
@@ -8834,6 +8904,9 @@ importers:
       diff:
         specifier: ^9.0.0
         version: 9.0.0
+      picomatch:
+        specifier: ^4.0.7
+        version: 4.0.7
       zod:
         specifier: ^4.4.3
         version: 4.4.3
@@ -8853,6 +8926,9 @@ importers:
       '@qilin-agent/api-session-controller':
         specifier: workspace:*
         version: link:../../api/session-controller
+      '@qilin-agent/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
       '@qilin-agent/client-locale':
         specifier: workspace:*
         version: link:../../client/locale
@@ -8868,6 +8944,9 @@ importers:
       '@qilin-agent/client-ui-layout':
         specifier: workspace:*
         version: link:../../client/ui-layout
+      '@qilin-agent/client-ui-plugin-manager':
+        specifier: workspace:*
+        version: link:../../client/ui-plugin-manager
       '@qilin-agent/client-ui-primitives':
         specifier: workspace:*
         version: link:../../client/ui-primitives
@@ -8877,6 +8956,9 @@ importers:
       '@qilin-agent/client-ui-session':
         specifier: workspace:*
         version: link:../../client/ui-session
+      '@qilin-agent/client-ui-settings':
+        specifier: workspace:*
+        version: link:../../client/ui-settings
       '@qilin-agent/client-ui-sidebar-right':
         specifier: workspace:*
         version: link:../../client/ui-sidebar-right
@@ -8949,6 +9031,9 @@ importers:
       '@testing-library/react':
         specifier: ^16.3.3
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/picomatch':
+        specifier: ^4.0.3
+        version: 4.0.3
       '@types/react':
         specifier: ~18.3.1
         version: 18.3.31
@@ -9412,6 +9497,9 @@ importers:
         specifier: workspace:*
         version: link:../../util/timeout
     devDependencies:
+      '@qilin-agent/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
       '@qilin-agent/kylin':
         specifier: workspace:~
         version: link:../../../vendor/cordis
@@ -9449,6 +9537,9 @@ importers:
       '@qilin-agent/timeout':
         specifier: workspace:*
         version: link:../../util/timeout
+      '@qilin-agent/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
       execa:
         specifier: ^10.0.0
         version: 10.0.0
@@ -10363,6 +10454,9 @@ importers:
       '@qilin-agent/timeout':
         specifier: workspace:*
         version: link:../../util/timeout
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@qilin-agent/agent':
         specifier: workspace:*
@@ -10370,6 +10464,9 @@ importers:
       '@qilin-agent/agent-loop-testkit':
         specifier: workspace:*
         version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
       '@qilin-agent/fs':
         specifier: workspace:*
         version: link:../../fs/fs
@@ -10391,9 +10488,27 @@ importers:
       '@qilin-agent/session':
         specifier: workspace:*
         version: link:../../core/session
+      '@qilin-agent/session-persistence-jsonl':
+        specifier: workspace:*
+        version: link:../../session/session-persistence-jsonl
       '@qilin-agent/session-projection':
         specifier: workspace:*
         version: link:../../session/session-projection
+      '@qilin-agent/session-projection-cache':
+        specifier: workspace:*
+        version: link:../../session/session-projection-cache
+      '@qilin-agent/session-query':
+        specifier: workspace:*
+        version: link:../../session-query/session-query
+      '@qilin-agent/settings':
+        specifier: workspace:*
+        version: link:../../settings/settings
+      '@qilin-agent/storage':
+        specifier: workspace:*
+        version: link:../../storage/storage
+      '@qilin-agent/storage-domain':
+        specifier: workspace:*
+        version: link:../../storage/storage-domain
       '@qilin-agent/subprocess':
         specifier: workspace:*
         version: link:../../subprocess/subprocess
@@ -10403,9 +10518,15 @@ importers:
       '@qilin-agent/system-prompt':
         specifier: workspace:*
         version: link:../../core/system-prompt
+      '@qilin-agent/util-error':
+        specifier: workspace:*
+        version: link:../../util/error
       '@qilin-agent/working-directory':
         specifier: workspace:*
         version: link:../../session/working-directory
+      '@qilin-agent/workspace':
+        specifier: workspace:*
+        version: link:../../workspace/workspace
 
   packages/extensions/kylin-client-runner:
     devDependencies:
@@ -14684,7 +14805,7 @@ importers:
     dependencies:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
-        version: 1.4.0(zod@4.4.3)
+        version: 1.4.0(zod@4.6.6)
       '@qilin-agent/brand':
         specifier: workspace:*
         version: link:../../util/brand
@@ -15473,6 +15594,9 @@ importers:
       '@qilin-agent/client-ui-session':
         specifier: workspace:*
         version: link:../../client/ui-session
+      '@qilin-agent/client-ui-session-status':
+        specifier: workspace:*
+        version: link:../../client/ui-session-status
       '@qilin-agent/client-ui-settings':
         specifier: workspace:*
         version: link:../../client/ui-settings
@@ -15688,7 +15812,7 @@ importers:
     dependencies:
       '@agentclientprotocol/sdk':
         specifier: 1.4.0
-        version: 1.4.0(zod@4.4.3)
+        version: 1.4.0(zod@4.6.6)
       '@qilin-agent/kylin-plugin-include':
         specifier: workspace:~
         version: link:../../../vendor/include
@@ -23115,6 +23239,10 @@ packages:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
 
+  picomatch@4.0.7:
+    resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
+    engines: {node: '>=12'}
+
   pkce-challenge@5.0.1:
     resolution: {integrity: sha512-wQ0b/W4Fr01qtpHlqSqspcj3EhBvimsdh0KlHhH8HRZnMsEa0ea2fTULOXOS9ccQr3om+GcGRk4e+isrZWV8qQ==}
     engines: {node: '>=16.20.0'}
@@ -24547,6 +24675,9 @@ packages:
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
+  zod@4.6.6:
+    resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
+
   zustand@4.4.7:
     resolution: {integrity: sha512-QFJWJMdlETcI69paJwhSMJz7PPWjVP8Sjhclxmxmxv/RYI7ZOvR5BHX+ktH0we9gTWQMxcne8q1OY8xxz604gw==}
     engines: {node: '>=12.7.0'}
@@ -24567,9 +24698,9 @@ packages:
 
 snapshots:
 
-  '@agentclientprotocol/sdk@1.4.0(zod@4.4.3)':
+  '@agentclientprotocol/sdk@1.4.0(zod@4.6.6)':
     dependencies:
-      zod: 4.4.3
+      zod: 4.6.6
 
   '@algolia/abtesting@1.21.2':
     dependencies:
@@ -27009,7 +27140,7 @@ snapshots:
       eslint-visitor-keys: 4.2.1
       espree: 10.4.0
       estraverse: 5.3.0
-      picomatch: 4.0.4
+      picomatch: 4.0.7
 
   '@swc/helpers@0.5.23':
     dependencies:
@@ -27757,7 +27888,7 @@ snapshots:
       into-stream: 9.1.0
       multistream: 4.1.0
       picocolors: 1.1.1
-      picomatch: 4.0.4
+      picomatch: 4.0.7
       postject: 1.0.0-alpha.6
       prebuild-install: 7.1.3
       resolve: 1.22.12
@@ -29212,9 +29343,9 @@ snapshots:
     dependencies:
       strictdom: 1.0.1
 
-  fdir@6.5.0(picomatch@4.0.4):
+  fdir@6.5.0(picomatch@4.0.7):
     optionalDependencies:
-      picomatch: 4.0.4
+      picomatch: 4.0.7
 
   fetch-blob@3.2.0:
     dependencies:
@@ -30963,6 +31094,8 @@ snapshots:
 
   picomatch@4.0.4: {}
 
+  picomatch@4.0.7: {}
+
   pkce-challenge@5.0.1: {}
 
   pkijs@3.4.1:
@@ -31893,8 +32026,8 @@ snapshots:
 
   tinyglobby@0.2.17:
     dependencies:
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
 
   tinyrainbow@3.1.0: {}
 
@@ -31960,7 +32093,7 @@ snapshots:
       hookable: 6.1.1
       import-without-cache: 0.4.0
       obug: 2.1.3
-      picomatch: 4.0.4
+      picomatch: 4.0.7
       rolldown: 1.1.1
       rolldown-plugin-dts: 0.25.2(oxc-resolver@11.20.0)(rolldown@1.1.1)(typescript@6.0.3)
       semver: 7.8.5
@@ -32182,8 +32315,8 @@ snapshots:
   vite@6.4.3(@types/node@22.20.0)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.4)(yaml@2.9.0):
     dependencies:
       esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
       postcss: 8.5.15
       rollup: 4.62.2
       tinyglobby: 0.2.17
@@ -32198,8 +32331,8 @@ snapshots:
   vite@6.4.3(@types/node@22.20.5)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.4)(yaml@2.9.0):
     dependencies:
       esbuild: 0.25.12
-      fdir: 6.5.0(picomatch@4.0.4)
-      picomatch: 4.0.4
+      fdir: 6.5.0(picomatch@4.0.7)
+      picomatch: 4.0.7
       postcss: 8.5.15
       rollup: 4.62.2
       tinyglobby: 0.2.17
@@ -32214,7 +32347,7 @@ snapshots:
   vite@8.0.16(@types/node@22.20.0)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.32.0
-      picomatch: 4.0.4
+      picomatch: 4.0.7
       postcss: 8.5.15
       rolldown: 1.0.3
       tinyglobby: 0.2.17
@@ -32229,7 +32362,7 @@ snapshots:
   vite@8.0.16(@types/node@22.20.5)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.32.0
-      picomatch: 4.0.4
+      picomatch: 4.0.7
       postcss: 8.5.15
       rolldown: 1.0.3
       tinyglobby: 0.2.17
@@ -32312,7 +32445,7 @@ snapshots:
       magic-string: 0.30.21
       obug: 2.1.3
       pathe: 2.0.3
-      picomatch: 4.0.4
+      picomatch: 4.0.7
       std-env: 4.1.0
       tinybench: 2.9.0
       tinyexec: 1.2.4
@@ -32343,7 +32476,7 @@ snapshots:
       magic-string: 0.30.21
       obug: 2.1.3
       pathe: 2.0.3
-      picomatch: 4.0.4
+      picomatch: 4.0.7
       std-env: 4.1.0
       tinybench: 2.9.0
       tinyexec: 1.2.4
@@ -32374,7 +32507,7 @@ snapshots:
       magic-string: 0.30.21
       obug: 2.1.3
       pathe: 2.0.3
-      picomatch: 4.0.4
+      picomatch: 4.0.7
       std-env: 4.1.0
       tinybench: 2.9.0
       tinyexec: 1.2.4
@@ -32575,6 +32708,8 @@ snapshots:
       zod: 4.4.3
 
   zod@4.4.3: {}
+
+  zod@4.6.6: {}
 
   zustand@4.4.7(@types/react@18.3.31)(immer@10.2.0)(react@18.3.1):
     dependencies:

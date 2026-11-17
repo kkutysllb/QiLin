@@ -9,7 +9,7 @@ kind: "package-library"
 
 ## 概述
 
-使用 `qilin-client-ui-primitives`，通过共享 React UI 构建 Web 客户端控件并渲染 agent 输出。它提供标准控件、图标、锚定浮层，以及用于带 TeX 公式的 Markdown、终端输出、文件读取、差异、搜索、网页检索和 JSON 的渲染器。这些渲染器会把原始 HTML 保持为字面文本——除非持有方自己提供一个消毒渲染器——并限制链接、解析 ANSI 转义序列，以处理不受信任的模型输出。组件不 import Kylin 运行时；调用方提供本地化 label，主题相关颜色使用 `--qilin-*` 设计 token。
+使用 `qilin-client-ui-primitives`，通过共享 React UI 构建 Web 客户端控件并渲染 agent 输出。它提供标准控件、图标、锚定浮层，以及用于带 TeX 公式的 Markdown、终端输出、文件读取、差异、搜索、网页检索和 JSON 的渲染器。这些渲染器会把原始 HTML 保持为字面文本——除非持有方自己提供一个消毒渲染器，或用 `omitHtml` 直接丢弃——并限制链接、解析 ANSI 转义序列，以处理不受信任的模型输出。组件不 import Kylin 运行时；调用方提供本地化 label，主题相关颜色使用 `--qilin-*` 设计 token。
 
 ## 目录
 
@@ -63,7 +63,7 @@ kind: "package-library"
 | `TerminalBlock`、`ReadBlock`、`DiffBlock`、`SearchBlock`、`WebBlock` | 与各类工具结果意图对应的 agent 输出卡片。 |
 | `useClipboardCopy` | 复制当前文本并显示一秒成功反馈，阻止写入期间及成功反馈期间的重复操作，卸载时清除重置计时器；迟到的写入结果不会更新已卸载控件。 |
 | `UserMessageBubble` | 用户消息的背景、圆角、内容内边距、字体与纯文本换行规则。接收原生 div props；行对齐、宽度、内容和操作由调用方拥有。 |
-| `QuotePreview` | 单条引文：引号标记、限宽文本、复制控件，以及持有方指明来源时的跳转控件。被裁切的引文在悬停时展开全文。所有文案都通过必填 label 传入。 |
+| `QuotePreview` | 单条引文：引号标记、限宽文本、复制控件，以及持有方指明来源时的跳转控件。持有方提供摘要时，正文与浮层都改用摘要；提供移除动作时，引号标记变成整条引文的移除控件。被裁切的引文在悬停时展开全文。 |
 | `SettingsForm`、`SettingsValueField`、`SettingsSecretField` | 基于 `SettingsFormModel` 的分阶段配置表单：字段如实报告读者输入，保存是草稿变成文档变更的唯一入口。 |
 | `icons/*`、`QilinSeal`、`ReferenceIcon`、`LinkIcon` | 字形与品牌标识。`LinkIcon` 用于 14px 的可点击链接分类及已知站点标记。 |
 | `FileTypeIcon`、`classifyFileType`、`fileExtension` | 按类别着色的 28px 文件或文件夹图形，以及它背后共享的不区分大小写文件名映射。代码与配置文件使用细分的全彩技术图形；链接前置图形使用 `LinkIcon`，图片内容使用图片预览。 |

@@ -15,13 +15,13 @@
       "path": "../../../vendor/schemastery"
     },
     {
-      "path": "../../util/timeout"
+      "path": "../../core/agent"
+    },
+    {
+      "path": "../../core/session"
     },
     {
       "path": "../../fs/fs"
-    },
-    {
-      "path": "../../subprocess/subprocess"
     },
     {
       "path": "../../sandbox/sandbox"
@@ -30,10 +30,34 @@
       "path": "../../sandbox/sandbox-policy"
     },
     {
+      "path": "../../session-query/session-query"
+    },
+    {
+      "path": "../../session/session-projection"
+    },
+    {
+      "path": "../../session/session-projection-cache"
+    },
+    {
       "path": "../../session/working-directory"
     },
     {
-      "path": "../../core/agent"
+      "path": "../../settings/settings"
+    },
+    {
+      "path": "../../subprocess/subprocess"
+    },
+    {
+      "path": "../../util/brand"
+    },
+    {
+      "path": "../../util/error"
+    },
+    {
+      "path": "../../util/timeout"
+    },
+    {
+      "path": "../../workspace/workspace"
     }
   ]
 }

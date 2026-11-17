@@ -1,5 +1,5 @@
 /** Client owner for the Gateway multiplexed Remote stream socket. */
-import { RemoteError } from '@qilin-agent/typert-protocol'
+import { RemoteError, remoteErrorOf } from '@qilin-agent/typert-protocol'
 import type { ConnectionWebSocket } from '@qilin-agent/client-connection/client'
 
 import {
@@ -11,8 +11,22 @@ import {
 import { Deque } from '@qilin-agent/deque'
 import { randomUUID } from '@qilin-agent/util-crypto'
 
+/**
+ * Retryable physical Remote stream carrier failure. {@link RemoteStream} reconnects on any error whose `code` is
+ * `gateway/carrier-lost`, so a domain `ended` callback may return a plain `Error` carrying that code. The code is
+ * produced only inside this Client process; a `RemoteError` returned by the Host never counts as a carrier loss.
+ */
+export interface RemoteStreamCarrierFailure extends Error {
+  /** Stable carrier-loss code; class identity is not part of the retry decision. */
+  readonly code: 'gateway/carrier-lost'
+}
+
+const REMOTE_STREAM_CARRIER_CODE: RemoteStreamCarrierFailure['code'] = 'gateway/carrier-lost'
+
 /** Physical Remote stream socket failure that may be retried by a domain transport. */
-export class RemoteStreamCarrierError extends Error {
+export class RemoteStreamCarrierError extends Error implements RemoteStreamCarrierFailure {
+  readonly code: RemoteStreamCarrierFailure['code'] = REMOTE_STREAM_CARRIER_CODE
+
   /**
    * @param message - physical carrier failure description.
    * @param options - optional causal error.
@@ -21,6 +35,17 @@ export class RemoteStreamCarrierError extends Error {
     super(message, options)
     this.name = 'RemoteStreamCarrierError'
   }
+}
+
+/**
+ * Whether a domain `ended`/`carrierFailed` result is a retryable carrier loss.
+ * @param error - value a stream callback produced.
+ * @returns true for a locally produced `Error` whose `code` is `gateway/carrier-lost`; false for any `RemoteError`,
+ * which reached this Client from the Host and terminates the stream even when it carries that code.
+ */
+export function isRemoteStreamCarrierFailure(error: unknown): error is RemoteStreamCarrierFailure {
+  return error instanceof Error && remoteErrorOf(error) === undefined
+    && 'code' in error && error.code === REMOTE_STREAM_CARRIER_CODE
 }
 
 interface SocketWaiter {

@@ -15,6 +15,22 @@ import type {} from '@qilin-agent/session-projection'
 import type {} from '@qilin-agent/system-prompt'
 
 declare module '@qilin-agent/kylin' {
+  interface Events {
+    /**
+     * Coordinate directory validation and publication with a resource operation
+     * on the directory, such as a checkout being removed. A listener that must
+     * wait awaits that operation, then calls `next()`; every other listener
+     * calls `next()` at once. A rejection fails this access and leaves the
+     * recorded directory unchanged; it is not a fallback.
+     * @param request - owner, requested path (null validates the current directory), and the access's cancellation.
+     * @param next - perform validation and commit.
+     * @mode waterfall
+     */
+    'working-directory/access'(
+      request: { agent: Agent; path: string | null; signal: AbortSignal },
+      next: () => Promise<string>,
+    ): Promise<string>
+  }
   interface Context {
     workingDirectory: WorkingDirectoryService
   }
@@ -132,23 +148,26 @@ export class WorkingDirectoryService extends Service {
    * @throws when the original project is also unavailable.
    */
   ensure(agent: Agent, signal?: AbortSignal): Promise<string> {
-    return this.serialize(agent, signal, async (control) => {
-      const current = this.get(agent.session)
-      const target = await this.ctx.fs.resolve(current, { signal: control })
-      const info = await this.ctx.fs.stat(target, control)
-      control.throwIfAborted()
-      agent.ctx.fiber.assertActive()
-      if (info?.type === 'directory') {
-        if (this.ctx.sessionProjections.stateOf(agent.session, 'workingDirectory') === null) {
-          agent.session.append('working-directory/change', { cwd: current })
+    return this.serialize(agent, signal, control => this.ctx.waterfall(
+      'working-directory/access', { agent, path: null, signal: control },
+      async () => {
+        const current = this.get(agent.session)
+        const target = await this.ctx.fs.resolve(current, { signal: control })
+        const info = await this.ctx.fs.stat(target, control)
+        control.throwIfAborted()
+        agent.ctx.fiber.assertActive()
+        if (info?.type === 'directory') {
+          if (this.ctx.sessionProjections.stateOf(agent.session, 'workingDirectory') === null) {
+            agent.session.append('working-directory/change', { cwd: current })
+          }
+          return current
         }
-        return current
-      }
-      const original = agent.session.header.cwd ?? this.defaultDirectory
-      const restored = await this.directory(original, original, control)
-      this.commit(agent, restored, true, control)
-      return restored
-    })
+        const original = agent.session.header.cwd ?? this.defaultDirectory
+        const restored = await this.directory(original, original, control)
+        this.commit(agent, restored, true, control)
+        return restored
+      },
+    ))
   }
 
   /**
@@ -161,12 +180,15 @@ export class WorkingDirectoryService extends Service {
    * @throws when the requested path is not an existing directory.
    */
   set(agent: Agent, path: string, signal?: AbortSignal): Promise<string> {
-    return this.serialize(agent, signal, async (control) => {
-      if (path.length === 0) throw new Error('working-directory: cd must not be empty')
-      const directory = await this.directory(path, this.get(agent.session), control)
-      this.commit(agent, directory, false, control)
-      return directory
-    })
+    return this.serialize(agent, signal, control => this.ctx.waterfall(
+      'working-directory/access', { agent, path, signal: control },
+      async () => {
+        if (path.length === 0) throw new Error('working-directory: cd must not be empty')
+        const directory = await this.directory(path, this.get(agent.session), control)
+        this.commit(agent, directory, false, control)
+        return directory
+      },
+    ))
   }
 
   private contextText(session: Session): string {

@@ -1,10 +1,12 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 /**
  * The live facts one roster member draws, read the same way by the conversation
  * action's rows and the page's roster: the model its Session selected, its
  * settled status, and whether it is the current Session.
  */
 import type { TeamMemberProjection } from '@qilin-agent/agent-team/client'
-import type { UseSessionStatus, UseSessions } from '@qilin-agent/client-ui-session/client'
+import type { UseSessions } from '@qilin-agent/client-ui-session/client'
+import type { UseSessionStatus } from '@qilin-agent/client-ui-session-status/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { MemberStatus } from './team-model.ts'
 

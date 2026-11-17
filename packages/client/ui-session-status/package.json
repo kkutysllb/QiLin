@@ -1,0 +1,94 @@
+{
+  "name": "@qilin-agent/client-ui-session-status",
+  "description": "Client Session status table over Host reading records: running state, the effective pending interaction, and read or unread reminders shared by clients of one Host",
+  "version": "3.1.12-rc.3",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/client/ui-session-status"
+  },
+  "engines": null,
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@qilin-agent/deque": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "zod": "4.6.6"
+  },
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~"
+  },
+  "devDependencies": {
+    "@qilin-agent/api-gateway": "workspace:*",
+    "@qilin-agent/api-remote-access": "workspace:*",
+    "@qilin-agent/api-remotes": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-store": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/remote-mock": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/typert-registry": "workspace:*"
+  },
+  "qilin": {
+    "client": {
+      "external": [
+        "@qilin-agent/api-gateway/client"
+      ],
+      "inject": [
+        "@qilin-agent/api-gateway",
+        "@qilin-agent/api-remote-access",
+        "@qilin-agent/api-remotes",
+        "@qilin-agent/api-session-controller",
+        "@qilin-agent/client-ui-renderer",
+        "@qilin-agent/client-ui-session"
+      ],
+      "platform": "web"
+    }
+  }
+}

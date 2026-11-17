@@ -1024,6 +1024,53 @@ describe('registry-global session archive', () => {
     expect(order).toEqual([])
   })
 
+  it('reports the durable archive to providers after any stop, and a failing listener does not undo it', async () => {
+    const dir = await makeDir('archive-release')
+    const result = await harness({ sessions: [header('busy', dir, 100)] })
+    const order: string[] = []
+    result.ctx.on('workspace/session-stop', ({ sessionId }) => { order.push(`stop:${sessionId}`) })
+    result.ctx.on('workspace/session-archived', ({ sessionId }) => { order.push(`released:${sessionId}`) })
+    result.ctx.on('workspace/session-archived', () => { throw new Error('release exploded') })
+    result.ctx.on('domain/changed', (change) => { if (change.table === '') order.push('write') })
+    const warn = vi.spyOn(result.ctx.logger, 'warn').mockImplementation(() => {})
+
+    await result.registry.archiveSession(SessionId('busy'), { stopActivity: true })
+    expect(result.registry.archivedSessionIds).toEqual(['busy'])
+    expect(storedState(result.pool).archivedSessionIds).toEqual(['busy'])
+    // The archive write lands first, then stops, then the release report.
+    expect(order).toEqual(['write', 'stop:busy', 'released:busy'])
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('release exploded'))
+
+    // A repeat resolves before reporting anything again.
+    order.length = 0
+    await result.registry.archiveSession(SessionId('busy'), { stopActivity: true })
+    expect(order).toEqual([])
+  })
+
+  it('lets providers settle archive follow-up work before an unarchive writes, and a rejection keeps the archive', async () => {
+    const dir = await makeDir('unarchive-admission')
+    const result = await harness({ sessions: [header('kept', dir, 100)] })
+    await result.registry.archiveSession(SessionId('kept'))
+    const order: string[] = []
+    result.ctx.on('workspace/session-unarchiving', async ({ sessionId }) => {
+      order.push(`unarchiving:${sessionId}`)
+      await Promise.resolve()
+    })
+    result.ctx.on('domain/changed', (change) => { if (change.table === '') order.push('write') })
+
+    await result.registry.unarchiveSession(SessionId('kept'))
+    expect(order).toEqual(['unarchiving:kept', 'write'])
+    expect(result.registry.archivedSessionIds).toEqual([])
+
+    // A rejecting listener keeps the Session archived.
+    await result.registry.archiveSession(SessionId('kept'))
+    order.length = 0
+    result.ctx.on('workspace/session-unarchiving', () => { throw new Error('cleanup still running') })
+    await expect(result.registry.unarchiveSession(SessionId('kept'))).rejects.toThrow()
+    expect(result.registry.archivedSessionIds).toEqual(['kept'])
+    expect(order).toEqual(['unarchiving:kept'])
+  })
+
   it('asks about activity only after the session is known, and archives when every listener delegates', async () => {
     const dir = await makeDir('archive-quiet')
     const result = await harness({ sessions: [header('known', dir, 100)] })

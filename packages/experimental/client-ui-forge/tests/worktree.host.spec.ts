@@ -3,12 +3,12 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Context } from '@qilin-agent/kylin'
 import type { AgentCancelCause } from '@qilin-agent/agent'
+import { CREATED_RECORD } from '@qilin-agent/experimental-worktree'
 import type {} from '@qilin-agent/experimental-forge-session'
-import SessionStore, { appendPluginRecord, SessionId } from '@qilin-agent/session'
+import SessionStore, { appendPluginRecord, type SessionId } from '@qilin-agent/session'
 import type { Session } from '@qilin-agent/session'
 import SessionProjectionRegistry from '@qilin-agent/session-projection'
-import { projectionReader } from '../src/projection-reader.ts'
-import type { ProjectionReader } from '../src/projection-reader.ts'
+import type { ProjectionHandle } from '@qilin-agent/session-projection'
 import type {} from '@qilin-agent/working-directory'
 import type { ForgeSessionWorktree, ForgeWorktreeCreation, ForgeWorktreeState } from '../src/index.ts'
 import { CreationFailure, forgeWorktreeProjection, WORKTREE_RECORD, WorktreeCreations } from '../src/worktree.ts'
@@ -16,6 +16,7 @@ import {
   branches, commitAt, git, hold, notice, plainSession, prompt, proposeStep, rejectionOf, repository, runtime, scratch, startStep, startTurn,
 } from './harness.ts'
 import type { Runtime } from './harness.ts'
+import { brandString } from '@qilin-agent/brand'
 
 const cleanups: (() => Promise<void>)[] = []
 
@@ -38,12 +39,24 @@ async function folded(): Promise<{ ctx: Context; session: Session; state: () => 
   cleanups.push(() => ctx.fiber.dispose())
   await ctx.plugin(SessionStore)
   await ctx.plugin(SessionProjectionRegistry)
-  const states = projectionReader<ForgeWorktreeState>(ctx, 'forgeWorktree', ctx.sessionProjections.register(forgeWorktreeProjection))
-  const session = ctx.sessions.create(SessionId('forge-worktree-projection'))
+  const states = await ctx.sessionProjections.register(forgeWorktreeProjection)
+  const session = ctx.sessions.create(brandString<SessionId>('forge-worktree-projection'))
   return { ctx, session, state: () => states.stateOf(session) }
 }
 
 describe('forgeWorktree projection', () => {
+  it('ignores a service creation record without an open request and after the first step', async () => {
+    const { session, state } = await folded()
+    const created = {
+      path: WORKTREE.path, branch: WORKTREE.branch, baseCommit: WORKTREE.baseCommit, repositoryRoot: WORKTREE.repositoryRoot,
+    }
+    appendPluginRecord(session, CREATED_RECORD, created)
+    expect(state().created).toBeNull()
+    appendPluginRecord(session, WORKTREE_RECORD, { action: 'request', from: 'main' })
+    appendPluginRecord(session, CREATED_RECORD, created)
+    expect(state().created).toEqual({ ...created, from: 'main' })
+  })
+
   it('shows clients the created worktree in the Session summary while the Session works in it', async () => {
     const { ctx, session, state } = await folded()
     const published: unknown[] = []
@@ -69,7 +82,7 @@ describe('forgeWorktree projection', () => {
     expect(inside.filter(value => value !== null)).toEqual([WORKTREE])
     expect(outside.slice(inside.length)).toEqual([null])
     expect(published.slice(outside.length)).toEqual([WORKTREE])
-    expect(ctx.sessionProjections.stateOf(session, 'forgeWorktree')).not.toBeUndefined()
+    expect(ctx.sessionProjections.summaryKeys().has('forgeWorktree')).toBe(true)
   })
 
   it('starts from the directory the Session header records', () => {
@@ -207,7 +220,7 @@ describe('forgeWorktree projection', () => {
 })
 
 async function project(): Promise<string> {
-  const { path, remove } = await scratch('qilin-forge-worktree-')
+  const { path, remove } = await scratch('dsh-forge-worktree-')
   cleanups.push(remove)
   return await repository(path)
 }
@@ -216,7 +229,7 @@ async function project(): Promise<string> {
 interface Creating extends Runtime {
   readonly creations: WorktreeCreations
   /** Reads the `forgeWorktree` projection the creations read. */
-  readonly states: ProjectionReader<ForgeWorktreeState>
+  readonly states: ProjectionHandle<ForgeWorktreeState>
   /** The Session's running creation at each `changed` call, in call order. */
   readonly changes: (ForgeWorktreeCreation | null)[]
   /** The Session's created worktree at each `changed` call, in call order. */
@@ -226,16 +239,16 @@ interface Creating extends Runtime {
 /**
  * Open a {@link runtime} whose worktree creations report every change.
  * @param cwd - Session project directory.
- * @param options - branch prefix, `qilin-` when omitted, and whether the worktree service is mounted, as it is when omitted.
+ * @param options - branch prefix, `dsh-` when omitted, and whether the worktree service is mounted, as it is when omitted.
  * @returns the composition.
  */
 async function creating(cwd: string, options: { readonly prefix?: string; readonly worktrees?: boolean } = {}): Promise<Creating> {
   const base = await runtime(cwd, { worktrees: options.worktrees ?? true })
   cleanups.push(() => base.ctx.fiber.dispose())
-  const states = projectionReader<ForgeWorktreeState>(base.ctx, 'forgeWorktree', base.ctx.sessionProjections.register(forgeWorktreeProjection))
+  const states = await base.ctx.sessionProjections.register(forgeWorktreeProjection)
   const changes: (ForgeWorktreeCreation | null)[] = []
   const recorded: (ForgeSessionWorktree | null)[] = []
-  const creations: WorktreeCreations = new WorktreeCreations(base.ctx, states, options.prefix ?? 'qilin-', (session) => {
+  const creations: WorktreeCreations = new WorktreeCreations(base.ctx, states, options.prefix ?? 'dsh-', (session) => {
     changes.push(creations.of(session))
     recorded.push(states.stateOf(session).created)
   })
@@ -243,7 +256,7 @@ async function creating(cwd: string, options: { readonly prefix?: string; readon
 }
 
 /** Matches a generated branch name with the default prefix. */
-const GENERATED_BRANCH: unknown = expect.stringMatching(/^qilin-[0-9a-f]{8}$/)
+const GENERATED_BRANCH: unknown = expect.stringMatching(/^dsh-[0-9a-f]{8}$/)
 
 /** Matches the failure of an attempt whose base branch does not exist. */
 const MISSING_BASE: unknown = expect.stringMatching(/^worktree command failed \(128\): fatal: /)
@@ -270,12 +283,13 @@ describe('creating a requested worktree', () => {
     const result = await opened.creations.create(opened.agent, null, signal, false)
 
     const branch = result.branch
-    expect(branch).toMatch(/^qilin-[0-9a-f]{8}$/)
+    expect(branch).toMatch(/^dsh-[0-9a-f]{8}$/)
     const path = join(repo, '.agents', 'worktrees', ...branch.split('/'))
     const created = { path, branch, from: null, baseCommit: head, repositoryRoot: repo }
     expect(result).toEqual({ path, branch, baseCommit: head, repositoryRoot: repo })
     expect(worktreeOf(opened)).toEqual(created)
-    expect(opened.records).toEqual([{ action: 'request', from: null }, { action: 'created', worktree: created }])
+    expect(opened.records).toEqual([{ action: 'request', from: null }])
+    expect(opened.created).toEqual([{ path, branch, baseCommit: head, repositoryRoot: repo }])
     expect(opened.ctx.workingDirectory.get(opened.session)).toBe(path)
     expect(opened.ctx.sessionProjections.snapshot(opened.session, ['forgeWorktree']).values).toEqual({ forgeWorktree: created })
     expect(await git(path, 'symbolic-ref', '--short', 'HEAD')).toBe(branch)
@@ -369,7 +383,7 @@ describe('creating a requested worktree', () => {
     expect(opened.changes.map(change => change?.phase ?? null)).toEqual(['prepare', 'prepare', 'checkout', null])
     expect(opened.records).toEqual([{ action: 'request', from: null }])
     expect(opened.ctx.workingDirectory.get(opened.session)).toBe(repo)
-    expect(new Set(await branches(repo))).toEqual(new Set([branch, 'main']))
+    expect(await branches(repo)).toEqual([branch, 'main'])
   })
 
   it('reports a failure that is not an Error by its text', async () => {
@@ -401,10 +415,11 @@ describe('worktree creation at the first step proposal', () => {
 
     const created = worktreeOf(opened)
     const branch = created?.branch ?? ''
-    expect(branch).toMatch(/^qilin-[0-9a-f]{8}$/)
+    expect(branch).toMatch(/^dsh-[0-9a-f]{8}$/)
     const path = join(repo, '.agents', 'worktrees', ...branch.split('/'))
     expect(created).toEqual({ path, branch, from: null, baseCommit: head, repositoryRoot: repo })
-    expect(opened.records).toEqual([{ action: 'request', from: null }, { action: 'created', worktree: created }])
+    expect(opened.records).toEqual([{ action: 'request', from: null }])
+    expect(opened.created).toHaveLength(1)
     expect(opened.ctx.workingDirectory.get(opened.session)).toBe(path)
     expect(await git(path, 'symbolic-ref', '--short', 'HEAD')).toBe(branch)
     expect(decision).toEqual({ kind: 'enter', messages: [proposed, notice(path)], startsRequestSeries: true })
@@ -440,8 +455,9 @@ describe('worktree creation at the first step proposal', () => {
     expect(path).toBe(worktreeOf(opened)?.path)
     expect(entered).toEqual({ kind: 'enter', messages: [proposed] })
     expect(opened.agent.inbox.nextStep).toEqual([notice(path)])
-    expect(opened.records).toHaveLength(2)
-    expect(new Set(await branches(repo))).toEqual(new Set([worktreeOf(opened)?.branch, 'main']))
+    expect(opened.records).toEqual([{ action: 'request', from: null }])
+    expect(opened.created).toHaveLength(1)
+    expect(await branches(repo)).toEqual([worktreeOf(opened)?.branch, 'main'])
   })
 
   it('enters the worktree and keeps the proposal when the directory notice cannot be queued', async () => {
@@ -489,9 +505,10 @@ describe('worktree creation at the first step proposal', () => {
 
     expect(decision).toEqual({ kind: 'enter', messages: [proposed] })
     expect(opened.changes).toHaveLength(reports)
-    expect(opened.records).toHaveLength(2)
+    expect(opened.records).toEqual([{ action: 'request', from: null }])
+    expect(opened.created).toHaveLength(1)
     expect(opened.ctx.workingDirectory.get(opened.session)).toBe(created.path)
-    expect(new Set(await branches(repo))).toEqual(new Set([created.branch, 'main']))
+    expect(await branches(repo)).toEqual([created.branch, 'main'])
   })
 
   it('ends the turn with the failure and keeps the request open for the next turn', async () => {

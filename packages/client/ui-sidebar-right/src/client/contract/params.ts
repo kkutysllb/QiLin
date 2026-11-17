@@ -20,10 +20,7 @@
 type ValuesOf<T> = T[keyof T]
 
 /** Resource type → the parameters a resource of that type accepts. Merge-extensible. */
-export interface SidebarRightResourceParamsMap {
-  /** One file preview keyed by absolute path; `line` is the first row to reveal. */
-  file: { line?: number }
-}
+export interface SidebarRightResourceParamsMap {}
 
 /** What `openResource` accepts as `params`: a declared resource type's parameters, or `undefined` for none. */
 export type SidebarRightResourceParams = ValuesOf<{

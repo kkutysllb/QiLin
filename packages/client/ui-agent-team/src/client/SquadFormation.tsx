@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 /**
  * The Team page's formation graph: one card per agent of the conversation's
  * family over a tidy tree of branch-coloured edges. Running edges pulse, a
@@ -12,7 +13,8 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { SessionTarget } from '@qilin-agent/api-session-controller/client'
-import type { UseSessionStatus, UseSessions } from '@qilin-agent/client-ui-session/client'
+import type { UseSessions } from '@qilin-agent/client-ui-session/client'
+import type { UseSessionStatus } from '@qilin-agent/client-ui-session-status/client'
 import { StateDot } from '@qilin-agent/client-ui-primitives'
 import type { TranslateNS } from '@qilin-agent/client-ui-slots'
 import {

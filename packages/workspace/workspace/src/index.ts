@@ -167,6 +167,22 @@ declare module '@qilin-agent/kylin' {
      * @mode parallel
      */
     'workspace/session-stop'(request: SessionActivityRequest): Promise<void> | void
+    /**
+     * Release what a provider holds for a Session that is durably archived.
+     * The archive set is durable when this dispatches; listeners release only
+     * what is safe to release (a worktree still carrying local changes stays),
+     * and a rejection is logged without undoing the archive.
+     * @param request - the archived session.
+     * @mode parallel
+     */
+    'workspace/session-archived'(request: SessionActivityRequest): Promise<void> | void
+    /**
+     * Cancel or settle archive follow-up work before making a Session available again.
+     * A rejection retains the archived state.
+     * @param request - Session about to leave the archive set.
+     * @mode parallel
+     */
+    'workspace/session-unarchiving'(request: SessionActivityRequest): Promise<void> | void
   }
 }
 
@@ -401,6 +417,7 @@ export class WorkspaceRegistry extends Service {
         pinnedSessionIds: state.pinnedSessionIds.filter(id => id !== sessionId),
       })
       if (options.stopActivity === true) await this.stopSessionActivity(sessionId)
+      await this.releaseArchivedSession(sessionId)
     })
   }
 
@@ -420,6 +437,7 @@ export class WorkspaceRegistry extends Service {
       // check-then-write pair cannot interleave with a concurrent archive.
       const state = this.requireState()
       if (!state.archivedSessionIds.includes(sessionId)) return
+      await this.ctx.parallel('workspace/session-unarchiving', { sessionId })
       await this.setState({
         ...state,
         archivedSessionIds: state.archivedSessionIds.filter(id => id !== sessionId),
@@ -562,6 +580,20 @@ export class WorkspaceRegistry extends Service {
       const failures = error instanceof AggregateError ? error.errors : [error]
       for (const failure of failures) {
         this.ctx.logger.warn(`workspace: stopping session '${sessionId}' for archive failed: ${String(failure)}`)
+      }
+    }
+  }
+
+  /** Report the durable archive to providers; a failing provider is logged, never a reason to fail the archive. */
+  private async releaseArchivedSession(sessionId: SessionId): Promise<void> {
+    try {
+      await this.ctx.parallel('workspace/session-archived', { sessionId })
+    } catch (error: unknown) {
+      // ctx.parallel settles every listener and rejects with one AggregateError.
+      /* v8 ignore next -- the plain arm guards a rethrowing dispatcher. */
+      const failures = error instanceof AggregateError ? error.errors : [error]
+      for (const failure of failures) {
+        this.ctx.logger.warn(`workspace: releasing session '${sessionId}' after archive failed: ${String(failure)}`)
       }
     }
   }

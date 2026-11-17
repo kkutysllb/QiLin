@@ -38,6 +38,8 @@ export type TaskNodeKind =
 /** One session row the model reads. The Session list's summaries satisfy this structurally. */
 export interface GraphSummaryEntry {
   readonly id: SessionId
+  /** The durable task title the Host projected; absent until it does. */
+  readonly title?: string
   /** The human-facing label the session is known by. */
   readonly displayTitle: string
   readonly running: boolean
@@ -125,9 +127,13 @@ export interface BuildTasksGraphModelInput {
   /**
    * The secondary line of one catalog child.
    * @param entry - the catalog's child row.
+   * @param summary - the child's summary, when the Session list holds one.
    * @returns the secondary the node shows.
    */
-  readonly secondaryOf: (entry: Extract<CatalogRow, { kind: 'child' }>) => string
+  readonly secondaryOf: (
+    entry: Extract<CatalogRow, { kind: 'child' }>,
+    summary: GraphSummaryEntry | undefined,
+  ) => string
 }
 
 /**
@@ -187,7 +193,7 @@ export function buildTasksGraphModel(input: BuildTasksGraphModelInput): TasksGra
       parentId,
       depth,
       label: labelOf(entry, summaries[entry.id]),
-      secondary: secondaryOf(entry),
+      secondary: secondaryOf(entry, summaries[entry.id]),
       running: entry.activity === 'running',
       current: entry.id === currentSessionId,
       address: { parentSessionId: navParent, childSessionId: entry.id, mode: entry.mode },

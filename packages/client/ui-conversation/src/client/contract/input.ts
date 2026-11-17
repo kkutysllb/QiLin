@@ -11,6 +11,7 @@ import type { SessionBinding } from '@qilin-agent/api-session-controller/client'
 import type { InboxState } from '@qilin-agent/agent/types'
 import type { ObservableSnapshot, SnapshotStore } from '@qilin-agent/client-store'
 import type { Branded } from '@qilin-agent/brand'
+import type { QuoteSummary } from '@qilin-agent/client-ui-primitives'
 import type { ArbitrateKey, ArbitrateOutcome, Occurrence, ReferenceInsert, TokenSpan } from './draft-editor.ts'
 import type { InputSubmitMode } from './composer-submission.ts'
 
@@ -182,6 +183,13 @@ export interface InputTarget {
 
 /** Per-session input facade owned by the conversation wiring layer. */
 export interface SessionInput extends InputTarget {
+  /**
+   * Append one atomic-format quote to the draft.
+   * @param text - nonblank selected text; sent as a Markdown blockquote.
+   * @param summary - readable display reserved for a future quote chip.
+   * @returns whether the draft is writable now.
+   */
+  insertQuote(text: string, summary?: QuoteSummary): boolean
   /** Replace the whole draft with plain text, removing inline reference chips. */
   setDraft(text: string): void
   /** Append ordered browser-owned attachment ids; busy admission phases refuse. */
@@ -252,6 +260,13 @@ export type DraftInitializationResult = 'applied' | 'preserved' | 'blocked'
  * paste/…) stay InputBar-private and never ride this face.
  */
 export interface InputActions {
+  /**
+   * Append one quote to the draft.
+   * @param text - selected text, carried as a Markdown blockquote.
+   * @param summary - readable display reserved for a future quote chip.
+   * @returns whether the draft was writable; absent on slot faces built before quote insertion.
+   */
+  insertQuote?(text: string, summary?: QuoteSummary): boolean
   /** @returns a revision-guarded copy of the current editor selection. */
   captureInsertion(): TokenSpan
   /**

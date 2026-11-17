@@ -61,5 +61,7 @@ export const remoteDefaultResponses: RemoteTable = {
     'sidebarOpens/watch': openStream([]),
     // api-remote-access client `mountAccess`: the owner's access snapshot, then open.
     'remoteAccess/follow': openStream([{ type: 'baseline', owner: true }]),
+    // client-ui-session-status `installReading`: open with no records until a spec scripts one.
+    'sessionStatus/follow': openStream([{ type: 'baseline', items: [] }]),
   },
 }

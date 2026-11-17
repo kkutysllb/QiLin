@@ -14,7 +14,7 @@ import type {
 import { RemoteError } from '@qilin-agent/typert-protocol'
 import type { RemoteResult } from '@qilin-agent/typert-protocol'
 import type { SessionListState, SessionSnapshot, SessionSummary } from '@qilin-agent/api-session-controller/client'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import { createSnapshotStore } from '@qilin-agent/client-store'
 import { bindSnapshotSelector, makeTranslate } from '@qilin-agent/client-test-runtime'
 import { zh as commonZh } from '@qilin-agent/client-locale/src/locales/zh.ts'
@@ -152,7 +152,7 @@ async function bodyBench(options: BenchOptions = {}): Promise<Mounted> {
     },
   })
   const statusMap: SessionStatusSnapshot = new Map(Object.entries(options.running ?? {}).map(([id, isRunning]) => [
-    id as SessionId, { running: isRunning, pendingInteraction: undefined, completionUnread: false },
+    id as SessionId, { running: isRunning, pendingInteraction: undefined, completionUnread: false, completionFailed: false },
   ]))
   const statuses = createSnapshotStore<SessionStatusSnapshot>(statusMap)
   const session = createSnapshotStore<SessionSnapshot>({
@@ -166,6 +166,11 @@ async function bodyBench(options: BenchOptions = {}): Promise<Mounted> {
     openState: options.openState ?? 'open',
     openError: null,
     hasMore: false,
+
+    historyWasPartial: false,
+
+    historyLoadStatus: 'idle',
+
     loadingOlder: false,
     promptError: null,
     blank: false,
@@ -257,6 +262,25 @@ describe('TeamBody formation', () => {
     expect(rows.textContent).toContain('Implement runtime')
     expect(rows.textContent).toContain('lead')
     expect(rows.querySelector('[data-state="ongoing"]')).not.toBeNull()
+  })
+
+  it('states each collaboration task\'s description under its subject', async () => {
+    await bodyBench()
+    const row = document.querySelector('[data-squad-task="task-1"]') as HTMLElement
+    const description = row.querySelector('[title="Build the Team runtime"]') as HTMLElement | null
+    expect(description).not.toBeNull()
+    // The full text stays reachable through the title attribute even where the
+    // compact line truncates it.
+    expect(description?.textContent).toBe('Build the Team runtime')
+    expect(row.textContent).toContain('Implement runtime')
+  })
+
+  it('drops the description line for a task that records none', async () => {
+    const bare: TeamTask = { ...TASK_2_VIEW, description: '' }
+    await bodyBench({ team: { members: [LEAD_MEMBER], tasks: [bare] } })
+    const row = document.querySelector('[data-squad-task="task-2"]') as HTMLElement
+    expect(row.querySelector('[class*="compactDescription"]')).toBeNull()
+    expect(row.textContent).toContain('Write tests')
   })
 
   it('rows the delegation and its step count in the collaboration timeline', async () => {

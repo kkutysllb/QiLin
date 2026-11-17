@@ -37,7 +37,7 @@ kind: "package-bundle"
 <details>
 <summary>维护者细节——点击展开</summary>
 
-组合包挂载 Forge 注册表、GitHub 提供方、Session 绑定和工作树模型工具。工具使用顶层 `worktree` 服务；面板在 `optional-forge-panel` 内保留隔离的 `forge-worktree` 服务。两者的配置 id 和创建流程各自独立。面板记录 Session 开始前请求的工作树；模型创建的工作树不会获得面板的恢复记录。这些行使用基于 base 的 profile 提供的 Session 投影、工作目录、文件系统、子进程和沙箱服务。
+组合包挂载 Forge 注册表、GitHub 提供方、Session 绑定、工作树模型工具与面板。工具和面板共用顶层 `worktree` 服务，面板本身是顶层的 `forge-panel` 行，因此 profile 可以单独覆盖它的配置 id，或用 `disabled: true` 关掉面板而不影响工具。面板记录 Session 开始前请求的工作树；模型创建的工作树不会获得面板的恢复记录。这些行使用基于 base 的 profile 提供的 Session 投影、工作目录、文件系统、子进程和沙箱服务。
 
 </details>
 

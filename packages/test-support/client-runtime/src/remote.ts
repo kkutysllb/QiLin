@@ -1,5 +1,8 @@
-/** Test-owned Remote face: `$on` subscriptions with an explicit test event driver. */
+/** Test-owned Remote face: `$on` subscriptions with an explicit test event driver, and reconnecting streams. */
 import type { Context } from '@qilin-agent/kylin'
+import { RemoteStream, type RemoteStreamOptions } from '@qilin-agent/api-gateway/client'
+import type { ConnectionGeneration, ConnectionHandle } from '@qilin-agent/client-connection/client'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 
 // Value re-export for spec-side failure construction: the api-remotes facade
 // cannot carry it — its src top-level imports owner /remote lib artifacts, so a
@@ -25,6 +28,19 @@ export { RemoteError } from '@qilin-agent/typert-protocol'
  */
 export class TestRemote {
   private readonly subscriptions = new Map<string, Set<(...args: never[]) => void>>()
+  /** One always-available Host generation; the double never loses or replaces its carrier. */
+  private readonly connection: Pick<ConnectionHandle, 'generation'> = {
+    generation: createSnapshotStore<ConnectionGeneration | undefined>({ id: 1, host: { home: '/home/fixture' } }),
+  }
+
+  /**
+   * Wrap a scripted stream method in the production `RemoteStream` over one Host generation that never changes.
+   * @param options - domain stream opener, end classification, and diagnostics.
+   * @returns the reconnecting stream handle.
+   */
+  $stream<Item>(options: RemoteStreamOptions<Item>): RemoteStream<Item> {
+    return new RemoteStream(this.connection, options)
+  }
 
   /**
    * Fixed Host facts mirrored from the production `ctx.remote.$host`. Plain

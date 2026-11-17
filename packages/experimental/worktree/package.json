@@ -1,6 +1,6 @@
 {
   "name": "@qilin-agent/experimental-worktree",
-  "description": "Git worktree creation that enters the new checkout through the Session working directory",
+  "description": "Creates a named Git worktree, records it in the Session log, and reclaims it when the Session is archived",
   "version": "3.1.12-rc.3",
   "publishConfig": {
     "access": "public"
@@ -21,17 +21,24 @@
       "types": "./lib/types/index.d.ts",
       "default": "./lib/index.js"
     },
+    "./types": {
+      "types": "./lib/types/types.d.ts",
+      "default": "./lib/types/types.js"
+    },
     "./src/*": "./src/*",
+    "./locale/*.json": "./locale/*.json",
     "./package.json": "./package.json"
   },
   "files": [
+    "locale/*.json",
     "lib/index.js",
     "lib/types/**/*.d.ts"
   ],
   "license": "MIT",
   "dependencies": {
     "@qilin-agent/schemastery": "workspace:~",
-    "@qilin-agent/timeout": "workspace:*"
+    "@qilin-agent/timeout": "workspace:*",
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~",
@@ -39,23 +46,39 @@
     "@qilin-agent/fs": "workspace:*",
     "@qilin-agent/sandbox": "workspace:*",
     "@qilin-agent/sandbox-policy": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/session-projection-cache": "workspace:*",
+    "@qilin-agent/session-query": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
     "@qilin-agent/subprocess": "workspace:*",
-    "@qilin-agent/working-directory": "workspace:*"
+    "@qilin-agent/util-error": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
+    "@qilin-agent/workspace": "workspace:*"
   },
   "devDependencies": {
     "@qilin-agent/kylin": "workspace:~",
     "@qilin-agent/agent": "workspace:*",
     "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/brand": "workspace:*",
     "@qilin-agent/fs": "workspace:*",
     "@qilin-agent/fs-local": "workspace:*",
     "@qilin-agent/sandbox": "workspace:*",
     "@qilin-agent/sandbox-local": "workspace:*",
     "@qilin-agent/sandbox-policy": "workspace:*",
     "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence-jsonl": "workspace:*",
     "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/session-projection-cache": "workspace:*",
+    "@qilin-agent/session-query": "workspace:*",
+    "@qilin-agent/settings": "workspace:*",
+    "@qilin-agent/storage": "workspace:*",
+    "@qilin-agent/storage-domain": "workspace:*",
     "@qilin-agent/subprocess": "workspace:*",
     "@qilin-agent/subprocess-local": "workspace:*",
     "@qilin-agent/system-prompt": "workspace:*",
-    "@qilin-agent/working-directory": "workspace:*"
+    "@qilin-agent/util-error": "workspace:*",
+    "@qilin-agent/working-directory": "workspace:*",
+    "@qilin-agent/workspace": "workspace:*"
   }
 }

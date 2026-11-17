@@ -449,6 +449,7 @@ describe('paging', () => {
       await session.loadThrough(SessionSeq(0))
       expect(errorSpy).toHaveBeenCalledWith('[session-controller] loadThrough failed:', expect.any(Error))
       expect(session.getSnapshot().loadingOlder).toBe(false)
+      expect(session.getSnapshot().historyLoadStatus).toBe('error')
     } finally {
       prepend.mockRestore()
       errorSpy.mockRestore()
@@ -462,9 +463,13 @@ describe('paging', () => {
     const gate = Promise.withResolvers<RemoteResult<SessionPage>>()
     mock.remote.session.page.mockImplementation(pageRule(gate.promise))
     const first = session.loadOlder()
+    expect(session.getSnapshot()).toMatchObject({
+      historyLoadStatus: 'loading', loadingOlder: true, historyWasPartial: true,
+    })
     const second = session.loadOlder()
     gate.resolve(history(plainTurn(SessionSeq(0), 0, 'a', 'b')))
     await Promise.all([first, second])
+    expect(session.getSnapshot()).toMatchObject({ historyLoadStatus: 'idle', loadingOlder: false })
     expect(mock.log.requests(FOLLOW)).toHaveLength(1)
     expect(mock.log.requests(PAGE)).toHaveLength(1)
   })
@@ -806,6 +811,7 @@ describe('remaining branches', () => {
       await session.loadOlder()
       expect(errorSpy).toHaveBeenCalledWith('[session-controller] loadOlder failed:', expect.any(Error))
       expect(session.getSnapshot().loadingOlder).toBe(false)
+      expect(session.getSnapshot().historyLoadStatus).toBe('error')
     } finally {
       prepend.mockRestore()
       errorSpy.mockRestore()

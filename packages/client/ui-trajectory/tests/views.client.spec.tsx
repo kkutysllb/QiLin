@@ -36,7 +36,7 @@ import type {
 } from '@qilin-agent/api-session-controller/client'
 import type { WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
 import type { SessionId } from '@qilin-agent/session/types'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import { apply as localeApply, inject as localeInject } from '@qilin-agent/client-locale/client'
 import { apply, inject } from '@qilin-agent/client-ui-trajectory/client'
 import { apply as nodeApply } from '@qilin-agent/client-ui-trajectory'
@@ -157,6 +157,11 @@ function sessionSnapshot(nodes: LegacyConversationSlice['nodes']): SessionSnapsh
     openState: 'open',
     openError: null,
     hasMore: false,
+
+    historyWasPartial: false,
+
+    historyLoadStatus: 'idle',
+
     loadingOlder: false,
     promptError: null,
     blank: nodes.length === 0,
@@ -247,6 +252,7 @@ function standaloneProps(
     draft: '', attachmentIds: [], draftRev: 0, phase: 'plain', occurrences: [], queue: [],
   })
   const inputActions: InputActions = {
+    insertQuote: () => false,
     captureInsertion: () => ({ start: 0, end: 0, draftRev: 0 }),
     persistDraft: () => {},
     insertText: () => false,
@@ -400,6 +406,7 @@ function mount(
     draft: '', attachmentIds: [], draftRev: 0, phase: 'plain', occurrences: [], queue: [],
   }))
   const inputActions: InputActions = {
+    insertQuote: () => false,
     captureInsertion: () => ({ start: 0, end: 0, draftRev: 0 }),
     persistDraft: vi.fn(),
     insertText: () => false,

@@ -40,28 +40,43 @@ export interface RestoreWorktreeRequest {
   repositoryRoot: string
 }
 
-/**
- * Request to remove one retained worktree: its checkout directory leaves the
- * filesystem and its registration, and the branch follows when asked and it
- * carries no unmerged commits.
- */
-export interface RemoveWorktreeRequest extends RestoreWorktreeRequest {
-  /** Delete the branch after the checkout is gone; an unmerged branch is kept and reported. */
-  deleteBranch?: boolean
-}
-
-/** Outcome of one removal. */
-export interface RemovedWorktree {
-  /** Checkout directory the call addressed. */
-  path: string
-  /** Whether the branch was deleted after the checkout left. */
-  branchDeleted: boolean
-}
-
 /** Outcome of one restoration. */
 export interface RestoredWorktree {
   /** Checkout directory, present again. */
   path: string
   /** Whether the branch no longer existed and was created again at the base commit, without the commits it had gained. */
   branchRecreated: boolean
+}
+
+/** One checkout in a Session's log and whether that Session, rather than a fork ancestor, created it. */
+export interface WorktreeCreation {
+  readonly worktree: CreatedWorktree
+  /** False for a creation inside the fork-inherited prefix. */
+  readonly owned: boolean
+}
+
+/** Process-local state of one archive-triggered cleanup of a checkout. */
+export interface WorktreeCleanup {
+  /** Monotonic attempt number within this Host lifetime; a Remote waits on a specific one. */
+  readonly revision: number
+  /**
+   * `scheduled` until the background inspection ends; `retained` when a use,
+   * policy, or Git state keeps the checkout; `removed` after `git worktree
+   * remove`; `failed` when removal threw and may have left a partial directory.
+   */
+  readonly status: 'scheduled' | 'retained' | 'removed' | 'failed'
+}
+
+/** A recorded checkout to remove, and whether its merged branch follows. */
+export interface RemoveWorktreeRequest extends RestoreWorktreeRequest {
+  /** Delete the branch when Git reports it merged; default false. */
+  deleteBranch?: boolean
+}
+
+/** Outcome of one removal. */
+export interface RemovedWorktree {
+  /** Checkout directory that is gone. */
+  path: string
+  /** Whether the branch was deleted because Git reported it merged. */
+  branchDeleted: boolean
 }

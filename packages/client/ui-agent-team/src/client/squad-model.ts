@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 /**
  * Formation arithmetic for the squad chip and the Team page's formation graph:
  * which agents belong to one conversation's family, the tidy-tree geometry the
@@ -7,7 +8,7 @@
  * no React, no services, no stores.
  */
 import type { SessionListState, SessionSummary } from '@qilin-agent/api-session-controller/client'
-import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session/client'
+import type { SessionStatusSnapshot } from '@qilin-agent/client-ui-session-status/client'
 import type { SessionId } from '@qilin-agent/session/types'
 import type { AgentMessageRecord, TeamProjection } from '@qilin-agent/agent-team/client'
 import type {} from '@qilin-agent/token-meter/client'

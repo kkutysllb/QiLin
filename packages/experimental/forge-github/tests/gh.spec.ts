@@ -7,7 +7,7 @@ import { GhOutputLimitError, GhTimeoutError, GhUnavailableError, ghRunner } from
 let root = ''
 
 beforeEach(async () => {
-  root = await mkdtemp(join(tmpdir(), 'qilin-forge-gh-'))
+  root = await mkdtemp(join(tmpdir(), 'dsh-forge-gh-'))
 })
 
 afterEach(async () => {
@@ -24,7 +24,9 @@ async function fakeGh(): Promise<string> {
     '  echo) printf "%s|" "$@"; printf "\\nprompt=%s token=%s pager=[%s]\\n" "$GH_PROMPT_DISABLED" "${GH_TOKEN:-unset}" "$GH_PAGER" ;;',
     '  input) cat ;;',
     '  fail) echo oops >&2; exit 3 ;;',
-    '  sleep) sleep 5 ;;',
+    // exec, so the deadline kill reaches the process holding the pipes; a
+    // child sleep would outlive the shell and keep the runner's close pending.
+    '  sleep) exec sleep 5 ;;',
     '  big) head -c 5000 /dev/zero | tr "\\0" x ;;',
     'esac',
     '',
@@ -57,8 +59,6 @@ describe.skipIf(process.platform === 'win32')('gh runner', () => {
     await expect(run(['fail'], new AbortController().signal)).resolves.toEqual({ exitCode: 3, stdout: '', stderr: 'oops' })
   })
 
-  // execa reports the timeout at 100ms but settles only after its SIGTERM grace period, so a
-  // loaded host can outlast vitest's 5s default budget while the runner itself behaves correctly.
   it('rejects when gh outlives the timeout', async () => {
     const run = ghRunner({ ghCommand: await fakeGh(), timeoutMs: 100, maxOutputBytes: 10_000 })
 
@@ -66,7 +66,7 @@ describe.skipIf(process.platform === 'win32')('gh runner', () => {
 
     await expect(result).rejects.toBeInstanceOf(GhTimeoutError)
     await expect(result).rejects.toThrow('gh sleep timed out after 100ms')
-  }, 20_000)
+  })
 
   it('rejects with the abort reason when cancelled', async () => {
     const run = ghRunner({ ghCommand: await fakeGh(), timeoutMs: 5_000, maxOutputBytes: 10_000 })

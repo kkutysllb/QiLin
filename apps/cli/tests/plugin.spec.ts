@@ -266,3 +266,21 @@ describe('qilin plugin forwarding', () => {
     expect(vi.mocked(spawnSync)).toHaveBeenCalledWith('pnpm', ['add', pluginDir], expect.objectContaining({ cwd: dir }))
   })
 })
+
+describe('installation plugin dependencies', () => {
+  it('ships the built-in plugin bundles without pinning their implementation packages', () => {
+    // The wrappers depend on the dsh packages. Declaring them on the
+    // installation as well makes the plugin manager read each one as a shipped
+    // bundle the person can neither remove nor switch on, and leaves the
+    // profile-installed copies locked in the third-party list.
+    const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
+      dependencies: Record<string, string>
+    }
+    for (const bundle of ['@qilin-agent/kylin-images-bundle', '@qilin-agent/animations-bundle', '@qilin-agent/skills-bundle']) {
+      expect(manifest.dependencies).toHaveProperty(bundle)
+    }
+    for (const plugin of ['dsh-animations', 'dsh-kylin-images', 'dsh-skills-bundle']) {
+      expect(manifest.dependencies).not.toHaveProperty(plugin)
+    }
+  })
+})

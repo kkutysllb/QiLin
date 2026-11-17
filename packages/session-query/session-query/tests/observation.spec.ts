@@ -150,6 +150,19 @@ describe('SessionObservationReader live path', () => {
     await ctx.fiber.dispose()
   })
 
+  it('inspects a live Session with and without a cancellation signal', async () => {
+    const ctx = await readerContext()
+    const session = ctx.sessions.create(SessionId('inspect-live'), { meta: { cwd: '/workspace' } })
+    const reader = new SessionObservationReader(ctx)
+
+    await expect(reader.inspect(session.id, live => live.id)).resolves.toBe(session.id)
+    const controller = new AbortController()
+    await expect(reader.inspect(session.id, live => live.seq, controller.signal)).resolves.toBe(session.seq)
+    controller.abort()
+    await expect(reader.inspect(session.id, live => live.seq, controller.signal)).rejects.toThrow()
+    await ctx.fiber.dispose()
+  })
+
   it('computes live projections when the registry is mounted and surfaces its failure raw', async () => {
     const ctx = await readerContext()
     await ctx.plugin(SessionProjectionRegistry)

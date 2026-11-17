@@ -36,6 +36,8 @@ export interface BeginSubmissionInput {
   readonly text: string
   /** Ordered image previews and durable file metadata matching the upcoming prompt attachments. */
   readonly attachments: readonly PendingSubmissionAttachment[]
+  /** Acceptance callback fired exactly once when the Host accepts the prompt. */
+  readonly onAccept?: () => void
   /** Settlement callback fired exactly once when the echo retires. */
   readonly onRetire?: (retirement: PendingSubmissionRetirement) => void
 }

@@ -59,11 +59,28 @@
   background: var(--qilin-alias-interactive-bg-hover);
 }
 
-.compactSubject {
+.compactTask {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.compactSubject {
   min-width: 0;
   overflow: hidden;
   color: var(--qilin-alias-label-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The task's own description sits under its subject: the compact list states
+   what the work is, not only how it is named. */
+.compactDescription {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--qilin-alias-label-tertiary);
+  font-size: 10.5px;
   white-space: nowrap;
   text-overflow: ellipsis;
 }

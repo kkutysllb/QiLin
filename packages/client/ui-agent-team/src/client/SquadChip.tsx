@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 /**
  * The conversation header's squad chip: states the conversation's agent family
  * and its Team, and opens the Team page in the right Sidebar. The page owns the

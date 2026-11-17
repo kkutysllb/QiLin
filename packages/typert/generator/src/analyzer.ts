@@ -816,6 +816,10 @@ class FaceAnalyzer {
       const sourcePath = sourcePathForExport(registration.root, target)
       const sourceFile = this.sourceFiles.get(realPath(sourcePath))
       if (sourceFile === undefined) {
+        // A dual-face package's client-only export is outside the Host program;
+        // the Client build type-checks it. Only a source absent from disk is a
+        // registration defect here.
+        if (existsSync(sourcePath)) continue
         throw new TypertAnalysisError(
           `typert(${this.face}): ${registration.name} export ${subpath} resolves to missing source ${sourcePath}`,
         )

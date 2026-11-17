@@ -1,3 +1,4 @@
+import type {} from '@qilin-agent/client-ui-session-status/client'
 /**
  * The `agent-team` right-Sidebar page: roster, shared-task board, and the
  * create/edit forms, driven by the `agentTeams` write bridge.
@@ -394,7 +395,14 @@ export function TeamBody({
                     {team.tasks.map(task => (
                       <li key={task.id} className={css.taskRow} data-squad-task={task.id}>
                         <StateDot state={taskDotState(task)} size={8} />
-                        <span className={css.compactSubject} title={task.subject}>{task.subject}</span>
+                        <span className={css.compactTask}>
+                          <span className={css.compactSubject} title={task.subject}>{task.subject}</span>
+                          {task.description !== '' && (
+                            <span className={css.compactDescription} title={task.description}>
+                              {task.description}
+                            </span>
+                          )}
+                        </span>
                         <span className={css.compactOwner}>{task.ownerName ?? t('unowned')}</span>
                       </li>
                     ))}

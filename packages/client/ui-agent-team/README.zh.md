@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-本包向 Web 会话页头添加两个 Agent Teams action：roster popover，以及陈述 agent 编队并打开 Team 标签页的队伍标签。标签页在 roster 与共享任务板上方绘制编队图，从共享 Session store 读取 Lead Session 的 `agentTeam` 投影，并通过 Host 上的 `agentTeams` 写入桥编辑任务：创建、编辑、完成、重新打开、删除与改派以 wire action 发出。普通 child history 导航继续使用稳定的 addressed-subagent 路径。通过实验性 Agent Teams Web profile 选择本包。这个 projection 不扩展稳定 API Proxy、不存储 Team 状态，也不注册面向模型的输入。
+本包向 Web 会话页头添加一个 Agent Teams action：陈述 agent 编队并打开 Team 标签页的队伍标签。标签页在 roster 与共享任务板上方绘制编队图，从共享 Session store 读取 Lead Session 的 `agentTeam` 投影，并通过 Host 上的 `agentTeams` 写入桥编辑任务：创建、编辑、完成、重新打开、删除与改派以 wire action 发出。普通 child history 导航继续使用稳定的 addressed-subagent 路径。通过实验性 Agent Teams Web profile 选择本包。这个 projection 不扩展稳定 API Proxy、不存储 Team 状态，也不注册面向模型的输入。
 
 ## 目录
 
@@ -37,13 +37,13 @@ kind: "package-reference"
 
 画布跟随实测的 stage：每次宽度变化都会重新排布，叶节点放不进一行时层级改为分带排列，而不是向两侧溢出。悬停或聚焦卡片会让该 agent、其父与子保持点亮并淡化其余；点击或按 Enter 通过其持久 subagent 地址打开该 agent 的会话。只有 Lead 的编队会说明编队将在 Lead 委派后展开。
 
-图形旁是跨 Agent 协作面板，按时间倒序列出页面持有的持久流量：父节点把标签交给子节点（附子节点的创建模式与步数），以及每个 agent 收到的 peer 消息（附发送方与有界预览，读取收件人的 `agentMessages` 投影）。同一列还把共享任务汇总为只读行——状态点、主题、负责人——可编辑的任务板仍在下方。宽面板上图与时间线并排，窄面板上上下堆叠。
+图形旁是跨 Agent 协作面板，按时间倒序列出页面持有的持久流量：父节点把标签交给子节点（附子节点的创建模式与步数），以及每个 agent 收到的 peer 消息（附发送方与有界预览，读取收件人的 `agentMessages` 投影）。同一列还把共享任务汇总为只读行——状态点、主题及其描述、负责人——可编辑的任务板仍在下方。宽面板上图与时间线并排，窄面板上上下堆叠。
 
 下方任务板与图形共享悬停负责人：悬停卡片会给该 agent 拥有的行着色，悬停行会点亮其负责人的卡片。
 
 ### 检查并导航 roster
 
-面板从共享 Session store 展示 Lead Session 的 roster 与任务板。面板保持打开时，任务和成员更新会直接出现。打开面板不发起投影请求。会话或 Session 列表正在加载时，面板显示加载提示；加载结束后仍无 Team 值时，显示不可用提示。
+页面从共享 Session store 展示 Lead Session 的 roster，保持打开时更新会直接出现。会话或 Session 列表正在加载时显示加载提示；加载结束后仍无 Team 值时，显示不可用提示。
 
 Roster 行展示持久名称与阶段。provisioning 和 running 成员使用共享 ongoing loading，inactive 成员使用人物图标，failed 成员使用 error 红点。实时 Session 状态提供运行活动；共享 `modelSelection` 投影在可用时提供模型。当前会话带有“当前会话”标签且不可选择。在 teammate 会话中选择 Lead 会直接打开 Lead Session。选择 active teammate 会打开其普通 continuable 子会话地址。Host 在打开历史时校验 parent、child 与 mode；后续人类提示词使用同一 addressed-subagent 会话。
 
@@ -51,7 +51,7 @@ Roster 行展示持久名称与阶段。provisioning 和 running 成员使用共
 
 可开始的 pending 任务使用 idle 灰点，被依赖阻塞的 pending 任务使用 warning 橙点，in-progress 任务使用 ongoing loading，completed 任务使用 done 绿点。
 
-任务板展示任务标识、负责人、依赖、就绪状态、提示性写入范围与重叠警告。分区标题显示成员与任务数量；空任务板显示简短描述，只有一名成员且无任务时采用单列面板。当投影报告某条持久 Team 记录被拒绝时，标签页在最后有效的 roster 与任务上方显示该失败。
+任务板展示任务标识、负责人、依赖、就绪状态、提示性写入范围与重叠警告。分区标题显示成员与任务数量；空任务板显示简短描述。当投影报告某条持久 Team 记录被拒绝时，标签页在最后有效的 roster 与任务上方显示该失败。
 
 ### 从浏览器编辑任务
 
@@ -67,16 +67,14 @@ Roster 行展示持久名称与阶段。provisioning 和 running 成员使用共
 <details>
 <summary>实现细节——点击展开</summary>
 
-Client export 通过 Cordis effect 注册 locale dictionary、两个 conversation-header slot 与右侧边栏的 Team 标签页；它为写入桥挂载 `agentTeams` Remote namespace。Dispose plugin fiber 会移除这些 registration 并撤回该 namespace。
+Client export 通过 Cordis effect 注册 locale dictionary、会话页头的队伍标签与右侧边栏的 Team 标签页；它为写入桥挂载 `agentTeams` Remote namespace。Dispose plugin fiber 会移除这些 registration 并撤回该 namespace。
 
 队伍标签与编队图只读取常驻的 `useSessions` 与 `useSessionStatus` 座位。`squad-model.ts` 沿 `parentId` 解析家族根，按父节点持久 `subagentCatalog` 顺序收敛后代，并追加 catalog 尚未记录的行，然后从投影值取每个 agent 的标签、模式、运行活动、序号、token、耗时、占用、构成与模型。`squadBarSegments` 把单张卡片的占用拆成上报的构成与空闲余量，`layoutSquad` 计算整齐树：叶节点按深度层各占一槽，父节点居中于其子节点之上；叶节点超过一行容量时改为按层分带。标签用 `ctx.sidebarRight.openTabIn(sessionId, 'agent-team')` 打开标签页，因此不创建自己的页面。`SquadFormation` 测量其 stage，把连线作为 SVG 绘制在绝对定位卡片之后，并上报悬停的负责人名称；`TeamBody` 持有该名称并向下回传，任务行与其卡片因此互相点亮。
 
-面板渲染在会话容器外，并保持在视口范围内。成员卡片在静止、选中和悬停状态下均使用共享 elevation 描边绘制轮廓。悬停触发按钮 150ms 后打开面板；指针离开触发按钮和面板后，经过 120ms 宽限关闭。点击触发按钮会固定面板并将焦点移入其中。点击外部或按 Escape 可关闭面板；仅当焦点原本位于面板内时，Escape 才将焦点返回触发按钮。页头较窄时触发按钮折叠为图标，只响应点击打开。组件从 `useSessions`、`useSessionStatus` 与 `useSession` 座位派生每一行：Lead 身份来自当前 Session 的 subagent address，Team 视图来自 `projectionsBySession[lead].values.agentTeam`，成员活动来自 Session 状态并以列表摘要为后备，model 来自 `projectionsBySession[member].values.modelSelection.next`。每个 roster 行只选择自己的运行状态。唯一的注入回调通过当前与目标 Session 的 id 打开 roster Session。切换会话会关闭面板并清除导航失败。
 
 | 文件 | 职责 |
 |---|---|
 | [`src/client/mount.ts`](src/client/mount.ts) | locale、标签页、导航、slot 与 Remote namespace registration |
-| [`src/client/TeamAction.tsx`](src/client/TeamAction.tsx) | 由投影派生的 roster 与任务板 popover 及面板交互状态 |
 | [`src/client/SquadChip.tsx`](src/client/SquadChip.tsx) | 陈述 Team 与编队规模并打开 Team 标签页的页头标签 |
 | [`src/client/SquadFormation.tsx`](src/client/SquadFormation.tsx) | 编队图：agent 卡片、分支连线、悬停邻域与卡片导航 |
 | [`src/client/squad-model.ts`](src/client/squad-model.ts) | 标签与图形共用的纯家族、计数、布局与格式化算术 |
@@ -85,7 +83,7 @@ Client export 通过 Cordis effect 注册 locale dictionary、两个 conversatio
 | [`src/client/team-page-store.ts`](src/client/team-page-store.ts) | 页面 busy 与提示状态 |
 | [`src/client/team-model.ts`](src/client/team-model.ts) | 纯 roster、任务板与表单辅助 |
 | [`src/client/definition.tsx`](src/client/definition.tsx) | 侧边栏标签页注册与 guide 条目 |
-| [`src/client/locales.ts`](src/client/locales.ts) | 中英文 panel 与页面文案 |
+| [`src/client/locales.ts`](src/client/locales.ts) | 中英文页面文案 |
 | [`src/index.ts`](src/index.ts) | 不执行行为的 Host entry |
 
 </details>
@@ -122,7 +120,8 @@ Client export 通过 Cordis effect 注册 locale dictionary、两个 conversatio
 - **晚启用插件** — 在已经打开的会话中启用 Agent Teams 后，需要刷新页面才能接收其 Team 投影。
 - **模型可用性** — 仅当共享 store 包含该成员的持久选择或请求时才显示模型。冷缓存中缺少的值会保持缺失，直到正常 Session 加载或实时更新提供它们。
 - **普通 child continuation**——导航后发送的人类消息使用稳定 addressed-subagent 提示词路径，而不是 Team peer mailbox。
-- **没有 lifecycle 或 workspace control**——panel 不能 spawn、rename、delete 或 interrupt teammate，write scope 仍只是提示性 metadata。
+- **没有 lifecycle 或 workspace control**——页面不能 spawn、rename、delete 或 interrupt teammate，write scope 仍只是提示性 metadata。
+- **协作汇总会压缩描述**：其行在主题下只显示一行省略的描述，全文放在该行 tooltip 里；完整描述在下方任务板卡片中。
 - **claim 与 release 仍归模型所有**——浏览器只通过编辑、完成、重新打开、删除与改派修改任务；claim 与 release 仍是 Team agent 工具操作，任务板没有拖拽排序与活动流。
 
 <a id="dev-note"></a>

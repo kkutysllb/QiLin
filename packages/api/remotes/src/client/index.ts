@@ -23,6 +23,7 @@ import fileUploadsRemote from '@qilin-agent/client-file-upload/remote'
 import sessionReferencesRemote from '@qilin-agent/session-reference/remote'
 import subagentsRemote from '@qilin-agent/subagent/remote'
 import sessionRemote from '@qilin-agent/api-session-controller/remote'
+import sessionStatusRemote from '@qilin-agent/client-ui-session-status/remote'
 import workspaceRemote from '@qilin-agent/api-workspace-controller/remote'
 import jobRemote from '@qilin-agent/api-job-controller/remote'
 import terminalRemote from '@qilin-agent/api-terminal-controller/remote'
@@ -195,7 +196,7 @@ export async function apply(ctx: Context): Promise<() => Promise<void>> {
       pluginInventoryRemote, pluginManagerRemote, pluginMarketRemote, pluginRegistryProbeRemote,
       mcpServersRemote, messageFeedbackRemote, sessionFeedbackRemote,
       fileUploadsRemote, sessionReferencesRemote,
-      permissionPresetsRemote, subagentsRemote, sessionRemote, jobRemote, workspaceRemote,
+      permissionPresetsRemote, subagentsRemote, sessionRemote, sessionStatusRemote, jobRemote, workspaceRemote,
       workspaceFilesRemote, workspaceGitRemote, terminalRemote, officeToPdfRemote, userQuestionsRemote,
       sidebarOpensRemote,
     ]) {

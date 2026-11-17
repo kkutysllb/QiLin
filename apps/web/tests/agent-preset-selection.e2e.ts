@@ -4,8 +4,9 @@
 // (编码模式, which adds the runtime-authoring capability), so the shipped Web
 // composition mounts `ui-agent-preset` and the new-session hero carries its
 // chip. The settings section reports both rows with `standard` as the
-// new-task default, the chip stages either mode onto a blank session, and the
-// session header names the composition a resumed session runs.
+// new-task default, and the chip stages either mode onto a blank session.
+// The session header carries no preset label, so a resumed session's own
+// composition is never restated there.
 //
 // Zero model calls: no replay fixture mounts, so a stray stream fails loud.
 import { fileURLToPath } from 'node:url'
@@ -247,7 +248,7 @@ describe('web e2e: agent-preset selection', () => {
     await expect.poll(() => livePreset(scaffold), { timeout: 15_000 }).toBe('standard')
   }, 60_000)
 
-  it('labels a resumed session with the preset it was created under', async () => {
+  it('keeps a resumed session header free of preset labels', async () => {
     onTestFailed(() => saveFailureShot(page, 'web-e2e-agent-preset-header'))
     // The seeded session's cwd is the scaffold root rather than the connected
     // workspace, so it lists under Ungrouped; the group collapses by default.
@@ -262,16 +263,11 @@ describe('web e2e: agent-preset selection', () => {
     const snapshot = await captureStableAria(page, '[class*="titleRow"]', scaffold.workspaceCwd)
 
     await compareOrRefreshGolden(HEADER_EXPECTED, snapshot, MODE)
-    expect(snapshot).toContain('Coding mode')
-    expect(snapshot).toContain('button "1 subagent"')
+    expect(snapshot).not.toContain('Coding mode')
+    expect(snapshot).not.toContain('Standard mode')
     // A root session carries no breadcrumb switcher: its descendant count is an
-    // occupant of the actions band, so it follows the preset label the same band
-    // carries and still precedes the corner's own control.
-    expect(snapshot.indexOf('Coding mode')).toBeLessThan(snapshot.indexOf('button "1 subagent"'))
+    // occupant of the actions band and still precedes the corner's own control.
     expect(snapshot.indexOf('button "1 subagent"')).toBeLessThan(snapshot.indexOf('button "Open right sidebar"'))
-    // Static chrome, not a control: the header can only report a composition
-    // the host would refuse to change.
-    expect(snapshot).not.toContain('button "Coding mode"')
   })
 
   it('drove every surface without a page error or a stream warning', () => {

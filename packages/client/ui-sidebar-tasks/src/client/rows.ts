@@ -110,6 +110,8 @@ export type SubagentRow =
     /** The durable direct-parent address every action on this row travels through. */
     readonly address: SubagentAddress
     readonly label: string
+    /** The task the child was started for, from its Session title; absent until projected. */
+    readonly description?: string
     /** Nesting level under the section's root Session. */
     readonly depth: number
     readonly running: boolean
@@ -126,9 +128,15 @@ export type SubagentRow =
  * @param entry - the catalog's durable direct-child row.
  * @param parentSessionId - the Session the entry is a direct child of.
  * @param depth - nesting level under the section's root.
+ * @param description - the child's projected task description, when it has one.
  * @returns the row the section draws.
  */
-function rowOf(entry: CatalogRow, parentSessionId: SessionId, depth: number): SubagentRow {
+function rowOf(
+  entry: CatalogRow,
+  parentSessionId: SessionId,
+  depth: number,
+  description: string | undefined,
+): SubagentRow {
   if (entry.kind === 'diagnostic') {
     return { kind: 'diagnostic', id: entry.id, depth, reason: entry.reason }
   }
@@ -141,6 +149,7 @@ function rowOf(entry: CatalogRow, parentSessionId: SessionId, depth: number): Su
     address,
     // A one-shot child may carry no creation label; its id is then the only name it has.
     label: entry.label ?? entry.id,
+    ...(description === undefined || description === '' ? {} : { description }),
     depth,
     running: entry.activity === 'running',
   }
@@ -157,11 +166,13 @@ function rowOf(entry: CatalogRow, parentSessionId: SessionId, depth: number): Su
  * walk.
  * @param catalogs - direct-child catalogs keyed by parent Session id.
  * @param rootSessionId - the Session the section is rooted at.
+ * @param descriptionOf - reads one child's projected task description.
  * @returns rows in display order, depth-first.
  */
 export function subagentRows(
   catalogs: Catalogs,
   rootSessionId: SessionId,
+  descriptionOf: (id: SessionId) => string | undefined,
 ): SubagentRow[] {
   const rows: SubagentRow[] = []
   const seen = new Set<SessionId>()
@@ -171,7 +182,7 @@ export function subagentRows(
     for (const entry of [...catalog.entries].reverse()) {
       if (seen.has(entry.id)) continue
       seen.add(entry.id)
-      rows.push(rowOf(entry, parentSessionId, depth))
+      rows.push(rowOf(entry, parentSessionId, depth, descriptionOf(entry.id)))
       if (entry.kind === 'child' && entry.hasChildren) visit(entry.id, depth + 1)
     }
   }

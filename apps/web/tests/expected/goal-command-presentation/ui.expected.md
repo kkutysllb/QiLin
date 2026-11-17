@@ -1,7 +1,6 @@
 - banner:
   - navigation "Session hierarchy":
     - button "workspace" [disabled]
-  - text: Standard mode
   - button "Open right sidebar"
 - group "Command input": /goal
 - 'button "goal No goal is currently set. Usage: /goal [<objective>|clear|edit <objective>|pause|resume]"'

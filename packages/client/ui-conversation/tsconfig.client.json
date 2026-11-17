@@ -101,6 +101,9 @@
     },
     {
       "path": "../../api/product-analytics/tsconfig.client.json"
+    },
+    {
+      "path": "../ui-session-status/tsconfig.client.json"
     }
   ],
   "exclude": [

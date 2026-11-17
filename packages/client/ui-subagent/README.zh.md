@@ -31,7 +31,7 @@ kind: "package-reference"
 
 ### 浏览目录
 
-行显示 mode、`running`/`inactive` 活动状态与由日志支撑的可选 title；尾随列在上行显示提供方的持久化 token 用量总计，在下行显示活跃轮次耗时。键盘导航：ArrowRight/ArrowLeft 展开和折叠分支；ArrowUp/ArrowDown、Home、End 与 Escape 用于导航或关闭树。没有 label 的 one-shot 行回退到其会话 id；损坏、不受支持或不可用的行仍保持可读但禁用。
+行以任务由日志支撑的 title 为主行（宿主尚未投影时回退到 catalog 名称），第二行把该名称与 mode、`running`/`inactive` 活动状态一并陈述；尾随列在上行显示提供方的持久化 token 用量总计，在下行显示活跃轮次耗时。键盘导航：ArrowRight/ArrowLeft 展开和折叠分支；ArrowUp/ArrowDown、Home、End 与 Escape 用于导航或关闭树。没有 label 的 one-shot 行回退到其会话 id；损坏、不受支持或不可用的行仍保持可读但禁用。
 
 ### 续接对话
 
@@ -106,6 +106,7 @@ one-shot child 始终选用只读编辑器。可继续 child 仅在其确切 par
 
 - **目录没有持久化结果**：活动状态与计时无法区分完成、失败或取消，且 UI 不公开 Activation 身份；停止能力仅限编辑器上针对运行中可继续 child 的当前轮次 Stop。
 - **`@` 引用仍是显示标题文本**：重复或改名后的 label 会有歧义，因此它们刻意不获得继续执行语义。
+- **行的主行是投影标题，不是完整任务指令**：子项行以它的持久 `session/title` 为主行——由首条任务消息确定性回退生成（5 词或 40 字节，标题上限 80 字节）——所以长任务只显示为标题，完整指令留在 child 自己的会话记录里。标题尚未投影的子项仍以 catalog 名称打头。
 
 <a id="dev-note"></a>
 ### 开发备注

@@ -1,7 +1,6 @@
 - banner:
   - navigation "Session hierarchy":
     - button "Stream one TypeScript fence for" [disabled]
-  - text: Standard mode
   - button "Open right sidebar"
 - text: Stream one TypeScript fence for the highlighting snapshot. {{clock}}
 - button "Copy"

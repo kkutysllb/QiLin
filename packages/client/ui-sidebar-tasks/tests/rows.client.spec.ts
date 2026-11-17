@@ -71,7 +71,7 @@ describe('subagentRows', () => {
     const rows = subagentRows({
       [sid('root')]: catalog([child('old', { hasChildren: true }), child('new')]),
       [sid('old')]: catalog([child('below')]),
-    }, sid('root'))
+    }, sid('root'), () => undefined)
     expect(rows.map(row => [row.id, row.depth])).toEqual([
       [sid('new'), 0],
       [sid('old'), 0],
@@ -82,7 +82,7 @@ describe('subagentRows', () => {
   it('leaves a child with no catalog of its own as a leaf', () => {
     const rows = subagentRows({
       [sid('root')]: catalog([child('only', { hasChildren: true })]),
-    }, sid('root'))
+    }, sid('root'), () => undefined)
     expect(rows.map(row => row.id)).toEqual([sid('only')])
   })
 
@@ -90,12 +90,12 @@ describe('subagentRows', () => {
     const rows = subagentRows({
       [sid('root')]: catalog([child('a', { hasChildren: true })]),
       [sid('a')]: catalog([child('root', { hasChildren: true })]),
-    }, sid('root'))
+    }, sid('root'), () => undefined)
     expect(rows.map(row => row.id)).toEqual([sid('a'), sid('root')])
   })
 
   it('draws a diagnostic row for a child with no readable record', () => {
-    const rows = subagentRows({ [sid('root')]: catalog([diagnostic('broken')]) }, sid('root'))
+    const rows = subagentRows({ [sid('root')]: catalog([diagnostic('broken')]) }, sid('root'), () => undefined)
     expect(rows).toEqual([{ kind: 'diagnostic', id: sid('broken'), depth: 0, reason: 'corrupt' }])
   })
 
@@ -105,7 +105,7 @@ describe('subagentRows', () => {
         child('live', { mode: 'continuable', label: 'worker', activity: 'running' }),
         child('once', { mode: 'one-shot' }),
       ]),
-    }, sid('root'))
+    }, sid('root'), () => undefined)
     expect(rows).toEqual([
       {
         kind: 'child',
@@ -127,11 +127,26 @@ describe('subagentRows', () => {
   })
 })
 
+describe('subagentRows descriptions', () => {
+  it('carries the task description a child Session title projects, and drops an empty one', () => {
+    const rows = subagentRows({
+      [sid('root')]: catalog([
+        child('live', { mode: 'continuable', label: 'worker' }),
+        child('quiet', { mode: 'one-shot', label: 'reviewer' }),
+      ]),
+    }, sid('root'), id => id === sid('live') ? '扫描项目依赖' : '')
+    expect(rows.map(row => [row.id, row.kind === 'child' ? row.description : undefined])).toEqual([
+      [sid('quiet'), undefined],
+      [sid('live'), '扫描项目依赖'],
+    ])
+  })
+})
+
 describe('childRowCount, subagentTotal', () => {
   it('counts catalog children only, and states the greater recorded total', () => {
     const rows = subagentRows({
       [sid('root')]: catalog([child('a'), diagnostic('broken')]),
-    }, sid('root'))
+    }, sid('root'), () => undefined)
     const children = childRowCount(rows)
     expect(children).toBe(1)
     const recorded = new Map<SessionId, SubagentDescendantSummary>([

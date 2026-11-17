@@ -48,6 +48,7 @@ export { useAnchoredPosition } from './useAnchoredPosition.ts'
 export type { AnchoredPositionOptions } from './useAnchoredPosition.ts'
 export { useDismissOnOutsidePointer } from './useDismissOnOutsidePointer.ts'
 export { HoverCard } from './HoverCard.tsx'
+export { HoverCardGroup } from './HoverCardGroup.tsx'
 export { Modal } from './Modal.tsx'
 export { OnboardingSurface } from './OnboardingSurface.tsx'
 export { RiskConfirmation } from './RiskConfirmation.tsx'
@@ -74,7 +75,7 @@ export {
   projectUserText, type UserTextQuotes, type UserTextReferences, type UserTextSecretLabels,
 } from './user-text.tsx'
 export { QuotePreview } from './QuotePreview.tsx'
-export type { QuotePreviewLabels, QuotePreviewProps } from './QuotePreview.tsx'
+export type { QuotePreviewLabels, QuotePreviewProps, QuotePreviewRemoval, QuoteSummary } from './QuotePreview.tsx'
 export {
   QUOTE_WIRE_SCHEME, messageQuoteRanges, quoteBlockTextOf, quoteInsertionOf, quoteTextOf, quotedExcerptOf,
 } from './quote-text.ts'
@@ -137,3 +138,8 @@ export { MenuSurface, MENU_TRANSITION_MS } from './MenuSurface.tsx'
 export { isMobileDevice } from './focus.ts'
 
 export type { MarkdownMenuTarget } from './markdown/MarkdownDelegate.tsx'
+export { formatQuoteText } from './markdown/quote-text.ts'
+export type { FileDragActions, FileDragSource, PreparedFileDrag } from './file-drag-actions.ts'
+export { DraggableImage } from './DraggableImage.tsx'
+export type { DraggableImageProps } from './DraggableImage.tsx'
+export { FishLogo, FISH_LOGO_PATH, FISH_LOGO_VIEWBOX } from './FishLogo.tsx'

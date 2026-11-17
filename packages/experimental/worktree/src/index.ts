@@ -1,30 +1,45 @@
 /** Creates a new Git branch and checkout, then changes the calling Session's working directory; restores a removed checkout. */
 
-import { Context, Service } from '@qilin-agent/kylin'
+import { Context, Service, type Volatile } from '@qilin-agent/kylin'
 import z from '@qilin-agent/schemastery'
 import type { Agent } from '@qilin-agent/agent'
 import type {} from '@qilin-agent/fs'
 import type { SandboxExecutionPolicy } from '@qilin-agent/sandbox'
 import type {} from '@qilin-agent/sandbox-policy'
+import type {} from '@qilin-agent/settings'
+import { appendPluginRecord } from '@qilin-agent/session'
+import type { Session } from '@qilin-agent/session'
 import type {} from '@qilin-agent/working-directory'
+import { HarnessError } from '@qilin-agent/util-error'
 import { MAX_TIMER_DELAY_MS } from '@qilin-agent/timeout'
+import { WorktreeReclamation } from './archive.ts'
+import { WorktreeError } from './error.ts'
 import { PREPARE_DIRECTORY } from './directory.ts'
 import { generatedWorktreeName } from './name.ts'
-import { runCommand } from './process.ts'
+import { runCommand, scanCommand } from './process.ts'
 import type { ProcessConfig } from './process.ts'
+import { CREATED_RECORD, worktreeProjection } from './projection.ts'
+import type { WorktreeProjectionState } from './projection.ts'
+import { checkoutIdentity, registration, removeCheckout } from './removal.ts'
+import type { GitScan } from './removal.ts'
 import type {
-  CreatedWorktree, CreateWorktreePhase, CreateWorktreeRequest, RemovedWorktree, RemoveWorktreeRequest,
-  RestoredWorktree, RestoreWorktreeRequest,
+  CreatedWorktree, CreateWorktreePhase, CreateWorktreeRequest, RemovedWorktree, RemoveWorktreeRequest, RestoredWorktree,
+  RestoreWorktreeRequest, WorktreeCleanup,
 } from './types.ts'
 
 export type {
-  CreatedWorktree, CreateWorktreePhase, CreateWorktreeRequest, RemovedWorktree, RemoveWorktreeRequest,
-  RestoredWorktree, RestoreWorktreeRequest,
+  CreatedWorktree, CreateWorktreePhase, CreateWorktreeRequest, RemovedWorktree, RemoveWorktreeRequest, RestoredWorktree,
+  RestoreWorktreeRequest, WorktreeCleanup, WorktreeCreation,
 } from './types.ts'
 export { generatedWorktreeName } from './name.ts'
+export { CREATED_RECORD, createdWorktreeSchema, worktreeProjection } from './projection.ts'
+export type { WorktreeProjectionState } from './projection.ts'
+export { WorktreeError, type WorktreeErrorCode } from './error.ts'
 
-/** Worktree location, generated names, executables, and subprocess resource limits. */
+/** Worktree location, generated names, executables, subprocess resource limits, and the archive cleanup switch. */
 export interface Config {
+  /** Keep every checkout when its Session is archived; editable live from the Plugins page. */
+  retainOnArchive: Volatile<boolean>
   /** Relative checkout pool inside the source repository. */
   directory?: string
   /** Prefix for automatically generated branch and checkout names. */
@@ -37,7 +52,11 @@ export interface Config {
   timeoutMs?: number
   /** Subprocess termination grace in milliseconds. */
   graceMs?: number
-  /** Maximum captured bytes per subprocess output stream. */
+  /**
+   * Maximum captured bytes per subprocess output stream; archive inspection
+   * streams `git status`, and inspection and restoration stream the worktree
+   * listing, so it bounds only their stderr.
+   */
   maxOutputBytes?: number
 }
 
@@ -63,16 +82,21 @@ function relativePath(value: string): boolean {
     && value.split('/').every(part => part.length > 0 && part !== '.' && part !== '..')
 }
 
-/** Creates retained Git worktrees under the mounted filesystem and sandbox providers. */
+/**
+ * Creates retained Git worktrees under the mounted filesystem and sandbox
+ * providers, records each creation in the Session log, and reclaims a clean,
+ * unreferenced checkout when the Session that created it is archived.
+ */
 export class WorktreeService extends Service {
-  static inject = ['workingDirectory', 'fs', 'subprocess', 'sandbox', 'sandboxPolicy']
+  static inject = ['workingDirectory', 'fs', 'subprocess', 'sandbox', 'sandboxPolicy', 'sessionProjections']
 
-  static Config: z<Config> = z.object({
+  static Config = z.object({
+    retainOnArchive: z.boolean().default(false).volatile(),
     directory: z.string().default('.agents/worktrees'),
     namePrefix: z.string().default('qilin-'),
     gitCommand: z.string().default('git'),
     nodeCommand: z.string().default('node'),
-    timeoutMs: z.number().default(60_000),
+    timeoutMs: z.number().default(300_000),
     graceMs: z.number().default(3_000),
     maxOutputBytes: z.number().default(65_536),
   })
@@ -80,6 +104,8 @@ export class WorktreeService extends Service {
   private readonly config: ResolvedConfig
   private readonly lifetime = new AbortController()
   private readonly pending = new Set<Promise<unknown>>()
+  private readonly checkouts = new Map<string, Promise<void>>()
+  private reclamation: WorktreeReclamation | undefined
 
   constructor(ctx: Context, config: Config) {
     super(ctx, 'worktrees')
@@ -98,8 +124,27 @@ export class WorktreeService extends Service {
       }
     }
     ctx.effect(() => async () => {
-      this.lifetime.abort(new Error('worktree service disposed'))
+      this.lifetime.abort(new WorktreeError('worktree service disposed', 'WORKTREE_UNAVAILABLE'))
       await Promise.allSettled(this.pending)
+    })
+    // The Forge panel draws the retain switch on this row's Plugins page.
+    ctx.inject(['settings'], (child) => { child.effect(() => child.settings.configure({ auto: false }, ctx.fiber)) })
+  }
+
+  protected [Service.init](): void {
+    const ctx = this.ctx
+    ctx.sessionProjections.register(worktreeProjection)
+    // Reclamation needs the Workspace archive events and the Session corpus; without
+    // them the service only creates and restores, as a headless profile composes it.
+    ctx.inject(['workspaceRegistry', 'sessionQuery', 'sessions', 'workingDirectory', 'sandboxPolicy'], (scope) => {
+      const reclamation = new WorktreeReclamation(scope, {
+        retainOnArchive: () => this.config.retainOnArchive.get(),
+        exclusiveCheckout: (path, body) => this.exclusiveCheckout(path, body),
+        removeCheckout: (session, request, signal, admit) => this.removeCheckout(session, request, signal, admit),
+      // The registry is registered just above, so a Session always has the unit's state.
+      }, session => ctx.sessionProjections.stateOf(session, 'worktree') as WorktreeProjectionState)
+      this.reclamation = reclamation
+      scope.effect(() => () => { this.reclamation = undefined })
     })
   }
 
@@ -115,6 +160,8 @@ export class WorktreeService extends Service {
    * @param signal - cancellation of lookup, creation, and working-directory publication.
    * @param onPhase - receives each stage before it begins; it must not throw.
    * @returns canonical checkout path, branch name, pinned commit, and source repository root.
+   * @throws {WorktreeError} for an invalid request, an existing branch or path, or a failed, oversized, or timed-out
+   *   command; a failure after allocation keeps its `name` and `code` and adds retained-artifact context.
    */
   async create(
     agent: Agent,
@@ -146,6 +193,8 @@ export class WorktreeService extends Service {
    * @param signal - cancellation of the restoration.
    * @param onPhase - receives each stage before it begins; it must not throw.
    * @returns the directory and whether the branch was created again.
+   * @throws {WorktreeError} for an invalid request, an existing path, a locked registration, or a failed, oversized,
+   *   or timed-out command; a failure after allocation keeps its `name` and `code` and adds retained-artifact context.
    */
   async restore(
     agent: Agent,
@@ -155,7 +204,7 @@ export class WorktreeService extends Service {
   ): Promise<RestoredWorktree> {
     const operationSignal = signal === undefined ? this.lifetime.signal : AbortSignal.any([this.lifetime.signal, signal])
     operationSignal.throwIfAborted()
-    const operation = this.restoreCheckout(agent, request, operationSignal, onPhase)
+    const operation = this.exclusiveCheckout(request.path, () => this.restoreCheckout(agent, request, operationSignal, onPhase))
     this.pending.add(operation)
     try {
       return await operation
@@ -165,17 +214,42 @@ export class WorktreeService extends Service {
   }
 
   /**
-   * Remove one retained worktree: its checkout directory and registration leave
-   * the filesystem, and its branch follows when `deleteBranch` is set and Git
-   * reports it as merged. A checkout with uncommitted or untracked files stays:
-   * Git refuses the removal without force, so no work is discarded implicitly,
-   * and the caller keeps its files. Validation matches {@link restore}: a
-   * canonical target inside the configured pool, a source checkout root, a
-   * relative branch name, and a full base commit.
+   * Read the archive cleanup of a Session's created checkout; waiting never
+   * starts one. Absent without the Workspace and query providers.
+   * @param session - archived Session whose cleanup is read.
+   * @param revision - null reads at once; a matching revision waits for that attempt to settle.
+   * @returns the attempt state, or null when none exists, the revision was superseded, or the service is stopping.
+   */
+  async cleanupOf(session: Session, revision: number | null): Promise<WorktreeCleanup | null> {
+    return await this.reclamation?.cleanupOf(session, revision) ?? null
+  }
+
+  /**
+   * Inspect a recorded checkout under the Session's policy and, when eligible
+   * and admitted, remove it and its registration without force or branch
+   * deletion. A rejection can leave a partial directory; the branch stays.
+   */
+  private async removeCheckout(
+    session: Session, request: RestoreWorktreeRequest, signal: AbortSignal, admit: () => boolean,
+  ): Promise<boolean> {
+    const control = AbortSignal.any([this.lifetime.signal, signal])
+    control.throwIfAborted()
+    const policy = this.ctx.sandboxPolicy.resolve({ session })
+    const git = { read: this.gitRunner(policy, control), scan: this.gitScanner(policy, control) }
+    const operation = removeCheckout(this.ctx, this.config.directory, request, git, control, admit)
+    this.pending.add(operation)
+    try { return await operation } finally { this.pending.delete(operation) }
+  }
+
+  /**
+   * Remove one retained checkout: its directory and registration leave the
+   * filesystem, and its branch follows when `deleteBranch` is set and Git
+   * reports it merged. A checkout that is locked, detached, or holds local
+   * changes stays and rejects, so no work is discarded implicitly.
    * @param agent - caller whose sandbox policy confines the commands.
-   * @param request - recorded directory, branch, base commit, source repository root, and branch intent.
+   * @param request - recorded directory, branch, base commit, source root, and branch intent.
    * @param signal - cancellation of the removal.
-   * @param onPhase - receives each stage before it begins; it must not throw.
+   * @param onPhase - receives `prepare` before validation.
    * @returns the addressed directory and whether the branch was deleted.
    */
   async remove(
@@ -186,7 +260,21 @@ export class WorktreeService extends Service {
   ): Promise<RemovedWorktree> {
     const operationSignal = signal === undefined ? this.lifetime.signal : AbortSignal.any([this.lifetime.signal, signal])
     operationSignal.throwIfAborted()
-    const operation = this.removeCheckout(agent, request, operationSignal, onPhase)
+    onPhase?.('prepare')
+    const operation = this.exclusiveCheckout(request.path, async () => {
+      const removed = await this.removeCheckout(agent.session, request, operationSignal, () => true)
+      if (!removed) throw new Error(`worktree is not removable: ${request.path}`)
+      let branchDeleted = false
+      if (request.deleteBranch === true) {
+        const policy = this.ctx.sandboxPolicy.resolve({ session: agent.session })
+        const deleted = await this.gitRunner(policy, operationSignal)(request.repositoryRoot, ['branch', '-d', '--', request.branch], [0, 1])
+        branchDeleted = deleted.exitCode === 0
+        if (!branchDeleted) {
+          throw new Error(`worktree branch ${request.branch} still carries unmerged commits; the checkout is removed and the branch kept`)
+        }
+      }
+      return { path: request.path, branchDeleted }
+    })
     this.pending.add(operation)
     try {
       return await operation
@@ -195,61 +283,19 @@ export class WorktreeService extends Service {
     }
   }
 
-  private async removeCheckout(
-    agent: Agent,
-    { path, branch, baseCommit, repositoryRoot, deleteBranch = false }: RemoveWorktreeRequest,
-    signal: AbortSignal,
-    onPhase: ((phase: CreateWorktreePhase) => void) | undefined,
-  ): Promise<RemovedWorktree> {
-    onPhase?.('prepare')
-    const policy = this.ctx.sandboxPolicy.resolve({ session: agent.session })
-    const run = this.gitRunner(policy, signal)
-    const root = await this.ctx.fs.resolve(repositoryRoot, { signal })
-    const pool = await this.ctx.fs.resolve(this.config.directory, { cwd: repositoryRoot, signal })
-    const target = await this.ctx.fs.resolve(path, { cwd: repositoryRoot, signal })
-    if (this.ctx.fs.processPath(root) !== repositoryRoot || this.ctx.fs.processPath(target) !== path
-      || !this.ctx.fs.contains(root, pool) || !this.ctx.fs.contains(pool, target) || pool.targetKey === target.targetKey) {
-      throw new Error('worktree removal must use a canonical directory inside the configured pool')
-    }
-    if (!relativePath(branch) || branch.startsWith('-')) throw new Error('worktree branch must be a relative Git branch name')
-    if (!/^(?:[a-f\d]{40}|[a-f\d]{64})$/i.test(baseCommit)) throw new Error('worktree baseCommit must be a full commit object name')
-    await run(repositoryRoot, ['check-ref-format', 'refs/heads/' + branch])
-    const top = await run(repositoryRoot, ['rev-parse', '--show-toplevel'])
-    const actualRoot = await this.ctx.fs.resolve(top.stdout.replace(/\r?\n$/, ''), { cwd: repositoryRoot, signal })
-    if (actualRoot.targetKey !== root.targetKey) throw new Error('worktree repositoryRoot must be the source checkout root')
-    const registered = await run(repositoryRoot, ['worktree', 'list', '--porcelain', '-z'])
-    let found = false
-    for (const entry of registered.stdout.split(String.fromCharCode(0, 0))) {
-      const fields = entry.split(String.fromCharCode(0))
-      const recordedPath = fields.find(field => field.startsWith('worktree '))?.slice('worktree '.length)
-      if (recordedPath === undefined) continue
-      const recorded = await this.ctx.fs.resolve(recordedPath, { cwd: repositoryRoot, signal })
-      if (recorded.targetKey !== target.targetKey) continue
-      found = true
-      if (fields.some(field => field === 'locked' || field.startsWith('locked '))) throw new Error('worktree is locked: ' + path)
-      // Without --force Git keeps a dirty checkout (uncommitted or untracked
-      // files) and fails, so the caller keeps its work.
-      await run(repositoryRoot, ['worktree', 'remove', '--', path])
-    }
-    if (!found && await this.ctx.fs.lstat(path, undefined, signal) !== undefined) {
-      throw new Error('worktree is not registered: ' + path)
-    }
-    let branchDeleted = false
-    if (deleteBranch) {
-      const removed = await run(repositoryRoot, ['branch', '-d', '--', branch], [0, 1])
-      branchDeleted = removed.exitCode === 0
-      if (!branchDeleted) {
-        throw new Error('worktree branch ' + branch + ' still carries unmerged commits; the checkout is removed and the branch kept')
-      }
-    }
-    return { path, branchDeleted }
+  private exclusiveCheckout<T>(path: string, body: () => Promise<T>): Promise<T> {
+    const operation = (this.checkouts.get(path) ?? Promise.resolve()).then(body)
+    const tail = operation.then(() => {}, () => {})
+    this.checkouts.set(path, tail)
+    void tail.then(() => { if (this.checkouts.get(path) === tail) this.checkouts.delete(path) })
+    return operation
   }
 
   private resolve(agent: Agent, request: CreateWorktreeRequest): WorktreeSpec {
     const branch = request.name ?? generatedWorktreeName(this.config.namePrefix, agent.session.id)
-    if (!relativePath(branch) || branch.startsWith('-')) throw new Error('worktree name must be a relative Git branch name')
+    if (!relativePath(branch) || branch.startsWith('-')) throw new WorktreeError('worktree name must be a relative Git branch name', 'WORKTREE_INVALID_ARGUMENT')
     const revision = request.from ?? 'HEAD'
-    if (revision.length === 0) throw new Error('worktree from must name a local commit, branch, or tag')
+    if (revision.length === 0) throw new WorktreeError('worktree from must name a local commit, branch, or tag', 'WORKTREE_INVALID_ARGUMENT')
     return { branch, revision }
   }
 
@@ -263,19 +309,19 @@ export class WorktreeService extends Service {
     const cwd = await this.ctx.workingDirectory.ensure(agent, signal)
     const policy = this.ctx.sandboxPolicy.resolve({ session: agent.session })
     const run = this.gitRunner(policy, signal)
-    await run(cwd, ['check-ref-format', `refs/heads/${branch}`])
+    await assertBranchName(run, cwd, branch, 'worktree name')
     const rootOutput = await run(cwd, ['rev-parse', '--show-toplevel'])
     const rootTarget = await this.ctx.fs.resolve(rootOutput.stdout.replace(/\r?\n$/, ''), { cwd, signal })
     const repositoryRoot = this.ctx.fs.processPath(rootTarget)
     const base = await run(repositoryRoot, ['rev-parse', '--verify', '--end-of-options', `${revision}^{commit}`])
     const baseCommit = base.stdout.trim()
     const existing = await run(repositoryRoot, ['show-ref', '--verify', '--quiet', `refs/heads/${branch}`], [0, 1])
-    if (existing.exitCode === 0) throw new Error(`worktree branch already exists: ${branch}`)
+    if (existing.exitCode === 0) throw new WorktreeError(`worktree branch already exists: ${branch}`, 'WORKTREE_ALREADY_EXISTS')
     const pool = await this.ctx.fs.resolve(this.config.directory, { cwd: repositoryRoot, signal })
     const poolPath = this.ctx.fs.processPath(pool)
     const destination = await this.ctx.fs.resolve(branch, { cwd: poolPath, signal })
     const path = this.ctx.fs.processPath(destination)
-    if (await this.ctx.fs.lstat(path, undefined, signal) !== undefined) throw new Error(`worktree path already exists: ${path}`)
+    if (await this.ctx.fs.lstat(path, undefined, signal) !== undefined) throw new WorktreeError(`worktree path already exists: ${path}`, 'WORKTREE_ALREADY_EXISTS')
     try {
       await this.prepareDirectory(policy, repositoryRoot, poolPath, path, signal)
       await run(repositoryRoot, ['--work-tree', repositoryRoot, 'worktree', 'add', '--no-checkout', '-b', branch, '--', path, baseCommit])
@@ -283,9 +329,11 @@ export class WorktreeService extends Service {
       onPhase?.('checkout')
       await run(path, ['--work-tree', path, 'reset', '--hard', '--no-recurse-submodules', baseCommit], undefined, overrides)
       const canonicalPath = await this.ctx.workingDirectory.set(agent, path, signal)
-      return { path: canonicalPath, branch, baseCommit, repositoryRoot }
+      const created: CreatedWorktree = { path: canonicalPath, branch, baseCommit, repositoryRoot }
+      appendPluginRecord(agent.session, CREATED_RECORD, created)
+      return created
     } catch (error) {
-      throw new Error(`Could not finish worktree ${branch} at ${path}. Any created checkout and branch are retained. ${error instanceof Error ? error.message : String(error)}`, { cause: error })
+      throw retainedFailure(`Could not finish worktree ${branch} at ${path}. Any created checkout and branch are retained.`, error, signal)
     }
   }
 
@@ -298,35 +346,26 @@ export class WorktreeService extends Service {
     onPhase?.('prepare')
     const policy = this.ctx.sandboxPolicy.resolve({ session: agent.session })
     const run = this.gitRunner(policy, signal)
-    if (await this.ctx.fs.lstat(path, undefined, signal) !== undefined) throw new Error(`worktree path already exists: ${path}`)
-    const root = await this.ctx.fs.resolve(repositoryRoot, { signal })
-    const pool = await this.ctx.fs.resolve(this.config.directory, { cwd: repositoryRoot, signal })
-    const target = await this.ctx.fs.resolve(path, { cwd: repositoryRoot, signal })
-    if (this.ctx.fs.processPath(root) !== repositoryRoot || this.ctx.fs.processPath(target) !== path
-      || !this.ctx.fs.contains(root, pool) || !this.ctx.fs.contains(pool, target) || pool.targetKey === target.targetKey) {
-      throw new Error('worktree restoration must use a canonical directory inside the configured pool')
+    if (await this.ctx.fs.lstat(path, undefined, signal) !== undefined) throw new WorktreeError(`worktree path already exists: ${path}`, 'WORKTREE_ALREADY_EXISTS')
+    if (!relativePath(branch) || branch.startsWith('-')) throw new WorktreeError('worktree branch must be a relative Git branch name', 'WORKTREE_INVALID_ARGUMENT')
+    if (!/^(?:[a-f\d]{40}|[a-f\d]{64})$/i.test(baseCommit)) throw new WorktreeError('worktree baseCommit must be a full commit object name', 'WORKTREE_INVALID_ARGUMENT')
+    const identity = await checkoutIdentity(this.ctx, this.config.directory, { path, branch, baseCommit, repositoryRoot }, run, signal)
+    if (identity === null) {
+      throw new WorktreeError('worktree restoration must use a canonical directory inside the configured pool of the source checkout root', 'WORKTREE_INVALID_ARGUMENT')
     }
-    if (!relativePath(branch) || branch.startsWith('-')) throw new Error('worktree branch must be a relative Git branch name')
-    if (!/^(?:[a-f\d]{40}|[a-f\d]{64})$/i.test(baseCommit)) throw new Error('worktree baseCommit must be a full commit object name')
-    await run(repositoryRoot, ['check-ref-format', `refs/heads/${branch}`])
-    const top = await run(repositoryRoot, ['rev-parse', '--show-toplevel'])
-    const actualRoot = await this.ctx.fs.resolve(top.stdout.replace(/\r?\n$/, ''), { cwd: repositoryRoot, signal })
-    if (actualRoot.targetKey !== root.targetKey) throw new Error('worktree repositoryRoot must be the source checkout root')
+    await assertBranchName(run, repositoryRoot, branch, 'worktree branch')
     await run(repositoryRoot, ['rev-parse', '--verify', '--end-of-options', `${baseCommit}^{commit}`])
-    const registered = await run(repositoryRoot, ['worktree', 'list', '--porcelain', '-z'])
-    for (const entry of registered.stdout.split('\0\0')) {
-      const fields = entry.split('\0')
-      const recordedPath = fields.find(field => field.startsWith('worktree '))?.slice('worktree '.length)
-      if (recordedPath === undefined) continue
-      const recorded = await this.ctx.fs.resolve(recordedPath, { cwd: repositoryRoot, signal })
-      if (recorded.targetKey !== target.targetKey) continue
-      if (fields.some(field => field === 'locked' || field.startsWith('locked '))) throw new Error(`worktree is locked: ${path}`)
-      if (await this.ctx.fs.lstat(path, undefined, signal) !== undefined) throw new Error(`worktree path already exists: ${path}`)
+    const scan = this.gitScanner(policy, signal)
+    const fields = await registration(this.ctx, { path, branch, baseCommit, repositoryRoot }, identity.target, scan, signal)
+    if (fields !== undefined) {
+      if (fields.some(field => field === 'locked' || field.startsWith('locked '))) throw new WorktreeError(`worktree is locked: ${path}`, 'WORKTREE_LOCKED')
+      if (await this.ctx.fs.lstat(path, undefined, signal) !== undefined) throw new WorktreeError(`worktree path already exists: ${path}`, 'WORKTREE_ALREADY_EXISTS')
       await run(repositoryRoot, ['worktree', 'remove', '--', path])
     }
     const existing = await run(repositoryRoot, ['show-ref', '--verify', '--quiet', `refs/heads/${branch}`], [0, 1])
     const branchRecreated = existing.exitCode !== 0
     try {
+      const pool = await this.ctx.fs.resolve(this.config.directory, { cwd: repositoryRoot, signal })
       await this.prepareDirectory(policy, repositoryRoot, this.ctx.fs.processPath(pool), path, signal)
       await run(repositoryRoot, [
         '--work-tree', repositoryRoot, 'worktree', 'add', '--no-checkout',
@@ -337,17 +376,25 @@ export class WorktreeService extends Service {
       await run(path, ['--work-tree', path, 'reset', '--hard', '--no-recurse-submodules', 'HEAD'], undefined, overrides)
       return { path, branchRecreated }
     } catch (error) {
-      throw new Error(`Could not restore worktree ${branch} at ${path}. Any created checkout and branch are retained. ${error instanceof Error ? error.message : String(error)}`, { cause: error })
+      throw retainedFailure(`Could not restore worktree ${branch} at ${path}. Any created checkout and branch are retained.`, error, signal)
     }
   }
 
-  /** Confine Git commands to the caller's sandbox policy, with hooks and the filesystem monitor disabled. */
+  /** Confine Git commands to the caller's sandbox policy, collecting bounded stdout. */
   private gitRunner(policy: SandboxExecutionPolicy, signal: AbortSignal): GitRun {
     return (directory, args, allowedExitCodes, env) => runCommand(
-      this.ctx, this.config, policy, directory,
-      [this.config.gitCommand, '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false', ...args],
-      signal, allowedExitCodes, env,
+      this.ctx, this.config, policy, directory, this.gitArgv(args), signal, allowedExitCodes, env,
     )
+  }
+
+  /** Confine Git commands to the caller's sandbox policy, streaming stdout instead of collecting it. */
+  private gitScanner(policy: SandboxExecutionPolicy, signal: AbortSignal): GitScan {
+    return (directory, args, onField) => scanCommand(this.ctx, this.config, policy, directory, this.gitArgv(args), signal, onField)
+  }
+
+  /** The configured Git executable with hooks and the filesystem monitor disabled, followed by `args`. */
+  private gitArgv(args: string[]): [string, ...string[]] {
+    return [this.config.gitCommand, '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false', ...args]
   }
 
   /** Allocate the checkout directory exclusively inside the pool, creating a self-ignoring pool when it is new. */
@@ -361,6 +408,41 @@ export class WorktreeService extends Service {
     await runCommand(this.ctx, this.config, policy, repositoryRoot,
       [this.config.nodeCommand, '--input-type=module', '-e', PREPARE_DIRECTORY, poolPath, path], signal)
   }
+}
+
+/**
+ * Reject a name Git does not accept as a branch.
+ * @param run - confined Git runner.
+ * @param directory - repository directory for the check.
+ * @param branch - candidate branch name.
+ * @param field - request field named in the failure.
+ */
+async function assertBranchName(run: GitRun, directory: string, branch: string, field: string): Promise<void> {
+  const checked = await run(directory, ['check-ref-format', `refs/heads/${branch}`], [0, 1])
+  if (checked.exitCode !== 0) throw new WorktreeError(`${field} must be a valid Git branch name`, 'WORKTREE_INVALID_ARGUMENT')
+}
+
+/**
+ * Add retained-artifact context to a failure without changing its routable identity:
+ * a `HarnessError` keeps its `name` and `code`, and caller cancellation stays an `AbortError`.
+ * A `HarnessError` subclass other than `WorktreeError` is rebuilt as a plain `HarnessError`, so
+ * callers route on `name` and `code` rather than on `instanceof` the original subclass.
+ * @param context - operation summary placed before the original message.
+ * @param error - failure thrown after allocation began.
+ * @param signal - operation cancellation.
+ * @returns the error to throw, with `error` as its cause.
+ */
+function retainedFailure(context: string, error: unknown, signal: AbortSignal): Error {
+  const message = `${context} ${error instanceof Error ? error.message : String(error)}`
+  if (error instanceof WorktreeError) return new WorktreeError(message, error.code, { cause: error })
+  if (error instanceof HarnessError) {
+    const wrapped = new HarnessError(message, error.code, { cause: error })
+    wrapped.name = error.name
+    return wrapped
+  }
+  const wrapped = new Error(message, { cause: error })
+  if (signal.aborted && (error === signal.reason || (error instanceof Error && error.name === 'AbortError'))) wrapped.name = 'AbortError'
+  return wrapped
 }
 
 /**

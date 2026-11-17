@@ -3,12 +3,11 @@
 import { isAbsolute, relative, sep } from 'node:path'
 import type { Context } from '@qilin-agent/kylin'
 import type { Agent, PreStepDecision } from '@qilin-agent/agent'
-import { generatedWorktreeName } from '@qilin-agent/experimental-worktree'
+import { CREATED_RECORD, createdWorktreeSchema, generatedWorktreeName } from '@qilin-agent/experimental-worktree'
 import type { CreatedWorktree, CreateWorktreePhase } from '@qilin-agent/experimental-worktree'
 import { appendPluginRecord, pluginRecordOf } from '@qilin-agent/session'
 import type { Session, SessionEvent } from '@qilin-agent/session'
-import type { ProjectionDefinition } from '@qilin-agent/session-projection'
-import type { ProjectionReader } from './projection-reader.ts'
+import type { ProjectionDefinition, ProjectionHandle } from '@qilin-agent/session-projection'
 import { assertNever } from '@qilin-agent/util-values'
 import type {} from '@qilin-agent/working-directory'
 import { z } from 'zod'
@@ -36,7 +35,6 @@ const recordSchema: z.ZodType<WorktreeRecord> = z.discriminatedUnion('action', [
   z.object({ action: z.literal('created'), worktree: worktreeSchema }).strict(),
   z.object({ action: z.literal('restoring') }).strict(),
   z.object({ action: z.literal('restored') }).strict(),
-  z.object({ action: z.literal('removed') }).strict(),
 ])
 
 const stateSchema: z.ZodType<ForgeWorktreeState> = z.object({
@@ -50,16 +48,18 @@ const stateSchema: z.ZodType<ForgeWorktreeState> = z.object({
 
 /**
  * The `forgeWorktree` unit. `request` and `cancel` records change the request
- * until the first `turn/start` or creation; the first `created` record of an
- * open request applies until the first `step/start`. Records outside those
- * periods leave the state unchanged. The unit also follows the Session's
- * working directory, so clients, including the Session summary, see the
- * created worktree only while that directory is the worktree or lies below it.
- * Restoration records retain incomplete checkout recovery across reloads.
+ * until the first `turn/start` or creation; the first creation of an open
+ * request applies until the first `step/start`, read from the worktree
+ * service's `plugin:worktree/created` record, or from the `created` record that
+ * earlier panels wrote. Records outside those periods leave the state
+ * unchanged. The unit also follows the Session's working directory, so
+ * clients, including the Session summary, see the created worktree only while
+ * that directory is the worktree or lies below it. Restoration records retain
+ * incomplete checkout recovery across reloads.
  */
 export const forgeWorktreeProjection = {
   key: 'forgeWorktree',
-  stateVersion: 4,
+  stateVersion: 5,
   stateSchema,
   init: header => ({ ...EMPTY, cwd: header.cwd ?? null }),
   apply,
@@ -105,6 +105,12 @@ function apply(state: ForgeWorktreeState, event: SessionEvent): ForgeWorktreeSta
 
 function applyRecord(state: ForgeWorktreeState, event: SessionEvent): ForgeWorktreeState {
   const record = pluginRecordOf(event)
+  if (record?.type === CREATED_RECORD) {
+    const created = createdWorktreeSchema.safeParse(record.data)
+    return !created.success || state.created !== null || state.stepped || state.request === null
+      ? state
+      : { ...state, created: { ...created.data, from: state.request.from } }
+  }
   if (record?.type !== WORKTREE_RECORD) return state
   const parsed = recordSchema.safeParse(record.data)
   if (!parsed.success) return state
@@ -121,8 +127,6 @@ function applyRecord(state: ForgeWorktreeState, event: SessionEvent): ForgeWorkt
       return !settled || state.restoring ? state : { ...state, restoring: true }
     case 'restored':
       return !state.restoring ? state : { ...state, restoring: false }
-    case 'removed':
-      return settled ? { ...state, created: null, restoring: false } : state
     /* v8 ignore next -- closed WorktreeRecord action union exhaustiveness guard */
     default: return assertNever(data, 'WorktreeRecord.action')
   }
@@ -214,7 +218,7 @@ export class WorktreeCreations {
    */
   constructor(
     private readonly ctx: Context,
-    private readonly states: ProjectionReader<ForgeWorktreeState>,
+    private readonly states: ProjectionHandle<ForgeWorktreeState>,
     private readonly prefix: string,
     private readonly changed: (session: Session) => void,
   ) {
@@ -341,34 +345,6 @@ export class WorktreeCreations {
   }
 
   /**
-   * Remove one Session's created worktree through the worktree service and
-   * record the removal on the Session, which clears the projected worktree.
-   * @param agent - Agent of the Session, whose sandbox confines the commands.
-   * @param worktrees - the worktree service.
-   * @param created - the worktree the Session created.
-   * @param signal - cancellation of the removal.
-   * @param deleteBranch - whether the branch follows the checkout.
-   * @param removed - runs after the record, before the call ends, so its
-   * publication sees the cleared projection.
-   * @throws the worktree service's error when the removal is refused; the cancellation reason once `signal` aborts.
-   */
-  async remove(
-    agent: Agent,
-    worktrees: Context['worktrees'],
-    created: ForgeSessionWorktree,
-    signal: AbortSignal,
-    deleteBranch: boolean,
-    removed: () => void,
-  ): Promise<void> {
-    await this.run(signal, async (operation) => {
-      await worktrees.remove(agent, { ...created, deleteBranch }, operation)
-      operation.throwIfAborted()
-      appendPluginRecord(agent.session, WORKTREE_RECORD, { action: 'removed' })
-      removed()
-    })
-  }
-
-  /**
    * Check the removed worktree of a Session out again through the worktree
    * service; the running restoration is readable through
    * {@link WorktreeCreations.restorationOf} until it ends.
@@ -454,13 +430,9 @@ export class WorktreeCreations {
         throw new CreationFailure(status.branch, status.phase, messageOf(error), error)
       }
       signal.throwIfAborted()
-      const worktree: ForgeSessionWorktree = {
-        path: created.path, branch: created.branch, from, baseCommit: created.baseCommit, repositoryRoot: created.repositoryRoot,
-      }
-      appendPluginRecord(session, WORKTREE_RECORD, { action: 'created', worktree })
       return created
     } finally {
-      // After the record, so a follower never sees the creation end without its result.
+      // After the service's `plugin:worktree/created` record, so a follower never sees the creation end without its result.
       this.live.delete(session)
       this.changed(session)
     }

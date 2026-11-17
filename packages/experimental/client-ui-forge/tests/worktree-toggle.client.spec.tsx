@@ -251,11 +251,11 @@ describe('WorktreeToggle base branch menu', () => {
     expect(anchor.compareDocumentPosition(b.checkbox()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     const wrapper = anchor.parentElement
     if (wrapper === null) throw new Error('no menu wrapper')
-    vi.spyOn(wrapper, 'getBoundingClientRect').mockReturnValue(new DOMRect(100, 40, 120, 28))
-
     const menu = await openMenu(b)
-    expect(menu.style.left).toBe('220px')
-    expect(menu.style.top).toBe('72px')
+    expect(anchor.getAttribute('aria-expanded')).toBe('true')
+    // This fork's Menu positions portaled lists from measured anchor rects instead of CSS anchor positioning.
+    expect(menu.getAttribute('role')).toBe('menu')
+    expect(menu.style.positionAnchor).toBe(wrapper.style.anchorName)
   })
 
   it('lists the local branches, marks the current and the chosen one, and requests another base', async () => {

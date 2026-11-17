@@ -31,6 +31,7 @@
   "qilin": {
     "client": {
       "inject": [
+        "@qilin-agent/client-ui-session-status",
         "@qilin-agent/api-session-controller",
         "@qilin-agent/client-locale",
         "@qilin-agent/client-resources",
@@ -53,6 +54,8 @@
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
     "@qilin-agent/client-locale": "workspace:*",
     "@qilin-agent/client-resources": "workspace:*",
     "@qilin-agent/client-test-runtime": "workspace:*",
@@ -60,25 +63,25 @@
     "@qilin-agent/client-ui-conversation": "workspace:*",
     "@qilin-agent/client-ui-input-trigger": "workspace:*",
     "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-session": "workspace:*",
+    "@qilin-agent/client-ui-session-status": "workspace:*",
+    "@qilin-agent/client-ui-sidebar-right": "workspace:*",
     "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/client-ui-workspace": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session": "workspace:*",
     "@qilin-agent/subagent": "workspace:*",
     "@qilin-agent/token-meter": "workspace:*",
     "@types/react": "~18.3.1",
     "@types/react-dom": "~18.3.0",
-    "@qilin-agent/kylin": "workspace:~",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@qilin-agent/api-session-controller": "workspace:*",
-    "@qilin-agent/client-connection": "workspace:*",
-    "@qilin-agent/session": "workspace:*",
-    "@qilin-agent/client-ui-renderer": "workspace:*",
-    "@qilin-agent/client-ui-sidebar-right": "workspace:*",
-    "@qilin-agent/client-ui-session": "workspace:*",
-    "@qilin-agent/client-ui-workspace": "workspace:*"
+    "react-dom": "^18.2.0"
   },
   "files": [
     "lib/index.js",
     "lib/client.js",
     "lib/types/**/*.d.ts"
-  ]
+  ],
+  "dependencies": {}
 }

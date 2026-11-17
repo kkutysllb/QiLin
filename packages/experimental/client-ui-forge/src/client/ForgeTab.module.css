@@ -1,7 +1,7 @@
 /* Forge tab body: one scrolling column with the checkout row on top and the
    Session's change request cards below, at the sidebar's 13px row size. */
 .root {
-  --forge-fill: var(--dsw-static-neutral-50);
+  --forge-fill: var(--qilin-alias-card-fill);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -10,14 +10,11 @@
   box-sizing: border-box;
   padding: 12px;
   overflow-y: auto;
-  color: var(--dsw-alias-label-primary);
-  font-size: var(--qilin-content-font-size-secondary, 13px);
+  color: var(--qilin-alias-label-primary);
+  font-size: var(--dsh-content-font-size-secondary, 13px);
   line-height: 20px;
 }
 
-:global(body[data-ds-dark-theme]) .root {
-  --forge-fill: var(--dsw-static-neutral-850);
-}
 
 /* Loading and disconnected states of a panel without state yet. */
 .centered {
@@ -29,8 +26,8 @@
   height: 100%;
   box-sizing: border-box;
   padding: 24px;
-  color: var(--dsw-alias-label-secondary);
-  font-size: var(--qilin-content-font-size-secondary, 13px);
+  color: var(--qilin-alias-label-secondary);
+  font-size: var(--dsh-content-font-size-secondary, 13px);
   text-align: center;
 }
 
@@ -39,7 +36,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .checkout {
@@ -48,22 +45,22 @@
   gap: 8px;
   min-width: 0;
   padding: 8px 10px;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: var(--forge-fill);
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   line-height: 18px;
 }
 
 .checkout:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 2px;
 }
 
 /* The worktree the Session works in is gone. */
 .checkout[data-missing],
 .checkout[data-missing] .checkoutBranch {
-  color: var(--dsw-alias-state-warn-primary);
+  color: var(--qilin-alias-state-warn-primary);
 }
 
 .checkoutName {
@@ -71,7 +68,7 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
 }
 
 .checkoutIcon {
@@ -81,7 +78,7 @@
 .checkoutBranch {
   min-width: 0;
   overflow: hidden;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-family: var(--ds-font-family-code);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -119,7 +116,7 @@
   margin: 0;
   min-width: 0;
   overflow: hidden;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 13px;
   font-weight: 500;
   line-height: 20px;
@@ -136,21 +133,21 @@
   height: 28px;
   padding: 0;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   cursor: pointer;
 }
 
 .iconButton:focus-visible {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
+  background: var(--qilin-alias-interactive-bg-hover);
+  color: var(--qilin-alias-label-primary);
 }
 
 @media (hover: hover) {
   .iconButton:hover {
-    background: var(--dsw-alias-interactive-bg-hover);
-    color: var(--dsw-alias-label-primary);
+    background: var(--qilin-alias-interactive-bg-hover);
+    color: var(--qilin-alias-label-primary);
   }
 }
 
@@ -160,13 +157,13 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px 12px;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: var(--forge-fill);
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .bannerDetail {
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   line-height: 18px;
   overflow-wrap: anywhere;
@@ -174,7 +171,7 @@
 
 .bannerCommand {
   max-width: 100%;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-family: var(--ds-font-family-code);
   font-size: 12px;
   line-height: 18px;
@@ -192,12 +189,12 @@
 
 .emptyTitle {
   margin: 0;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
 }
 
 .emptyHint {
   margin: 4px 0 0;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
   line-height: 18px;
 }
@@ -213,9 +210,9 @@
 
 .change {
   min-width: 0;
-  border: 1px solid var(--dsw-alias-border-l2);
-  border-radius: var(--dsw-radius-md);
-  background: var(--dsw-alias-bg-layer-1);
+  border: 1px solid var(--qilin-alias-border-l2);
+  border-radius: var(--qilin-radius-md);
+  background: var(--qilin-alias-bg-layer-1);
 }
 
 /* Glyph, title link with the number line below it, then the expanded card's
@@ -249,7 +246,7 @@
 .changeTitle {
   display: -webkit-box;
   overflow: hidden;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font-weight: 500;
   line-height: 20px;
   text-decoration: none;
@@ -264,7 +261,7 @@
 
 @media (hover: hover) {
   .changeTitle:hover {
-    color: var(--dsw-alias-label-primary);
+    color: var(--qilin-alias-label-primary);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
@@ -273,7 +270,7 @@
 .changeTitle:focus-visible,
 .rowButton:focus-visible,
 .checkoutName:focus-visible {
-  outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary));
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
   outline-offset: 1px;
 }
 
@@ -284,7 +281,7 @@
   gap: 6px;
   min-width: 0;
   padding: 1px 0;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
   line-height: 18px;
@@ -297,16 +294,16 @@
 }
 
 .tinted {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .tinted[data-tone='open'] {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 /* Orange, because the closed glyph already takes red. */
 .tinted[data-tone='blocked'] {
-  color: var(--dsw-alias-state-warn-primary);
+  color: var(--qilin-alias-state-warn-primary);
 }
 
 .tinted[data-tone='merged'] {
@@ -314,12 +311,25 @@
 }
 
 .tinted[data-tone='closed'] {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
+}
+
+/* Checks outcome filling the glyph's head branch end. */
+.checksMark[data-checks='failure'] {
+  fill: var(--qilin-alias-state-error-primary);
+}
+
+.checksMark[data-checks='pending'] {
+  fill: var(--qilin-alias-state-warn-primary);
+}
+
+.checksMark[data-checks='success'] {
+  fill: var(--qilin-alias-state-success-primary);
 }
 
 .chevron {
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   transition: transform 120ms ease;
 }
 
@@ -341,32 +351,32 @@
 }
 
 .added {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .deleted {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .ci {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .ci[data-tone='error'],
 .flag[data-flag='changesRequested'],
 .flag[data-flag='conflicting'] {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .flag {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .finished {
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .finished[data-tone='merged'] {
@@ -380,20 +390,21 @@
   justify-content: space-between;
   gap: 8px;
   padding: 0 10px 10px 33px;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
   font-size: 12px;
   line-height: 18px;
 }
 
-/* Expanded facts, one row each: an icon under the glyph, the label, the value,
-   and a chevron on a row that opens something. */
+/* Expanded facts, one sentence per row: an icon under the glyph, the value, an optional trailing part, and a chevron
+   on a row that opens something. */
 .rows {
+  /* Contains the visually hidden row labels, so they never extend a scroll area outside the panel. */
+  position: relative;
   display: grid;
-  /* Edge tracks include each row's padding; labels retain their Chinese width and grow for longer translations. */
-  grid-template-columns: 24px minmax(32px, max-content) minmax(0, 1fr) 22px;
-  gap: 2px 10px;
+  grid-template-columns: 24px minmax(0, 1fr) auto 12px;
+  gap: 0 8px;
   padding: 4px 6px 6px;
-  border-top: 1px solid var(--dsw-alias-border-l2);
+  border-top: 1px solid var(--qilin-alias-border-l2);
 }
 
 .row {
@@ -401,16 +412,16 @@
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
   align-items: center;
-  column-gap: 10px;
+  column-gap: 8px;
   box-sizing: border-box;
   width: 100%;
-  min-height: 34px;
+  min-height: 32px;
   margin: 0;
-  padding: 0 10px 0 8px;
+  padding: 0 8px;
   border: 0;
-  border-radius: var(--dsw-radius-sm);
+  border-radius: var(--qilin-radius-sm);
   background: transparent;
-  color: var(--dsw-alias-label-primary);
+  color: var(--qilin-alias-label-primary);
   font: inherit;
   text-align: left;
 }
@@ -419,47 +430,61 @@
   grid-column: 2 / 4;
 }
 
+.row:disabled {
+  cursor: default;
+}
+
 .rowButton {
   cursor: pointer;
 }
 
 .rowButton[aria-expanded='true'] {
-  background: var(--dsw-alias-interactive-bg-hover);
+  background: var(--qilin-alias-interactive-bg-hover);
 }
 
 @media (hover: hover) {
   .rowButton:hover {
-    background: var(--dsw-alias-interactive-bg-hover);
+    background: var(--qilin-alias-interactive-bg-hover);
   }
 }
 
 .rowIcon {
   display: inline-flex;
-  color: var(--dsw-alias-label-tertiary);
-}
-
-.rowLabel {
-  color: var(--dsw-alias-label-secondary);
+  grid-column: 1;
+  justify-content: center;
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .rowChevron {
-  color: var(--dsw-alias-label-tertiary);
+  grid-column: 4;
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .rowValue {
   display: inline-flex;
+  grid-column: 2;
   align-items: center;
   gap: 6px;
   min-width: 0;
-  overflow-wrap: anywhere;
+}
+
+/* Trailing detail of a row, such as the reviewers' avatars or the unresolved thread count. */
+.rowTrailing {
+  display: inline-flex;
+  grid-column: 3;
+  align-items: center;
+  gap: 4px;
+  color: var(--qilin-alias-label-tertiary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .rowValue[data-tone='error'] {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .rowValue[data-tone='success'] {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .rowValue[data-tone='merged'] {
@@ -467,7 +492,7 @@
 }
 
 .rowValue[data-tone='closed'] {
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 /* The checks menu anchors to the whole row. */
@@ -492,26 +517,26 @@
 .checkTime {
   flex: none;
   margin-left: auto;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
 }
 
 .checkGlyph {
   display: inline-flex;
   flex: none;
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
 }
 
 .pass {
-  color: var(--dsw-alias-state-success-primary);
+  color: var(--qilin-alias-state-success-primary);
 }
 
 .fail {
-  color: var(--dsw-alias-state-error-primary);
+  color: var(--qilin-alias-state-error-primary);
 }
 
 .running {
-  color: var(--dsw-alias-state-warn-primary);
+  color: var(--qilin-alias-state-warn-primary);
 }
 
 /* The action of an open change request below its rows. */
@@ -529,6 +554,34 @@
   line-height: 20px;
 }
 
+/*
+ * The merge action takes the blue button fill, moved toward the label color so its 13px label keeps 4.5:1 contrast
+ * in both themes. The doubled class outranks the shared primary fill in any stylesheet order.
+ */
+.primaryAction.mergeAction {
+  gap: 6px;
+  padding: 0 10px 0 14px;
+  background: color-mix(in srgb, var(--qilin-alias-button-info-fill) 92%, var(--qilin-alias-label-primary));
+  color: var(--qilin-alias-label-primary-foreground);
+}
+
+@media (hover: hover) {
+  .primaryAction.mergeAction:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--qilin-alias-button-info-fill) 85%, var(--qilin-alias-label-primary));
+  }
+}
+
+/* A solid caret that points down, and up while the menu is open. */
+.mergeCaret {
+  flex: none;
+  transform: rotate(90deg);
+  transition: transform 120ms ease;
+}
+
+.mergeCaretOpen {
+  transform: rotate(-90deg);
+}
+
 /* A merge method row: its name with the note on what it does below. */
 .method {
   display: flex;
@@ -538,14 +591,14 @@
 }
 
 .methodNote {
-  color: var(--dsw-alias-label-tertiary);
+  color: var(--qilin-alias-label-tertiary);
   font-size: 12px;
 }
 
 .titleIcon {
   display: inline-flex;
   flex: none;
-  color: var(--dsw-alias-label-secondary);
+  color: var(--qilin-alias-label-secondary);
 }
 
 .titleText {
@@ -555,17 +608,20 @@
   white-space: nowrap;
 }
 
-/* Removal dialog: the branch choice and a failed attempt's reason. */
-.removeOption {
-  display: flex;
+/* The unresolved review thread count at the end of the changes row. */
+.threads {
+  display: inline-flex;
   align-items: center;
-  gap: var(--qilin-space-2);
-  font-size: var(--qilin-text-md);
+  gap: 3px;
   color: var(--qilin-alias-label-secondary);
 }
 
-.removeFailure {
-  margin: var(--qilin-space-3) 0 0;
-  color: var(--qilin-alias-state-error-primary);
-  font-size: var(--qilin-text-base);
+/* The name of a fact row, read by assistive technology before its value. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

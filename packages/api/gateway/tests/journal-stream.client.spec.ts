@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  isRemoteStreamCarrierFailure,
   RemoteJournalStream,
   RemoteStream,
   RemoteStreamCarrierError,
@@ -9,6 +10,20 @@ import {
   type RemoteStreamItem,
   type RemoteStreamOptions,
 } from '../src/client/index.ts'
+
+describe('Remote stream carrier failures', () => {
+  it('marks locally produced carrier losses and never a Host-returned RemoteError', () => {
+    const failure = new RemoteStreamCarrierError('carrier lost')
+    expect(failure.code).toBe('gateway/carrier-lost')
+    expect(isRemoteStreamCarrierFailure(failure)).toBe(true)
+    // A plain Error carrying the code counts: reconnection does not depend on the class.
+    expect(isRemoteStreamCarrierFailure(Object.assign(new Error('lost'), { code: 'gateway/carrier-lost' }))).toBe(true)
+    // A RemoteError with the same code reached this Client from the Host and is terminal.
+    expect(isRemoteStreamCarrierFailure({ isQILINRemoteError: true, code: 'gateway/carrier-lost', message: 'host' })).toBe(false)
+    expect(isRemoteStreamCarrierFailure(new Error('other'))).toBe(false)
+    expect(isRemoteStreamCarrierFailure('lost')).toBe(false)
+  })
+})
 
 interface Entry {
   readonly seq: number

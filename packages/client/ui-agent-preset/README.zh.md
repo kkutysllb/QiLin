@@ -1,5 +1,5 @@
 ---
-description: "Web GUI 的 agent（智能体） preset 界面：新建会话 chip、会话标题标签与 Agent 管理的名单页面；供 agent 组装的用户与维护者阅读。"
+description: "Web GUI 的 agent（智能体） preset 界面：新建会话 chip 与 Agent 管理的名单页面；供 agent 组装的用户与维护者阅读。"
 kind: "package-reference"
 ---
 
@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-使用本包可以为新的 Web GUI 会话选择 agent preset、在会话标题中查看当前 preset，并在设置里名为「Agent 管理」的页面管理名单。preset 选择始终可用：新建会话 chip 提供全部健康 preset，每个会话在创建时固定自己使用的 preset。因此更改选择或默认值只影响此后创建的会话。如果部署未提供任何 preset，这些控件保持隐藏，每个会话都使用宿主组装。
+使用本包可以为新的 Web GUI 会话选择 agent preset，并在设置里名为「Agent 管理」的页面管理名单。preset 选择始终可用：新建会话 chip 提供全部健康 preset，每个会话在创建时固定自己使用的 preset。因此更改选择或默认值只影响此后创建的会话。如果部署未提供任何 preset，这些控件保持隐藏，每个会话都使用宿主组装。
 
 ## 目录
 
@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-与设置和对话包一起挂载本插件。新建会话 chip 位于工作区选择器旁，并以默认值打开：存在用户默认值时用用户默认值，否则用部署默认值（随附 Web bundle 中为 `standard`）。一次选择只为下一个空白会话暂存，并在该会话出现时应用——无论它是工作区连接创建的，还是复用的空白会话；已开始及历史会话的标签、组装与已记录历史保持不变。在名单页面选择默认值会为后续会话写入同一取值，并把它带到当前空白任务。
+与设置和对话包一起挂载本插件。新建会话 chip 位于工作区选择器旁，并以默认值打开：存在用户默认值时用用户默认值，否则用部署默认值（随附 Web bundle 中为 `standard`）。一次选择只为下一个空白会话暂存，并在该会话出现时应用——无论它是工作区连接创建的，还是复用的空白会话；已开始及历史会话的组装与已记录历史保持不变。在名单页面选择默认值会为后续会话写入同一取值，并把它带到当前空白任务。
 
 ### 管理名单
 
@@ -43,7 +43,7 @@ kind: "package-reference"
 <details>
 <summary>实现细节——点击展开</summary>
 
-管理页面通过现有的 `settings.update` 写入宿主的 `agent-presets` 命名空间，设为默认动作只写入 `default`。写入之后，由宿主名单给出当前生效的默认值，再由 chip controller 的 `agentPresets/select` 链路把它带到同一个仍为空白的会话；这些界面只使用这一条会话修改 API。展示选项来自 `agentPresets/list`——名单本身已标记宿主当前生效的默认值，因此非 loopback 的只读客户端无需内省 settings schema 也能保持一致。页面首次加载时查询 `settings.canOpenAgentPresetDirectory()`，并把结果与名单合并；查询失败只会移除原生打开动作。只要名单里有健康 preset，新建会话 chip 就会渲染，而标题标签保持注册并读取每个会话已记录的 preset。暂存值在会话到达时应用（既覆盖工作区连接新建的会话，也覆盖它复用的空白会话），被拒绝时丢弃。系统会通过 composer 列上方的瞬时横幅提示拒绝结果，因为 chip 的标签此时已经恢复原值，而被宿主拒绝挂载的 preset 正是发现过程报告为健康的那一种——它的名单卡片上没有任何原因可供回头查看。只有用户刚做出的选择会触发提示；会话成为当前会话时触发的应用器不会。[`qilin-client-connection`](../connection/README.zh.md) 使用同一浏览器会话认证 `agentPresets/read`、`agentPresets/copy`、`settings/openAgentPresetDirectory`、`agentPresets/deletePreset`、`agentPresets/list` 及其他所有宿主 API 方法。组装仍会指明一个会话所运行的插件，因此读取属于侦察，而复制、删除与设置模块拥有的目录打开操作负责管理名单并驱动宿主桌面。分区在自身操作、`settings/document-updated` 与 `connection/reset` 时重读，因为组装文件在浏览器之外编辑，协议链路不会通知文件变动。
+管理页面通过现有的 `settings.update` 写入宿主的 `agent-presets` 命名空间，设为默认动作只写入 `default`。写入之后，由宿主名单给出当前生效的默认值，再由 chip controller 的 `agentPresets/select` 链路把它带到同一个仍为空白的会话；这些界面只使用这一条会话修改 API。展示选项来自 `agentPresets/list`——名单本身已标记宿主当前生效的默认值，因此非 loopback 的只读客户端无需内省 settings schema 也能保持一致。页面首次加载时查询 `settings.canOpenAgentPresetDirectory()`，并把结果与名单合并；查询失败只会移除原生打开动作。只要名单里有健康 preset，新建会话 chip 就会渲染。暂存值在会话到达时应用（既覆盖工作区连接新建的会话，也覆盖它复用的空白会话），被拒绝时丢弃。系统会通过 composer 列上方的瞬时横幅提示拒绝结果，因为 chip 的标签此时已经恢复原值，而被宿主拒绝挂载的 preset 正是发现过程报告为健康的那一种——它的名单卡片上没有任何原因可供回头查看。只有用户刚做出的选择会触发提示；会话成为当前会话时触发的应用器不会。[`qilin-client-connection`](../connection/README.zh.md) 使用同一浏览器会话认证 `agentPresets/read`、`agentPresets/copy`、`settings/openAgentPresetDirectory`、`agentPresets/deletePreset`、`agentPresets/list` 及其他所有宿主 API 方法。组装仍会指明一个会话所运行的插件，因此读取属于侦察，而复制、删除与设置模块拥有的目录打开操作负责管理名单并驱动宿主桌面。分区在自身操作、`settings/document-updated` 与 `connection/reset` 时重读，因为组装文件在浏览器之外编辑，协议链路不会通知文件变动。
 
 </details>
 
@@ -55,7 +55,7 @@ kind: "package-reference"
 当 preset 界面无法满足需求时，请阅读以下页面。它们从浏览器界面延伸至 preset 领域与组装模型。
 
 - [qilin-agent-presets](../../preset/agent-presets/README.zh.md)——这些界面读取并管理的宿主名单与组装。
-- [ui-conversation](../ui-conversation/README.zh.md)——声明 chip 与标签填充的首屏与会话头部槽位。
+- [ui-conversation](../ui-conversation/README.zh.md)——声明 chip 填充的首屏槽位。
 - [ui-settings](../ui-settings/README.zh.md)——承载名单分区的设置外壳。
 - [客户端包映射](../README.zh.md)——相邻的浏览器 UI 包。
 

@@ -53,7 +53,8 @@ export interface MarkdownMermaidLabels {
 /** Localized chrome for a Markdown document. */
 export interface MarkdownLabels {
   code: MarkdownCodeLabels
-  mermaid: MarkdownMermaidLabels
+  /** Mermaid chrome; absent means mermaid fences render as plain code. */
+  mermaid?: MarkdownMermaidLabels
   footnotes: string
 }
 
@@ -231,6 +232,8 @@ export interface MarkdownRenderContext {
    * untrusted model output gets unless it installs a sanitizer of its own.
    */
   readonly html: MarkdownHtmlRenderer | undefined
+  /** Raw HTML renders nothing instead of the renderer or literal text. */
+  readonly omitHtml?: boolean
   /** Inside an anchor's children: interactive mentions must not nest there. */
   readonly inLink?: boolean
   /** Reference targets visible to this pass. */
@@ -380,6 +383,7 @@ function renderNode(node: Md.RootContent, key: Key, context: MarkdownRenderConte
       // Without an owner-supplied renderer no HTML parser enters the pipeline:
       // raw HTML stays literal text. An owner that installs one has taken on
       // sanitizing untrusted runs itself.
+      if (context.omitHtml === true) return null
       return context.html === undefined ? node.value : context.html(node.value)
     case 'code':
       return renderCode(node, key, context)
@@ -442,9 +446,12 @@ function renderCode(node: Md.Code, key: Key, context: MarkdownRenderContext): Re
         copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel} streaming lang={lang} />
     }
     const mermaidLabels = context.labels.mermaid
-    return <MermaidDiagram key={key} code={node.value}
-      copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel}
-      diagramLabel={mermaidLabels.diagramLabel} enlargedLabel={mermaidLabels.enlargedLabel} />
+    if (mermaidLabels !== undefined) {
+      return <MermaidDiagram key={key} code={node.value}
+        copyLabel={codeLabels.copyLabel} copiedLabel={codeLabels.copiedLabel}
+        diagramLabel={mermaidLabels.diagramLabel} enlargedLabel={mermaidLabels.enlargedLabel} />
+    }
+    // Consumers without diagram chrome keep the fence as a plain code block.
   }
   if (!context.streaming && lang === 'math') {
     // ```math fences render as display TeX once settled (rehype-katex parity);

@@ -294,6 +294,9 @@
     - id: ui-session
       name: '@qilin-agent/client-ui-session'
 
+    - id: ui-session-status
+      name: '@qilin-agent/client-ui-session-status'
+
     # Unified resource model: protocol providers behind the useResource hook.
     - id: resources
       name: '@qilin-agent/client-resources'

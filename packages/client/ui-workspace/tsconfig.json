@@ -67,6 +67,9 @@
     },
     {
       "path": "../shortcuts/tsconfig.client.json"
+    },
+    {
+      "path": "../ui-session-status/tsconfig.client.json"
     }
   ]
 }

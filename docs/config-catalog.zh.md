@@ -1182,7 +1182,7 @@ export type Config = CuaConfig
 
 ## `@qilin-agent/experimental-forge`
 
-- `source`: [`packages/experimental/forge/src/types.ts:232`](../packages/experimental/forge/src/types.ts)
+- `source`: [`packages/experimental/forge/src/types.ts:274`](../packages/experimental/forge/src/types.ts)
 
 ```ts config-catalog
 /** Poll cadence and fetch deadline for watched change requests. */
@@ -1534,12 +1534,15 @@ export interface Config {
 
 ## `@qilin-agent/experimental-worktree`
 
-- `inject`: `workingDirectory` · `fs` · `subprocess` · `sandbox` · `sandboxPolicy`
-- `source`: [`packages/experimental/worktree/src/index.ts:27`](../packages/experimental/worktree/src/index.ts)
+- `inject`: `workingDirectory` · `fs` · `subprocess` · `sandbox` · `sandboxPolicy` · `sessionProjections`
+- `refs`: `Volatile` (`@qilin-agent/kylin`)
+- `source`: [`packages/experimental/worktree/src/index.ts:39`](../packages/experimental/worktree/src/index.ts)
 
 ```ts config-catalog
-/** Worktree location, generated names, executables, and subprocess resource limits. */
+/** Worktree location, generated names, executables, subprocess resource limits, and the archive cleanup switch. */
 export interface Config {
+  /** Keep every checkout when its Session is archived; editable live from the Plugins page. */
+  retainOnArchive: Volatile<boolean>
   /** Relative checkout pool inside the source repository. */
   directory?: string
   /** Prefix for automatically generated branch and checkout names. */
@@ -1552,7 +1555,11 @@ export interface Config {
   timeoutMs?: number
   /** Subprocess termination grace in milliseconds. */
   graceMs?: number
-  /** Maximum captured bytes per subprocess output stream. */
+  /**
+   * Maximum captured bytes per subprocess output stream; archive inspection
+   * streams `git status`, and inspection and restoration stream the worktree
+   * listing, so it bounds only their stderr.
+   */
   maxOutputBytes?: number
 }
 ```
@@ -3285,6 +3292,22 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@qilin-agent/skill-office -->
 
+<!-- BEGIN GENERATED config-catalog:@qilin-agent/skill-research -->
+<a id="qilin-agentskill-research"></a>
+
+## `@qilin-agent/skill-research`
+
+- `source`: [`packages/skill/skill-research/src/index.ts:43`](../packages/skill/skill-research/src/index.ts)
+
+```ts config-catalog
+/** Skill resource configuration. */
+export interface Config {
+  /** Absolute assets directory containing skill folders; defaults to packaged assets. */
+  assetRoot?: string
+}
+```
+<!-- END GENERATED config-catalog:@qilin-agent/skill-research -->
+
 <!-- BEGIN GENERATED config-catalog:@qilin-agent/spill-local -->
 <a id="qilin-agentspill-local"></a>
 
@@ -4623,7 +4646,7 @@ export interface Config {
 ## `@qilin-agent/working-directory`
 
 - `inject`: `fs` · `sessionProjections` · `systemPrompt`
-- `source`: [`packages/session/working-directory/src/index.ts:56`](../packages/session/working-directory/src/index.ts)
+- `source`: [`packages/session/working-directory/src/index.ts:72`](../packages/session/working-directory/src/index.ts)
 
 ```ts config-catalog
 /** Deployment default for Sessions without an original project directory. */
@@ -4818,6 +4841,7 @@ export interface Config {
 | --- | --- | --- |
 | `@qilin-agent/agent-loop-testkit` | — | [`packages/test-support/agent-loop-testkit/src/index.ts`](../packages/test-support/agent-loop-testkit/src/index.ts) |
 | `@qilin-agent/agent-team-profile` | — | [`packages/team/agent-team-profile/src/index.ts`](../packages/team/agent-team-profile/src/index.ts) |
+| `@qilin-agent/animations-bundle` | — | [`packages/bundle/animations-bundle/src/index.ts`](../packages/bundle/animations-bundle/src/index.ts) |
 | `@qilin-agent/anonymous-user-id` | — | [`packages/identity/anonymous-user-id/src/index.ts`](../packages/identity/anonymous-user-id/src/index.ts) |
 | `@qilin-agent/app-boot` | — | [`packages/boot/app-boot/src/index.ts`](../packages/boot/app-boot/src/index.ts) |
 | `@qilin-agent/atomic-write` | — | [`packages/util/atomic-write/src/index.ts`](../packages/util/atomic-write/src/index.ts) |
@@ -4853,6 +4877,7 @@ export interface Config {
 | `@qilin-agent/fs-patch` | — | [`packages/fs/fs-patch/src/index.ts`](../packages/fs/fs-patch/src/index.ts) |
 | `@qilin-agent/home-paths` | — | [`packages/util/home-paths/src/index.ts`](../packages/util/home-paths/src/index.ts) |
 | `@qilin-agent/http-proxy` | — | [`packages/util/http-proxy/src/index.ts`](../packages/util/http-proxy/src/index.ts) |
+| `@qilin-agent/kylin-images-bundle` | — | [`packages/bundle/kylin-images-bundle/src/index.ts`](../packages/bundle/kylin-images-bundle/src/index.ts) |
 | `@qilin-agent/launch-environment` | — | [`packages/util/launch-environment/src/index.ts`](../packages/util/launch-environment/src/index.ts) |
 | `@qilin-agent/lazy-require` | — | [`packages/util/lazy-require/src/index.ts`](../packages/util/lazy-require/src/index.ts) |
 | `@qilin-agent/llm-deepseek` | — | [`packages/llm/llm-deepseek/src/index.ts`](../packages/llm/llm-deepseek/src/index.ts) |
@@ -4884,6 +4909,7 @@ export interface Config {
 | `@qilin-agent/session-snapshot` | — | [`packages/test-support/session-snapshot/src/index.ts`](../packages/test-support/session-snapshot/src/index.ts) |
 | `@qilin-agent/session-telemetry` | — | [`packages/session/session-telemetry/src/index.ts`](../packages/session/session-telemetry/src/index.ts) |
 | `@qilin-agent/session-title-llm` | — | [`packages/session/session-title-llm/src/index.ts`](../packages/session/session-title-llm/src/index.ts) |
+| `@qilin-agent/skills-bundle` | — | [`packages/bundle/skills-bundle/src/index.ts`](../packages/bundle/skills-bundle/src/index.ts) |
 | `@qilin-agent/ssh-helper-runtime` | — | [`packages/ssh/ssh-helper-runtime/src/index.ts`](../packages/ssh/ssh-helper-runtime/src/index.ts) |
 | `@qilin-agent/timeout` | — | [`packages/util/timeout/src/index.ts`](../packages/util/timeout/src/index.ts) |
 | `@qilin-agent/typert-generator` | — | [`packages/typert/generator/src/index.ts`](../packages/typert/generator/src/index.ts) |

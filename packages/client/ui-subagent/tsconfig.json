@@ -58,6 +58,9 @@
     },
     {
       "path": "../../subagent/subagent"
+    },
+    {
+      "path": "../ui-session-status/tsconfig.client.json"
     }
   ]
 }

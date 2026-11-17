@@ -36,6 +36,7 @@ function renderSettled(
   fileMentions: MarkdownFileMentions | undefined,
   pathImages: MarkdownPathImages | undefined,
   html: MarkdownHtmlRenderer | undefined,
+  omitHtml: boolean,
 ): ReactNode[] {
   const root = parseGfmWithMath(text)
   const targets = createReferenceTargets()
@@ -46,6 +47,7 @@ function renderSettled(
     fileMentions,
     pathImages,
     html,
+    omitHtml,
     targets,
     footnoteOrder: [],
     footnoteCounts: new Map(),
@@ -82,8 +84,13 @@ class StreamingRenderer {
   /**
    * @param labels - Localized Markdown chrome baked into cached elements; the owner replaces the renderer when it changes.
    * @param html - Raw-HTML renderer baked into the same cached elements, replaced on the same terms.
+   * @param omitHtml - Whether raw HTML renders nothing; baked on the same terms.
    */
-  constructor(private readonly labels: MarkdownLabels, private readonly html: MarkdownHtmlRenderer | undefined) {}
+  constructor(
+    private readonly labels: MarkdownLabels,
+    private readonly html: MarkdownHtmlRenderer | undefined,
+    readonly omitHtml: boolean,
+  ) {}
 
   /**
    * Render the current accumulated text. Idempotent per text value, so React
@@ -119,6 +126,7 @@ class StreamingRenderer {
         fileMentions: undefined,
         pathImages: undefined,
         html: this.html,
+        omitHtml: this.omitHtml,
         targets: frameTargets,
         footnoteOrder: this.frozenFootnoteOrder,
         footnoteCounts: this.frozenFootnoteCounts,
@@ -139,6 +147,7 @@ class StreamingRenderer {
       fileMentions: undefined,
       pathImages: undefined,
       html: this.html,
+      omitHtml: this.omitHtml,
       targets: frameTargets,
       footnoteOrder: [...this.frozenFootnoteOrder],
       footnoteCounts: new Map(this.frozenFootnoteCounts),
@@ -185,12 +194,12 @@ class StreamingRenderer {
  * Copying a selection inside the document writes selected formulas as
  * `$…$` / `$$…$$` TeX source.
  * @returns A GFM document with TeX math rendered through KaTeX; raw HTML
- * stays literal unless `html` supplies a renderer, and unsafe protocols are
- * disabled. Local links without an opener remain text; absolute HTTP(S)
+ * stays literal unless `html` supplies a renderer (or `omitHtml` drops it),
+ * and unsafe protocols are disabled. Local links without an opener remain text; absolute HTTP(S)
  * images render directly.
  */
 export const MarkdownText = memo(function MarkdownText({
-  text, streaming = false, labels, fileMentions, pathImages, html, variant = 'body',
+  text, streaming = false, labels, fileMentions, pathImages, html, omitHtml = false, variant = 'body',
 }: {
   text: string
   streaming?: boolean
@@ -198,23 +207,28 @@ export const MarkdownText = memo(function MarkdownText({
   fileMentions?: MarkdownFileMentions | undefined
   pathImages?: MarkdownPathImages | undefined
   html?: MarkdownHtmlRenderer | undefined
+  /** Render raw HTML as nothing instead of through `html` or as literal text. */
+  omitHtml?: boolean
   variant?: 'body' | 'compact'
 }) {
   const streamRef = useRef<StreamingRenderer | null>(null)
   const streamLabelsRef = useRef<MarkdownLabels>(labels)
   const streamHtmlRef = useRef<MarkdownHtmlRenderer | undefined>(html)
+  const streamOmitHtmlRef = useRef(omitHtml)
   const children = useMemo(() => {
     if (!streaming) {
       streamRef.current = null
-      return renderSettled(text, labels, fileMentions, pathImages, html)
+      return renderSettled(text, labels, fileMentions, pathImages, html, omitHtml)
     }
-    if (streamRef.current === null || streamLabelsRef.current !== labels || streamHtmlRef.current !== html) {
-      streamRef.current = new StreamingRenderer(labels, html)
+    if (streamRef.current === null || streamLabelsRef.current !== labels
+      || streamHtmlRef.current !== html || streamOmitHtmlRef.current !== omitHtml) {
+      streamRef.current = new StreamingRenderer(labels, html, omitHtml)
       streamLabelsRef.current = labels
       streamHtmlRef.current = html
+      streamOmitHtmlRef.current = omitHtml
     }
     return streamRef.current.render(text)
-  }, [text, streaming, labels, fileMentions, pathImages, html])
+  }, [text, streaming, labels, fileMentions, pathImages, html, omitHtml])
   return <div className={clsx(css.markdown, variant === 'compact' && css.compact)}
     data-markdown-variant={variant === 'compact' ? variant : undefined}
     onCopy={(event) => { copyKatexAsTex(event.nativeEvent, event.currentTarget) }}>{children}</div>

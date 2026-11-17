@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Use `qilin-client-ui-primitives` to build web-client controls and render agent output with shared React UI. It includes standard controls, icons, anchored overlays, and renderers for Markdown with TeX, terminal output, file reads, diffs, search, web retrieval, and JSON. The renderers handle untrusted model output by keeping raw HTML literal unless the owner supplies its own sanitizing renderer, restricting links, and parsing ANSI escape sequences. The components import no Kylin runtime; callers supply localized labels, and theme-facing colors use `--qilin-*` design tokens.
+Use `qilin-client-ui-primitives` to build web-client controls and render agent output with shared React UI. It includes standard controls, icons, anchored overlays, and renderers for Markdown with TeX, terminal output, file reads, diffs, search, web retrieval, and JSON. The renderers handle untrusted model output by keeping raw HTML literal unless the owner supplies its own sanitizing renderer or drops it with `omitHtml`, restricting links, and parsing ANSI escape sequences. The components import no Kylin runtime; callers supply localized labels, and theme-facing colors use `--qilin-*` design tokens.
 
 ## Table of Contents
 
@@ -63,7 +63,7 @@ Check this table before writing a control in a feature package. A plugin cannot 
 | `TerminalBlock`, `ReadBlock`, `DiffBlock`, `SearchBlock`, `WebBlock` | The agent-output card matching each tool-result intent. |
 | `useClipboardCopy` | Copies the current text with one-second success feedback, prevents overlapping or success-window repeats, and cancels its reset timer on unmount; late write completion cannot update an unmounted control. |
 | `UserMessageBubble` | User-message background, radius, content inset, typography, and plain-text wrapping. Accepts native div props; callers own row alignment, width, content, and actions. |
-| `QuotePreview` | One quoted excerpt: quote mark, width-capped text, a copy control, and a jump control when the owner names a source. A clipped excerpt opens its full text on hover. Every string arrives through required labels. |
+| `QuotePreview` | One quoted excerpt: quote mark, width-capped text, a copy control, and a jump control when the owner names a source. An owner-supplied summary replaces the exact text inline and in the popover; a removal action turns the mark into the whole-quote control. A clipped excerpt opens its full text on hover. |
 | `SettingsForm`, `SettingsValueField`, `SettingsSecretField` | Staged configuration form over `SettingsFormModel`: fields report what the reader typed, and its save is the single point where a draft becomes a document mutation. |
 | `icons/*`, `QilinSeal`, `ReferenceIcon`, `LinkIcon` | Glyphs and brand marks. Use `LinkIcon` for 14px clickable-link categories and known-site marks. |
 | `FileTypeIcon`, `classifyFileType`, `fileExtension` | A category-colored 28px file or folder glyph and the shared case-insensitive filename mapping behind it. Code and configuration files use detailed full-color technology glyphs; use `LinkIcon` for link-leading glyphs and image previews for image content. |

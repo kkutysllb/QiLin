@@ -37,7 +37,7 @@ The same switch enables the model's [`create_worktree`](../tool-worktree/README.
 <details>
 <summary>Maintainer details — click to expand</summary>
 
-The bundle mounts the forge registry, GitHub provider, Session bindings, and the worktree model tool. The tool uses the top-level `worktree` service; the panel keeps its isolated `forge-worktree` service inside `optional-forge-panel`. Their configuration ids and creation flows stay independent. The panel records worktrees requested before a Session starts; model-created worktrees do not acquire the panel's recovery records. The rows use the Session projection, working-directory, filesystem, subprocess, and sandbox services from base-backed profiles.
+The bundle mounts the forge registry, GitHub provider, Session bindings, the worktree model tool, and the panel. One top-level `worktree` service serves both the tool and the panel, and the panel is a top-level `forge-panel` row, so a profile can override its configuration id or turn the panel off with `disabled: true` without touching the tool. The panel records worktrees requested before a Session starts; model-created worktrees do not acquire the panel's recovery records. The rows use the Session projection, working-directory, filesystem, subprocess, and sandbox services from base-backed profiles.
 
 </details>
 

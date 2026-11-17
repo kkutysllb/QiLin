@@ -9,6 +9,17 @@ import { mathCompatibility } from '../src/markdown/mathCompatibility.ts'
 afterEach(cleanup)
 
 describe('MarkdownText', () => {
+  it('drops raw HTML when omitHtml is set, in both settled and streaming renders', () => {
+    // A block-level raw HTML node renders nothing at all; without the flag it
+    // stays literal text, which is the behavior this flag exists to suppress.
+    const raw = '<div>block</div>'
+    const settled = render(<MarkdownText text={raw} omitHtml />).container
+    expect(settled.textContent).toBe('')
+    cleanup()
+    const streaming = render(<MarkdownText text={raw} omitHtml streaming />).container
+    expect(streaming.textContent).toBe('')
+  })
+
   it('renders CommonMark and GFM elements as semantic DOM', () => {
     const markdown = [
       '# Heading',

@@ -1,0 +1,31 @@
+# Bilingual-pair consistency record for 2026-10-23-session-reading-memory.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-10-23-session-reading-memory.md
+/agent-note-host-memory-session-reading-state:
+  en: 69762661afed34d5
+  zh: cc3cc6e496db19d7
+/agent-note-host-memory-session-reading-state/problem:
+  en: 39645b9f534fc58b
+  zh: 184e7517d2e966c0
+/agent-note-host-memory-session-reading-state/decision:
+  en: a15c7c13f167e5ac
+  zh: 63bcc2ef60c2f344
+/agent-note-host-memory-session-reading-state/decision/package-structure:
+  en: 4aecbaaed8062094
+  zh: 328372b9a583ed38
+/agent-note-host-memory-session-reading-state/decision/client-dependency-rules:
+  en: 07e1b96c3833ff29
+  zh: c5ea8963dde91a4a
+/agent-note-host-memory-session-reading-state/decision/host-records:
+  en: ea1b8aa4ed60f04c
+  zh: 9c979b7b40eacb3e
+/agent-note-host-memory-session-reading-state/decision/automatic-acknowledgement:
+  en: 64f9e14597dbc3d4
+  zh: e2d20a5105c9d950
+/agent-note-host-memory-session-reading-state/alternatives-considered:
+  en: 755d2e5eb626b445
+  zh: 898f83b86d2e2209
+/agent-note-host-memory-session-reading-state/consequences:
+  en: 01f6beaeff1e6c7f
+  zh: 1fdee75b2c4bf646

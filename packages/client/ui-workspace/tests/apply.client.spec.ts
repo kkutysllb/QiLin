@@ -23,6 +23,9 @@ async function bench() {
   const rename = vi.fn(async () => ({}))
   const selectPanel = vi.fn()
   ctx.provide('layout', { selectPanel, beginNavigation: () => new AbortController().signal })
+  ctx.provide('remoteAccess', { source: () => true } as never)
+  ctx.provide('uiSession', { pendingInteractions: { getSnapshot: () => new Map(), subscribe: () => () => {} } } as never)
+  ctx.provide('uiSession.sessionStatus', { getSnapshot: () => new Map(), subscribe: () => () => {} } as never)
   const search = vi.fn(async () => ({
     ok: true as const,
     value: { items: [{ sessionId: 'session' as never, snippet: 'match' }], hasMore: false },
@@ -130,7 +133,7 @@ describe('ui-workspace apply', () => {
   it('declares the services it drives', () => {
     expect(inject).toEqual([
       'contextMenus', 'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker',
-      'layout', 'shortcuts',
+      'layout', 'shortcuts', 'remoteAccess', 'uiSession', 'uiSession.sessionStatus',
     ])
   })
 

@@ -181,6 +181,24 @@ describe('RemoteStream', () => {
     await stream.dispose()
   })
 
+  it('never retries a carrier-coded failure that came from the Host', async () => {
+    const source = hostSource(true)
+    let opened = 0
+    const stream = new RemoteStream(source.connection, {
+      name: 'fixture stream',
+      // Structural Host failure: the marker wins over the code, so this terminates instead of retrying.
+      open: scripted([
+        { terminal: Object.assign(new Error('host carrier coded'), {
+          isQILINRemoteError: true as const, code: 'gateway/carrier-lost',
+        }) },
+      ], () => { opened++ }),
+      ended: () => new Error('ended'),
+    })
+    await expect(stream[Symbol.asyncIterator]().next()).rejects.toMatchObject({ code: 'gateway/carrier-lost' })
+    expect(opened).toBe(1)
+    await stream.dispose()
+  })
+
   it('stops a pending retry when the logical stream is disposed', async () => {
     const source = hostSource(false)
     let opened = 0

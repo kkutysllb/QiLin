@@ -35,7 +35,8 @@
     "@qilin-agent/schemastery": "workspace:~",
     "@qilin-agent/timeout": "workspace:*",
     "execa": "^10.0.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "@qilin-agent/util-values": "workspace:*"
   },
   "peerDependencies": {
     "@qilin-agent/kylin": "workspace:~",

@@ -87,3 +87,80 @@
     opacity: 1;
   }
 }
+
+/* Non-truncated, non-summary quotes keep the excerpt in flow; the summary's
+   accessible title and detail stay available to assistive technology. */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.inlineBody {
+  color: var(--qilin-alias-label-primary);
+}
+
+.remove {
+  display: grid;
+  place-items: center;
+  flex: none;
+  grid-template-areas: 'mark';
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.closeMark {
+  grid-area: mark;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.quote[data-removable] .quoteMark {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.quote[data-removable]:hover .quoteMark,
+.remove:focus-visible .quoteMark {
+  opacity: 1;
+}
+
+.quote[data-removable]:hover .closeMark,
+.remove:focus-visible .closeMark {
+  opacity: 1;
+}
+
+.remove .quoteMark {
+  position: absolute;
+  pointer-events: none;
+}
+
+.summary {
+  display: grid;
+  gap: 2px;
+  padding: 8px 10px;
+  color: var(--qilin-alias-label-primary);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.summaryTitle {
+  font-weight: 600;
+}
+
+.summaryDetail {
+  color: var(--qilin-alias-label-secondary);
+}
+
+.summaryBody {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}

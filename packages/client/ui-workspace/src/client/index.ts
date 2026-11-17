@@ -11,6 +11,7 @@
 import type { Context } from '@qilin-agent/kylin'
 import type { RemoteHostFacts } from '@qilin-agent/api-remotes/client'
 import type { ISessions } from '@qilin-agent/api-session-controller/client'
+import type { SessionId } from '@qilin-agent/session/types'
 import type { IWorkspaces, WorkspaceSnapshot } from '@qilin-agent/api-workspace-controller/client'
 import {
   IconArchiveOutlineRegular, IconBranchOutlineRegular, IconCopyOutlineRegular, IconEditOutlineRegular,
@@ -69,6 +70,37 @@ declare module '@qilin-agent/api-session-controller/client' {
   }
 }
 
+/** Localized follow-up text for the archive notice. */
+export interface ArchiveNotice {
+  readonly text: string
+  readonly tone: 'success' | 'warning'
+}
+
+declare module '@qilin-agent/kylin' {
+  interface Events {
+    /**
+     * Replace the archive notice with a localized follow-up description.
+     * @param sessionId - Session whose archive has succeeded.
+     * @param next - fallback to the remaining notice providers.
+     * @mode waterfall
+     */
+    'workspace/archive-notice'(sessionId: SessionId, next: () => Promise<ArchiveNotice | undefined>): Promise<ArchiveNotice | undefined>
+    /**
+     * Report a failed admitted background operation after a successful archive.
+     * @param sessionId - Session whose archive remains in effect.
+     * @param text - localized failure and recovery guidance.
+     * @mode emit
+     */
+    'workspace/archive-followup-failed'(sessionId: SessionId, text: string): void
+    /**
+     * Clear a follow-up announcement when its background operation ended without acting.
+     * @param sessionId - Session whose archive remains in effect.
+     * @mode emit
+     */
+    'workspace/archive-followup-settled'(sessionId: SessionId): void
+  }
+}
+
 /** Dictionary namespace owned by this plugin. */
 const NS = 'workspace'
 
@@ -83,7 +115,8 @@ const NS = 'workspace'
 export const inject = [
   'contextMenus',
   'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker',
-  'layout', 'shortcuts',
+  'layout', 'shortcuts', 'remoteAccess',
+  'uiSession', 'uiSession.sessionStatus',
 ]
 
 /**
@@ -135,6 +168,14 @@ export function apply(ctx: Context): void {
   const openSession: WorkspaceBrowserInjected['open'] = (sessionId) => {
     uiWorkspace.openSession(sessionId)
   }
+  /** Announce an archived Session through the follow-up waterfall; the default has no follow-up. */
+  const announceArchive = async (sessionId: SessionId): Promise<void> => {
+    try {
+      await ctx.waterfall('workspace/archive-notice', sessionId, () => Promise.resolve(undefined))
+    } catch (error) {
+      console.warn('session archive notice unavailable:', error)
+    }
+  }
   const browserInjected = (): WorkspaceBrowserInjected => ({
     // Explicit group actions keep their target; unscoped New Session inherits
     // the current Session Workspace before the recent-Workspace fallback.
@@ -161,7 +202,10 @@ export function apply(ctx: Context): void {
     insertWorkspaceBefore: async (workspaceId, beforeWorkspaceId) => {
       await workspaces.insertBefore(workspaceId, beforeWorkspaceId)
     },
-    archiveSession: async (sessionId) => { await uiWorkspace.archiveSession(sessionId) },
+    archiveSession: async (sessionId) => {
+      await uiWorkspace.archiveSession(sessionId)
+      await announceArchive(sessionId)
+    },
     // A pin failure surfaces as a rejected promise: the row's own action
     // reports it, and nothing else on the surface moves.
     pinSession: sessionId => uiWorkspace.pinSession(sessionId),
@@ -184,7 +228,9 @@ export function apply(ctx: Context): void {
       sessionRenameRequest, workspaceActionRequest,
     },
   })
-  installWorkspaceShortcuts(ctx, uiWorkspace, shortcutControls, (sessionId) => { void uiWorkspace.archiveSession(sessionId) })
+  installWorkspaceShortcuts(ctx, uiWorkspace, shortcutControls, (sessionId) => {
+    void uiWorkspace.archiveSession(sessionId).then(() => announceArchive(sessionId))
+  })
   ctx.slots.inject('contextMenu.icon', function* () {
     for (const [key, Icon] of Object.entries({
       'workspace.rename': IconEditOutlineRegular, 'workspace.delete': IconTrashOutlineRegular,
@@ -226,6 +272,7 @@ export function apply(ctx: Context): void {
       children: {
         'sidebar.workspaces.directoryFlow': { kind: 'single', scope: 'root' },
         'sidebar.session.row.leading': { kind: 'list', scope: 'root' },
+        'sidebar.session.row.trailing': { kind: 'list', scope: 'root', inline: true },
         'sidebar.session.row.hover': { kind: 'list', scope: 'root' },
       },
       store: viewStore,

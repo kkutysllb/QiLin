@@ -43,6 +43,7 @@
     "@qilin-agent/kylin": "workspace:~"
   },
   "devDependencies": {
-    "@qilin-agent/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/agent-loop-testkit": "workspace:*"
   }
 }

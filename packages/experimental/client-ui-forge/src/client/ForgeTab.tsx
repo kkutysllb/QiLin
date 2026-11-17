@@ -2,10 +2,10 @@
 
 import { useEffect, useState, type ReactNode } from 'react'
 import {
-  Button, IconBranchOutlineRegular, IconCopyOutlineRegular, IconFolderCloseRegular, IconTrashOutlineRegular,
-  IconWarningTriangleOutlineRegular, Modal, StateDot, Tooltip,
+  Button, IconBranchOutlineRegular, IconCopyOutlineRegular, IconFolderCloseRegular, IconWarningTriangleOutlineRegular, StateDot, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
-import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { HostObservable, InjectFace, PropsLocale, PropsRenderSlots, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type {} from './slots.ts'
 import type { RemoteHostFacts } from '@qilin-agent/api-remotes/client'
 import type { MergeRequest } from '@qilin-agent/experimental-forge/types'
 import type {} from '@qilin-agent/client-ui-conversation/client'
@@ -44,14 +44,16 @@ export interface ForgeTabInjected {
   readonly merge: (entry: ForgePanelChangeRequest, request: MergeRequest) => Promise<void>
   /** Read the complete checks of an opened change request. */
   readonly readChecks: NonNullable<ChangeRequestActions['readChecks']>
+  /** Rerun the failed checks or one check; settles once the outcome is reported. */
+  readonly rerunChecks: NonNullable<ChangeRequestActions['rerunChecks']>
+  /** Request reviews from more reviewers; settles once the outcome is reported. */
+  readonly requestReviews: NonNullable<ChangeRequestActions['requestReviews']>
+  /** List accounts a review can be requested from. */
+  readonly reviewerCandidates: NonNullable<ChangeRequestActions['reviewerCandidates']>
+  /** Bring the base branch's new commits into the head branch; settles once the outcome is reported. */
+  readonly updateBranch: NonNullable<ChangeRequestActions['updateBranch']>
   /** Check the removed worktree of the Session out again, reporting the outcome. */
   readonly restore: () => void
-  /**
-   * Remove the created worktree; the Session moves back to the source checkout.
-   * @param deleteBranch - whether the branch follows the checkout.
-   * @returns the failure text, or undefined once it is removed.
-   */
-  readonly removeWorktree: (deleteBranch: boolean) => Promise<string | undefined>
   /** Open a URL outside the app. */
   readonly openLink: (url: string) => void
   /** Copy text to the clipboard and report the outcome. */
@@ -67,22 +69,19 @@ export interface ForgeTabInjected {
 /** Full props of the tab body. */
 export type ForgeTabProps =
   Pick<PropsRuntime<'sidebar.right.pane.tab'>, 'useTabInfo' | 'sessionId'>
+  & Pick<PropsRenderSlots<'forge.change-request.card.actions'>, 'renderSlot'>
   & InjectFace<ForgeTabInjected>
   & PropsLocale<typeof NS>
 
 type Translate = ForgeTabProps['t']
 
-function Checkout({ state, home, restore, removeWorktree, copyPath, t }: {
+function Checkout({ state, home, restore, copyPath, t }: {
   readonly state: ForgePanelState
   readonly home: string | undefined
   readonly restore: () => void
-  readonly removeWorktree: (deleteBranch: boolean) => Promise<string | undefined>
   readonly copyPath: (path: string) => void
   readonly t: Translate
 }): ReactNode {
-  const [removing, setRemoving] = useState<'idle' | 'confirming' | 'busy'>('idle')
-  const [deleteBranch, setDeleteBranch] = useState(false)
-  const [failure, setFailure] = useState<string | undefined>(undefined)
   const checkout = state.checkout
   const label = checkoutLabel(state, home, t)
   if (label === undefined) {
@@ -126,53 +125,6 @@ function Checkout({ state, home, restore, removeWorktree, copyPath, t }: {
           {t('checkout.restore')}
         </Button>
       )}
-      {label.worktree && !label.missing && (
-        <Tooltip label={t('checkout.removeWorktree')} side="bottom">
-          <button
-            type="button"
-            className={css.iconButton}
-            aria-label={t('checkout.removeWorktree')}
-            onClick={() => { setFailure(undefined); setRemoving('confirming') }}
-          >
-            <IconTrashOutlineRegular size={14} />
-          </button>
-        </Tooltip>
-      )}
-      <Modal
-        open={removing !== 'idle'}
-        onClose={() => { if (removing !== 'busy') setRemoving('idle') }}
-        title={t('checkout.removeWorktreeTitle')}
-        description={t('checkout.removeWorktreeBody')}
-        closeLabel={t('checkout.removeWorktreeCancel')}
-        footer={(
-          <>
-            <Button variant="outline" disabled={removing === 'busy'} onClick={() => { setRemoving('idle') }}>
-              {t('checkout.removeWorktreeCancel')}
-            </Button>
-            <Button
-              variant="primary"
-              disabled={removing === 'busy'}
-              onClick={() => {
-                setRemoving('busy')
-                void removeWorktree(deleteBranch).then((message) => {
-                  if (message === undefined) { setRemoving('idle'); return }
-                  setFailure(message)
-                  setRemoving('confirming')
-                })
-              }}
-            >
-              {t('checkout.removeWorktreeConfirm')}
-            </Button>
-          </>
-        )}
-      >
-        <label className={css.removeOption}>
-          <input type="checkbox" checked={deleteBranch} disabled={removing === 'busy'}
-            onChange={(event) => { setDeleteBranch(event.currentTarget.checked) }} />
-          {t('checkout.removeWorktreeBranch')}
-        </label>
-        {failure !== undefined && <p role="alert" className={css.removeFailure}>{failure}</p>}
-      </Modal>
     </div>
   )
 }
@@ -216,8 +168,8 @@ function SignIn({ state, copyText, t }: {
  */
 export function ForgeTab({
   useTabInfo, sessionId, usePanel, useHost, useLocale, reconnect, refresh, remove, markReady, merge, readChecks, restore,
-  removeWorktree, openLink, copyText, copyPath,
-  reportVisible, createChangeRequest, t,
+  rerunChecks, requestReviews, reviewerCandidates, updateBranch, openLink, copyText, copyPath,
+  reportVisible, createChangeRequest, renderSlot, t,
 }: ForgeTabProps): ReactNode {
   const snapshot = usePanel(current => current)
   const home = useHost(facts => facts.home)
@@ -248,7 +200,9 @@ export function ForgeTab({
   }
   const actions: ChangeRequestActions = {
     openLink, copyLink: copyText, retry: startRefresh, remove, markReady, merge, readChecks,
+    rerunChecks, requestReviews, reviewerCandidates, updateBranch,
     viewChanges: (entry) => { viewChanges({ kind: 'change', url: entry.url }) },
+    renderActions: owner => renderSlot('forge.change-request.card.actions', owner),
   }
   const local = state.local !== null && state.local.files.length > 0 ? state.local : null
   const expanded = chosen ?? defaultExpanded(state.changeRequests)
@@ -263,7 +217,7 @@ export function ForgeTab({
   return (
     <div className={css.root} data-forge-panel="">
       {disconnected}
-      <Checkout state={state} home={home} restore={restore} removeWorktree={removeWorktree} copyPath={copyPath} t={t} />
+      <Checkout state={state} home={home} restore={restore} copyPath={copyPath} t={t} />
       {local !== null && (
         <LocalChangesCard
           local={local}
