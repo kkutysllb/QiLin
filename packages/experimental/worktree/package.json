@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/experimental-worktree",
   "description": "Creates a named Git worktree, records it in the Session log, and reclaims it when the Session is archived",
-  "version": "3.1.12-rc.3",
+  "version": "3.1.12-rc.4",
   "publishConfig": {
     "access": "public"
   },
