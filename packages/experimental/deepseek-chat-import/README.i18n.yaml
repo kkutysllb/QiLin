@@ -1,0 +1,70 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/experimental/deepseek-chat-import/README.md
+/:
+  en: 68134bddc70ca270
+  zh: 56bbe0a3794ad728
+/qilin-agent-experimental-deepseek-chat-import:
+  en: bb5d5812432dc06f
+  zh: e4174a76dfc6fdf5
+/qilin-agent-experimental-deepseek-chat-import/summary:
+  en: a6edc98f9b04f5ec
+  zh: ee9e8e983fad5252
+/qilin-agent-experimental-deepseek-chat-import/table-of-contents:
+  en: b563e4ec4727d0de
+  zh: 44c7102c1efbf197
+/qilin-agent-experimental-deepseek-chat-import/use-this-package:
+  en: 0dd73499cc6035d5
+  zh: 57921d550e08c612
+/qilin-agent-experimental-deepseek-chat-import/use-this-package/import-a-chat-export:
+  en: b7c739f34052a302
+  zh: e39bdb3d4f41fbc7
+/qilin-agent-experimental-deepseek-chat-import/use-this-package/configuration:
+  en: beea8ad32b34feb4
+  zh: 267e1ede6fd13b7b
+/qilin-agent-experimental-deepseek-chat-import/use-this-package/import-results:
+  en: cc7e1dbbff7fcbf1
+  zh: f11aeec38ce7d23f
+/qilin-agent-experimental-deepseek-chat-import/use-this-package/failures:
+  en: 4902099a5445983d
+  zh: 32cbb073284032b9
+/qilin-agent-experimental-deepseek-chat-import/understand-the-implementation:
+  en: 42b15ac6321706aa
+  zh: e15901d8462ec7c7
+/qilin-agent-experimental-deepseek-chat-import/understand-the-implementation/modules:
+  en: 29729f79e3034582
+  zh: 15b9cb9842b7ee37
+/qilin-agent-experimental-deepseek-chat-import/understand-the-implementation/upload:
+  en: c8794dd9e4ad6dfb
+  zh: ebbbcce9fc8781ab
+/qilin-agent-experimental-deepseek-chat-import/understand-the-implementation/event-mapping:
+  en: 59ffd79a01858a60
+  zh: e9e2fa83065520ca
+/qilin-agent-experimental-deepseek-chat-import/understand-the-implementation/writes:
+  en: 9c5d86f4f1e864f5
+  zh: 9e884134234b89c8
+/qilin-agent-experimental-deepseek-chat-import/further-exploration:
+  en: 60cb9df2ec6cbcb7
+  zh: c5de0478f1e4b77f
+/qilin-agent-experimental-deepseek-chat-import/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/qilin-agent-experimental-deepseek-chat-import/model-experience/imported-history:
+  en: 9cdfa5c1981e07c4
+  zh: 89aa74f317ed5862
+/qilin-agent-experimental-deepseek-chat-import/model-experience/imported-history/what-the-model-sees:
+  en: 8c7f74983502dea6
+  zh: 3ce28fe38df55485
+/qilin-agent-experimental-deepseek-chat-import/model-experience/imported-history/token-effect:
+  en: 4089ec9e1b4dff0d
+  zh: 39019590c45a13a1
+/qilin-agent-experimental-deepseek-chat-import/model-experience/imported-history/kv-cache-effect:
+  en: e1e24cae9826663a
+  zh: dfe9c44dba9edd8d
+/qilin-agent-experimental-deepseek-chat-import/known-limitations-and-deferred-work:
+  en: 182ef9e613d37975
+  zh: b267be01d0b67eaf
+/qilin-agent-experimental-deepseek-chat-import/known-limitations-and-deferred-work/dev-note:
+  en: c48fda408d6da0e1
+  zh: 4c484c202694553c

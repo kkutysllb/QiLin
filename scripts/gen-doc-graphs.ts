@@ -115,6 +115,20 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Records the lossless canonical Session-log suffix and lets owners exclude individual uploads from one request.',
   },
   {
+    key: 'deepseekChatImport',
+    pkg: 'experimental-deepseek-chat-import',
+    title: 'DeepSeek chat export import',
+    mode: 'core',
+    note: 'Owner-only ZIP upload writes exported DeepSeek conversations as stored Sessions in one Workspace without starting an Agent; the sidebar action refreshes the Session list afterwards.',
+  },
+  {
+    key: 'sessionStatus',
+    pkg: 'client-ui-session-status',
+    title: 'Session status and reading records',
+    mode: 'core',
+    note: 'Host-owned in-memory reading records behind the sessionStatus Remote namespace: running state, the effective pending interaction, and read or unread reminders shared by connected clients.',
+  },
+  {
     key: 'hmr',
     pkg: 'hmr',
     title: 'Serialized module and configuration reloads',

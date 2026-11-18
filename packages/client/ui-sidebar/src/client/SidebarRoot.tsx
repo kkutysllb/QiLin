@@ -439,17 +439,20 @@ export function SidebarRoot({
       {/* The rail keeps a fixed New Session control; the expanded column renders it
           as the first row of the panel list, so one menu-item geometry covers both. */}
       {!wide && (
-        <Tooltip label={t('session.new.label')} shortcutKeys={newShortcut?.keys} delayMs={500}>
-          <button
-            type="button"
-            className={css.newSession}
-            aria-label={t('session.new.label')}
-            aria-keyshortcuts={newShortcut?.aria}
-            onClick={openNewSession}
-          >
-            <IconNewChatOutlineRegular size={windowsTitlebar ? 16 : 18} />
-          </button>
-        </Tooltip>
+        <>
+          <Tooltip label={t('session.new.label')} shortcutKeys={newShortcut?.keys} delayMs={500}>
+            <button
+              type="button"
+              className={css.newSession}
+              aria-label={t('session.new.label')}
+              aria-keyshortcuts={newShortcut?.aria}
+              onClick={openNewSession}
+            >
+              <IconNewChatOutlineRegular size={windowsTitlebar ? 16 : 18} />
+            </button>
+          </Tooltip>
+          {renderSlot('sidebar.session.action', { wide: false })}
+        </>
       )}
 
       {(() => {
@@ -513,6 +516,7 @@ export function SidebarRoot({
                     </div>
                   ) : null}
                   {index === 0 && newSessionRow}
+                  {index === 0 && renderSlot('sidebar.session.action', { wide: true })}
                   {section === undefined || !sectionFolded ? (
                     <PanelRow
                       id={id}

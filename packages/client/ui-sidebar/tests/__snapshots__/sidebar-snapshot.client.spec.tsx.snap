@@ -51,6 +51,10 @@ exports[`sidebar shell snapshots > renders Windows caption controls in expanded 
         xmlns="http://www.w3.org/2000/svg"
       />
     </button>
+    <div
+      data-slot="sidebar.session.action"
+      style="display: contents;"
+    />
     <nav
       aria-label="Global panels"
       class="panelList"
@@ -314,6 +318,10 @@ exports[`sidebar shell snapshots > renders the collapsed rail after the crossfad
         xmlns="http://www.w3.org/2000/svg"
       />
     </button>
+    <div
+      data-slot="sidebar.session.action"
+      style="display: contents;"
+    />
     <nav
       aria-label="Global panels"
       class="panelList"

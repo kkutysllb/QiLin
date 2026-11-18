@@ -116,6 +116,7 @@
     { "path": "./packages/client/ui-agent-team" },
     { "path": "./packages/experimental/client-ui-cot-translation/tsconfig.client.json" },
     { "path": "./packages/experimental/client-ui-forge/tsconfig.client.json" },
+    { "path": "./packages/experimental/deepseek-chat-import/tsconfig.client.json" },
     { "path": "./packages/util/code-language" },
     { "path": "./packages/util/official-bundles" },
     { "path": "./packages/experimental/client-ui-claude-code-mods" },

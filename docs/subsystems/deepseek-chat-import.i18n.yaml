@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for deepseek-chat-import.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/subsystems/deepseek-chat-import.md
+/deepseek-chat-import:
+  en: 09834dabb0221362
+  zh: 39cc80f0d8011b91
+/deepseek-chat-import/import-pipeline:
+  en: 2d28d616774cf183
+  zh: e43a0a807b7379bb
+/deepseek-chat-import/limits-and-access:
+  en: 347f7fba7aaa1fa7
+  zh: fa18afeee72475fd
+/deepseek-chat-import/kylin-surface:
+  en: 3952d4fba2e2c017
+  zh: 3952d4fba2e2c017

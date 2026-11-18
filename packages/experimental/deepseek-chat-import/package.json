@@ -1,0 +1,137 @@
+{
+  "name": "@qilin-agent/experimental-deepseek-chat-import",
+  "description": "Import DeepSeek chat exports as stored Sessions in a chosen Workspace",
+  "version": "3.1.12-rc.4",
+  "icon": "./icon.svg",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkutysllb/QiLin.git",
+    "directory": "packages/experimental/deepseek-chat-import"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    },
+    "./remote": {
+      "types": "./lib/typert.remote-client.d.ts",
+      "default": "./lib/typert.remote-client.js"
+    },
+    "./typert": {
+      "types": "./lib/typert.host.d.ts",
+      "default": "./lib/typert.host.js"
+    },
+    "./types": {
+      "types": "./lib/types/types.d.ts"
+    },
+    "./src/*": "./src/*",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json"
+  },
+  "files": [
+    "icon.svg",
+    "locale/*.json",
+    "docs",
+    "lib/index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "lib/types/**/*.d.ts",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "lib/typert.host.js",
+    "lib/typert.host.d.ts",
+    "lib/typert.remote-client.js",
+    "lib/typert.remote-client.d.ts",
+    "lib/typert.remote-client.d.ts.map",
+    "src"
+  ],
+  "scripts": {
+    "bundle": "tsdown",
+    "watch": "tsdown --watch"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@qilin-agent/brand": "workspace:*",
+    "@qilin-agent/typert-protocol": "workspace:*",
+    "@qilin-agent/schemastery": "workspace:~",
+    "fflate": "^0.8.2",
+    "zod": "4.6.6"
+  },
+  "peerDependencies": {
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-title": "workspace:*",
+    "@qilin-agent/tool-web": "workspace:*"
+  },
+  "devDependencies": {
+    "@qilin-agent/agent": "workspace:*",
+    "@qilin-agent/agent-loop-testkit": "workspace:*",
+    "@qilin-agent/api-remote-access": "workspace:*",
+    "@qilin-agent/api-session-controller": "workspace:*",
+    "@qilin-agent/api-workspace-controller": "workspace:*",
+    "@qilin-agent/attachment": "workspace:*",
+    "@qilin-agent/client-connection": "workspace:*",
+    "@qilin-agent/client-locale": "workspace:*",
+    "@qilin-agent/client-test-runtime": "workspace:*",
+    "@qilin-agent/client-ui-conversation": "workspace:*",
+    "@qilin-agent/client-ui-primitives": "workspace:*",
+    "@qilin-agent/client-ui-renderer": "workspace:*",
+    "@qilin-agent/client-ui-sidebar": "workspace:*",
+    "@qilin-agent/client-ui-slots": "workspace:*",
+    "@qilin-agent/client-ui-workspace": "workspace:*",
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/kylin-plugin-include": "workspace:~",
+    "@qilin-agent/kylin-plugin-loader": "workspace:~",
+    "@qilin-agent/llm": "workspace:*",
+    "@qilin-agent/session": "workspace:*",
+    "@qilin-agent/session-persistence": "workspace:*",
+    "@qilin-agent/session-persistence-jsonl": "workspace:*",
+    "@qilin-agent/session-projection": "workspace:*",
+    "@qilin-agent/session-projection-cache": "workspace:*",
+    "@qilin-agent/session-title": "workspace:*",
+    "@qilin-agent/storage": "workspace:*",
+    "@qilin-agent/storage-domain": "workspace:*",
+    "@qilin-agent/storage-json": "workspace:*",
+    "@qilin-agent/tool-web": "workspace:*",
+    "@qilin-agent/typert-registry": "workspace:*",
+    "@qilin-agent/util-values": "workspace:*",
+    "@qilin-agent/web": "workspace:*",
+    "@qilin-agent/workspace": "workspace:*",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "~18.3.1",
+    "@types/react-dom": "~18.3.0",
+    "clsx": "^2.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "qilin": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@qilin-agent/api-remote-access",
+        "@qilin-agent/api-session-controller",
+        "@qilin-agent/client-locale",
+        "@qilin-agent/client-ui-renderer",
+        "@qilin-agent/client-ui-sidebar",
+        "@qilin-agent/client-ui-workspace"
+      ],
+      "platform": "web"
+    }
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  }
+}

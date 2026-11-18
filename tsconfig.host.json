@@ -363,6 +363,7 @@
     { "path": "./packages/experimental/forge-github" },
     { "path": "./packages/experimental/forge-session" },
     { "path": "./packages/experimental/client-ui-forge/tsconfig.host.json" },
+    { "path": "./packages/experimental/deepseek-chat-import/tsconfig.host.json" },
     { "path": "./packages/client/ui-session-status/tsconfig.host.json" },
     { "path": "./packages/experimental/forge-bundle" },
     { "path": "./packages/storage/storage" },

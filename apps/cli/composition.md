@@ -152,10 +152,10 @@ flowchart LR
   cfg --> plugin_qilin_base_tool_subagent
   plugin_qilin_base_tool_subagent_fork["tool-subagent-fork<br/>@qilin-agent/tool-subagent"]
   cfg --> plugin_qilin_base_tool_subagent_fork
-  plugin_qilin_base_ptc_runtime["coding-runtime<br/>@qilin-agent/coding-runtime-node"]
-  cfg --> plugin_qilin_base_ptc_runtime
-  plugin_qilin_base_workflow_ptc["workflow-coding<br/>@qilin-agent/workflow-coding"]
-  cfg --> plugin_qilin_base_workflow_ptc
+  plugin_qilin_base_coding_runtime["coding-runtime<br/>@qilin-agent/coding-runtime-node"]
+  cfg --> plugin_qilin_base_coding_runtime
+  plugin_qilin_base_workflow_coding["workflow-coding<br/>@qilin-agent/workflow-coding"]
+  cfg --> plugin_qilin_base_workflow_coding
   plugin_qilin_base_tool_workflow["tool-workflow<br/>@qilin-agent/tool-workflow"]
   cfg --> plugin_qilin_base_tool_workflow
   plugin_qilin_base_timeout_policy["timeout-policy<br/>@qilin-agent/tool-call-timeout-policy"]

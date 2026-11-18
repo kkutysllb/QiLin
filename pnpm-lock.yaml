@@ -9485,6 +9485,142 @@ importers:
         specifier: ^0.35.5
         version: 0.35.5(@types/node@22.20.0)
 
+  packages/experimental/deepseek-chat-import:
+    dependencies:
+      '@qilin-agent/brand':
+        specifier: workspace:*
+        version: link:../../util/brand
+      '@qilin-agent/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      '@qilin-agent/typert-protocol':
+        specifier: workspace:*
+        version: link:../../typert/protocol
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.3
+      zod:
+        specifier: 4.6.6
+        version: 4.6.6
+    devDependencies:
+      '@qilin-agent/agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@qilin-agent/agent-loop-testkit':
+        specifier: workspace:*
+        version: link:../../test-support/agent-loop-testkit
+      '@qilin-agent/api-remote-access':
+        specifier: workspace:*
+        version: link:../../api/remote-access
+      '@qilin-agent/api-session-controller':
+        specifier: workspace:*
+        version: link:../../api/session-controller
+      '@qilin-agent/api-workspace-controller':
+        specifier: workspace:*
+        version: link:../../api/workspace-controller
+      '@qilin-agent/attachment':
+        specifier: workspace:*
+        version: link:../../attachment/attachment
+      '@qilin-agent/client-connection':
+        specifier: workspace:*
+        version: link:../../client/connection
+      '@qilin-agent/client-locale':
+        specifier: workspace:*
+        version: link:../../client/locale
+      '@qilin-agent/client-test-runtime':
+        specifier: workspace:*
+        version: link:../../test-support/client-runtime
+      '@qilin-agent/client-ui-conversation':
+        specifier: workspace:*
+        version: link:../../client/ui-conversation
+      '@qilin-agent/client-ui-primitives':
+        specifier: workspace:*
+        version: link:../../client/ui-primitives
+      '@qilin-agent/client-ui-renderer':
+        specifier: workspace:*
+        version: link:../../client/ui-renderer
+      '@qilin-agent/client-ui-sidebar':
+        specifier: workspace:*
+        version: link:../../client/ui-sidebar
+      '@qilin-agent/client-ui-slots':
+        specifier: workspace:*
+        version: link:../../client/ui-slots
+      '@qilin-agent/client-ui-workspace':
+        specifier: workspace:*
+        version: link:../../client/ui-workspace
+      '@qilin-agent/kylin':
+        specifier: workspace:~
+        version: link:../../../vendor/cordis
+      '@qilin-agent/kylin-plugin-include':
+        specifier: workspace:~
+        version: link:../../../vendor/include
+      '@qilin-agent/kylin-plugin-loader':
+        specifier: workspace:~
+        version: link:../../../vendor/loader
+      '@qilin-agent/llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
+      '@qilin-agent/session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@qilin-agent/session-persistence':
+        specifier: workspace:*
+        version: link:../../session/session-persistence
+      '@qilin-agent/session-persistence-jsonl':
+        specifier: workspace:*
+        version: link:../../session/session-persistence-jsonl
+      '@qilin-agent/session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@qilin-agent/session-projection-cache':
+        specifier: workspace:*
+        version: link:../../session/session-projection-cache
+      '@qilin-agent/session-title':
+        specifier: workspace:*
+        version: link:../../session/session-title
+      '@qilin-agent/storage':
+        specifier: workspace:*
+        version: link:../../storage/storage
+      '@qilin-agent/storage-domain':
+        specifier: workspace:*
+        version: link:../../storage/storage-domain
+      '@qilin-agent/storage-json':
+        specifier: workspace:*
+        version: link:../../storage/storage-json
+      '@qilin-agent/tool-web':
+        specifier: workspace:*
+        version: link:../../web/tool-web
+      '@qilin-agent/typert-registry':
+        specifier: workspace:*
+        version: link:../../typert/registry
+      '@qilin-agent/util-values':
+        specifier: workspace:*
+        version: link:../../util/values
+      '@qilin-agent/web':
+        specifier: workspace:*
+        version: link:../../web/web
+      '@qilin-agent/workspace':
+        specifier: workspace:*
+        version: link:../../workspace/workspace
+      '@testing-library/react':
+        specifier: ^16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
+      '@types/react-dom':
+        specifier: ~18.3.0
+        version: 18.3.7(@types/react@18.3.31)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+
   packages/experimental/forge:
     dependencies:
       '@qilin-agent/brand':

@@ -51,6 +51,7 @@ export const MORE_BUNDLES: readonly string[] = [
   '@qilin-agent/experimental-badge-skill-bundle',
   '@qilin-agent/experimental-ralph-bundle',
   '@qilin-agent/experimental-plugin-market-bundle',
+  '@qilin-agent/experimental-deepseek-chat-import',
 ]
 
 /**
@@ -70,6 +71,7 @@ export const EXPERIMENTAL_BUNDLES: ReadonlySet<string> = new Set([
   '@qilin-agent/experimental-terminal-bundle',
   '@qilin-agent/experimental-tool-worktree',
   '@qilin-agent/experimental-voice-input-bundle',
+  '@qilin-agent/experimental-deepseek-chat-import',
 ])
 
 /**

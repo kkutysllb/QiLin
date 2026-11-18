@@ -37,6 +37,12 @@ declare module '@qilin-agent/client-ui-slots' {
     /** Rows of the panel list's More menu; the sidebar shows More only while this list has registrations. */
     'sidebar.panellist.actions': { kind: 'list'; scope: 'root'; owner: SidebarPanelActionsOwnerProps }
     /**
+     * A session-scoped action beside New Session, rendered after it in both the
+     * expanded panel list and the collapsed rail. Declared by this package's
+     * `sidebar` entry; the DeepSeek chat import layer registers its trigger here.
+     */
+    'sidebar.session.action': { kind: 'single'; scope: 'root'; owner: SidebarSessionActionOwnerProps }
+    /**
      * Deployment-side section assignment for panel rows. Each occupant's
      * inject face contributes a row-id → section-label map applied over the
      * panel list before grouping, so a deployment can join rows it does not
@@ -73,6 +79,12 @@ declare module '@qilin-agent/client-ui-slots' {
      */
     'sidebar.footer.action': { kind: 'list'; scope: 'root'; owner: SidebarFooterActionOwnerProps }
   }
+}
+
+/** Owner share for the session action beside New Session. */
+export interface SidebarSessionActionOwnerProps {
+  /** Whether the sidebar renders its expanded column rather than the rail. */
+  readonly wide: boolean
 }
 
 /** Geometry supplied to the sidebar brand-mark occupant. */
@@ -228,6 +240,7 @@ export type SidebarRootComponentProps =
     | 'sidebar.toggle.badge'
     | 'sidebar.panellist'
     | 'sidebar.panellist.actions'
+    | 'sidebar.session.action'
     | 'sidebar.workspaces'
     | 'sidebar.settings'
     | 'sidebar.account'

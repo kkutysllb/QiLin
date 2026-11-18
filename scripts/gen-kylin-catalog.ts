@@ -51,6 +51,7 @@ export { REGION_BEGIN, REGION_END }
  */
 export const SERVICE_PAGE: Record<string, string> = {
   sessionLogDeepSeek: 'session-telemetry.md',
+  deepseekChatImport: 'deepseek-chat-import.md',
   configEditor: 'settings.md',
   connection: 'web-server.md',
   themeBoot: 'web-server.md',
@@ -299,6 +300,12 @@ export const EVENT_WALK_EXEMPTIONS: Record<string, string> = {
  * appear on more than one page.
  */
 export const LINK_MAP: Readonly<Record<string, string>> = {
+  DeepseekChatImportLine: 'deepseek-chat-import.md',
+  DeepseekChatImportResponse: 'deepseek-chat-import.md',
+  DeepseekChatImportLimits: 'deepseek-chat-import.md',
+  DeepseekChatImportResult: 'deepseek-chat-import.md',
+  DeepseekChatImportSkip: 'deepseek-chat-import.md',
+  DeepseekChatImportFailureReason: 'deepseek-chat-import.md',
   userQuestionPanels: 'client-side slot-contract accessor (UserQuestionPanels) — packages/client/ui-tool/README.md owns the API',
   ToolCallId: 'core.md',
   TimedUserQuestionResult: 'user-questions.md',

@@ -1,0 +1,83 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib/types",
+    "tsBuildInfoFile": "lib/tsconfig.host.tsbuildinfo"
+  },
+  "files": [
+    "src/archive.ts",
+    "src/conversation.ts",
+    "src/format.ts",
+    "src/importer.ts",
+    "src/index.ts",
+    "src/protocol.ts",
+    "src/types.ts",
+    "src/upload.ts"
+  ],
+  "references": [
+    {
+      "path": "../../../vendor/cordis"
+    },
+    {
+      "path": "../../../vendor/schemastery"
+    },
+    {
+      "path": "../../attachment/attachment"
+    },
+    {
+      "path": "../../client/connection/tsconfig.host.json"
+    },
+    {
+      "path": "../../core/session"
+    },
+    {
+      "path": "../../llm/llm"
+    },
+    {
+      "path": "../../session/session-persistence"
+    },
+    {
+      "path": "../../session/session-persistence-jsonl"
+    },
+    {
+      "path": "../../session/session-projection"
+    },
+    {
+      "path": "../../session/session-projection-cache"
+    },
+    {
+      "path": "../../session/session-title"
+    },
+    {
+      "path": "../../storage/storage"
+    },
+    {
+      "path": "../../storage/storage-domain"
+    },
+    {
+      "path": "../../storage/storage-json"
+    },
+    {
+      "path": "../../typert/protocol"
+    },
+    {
+      "path": "../../typert/registry"
+    },
+    {
+      "path": "../../util/brand"
+    },
+    {
+      "path": "../../util/values"
+    },
+    {
+      "path": "../../web/tool-web"
+    },
+    {
+      "path": "../../web/web"
+    },
+    {
+      "path": "../../workspace/workspace"
+    }
+  ]
+}

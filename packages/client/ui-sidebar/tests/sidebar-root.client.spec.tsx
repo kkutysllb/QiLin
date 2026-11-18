@@ -365,7 +365,8 @@ describe('SidebarRoot shell', () => {
     expect(b.regionOwner().wide).toBe(false)
     expect(b.accountOwner().wide).toBe(false)
     expect(b.footerActionOwner().wide).toBe(false)
-    expect(screen.getByTestId('region')).toBeTruthy()
+    // Both faces can be mounted during the crossfade; the session action adds its own slot cell.
+    expect(screen.getAllByTestId('region').length).toBeGreaterThan(0)
     b.regionOwner().expandSidebar()
     expect(b.toggleSidebar).toHaveBeenCalledOnce()
   })

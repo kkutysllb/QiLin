@@ -9,6 +9,10 @@ A service can be a core spine service, a swappable capability seam, or a bundle/
 flowchart LR
   pkg_session_log_deepseek["session-log-deepseek"]
   svc_sessionLogDeepSeek["ctx.sessionLogDeepSeek<br/>DeepSeek canonical Session-log upload"]
+  pkg_experimental_deepseek_chat_import["experimental-deepseek-chat-import"]
+  svc_deepseekChatImport["ctx.deepseekChatImport<br/>DeepSeek chat export import"]
+  pkg_client_ui_session_status["client-ui-session-status"]
+  svc_sessionStatus["ctx.sessionStatus<br/>Session status and reading records"]
   pkg_hmr["hmr"]
   svc_hmr["ctx.hmr<br/>Serialized module and configuration reloads"]
   pkg_app_boot["app-boot"]
@@ -236,11 +240,11 @@ flowchart LR
   svc_approval["ctx.approval<br/>Approval seam"]
   pkg_permission_presets["permission-presets"]
   svc_permissionPresets["ctx.permissionPresets<br/>Permission presets"]
-  pkg_ptc_runtime["coding-runtime"]
+  pkg_coding_runtime["coding-runtime"]
   svc_codingRuntime["ctx.codingRuntime<br/>coding-mode execution seam"]
-  pkg_ptc_runtime_node["coding-runtime-node"]
-  pkg_experimental_ptc_runtime_python["experimental-coding-runtime-python"]
-  pkg_workflow_ptc["workflow-coding"]
+  pkg_coding_runtime_node["coding-runtime-node"]
+  pkg_experimental_coding_runtime_python["experimental-coding-runtime-python"]
+  pkg_workflow_coding["workflow-coding"]
   pkg_fs["fs"]
   svc_fs["ctx.fs<br/>Filesystem provider seam"]
   pkg_fs_local["fs-local"]
@@ -325,6 +329,9 @@ flowchart LR
   pkg_client_file_upload --> svc_fileUploads
   pkg_client_modules --> svc_clientModules
   pkg_client_ui_plugin_manager --> svc_pluginRegistryProbe
+  pkg_client_ui_session_status --> svc_sessionStatus
+  pkg_coding_runtime --> svc_codingRuntime
+  pkg_coding_runtime_node --> svc_codingRuntime
   pkg_command_feedback --> svc_sessionFeedback
   pkg_commands --> svc_commands
   pkg_compaction --> svc_compaction
@@ -343,13 +350,14 @@ flowchart LR
   pkg_experimental_claude_code_mods --> svc_claudeCodeMods
   pkg_experimental_client_ui_cot_translation --> svc_cotTranslation
   pkg_experimental_client_ui_forge --> svc_forgePanel
+  pkg_experimental_coding_runtime_python --> svc_codingRuntime
   pkg_experimental_computer_use_cua_driver_mcp --> svc_computerUse
   pkg_experimental_computer_use_cua_driver_native --> svc_computerUse
   pkg_experimental_cua_macos --> svc_computerUse
+  pkg_experimental_deepseek_chat_import --> svc_deepseekChatImport
   pkg_experimental_forge --> svc_forge
   pkg_experimental_forge_github --> svc_forge
   pkg_experimental_forge_session --> svc_forgeSession
-  pkg_experimental_ptc_runtime_python --> svc_codingRuntime
   pkg_experimental_speech_to_text --> svc_speechToText
   pkg_experimental_speech_to_text_sensevoice --> svc_speechToText
   pkg_experimental_translator --> svc_translator
@@ -386,8 +394,6 @@ flowchart LR
   pkg_plugin_manager --> svc_pluginManager
   pkg_plugin_market --> svc_pluginMarket
   pkg_plugin_package_inventory_deepseek --> svc_deepseekLlmApiExtensions
-  pkg_ptc_runtime --> svc_codingRuntime
-  pkg_ptc_runtime_node --> svc_codingRuntime
   pkg_pwsh_local --> svc_shell
   pkg_sandbox --> svc_sandbox
   pkg_sandbox_local --> svc_sandbox
@@ -450,7 +456,7 @@ flowchart LR
   pkg_web_search_perplexity --> svc_web
   pkg_webhook --> svc_webhookRuntime
   pkg_workflow --> svc_workflowEngine
-  pkg_workflow_ptc --> svc_workflowEngine
+  pkg_workflow_coding --> svc_workflowEngine
   pkg_working_directory --> svc_workingDirectory
   pkg_workspace --> svc_workspaceRegistry
   pkg_workspace_changes --> svc_workspaceChanges
@@ -475,6 +481,8 @@ flowchart LR
   svc_browserUse --> pkg_experimental_browser_use_stagehand_native
   svc_claudeCodeMods --> pkg_experimental_client_ui_claude_code_mods
   svc_clientModules --> pkg_client_hmr
+  svc_codingRuntime --> pkg_tools
+  svc_codingRuntime --> pkg_workflow_coding
   svc_compaction --> pkg_compaction_basic
   svc_computerUse --> pkg_experimental_computer_use_cua_driver_mcp
   svc_computerUse --> pkg_experimental_computer_use_cua_driver_native
@@ -511,8 +519,6 @@ flowchart LR
   svc_pluginMarket --> pkg_plugin_market
   svc_pluginRegistryProbe --> pkg_client_ui_plugin_manager
   svc_profileContext --> pkg_plugin_manager
-  svc_codingRuntime --> pkg_tools
-  svc_codingRuntime --> pkg_workflow_ptc
   svc_sandbox --> pkg_bash_sandbox
   svc_sandbox --> pkg_terminal_bash
   svc_sandboxPolicy --> pkg_bash_sandbox
@@ -610,6 +616,8 @@ flowchart LR
 | ctx key | Role | Owner | Implementations | Direct consumers | Companion plugins | Note |
 | --- | --- | --- | --- | --- | --- | --- |
 | `ctx.sessionLogDeepSeek` | `core` | [`session-log-deepseek`](../packages/session/session-log-deepseek) | - | - | - | Records the lossless canonical Session-log suffix and lets owners exclude individual uploads from one request. |
+| `ctx.deepseekChatImport` | `core` | [`experimental-deepseek-chat-import`](../packages/experimental/deepseek-chat-import) | - | - | - | Owner-only ZIP upload writes exported DeepSeek conversations as stored Sessions in one Workspace without starting an Agent; the sidebar action refreshes the Session list afterwards. |
+| `ctx.sessionStatus` | `core` | [`client-ui-session-status`](../packages/client/ui-session-status) | - | - | - | Host-owned in-memory reading records behind the sessionStatus Remote namespace: running state, the effective pending interaction, and read or unread reminders shared by connected clients. |
 | `ctx.hmr` | `core` | [`hmr`](../packages/boot/hmr) | - | [`app-boot`](../packages/boot/app-boot) | - | Owns module and exact configuration watchers; application mutations share its queue and automatic reloads await the application file lock. |
 | `ctx.themeBoot` | `seam` | `ui-theme` | `ui-theme` | `ui-theme-brand` | - | Carries per-skin boot backgrounds from brand packages to the shell before first paint. |
 | `ctx.configEditor` | `core` | [`config-editor`](../packages/settings/config-editor) | - | [`settings`](../packages/settings/settings), [`agent-default-model`](../packages/core/agent-default-model) | - | Persists profile config patches under the application file lock and HMR queue, then reconciles Loader entries. |
