@@ -2497,3 +2497,54 @@ describe('timing pickers', () => {
     expect(screen.getByRole('button', { name: dictionary['timing.nextMonth'] })).toBeDefined()
   })
 })
+
+describe('pause and resume feedback', () => {
+  it('disables the action while in flight, ignores a second click, and keeps focus on it', async () => {
+    let settle: ((outcome: 'saved') => void) | undefined
+    const edit = vi.fn<HostTaskActions['edit']>(() => new Promise((resolve) => { settle = resolve }))
+    const b = mount({ records: [at] }, en, {
+      hostActions: {
+        edit,
+        run: vi.fn<HostTaskActions['run']>(async () => 'queued'),
+        loadNewSessionInterval: vi.fn<HostTaskActions['loadNewSessionInterval']>(async () => 7200),
+      },
+    })
+    b.update({ records: [at] })
+    fireEvent.click(screen.getByRole('button', { name: 'Review release' }))
+    const pause = screen.getByRole('button', { name: en['host.pause'] })
+    act(() => { pause.focus() })
+    fireEvent.click(pause)
+    expect(edit).toHaveBeenCalledOnce()
+    // In flight: the button reports busy, is disabled, and a second click is ignored.
+    expect(pause.getAttribute('aria-busy')).toBe('true')
+    expect((pause as HTMLButtonElement).disabled).toBe(true)
+    fireEvent.click(pause)
+    expect(edit).toHaveBeenCalledOnce()
+    // A refreshed catalog that already flipped the status must not swap the
+    // label under the reader's pointer while the write is still out.
+    b.update({ records: [{ ...at, status: 'paused' }] })
+    expect(screen.getByRole('button', { name: en['host.pause'] })).toBe(pause)
+    await act(async () => { settle?.('saved') })
+    expect(pause.getAttribute('aria-busy')).toBeNull()
+    expect((pause as HTMLButtonElement).disabled).toBe(false)
+    expect(document.activeElement).toBe(pause)
+    expect(screen.getByRole('button', { name: en['host.resume'] })).toBe(pause)
+  })
+
+  it('does not steal focus when the reader paused without focusing the button', async () => {
+    let settle: ((outcome: 'saved') => void) | undefined
+    const edit = vi.fn<HostTaskActions['edit']>(() => new Promise((resolve) => { settle = resolve }))
+    mount({ records: [at] }, en, {
+      hostActions: {
+        edit,
+        run: vi.fn<HostTaskActions['run']>(async () => 'queued'),
+        loadNewSessionInterval: vi.fn<HostTaskActions['loadNewSessionInterval']>(async () => 7200),
+      },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Review release' }))
+    const pause = screen.getByRole('button', { name: en['host.pause'] })
+    fireEvent.click(pause)
+    await act(async () => { settle?.('saved') })
+    expect(document.activeElement).not.toBe(pause)
+  })
+})

@@ -224,6 +224,10 @@ function TaskDetailView(props: TaskDetailProps): ReactNode {
   const [menuOpen, setMenuOpen] = useState(false)
   const moreRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLElement>(null)
+  const activeRef = useRef<HTMLButtonElement>(null)
+  /** Pause/resume request in flight, and the status its control keeps showing meanwhile. */
+  const activeInFlight = useRef(false)
+  const [activeStatus, setActiveStatus] = useState<ScheduleCatalogEntry['status'] | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const mounted = useRef(true)
   useLayoutEffect(() => {
@@ -281,11 +285,24 @@ function TaskDetailView(props: TaskDetailProps): ReactNode {
     } else props.actions.setDraft(key, { base, draft, failure: outcome.failed, ...(task === undefined ? { initial } : {}) })
   }
   const setActive = async (task: ScheduleCatalogEntry): Promise<void> => {
+    // One pause/resume at a time: a second gesture before the first settles
+    // would race the same expectedUpdatedAt.
+    /* v8 ignore next -- the disabled control cannot fire twice; the guard covers programmatic callers. */
+    if (activeInFlight.current) return
+    activeInFlight.current = true
+    const hadFocus = activeRef.current !== null && document.activeElement === activeRef.current
+    // Keep showing the action the reader chose while the write is out, even if
+    // a refreshed catalog flips the task's status first.
+    setActiveStatus(task.status)
     setPending(true)
     const outcome = await hostActions.edit({ id: task.id, action: 'update', patch: { active: task.status !== 'active' }, expectedUpdatedAt: task.updatedAt ?? null })
+    activeInFlight.current = false
     if (!mounted.current) return
     setPending(false)
+    setActiveStatus(null)
     setFailure(outcome === 'saved' ? null : outcome.failed)
+    // The panel keeps its keyboard position across the refresh.
+    if (hadFocus) activeRef.current?.focus({ preventScroll: true })
   }
   const run = async (id: ScheduleId): Promise<void> => {
     setMenuOpen(false)
@@ -296,6 +313,9 @@ function TaskDetailView(props: TaskDetailProps): ReactNode {
     setFailure(outcome === 'queued' ? null : outcome.failed)
   }
 
+  // The captured status keeps label, icon, and tooltip steady while the write
+  // is out; it falls back to the catalog row once the request settles.
+  const displayStatus = activeStatus ?? task?.status
   return <>
     <aside ref={panelRef} tabIndex={-1} className={css.detail} id={id} aria-busy={pending || deletingTask}
       aria-label={t(task === undefined ? 'host.manualCreate' : 'detail.label')}
@@ -320,10 +340,12 @@ function TaskDetailView(props: TaskDetailProps): ReactNode {
               onClick={() => { onTabChange(value) }}>{t(value === 'rule' ? 'detail.rule' : 'detail.records')}</button>)}
           </div>}
         <div className={css.detailActions}>
-          {task !== undefined && <><Tooltip label={t(task.status === 'active' ? 'host.pause' : 'host.resume')} side="bottom" delayMs={500} portal>
-            <span><Button size="sm" className={css.detailIconButton} disabled={busy || dirty || executionActive || task.status === 'ended' || !props.authoritative}
-              aria-label={t(task.status === 'active' ? 'host.pause' : 'host.resume')} onClick={() => { void setActive(task) }}>
-              {task.status === 'active' ? <IconPauseOutlineRegular /> : <IconPlayOutlineRegular />}
+          {task !== undefined && <><Tooltip label={t(displayStatus === 'active' ? 'host.pause' : 'host.resume')} side="bottom" delayMs={500} portal>
+            <span><Button ref={activeRef} size="sm" className={css.detailIconButton}
+              disabled={busy || dirty || executionActive || displayStatus === 'ended' || !props.authoritative}
+              aria-busy={activeStatus === null ? undefined : true}
+              aria-label={t(displayStatus === 'active' ? 'host.pause' : 'host.resume')} onClick={() => { void setActive(task) }}>
+              {displayStatus === 'active' ? <IconPauseOutlineRegular /> : <IconPlayOutlineRegular />}
             </Button></span>
           </Tooltip>
           <Menu open={menuOpen} onClose={() => { setMenuOpen(false) }} align="end" portal autoFocus
