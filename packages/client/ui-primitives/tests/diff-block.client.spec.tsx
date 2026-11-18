@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ComponentProps } from 'react'
 import { DEFAULT_DIFF_MAX_LINES, DiffBlock as LocalizedDiffBlock, type DiffHunk } from '../src/index.ts'
 import { diffBlockLabels } from './labels.client.ts'
@@ -28,6 +28,47 @@ function changeRows(container: HTMLElement): string[] {
 function added(count: number): string {
   return Array.from({ length: count }, (_v, i) => `line ${i + 1}`).join('\n')
 }
+
+describe('DiffBlock language highlighting', () => {
+  it('highlights changed lines with the changed file\'s language once its grammar loads', async () => {
+    const diffs: DiffHunk[] = [{ path: 'src/a.ts', oldText: 'const a = 1', newText: 'const a = 2' }]
+    const { container } = render(<DiffBlock diffs={diffs} />)
+    await waitFor(() => {
+      expect(container.querySelector('[class*="_add_"] span[style]')).not.toBeNull()
+    }, { timeout: 8_000 })
+    // Tokens keep the line's own text, and the removed side is highlighted too.
+    expect(changeRows(container)).toEqual(['const a = 1', 'const a = 2'])
+    expect(container.querySelector('[class*="_del_"] span[style]')).not.toBeNull()
+  })
+
+  it('highlights the folded tail rows as well as the head', async () => {
+    const lines = Array.from({ length: 30 }, (_v, i) => `const value${i} = ${i}`).join('\n')
+    const { container } = render(<DiffBlock diffs={[{ path: 'src/tail.ts', oldText: 'const a = 0', newText: lines }]} maxLines={4} />)
+    await waitFor(() => {
+      expect(container.querySelector('[class*="_add_"] span[style]')).not.toBeNull()
+    }, { timeout: 8_000 })
+    // The rows after the fold control are grammar tokens too, not plain text.
+    const rows = [...container.querySelectorAll('[class*="_add_"]')]
+    expect(rows.at(-1)?.querySelector('span[style]')).not.toBeNull()
+  })
+
+  it('leaves a file without a known grammar as plain text', () => {
+    const diffs: DiffHunk[] = [{ path: 'notes.unknown-ext', oldText: 'old', newText: 'new' }]
+    const { container } = render(<DiffBlock diffs={diffs} />)
+    expect(changeRows(container)).toEqual(['old', 'new'])
+    expect(container.querySelector('[class*="_add_"] span[style]')).toBeNull()
+  })
+
+  it('keeps a folded plain-text tail unhighlighted', () => {
+    const lines = Array.from({ length: 30 }, (_v, i) => `line ${i}`).join('\n')
+    const { container } = render(
+      <DiffBlock diffs={[{ path: 'notes.unknown-ext', oldText: 'old', newText: lines }]} maxLines={4} />,
+    )
+    const rows = [...container.querySelectorAll('[class*="_add_"]')]
+    expect(rows.length).toBeGreaterThan(0)
+    expect(rows.at(-1)?.querySelector('span[style]')).toBeNull()
+  })
+})
 
 describe('DiffBlock structure', () => {
   it('renders a create as a path header and an added block (no removed side)', () => {

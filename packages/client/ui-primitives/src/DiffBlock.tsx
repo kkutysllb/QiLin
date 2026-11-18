@@ -1,8 +1,10 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useSyncExternalStore } from 'react'
 import clsx from 'clsx'
 import { structuredPatch } from 'diff'
 import { FoldToggle } from './FoldToggle.tsx'
 import { writeClipboard } from './clipboard.ts'
+import { grammarLoadCount, highlightLines, subscribeGrammarLoaded, type HighlightSpan } from './markdown/highlight.ts'
+import { languageForPath } from './code-highlighting.ts'
 import css from './DiffBlock.module.css'
 
 /** Output lines shown before the height cap collapses the middle. */
@@ -47,7 +49,12 @@ export interface DiffBlockLabels {
 interface DiffRow {
   kind: 'path' | 'del' | 'add' | 'context' | 'gap'
   text: string
+  /** Grammar tokens for a body line, or absent for chrome and plain-text fallbacks. */
+  spans?: readonly HighlightSpan[]
 }
+
+/** Resolve the lazy line highlighter for one changed file, from its own path. */
+type HighlighterFor = (path: string) => ((code: string) => HighlightSpan[][] | undefined) | undefined
 
 /** Local exhaustiveness helper — this package does not depend on `qilin-llm`. */
 /* v8 ignore next 3 -- closed-union backstop; only reached if a row kind is forged */
@@ -105,7 +112,10 @@ export function diffTotals(diffs: DiffHunk[]): { added: number; removed: number 
  * @param diffs - the hunks to render.
  * @returns the body rows, the +/- totals, and the distinct-file count.
  */
-function buildRows(diffs: DiffHunk[]): { rows: DiffRow[]; added: number; removed: number; files: number } {
+function buildRows(
+  diffs: DiffHunk[],
+  highlighterFor: HighlighterFor,
+): { rows: DiffRow[]; added: number; removed: number; files: number } {
   const rows: DiffRow[] = []
   const paths = new Set<string>()
   let prevPath: string | undefined
@@ -114,11 +124,21 @@ function buildRows(diffs: DiffHunk[]): { rows: DiffRow[]; added: number; removed
     if (diff.path !== prevPath) rows.push({ kind: 'path', text: diff.path })
     else rows.push({ kind: 'gap', text: '⋯' })
     prevPath = diff.path
+    const highlight = highlighterFor(diff.path)
+    // Each hunk side is highlighted as one fragment, so constructs spanning
+    // lines (block comments, template strings) keep their grammar state.
     for (const [index, hunk] of localHunks(diff).entries()) {
       if (index > 0) rows.push({ kind: 'gap', text: '⋯' })
+      const oldSpans = highlight?.(contentLines(diff.oldText ?? '').join('\n'))
+      const newSpans = highlight?.(contentLines(diff.newText).join('\n'))
+      let oldLine = 0
+      let newLine = 0
       for (const line of hunk.lines) {
         const kind = line.startsWith('-') ? 'del' : line.startsWith('+') ? 'add' : 'context'
-        rows.push({ kind, text: line.slice(1) })
+        const spans = kind === 'del' ? oldSpans?.[oldLine] : newSpans?.[newLine] ?? oldSpans?.[oldLine]
+        rows.push({ kind, text: line.slice(1), ...spans === undefined ? {} : { spans } })
+        if (kind !== 'add') oldLine += 1
+        if (kind !== 'del') newLine += 1
       }
     }
   }
@@ -171,7 +191,13 @@ function copyText(rows: DiffRow[]): string {
  * @returns the diff block element.
  */
 export function DiffBlock({ diffs, labels, maxLines = DEFAULT_DIFF_MAX_LINES, className }: DiffBlockProps) {
-  const { rows, added, removed, files } = useMemo(() => buildRows(diffs), [diffs])
+  // Grammars arrive lazily; the generation makes highlighted rows re-render
+  // once a grammar finishes loading.
+  const grammarGeneration = useSyncExternalStore(subscribeGrammarLoaded, grammarLoadCount, grammarLoadCount)
+  const { rows, added, removed, files } = useMemo(() => buildRows(diffs, (path) => {
+    const language = languageForPath(path)
+    return language === undefined ? undefined : (code: string) => highlightLines(code, language)
+  }), [diffs, grammarGeneration])
   const [expanded, setExpanded] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -204,7 +230,9 @@ export function DiffBlock({ diffs, labels, maxLines = DEFAULT_DIFF_MAX_LINES, cl
       </button>
       <div className={css.body}>
         {head.map((row, index) => (
-          <div key={index} className={clsx(css.line, ROW_CLASS[row.kind])}>{row.text}</div>
+          <div key={index} className={clsx(css.line, ROW_CLASS[row.kind])}>{row.spans === undefined
+            ? row.text
+            : row.spans.map((span, spanIndex) => <span key={spanIndex} style={span.style}>{span.text}</span>)}</div>
         ))}
         {hidden > 0 && (
           <FoldToggle
@@ -216,7 +244,9 @@ export function DiffBlock({ diffs, labels, maxLines = DEFAULT_DIFF_MAX_LINES, cl
           />
         )}
         {tail.map((row, index) => (
-          <div key={index} className={clsx(css.line, ROW_CLASS[row.kind])}>{row.text}</div>
+          <div key={index} className={clsx(css.line, ROW_CLASS[row.kind])}>{row.spans === undefined
+            ? row.text
+            : row.spans.map((span, spanIndex) => <span key={spanIndex} style={span.style}>{span.text}</span>)}</div>
         ))}
       </div>
       <div className={css.footer}>└ +{added} -{removed} · {labels.files(files)}</div>
