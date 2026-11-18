@@ -60,7 +60,7 @@ kind: "package-reference"
 <a id="the-editor"></a>
 ## 编辑器
 
-tab 的地址就是它的整个文件身份：`file-guard.sessionFileOf` 在每次渲染时把它解码成端点接收的会话与路径，而授权读取与写入的是地址里的会话，不是坑位的。文件在挂载时经 `workspaceFiles.read` 整读：一页页行直到 `eof`；分页行走把磁盘上的原文拼装出来——凭上报的字节数补回文件末尾的换行——并且第一页的字节数会以端点自己的 `workspace-file/too-large` 码拒绝超过编辑器 2 MB 上限的文件。语法来自 `file-lang.ts`：装好的 `@codemirror/lang-*` 包，外加 shell 族与配置文件的 legacy 模式；其余按纯文本编辑。
+tab 的地址就是它的整个文件身份：`file-guard.sessionFileOf` 在每次渲染时把它解码成端点接收的会话与路径，而授权读取与写入的是地址里的会话，不是坑位的。文件在挂载时经 `workspaceFiles.read` 整读：一页页行直到 `eof`；分页行走把磁盘上的原文拼装出来——凭上报的字节数补回文件末尾的换行——并且第一页的字节数会以端点自己的 `workspace-file/too-large` 码拒绝超过编辑器 2 MB 上限的文件。语法来自 `file-lang.ts`：装好的 `@codemirror/lang-*` 包，外加 shell 族与配置文件的 legacy 模式；其余按纯文本编辑。扩展名与 `Object.prototype` 的键重名时（`constructor`、`__proto__`、`toString`），走纯文本路径，不会解析到继承成员。
 
 界面是 CodeMirror 6 藏在一个适配层（`file-editor.ts`）后面：行号、撤销历史、括号匹配、一个换行 compartment，以及一套只用 `--qilin-*` token 上色的主题加语法 `HighlightStyle`（注释、字符串、关键字、数字、函数、类型、属性），于是明暗两套配色由 token 级联承担，不需要第二套样式。携带 `{ line }` 的导航——工具卡的行引用——会选中并滚动到该行（越界钳到文件边界），每次导航修订只落一次；应答过的修订记在桶里，重新挂载后读者停在原处。保存经 `workspaceFiles.write(sessionId, path, text, { baseVersion }, signal)`，其中 `baseVersion` 是最近一次读取或保存上报的版本；`Mod-s` 与工具栏按钮都触发保存，保存进行中禁用控件，完成的保存带着新版本成为新的干净内容。草稿住在包的 store 里，所以正文卸载再挂载它还在；只有加载改变了文件（store 的 `loadSeq`）才会重挂界面，草稿或保存都不会。
 

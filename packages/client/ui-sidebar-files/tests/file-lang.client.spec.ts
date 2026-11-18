@@ -31,4 +31,13 @@ describe('langForPath', () => {
     expect(langForPath('Dockerfile')).toBeUndefined()
     expect(langForPath('a.txt')).toBeUndefined()
   })
+
+  it('treats prototype-key extensions as unknown instead of resolving them', () => {
+    for (const path of [
+      'a.constructor', 'a.__proto__', 'a.prototype', 'a.toString', 'a.valueOf',
+      'a.hasOwnProperty', 'a.isPrototypeOf', 'a.propertyIsEnumerable',
+    ]) {
+      expect(langForPath(path), path).toBeUndefined()
+    }
+  })
 })

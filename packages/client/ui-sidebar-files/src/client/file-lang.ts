@@ -34,8 +34,14 @@ import { properties } from '@codemirror/legacy-modes/mode/properties'
 import { diff } from '@codemirror/legacy-modes/mode/diff'
 import { extensionOf } from '@qilin-agent/util-workspace-path'
 
-/** The lower-case extension each legacy mode serves. */
-const LEGACY_MODES: Readonly<Record<string, () => Extension>> = {
+/**
+ * The lower-case extension each legacy mode serves.
+ *
+ * A Map, not an object: an extension equal to an `Object.prototype` key
+ * (`constructor`, `__proto__`) must miss instead of resolving inherited
+ * members and crashing the editor with a non-extension value.
+ */
+const LEGACY_MODES: ReadonlyMap<string, () => Extension> = new Map(Object.entries({
   sh: () => StreamLanguage.define(shell),
   bash: () => StreamLanguage.define(shell),
   zsh: () => StreamLanguage.define(shell),
@@ -62,7 +68,7 @@ const LEGACY_MODES: Readonly<Record<string, () => Extension>> = {
   env: () => StreamLanguage.define(properties),
   diff: () => StreamLanguage.define(diff),
   patch: () => StreamLanguage.define(diff),
-}
+}))
 
 /**
  * The grammar for one file path, from its extension.
@@ -86,6 +92,6 @@ export function langForPath(path: string): Extension | undefined {
     case 'sql': return sql()
     case 'xml': case 'xsl': case 'xslt': case 'xsd': case 'dtd': case 'plist': return xml()
     case 'yaml': case 'yml': return yaml()
-    default: return LEGACY_MODES[extensionOf(path)]?.()
+    default: return LEGACY_MODES.get(extensionOf(path))?.()
   }
 }
