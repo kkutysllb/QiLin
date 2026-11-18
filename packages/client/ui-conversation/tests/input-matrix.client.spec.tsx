@@ -42,7 +42,12 @@ const SCTX = {} as Context
 const SID = 's1' as SessionId
 
 /** Standard-props InputBar mount over a real shell (the composer-bar entry shape). */
-function mountBar(shell: SessionInputShell, over?: { running?: boolean; disabled?: boolean }) {
+function mountBar(shell: SessionInputShell, over?: {
+  running?: boolean
+  disabled?: boolean
+  addFiles?: InputBarProps['addFiles']
+  registerFileIntake?: InputBarProps['registerFileIntake']
+}) {
   const session = createSnapshotStore<SessionSnapshot>({
     ...sessionSnapshot(SID),
     running: over?.running ?? false,
@@ -73,7 +78,7 @@ function mountBar(shell: SessionInputShell, over?: { running?: boolean; disabled
     useInput: bindSnapshotSelector(shell.state),
     inputActions: shell.actions,
     keyboard: shell,
-    addFiles: () => null,
+    addFiles: over?.addFiles ?? (() => null),
     useFileUploads: bindSnapshotSelector(createSnapshotStore({})),
     retryFileUpload: undefined,
     removeAttachment: () => {},
@@ -93,6 +98,7 @@ function mountBar(shell: SessionInputShell, over?: { running?: boolean; disabled
     stop: vi.fn(),
     t: makeTranslate(zh, commonZh),
     variant: 'composer',
+    ...(over?.registerFileIntake === undefined ? {} : { registerFileIntake: over.registerFileIntake }),
   }
   return render(<InputBar {...props} />)
 }
@@ -129,6 +135,37 @@ function bench(over?: {
   }
   return { view, textarea, shell, wiring, sink, claim, typeAtCaret, serialize, release }
 }
+
+const sinkOk = (): Promise<SubmitOutcome> => Promise.resolve<SubmitOutcome>({ kind: 'success' })
+const attachmentsStub = { serialize: () => Promise.resolve([]), release: () => {}, unsupportedNotice: (token: string) => token }
+
+describe('composer paste intake', () => {
+  it('joins the paste router as the main composer and reports when it can accept files', () => {
+    const addFiles = vi.fn(() => null)
+    const register = vi.fn<NonNullable<InputBarProps['registerFileIntake']>>(() => () => {})
+    const { unmount } = mountBar(
+      new SessionInputShell({ actx: SCTX, defaultSink: sinkOk, commandAttachments: attachmentsStub }),
+      { addFiles, registerFileIntake: register },
+    )
+    expect(register).toHaveBeenCalledOnce()
+    const target = register.mock.calls[0]![0]
+    expect(target.main).toBe(true)
+    expect(target.accepts()).toBe(true)
+    const file = new File(['x'], 'shot.png', { type: 'image/png' })
+    target.add([file])
+    expect(addFiles).toHaveBeenCalledWith([file], undefined)
+    unmount()
+  })
+
+  it('refuses files while the bar is locked', () => {
+    const register = vi.fn<NonNullable<InputBarProps['registerFileIntake']>>(() => () => {})
+    mountBar(
+      new SessionInputShell({ actx: SCTX, defaultSink: sinkOk, commandAttachments: attachmentsStub }),
+      { disabled: true, registerFileIntake: register },
+    )
+    expect(register.mock.calls[0]![0].accepts()).toBe(false)
+  })
+})
 
 describe('matrix row: plain', () => {
   it('unsubscribes from the Inbox projection when disposed', () => {

@@ -28,6 +28,7 @@ import { ConversationController, UnsupportedImageMediaTypeError, isImageMediaTyp
 import type { IConversation } from './service.ts'
 import { ComposerBlockRegistry } from './input/blocks.ts'
 import type { ComposerBlock } from './contract/composer-blocks.ts'
+import { createComposerFileIntake } from './input/file-intake.ts'
 import { InputHub } from './input/hub.ts'
 import { ComposerSubmissionPolicy } from './input/submission-policy.ts'
 import { ConversationLayoutPolicy } from './layout-policy.ts'
@@ -280,6 +281,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
   }, 'ui-conversation: View selection')
 
   const inputHub = new InputHub(ctx, t)
+  const fileIntake = createComposerFileIntake()
   const composerBlocks = new ComposerBlockRegistry()
 
   ctx.inject(['commandUi'], (scope) => {
@@ -441,6 +443,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
           retryFileUpload: undefined,
           toggleCommandMenu: undefined,
           stop: undefined,
+          registerFileIntake: fileIntake,
           hooks: {
             stopShortcut,
             busyEnter: submissionPolicy.busyEnter,
@@ -516,6 +519,7 @@ export function apply(ctx: Context, config: Config = Config({})): void {
               span: { ...selection, draftRev: snapshot.draftRev },
             })
           },
+        registerFileIntake: fileIntake,
         stop: () => {
           scopedConversation(sessions, sessionId).cancel().catch(() => {
             // Stop failure is published through Session promptError.

@@ -50,7 +50,7 @@ export const InputBar = memo(function InputBar({
   renderSlot, useBusyEnter, useFileUploads, useNotices, useLexicon, useMenuLauncher, useStopShortcut,
   useProjection, sessionId, variant, disabled: inert = false, blocked,
   workspacePickerOpen = false, onRequestWorkspace,
-  placeholder, accessory,
+  placeholder, accessory, registerFileIntake,
 }: InputBarProps) {
   const input = useInput(s => s)
   const notice = useNotices(s => s)
@@ -205,6 +205,20 @@ export const InputBar = memo(function InputBar({
   useEffect(() => {
     return installDraftWheel(scrollRef)
   }, [])
+
+  // A file pasted while no composer editor is focused still lands here: the
+  // router keeps one document listener and reads the live gate, so registration
+  // survives re-renders without re-adding listeners.
+  useEffect(() => {
+    const card = cardRef.current
+    if (card === null || registerFileIntake === undefined) return
+    return registerFileIntake({
+      card,
+      main: true,
+      accepts: () => gate.current.canAcceptDrop,
+      add: (files, directories) => { gate.current.intakeFiles(files, directories) },
+    })
+  }, [registerFileIntake])
 
   // Intake pre-check: an addition that would break a projected image limit is
   // refused as a whole batch, announced immediately, and never enters the

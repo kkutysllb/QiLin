@@ -441,6 +441,29 @@ export interface ComposerBarOwnerProps {
   accessory?: ReactNode
 }
 
+/** One mounted composer that can receive files pasted outside its editor. */
+export interface ComposerFileIntakeTarget {
+  /** The composer card; its presence decides whether the target is on screen. */
+  readonly card: HTMLElement
+  /** Whether this composer is the main Conversation input, the fallback address. */
+  readonly main: boolean
+  /** Whether this composer can accept files right now. */
+  accepts(): boolean
+  /**
+   * Add pasted files to the draft.
+   * @param files - clipboard files in clipboard order.
+   * @param directories - the members reported as directories, when any.
+   */
+  add(files: readonly File[], directories?: ReadonlySet<File>): void
+}
+
+/**
+ * Register one composer with the plugin's document-level paste router.
+ * @param target - the composer card, its intake predicate, and its add gesture.
+ * @returns the registration's disposer.
+ */
+export type ComposerFileIntake = (target: ComposerFileIntakeTarget) => () => void
+
 /** Package-private operations injected into the resident composer bar. */
 export interface ComposerBarInjected {
   keyboard: ComposerKeyboard | undefined
@@ -451,6 +474,11 @@ export interface ComposerBarInjected {
   retryFileUpload: ((id: DraftAttachmentId) => void) | undefined
   toggleCommandMenu: ((selection: EditSelection) => void) | undefined
   stop: (() => void) | undefined
+  /**
+   * Join this composer to the plugin's paste router, so a file pasted while the
+   * editor is unfocused still lands in the most recently used composer.
+   */
+  registerFileIntake?: ComposerFileIntake | undefined
   hooks: {
     /** Readable sequence while the fixed Stop command is registered. */
     stopShortcut: ObservableSnapshot<readonly string[]>
