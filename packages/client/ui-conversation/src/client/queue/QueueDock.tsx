@@ -175,7 +175,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
             disabled={interactionActive}
             onClick={() => { setCollapsed(value => !value) }}
           >
-            <span className={css.lead} aria-hidden><IconQueue /></span>
+            <span className={css.lead} aria-hidden><IconQueue size={14} /></span>
             <span className={css.count}>{t('queue.count', { n: rowCount })}</span>
             {!listVisible && pendingQueue.length > 0 && (
               <span className={css.status} role="status">{t('queue.sending')}</span>
@@ -192,7 +192,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
             return (
               <li key={row.id} className={css.row}>
                 {/* Single-item strip has no count header, so the row itself carries the queue glyph. */}
-                {rowCount === 1 && <span className={css.lead} aria-hidden><IconQueue /></span>}
+                {rowCount === 1 && <span className={css.lead} aria-hidden><IconQueue size={14} /></span>}
                 {editing?.id === row.id
                   ? (
                     <InlineEditor
@@ -306,7 +306,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                               )
                             }}
                           >
-                            <IconSend />
+                            <IconSend size={14} />
                           </button>
                         </Tooltip>
                       </>
@@ -318,7 +318,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
           {listVisible && pendingQueue.map((submission) => {
             return (
               <li key={submission.requestId} className={`${css.row} ${css.pendingRow}`} data-submission-echo="">
-                {rowCount === 1 && <span className={css.lead} aria-hidden><IconQueue /></span>}
+                {rowCount === 1 && <span className={css.lead} aria-hidden><IconQueue size={14} /></span>}
                 {submission.attachments.length > 0 && (
                   <span className={css.attachments}>
                     {submission.attachments.map((attachment, index) => attachment.type === 'image'
@@ -367,7 +367,7 @@ export function QueueDock({ useSession, useProjection, updateQueue, notify, load
                     title={t('queue.sending')}
                     disabled
                   >
-                    <IconSend />
+                    <IconSend size={14} />
                   </button>
                 </div>}
               </li>

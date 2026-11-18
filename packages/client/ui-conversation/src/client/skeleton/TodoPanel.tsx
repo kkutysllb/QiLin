@@ -102,7 +102,7 @@ export function TodoPanel({ todos, t }: TodoPanelProps) {
           <span className={css.title}>{t('todo.title')}</span>
           <span className={css.progress}>{progressLabel(todos, t)}</span>
           <span className={css.chevron} aria-hidden>
-            {collapsed ? <IconChevronUp /> : <IconChevronDown />}
+            {collapsed ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
           </span>
         </button>
         {!collapsed && (

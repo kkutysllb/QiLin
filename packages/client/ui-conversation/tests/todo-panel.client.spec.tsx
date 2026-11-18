@@ -66,6 +66,9 @@ describe('TodoPanel', () => {
     expect(screen.getByText('写组件')).toBeTruthy()
     // Each status row carries an SVG glyph (not a text bullet).
     expect(items.every(li => li.querySelector('svg') !== null)).toBe(true)
+    // The header disclosure glyph shares the 14px scale instead of the 24-grid default.
+    const headerGlyphs = screen.getByRole('button', { expanded: true }).querySelectorAll('svg')
+    expect(headerGlyphs[headerGlyphs.length - 1]?.getAttribute('width')).toBe('14')
   })
 
   it('collapse hides an expanded list; expand restores; header keeps the count summary', () => {

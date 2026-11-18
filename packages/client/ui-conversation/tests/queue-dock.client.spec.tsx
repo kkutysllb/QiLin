@@ -282,9 +282,9 @@ describe('QueueDock', () => {
     const header = view.getByRole('button', { name: '2 条排队消息' })
     expect(header.getAttribute('aria-expanded')).toBe('false')
     expect(document.getElementById(header.getAttribute('aria-controls')!)).toBeTruthy()
-    // The disclosure glyph fills the 14px header cell instead of drawing at the 24-grid default.
+    // The lead and disclosure glyphs fill the 14px cells instead of drawing at the 24-grid default.
     const glyphs = header.querySelectorAll('span[aria-hidden] svg')
-    expect(glyphs[glyphs.length - 1]?.getAttribute('width')).toBe('14')
+    expect([...glyphs].map(glyph => glyph.getAttribute('width'))).toEqual(['14', '14'])
     expect(view.queryByText('one')).toBeNull()
     expect(view.queryByText('two')).toBeNull()
 
@@ -292,6 +292,10 @@ describe('QueueDock', () => {
     expect(header.getAttribute('aria-expanded')).toBe('true')
     expect(view.getByText('one')).toBeTruthy()
     expect(view.getByText('two')).toBeTruthy()
+    // Row action and lead glyphs use the same 14px scale as the header.
+    for (const glyph of view.getByText('one').closest('li')!.querySelectorAll('svg')) {
+      expect(glyph.getAttribute('width')).toBe('14')
+    }
 
     fireEvent.click(header)
     expect(header.getAttribute('aria-expanded')).toBe('false')
