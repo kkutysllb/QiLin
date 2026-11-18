@@ -411,10 +411,27 @@ function EnableSwitch({ pkg, title, t, busy, onSetEnabled }: {
   )
 }
 
-/** The status one card carries: running, off, or a problem the Host reported. */
-function packageStatus(pkg: PackageView): 'running' | 'disabled' | 'problem' {
+/** The status one card carries: running, on-but-not-running, off, or a problem the Host reported. */
+function packageStatus(pkg: PackageView): 'running' | 'not-running' | 'disabled' | 'problem' {
   if (pkg.error !== undefined) return 'problem'
-  return pkg.enabled ? 'running' : 'disabled'
+  if (!pkg.enabled) return 'disabled'
+  // Enabled only means the profile selects it: the bundle is running when at
+  // least one of its declared rows holds an active fiber.
+  return pkg.rows.some(row => row.enabled && row.phase === 'active') ? 'running' : 'not-running'
+}
+
+/** Why an enabled bundle has no running row, for the note under its card. */
+function notRunningReason(pkg: PackageView): 'noRows' | 'rowsOff' | 'failed' | 'notLoaded' {
+  if (pkg.rows.length === 0) return 'noRows'
+  if (!pkg.rows.some(row => row.enabled)) return 'rowsOff'
+  if (pkg.rows.filter(row => row.enabled).every(row => row.phase === 'failed')) return 'failed'
+  return 'notLoaded'
+}
+
+/** The one line naming why an enabled bundle is not running. */
+function NotRunningNote({ pkg, t }: { readonly pkg: PackageView; readonly t: Translate }): ReactNode {
+  if (packageStatus(pkg) !== 'not-running') return null
+  return <p className={css.reason} role="status" data-plugin-not-running>{t(`notRunning.${notRunningReason(pkg)}`)}</p>
 }
 
 /** The head every card shares: the artwork, the name that opens the page beside its tags, its one-liner, and what sits at the end. */
@@ -554,6 +571,7 @@ function PackageCard({ pkg, t, resolveText, busy, highlighted, newer, badge, onO
             {badge === undefined ? null : <Tag className={css.statusTag} tone="info">{badge}</Tag>}
             {badge === undefined && beta ? <Tag className={css.statusTag} tone="info">{t('statusBeta')}</Tag> : null}
             {status === 'problem' ? <Tag className={css.statusTag} tone="danger">{t('statusProblem')}</Tag> : null}
+            {status === 'not-running' ? <Tag className={css.statusTag} tone="warning">{t('statusNotRunning')}</Tag> : null}
             {pkg.availability === 'missing' ? <Tag className={css.statusTag}>{t(pkg.installed ? 'statusMissingFiles' : 'statusNotInstalled')}</Tag> : null}
             {updateAvailable(pkg) || newer !== undefined ? <Tag className={css.statusTag} tone="info">{t('statusUpdateAvailable')}</Tag> : null}
           </>
@@ -562,6 +580,7 @@ function PackageCard({ pkg, t, resolveText, busy, highlighted, newer, badge, onO
         end={<EnableSwitch pkg={pkg} title={title} t={t} busy={busy} onSetEnabled={onSetEnabled} />}
       />
       <MetadataError error={pkg.meta?.error} t={t} />
+      <NotRunningNote pkg={pkg} t={t} />
     </li>
   )
 }
@@ -732,6 +751,7 @@ function PackageDetail({
           {pkg.version === undefined ? null : <Tag className={css.versionTag} tone="neutral">{t('versionTag', { version: pkg.version })}</Tag>}
           {beta ? <Tag className={css.statusTag} tone="info">{t('statusBeta')}</Tag> : null}
           {status === 'problem' ? <Tag className={css.statusTag} tone="danger">{t('statusProblem')}</Tag> : null}
+          {status === 'not-running' ? <Tag className={css.statusTag} tone="warning">{t('statusNotRunning')}</Tag> : null}
           {pkg.availability === 'missing' ? <Tag className={css.statusTag}>{t(pkg.installed ? 'statusMissingFiles' : 'statusNotInstalled')}</Tag> : null}
           {updateAvailable(pkg) || newer !== undefined ? <Tag className={css.statusTag} tone="info">{t('statusUpdateAvailable')}</Tag> : null}
           {renderSlot('plugins.detail.badge', { subject })}
@@ -740,6 +760,7 @@ function PackageDetail({
         {description === undefined ? null : <p className={css.detailDesc}>{description}</p>}
       </div>
       <MetadataError error={pkg.meta?.error} t={t} />
+      <NotRunningNote pkg={pkg} t={t} />
       {pkg.error === undefined ? null : <p className={css.reason} role="status">{t('reasonLabel')}: {managementText(pkg.error, t)}</p>}
       {pkg.readOnlyReason === undefined ? null : <p className={css.reason} role="status">{managementText({ code: pkg.readOnlyReason }, t)}</p>}
       {preview === undefined ? null : <PackagePreview src={preview} title={title} t={t} />}

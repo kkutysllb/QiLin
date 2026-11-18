@@ -696,10 +696,10 @@ describe('PluginManagerPage', () => {
   it('lists third-party installs on their own tab and keeps the always-on layers off the page', () => {
     const { actions } = renderTab({
       packages: [
-        pkg({ meta: { description: { en: 'A sidebar.' } } }),
+        pkg({ meta: { description: { en: 'A sidebar.' } }, rows: [row()] }),
         pkg({ name: 'dsh-broken', enabled: false, error: { code: 'not-bundle' } }),
         pkg({ name: '@qilin-agent/web-app', installed: false, removable: false }),
-        pkg({ name: 'dsh-protected', readOnlyReason: 'management-required' }),
+        pkg({ name: 'dsh-protected', readOnlyReason: 'management-required', rows: [row()] }),
         pkg({ name: '@acme/dsh-tool', enabled: false }),
         // Selected by the profile but not a bundle: a problem the person can switch off, in the profile's own group.
         pkg({ name: 'dsh-selected', installed: false, error: { code: 'not-bundle' } }),
@@ -1469,6 +1469,31 @@ describe('PluginManagerPage', () => {
     expect(screen.getByText(en.thirdpartyEmpty)).toBeTruthy()
   })
 
+  it('marks an enabled bundle that is not running and names the reason', () => {
+    const cases = [
+      { rows: [], note: en['notRunning.noRows'] },
+      { rows: [row({ enabled: false, phase: null })], note: en['notRunning.rowsOff'] },
+      { rows: [row({ phase: 'failed' })], note: en['notRunning.failed'] },
+      { rows: [row({ phase: null })], note: en['notRunning.notLoaded'] },
+    ] as const
+    for (const entry of cases) {
+      renderTab({ packages: [pkg({ rows: entry.rows })] })
+      openTab(en.thirdpartyTab)
+      const card = document.querySelector<HTMLElement>('[data-plugin-package="dsh-better-sidebar"]')!
+      expect(card.getAttribute('data-plugin-status')).toBe('not-running')
+      expect(within(card).getByText(en.statusNotRunning)).toBeTruthy()
+      expect(within(card).getByText(entry.note)).toBeTruthy()
+      cleanup()
+    }
+    // A live row clears both the tag and the note.
+    renderTab({ packages: [pkg({ rows: [row()] })] })
+    openTab(en.thirdpartyTab)
+    const card = document.querySelector<HTMLElement>('[data-plugin-package="dsh-better-sidebar"]')!
+    expect(card.getAttribute('data-plugin-status')).toBe('running')
+    expect(within(card).queryByText(en.statusNotRunning)).toBeNull()
+    expect(within(card).queryByText(en['notRunning.notLoaded'])).toBeNull()
+  })
+
   it('switches the rows of a bundle that is on, filters a long list, and locks what the Host will not address', () => {
     const rows = Array.from({ length: 12 }, (_row, index): PackageRow => {
       const live = row({
@@ -1517,9 +1542,10 @@ describe('PluginManagerPage', () => {
     set({ packages: [pkg({ enabled: false, rows: rows.slice(0, 2).map(item => ({ ...item, enabled: false, phase: null })) })] })
     expect(within(detail).queryByRole('switch', { name: en.partToggle.replace('{name}', 'dsh-better-sidebar') })).toBeNull()
     expect(within(detail).getAllByText(en.partOff)).toHaveLength(2)
-    // A row without a fiber, on a bundle that is on, reads idle.
+    // A row without a fiber, on a bundle that is on, reads idle; the bundle
+    // itself also carries the not-running tag, so scope the row query.
     set({ packages: [pkg({ rows: [row({ phase: null })] })] })
-    expect(within(detail).getByText(en.rowStateIdle)).toBeTruthy()
+    expect(within(detail.querySelector('[data-plugin-row]')!).getByText(en.rowStateIdle)).toBeTruthy()
   })
 
   describe.each(['package', 'custom registry'] as const)('%s input IME confirmation', (input) => {
