@@ -16,6 +16,14 @@ export const CONTEXT_WINDOW_EXCEEDED_CODE = 'CONTEXT_WINDOW_EXCEEDED'
 export const QUOTA_EXCEEDED_CODE = 'QUOTA'
 
 /**
+ * Canonical provider-neutral code for a provider's content-safety refusal. The
+ * attempt produced billed usage but no answer; the provider's explanation, such
+ * as which images were blocked, travels in the message. Deliberately outside
+ * the default retryable set — a refusal repeats when the request does.
+ */
+export const CONTENT_REFUSED_CODE = 'CONTENT_REFUSED'
+
+/**
  * Canonical provider-neutral code for a response that completed normally but
  * carried no content blocks at all. Providers occasionally emit a degenerate
  * completion (a terminal stop with zero output); adapters classify it as this

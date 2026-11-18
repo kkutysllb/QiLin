@@ -85,6 +85,32 @@ describe('Messages stream', () => {
       { type: 'content_block_stop', index: 0 }, ...end('tool_use')]), MODEL))).rejects.toMatchObject({ code: 'MALFORMED_RESPONSE' })
   })
 
+  it('reports billed usage then CONTENT_REFUSED for a refusal stop, keeping the explanation', async () => {
+    const seen: unknown[] = []
+    const stream = translate(events([start,
+      { type: 'content_block_start', index: 0, content_block: { type: 'text', text: 'partial' } },
+      { type: 'content_block_stop', index: 0 },
+      { type: 'message_delta', delta: { stop_reason: 'refusal', stop_details: { explanation: 'blocked images' } }, usage: { output_tokens: 4 } },
+      { type: 'message_stop' }]), MODEL)
+    let failure: unknown
+    try {
+      for await (const chunk of stream) seen.push(chunk)
+    } catch (caught: unknown) {
+      failure = caught
+    }
+    expect(failure).toMatchObject({ code: 'CONTENT_REFUSED' })
+    expect((failure as Error).message).toContain('blocked images')
+    expect(seen.at(-1)).toMatchObject({ type: 'usage', usage: { outputTokens: 4 } })
+    // The partial text was already streamed but never becomes the assistant message: the adapter throws instead of finishing.
+    expect(seen.some(chunk => (chunk as { type: string }).type === 'finish')).toBe(false)
+  })
+
+  it('reports CONTENT_REFUSED without an explanation when the provider gives none', async () => {
+    await expect(chunks(translate(events([start,
+      { type: 'message_delta', delta: { stop_reason: 'refusal' }, usage: { output_tokens: 1 } },
+      { type: 'message_stop' }]), MODEL))).rejects.toMatchObject({ code: 'CONTENT_REFUSED' })
+  })
+
   it('refuses unsupported response content, empty responses and premature EOF', async () => {
     await expect(chunks(translate(events([start, { type: 'content_block_start', index: 0, content_block: { type: 'redacted_thinking', data: 'x' } }]), MODEL))).rejects.toMatchObject({ code: 'UNSUPPORTED_CONTENT' })
     await expect(chunks(translate(events([start, ...end()]), MODEL))).rejects.toMatchObject({ code: 'EMPTY_RESPONSE' })
