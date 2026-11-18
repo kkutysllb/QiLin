@@ -962,6 +962,37 @@ describe('Team direct messages and waiting', () => {
     await lead.whenIdle()
   })
 
+  it('wakes a repeated wait once per peer message instead of replaying the same one', async () => {
+    const { ctx, lead, teamFiber } = await setup(['hang', 'hang'])
+    const alpha = await waitRunning(ctx, (await spawn(ctx, lead, 'alpha')).member.id)
+    await waitRunning(ctx, (await spawn(ctx, lead, 'beta')).member.id)
+
+    // The first wait observes the message delivery.
+    const first = ctx.agentTeams.waitForChange(alpha, 10_000, SIGNAL)
+    await ctx.agentTeams.sendMessage(alpha, { target: 'beta', content: content('one delivery'), signal: SIGNAL })
+    await expect(first).resolves.toEqual({ timedOut: false })
+
+    // A later wait must not be woken again by that same delivery: it keeps
+    // waiting until an actual new change arrives.
+    const controller = new AbortController()
+    const second = ctx.agentTeams.waitForChange(alpha, 10_000, controller.signal)
+    let settled = false
+    void second.finally(() => { settled = true })
+    await new Promise(resolve => setTimeout(resolve, 25))
+    expect(settled).toBe(false)
+
+    controller.abort(new TeamError('test done', 'TEST_CANCELLED'))
+    await expect(second).rejects.toMatchObject({ code: 'TEST_CANCELLED' })
+
+    // A wait started after the replay window still ends on the next real change.
+    const next = ctx.agentTeams.waitForChange(alpha, 10_000, SIGNAL)
+    await ctx.agentTeams.sendMessage(alpha, { target: 'beta', content: content('second delivery'), signal: SIGNAL })
+    await expect(next).resolves.toEqual({ timedOut: false })
+    await teamFiber.dispose()
+    lead.cancel({ kind: 'parent' })
+    await lead.whenIdle()
+  })
+
   it('steers an idle Lead and cold-resumes a sibling with actual sender attribution', async () => {
     const { ctx, lead } = await setup(['hang', textResponse('initial'), textResponse('lead'), textResponse('peer')])
     const alpha = await waitRunning(ctx, (await spawn(ctx, lead, 'alpha')).member.id)
