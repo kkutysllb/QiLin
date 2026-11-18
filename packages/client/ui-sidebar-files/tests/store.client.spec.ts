@@ -34,7 +34,8 @@ describe('createFilesStore', () => {
     const getSnapshot = (): ReturnType<typeof store.getSnapshot> => store.getSnapshot()
     actions.start(TAB, ROOT)
     expect(getSnapshot().byTab[TAB]).toEqual({
-      root: ROOT, levels: {}, expanded: [ROOT], scrollTop: 0, search: { kind: 'idle', query: '' }, mutation: { kind: 'idle' },
+      root: ROOT, levels: {}, expanded: [ROOT], scrollTop: 0, search: { kind: 'idle', query: '' },
+      searchMode: 'name', searchExcludes: [], mutation: { kind: 'idle' },
       hidden: { dotfiles: true, nodeModules: true },
     })
   })
@@ -79,7 +80,8 @@ describe('createFilesStore', () => {
     actions.loaded(TAB, child, LEVEL)
     actions.reset(TAB)
     expect(getSnapshot().byTab[TAB]).toEqual({
-      root: ROOT, levels: {}, expanded: [ROOT, child], scrollTop: 0, search: { kind: 'idle', query: '' }, mutation: { kind: 'idle' },
+      root: ROOT, levels: {}, expanded: [ROOT, child], scrollTop: 0, search: { kind: 'idle', query: '' },
+      searchMode: 'name', searchExcludes: [], mutation: { kind: 'idle' },
       hidden: { dotfiles: true, nodeModules: true },
     })
   })
@@ -127,6 +129,24 @@ describe('createFilesStore', () => {
     expect(getSnapshot().byTab[TAB]!.search).toEqual({ kind: 'failed', query: 'read', failure })
     actions.searchCleared(TAB)
     expect(getSnapshot().byTab[TAB]!.search).toEqual({ kind: 'idle', query: '' })
+  })
+
+  it('switches the search scope and edits its own exclusions without dropping the query', () => {
+    const store = createFilesStore().create()
+    const { actions } = store
+    const getSnapshot = (): ReturnType<typeof store.getSnapshot> => store.getSnapshot()
+    actions.start(TAB, ROOT)
+    actions.searchTyped(TAB, 'read')
+    actions.searchModeChanged(TAB, 'path')
+    actions.searchExcludeAdded(TAB, ' dist ')
+    // A repeated or blank rule adds nothing, so the panel cannot grow duplicates.
+    actions.searchExcludeAdded(TAB, 'dist')
+    actions.searchExcludeAdded(TAB, '   ')
+    expect(getSnapshot().byTab[TAB]).toMatchObject({
+      search: { kind: 'idle', query: 'read' }, searchMode: 'path', searchExcludes: ['dist'],
+    })
+    actions.searchExcludeRemoved(TAB, 'dist')
+    expect(getSnapshot().byTab[TAB]!.searchExcludes).toEqual([])
   })
 
   it('walks one row mutation through running, failed, and cleared', () => {

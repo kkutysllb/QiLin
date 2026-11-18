@@ -133,6 +133,38 @@ export interface WorkspaceDirectoryListing {
   readonly truncated: boolean
 }
 
+/** Which text a workspace filename search matches against. */
+export type WorkspaceFileNameSearchMode = 'name' | 'path'
+
+/**
+ * One filename search: the query, the text it matches, and this walk's filters.
+ *
+ * The configured excluded directories apply unless `hidden.nodeModules` turns
+ * the dependency store back on; `extraExcludedDirectories` adds this reader's
+ * own rules for the request only.
+ */
+export interface WorkspaceFileNameSearchRequest {
+  /** The substring to look for; blank matches nothing. */
+  readonly query: string
+  /**
+   * Text each file is matched against: the basename (default) or the file's
+   * workspace-relative path, both case-insensitively.
+   */
+  readonly mode?: WorkspaceFileNameSearchMode
+  /** Directory basenames skipped in addition to the configured list. */
+  readonly extraExcludedDirectories?: readonly string[]
+  /**
+   * Hidden-entry kinds as the reader's tree shows them. `dotfiles` skips
+   * dot-prefixed names; `nodeModules` false lets the walk enter the dependency
+   * store the configured list otherwise excludes. Omitted fields keep the
+   * configured defaults.
+   */
+  readonly hidden?: {
+    readonly dotfiles?: boolean
+    readonly nodeModules?: boolean
+  }
+}
+
 /** One file whose basename matched a workspace filename search. */
 export interface WorkspaceFileNameMatch {
   /**

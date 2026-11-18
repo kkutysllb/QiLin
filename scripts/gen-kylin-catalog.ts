@@ -1072,6 +1072,7 @@ export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   WorkspaceByteRange: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
   WorkspaceDirectoryListing: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
   WorkspaceFileNameSearch: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
+  WorkspaceFileNameSearchRequest: 'Host workspace file endpoint contract is owned by packages/api/workspace-files/README.md',
   GitStatus: 'Host workspace git endpoint contract is owned by packages/api/workspace-git/README.md',
   GitStatusEntry: 'Host workspace git endpoint contract is owned by packages/api/workspace-git/README.md',
   GitUpstream: 'Host workspace git endpoint contract is owned by packages/api/workspace-git/README.md',

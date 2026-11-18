@@ -29,8 +29,8 @@ interface PendingSearch {
  */
 export function scriptedSearch(): ScriptedSearch {
   const pending: PendingSearch[] = []
-  const search = vi.fn<SearchWorkspaceFileNames>((_sessionId, query) =>
-    new Promise((resolve) => { pending.push({ query, resolve }) }))
+  const search = vi.fn<SearchWorkspaceFileNames>((_sessionId, request) =>
+    new Promise((resolve) => { pending.push({ query: request.query, resolve }) }))
   const settle = async (call: PendingSearch | undefined, result: RemoteResult<WorkspaceFileNameSearch>): Promise<void> => {
     if (call === undefined) throw new Error('no outstanding search to settle')
     call.resolve(result)

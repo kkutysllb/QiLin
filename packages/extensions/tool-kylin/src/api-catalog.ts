@@ -4557,9 +4557,9 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'the file\'s absolute path, current version, and byte size.',
       },
       {
-        signature: '@Remote async searchNames( workspaceFileScope: WorkspaceFileScope, query: string, signal: AbortSignal, ): Promise<WorkspaceFileNameSearch>',
-        description: 'Search file names below the workspace root for a substring, comparing each basename case-insensitively. The walk visits directories breadth-first, so a shallow match precedes a deeper one, and every match is reported as a path relative to the workspace root. Only regular files match: a directory is walked, never offered.\n\nThis is a name lookup, not a code search: no ignore file is consulted, and the configured excluded directories are neither matched nor descended, so a dependency store neither crowds the matches nor burns the visit budget. A directory the workspace root does not contain is not descended either: a symbolic link to a directory elsewhere neither reports names outside the workspace nor loops the walk.',
-        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'query', description: 'the substring matched against each basename; blank matches nothing.' }, { name: 'signal', description: 'caller cancellation.' }],
+        signature: '@Remote async searchNames( workspaceFileScope: WorkspaceFileScope, request: WorkspaceFileNameSearchRequest, signal: AbortSignal, ): Promise<WorkspaceFileNameSearch>',
+        description: 'Search file names below the workspace root for a substring, comparing each basename or workspace path case-insensitively as the request selects. The walk visits directories breadth-first, so a shallow match precedes a deeper one, and every match is reported as a path relative to the workspace root. Only regular files match: a directory is walked, never offered.\n\nThis is a name lookup, not a code search: no ignore file is consulted, and the configured excluded directories are neither matched nor descended, so a dependency store neither crowds the matches nor burns the visit budget. The request may add directory exclusions for its own walk and may turn the dependency store back on, and it may skip dot-prefixed entries to mirror the reader\'s hidden-file choice. A directory the workspace root does not contain is not descended either: a symbolic link to a directory elsewhere neither reports names outside the workspace nor loops the walk.',
+        parameters: [{ name: 'workspaceFileScope', description: 'header-derived workspace root for the Session identity on the wire.' }, { name: 'request', description: 'the query, the matched text, and this walk\'s exclusions and hidden kinds.' }, { name: 'signal', description: 'caller cancellation.' }],
         returns: 'the matching paths, cut to the configured match cap, and whether a cap stopped the walk.',
       },
       {
@@ -10243,6 +10243,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'WorkspaceFileNameSearch',
     declaration: 'export interface WorkspaceFileNameSearch {\n    readonly matches: readonly WorkspaceFileNameMatch[];\n    readonly truncated: boolean;\n}',
+  },
+  {
+    name: 'WorkspaceFileNameSearchMode',
+    declaration: 'export type WorkspaceFileNameSearchMode = \'name\' | \'path\';',
+  },
+  {
+    name: 'WorkspaceFileNameSearchRequest',
+    declaration: 'export interface WorkspaceFileNameSearchRequest {\n    readonly query: string;\n    readonly mode?: WorkspaceFileNameSearchMode;\n    readonly extraExcludedDirectories?: readonly string[];\n    readonly hidden?: {\n        readonly dotfiles?: boolean;\n        readonly nodeModules?: boolean;\n    };\n}',
   },
   {
     name: 'WorkspaceFileRange',

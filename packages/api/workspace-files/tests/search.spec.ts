@@ -32,16 +32,62 @@ describe('searchNames', () => {
     await write('readme.md', 'hi')
     await write('src/readme.ts', '!')
     await mkdir(join(harness.workspace, 'docs'))
-    const found = await harness.endpoint().searchNames(harness.scope, 'ReadMe', signal())
+    const found = await harness.endpoint().searchNames(harness.scope, { query: 'ReadMe' }, signal())
     expect(found).toEqual({
       matches: [{ path: 'readme.md', bytes: 2 }, { path: 'src/readme.ts', bytes: 1 }],
       truncated: false,
     })
   })
 
+  it('matches the workspace path instead of the basename in path mode', async () => {
+    await write('src/feature/readme.ts')
+    await write('manual/readme.md')
+    const found = await harness.endpoint().searchNames(harness.scope, { query: 'src/feature', mode: 'path' }, signal())
+    expect(found).toEqual({ matches: [{ path: 'src/feature/readme.ts', bytes: 1 }], truncated: false })
+  })
+
+  it('skips request-only excluded directories without changing the configured list', async () => {
+    await write('generated/a.md')
+    await write('src/b.md')
+    const found = await harness.endpoint().searchNames(harness.scope, {
+      query: '.md', extraExcludedDirectories: ['Generated'],
+    }, signal())
+    expect(found).toEqual({ matches: [{ path: 'src/b.md', bytes: 1 }], truncated: false })
+    // The request's own rule does not leak into the configured walk.
+    const all = await harness.endpoint().searchNames(harness.scope, { query: 'a.md' }, signal())
+    expect(all.matches.map(match => match.path)).toEqual(['generated/a.md'])
+  })
+
+  it('skips dot-prefixed entries while the hidden choice asks for it', async () => {
+    await write('.config/readme.md')
+    await write('.readme-notes')
+    await write('readme.md')
+    const hidden = await harness.endpoint().searchNames(harness.scope, { query: 'readme', hidden: { dotfiles: true } }, signal())
+    expect(hidden).toEqual({ matches: [{ path: 'readme.md', bytes: 1 }], truncated: false })
+    const shown = await harness.endpoint().searchNames(harness.scope, { query: 'readme' }, signal())
+    expect(shown.matches.map(match => match.path)).toEqual(['.readme-notes', 'readme.md', '.config/readme.md'])
+  })
+
+  it('enters the dependency store when the hidden choice turns it back on', async () => {
+    await write('node_modules/pkg/readme.md')
+    await write('src/readme.ts')
+    const found = await harness.endpoint({ searchExcludedDirectories: ['node_modules', 'dist'] })
+      .searchNames(harness.scope, { query: 'readme', hidden: { nodeModules: false } }, signal())
+    expect(found.matches.map(match => match.path)).toEqual(['src/readme.ts', 'node_modules/pkg/readme.md'])
+  })
+
+  it('keeps the dependency store excluded when the hidden choice states it', async () => {
+    await write('node_modules/pkg/readme.md')
+    await write('src/readme.ts')
+    const found = await harness.endpoint({ searchExcludedDirectories: ['node_modules'] }).searchNames(harness.scope, {
+      query: 'readme', hidden: { nodeModules: true },
+    }, signal())
+    expect(found.matches.map(match => match.path)).toEqual(['src/readme.ts'])
+  })
+
   it('matches nothing for a blank query', async () => {
     await write('readme.md')
-    const found = await harness.endpoint().searchNames(harness.scope, '   ', signal())
+    const found = await harness.endpoint().searchNames(harness.scope, { query: '   ' }, signal())
     expect(found).toEqual({ matches: [], truncated: false })
   })
 
@@ -49,7 +95,7 @@ describe('searchNames', () => {
     await write('node_modules/pkg/readme.md')
     await write('src/readme.ts')
     const found = await harness.endpoint({ searchExcludedDirectories: ['node_modules'] })
-      .searchNames(harness.scope, 'readme', signal())
+      .searchNames(harness.scope, { query: 'readme' }, signal())
     expect(found).toEqual({ matches: [{ path: 'src/readme.ts', bytes: 1 }], truncated: false })
   })
 
@@ -57,7 +103,7 @@ describe('searchNames', () => {
     await writeFile(join(harness.outside, 'readme-outside.md'), 'x')
     await symlink(harness.outside, join(harness.workspace, 'elsewhere'))
     await write('readme-inside.md')
-    const found = await harness.endpoint().searchNames(harness.scope, 'readme', signal())
+    const found = await harness.endpoint().searchNames(harness.scope, { query: 'readme' }, signal())
     expect(found).toEqual({ matches: [{ path: 'readme-inside.md', bytes: 1 }], truncated: false })
   })
 
@@ -65,7 +111,7 @@ describe('searchNames', () => {
     await write('a-readme.md')
     await write('b-readme.md')
     const found = await harness.endpoint({ maxSearchMatches: 1 })
-      .searchNames(harness.scope, 'readme', signal())
+      .searchNames(harness.scope, { query: 'readme' }, signal())
     expect(found).toEqual({ matches: [{ path: 'a-readme.md', bytes: 1 }], truncated: true })
   })
 
@@ -74,7 +120,7 @@ describe('searchNames', () => {
     await write('b.md')
     await write('c.md')
     const found = await harness.endpoint({ maxSearchVisited: 2 })
-      .searchNames(harness.scope, 'a', signal())
+      .searchNames(harness.scope, { query: 'a' }, signal())
     expect(found).toEqual({ matches: [{ path: 'a.md', bytes: 1 }], truncated: true })
   })
 
@@ -85,7 +131,7 @@ describe('searchNames', () => {
     // be offered, with `bytes` left absent rather than fabricated.
     vi.spyOn(harness.ctx.fs, 'listDir').mockImplementation(async (target, abort) =>
       (await listDir(target, abort)).map(withoutSize))
-    const found = await harness.endpoint().searchNames(harness.scope, 'readme', signal())
+    const found = await harness.endpoint().searchNames(harness.scope, { query: 'readme' }, signal())
     expect(found).toEqual({ matches: [{ path: 'readme.md' }], truncated: false })
   })
 
@@ -93,6 +139,6 @@ describe('searchNames', () => {
     await write('readme.md')
     const controller = new AbortController()
     controller.abort()
-    await expect(harness.endpoint().searchNames(harness.scope, 'readme', controller.signal)).rejects.toThrow()
+    await expect(harness.endpoint().searchNames(harness.scope, { query: 'readme' }, controller.signal)).rejects.toThrow()
   })
 })

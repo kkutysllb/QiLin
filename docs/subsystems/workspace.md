@@ -464,24 +464,26 @@ Host Remote file reads, writes, and workspace entry mutations plus workspace dir
 
 /**
  * Search file names below the workspace root for a substring, comparing each
- * basename case-insensitively. The walk visits directories breadth-first, so
- * a shallow match precedes a deeper one, and every match is reported as a
- * path relative to the workspace root. Only regular files match: a directory
- * is walked, never offered.
+ * basename or workspace path case-insensitively as the request selects. The
+ * walk visits directories breadth-first, so a shallow match precedes a deeper
+ * one, and every match is reported as a path relative to the workspace root.
+ * Only regular files match: a directory is walked, never offered.
  *
  * This is a name lookup, not a code search: no ignore file is consulted, and
  * the configured excluded directories are neither matched nor descended, so a
- * dependency store neither crowds the matches nor burns the visit budget. A
- * directory the workspace root does not contain is not descended either: a
- * symbolic link to a directory elsewhere neither reports names outside the
- * workspace nor loops the walk.
+ * dependency store neither crowds the matches nor burns the visit budget. The
+ * request may add directory exclusions for its own walk and may turn the
+ * dependency store back on, and it may skip dot-prefixed entries to mirror
+ * the reader's hidden-file choice. A directory the workspace root does not
+ * contain is not descended either: a symbolic link to a directory elsewhere
+ * neither reports names outside the workspace nor loops the walk.
  *
  * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
- * @param query - the substring matched against each basename; blank matches nothing.
+ * @param request - the query, the matched text, and this walk's exclusions and hidden kinds.
  * @param signal - caller cancellation.
  * @returns the matching paths, cut to the configured match cap, and whether a cap stopped the walk.
  */
-@Remote async searchNames( workspaceFileScope: WorkspaceFileScope, query: string, signal: AbortSignal, ): Promise<WorkspaceFileNameSearch>
+@Remote async searchNames( workspaceFileScope: WorkspaceFileScope, request: WorkspaceFileNameSearchRequest, signal: AbortSignal, ): Promise<WorkspaceFileNameSearch>
 
 /**
  * Save one complete UTF-8 text file inside the Session's workspace: replace an

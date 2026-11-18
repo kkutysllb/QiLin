@@ -26,7 +26,7 @@
 import type { ClientRemote, RemoteResult } from '@qilin-agent/api-remotes/client'
 import type { BoundActions } from '@qilin-agent/client-store'
 import type { PaneId, TabId } from '@qilin-agent/client-ui-dockkit'
-import type { WorkspaceFileNameSearch } from '@qilin-agent/api-workspace-files/types'
+import type { WorkspaceFileNameSearch, WorkspaceFileNameSearchRequest } from '@qilin-agent/api-workspace-files/types'
 import type { SessionId } from '@qilin-agent/session/types'
 import { joinEntryPath, parentDirectoryOf } from './file-mutations.ts'
 import type { EntryKind, TabReconcile, WorkspaceFileMutations } from './file-mutations.ts'
@@ -45,15 +45,19 @@ export type ListWorkspaceDirectory = (
   signal: AbortSignal,
 ) => Promise<RemoteResult<DirLevel>>
 
+/** The search's walk filters, as the box's settings hold them. */
+export type WorkspaceSearchFilters = Pick<WorkspaceFileNameSearchRequest, 'mode' | 'extraExcludedDirectories' | 'hidden'>
+
 /**
  * One filename search, bound to a Remote face.
  *
- * The query is matched against basenames below the same workspace root the
- * listing is rooted at, and the answer is workspace-relative paths.
+ * The request carries the query, the text it matches, and the walk's filters;
+ * the answer is workspace-relative paths below the same root the listing is
+ * rooted at.
  */
 export type SearchWorkspaceFileNames = (
   sessionId: SessionId,
-  query: string,
+  request: WorkspaceFileNameSearchRequest,
   signal: AbortSignal,
 ) => Promise<RemoteResult<WorkspaceFileNameSearch>>
 
@@ -97,7 +101,7 @@ export const SEARCH_SETTLE_MS = 200
 export function createSearch(
   remote: { readonly workspaceFiles: Pick<ClientRemote['workspaceFiles'], 'searchNames'> },
 ): SearchWorkspaceFileNames {
-  return (sessionId, query, signal) => remote.workspaceFiles.searchNames(sessionId, query, signal)
+  return (sessionId, request, signal) => remote.workspaceFiles.searchNames(sessionId, request, signal)
 }
 
 /**
@@ -132,7 +136,7 @@ export interface FilesInjected {
    * @param query - the box's text, exactly as typed; blank asks nothing.
    * @param signal - the tab record's lifetime.
    */
-  readonly search: (tabId: TabId, query: string, signal: AbortSignal) => void
+  readonly search: (tabId: TabId, query: string, filters: WorkspaceSearchFilters, signal: AbortSignal) => void
   /**
    * Create one empty file or one directory inside a listed directory.
    * @param tabId - the tab being drawn.
@@ -332,7 +336,7 @@ export function filesFace(
     const queryGenerations = new Map<TabId, number>()
     /** Per tab, the settle timer still waiting to ask the Host. */
     const settling = new Map<TabId, ReturnType<typeof setTimeout>>()
-    const searchQuery = (tabId: TabId, query: string, signal: AbortSignal): void => {
+    const searchQuery = (tabId: TabId, query: string, filters: WorkspaceSearchFilters, signal: AbortSignal): void => {
       if (signal.aborted) return
       const generation = (queryGenerations.get(tabId) ?? 0) + 1
       queryGenerations.set(tabId, generation)
@@ -352,7 +356,7 @@ export function filesFace(
         /* v8 ignore next -- a superseded timer is always cleared before it fires. */
         if (queryGenerations.get(tabId) !== generation) return
         actions.searchRunning(tabId, query)
-        void searchNames(sessionId, needle, signal).then((result) => {
+        void searchNames(sessionId, { query: needle, ...filters }, signal).then((result) => {
           if (queryGenerations.get(tabId) !== generation) return
           if (result.ok) actions.searchSettled(tabId, query, result.value.matches, result.value.truncated)
           else actions.searchFailed(tabId, query, result.error)
@@ -406,8 +410,8 @@ export function filesFace(
         actions.toggled(tabId, path)
         if (!loaded) load(tabId, path, signal)
       },
-      search(tabId, query, signal) {
-        searchQuery(tabId, query, signal)
+      search(tabId, query, filters, signal) {
+        searchQuery(tabId, query, filters, signal)
       },
       createEntry(tabId, directory, name, kind, signal) {
         const path = joinEntryPath(directory, name)

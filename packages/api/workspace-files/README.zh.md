@@ -25,7 +25,7 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
-把本包与 `qilin-fs`、`qilin-sandbox-policy`、Session store 和 Typert Gateway 一起挂载；bundle 把它紧随 Session Controller 之后挂载。每个方法都在线路上携带 Session 身份，Client 调用 `remote.workspaceFiles.read(sessionId, path, range, signal)`、`stat(sessionId, path, signal)`、`readBytes(sessionId, path, range, signal)`、`write(sessionId, path, text, { baseVersion? }, signal)`、`delete(sessionId, path, recursive, signal)`、`move(sessionId, from, to, signal)`、`createDirectory(sessionId, path, signal)`、`list(sessionId, path, signal)`、`searchNames(sessionId, query, signal)` 或 `changes(sessionId, signal)`，从不自己指定根。Host 读取 live Session header，cold Session 则使用持久层 `stat`；它不会激活 Agent、读取事件正文或借用父 Session 的根。live 读取不要求挂载 Session persistence；未挂载时 cold Session 无法解析，Gateway 返回 `gateway/lookup-not-found`。
+把本包与 `qilin-fs`、`qilin-sandbox-policy`、Session store 和 Typert Gateway 一起挂载；bundle 把它紧随 Session Controller 之后挂载。每个方法都在线路上携带 Session 身份，Client 调用 `remote.workspaceFiles.read(sessionId, path, range, signal)`、`stat(sessionId, path, signal)`、`readBytes(sessionId, path, range, signal)`、`write(sessionId, path, text, { baseVersion? }, signal)`、`delete(sessionId, path, recursive, signal)`、`move(sessionId, from, to, signal)`、`createDirectory(sessionId, path, signal)`、`list(sessionId, path, signal)`、`searchNames(sessionId, { query, mode?, extraExcludedDirectories?, hidden? }, signal)` 或 `changes(sessionId, signal)`，从不自己指定根。Host 读取 live Session header，cold Session 则使用持久层 `stat`；它不会激活 Agent、读取事件正文或借用父 Session 的根。live 读取不要求挂载 Session persistence；未挂载时 cold Session 无法解析，Gateway 返回 `gateway/lookup-not-found`。
 
 | 方法 | 返回 | 用途 |
 |---|---|---|
@@ -39,7 +39,7 @@ kind: "package-reference"
 | `move(from, to)` | 无 | 在工作区内重命名或移动一个条目；目标已存在时以 `exists` 失败，绝不替换 |
 | `createDirectory(path)` | 无 | 新建一个父目录已存在的目录；条目已存在时以 `exists` 失败 |
 | `list(path)` | `WorkspaceDirectoryListing { path, entries, truncated }` | 一个目录的直接子项；名字本身是符号链接的子项在解析目标类型之外携带 `symlink: true` |
-| `searchNames(query)` | `WorkspaceFileNameSearch { matches, truncated }` | 工作区根之下 basename 包含查询串的文件，不区分大小写 |
+| `searchNames(request)` | `WorkspaceFileNameSearch { matches, truncated }` | 工作区根之下 basename（`mode: 'name'`）或工作区路径（`mode: 'path'`）包含查询串的文件，不区分大小写 |
 | `changes()` | `WorkspaceFileWatchFrame` 流 | 订阅就绪确认，随后为工作区根内的文件系统观察 |
 
 ### 寻址与路径
@@ -72,7 +72,7 @@ kind: "package-reference"
 
 ### 文件名搜索
 
-`searchNames` 自工作区根广度优先遍历：浅层匹配排在深层之前，每条匹配以相对该根的路径回报。只有普通文件会匹配；目录只被遍历，不会作为结果。比较只针对 basename，不区分大小写。这是名称查找而非代码搜索：不读取任何 ignore 文件，配置中排除的目录既不匹配也不进入，依赖目录既不会挤占匹配也不会耗尽访问预算。根不包含的目录同样不会进入，指向工作区之外的符号链接目录既不会泄露外部名称，也无法让遍历成环。命中匹配上限或访问上限即停止并置 `truncated: true`；空白查询不触碰文件系统，直接返回空结果。
+`searchNames` 自工作区根广度优先遍历：浅层匹配排在深层之前，每条匹配以相对该根的路径回报。只有普通文件会匹配；目录只被遍历，不会作为结果。默认比较 basename，`mode: 'path'` 时比较文件的工作区相对路径，均不区分大小写。这是名称查找而非代码搜索：不读取任何 ignore 文件，配置中排除的目录既不匹配也不进入，依赖目录既不会挤占匹配也不会耗尽访问预算。请求可以用 `extraExcludedDirectories` 追加排除目录，也可以用 `hidden.dotfiles` 跳过点开头的条目、用 `hidden.nodeModules: false` 进入配置原本排除的依赖目录；省略的字段沿用该次遍历的配置默认值。根不包含的目录同样不会进入，指向工作区之外的符号链接目录既不会泄露外部名称，也无法让遍历成环。命中匹配上限或访问上限即停止并置 `truncated: true`；空白查询不触碰文件系统，直接返回空结果。
 
 ### 配置
 

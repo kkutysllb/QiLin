@@ -25,7 +25,7 @@ Use this package to preview files readable through a Session's filesystem from t
 <a id="use-this-package"></a>
 ## Use this package
 
-Mount the package beside `qilin-fs`, `qilin-sandbox-policy`, the Session store, and the Typert Gateway; the bundle does so right after the Session Controller. Every method takes the Session identity on the wire, so a Client calls `remote.workspaceFiles.read(sessionId, path, range, signal)`, `stat(sessionId, path, signal)`, `readBytes(sessionId, path, range, signal)`, `write(sessionId, path, text, { baseVersion? }, signal)`, `delete(sessionId, path, recursive, signal)`, `move(sessionId, from, to, signal)`, `createDirectory(sessionId, path, signal)`, `list(sessionId, path, signal)`, `searchNames(sessionId, query, signal)`, or `changes(sessionId, signal)` and never names a root itself. The Host reads a live Session header or uses persistence `stat` for a cold Session; it does not activate an Agent, read the event body, or borrow a parent Session's root. Session persistence is optional for live reads, but without it a cold Session cannot resolve and the Gateway returns `gateway/lookup-not-found`.
+Mount the package beside `qilin-fs`, `qilin-sandbox-policy`, the Session store, and the Typert Gateway; the bundle does so right after the Session Controller. Every method takes the Session identity on the wire, so a Client calls `remote.workspaceFiles.read(sessionId, path, range, signal)`, `stat(sessionId, path, signal)`, `readBytes(sessionId, path, range, signal)`, `write(sessionId, path, text, { baseVersion? }, signal)`, `delete(sessionId, path, recursive, signal)`, `move(sessionId, from, to, signal)`, `createDirectory(sessionId, path, signal)`, `list(sessionId, path, signal)`, `searchNames(sessionId, { query, mode?, extraExcludedDirectories?, hidden? }, signal)`, or `changes(sessionId, signal)` and never names a root itself. The Host reads a live Session header or uses persistence `stat` for a cold Session; it does not activate an Agent, read the event body, or borrow a parent Session's root. Session persistence is optional for live reads, but without it a cold Session cannot resolve and the Gateway returns `gateway/lookup-not-found`.
 
 | Method | Returns | Purpose |
 |---|---|---|
@@ -39,7 +39,7 @@ Mount the package beside `qilin-fs`, `qilin-sandbox-policy`, the Session store, 
 | `move(from, to)` | nothing | Rename or move one entry inside the workspace; an existing destination fails with `exists` and is never replaced |
 | `createDirectory(path)` | nothing | Create one directory whose parent already exists; an existing entry fails with `exists` |
 | `list(path)` | `WorkspaceDirectoryListing { path, entries, truncated }` | Direct children of one directory; a child whose listed name is itself a symbolic link carries `symlink: true` beside the type of what it resolves to |
-| `searchNames(query)` | `WorkspaceFileNameSearch { matches, truncated }` | Files below the workspace root whose basenames contain the query, case-insensitively |
+| `searchNames(request)` | `WorkspaceFileNameSearch { matches, truncated }` | Files below the workspace root whose basename (`mode: 'name'`) or workspace path (`mode: 'path'`) contains the query, case-insensitively |
 | `changes()` | stream of `WorkspaceFileWatchFrame` | Subscription readiness, then filesystem observations inside the workspace root |
 
 ### Addressing and paths
@@ -72,7 +72,7 @@ Every operation that needs an existing entry first uses `lstat` to reject a miss
 
 ### Filename search
 
-`searchNames` walks the workspace root breadth-first, so a shallow match precedes a deeper one, and reports every match as a path relative to that root. Only regular files match; a directory is walked, never offered. The comparison is case-insensitive on the basename alone. This is a name lookup, not a code search: no ignore file is consulted, and the configured excluded directories are neither matched nor descended, so a dependency store neither crowds the matches nor burns the visit budget. A directory the root does not contain is not descended either, so a symbolic link to a directory elsewhere reports nothing outside the workspace and cannot loop the walk. Reaching either the match cap or the visit cap stops the walk with `truncated: true`; a blank query matches nothing without touching the filesystem.
+`searchNames` walks the workspace root breadth-first, so a shallow match precedes a deeper one, and reports every match as a path relative to that root. Only regular files match; a directory is walked, never offered. The comparison is case-insensitive on the basename by default, or on the file's workspace-relative path with `mode: 'path'`. This is a name lookup, not a code search: no ignore file is consulted, and the configured excluded directories are neither matched nor descended, so a dependency store neither crowds the matches nor burns the visit budget. The request may add its own `extraExcludedDirectories`, and may set `hidden.dotfiles` to skip dot-prefixed entries or `hidden.nodeModules: false` to enter the dependency store the configured list otherwise excludes; omitted fields keep the configured defaults for that walk only. A directory the root does not contain is not descended either, so a symbolic link to a directory elsewhere reports nothing outside the workspace and cannot loop the walk. Reaching either the match cap or the visit cap stops the walk with `truncated: true`; a blank query matches nothing without touching the filesystem.
 
 ### Configuration
 
@@ -84,7 +84,7 @@ Every operation that needs an existing entry first uses `lstat` to reject a miss
 | `maxEntries` | `2000` | Cap on returned directory entries; the rest is dropped and reported cut |
 | `maxSearchMatches` | `100` | Cap on returned filename-search matches; the walk stops there and reports the cut |
 | `maxSearchVisited` | `100000` | Cap on directory entries one filename search visits; past it the walk reports the cut |
-| `searchExcludedDirectories` | [`.git`, `node_modules`, …](src/index.ts) | Directory basenames a filename search neither matches nor descends into |
+| `searchExcludedDirectories` | [`.git`, `node_modules`, …](src/index.ts) | Directory basenames a filename search neither matches nor descends into; a request adds to this set for its own walk, and `hidden.nodeModules: false` removes `node_modules` |
 
 The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agentapi-workspace-files) is the exhaustive source for every accepted field and its JSDoc.
 

@@ -76,6 +76,12 @@ export interface HiddenKinds {
 /** The kinds a fresh tree hides: a workspace root is read for its own sources, not for dotfiles or installed dependencies. */
 export const DEFAULT_HIDDEN: HiddenKinds = { dotfiles: true, nodeModules: true }
 
+/** Which text the filename search matches against. */
+export type SearchMode = 'name' | 'path'
+
+/** A fresh tree searches basenames. */
+export const DEFAULT_SEARCH_MODE: SearchMode = 'name'
+
 /**
  * One tab's tree: its root, the levels it has asked for, what is open, the
  * filename search beside it, the hidden-entry kinds, and the last row mutation.
@@ -94,6 +100,10 @@ export interface FilesTabState {
   scrollTop: number
   /** What the search box holds and has last heard back. */
   search: FileSearchState
+  /** Which text the search matches: the basename or the workspace path. */
+  searchMode: SearchMode
+  /** Directory basenames this reader excludes on top of the Host's configured list. */
+  searchExcludes: readonly string[]
   /** How the last create, rename, or delete gesture ended, for the tree's strip. */
   mutation: TreeMutationState
   /** Entry kinds this tree drops from its listings. */
@@ -255,6 +265,9 @@ type FilesActions = {
   scrolled: (draft: FilesState, tabId: TabId, scrollTop: number) => void
   toggleHidden: (draft: FilesState, tabId: TabId, kind: keyof HiddenKinds) => void
   searchTyped: (draft: FilesState, tabId: TabId, query: string) => void
+  searchModeChanged: (draft: FilesState, tabId: TabId, mode: SearchMode) => void
+  searchExcludeAdded: (draft: FilesState, tabId: TabId, name: string) => void
+  searchExcludeRemoved: (draft: FilesState, tabId: TabId, name: string) => void
   searchRunning: (draft: FilesState, tabId: TabId, query: string) => void
   searchSettled: (
     draft: FilesState,
@@ -320,6 +333,8 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
           expanded: [root],
           scrollTop: 0,
           search: { kind: 'idle', query: '' },
+          searchMode: DEFAULT_SEARCH_MODE,
+          searchExcludes: [],
           mutation: { kind: 'idle' },
           hidden: DEFAULT_HIDDEN,
         }
@@ -395,6 +410,37 @@ export function createFilesStore(): EngineStoreHandle<FilesState, FilesActions> 
        */
       searchTyped: (d, tabId: TabId, query: string) => {
         bucket(d, tabId).search = { kind: 'idle', query }
+      },
+      /**
+       * Switch what the search matches without discarding the query.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param mode - basename or workspace-path matching.
+       */
+      searchModeChanged: (d, tabId: TabId, mode: SearchMode) => {
+        bucket(d, tabId).searchMode = mode
+      },
+      /**
+       * Add one directory to this reader's own search exclusions.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param name - directory basename, as typed.
+       */
+      searchExcludeAdded: (d, tabId: TabId, name: string) => {
+        const tree = bucket(d, tabId)
+        const trimmed = name.trim()
+        if (trimmed === '' || tree.searchExcludes.includes(trimmed)) return
+        tree.searchExcludes = [...tree.searchExcludes, trimmed]
+      },
+      /**
+       * Drop one of this reader's own search exclusions.
+       * @param d - draft state.
+       * @param tabId - the tab being drawn.
+       * @param name - the directory basename to stop excluding.
+       */
+      searchExcludeRemoved: (d, tabId: TabId, name: string) => {
+        const tree = bucket(d, tabId)
+        tree.searchExcludes = tree.searchExcludes.filter(entry => entry !== name)
       },
       /**
        * Mark one query as asked of the Host and not yet answered.

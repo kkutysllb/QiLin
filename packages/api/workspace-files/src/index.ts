@@ -48,6 +48,7 @@ import type {
   WorkspaceFileBytes,
   WorkspaceFileNameMatch,
   WorkspaceFileNameSearch,
+  WorkspaceFileNameSearchRequest,
   WorkspaceFileRange,
   WorkspaceFileStat,
   WorkspaceFileText,
@@ -374,33 +375,41 @@ export class WorkspaceFiles extends TypertRemoteService {
 
   /**
    * Search file names below the workspace root for a substring, comparing each
-   * basename case-insensitively. The walk visits directories breadth-first, so
-   * a shallow match precedes a deeper one, and every match is reported as a
-   * path relative to the workspace root. Only regular files match: a directory
-   * is walked, never offered.
+   * basename or workspace path case-insensitively as the request selects. The
+   * walk visits directories breadth-first, so a shallow match precedes a deeper
+   * one, and every match is reported as a path relative to the workspace root.
+   * Only regular files match: a directory is walked, never offered.
    *
    * This is a name lookup, not a code search: no ignore file is consulted, and
    * the configured excluded directories are neither matched nor descended, so a
-   * dependency store neither crowds the matches nor burns the visit budget. A
-   * directory the workspace root does not contain is not descended either: a
-   * symbolic link to a directory elsewhere neither reports names outside the
-   * workspace nor loops the walk.
+   * dependency store neither crowds the matches nor burns the visit budget. The
+   * request may add directory exclusions for its own walk and may turn the
+   * dependency store back on, and it may skip dot-prefixed entries to mirror
+   * the reader's hidden-file choice. A directory the workspace root does not
+   * contain is not descended either: a symbolic link to a directory elsewhere
+   * neither reports names outside the workspace nor loops the walk.
    *
    * @param workspaceFileScope - header-derived workspace root for the Session identity on the wire.
-   * @param query - the substring matched against each basename; blank matches nothing.
+   * @param request - the query, the matched text, and this walk's exclusions and hidden kinds.
    * @param signal - caller cancellation.
    * @returns the matching paths, cut to the configured match cap, and whether a cap stopped the walk.
    */
   @Remote
   async searchNames(
     workspaceFileScope: WorkspaceFileScope,
-    query: string,
+    request: WorkspaceFileNameSearchRequest,
     signal: AbortSignal,
   ): Promise<WorkspaceFileNameSearch> {
-    const needle = query.trim().toLowerCase()
+    const needle = request.query.trim().toLowerCase()
     if (needle === '') return { matches: [], truncated: false }
+    const mode = request.mode ?? 'name'
+    const hideDotfiles = request.hidden?.dotfiles === true
     const root = await this.ctx.fs.resolve(workspaceFileScope.workspaceRoot, { signal })
-    const excluded = new Set(this.config.searchExcludedDirectories.map(name => name.toLowerCase()))
+    const excluded = new Set([
+      ...this.config.searchExcludedDirectories
+        .filter(name => !(request.hidden?.nodeModules === false && name.toLowerCase() === 'node_modules')),
+      ...(request.extraExcludedDirectories ?? []),
+    ].map(name => name.toLowerCase()))
     const matches: WorkspaceFileNameMatch[] = []
     let visited = 0
     let truncated = false
@@ -415,6 +424,7 @@ export class WorkspaceFiles extends TypertRemoteService {
             break
           }
           visited += 1
+          if (hideDotfiles && child.name.startsWith('.')) continue
           const path = directory.path === '' ? child.name : `${directory.path}/${child.name}`
           if (child.type === 'directory') {
             if (!excluded.has(child.name.toLowerCase()) && this.ctx.fs.contains(root, child.target)) {
@@ -422,7 +432,8 @@ export class WorkspaceFiles extends TypertRemoteService {
             }
             continue
           }
-          if (child.type !== 'file' || !child.name.toLowerCase().includes(needle)) continue
+          const matched = (mode === 'path' ? path : child.name).toLowerCase()
+          if (child.type !== 'file' || !matched.includes(needle)) continue
           if (matches.length >= this.config.maxSearchMatches) {
             truncated = true
             break

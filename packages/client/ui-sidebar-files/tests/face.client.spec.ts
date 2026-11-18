@@ -156,7 +156,7 @@ describe('filesFace search', () => {
 
   /** Type into the box through the face, as the body does. */
   function type(face: ReturnType<typeof mount>['face'], query: string, signal: AbortSignal): void {
-    face.search(TAB, query, signal)
+    face.search(TAB, query, {}, signal)
     vi.advanceTimersByTime(SEARCH_SETTLE_MS)
   }
 
@@ -166,10 +166,10 @@ describe('filesFace search', () => {
     const { face, searchMock, settleSearch, snapshot } = mount()
     const signal = SIGNAL()
     face.start(TAB, ROOT, signal)
-    face.search(TAB, '  read  ', signal)
+    face.search(TAB, '  read  ', {}, signal)
     expect(searchMock).not.toHaveBeenCalled()
     vi.advanceTimersByTime(SEARCH_SETTLE_MS)
-    expect(searchMock).toHaveBeenCalledWith(SESSION, 'read', signal)
+    expect(searchMock).toHaveBeenCalledWith(SESSION, { query: 'read' }, signal)
     expect(snapshot()!.search).toEqual({ kind: 'running', query: '  read  ' })
     await settleSearch({ ok: true, value: { matches: [{ path: 'README.md', bytes: 1 }], truncated: false } })
     expect(snapshot()!.search).toEqual({
@@ -191,12 +191,12 @@ describe('filesFace search', () => {
     const { face, searchMock, snapshot } = mount()
     const signal = SIGNAL()
     face.start(TAB, ROOT, signal)
-    face.search(TAB, 're', signal)
+    face.search(TAB, 're', {}, signal)
     vi.advanceTimersByTime(SEARCH_SETTLE_MS - 1)
-    face.search(TAB, 'readme', signal)
+    face.search(TAB, 'readme', {}, signal)
     vi.advanceTimersByTime(SEARCH_SETTLE_MS)
     expect(searchMock).toHaveBeenCalledTimes(1)
-    expect(searchMock).toHaveBeenCalledWith(SESSION, 'readme', signal)
+    expect(searchMock).toHaveBeenCalledWith(SESSION, { query: 'readme' }, signal)
     expect(snapshot()!.search).toEqual({ kind: 'running', query: 'readme' })
   })
 
@@ -218,7 +218,7 @@ describe('filesFace search', () => {
     const signal = SIGNAL()
     face.start(TAB, ROOT, signal)
     type(face, 'read', signal)
-    face.search(TAB, '   ', signal)
+    face.search(TAB, '   ', {}, signal)
     vi.advanceTimersByTime(SEARCH_SETTLE_MS)
     expect(searchMock).toHaveBeenCalledTimes(1)
     expect(snapshot()!.search).toEqual({ kind: 'idle', query: '' })
@@ -228,7 +228,7 @@ describe('filesFace search', () => {
     const { face, searchMock, snapshot } = mount()
     const controller = new AbortController()
     face.start(TAB, ROOT, controller.signal)
-    face.search(TAB, 'read', controller.signal)
+    face.search(TAB, 'read', {}, controller.signal)
     controller.abort()
     vi.advanceTimersByTime(SEARCH_SETTLE_MS)
     expect(searchMock).not.toHaveBeenCalled()
@@ -239,7 +239,7 @@ describe('filesFace search', () => {
     const { face, searchMock } = mount()
     const controller = new AbortController()
     controller.abort()
-    face.search(TAB, 'read', controller.signal)
+    face.search(TAB, 'read', {}, controller.signal)
     vi.advanceTimersByTime(SEARCH_SETTLE_MS)
     expect(searchMock).not.toHaveBeenCalled()
   })
@@ -251,8 +251,8 @@ describe('createSearch', () => {
     const searchNames = vi.fn<WorkspaceFilesTreeRemote['workspaceFiles']['searchNames']>()
       .mockResolvedValue({ ok: true, value: answer })
     const signal = new AbortController().signal
-    const result = await createSearch({ workspaceFiles: { searchNames } })(SESSION, 'a', signal)
-    expect(searchNames).toHaveBeenCalledWith(SESSION, 'a', signal)
+    const result = await createSearch({ workspaceFiles: { searchNames } })(SESSION, { query: 'a' }, signal)
+    expect(searchNames).toHaveBeenCalledWith(SESSION, { query: 'a' }, signal)
     expect(result).toEqual({ ok: true, value: answer })
   })
 })

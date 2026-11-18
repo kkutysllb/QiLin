@@ -81,6 +81,12 @@ describe('FilesBody', () => {
     fireEvent.click(view.getByRole('button', { name: zh.viewOptions }))
     fireEvent.click(view.getByRole('menuitem', { name: zh.hideDotfiles }))
     expect(names(view.container)).toEqual([`${ROOT}/src`, `${ROOT}/pipe`, `${ROOT}/README.md`])
+    // The dependency-directory switch takes its own branch, and Escape closes the menu.
+    fireEvent.click(view.getByRole('button', { name: zh.viewOptions }))
+    fireEvent.click(view.getByRole('menuitem', { name: zh.hideNodeModules }))
+    fireEvent.click(view.getByRole('button', { name: zh.viewOptions }))
+    fireEvent.keyDown(view.getByRole('menu'), { key: 'Escape' })
+    expect(view.queryByRole('menu')).toBeNull()
   })
 
   it('heads a separator-only root by the root itself, since it has no final segment', async () => {
@@ -345,7 +351,11 @@ describe('FilesBody search', () => {
     const mounted = mountBody()
     const { view, searchScript, tabActions } = mounted
     type(view, 'read')
-    expect(searchScript.search).toHaveBeenCalledWith(SESSION, 'read', expect.any(AbortSignal))
+    expect(searchScript.search).toHaveBeenCalledWith(
+      SESSION,
+      { query: 'read', mode: 'name', extraExcludedDirectories: [], hidden: { dotfiles: true, nodeModules: true } },
+      expect.any(AbortSignal),
+    )
     expect(view.container.querySelector('[data-files-row="search-running"]')?.textContent).toBe(zh['search.running'])
     expect(view.container.querySelector('[data-files-search-results]')).not.toBeNull()
     await act(() => searchScript.settle({
@@ -358,6 +368,56 @@ describe('FilesBody search', () => {
     expect(view.container.querySelector('[data-files-row="search-truncated"]')?.textContent).toBe(zh['search.truncated'])
     fireEvent.click(view.container.querySelector('[data-files-path="src/readme.ts"] button')!)
     expect(tabActions.openResource).toHaveBeenCalledWith(fileAddressFor(SESSION, ROOT, 'src/readme.ts'))
+  })
+
+  it('re-asks with the chosen scope, an added exclusion, and the hidden toggles', async () => {
+    const { view, searchScript } = mountBody()
+    type(view, 'read')
+    searchScript.search.mockClear()
+    fireEvent.click(view.container.querySelector('[data-files-search-mode="path"]')!)
+    // The face settles each request on its own timer.
+    act(() => { vi.advanceTimersByTime(SEARCH_SETTLE_MS) })
+    expect(searchScript.search).toHaveBeenLastCalledWith(
+      SESSION,
+      { query: 'read', mode: 'path', extraExcludedDirectories: [], hidden: { dotfiles: true, nodeModules: true } },
+      expect.any(AbortSignal),
+    )
+    fireEvent.click(view.container.querySelector('[data-files-search-settings]')!)
+    const panel = view.container.querySelector('[data-files-search-settings-panel]')!
+    const excludeInput = panel.querySelector('input[type="text"]') as HTMLInputElement
+    fireEvent.change(excludeInput, { target: { value: 'dist' } })
+    fireEvent.submit(excludeInput.closest('form')!)
+    act(() => { vi.advanceTimersByTime(SEARCH_SETTLE_MS) })
+    expect(searchScript.search).toHaveBeenLastCalledWith(
+      SESSION,
+      { query: 'read', mode: 'path', extraExcludedDirectories: ['dist'], hidden: { dotfiles: true, nodeModules: true } },
+      expect.any(AbortSignal),
+    )
+    // The settings panel's hidden switch drives the same search the box asks.
+    fireEvent.click(panel.querySelector('[data-files-hidden-toggle="dotfiles"]')!)
+    act(() => { vi.advanceTimersByTime(SEARCH_SETTLE_MS) })
+    expect(searchScript.search).toHaveBeenLastCalledWith(
+      SESSION,
+      { query: 'read', mode: 'path', extraExcludedDirectories: ['dist'], hidden: { dotfiles: false, nodeModules: true } },
+      expect.any(AbortSignal),
+    )
+    // Removing the rule re-asks without it, and Escape closes the panel.
+    fireEvent.click(panel.querySelector('[data-files-search-settings-panel] li button')!)
+    act(() => { vi.advanceTimersByTime(SEARCH_SETTLE_MS) })
+    expect(searchScript.search).toHaveBeenLastCalledWith(
+      SESSION,
+      { query: 'read', mode: 'path', extraExcludedDirectories: [], hidden: { dotfiles: false, nodeModules: true } },
+      expect.any(AbortSignal),
+    )
+    // A blank or repeated rule is ignored rather than asked again.
+    const callCount = searchScript.search.mock.calls.length
+    fireEvent.submit(panel.querySelector('form')!)
+    expect(searchScript.search).toHaveBeenCalledTimes(callCount)
+    fireEvent.change(panel.querySelector('input[type="text"]')!, { target: { value: 'read' } })
+    fireEvent.keyDown(panel, { key: 'a' })
+    expect(view.container.querySelector('[data-files-search-settings-panel]')).not.toBeNull()
+    fireEvent.keyDown(panel, { key: 'Escape' })
+    expect(view.container.querySelector('[data-files-search-settings-panel]')).toBeNull()
   })
 
   it('says so when nothing matched', async () => {

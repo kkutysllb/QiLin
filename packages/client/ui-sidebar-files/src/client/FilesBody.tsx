@@ -13,10 +13,10 @@ import type { ReactNode, RefObject } from 'react'
 import { IconRefreshOutlineRegular, IconSettingsOutlineRegular, Menu } from '@qilin-agent/client-ui-primitives'
 import type { MenuEntry } from '@qilin-agent/client-ui-primitives'
 import { fileAddressFor, pathPartsOf } from '@qilin-agent/util-workspace-path'
-import { FileSearchBox, FileSearchResults } from './FileSearch.tsx'
+import { FileSearchBox, FileSearchResults, FileSearchSettings } from './FileSearch.tsx'
 import { FileTree } from './FileTree.tsx'
 import { openFileRow } from './file-preview.ts'
-import type { FilesInjected } from './face.ts'
+import type { FilesInjected, WorkspaceSearchFilters } from './face.ts'
 import type { PropsLocale, PropsRenderSlots, PropsRuntime, PropsStore } from '@qilin-agent/client-ui-slots'
 import type {} from './locales.ts'
 import type { createFilesStore } from './store.ts'
@@ -75,6 +75,7 @@ export function FilesBody({
   // directory or a seeded bucket, and a hook after those returns would change
   // the hook order on the next render.
   const [viewMenu, setViewMenu] = useState(false)
+  const [searchSettings, setSearchSettings] = useState(false)
   const cwd = useSessions(sessions => sessions.byId[sessionId]?.cwd)
   const state = useStore(store => store.byTab[tab.id])
   const pathRef = useRef<HTMLDivElement>(null)
@@ -141,10 +142,42 @@ export function FilesBody({
     ...(state.hidden.dotfiles ? ['hide-dotfiles'] : []),
     ...(state.hidden.nodeModules ? ['hide-node-modules'] : []),
   ]
+  const searchFilters = (
+    mode = state.searchMode,
+    hidden = state.hidden,
+    excludes = state.searchExcludes,
+  ): WorkspaceSearchFilters => ({
+    mode,
+    extraExcludedDirectories: excludes,
+    hidden: { dotfiles: hidden.dotfiles, nodeModules: hidden.nodeModules },
+  })
+  const research = (filters: WorkspaceSearchFilters): void => {
+    if (state.search.query.trim() === '') return
+    search(tab.id, state.search.query, filters, signal)
+  }
+  const toggleHidden = (kind: 'dotfiles' | 'nodeModules'): void => {
+    actions.toggleHidden(tab.id, kind)
+    research(searchFilters(state.searchMode, { ...state.hidden, [kind]: !state.hidden[kind] }))
+  }
+  const changeMode = (mode: 'name' | 'path'): void => {
+    actions.searchModeChanged(tab.id, mode)
+    research(searchFilters(mode))
+  }
+  const addExclude = (name: string): void => {
+    const trimmed = name.trim()
+    if (trimmed === '' || state.searchExcludes.includes(trimmed)) return
+    actions.searchExcludeAdded(tab.id, trimmed)
+    research(searchFilters(state.searchMode, state.hidden, [...state.searchExcludes, trimmed]))
+  }
+  const removeExclude = (name: string): void => {
+    actions.searchExcludeRemoved(tab.id, name)
+    research(searchFilters(state.searchMode, state.hidden, state.searchExcludes.filter(entry => entry !== name)))
+  }
   const toggleView = (id: string): void => {
     setViewMenu(false)
-    if (id === 'hide-dotfiles') actions.toggleHidden(tab.id, 'dotfiles')
-    else if (id === 'hide-node-modules') actions.toggleHidden(tab.id, 'nodeModules')
+    // The menu offers exactly these two ids.
+    if (id === 'hide-dotfiles') toggleHidden('dotfiles')
+    else toggleHidden('nodeModules')
   }
   const openResult = (path: string): void => {
     openFileRow(tabActions, fileAddressFor(sessionId, state.root, path), path)
@@ -199,14 +232,31 @@ export function FilesBody({
         {/* jscpd:ignore-end */}
         <FileSearchBox
           query={state.search.query}
+          mode={state.searchMode}
           onQuery={(query) => {
             actions.searchTyped(tab.id, query)
-            search(tab.id, query, signal)
+            search(tab.id, query, searchFilters(), signal)
           }}
           onClear={() => {
             actions.searchCleared(tab.id)
-            search(tab.id, '', signal)
+            search(tab.id, '', searchFilters(), signal)
           }}
+          onMode={changeMode}
+          settingsOpen={searchSettings}
+          onSettingsToggle={() => { setSearchSettings(open => !open) }}
+          settings={searchSettings
+            ? (
+              <FileSearchSettings
+                excludes={state.searchExcludes}
+                hidden={state.hidden}
+                onToggleHidden={toggleHidden}
+                onAddExclude={addExclude}
+                onRemoveExclude={removeExclude}
+                onClose={() => { setSearchSettings(false) }}
+                t={t}
+              />
+            )
+            : undefined}
           t={t}
         />
         <div
