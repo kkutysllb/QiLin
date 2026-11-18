@@ -47,7 +47,7 @@ Assistant Markdown 中的 HTTP(S) 链接在普通点击时会在该类型已注�
 <a id="system-prompt-row"></a>
 ## 隐藏的 Chat 行
 
-Chat 在所有展示档位下都不渲染 `system-prompt`、普通 Context 注入及 `permission` 命令行。带有工具增删的 Context 仍保留其通知行。该过滤不改变已记录的 Session 事件，也不影响 Trajectory 检视：这些 Node 仍被记录并可寻址，只是由 [`orderedVisibleChatNodes`](src/client/conversation-nodes/chat-snapshot-builder.ts) 在排序、分组与渲染之前移除。非人工的轮次触发仍作为独立、带边框的提示行展示，并使用对比中性的背景；其他命令行仍留在 Chat 中。
+Chat 在所有展示档位下都不渲染 `system-prompt` 与 `permission` 命令行，同时把每一条已记录的 Context 保留为可折叠的披露行——工作区指令、技能目录、快照提示、中转、回忆与工具注册变更都在内。展开某一即查看模型当时收到的内容，按 producer 声明的 form 呈现；缺失或不可读的 form 回退到不透明正文。过滤不改变已记录的 Session 事件，也不影响 Trajectory 检视：被丢弃的 Node 仍被记录并可寻址，只是由 [`orderedVisibleChatNodes`](src/client/conversation-nodes/chat-snapshot-builder.ts) 在排序、分组与渲染之前应用规则。非人工的轮次触发仍作为独立、带边框的提示行展示，并使用对比中性的背景；其他命令行仍留在 Chat 中。
 
 -----
 
@@ -81,7 +81,7 @@ Assistant 回复结算后，已完成轮次的页脚只保留用量入口：轮�
 <a id="grouped-rendering"></a>
 ## 分组渲染
 
-独立输入之间的连续推理、工具与 Assistant 行会组成活动分组，由 Chat 的一个分组定义拥有。分组座位只订阅自己的成员数组，每个成员继续使用原有的键控 Node 来源与 renderer。`groupPart` 选择 renderer 自有的部分，每个部分拥有独立的 DOM 锚点。`isVisibleChatNode` 会在排序与分组前把系统提示词、普通 Context 注入及 `permission` 命令 Node 从可见顺序中移除，因此它们既不会渲染为行，也不会拆分组；带有工具增删的 Context 仍保留其通知行。展示档位只改变分组的可见性，不改变成员的父级。[业务规则参考](src/client/conversation-nodes/README.zh.md)负责分段、展示档位标题与活动摘要的完整定义。
+独立输入之间的连续推理、工具与 Assistant 行会组成活动分组，由 Chat 的一个分组定义拥有。分组座位只订阅自己的成员数组，每个成员继续使用原有的键控 Node 来源与 renderer。`groupPart` 选择 renderer 自有的部分，每个部分拥有独立的 DOM 锚点。`isVisibleChatNode` 在排序与分组前只移除系统提示词与 `permission` 命令 Node；已记录的 Context 保留披露行与自己的分组。展示档位只改变分组的可见性，不改变成员的父级。[业务规则参考](src/client/conversation-nodes/README.zh.md)负责分段、展示档位标题与活动摘要的完整定义。
 
 工作步骤展示下方的设置行提供[独立的收起时机设置](src/client/conversation-nodes/README.zh.md#collapse-timing)，通过相同的 Host profile 配置保存。
 

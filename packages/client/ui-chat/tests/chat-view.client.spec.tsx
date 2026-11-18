@@ -2184,17 +2184,44 @@ describe('ChatView', () => {
     const contextRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="context"]')
     const members = [...view.container.querySelectorAll<HTMLElement>('[data-turn-process-member]')]
 
-    // The injected Context keeps its Node but contributes no row, so the fold
-    // owns only the Assistant and Tool evidence.
-    expect(members).toHaveLength(2)
-    expect(members.map(member => member.dataset.chatFlowKind)).toEqual(['assistant-step', 'tool-call'])
-    expect(contextRow).toBeNull()
+    // The injected Context keeps its disclosure row inside the fold, so the
+    // reader can open what the model received without leaving the transcript.
+    expect(members).toHaveLength(3)
+    expect(members.map(member => member.dataset.chatFlowKind)).toEqual(['context', 'assistant-step', 'tool-call'])
+    expect(contextRow).not.toBeNull()
+    // The row is collapsed until opened: its body text stays out of find-in-page.
     expect(view.queryByText('runtime policy changed')).toBeNull()
-    expect(members.map(member => member.getAttribute('hidden'))).toEqual(['until-found', 'until-found'])
-    fireEvent(members[1]!, new Event('beforematch'))
+    expect(members.map(member => member.getAttribute('hidden'))).toEqual(['until-found', 'until-found', 'until-found'])
+    fireEvent(members[2]!, new Event('beforematch'))
     expect(turnProcessControl(view.container)?.getAttribute('aria-expanded')).toBe('true')
-    expect(members.map(member => member.getAttribute('hidden'))).toEqual([null, null])
-    expect(view.container.querySelector('[data-chat-flow-kind="context"]')).toBeNull()
+    expect(members.map(member => member.getAttribute('hidden'))).toEqual([null, null, null])
+    fireEvent.click(within(contextRow!).getByRole('button'))
+    expect(view.getByText('runtime policy changed')).toBeTruthy()
+  })
+
+  it('shows workspace instructions and the skill catalog as expandable context rows', () => {
+    const instructions = {
+      ...context(2, 'workspace instructions', 1),
+      source: { kind: 'agent-instructions', form: 'instructions', changes: [{ path: '/w/AGENTS.md', action: 'set' }] },
+      form: 'instructions' as const,
+      producer: { role: 'inject' as const, label: '/w/AGENTS.md' },
+    }
+    const catalog = {
+      ...context(3, 'skill catalog', 1),
+      source: { kind: 'skill-catalog', form: 'catalog', entries: [{ name: 'demo-skill', description: 'Explains the demo.' }] },
+      form: 'catalog' as const,
+      producer: { role: 'inject' as const, label: 'skills' },
+    }
+    const h = makeHarness({ nodes: [user(1, 'question'), instructions, catalog, assistant(4, 'final answer', 1, 1)], turnEnds: new Map([[1, 5]]) })
+    const view = render(<h.ChatView {...h.props} />)
+    const rows = [...view.container.querySelectorAll<HTMLElement>('[data-chat-flow-kind="context"]')]
+    expect(rows).toHaveLength(2)
+    // The fold hides its members until opened; the rows then disclose their bodies.
+    fireEvent.click(turnProcessControl(view.container)!)
+    for (const row of rows) fireEvent.click(within(row).getByRole('button'))
+    expect(view.getAllByText(/AGENTS\.md/).length).toBeGreaterThan(0)
+    expect(view.getByText('demo-skill')).toBeTruthy()
+    expect(view.getByText('Explains the demo.')).toBeTruthy()
   })
 
   it('omits the System prompt through Turn completion and process expansion', () => {
@@ -2205,11 +2232,11 @@ describe('ChatView', () => {
     const h = makeHarness({ chat: initial }, { running: true })
     const view = render(<h.ChatView {...h.props} />)
 
-    // The System prompt and the injected Context keep their Nodes but never
-    // reach the transcript: only routed Chat rows stay rendered.
-    expect(renderedFlowKinds(view.container)).toEqual(['user'])
+    // The System prompt stays steering state, not a Chat row; the injected
+    // Context keeps its disclosure row so the model's input stays inspectable.
+    expect(renderedFlowKinds(view.container)).toEqual(['user', 'context'])
     expect(view.container.querySelector('[data-chat-flow-kind="system-prompt"]')).toBeNull()
-    expect(view.container.querySelector('[data-chat-flow-kind="context"]')).toBeNull()
+    expect(view.container.querySelector('[data-chat-flow-kind="context"]')).not.toBeNull()
 
     act(() => {
       h.set({
@@ -2224,7 +2251,7 @@ describe('ChatView', () => {
       })
     })
     expect(renderedFlowKinds(view.container)).toEqual([
-      'user', 'turn-process', 'assistant-step',
+      'user', 'turn-process', 'context', 'assistant-step',
     ])
     expect(view.container.querySelector('[data-chat-flow-kind="system-prompt"]')).toBeNull()
 
@@ -2245,21 +2272,21 @@ describe('ChatView', () => {
     const toggle = turnProcessControl(view.container)!
     const members = [...view.container.querySelectorAll<HTMLElement>('[data-turn-process-member]')]
     expect(renderedFlowKinds(view.container)).toEqual([
-      'user', 'turn-process', 'assistant-step', 'assistant-step', 'turn-tail',
+      'user', 'turn-process', 'context', 'assistant-step', 'assistant-step', 'turn-tail',
     ])
     expect(toggle.getAttribute('aria-expanded')).toBe('false')
-    expect(members.map(member => member.dataset.chatFlowKind)).toEqual(['assistant-step'])
-    expect(members.map(member => member.getAttribute('hidden'))).toEqual(['until-found'])
+    expect(members.map(member => member.dataset.chatFlowKind)).toEqual(['context', 'assistant-step'])
+    expect(members.map(member => member.getAttribute('hidden'))).toEqual(['until-found', 'until-found'])
 
     fireEvent.click(toggle)
     expect(renderedFlowKinds(view.container)).toEqual([
-      'user', 'turn-process', 'assistant-step', 'assistant-step', 'turn-tail',
+      'user', 'turn-process', 'context', 'assistant-step', 'assistant-step', 'turn-tail',
     ])
     expect(view.container.querySelector('[data-chat-flow-kind="system-prompt"]')).toBeNull()
-    expect(members.map(member => member.getAttribute('hidden'))).toEqual([null])
+    expect(members.map(member => member.getAttribute('hidden'))).toEqual([null, null])
   })
 
-  it('keeps the fallback title without a disclosure when only Context precedes the answer', () => {
+  it('folds a Turn whose only process evidence is Context', () => {
     const h = makeHarness({
       nodes: [user(1, 'question'), context(2, 'runtime policy', 1), assistant(3, 'final answer', 1, 1)],
       turnEnds: new Map([[1, 4]]),
@@ -2268,20 +2295,21 @@ describe('ChatView', () => {
     const toggle = view.getByRole('button', { name: '已完成' })
     const contextRow = view.container.querySelector<HTMLElement>('[data-chat-flow-kind="context"]')
 
-    // The injected Context contributes no foldable row, so this Turn has
-    // nothing to collapse: the control is disabled, omits aria-expanded, and
-    // no Context row reaches find-in-page.
+    // The Context disclosure alone gives this Turn something to fold: the
+    // control is enabled, opens on click, and keeps the row inspectable.
     expect(toggle.hasAttribute('data-open')).toBe(false)
-    expect(toggle.hasAttribute('disabled')).toBe(true)
-    expect(toggle.getAttribute('aria-expanded')).toBeNull()
+    expect(toggle.hasAttribute('disabled')).toBe(false)
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
     expect(toggle.getAttribute('data-turn-process-tool-calls')).toBe('0')
     expect(toggle.getAttribute('data-turn-process-messages')).toBe('0')
     expect(toggle.getAttribute('data-turn-process-subagents')).toBe('0')
-    expect(contextRow).toBeNull()
-    expect(view.container.querySelector('[data-turn-process-member]')).toBeNull()
-    expect(view.queryByText('runtime policy')).toBeNull()
+    expect(contextRow).not.toBeNull()
+    const member = view.container.querySelector('[data-turn-process-member]')!
+    expect(member.getAttribute('hidden')).toBe('until-found')
     fireEvent.click(toggle)
-    expect(view.container.querySelector('[data-chat-flow-kind="context"]')).toBeNull()
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
+    expect(member.getAttribute('hidden')).toBeNull()
+    expect(view.container.querySelector('[data-chat-flow-kind="context"]')).not.toBeNull()
     expect(view.getByText('final answer').closest('[hidden]')).toBeNull()
   })
 
@@ -2616,7 +2644,7 @@ describe('ChatView', () => {
     expect(complete.nodes).toBe(partial.nodes)
     expect(complete.locations.getTurn(1)).not.toBe(beforeKeys)
     expect(complete.order.map(key => complete.nodes.get(key)?.kind)).toEqual([
-      'user', 'turn-process', 'assistant-step', 'assistant-step', 'turn-tail',
+      'user', 'turn-process', 'context', 'assistant-step', 'assistant-step', 'turn-tail',
     ])
 
     act(() => {
@@ -3967,12 +3995,13 @@ describe('single Turn process group', () => {
     const view = render(<h.ChatView {...h.props} />)
     const loaded = [...view.container.querySelectorAll<HTMLElement>('[data-chat-flow-kind]')]
     expect(loaded.map(row => row.dataset.chatFlowKind))
-      .toEqual(['user', 'user', 'turn-process', 'assistant-step', 'tool-call'])
+      .toEqual(['user', 'user', 'turn-process', 'context', 'assistant-step', 'tool-call'])
     // Only the collapse control is withheld while the window is incomplete; no
     // loaded content row is hidden by the Turn process guard.
     expect(loaded.filter(row => row.hasAttribute('data-turn-process-hidden'))
       .map(row => row.dataset.chatFlowKind)).toEqual(['turn-process'])
-    expect(view.container.querySelectorAll('[data-chat-group-key]')).toHaveLength(1)
+    // The context row is grouped on its own, so the Turn's process group still
+    // holds exactly the tool call it loaded.
     expect(view.container.querySelectorAll('[data-chat-group-key] [data-chat-flow-kind="tool-call"]')).toHaveLength(1)
     expect(turnProcessControl(view.container)).toBeNull()
   })

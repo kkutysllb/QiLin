@@ -47,7 +47,7 @@ A sent user message may carry Markdown blockquotes. Each consecutive `> ` run re
 <a id="system-prompt-row"></a>
 ## Hidden Chat rows
 
-Chat omits `system-prompt`, ordinary Context injection, and `permission` command rows in every work-details mode. A Context carrying tool additions or removals keeps its notice row. The filter changes neither recorded Session events nor Trajectory inspection: those Nodes stay logged and addressable while [`orderedVisibleChatNodes`](src/client/conversation-nodes/chat-snapshot-builder.ts) drops them before ordering, grouping, and rendering. Non-human Turn triggers remain independent, bordered notices with a contrasting neutral background; other command rows remain in Chat.
+Chat omits `system-prompt` and `permission` command rows in every work-details mode, and keeps every logged Context as a collapsed disclosure row — workspace instructions, the skill catalog, snapshot notices, relays, recalls, and tool-registry changes. Expanding a row reads what the model received, using the producer-declared form; an absent or unreadable form falls back to the opaque body. The filter changes neither recorded Session events nor Trajectory inspection: the dropped Nodes stay logged and addressable while [`orderedVisibleChatNodes`](src/client/conversation-nodes/chat-snapshot-builder.ts) applies the rule before ordering, grouping, and rendering. Non-human Turn triggers remain independent, bordered notices with a contrasting neutral background; other command rows remain in Chat.
 
 <a id="turn-token-usage"></a>
 ## Turn token usage
@@ -79,7 +79,7 @@ The composer statistics are two `conversation.composer.dock` list entries: `acti
 <a id="grouped-rendering"></a>
 ## Grouped rendering
 
-Consecutive reasoning, Tool, and Assistant rows between independent inputs become activity groups owned by one Chat Group Definition. A group seat subscribes only to its member array, and each member keeps its keyed Node source and renderer. `groupPart` selects the renderer-owned part, with a distinct DOM anchor per part. `isVisibleChatNode` removes system-prompt, ordinary Context injection, and permission-command Nodes from the visible order before ordering and grouping, so they neither render as rows nor split a group; a Context carrying tool additions or removals keeps its notice row. Presentation modes change group visibility, never member parents. The [business-rule reference](src/client/conversation-nodes/README.md) owns segmentation, display-mode titles, and activity summaries.
+Consecutive reasoning, Tool, and Assistant rows between independent inputs become activity groups owned by one Chat Group Definition. A group seat subscribes only to its member array, and each member keeps its keyed Node source and renderer. `groupPart` selects the renderer-owned part, with a distinct DOM anchor per part. `isVisibleChatNode` removes only system-prompt and permission-command Nodes from the visible order before ordering and grouping; logged Context keeps its disclosure row and its own group. Presentation modes change group visibility, never member parents. The [business-rule reference](src/client/conversation-nodes/README.md) owns segmentation, display-mode titles, and activity summaries.
 
 The Settings row below Work details offers an [independent collapse-timing preference](src/client/conversation-nodes/README.md#collapse-timing), saved through the same Host profile configuration.
 
