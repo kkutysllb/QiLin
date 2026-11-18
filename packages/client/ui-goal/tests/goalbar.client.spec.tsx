@@ -171,6 +171,19 @@ describe('GoalBar', () => {
     expect(actions.onResume).toHaveBeenCalledTimes(1)
   })
 
+  it('orders the actions edit, clear, then pause or resume', () => {
+    const actions = makeActions()
+    const active = render(<GoalBar goal={makeGoal()} activation="armed" {...actions} t={t} />)
+    const order = (container: Element): (string | null)[] => [...container.querySelectorAll('button')]
+      .map(button => button.getAttribute('aria-label'))
+      .filter(label => label !== null && ['编辑目标', '清除目标', '暂停目标', '恢复目标'].includes(label))
+    expect(order(active.container)).toEqual(['编辑目标', '清除目标', '暂停目标'])
+    active.unmount()
+
+    const paused = render(<GoalBar goal={makeGoal({ phase: 'paused' })} {...actions} t={t} />)
+    expect(order(paused.container)).toEqual(['编辑目标', '清除目标', '恢复目标'])
+  })
+
   it('a new goal identity drops the edit form (no stale draft over the new goal)', () => {
     const actions = makeActions()
     const { rerender } = render(<GoalBar goal={makeGoal()} {...actions} t={t} />)

@@ -95,10 +95,11 @@
 
 /* ---- Icon actions ---- */
 
+/* One action order everywhere: edit, clear, then pause or resume. */
 .actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex: none;
 }
 
