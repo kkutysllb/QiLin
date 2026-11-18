@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/client-ui-session-status",
   "description": "Client Session status table over Host reading records: running state, the effective pending interaction, and read or unread reminders shared by clients of one Host",
-  "version": "3.1.12-rc.4",
+  "version": "3.1.12-rc.5",
   "publishConfig": {
     "access": "public"
   },
