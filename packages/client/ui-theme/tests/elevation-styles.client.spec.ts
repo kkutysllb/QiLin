@@ -40,6 +40,20 @@ describe('elevation tokens', () => {
     expect(perElement.has(STROKE_COLOR)).toBe(false)
   })
 
+  it('drops the light hairline from dark floating layers, which separate by fill', () => {
+    // In dark mode border-l4 is a 20%-white stroke: on a floating layer over
+    // the file tree it reads as a white halo, so the dark scheme clears the
+    // stroke and lets the lighter layer fill separate the surface.
+    const dark = new Map(rules
+      .filter(rule => rule.selectors.includes('body[data-ds-dark-theme]'))
+      .flatMap(rule => rule.declarations))
+    expect(dark.get(STROKE_COLOR)).toBe('transparent')
+    const menu = new Map(rules
+      .filter(rule => rule.selectors.includes('body[data-ds-dark-theme] [data-menu-material]'))
+      .flatMap(rule => rule.declarations))
+    expect(menu.get('--dsw-elevation-stroke-color')).toBe('transparent')
+  })
+
   it('declares the derived values per element, so a stroke rebind takes effect', () => {
     // A custom property computes with var() already substituted, and
     // descendants inherit that computed value: derived tokens declared only on

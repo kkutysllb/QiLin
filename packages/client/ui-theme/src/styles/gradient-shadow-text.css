@@ -42,6 +42,17 @@ body * {
 body[data-ds-dark-theme] {
   --qilin-linear-gradient-think: linear-gradient(180deg, #151517 20.19%, rgba(21, 21, 23, 0) 100%);
   --qilin-linear-think-select: linear-gradient(180deg, #232325 20.19%, rgba(35, 35, 37, 0) 100%);
+  /* The light hairline is the only white paint on a dark floating layer, so it
+     reads as a white halo over the file tree. Dark surfaces separate by their
+     lighter fill instead (bg-layer-*); the shadow alone carries lift. */
+  --qilin-elevation-stroke-color: transparent;
+}
+
+/* Menu cards rebind the stroke to their own lightest hairline; in dark mode
+   that rebind is still white, so menu surfaces drop it too and rely on the
+   layer fill. */
+body[data-ds-dark-theme] [data-menu-material] {
+  --dsw-elevation-stroke-color: transparent;
 }
 
 /* ---------- 字体 ---------- */

@@ -197,6 +197,12 @@
     width: min(340px, calc(100% - 40px));
     box-shadow: var(--qilin-elevation-panel);
   }
+
+  /* Floating over the file tree: a lighter layer separates the sheet from the
+     tree without the light hairline the elevation stroke would draw. */
+  :global(body[data-ds-dark-theme]) .pane {
+    background: var(--qilin-alias-bg-layer-1);
+  }
 }
 
 @container (max-width: 479px) {
