@@ -579,13 +579,26 @@ describe('workspace browser rows', () => {
     }
   })
 
-  it('ungrouped bucket renders no workspace menu', () => {
+  it('ungrouped bucket renders no workspace menu and no dead New Session button', () => {
     const group: GroupNode = {
       key: '', workspaceId: undefined, section: undefined, cwd: undefined, createdAt: undefined, label: 'Ungrouped',
       sessionCount: 0, expanded: false, containsCurrent: false, sessions: [],
     }
     render(<ProjectRowItem group={group} onToggle={vi.fn()} onCreate={vi.fn()} t={t} />)
     expect(screen.queryByRole('button', { name: /工作区/ })).toBeNull()
+    // Creating a Session needs a real Workspace, so the bucket offers no create control.
+    expect(screen.queryByRole('button', { name: /新建会话/ })).toBeNull()
+  })
+
+  it('a real Workspace row keeps its New Session action', () => {
+    const onCreate = vi.fn()
+    const group: GroupNode = {
+      key: 'alpha', workspaceId: wid('alpha'), section: undefined, cwd: '/work/alpha', createdAt: 0, label: 'Alpha',
+      sessionCount: 1, expanded: true, containsCurrent: false, sessions: [],
+    }
+    render(<ProjectRowItem group={group} onToggle={vi.fn()} onCreate={onCreate} t={t} />)
+    fireEvent.click(screen.getByRole('button', { name: /新建会话/ }))
+    expect(onCreate).toHaveBeenCalledOnce()
   })
 
   it('blank New Session rows carry no menu, no time label, and no hover-card time', () => {

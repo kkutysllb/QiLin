@@ -324,14 +324,18 @@ export function ProjectRowItem({ group, containsCurrentDescendant = false, onTog
             )}
           />
         )}
-        <button
-          type="button"
-          className={css.iconButton}
-          aria-label={t('actions.newSession.aria', { name: label })}
-          onClick={(e) => { e.stopPropagation(); onCreate() }}
-        >
-          <IconPlusOutlineRegular size={14} />
-        </button>
+        {/* The ungrouped bucket has no Workspace to create into: a create
+            control there would do nothing. */}
+        {row.workspaceId === undefined ? null : (
+          <button
+            type="button"
+            className={css.iconButton}
+            aria-label={t('actions.newSession.aria', { name: label })}
+            onClick={(e) => { e.stopPropagation(); onCreate() }}
+          >
+            <IconPlusOutlineRegular size={14} />
+          </button>
+        )}
       </span>
     </div>
   )
