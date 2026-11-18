@@ -63,3 +63,27 @@ img.icon {
   object-fit: contain;
   user-select: none;
 }
+
+/* The loading placeholder holds the icon's box so the split control does not
+   resize when the roster arrives. */
+.skeleton {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  background: var(--qilin-alias-bg-skeleton);
+  animation: open-in-app-skeleton 1.2s ease-in-out infinite;
+}
+
+@keyframes open-in-app-skeleton {
+  50% { opacity: 0.45; }
+}
+
+/* Narrow panes: the menu never exceeds the viewport. */
+.menu {
+  max-width: calc(100vw - 24px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}

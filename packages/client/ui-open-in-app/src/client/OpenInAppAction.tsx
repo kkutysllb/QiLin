@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { IconChevronDownOutlineMedium, Menu, Tooltip, type MenuItem } from '@qilin-agent/client-ui-primitives'
+import {
+  IconChevronDownOutlineMedium, IconFolderOpenOutlineRegular, Menu, Tooltip, type MenuItem,
+} from '@qilin-agent/client-ui-primitives'
 import type { ObservableSnapshot } from '@qilin-agent/client-store'
 import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type {} from '@qilin-agent/client-ui-conversation/client'
@@ -69,6 +71,9 @@ const APP_LABEL_KEY: Record<string, OpenInAppKey | undefined> = {
 
 /** App ids whose icon image already failed this page; a 404 icon is fetched once, not per menu open. */
 const failedIcons = new Set<string>()
+
+/** Installed directory applications that reveal a path in the platform file manager. */
+const FILE_MANAGER_APP_IDS = ['finder', 'explorer', 'filemanager'] as const
 
 /**
  * One application's real bundle icon (host-served PNG) with an inline generic
@@ -144,15 +149,22 @@ export function OpenInAppAction(props: OpenInAppActionProps): React.JSX.Element 
     clearTimeout(errorTimer.current)
   }, [])
 
+  // A null roster is still loading: the control keeps its place with a
+  // skeleton so a narrow header does not jump when the names arrive.
+  const loading = available === null
   const apps = (available ?? [])
     .map(id => ({ id, labelKey: APP_LABEL_KEY[id] }))
     .filter((entry): entry is { id: string; labelKey: OpenInAppKey } => entry.labelKey !== undefined)
   const currentEntry = apps.find(entry => entry.id === choice) ?? apps[0]
-  if (currentEntry === undefined || cwd === undefined || cwd === '') return null
+  if (cwd === undefined || cwd === '') return null
+  if (!loading && currentEntry === undefined) return null
 
-  const current = currentEntry.id
-  const currentLabel = t(currentEntry.labelKey)
-  const title = phase === 'error' ? t('open.error') : t('open.title', { app: currentLabel })
+  const current = currentEntry?.id
+  const currentLabel = currentEntry === undefined ? undefined : t(currentEntry.labelKey)
+  const title = phase === 'error' ? t('open.error')
+    : currentLabel === undefined ? t('path.appsLoading')
+      : t('open.title', { app: currentLabel })
+  const manager = (available ?? []).find(id => (FILE_MANAGER_APP_IDS as readonly string[]).includes(id))
 
   const launch = (appId: string): void => {
     if (inFlight.current) return
@@ -174,20 +186,32 @@ export function OpenInAppAction(props: OpenInAppActionProps): React.JSX.Element 
     })
   }
 
-  const items: MenuItem[] = apps.map(entry => ({
-    id: entry.id,
-    label: t(entry.labelKey),
-    icon: <AppIcon id={entry.id} url={props.iconUrl(entry.id)} size={18} />,
-  }))
+  const items: MenuItem[] = loading
+    ? [{ id: 'loading', label: t('path.appsLoading'), disabled: true }]
+    : apps.map(entry => ({
+      id: entry.id,
+      label: t(entry.labelKey),
+      icon: <AppIcon id={entry.id} url={props.iconUrl(entry.id)} size={18} />,
+    }))
+  // The same reveal row every other opening menu carries; the directory itself
+  // is what it shows, so the file-manager launch needs no association answer.
+  const footer = manager === undefined ? undefined : [{
+    id: 'reveal',
+    label: t(manager === 'finder' ? 'menu.finder' : 'menu.reveal'),
+    icon: <IconFolderOpenOutlineRegular size={14} />,
+  }]
 
   return (
     <Menu
       open={open}
       align="end"
       dense
+      portal
       selection="fill"
+      listClassName={css.menu}
       onClose={() => { setOpen(false) }}
       items={items}
+      {...(footer === undefined ? {} : { footer })}
       selectedId={current}
       onSelect={(id) => {
         setOpen(false)
@@ -195,6 +219,11 @@ export function OpenInAppAction(props: OpenInAppActionProps): React.JSX.Element 
         // choice without launching would leave the button naming an app the
         // gesture never opened.
         if (inFlight.current) return
+        if (id === 'reveal') {
+          /* v8 ignore next -- the row exists only with an installed manager. */
+          if (manager !== undefined) launch(manager)
+          return
+        }
         props.choose(id)
         launch(id)
       }}
@@ -205,11 +234,16 @@ export function OpenInAppAction(props: OpenInAppActionProps): React.JSX.Element 
               type="button"
               className={css.main}
               data-state={phase}
-              disabled={phase === 'busy'}
+              disabled={loading || phase === 'busy'}
               aria-label={title}
-              onClick={() => { launch(current) }}
+              // The guard covers the skeleton: the button is disabled until a
+              // nameable application arrives, so the fallback is unreachable.
+              /* v8 ignore next */
+              onClick={() => { if (current !== undefined) launch(current) }}
             >
-              <AppIcon id={current} url={props.iconUrl(current)} size={15} />
+              {current === undefined
+                ? <span className={css.skeleton} data-open-in-app-skeleton aria-hidden="true" />
+                : <AppIcon id={current} url={props.iconUrl(current)} size={15} />}
             </button>
           </Tooltip>
           <button

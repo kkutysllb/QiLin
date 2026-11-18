@@ -82,3 +82,8 @@ img.appIcon {
   user-select: none;
   flex: none;
 }
+
+/* Narrow panes: the menu never exceeds the viewport. */
+.menu {
+  max-width: calc(100vw - 24px);
+}

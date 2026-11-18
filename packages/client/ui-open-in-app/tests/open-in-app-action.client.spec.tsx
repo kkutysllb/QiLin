@@ -61,9 +61,12 @@ function bench(over: {
 }
 
 describe('OpenInAppAction visibility', () => {
-  it('renders nothing before availability arrives, with no apps, without a cwd, and for unnameable ids', () => {
+  it('keeps a skeleton while availability is pending and renders nothing without a nameable app', () => {
+    const pending = render(<OpenInAppAction {...bench({ apps: null, cwd: '/w' }).props} />)
+    expect(pending.container.querySelector('[data-open-in-app-skeleton]')).not.toBeNull()
+    expect((screen.getByRole('button', { name: zh['path.appsLoading'] }) as HTMLButtonElement).disabled).toBe(true)
+    cleanup()
     for (const over of [
-      { apps: null, cwd: '/w' },
       { apps: [], cwd: '/w' },
       { apps: [], choice: 'vscode', cwd: '/w' },
       { apps: ['finder'] },
@@ -162,6 +165,36 @@ describe('OpenInAppAction launching', () => {
     await waitFor(() => {
       expect(screen.queryByText(zh['open.tooltip'])).toBeNull()
     })
+  })
+
+  it('lists the loading row while the roster is pending, then the reveal row without persisting it', async () => {
+    const pending = bench({ apps: null, cwd: '/w/dir' })
+    const view = render(<OpenInAppAction {...pending.props} />)
+    fireEvent.click(screen.getByRole('button', { name: zh['menu.toggle'] }))
+    expect(await screen.findByText(zh['path.appsLoading'])).toBeDefined()
+    view.unmount()
+
+    const b = bench({ apps: ['finder', 'cursor'], cwd: '/w/dir' })
+    render(<OpenInAppAction {...b.props} />)
+    fireEvent.click(screen.getByRole('button', { name: zh['menu.toggle'] }))
+    // The directory menu carries the same reveal row as every other opener.
+    fireEvent.click(await screen.findByText(zh['menu.finder']))
+    expect(b.launch).toHaveBeenCalledWith('finder', '/w/dir')
+    expect(b.choose).not.toHaveBeenCalled()
+  })
+
+  it('names the generic reveal row for a non-Finder file manager', async () => {
+    render(<OpenInAppAction {...bench({ apps: ['explorer', 'cursor'], cwd: '/w/dir' }).props} />)
+    fireEvent.click(screen.getByRole('button', { name: zh['menu.toggle'] }))
+    expect(await screen.findByText(zh['menu.reveal'])).toBeDefined()
+  })
+
+  it('omits the reveal row when no file manager is installed', async () => {
+    render(<OpenInAppAction {...bench({ apps: ['cursor'], cwd: '/w/dir' }).props} />)
+    fireEvent.click(screen.getByRole('button', { name: zh['menu.toggle'] }))
+    expect(await screen.findByText('Cursor')).toBeDefined()
+    expect(screen.queryByText(zh['menu.finder'])).toBeNull()
+    expect(screen.queryByText(zh['menu.reveal'])).toBeNull()
   })
 
   it('opens the menu from the chevron, launches and persists a picked app', async () => {

@@ -132,6 +132,7 @@ function FileOpenTarget({
       portal
       dense
       align="end"
+      listClassName={css.menu}
       onClose={() => { setOpen(false) }}
       items={entries}
       footer={[{ id: 'reveal', label: t('path.reveal'), icon: <IconFolderOpenOutlineRegular size={14} /> }]}
