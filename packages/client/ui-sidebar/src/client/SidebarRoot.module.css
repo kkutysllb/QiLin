@@ -737,3 +737,51 @@
 @media (hover: hover) {
   .newSessionRow:hover .newSessionKeys { opacity: 1; }
 }
+
+.panelEntry {
+  position: relative;
+}
+
+.panelEntryWide .panelRow {
+  width: 100%;
+  margin: 0;
+  border-inline: 0;
+  padding-right: 38px;
+  background: transparent;
+}
+
+.panelEntryActive,
+.panelEntry:has(:focus-visible) {
+  background-color: var(--qilin-alias-interactive-bg-hover);
+}
+
+.panelUnpin {
+  position: absolute;
+  right: 0;
+  top: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--qilin-radius-sm);
+  background: transparent;
+  color: var(--qilin-alias-label-caption);
+  cursor: pointer;
+}
+
+.panelUnpin:focus-visible {
+  outline: var(--qilin-focus-ring-width) solid var(--qilin-focus-ring-color, var(--qilin-alias-state-business-primary));
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .panelUnpin { opacity: 0; }
+  .panelEntry:hover { background-color: var(--qilin-alias-interactive-bg-hover); }
+  .panelEntry .panelRow:hover { background: transparent; }
+  .panelUnpin:hover { color: var(--qilin-alias-label-primary); }
+  .panelEntry:hover .panelUnpin,
+  .panelEntry:has(:focus-visible) .panelUnpin { opacity: 1; }
+}

@@ -1,5 +1,5 @@
 ---
-description: "Offer plugin browsing and a Creator draft in three navigation regions."
+description: "List unpinned sidebar panels, folded Conversation Views, and Creator actions in three More menus."
 kind: "package-reference"
 ---
 
@@ -11,7 +11,7 @@ Desktop product events use the optional [product analytics service](../../api/pr
 
 ## Summary
 
-Browse plugins and prepare a reviewable Creator draft from the right-sidebar guide's More menu. The Web app loads this package by default. The guide region draws its own More button; this package stores nothing.
+Fill the More menu of the left sidebar, the Conversation View tab row, and the right-sidebar guide: unpinned panel launchers with a pin control, folded Views, plugin browsing, and a reviewable Creator draft. The Web app loads this package by default. Each region draws its own More button; this package stores nothing.
 
 ## Table of Contents
 
@@ -28,11 +28,13 @@ Browse plugins and prepare a reviewable Creator draft from the right-sidebar gui
 
 The `@qilin-agent/web-app` bundle loads this package by default; it needs no Plugins switch or profile selection. A region shows its More button only while its actions slot has a registration, so unloading this package removes all three buttons.
 
-Open **More tools** after the right-sidebar guide cards. The menu offers only **Browse other plugins** and **Create your plugin**, and provides no pin controls or sorting.
+The left sidebar's More menu lists the panel launchers the person unpinned, in registration order, each with a pin control. Choosing the pin action calls the sidebar's `onPinnedChange(id, true)`; the row then returns to the sidebar at its registration position rather than the end of the list. A row also opens its panel without changing the pin state. Pinned panels are not repeated in this menu because they already show as sidebar rows. The pin list itself is owned by `ui-sidebar` and stays in memory, so a reload restores every launcher.
 
-**Browse other plugins** opens the Plugins main list without opening an installation dialog. **Create your plugin** opens a new or reusable blank Session with the Creator preset and adds a short localized request for a plugin in that region to its draft: an empty draft takes the request as its text, and an existing draft keeps its text, references, and attachments with the request appended as a new paragraph. It never sends a message. Review and send the draft yourself. Both actions remain available regardless of the region's entries; a separator appears above browsing only when folded Views precede it.
+The Conversation View tab row's More menu lists the folded Views and marks the active one; it has no pin controls. The right-sidebar guide's More menu lists neither entries nor pins.
 
-On Desktop, **Browse other plugins** and **Create your plugin** report `more_menu_item_click` before they act, with `action=browse_plugins` or `action=create_plugin` and the menu's `region`: `rightbar`. The menu reports no exposure events. Without the analytics service, both actions behave the same and report nothing.
+**Browse other plugins** opens the Plugins main list without opening an installation dialog; the row appears only while the Plugins page provides its optional `pluginNavigation` service. **Create your plugin** opens a new or reusable blank Session with the Creator preset and adds a short localized request for a plugin in that region to its draft: an empty draft takes the request as its text, and an existing draft keeps its text, references, and attachments with the request appended as a new paragraph. It never sends a message. Review and send the draft yourself. A separator appears above browsing only when entries precede it.
+
+On Desktop, **Browse other plugins** and **Create your plugin** report `more_menu_item_click` before they act, with `action=browse_plugins` or `action=create_plugin` and the menu's `region`: `sidebar`, `conversation`, or `rightbar`. The menu reports no exposure events. Without the analytics service, both actions behave the same and report nothing.
 
 -----
 
@@ -42,9 +44,9 @@ On Desktop, **Browse other plugins** and **Create your plugin** report `more_men
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-[`apply`](src/client/index.ts) registers [`EntryMenuContent`](src/client/EntryMenuContent.tsx) under id `entry-customization` into `sidebar.right.tab.guide.actions` through `ctx.slots.inject`, so the registration follows the region's declaration lifetime. The region renders this slot inside its own `Menu`; the rows call `onDismiss` before browsing or creating.
+[`apply`](src/client/index.ts) registers [`EntryMenuContent`](src/client/EntryMenuContent.tsx) under id `entry-customization` into `sidebar.panellist.actions`, `conversation.session.header.views.actions`, and `sidebar.right.tab.guide.actions` through `ctx.slots.inject`, so each registration follows its region's declaration lifetime. The region renders this slot inside its own `Menu`; the rows call `onDismiss` before browsing, creating, or pinning.
 
-The registration's `inject` supplies its region and two callbacks. Each callback first calls `ctx.get('productAnalytics')?.track('more_menu_item_click', { region, action })`. Browsing then calls `pluginNavigation.openList()`. Creation then calls `uiWorkspace.startSession(undefined, { agentPreset: 'ptc', prompt, whenDraftExists: 'append' })` with the region's localized prompt; it does not go through `ui-agent-preset`, so the preset chip plays no introduction. The [web-app bundle patch](../../bundle/web-app/cordis.patch.yml) mounts the browser plugin.
+The registration's `inject` supplies its region, an optional `pluginNavigation` presence source, and two callbacks. The presence source flips through `ctx.inject(['pluginNavigation'])`, so the discovery row follows the Plugins page's access gate. Each callback first calls `ctx.get('productAnalytics')?.track('more_menu_item_click', { region, action })`. Browsing then calls `ctx.get('pluginNavigation')?.openList()`. Creation then calls `uiWorkspace.startSession(undefined, { agentPreset: 'coding', prompt, whenDraftExists: 'append' })` with the region's localized prompt; it does not go through `ui-agent-preset`, so the preset chip plays no introduction. The [web-app bundle patch](../../bundle/web-app/cordis.patch.yml) mounts the browser plugin.
 
 </details>
 

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-/** The plugin fills each region's More menu with the discovery and Creator actions. */
+/** The plugin fills each region's More menu: unpinned sidebar entries, discovery, and creation. */
 import type { Context } from '@qilin-agent/kylin'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, within } from '@testing-library/react'
@@ -13,8 +13,8 @@ import { EntryMenuContent } from '../src/client/EntryMenuContent.tsx'
 import { en } from '../src/client/locales.ts'
 import { apply, inject } from '../src/client/index.ts'
 
-type Seats = 'sidebar.right.tab.guide.actions'
-const SEATS = ['sidebar.right.tab.guide.actions'] as const
+type Seats = 'sidebar.panellist.actions' | 'conversation.session.header.views.actions' | 'sidebar.right.tab.guide.actions'
+const SEATS = ['sidebar.panellist.actions', 'conversation.session.header.views.actions', 'sidebar.right.tab.guide.actions'] as const
 const runtimes = new Set<SlotTestRuntime>()
 afterEach(async () => {
   try { for (const runtime of runtimes) await runtime.dispose() }
@@ -24,7 +24,12 @@ afterEach(async () => {
 type ContentProps = ComponentProps<typeof EntryMenuContent>
 const unused = (): never => { throw new Error('The menu rows read no framework hooks') }
 
-function content(overrides: Partial<ContentProps> = {}) {
+/** Accessible names in DOM order; a pin button carries a name but no text. */
+function menuNames(view: ReturnType<typeof render>): string[] {
+  return view.getAllByRole('menuitem').map(row => row.getAttribute('aria-label') ?? row.textContent ?? '')
+}
+
+function content(overrides: Partial<ContentProps> = {}, { pluginNavigation = true }: { pluginNavigation?: boolean } = {}) {
   const callbacks = {
     onOpen: vi.fn<ContentProps['onOpen']>(), onPinnedChange: vi.fn<ContentProps['onPinnedChange']>(),
     onDismiss: vi.fn<ContentProps['onDismiss']>(), browsePlugins: vi.fn<ContentProps['browsePlugins']>(),
@@ -33,6 +38,7 @@ function content(overrides: Partial<ContentProps> = {}) {
   const props = {
     entries: [{ id: 'notes', label: 'Notes', pinned: true }, { id: 'tasks', label: 'Tasks', pinned: false }],
     region: 'sidebar', t: makeTranslate(en),
+    usePluginNavigation: (select: (present: boolean) => unknown) => select(pluginNavigation),
     usePanelInfo: unused, useSessions: unused, useSessionStatus: unused, useSessionRetainInfo: unused,
     useResource: unused, useWorkspaces: unused,
     ...callbacks,
@@ -43,12 +49,35 @@ function content(overrides: Partial<ContentProps> = {}) {
 }
 
 describe('More menu rows', () => {
-  it.each(['sidebar', 'rightbar'] as const)('shows only discovery and creation in %s regardless of entries', (region) => {
+  it('lists unpinned sidebar entries with a pin control and leaves pinned rows out', () => {
+    const b = content({ entries: [
+      { id: 'notes', label: 'Notes', pinned: true, active: true },
+      { id: 'tasks', label: 'Tasks', pinned: false },
+    ] })
+    expect(menuNames(b.view)).toEqual([
+      'Tasks', 'Pin Tasks to the sidebar', 'Browse other plugins', 'Create your plugin',
+    ])
+    expect(b.view.queryByRole('menuitem', { name: 'Notes' })).toBeNull()
+    expect(b.view.getAllByRole('separator')).toHaveLength(1)
+    fireEvent.click(b.view.getByRole('menuitem', { name: 'Pin Tasks to the sidebar' }))
+    expect(b.onDismiss).toHaveBeenCalledOnce()
+    expect(b.onPinnedChange).toHaveBeenCalledExactlyOnceWith('tasks', true)
+    expect(b.onOpen).not.toHaveBeenCalled()
+  })
+
+  it('opens an unpinned entry without changing its pin state', () => {
+    const b = content()
+    fireEvent.click(b.view.getByRole('menuitem', { name: 'Tasks' }))
+    expect(b.onOpen).toHaveBeenCalledExactlyOnceWith('tasks')
+    expect(b.onPinnedChange).not.toHaveBeenCalled()
+  })
+
+  it.each(['rightbar'] as const)('shows only discovery and creation in %s regardless of entries', (region) => {
     const b = content({ region, entries: [
       { id: 'notes', label: 'Notes', pinned: true, active: true },
       { id: 'tasks', label: 'Tasks', pinned: false },
     ] })
-    expect(b.view.getAllByRole('menuitem').map(row => row.textContent)).toEqual(['Browse other plugins', 'Create your plugin'])
+    expect(menuNames(b.view)).toEqual(['Browse other plugins', 'Create your plugin'])
     expect(b.view.queryByRole('separator')).toBeNull()
     fireEvent.click(b.view.getByRole('menuitem', { name: 'Browse other plugins' }))
     expect(b.browsePlugins).toHaveBeenCalledExactlyOnceWith()
@@ -65,8 +94,7 @@ describe('More menu rows', () => {
       { id: 'notes', label: 'Notes', pinned: true, active: true },
       { id: 'tasks', label: 'Tasks', pinned: true, active: false },
     ] })
-    expect(b.view.getAllByRole('menuitem').map(row => row.textContent))
-      .toEqual(['Notes', 'Tasks', 'Browse other plugins', 'Create your plugin'])
+    expect(menuNames(b.view)).toEqual(['Notes', 'Tasks', 'Browse other plugins', 'Create your plugin'])
     const currentRow = b.view.getByRole('menuitem', { name: 'Notes' })
     expect(currentRow.getAttribute('aria-current')).toBe('page')
     expect(currentRow.querySelector('svg')?.previousElementSibling?.textContent).toBe('Notes')
@@ -78,15 +106,20 @@ describe('More menu rows', () => {
     expect(b.onPinnedChange).not.toHaveBeenCalled()
   })
 
+  it('hides the discovery row while the Plugins page provides no navigation', () => {
+    const b = content({}, { pluginNavigation: false })
+    expect(menuNames(b.view)).toEqual(['Tasks', 'Pin Tasks to the sidebar', 'Create your plugin'])
+  })
+
   it('keeps both actions for an empty roster', () => {
-    const b = content({ entries: [] })
-    expect(b.view.getAllByRole('menuitem').map(row => row.textContent)).toEqual(['Browse other plugins', 'Create your plugin'])
+    const b = content({ region: 'rightbar', entries: [] })
+    expect(menuNames(b.view)).toEqual(['Browse other plugins', 'Create your plugin'])
     expect(b.view.queryByRole('separator')).toBeNull()
   })
 })
 
 function Frame({ renderSlot }: PropsRenderSlots<Seats>) {
-  const [pinned, setPinned] = useState(true)
+  const [pinned, setPinned] = useState(false)
   const [opened, setOpened] = useState('')
   const entries = [{ id: 'notes', label: 'Notes', pinned }]
   return <>
@@ -102,7 +135,7 @@ function Frame({ renderSlot }: PropsRenderSlots<Seats>) {
   </>
 }
 
-async function bench(language: 'en' | 'zh' = 'en', { analytics = true }: { analytics?: boolean } = {}) {
+async function bench(language: 'en' | 'zh' = 'en', { analytics = true, pluginNavigation = true }: { analytics?: boolean; pluginNavigation?: boolean } = {}) {
   const runtime = await SlotTestRuntime.create()
   runtimes.add(runtime)
   const openList = vi.fn(), startSession = vi.fn(), track = vi.fn<TrackProductEvent>()
@@ -113,14 +146,12 @@ async function bench(language: 'en' | 'zh' = 'en', { analytics = true }: { analy
       locale.setLocale(language)
       ctx.provide('locale', locale)
       ctx.slots.installLocale(locale)
-      ctx.provide('pluginNavigation', { openList } as never)
+      if (pluginNavigation) ctx.provide('pluginNavigation', { openList } as never)
       ctx.provide('uiWorkspace', { startSession } as never)
       if (analytics) ctx.provide('productAnalytics', { track } as never)
     },
   })
-  await runtime.root.declare({
-    'sidebar.right.tab.guide.actions': { kind: 'list', scope: 'root' },
-  }, Frame)
+  await runtime.root.declare({ ...Object.fromEntries(SEATS.map(seat => [seat, { kind: 'list', scope: 'root' }])) } as never, Frame)
   const plugin = await runtime.mount({ inject: [...inject], apply })
   const view = runtime.renderRoot()
   return { runtime, openList, startSession, track, plugin, view }
@@ -131,10 +162,14 @@ describe('More menu registrations', () => {
     const b = await bench()
     for (const seat of SEATS) {
       expect(b.runtime.slots.entries(seat).map(entry => entry.options.id)).toEqual(['entry-customization'])
-      expect(within(b.view.getByRole('menu', { name: seat })).getAllByRole('menuitem').map(row => row.textContent))
-        .toEqual(['Browse other plugins', 'Create your plugin'])
     }
+    // The sidebar shows the unpinned row plus its pin control; the other regions show their own rows.
+    const sidebar = within(b.view.getByRole('menu', { name: 'sidebar.panellist.actions' }))
+    expect(sidebar.getAllByRole('menuitem').map(row => row.getAttribute('aria-label') ?? row.textContent))
+      .toEqual(['Notes', 'Pin Notes to the sidebar', 'Browse other plugins', 'Create your plugin'])
     const guide = within(b.view.getByRole('menu', { name: 'sidebar.right.tab.guide.actions' }))
+    expect(guide.getAllByRole('menuitem').map(row => row.textContent))
+      .toEqual(['Browse other plugins', 'Create your plugin'])
     fireEvent.click(guide.getByRole('menuitem', { name: 'Browse other plugins' }))
     expect(b.openList).toHaveBeenCalledExactlyOnceWith()
     await b.plugin.dispose()
@@ -144,38 +179,33 @@ describe('More menu registrations', () => {
     }
   })
 
-  it.each([
-    ['en', 'sidebar.right.tab.guide.actions', 'Create a QiLin plugin with a right sidebar entry.'],
-    ['zh', 'sidebar.right.tab.guide.actions', '创建一个带右侧栏入口的 QiLin 插件。'],
-  ] as const)('starts an unsent %s Creator draft from %s', async (language, seat, prompt) => {
-    const b = await bench(language)
-    fireEvent.click(within(b.view.getByRole('menu', { name: seat }))
-      .getByRole('menuitem', { name: language === 'zh' ? '创建你的插件' : 'Create your plugin' }))
+  it('starts an unsent Creator draft from the conversation region', async () => {
+    const b = await bench('en')
+    fireEvent.click(within(b.view.getByRole('menu', { name: 'conversation.session.header.views.actions' }))
+      .getByRole('menuitem', { name: 'Create your plugin' }))
     expect(b.startSession).toHaveBeenCalledExactlyOnceWith(undefined, {
-      agentPreset: 'coding', prompt, whenDraftExists: 'append',
+      agentPreset: 'coding', prompt: 'Create a QiLin conversation view plugin.', whenDraftExists: 'append',
     })
   })
 
-  it.each([
-    ['sidebar.right.tab.guide.actions', 'rightbar'],
-  ] as const)('reports both footer actions of %s as the %s region before acting', async (seat, region) => {
+  it('reports the rightbar footer actions before acting', async () => {
     const b = await bench()
-    const menu = within(b.view.getByRole('menu', { name: seat }))
+    const menu = within(b.view.getByRole('menu', { name: 'sidebar.right.tab.guide.actions' }))
     fireEvent.click(menu.getByRole('menuitem', { name: 'Browse other plugins' }))
-    expect(b.track).toHaveBeenCalledExactlyOnceWith('more_menu_item_click', { region, action: 'browse_plugins' })
+    expect(b.track).toHaveBeenCalledExactlyOnceWith('more_menu_item_click', { region: 'rightbar', action: 'browse_plugins' })
     expect(b.track.mock.invocationCallOrder[0]).toBeLessThan(b.openList.mock.invocationCallOrder[0]!)
     fireEvent.click(menu.getByRole('menuitem', { name: 'Create your plugin' }))
-    expect(b.track).toHaveBeenLastCalledWith('more_menu_item_click', { region, action: 'create_plugin' })
+    expect(b.track).toHaveBeenLastCalledWith('more_menu_item_click', { region: 'rightbar', action: 'create_plugin' })
     expect(b.track.mock.invocationCallOrder[1]).toBeLessThan(b.startSession.mock.invocationCallOrder[0]!)
     expect(b.track).toHaveBeenCalledTimes(2)
   })
 
-  it('keeps both footer actions working without the analytics service', async () => {
-    const b = await bench('en', { analytics: false })
+  it('keeps both footer actions working without the analytics or navigation services', async () => {
+    const b = await bench('en', { analytics: false, pluginNavigation: false })
     const menu = within(b.view.getByRole('menu', { name: 'sidebar.right.tab.guide.actions' }))
-    fireEvent.click(menu.getByRole('menuitem', { name: 'Browse other plugins' }))
+    // Without the navigation service the discovery row is absent; the Creator row still works.
+    expect(menu.queryByRole('menuitem', { name: 'Browse other plugins' })).toBeNull()
     fireEvent.click(menu.getByRole('menuitem', { name: 'Create your plugin' }))
-    expect(b.openList).toHaveBeenCalledExactlyOnceWith()
     expect(b.startSession).toHaveBeenCalledOnce()
     expect(b.track).not.toHaveBeenCalled()
   })

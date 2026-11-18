@@ -28,6 +28,13 @@ const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({
 const t: SidebarRootComponentProps['t'] = key =>
   (en as Record<string, string>)[key] ?? (commonEn as Record<string, string>)[key] ?? key
 
+/** Accessible names of the rendered panel rows, in DOM order. */
+function panelRowNames(): (string | null)[] {
+  return screen.getAllByRole('button')
+    .map(button => button.getAttribute('aria-label'))
+    .filter(label => label?.startsWith('Panel ') === true)
+}
+
 afterEach(() => {
   cleanup()
   delete document.documentElement.dataset.platform
@@ -66,7 +73,7 @@ const panelRows = (...sections: Array<string | undefined>): readonly SidebarPane
 
 function mountShell({
   collapsed = false, width = 300, drawer = false,
-  panels = [], shortcuts = [], entryActions = false,
+  panels = [], shortcuts = [], entryActions = false, pins: initialPins = [],
 }: {
   collapsed?: boolean
   width?: number
@@ -74,6 +81,7 @@ function mountShell({
   panels?: readonly SidebarPanelMetadata[]
   shortcuts?: readonly ShortcutCatalogEntry[]
   entryActions?: boolean
+  pins?: readonly string[]
 } = {}) {
   const startSession = vi.fn()
   const toggleSidebar = vi.fn()
@@ -86,13 +94,19 @@ function mountShell({
   const brandMark = <span data-testid="custom-brand-mark">M</span>
   const brandName = <span data-testid="custom-brand-name">Custom Brand</span>
   let current = { collapsed, width, drawer }
+  let pins = initialPins
+  const mounted: { view?: ReturnType<typeof render> } = {}
+  const setPinned = (id: string, pinned: boolean): void => {
+    pins = pinned ? pins.filter(entry => entry !== id) : [...pins, id]
+    mounted.view?.rerender(root())
+  }
   const root = () => (
     <SidebarRoot
       collapsed={current.collapsed} width={current.width} drawer={current.drawer}
       useSessions={neverHook} useSessionStatus={useSessionStatus} useSessionRetainInfo={neverHook}
-      usePanelInfo={usePanelInfo} selectPanel={selectPanel} setPinned={() => {}} trackEntryClick={trackEntryClick}
+      usePanelInfo={usePanelInfo} selectPanel={selectPanel} setPinned={setPinned} trackEntryClick={trackEntryClick}
       usePanels={selector => selector(panels)} useShortcuts={selector => selector(shortcuts)}
-      useEntryPins={selector => selector([])} useEntryActions={selector => selector(entryActions)}
+      useEntryPins={selector => selector(pins)} useEntryActions={selector => selector(entryActions)}
       useResource={useResource} useRemoteAccess={useRemoteAccess} useSessionAccess={useSessionAccess} useWorkspaces={neverHook}
       useContextMenu={useContextMenu}
       startSession={startSession} toggleSidebar={toggleSidebar} t={t}
@@ -130,8 +144,10 @@ function mountShell({
     />
   )
   const view = render(root())
+  mounted.view = view
   return {
     view,
+    setPinned,
     startSession,
     toggleSidebar,
     trackEntryClick,
@@ -176,6 +192,45 @@ describe('SidebarRoot shell', () => {
     fireEvent.click(screen.getByRole('button', { name: 'plain' }))
     expect(b.trackEntryClick).not.toHaveBeenCalledWith({ menu_name: 'plain', position: 'sidebar_more' })
     expect(b.selectPanel).toHaveBeenCalledWith('plain')
+  })
+
+  it('re-pins an unpinned panel at its original registration position', () => {
+    const b = mountShell({
+      panels: [
+        { id: 'panel0' as SidebarPanelMetadata['id'], order: 0, label: 'Panel 0' },
+        { id: 'panel1' as SidebarPanelMetadata['id'], order: 1, label: 'Panel 1' },
+        { id: 'panel2' as SidebarPanelMetadata['id'], order: 2, label: 'Panel 2' },
+      ],
+      pins: ['panel1'],
+    })
+    expect(panelRowNames()).toEqual(['Panel 0', 'Panel 2'])
+    // Pinning restores the row where registration order puts it, not appended at the end.
+    b.setPinned('panel1', true)
+    expect(panelRowNames()).toEqual(['Panel 0', 'Panel 1', 'Panel 2'])
+  })
+
+  it('unpins a wide panel row into the More menu and keeps the rail free of pin controls', () => {
+    const b = mountShell({
+      entryActions: true,
+      panels: [
+        { id: 'panel0' as SidebarPanelMetadata['id'], order: 0, label: 'Panel 0' },
+        { id: 'panel1' as SidebarPanelMetadata['id'], order: 1, label: 'Panel 1' },
+      ],
+    })
+    expect(panelRowNames()).toEqual(['Panel 0', 'Panel 1'])
+    // The dictionary stub keeps the placeholder, so both rows share one name; the first is Panel 0.
+    fireEvent.click(screen.getAllByRole('button', { name: en['panels.unpin'] })[0]!)
+    // The row moves into the More menu; the remaining row keeps its place.
+    expect(panelRowNames()).toEqual(['Panel 1'])
+    expect(b.view.getByRole('button', { name: t('panels.more') })).toBeTruthy()
+
+    b.view.unmount()
+    mountShell({
+      collapsed: true,
+      entryActions: true,
+      panels: [{ id: 'panel0' as SidebarPanelMetadata['id'], order: 0, label: 'Panel 0' }],
+    })
+    expect(screen.queryByRole('button', { name: en['panels.unpin'] })).toBeNull()
   })
 
   it('keeps the More launcher on the collapsed rail', () => {

@@ -1,8 +1,11 @@
-/** Rows for the More menu of the right-sidebar guide. */
+/** Rows for the More menus of the left sidebar, Conversation View tabs, and right-sidebar guide. */
 import type { Context } from '@qilin-agent/kylin'
+import { createSnapshotStore } from '@qilin-agent/client-store'
 import type {} from '@qilin-agent/client-locale/client'
 import type {} from '@qilin-agent/client-product-analytics/client'
 import type {} from '@qilin-agent/client-ui-renderer/client'
+import type {} from '@qilin-agent/client-ui-sidebar/client'
+import type {} from '@qilin-agent/client-ui-conversation/client'
 import type {} from '@qilin-agent/client-ui-sidebar-right/client'
 import type {} from '@qilin-agent/client-ui-plugin-manager/client'
 import type {} from '@qilin-agent/client-ui-workspace/client'
@@ -11,7 +14,7 @@ import { en, zh } from './locales.ts'
 
 declare module '@qilin-agent/client-ui-slots' {
   interface LocaleNamespaceMap {
-    /** More menu rows: navigation actions, and Creator draft prompts. */
+    /** More menu rows: navigation actions, pin copy, and Creator draft prompts. */
     entryCustomization: keyof typeof en
   }
 }
@@ -19,21 +22,30 @@ declare module '@qilin-agent/client-ui-slots' {
 /** QiLin's shipped runtime-authoring preset the Creator draft starts under. */
 const CREATOR_PRESET = 'coding'
 
-/** Services used by the menu rows' footer actions. */
-export const inject = ['slots', 'locale', 'pluginNavigation', 'uiWorkspace']
+/** Services used by the menu rows' footer actions; `pluginNavigation` is optional. */
+export const inject = ['slots', 'locale', 'uiWorkspace']
 
 /**
  * Register the same menu rows into each region's More menu.
- * @param ctx - Browser context with slot, locale, plugin navigation, and Workspace services.
+ * @param ctx - Browser context with slot, locale, and Workspace services, and the optional plugin navigation.
  */
 export function apply(ctx: Context): void {
   ctx.effect(() => ctx.locale.register('entryCustomization', { en, zh }))
   const t = ctx.locale.bind('entryCustomization')
+  // The Plugins page provides its navigation only while the current Peer may use it.
+  const pluginNavigation = createSnapshotStore(false)
+  ctx.inject(['pluginNavigation'], (scope: Context) => {
+    scope.effect(() => {
+      pluginNavigation.set(true)
+      return () => { pluginNavigation.set(false) }
+    }, 'entry-customization: plugin navigation presence')
+  })
   const injected = (region: EntryRegion): EntryMenuInjected => ({
     region,
+    hooks: { pluginNavigation },
     browsePlugins: () => {
       ctx.get('productAnalytics')?.track('more_menu_item_click', { region, action: 'browse_plugins' })
-      ctx.pluginNavigation.openList()
+      ctx.get('pluginNavigation')?.openList()
     },
     createPlugin: () => {
       ctx.get('productAnalytics')?.track('more_menu_item_click', { region, action: 'create_plugin' })
@@ -42,6 +54,14 @@ export function apply(ctx: Context): void {
       })
     },
   })
+  ctx.slots.inject('sidebar.panellist.actions', () => ctx.slots.register({
+    name: 'sidebar.panellist.actions', id: 'entry-customization', locale: 'entryCustomization',
+    inject: () => injected('sidebar'),
+  }, EntryMenuContent))
+  ctx.slots.inject('conversation.session.header.views.actions', () => ctx.slots.register({
+    name: 'conversation.session.header.views.actions', id: 'entry-customization', locale: 'entryCustomization',
+    inject: () => injected('conversation'),
+  }, EntryMenuContent))
   ctx.slots.inject('sidebar.right.tab.guide.actions', () => ctx.slots.register({
     name: 'sidebar.right.tab.guide.actions', id: 'entry-customization', locale: 'entryCustomization',
     inject: () => injected('rightbar'),

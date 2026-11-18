@@ -1,8 +1,8 @@
-/** Folded Conversation Views and plugin discovery and creation actions. */
+/** Unpinned sidebar entries or folded Conversation Views, plugin discovery, and creation. */
 import {
-  IconCheckOutlineRegular, IconPluginPinwheelOutlineRegular, IconPlusOutlineRegular, MenuItemButton,
+  Button, IconCheckOutlineRegular, IconPinOutlineRegular, IconPluginPinwheelOutlineRegular, IconPlusOutlineRegular, MenuItemButton, Tooltip,
 } from '@qilin-agent/client-ui-primitives'
-import type { InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
+import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@qilin-agent/client-ui-slots'
 import type {} from '@qilin-agent/client-ui-sidebar/client'
 import css from './EntryMenu.module.css'
 
@@ -13,6 +13,10 @@ export type EntryRegion = 'sidebar' | 'conversation' | 'rightbar'
 export interface EntryMenuInjected {
   /** Region of this registration; selects analytics attributes and the Creator prompt. */
   readonly region: EntryRegion
+  readonly hooks: {
+    /** Whether the Plugins page navigation service is present; the discovery row shows only while it is. */
+    readonly pluginNavigation: HostObservable<boolean>
+  }
   /** Open the Plugins main list. */
   readonly browsePlugins: () => void
   /** Start a Creator draft with this region's prompt without sending it. */
@@ -24,27 +28,44 @@ type EntryMenuContentProps = PropsRuntime<'sidebar.panellist.actions'>
   & PropsLocale<'entryCustomization'> & InjectFace<EntryMenuInjected>
 
 /**
- * Render folded Conversation Views followed by discovery and Creator actions, without pin controls.
- * @param props - Owner dismissal callback, injected actions, and localized copy.
+ * Render unpinned sidebar entries or folded Conversation Views, followed by discovery and Creator actions.
+ * @param props - Owner dismissal and pin callbacks, injected actions, framework hooks, and localized copy.
  * @returns Menu rows for the region's More menu.
  */
 export function EntryMenuContent({
-  entries, onOpen, region, onDismiss, browsePlugins, createPlugin, t,
+  entries, onOpen, onPinnedChange, region, onDismiss, usePluginNavigation, browsePlugins, createPlugin, t,
 }: EntryMenuContentProps) {
-  const moreEntries = region === 'conversation' ? entries : []
+  const moreEntries = region === 'sidebar' ? entries.filter(entry => !entry.pinned) : region === 'conversation' ? entries : []
+  const browsable = usePluginNavigation(present => present)
   return <>
-    {moreEntries.map(entry => <MenuItemButton key={entry.id} current={entry.active === true}
-      onSelect={() => { onDismiss(); onOpen(entry.id) }}>
-      <span className={css.entryName}>
-        <span className={css.entryTitle}>{entry.label}</span>
-        {entry.active === true && <IconCheckOutlineRegular size={16} className={css.activeMark} />}
-      </span>
-    </MenuItemButton>)}
-    <MenuItemButton separatorBefore={moreEntries.length > 0} icon={<IconPluginPinwheelOutlineRegular size={16} />}
-      onSelect={() => { onDismiss(); browsePlugins() }}>
-      {t('install')}
-    </MenuItemButton>
-    <MenuItemButton icon={<IconPlusOutlineRegular size={16} />} onSelect={() => { onDismiss(); createPlugin() }}>
+    {moreEntries.map(entry => (
+      <div key={entry.id} className={region === 'sidebar' ? css.sidebarEntry : undefined}>
+        <MenuItemButton current={entry.active === true} onSelect={() => { onDismiss(); onOpen(entry.id) }}>
+          <span className={css.entryName}>
+            <span className={css.entryTitle}>{entry.label}</span>
+            {entry.active === true && <IconCheckOutlineRegular size={16} className={css.activeMark} />}
+          </span>
+        </MenuItemButton>
+        {region === 'sidebar' && (
+          <span className={css.pinAnchor}>
+            <Tooltip label={t('pinTooltip')} side="bottom" align="end" delayMs={500} portal>
+              <Button size="sm" role="menuitem" className={css.pinButton} aria-label={t('pin', { name: entry.label })}
+                onClick={() => { onDismiss(); onPinnedChange(entry.id, true) }}>
+                <IconPinOutlineRegular size={14} />
+              </Button>
+            </Tooltip>
+          </span>
+        )}
+      </div>
+    ))}
+    {browsable && (
+      <MenuItemButton separatorBefore={moreEntries.length > 0} icon={<IconPluginPinwheelOutlineRegular size={16} />}
+        onSelect={() => { onDismiss(); browsePlugins() }}>
+        {t('install')}
+      </MenuItemButton>
+    )}
+    <MenuItemButton icon={<IconPlusOutlineRegular size={16} />} separatorBefore={!browsable && moreEntries.length > 0}
+      onSelect={() => { onDismiss(); createPlugin() }}>
       {t('create')}
     </MenuItemButton>
   </>

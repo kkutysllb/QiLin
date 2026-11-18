@@ -197,7 +197,7 @@ describe('sidebar global panels', () => {
     await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20 })
     await mountPanel(runtime, { id: GAMMA, heading: 'Gamma content', label: 'Gamma panel', order: 30, section: 'Alpha group' })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    const headers = [...navigation.children].filter(child => child.tagName === 'DIV' && child.hasAttribute('aria-hidden'))
     // A plugin row whose order falls between two rows of one section must not
     // split that section's header: the first section keeps its rows together.
     expect(headers).toHaveLength(2)
@@ -296,7 +296,7 @@ describe('sidebar global panels', () => {
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'One group' })
     await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: 'One group' })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    const headers = [...navigation.children].filter(child => child.tagName === 'DIV' && child.hasAttribute('aria-hidden'))
     expect(headers).toHaveLength(1)
     expect(headers[0]!.textContent).toBe('One group')
   })
@@ -306,7 +306,7 @@ describe('sidebar global panels', () => {
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: 'Alpha group' })
     await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: 'Beta group' })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    const headers = [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    const headers = [...navigation.children].filter(child => child.tagName === 'DIV' && child.hasAttribute('aria-hidden'))
     expect(headers).toHaveLength(2)
     for (const header of headers) {
       expect(header.textContent).toBe('')
@@ -322,7 +322,7 @@ describe('sidebar global panels', () => {
     await mountPanel(runtime, { id: ALPHA, heading: 'Alpha content', label: 'Alpha panel', order: 10, section: () => t('group') })
     await mountPanel(runtime, { id: BETA, heading: 'Beta content', label: 'Beta panel', order: 20, section: () => t('group') })
     const navigation = await view.findByRole('navigation', { name: 'Global panels' })
-    const headers = () => [...navigation.children].filter(child => child.tagName !== 'BUTTON')
+    const headers = () => [...navigation.children].filter(child => child.tagName === 'DIV' && child.hasAttribute('aria-hidden'))
     expect(headers()).toHaveLength(1)
     expect(headers()[0]!.textContent).toBe('Alpha group')
 

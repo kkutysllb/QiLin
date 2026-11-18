@@ -10,6 +10,8 @@ export const zh = {
   'panels.label': '全局面板',
   'navigation.label': '导航',
   'panels.more': '更多',
+  'panels.unpinTooltip': '从左侧栏取消固定',
+  'panels.unpin': '从侧边栏取消固定 {name}',
   'section.general': '通用',
   'section.extensions': '扩展',
 } satisfies Record<string, string>
@@ -27,6 +29,8 @@ export const en = {
   'panels.label': 'Global panels',
   'navigation.label': 'Navigation',
   'panels.more': 'More',
+  'panels.unpinTooltip': 'Unpin from left sidebar',
+  'panels.unpin': 'Unpin {name} from sidebar',
   'section.general': 'General',
   'section.extensions': 'Extensions',
 } satisfies Record<SidebarKey, string>

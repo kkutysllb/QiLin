@@ -3,22 +3,22 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-entry-customization/README.md
 /:
-  en: 57416280d387ea2b
-  zh: 3eff06cc37014baa
+  en: b5d1367e92034ffa
+  zh: a60404bbd0692f41
 /qilin-agent-client-ui-entry-customization:
   en: 09caa332c12bfcfb
   zh: 2d29f14ffa194e18
 /qilin-agent-client-ui-entry-customization/summary:
-  en: 38e4751e9cbca912
-  zh: 632e251b3848f023
+  en: 2c85c27472f7efe0
+  zh: 5fc535dc671d7d89
 /qilin-agent-client-ui-entry-customization/table-of-contents:
   en: 76368b6b1da79c80
   zh: 434cf3c1f5db33cd
 /qilin-agent-client-ui-entry-customization/use-this-package:
-  en: 21917fe1c240df17
-  zh: 942df87a8d7582b9
+  en: 5e5974ac344e0a9a
+  zh: 2d4f3e64d83171cb
 /qilin-agent-client-ui-entry-customization/understand-the-implementation:
-  en: 8bb24c9ac9c3bdde
+  en: 741c969736ddde33
   zh: 7bc07e4fa6bbf836
 /qilin-agent-client-ui-entry-customization/model-experience:
   en: b891f311c09d536f
