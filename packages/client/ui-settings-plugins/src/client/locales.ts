@@ -9,7 +9,7 @@ export type PluginsSettingsLocaleKey =
   | 'bashMaxOutputBytes' | 'bashMaxOutputBytesHint'
   | 'agentLoopTitle' | 'agentLoopDescription' | 'agentLoopMaxParallel' | 'agentLoopMaxParallelHint'
   | 'webSearchTitle' | 'webSearchDescription'
-  | 'webSearchUseApi' | 'webSearchUseApiHint' | 'webSearchGuide' | 'webSearchGuideUrl'
+  | 'webSearchUseApi' | 'webSearchUseApiHint' | 'webSearchAutoHint' | 'webSearchGuide' | 'webSearchGuideUrl'
   | 'webSearchApiKey' | 'webSearchApiKeyHint' | 'webSearchApiKeySet' | 'webSearchApiKeyUnset'
   | 'webSearchBaseUrl' | 'webSearchBaseUrlHint' | 'webSearchMaxUses' | 'webSearchMaxUsesHint'
   | 'webSearchSearchApiBaseUrl' | 'webSearchSearchApiBaseUrlHint' | 'webSearchCount' | 'webSearchCountHint'
@@ -82,8 +82,9 @@ export const en: Record<PluginsSettingsLocaleKey, string> = {
   gitMaxListEntriesHint: 'Upper bound on branches or pull requests one list answer returns.',
   webSearchTitle: 'Web search',
   webSearchDescription: 'Set up the DeepSeek search provider.',
-  webSearchUseApi: 'Use the new Web Search API',
-  webSearchUseApiHint: 'Off by default: search runs through DeepSeek Messages. For the new Web Search API\'s features and pricing, see the ',
+  webSearchUseApi: 'Use DeepSeek Search API for every search',
+  webSearchUseApiHint: 'Every web search uses the DeepSeek Search API, billed per search. See the ',
+  webSearchAutoHint: "Follows the conversation's model: DeepSeek models use DeepSeek server-side search, which has no per-search charge; other models use DeepSeek Search API. Details: ",
   webSearchGuide: 'Search & Fetch guide',
   webSearchGuideUrl: 'https://api-docs.deepseek.com/guides/search',
   webSearchApiKey: 'API key',
@@ -177,8 +178,9 @@ export const zh: Record<PluginsSettingsLocaleKey, string> = {
   gitMaxListEntriesHint: '一次列表应答最多返回多少分支或拉取请求。',
   webSearchTitle: '网页搜索',
   webSearchDescription: '设置 DeepSeek 的搜索提供方。',
-  webSearchUseApi: '启用新版 Web 搜索 API',
-  webSearchUseApiHint: '默认关闭，搜索通过 DeepSeek Messages 完成。新版 Web 搜索 API 功能与计费详见',
+  webSearchUseApi: '所有搜索都使用 DeepSeek Search API',
+  webSearchUseApiHint: '每次网页搜索都走 DeepSeek Search API，按次计费。详见',
+  webSearchAutoHint: '跟随当前会话的模型：DeepSeek 模型使用 DeepSeek 服务端搜索，搜索不按次收费；其他模型使用 DeepSeek Search API。详见',
   webSearchGuide: '网页搜索与抓取指南',
   webSearchGuideUrl: 'https://api-docs.deepseek.com/zh-cn/guides/search',
   webSearchApiKey: 'API Key',

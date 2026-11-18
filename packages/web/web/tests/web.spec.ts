@@ -106,6 +106,36 @@ describe('WebRuntime execution resolution', () => {
     await expect(web.search({ query: 'q' })).rejects.toThrow(expect.objectContaining({ code: 'WEB_PROVIDER_AMBIGUOUS' }))
   })
 
+  it('prefers Messages search for a DeepSeek model route while no provider is configured', async () => {
+    const { web } = await mountWeb()
+    web.registerSearchProvider(makeSearchProvider('deepseek-official', available, () => Promise.resolve(searchResult('messages'))))
+    web.registerSearchProvider(makeSearchProvider('deepseek-search-api', available, () => Promise.resolve(searchResult('search-api'))))
+    await expect(web.search({ query: 'q', llmProvider: 'deepseek-official' })).resolves.toMatchObject({ content: 'messages' })
+    await expect(web.search({ query: 'q', llmProvider: 'deepseek-account' })).resolves.toMatchObject({ content: 'messages' })
+  })
+
+  it('prefers the DeepSeek Search API on other routes and outside a model request', async () => {
+    const { web } = await mountWeb()
+    web.registerSearchProvider(makeSearchProvider('deepseek-official', available, () => Promise.resolve(searchResult('messages'))))
+    web.registerSearchProvider(makeSearchProvider('deepseek-search-api', available, () => Promise.resolve(searchResult('search-api'))))
+    await expect(web.search({ query: 'q', llmProvider: 'openai' })).resolves.toMatchObject({ content: 'search-api' })
+    await expect(web.search({ query: 'q' })).resolves.toMatchObject({ content: 'search-api' })
+  })
+
+  it('keeps a configured provider over the route preference', async () => {
+    const { web } = await mountWeb({ searchProvider: 'deepseek-official' })
+    web.registerSearchProvider(makeSearchProvider('deepseek-official', available, () => Promise.resolve(searchResult('messages'))))
+    web.registerSearchProvider(makeSearchProvider('deepseek-search-api', available, () => Promise.resolve(searchResult('search-api'))))
+    await expect(web.search({ query: 'q', llmProvider: 'openai' })).resolves.toMatchObject({ content: 'messages' })
+  })
+
+  it('falls back to the single usable provider when the preferred one is unavailable', async () => {
+    const { web } = await mountWeb()
+    web.registerSearchProvider(makeSearchProvider('deepseek-official', unavailable, () => Promise.resolve(searchResult('messages'))))
+    web.registerSearchProvider(makeSearchProvider('deepseek-search-api', available, () => Promise.resolve(searchResult('search-api'))))
+    await expect(web.search({ query: 'q', llmProvider: 'deepseek-official' })).resolves.toMatchObject({ content: 'search-api' })
+  })
+
   it('runs the configured provider even when another usable provider is registered', async () => {
     const { web } = await mountWeb({ searchProvider: 'perplexity' })
     web.registerSearchProvider(makeSearchProvider('exa', available, () => Promise.resolve(searchResult('exa'))))

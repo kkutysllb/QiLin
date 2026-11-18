@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-With `qilin-web-search-deepseek`, the harness searches the web through DeepSeek's native search using an existing `DEEPSEEK_API_KEY`. Choose it when a deployment wants DeepSeek native search and accepts that one search costs a full model turn in latency and tokens; the DeepSeek Search and Fetch APIs in [qilin-web-deepseek-api](../web-deepseek-api/README.md) retrieve without one. Results come from the structured search blocks DeepSeek returns, never from scraping text out of a reply. A missing credential fails the call with a structured error; a response without a search-result block fails loudly rather than degrading. The model-facing `web_search` tool lives in `qilin-tool-web`.
+With `qilin-web-search-deepseek`, the harness searches the web through DeepSeek's native search using an existing `DEEPSEEK_API_KEY`. DeepSeek serves it without a per-search charge, though one search costs a full model turn in latency and tokens; the DeepSeek Search and Fetch APIs in [qilin-web-deepseek-api](../web-deepseek-api/README.md) avoid that turn. Conversations on the DeepSeek model routes default to this provider while no search provider is configured. Results come from structured search blocks, never from scraped reply text; a missing credential or a response without a search-result block fails loudly. The model-facing `web_search` tool lives in `qilin-tool-web`.
 
 ## Table of Contents
 
@@ -57,7 +57,7 @@ The generated [configuration catalog](../../../docs/config-catalog.md#qilin-agen
 
 ### What a search returns
 
-`content` is always omitted: DeepSeek's provider prose is not trusted as an answer. `sources[]` comes from `web_search_result` items inside `web_search_tool_result` blocks — `url` and `title` directly, and `publishedAt` from `page_age` — with snippets joined from URL-keyed `cited_text` entries where an excerpt exists. Results are deduplicated by URL, and because DeepSeek exposes no result-count knob, the service enforces `maxResults` by truncating and flagging.
+`content` is always omitted: DeepSeek's provider prose is not trusted as an answer. `sources[]` comes from `web_search_result` items inside `web_search_tool_result` blocks — `url` and `title` directly, and `publishedAt` from `page_age` — with each item's own `snippet` preferred and URL-keyed `cited_text` entries as the fallback where no excerpt travels with the item. Results are deduplicated by URL, and because DeepSeek exposes no result-count knob, the service enforces `maxResults` by truncating and flagging.
 
 ### Request logging
 
@@ -94,7 +94,7 @@ The provider is built on two commitments:
 
 ### Request flow
 
-Each search projects the current Settings section into provider options — endpoint, model, key reference, limits — then resolves the credential reference through `ctx.credentials` (or the environment), appends the log-only session event, and dispatches the Messages request with the native `web_search` server tool. The response's `web_search_tool_result` blocks become `sources[]`; `cited_text` entries from text blocks are joined to their URLs as snippets; results are deduplicated by URL; and the service enforces the requested source bound on the way back.
+Each search projects the current Settings section into provider options — endpoint, model, key reference, limits — then resolves the credential reference through `ctx.credentials` (or the environment), appends the log-only session event, and dispatches the Messages request with the native `web_search` server tool. The response's `web_search_tool_result` blocks become `sources[]`; an item's own `snippet` is used when present, otherwise `cited_text` entries from text blocks are joined to their URLs as snippets; results are deduplicated by URL; and the service enforces the requested source bound on the way back.
 
 </details>
 
@@ -155,7 +155,7 @@ These limits define when the provider is expensive or incomplete. They are curre
 - **One search costs a full Messages model turn** — latency plus generated tokens, with up to `maxUses` server-side searches; [qilin-web-deepseek-api](../web-deepseek-api/README.md) uses the dedicated Search API instead.
 - **Dynamic credential availability resolves inside the operation** — the synchronous availability check can establish that a resolver exists but cannot query an asynchronous credential store, so a selected keyless provider fails the search with `WEB_PROVIDER_CREDENTIAL_MISSING`; the stable `web_search` schema stays registered.
 - **Over-returned sources still cost tokens** — with no result-count knob on the wire, `maxResults` is enforced only post-hoc by service truncation.
-- **Sources usually carry no `snippet`** — a source gains one only when a text-block citation (`cited_text`) matches its URL, and DeepSeek's Anthropic-compatible endpoint returns text blocks without `citations`.
+- **Sources may carry no `snippet`** — an item without its own excerpt gains one only when a text-block citation (`cited_text`) matches its URL, and DeepSeek's Anthropic-compatible endpoint returns text blocks without `citations`.
 
 <a id="dev-note"></a>
 ### Dev Note

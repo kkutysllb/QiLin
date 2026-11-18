@@ -49,7 +49,7 @@ export function WebSearchCard(props: WebSearchCardProps) {
             />
           </label>
           <p className={styles.hint}>
-            {t('webSearchUseApiHint')}
+            {searchApi ? t('webSearchUseApiHint') : t('webSearchAutoHint')}
             <a className={styles.link} href={t('webSearchGuideUrl')} target="_blank" rel="noopener noreferrer">
               {t('webSearchGuide')}
             </a>

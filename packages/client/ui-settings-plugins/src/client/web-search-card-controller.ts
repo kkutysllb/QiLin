@@ -293,9 +293,15 @@ export class WebSearchCardController {
   private select(enabled: boolean): void {
     const base = this.scopes.web.getSnapshot().base as WebProviderSelection | undefined
     const actions = this.selection.actions()
+    // Off means automatic search: no pin, so the Host follows the model route
+    // (DeepSeek server-side search there, the Search API elsewhere). Fetch keeps
+    // its anonymous local fetcher while search is automatic.
+    const targets: { searchProvider?: string; fetchProvider?: string } = enabled
+      ? { searchProvider: PROVIDERS.searchProvider.api, fetchProvider: PROVIDERS.fetchProvider.api }
+      : { fetchProvider: PROVIDERS.fetchProvider.messages }
     for (const field of ['searchProvider', 'fetchProvider'] as const) {
-      const target = PROVIDERS[field][enabled ? 'api' : 'messages']
-      if (base?.[field] === target) actions.resetField(field)
+      const target = targets[field]
+      if (target === undefined || base?.[field] === target) actions.resetField(field)
       else actions.edit(field, target)
     }
   }

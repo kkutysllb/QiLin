@@ -47,7 +47,7 @@ Mount the plugin alongside `qilin-web` and select its providers. Shipped profile
 
 Fill `baseURL` with the complete API base, including its path prefix and excluding the operation name. The default reaches `https://api.deepseek.com/v1/tools/search` and `https://api.deepseek.com/v1/tools/fetch`; a deployment with another prefix, such as `/api/v1/tools`, needs its complete base.
 
-The shipped base composition selects this provider's search (`deepseek-search-api`) for `web_search`; the Messages-API search provider (`deepseek-official`) remains available through an explicit `searchProvider` setting and costs one auxiliary model request per search. Search requests from one plugin instance are spaced to the configured per-second limit; other processes and clients on the same account share the service limit without coordination.
+While no search provider is configured, `web_search` selects this provider (`deepseek-search-api`) on every model route except the DeepSeek ones, and outside a model request; conversations on the DeepSeek model routes default to the Messages-API search provider (`deepseek-official`) instead. An explicit `searchProvider` setting overrides either default. Search requests from one plugin instance are spaced to the configured per-second limit; other processes and clients on the same account share the service limit without coordination.
 
 Run the real API tests with `DEEPSEEK_API_KEY` and `DEEPSEEK_SEARCH_API_TEST_BASE_URL`; both are required, and the latter includes the API path prefix.
 

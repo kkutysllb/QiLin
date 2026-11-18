@@ -232,10 +232,12 @@ async function runSearchQueries(
   ctx: Context,
   queries: string[],
   maxResults: number,
+  llmProvider: string | undefined,
   signal: AbortSignal,
 ): Promise<WebSearchResult> {
+  const route = llmProvider === undefined ? {} : { llmProvider }
   if (queries.length === 1) {
-    return ctx.web.search({ query: queries[0] as string, maxResults }, signal)
+    return ctx.web.search({ query: queries[0] as string, maxResults, ...route }, signal)
   }
   const controller = new AbortController()
   const batchSignal = AbortSignal.any([signal, controller.signal])
@@ -243,7 +245,7 @@ async function runSearchQueries(
   const results: WebSearchResult[] = []
   const searches = queries.map(async (query, index) => {
     try {
-      results[index] = await ctx.web.search({ query, maxResults }, batchSignal)
+      results[index] = await ctx.web.search({ query, maxResults, ...route }, batchSignal)
     } catch (error) {
       if (firstFailure === undefined) firstFailure = { error }
       controller.abort(error)
@@ -364,7 +366,9 @@ export function applyWebSearchTool(
     isConcurrencySafe: () => true,
     async execute(args, exec) {
       const queries = parseSearchArgs(args, maxQueries)
-      const result = await runSearchQueries(ctx, queries, maxResults, exec.signal)
+      // The latest request context names the route that served the model request which called this tool.
+      const llmProvider = exec.agent?.session.requestContext()?.provider
+      const result = await runSearchQueries(ctx, queries, maxResults, llmProvider, exec.signal)
       return {
         ...result.content !== undefined ? { content: result.content } : {},
         sources: result.sources.map(projectSource),

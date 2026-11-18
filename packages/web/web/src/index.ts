@@ -44,7 +44,18 @@ interface Selection<P> {
   readonly configuredId?: string
   /** Providers registered for this capability kind. */
   readonly providers: ReadonlyMap<string, P>
+  /** The provider that wins among the usable ones while none is configured, if it is usable. */
+  readonly preferredId?: string
 }
+
+/** Provider routes of the DeepSeek API-key and account models. */
+const DEEPSEEK_MODEL_ROUTES: ReadonlySet<string> = new Set(['deepseek-official', 'deepseek-account'])
+
+/** Search provider preferred for a DeepSeek model route: Messages search, with no per-search charge. */
+const DEEPSEEK_ROUTE_SEARCH_PROVIDER = 'deepseek-official'
+
+/** Search provider preferred on every other route and outside a model request. */
+const OTHER_ROUTE_SEARCH_PROVIDER = 'deepseek-search-api'
 
 /**
  * Config for the web seam. `searchProvider` / `fetchProvider` pin which provider
@@ -69,6 +80,10 @@ export interface WebRuntimeConfig {
  * - A configured id not registered → `WEB_PROVIDER_CONFIGURED_MISSING`.
  * - A configured id registered but unavailable →
  *   `WEB_PROVIDER_CONFIGURED_UNAVAILABLE`.
+ * - No search id configured, and the provider assigned to the route of the model
+ *   request the search serves is usable → that provider: `deepseek-official`
+ *   (Messages search) on the `deepseek-official` and `deepseek-account` routes,
+ *   `deepseek-search-api` on every other route and outside a model request.
  * - No id configured, exactly one registered usable provider → that provider.
  * - No id configured, multiple usable providers → `WEB_PROVIDER_AMBIGUOUS`.
  * - No id configured, no usable provider → `WEB_PROVIDER_UNAVAILABLE`.
@@ -141,8 +156,12 @@ export class WebRuntime extends Service {
    */
   async search(request: WebSearchRequest, signal?: AbortSignal): Promise<WebSearchResult> {
     const configuredId = this.config.searchProvider.get() ?? this.searchProviderEnv
+    const preferredId = request.llmProvider !== undefined && DEEPSEEK_MODEL_ROUTES.has(request.llmProvider)
+      ? DEEPSEEK_ROUTE_SEARCH_PROVIDER
+      : OTHER_ROUTE_SEARCH_PROVIDER
     const provider = resolveProvider({
       providers: this.searchProviders,
+      preferredId,
       ...configuredId !== undefined ? { configuredId } : {},
     })
     const result = await provider.search(request, signal)
@@ -186,6 +205,8 @@ function resolveProvider<P extends ResolvableProvider>(selection: Selection<P>):
     return provider
   }
   const usable = [...providers.values()].filter(provider => provider.available())
+  const preferred = usable.find(provider => provider.id === selection.preferredId)
+  if (preferred !== undefined) return preferred
   const [single] = usable
   if (single === undefined) {
     throw new WebError('no usable web provider is registered', 'WEB_PROVIDER_UNAVAILABLE')

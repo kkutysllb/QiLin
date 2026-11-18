@@ -64,13 +64,14 @@ Both calls accept an optional `AbortSignal` that is forwarded to the provider fo
 
 ### Provider selection
 
-Each call resolves its provider at execution time, and registration or load order never matters. A configured provider id wins when it is registered and usable; without a configured id, the service runs the single usable provider or fails clearly:
+Each call resolves its provider at execution time, and registration or load order never matters. A configured provider id wins when it is registered and usable. Without a configured id, a search prefers the provider its calling model route assigns — DeepSeek Messages search on the `deepseek-official` and `deepseek-account` routes, the DeepSeek Search API on every other route and outside a model request — and otherwise runs the single usable provider or fails clearly:
 
 | Situation | Outcome |
 |---|---|
 | configured id registered and usable | runs that provider |
 | configured id not registered | `WEB_PROVIDER_CONFIGURED_MISSING` |
 | configured id registered but unavailable | `WEB_PROVIDER_CONFIGURED_UNAVAILABLE` |
+| no id, the route-preferred provider is usable | runs it |
 | no id, exactly one registered usable provider | runs it |
 | no id, no usable provider | `WEB_PROVIDER_UNAVAILABLE` |
 | no id, multiple usable providers | `WEB_PROVIDER_AMBIGUOUS` |
@@ -96,7 +97,7 @@ This section explains the design decisions behind the service; the observable be
 The package is built on one deliberate separation:
 
 - **One seam, two independent operations.** Search and fetch share no request schema and no business logic, but they share one service so provider selection, cancellation, errors, and product configuration have a single owner. The parallel `Search`/`Fetch` method pairs are intentional.
-- **Selection is never order-dependent.** A capability either pins a provider id or auto-selects when exactly one usable provider is registered; `search()`/`fetch()` resolve the provider at execution time.
+- **Selection is never order-dependent.** A capability either pins a provider id, prefers the route-assigned provider for a search, or auto-selects when exactly one usable provider is registered; `search()`/`fetch()` resolve the provider at execution time.
 - **The service owns the result bound.** `maxResults` is enforced by the seam after the provider returns, so an over-returning provider can never leak more sources than the caller asked for.
 
 ### Source map

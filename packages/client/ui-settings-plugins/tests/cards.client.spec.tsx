@@ -229,6 +229,14 @@ describe('WebSearchCard', () => {
     expect(screen.getByText(en.webSearchDescription)).toBeTruthy()
   })
 
+  it('explains automatic selection while the switch is off and per-search billing while it is on', () => {
+    const off = mount()
+    expect(off.container.textContent).toContain(en.webSearchAutoHint)
+    off.unmount()
+    const on = mount({ useSearchApi: true })
+    expect(on.container.textContent).toContain(en.webSearchUseApiHint)
+  })
+
   it('stages the key, endpoint, and Messages uses while the API switch is off', () => {
     const { face } = mount()
     fireEvent.click(screen.getByRole('switch', { name: en.webSearchUseApi }))

@@ -64,13 +64,14 @@ const page = await ctx.web.fetch({ url: 'https://example.com' })
 
 ### 提供方选择
 
-每次调用都在执行时解析提供方，注册或加载顺序从不影响结果。已配置的提供方 id 在已注册且可用时优先；没有配置 id 时，服务运行唯一可用的提供方，或在情况不明时明确失败：
+每次调用都在执行时解析提供方，注册或加载顺序从不影响结果。已配置的提供方 id 在已注册且可用时优先。没有配置 id 时，搜索优先使用调用它的模型路由所指定的提供方——`deepseek-official` 与 `deepseek-account` 路由用 DeepSeek 服务端搜索，其他路由以及不在模型请求中的搜索用 DeepSeek Search API——否则运行唯一可用的提供方，或在情况不明时明确失败：
 
 | 情况 | 结果 |
 |---|---|
 | 已配置 id 已注册且可用 | 运行该提供方 |
 | 已配置 id 未注册 | `WEB_PROVIDER_CONFIGURED_MISSING` |
 | 已配置 id 已注册但不可用 | `WEB_PROVIDER_CONFIGURED_UNAVAILABLE` |
+| 无 id，路由优先的提供方可用 | 运行它 |
 | 无 id，恰好一个已注册的可用提供方 | 运行它 |
 | 无 id，没有可用提供方 | `WEB_PROVIDER_UNAVAILABLE` |
 | 无 id，多个可用提供方 | `WEB_PROVIDER_AMBIGUOUS` |
@@ -96,7 +97,7 @@ const page = await ctx.web.fetch({ url: 'https://example.com' })
 本包建立在一个刻意的分离之上：
 
 - **一个 seam，两个独立操作。** 搜索与抓取没有共享请求 schema 或业务逻辑，但它们共用一个服务，使提供方选择、取消、错误与产品配置只有一个归属方。并行的 `Search`／`Fetch` 方法对是有意为之。
-- **选择绝不依赖顺序。** 能力要么固定提供方 id，要么在恰好注册一个可用提供方时自动选择；`search()`／`fetch()` 在执行时解析提供方。
+- **选择绝不依赖顺序。** 能力要么固定提供方 id、为搜索优先路由指定的提供方，要么在恰好注册一个可用提供方时自动选择；`search()`／`fetch()` 在执行时解析提供方。
 - **服务拥有结果上限。** `maxResults` 由 seam 在提供方返回后强制执行，因此超量返回的提供方绝不可能泄漏超出调用方要求的来源。
 
 ### 源码地图

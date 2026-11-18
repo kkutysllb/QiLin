@@ -5,7 +5,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ConfigForm, ConfigFormSnapshot } from '@qilin-agent/client-ui-settings/client'
 import { WebSearchCardController } from '../src/client/web-search-card-controller.ts'
 
-function scope<T extends object>(value: T, overrides: Partial<ConfigFormSnapshot<T>> = {}, mutate = vi.fn(async () => true)) {
+function scope<T extends object>(
+  value: T,
+  overrides: Partial<ConfigFormSnapshot<T>> = {},
+  mutate = vi.fn(async (_ops: readonly unknown[]) => true),
+) {
   let snapshot: ConfigFormSnapshot<T> = {
     status: 'ready', value, base: value, user: {}, revision: 1, writable: true, mode: 'host', ...overrides,
   }
@@ -71,6 +75,38 @@ describe('WebSearchCardController', () => {
     face.edit('baseURL', 'https://api.test/next')
     face.setSearchApi(false)
     face.discard()
+    controller.dispose()
+  })
+
+  it('clears a pinned search provider and restores the local fetcher when the switch returns to automatic', async () => {
+    const web = scope({ searchProvider: 'deepseek-official', fetchProvider: 'deepseek-fetch-api' }, {
+      base: { searchProvider: 'deepseek-search-api', fetchProvider: 'deepseek-fetch-api' },
+      user: { searchProvider: 'deepseek-official', fetchProvider: 'deepseek-fetch-api' },
+    })
+    const s = { web, messages: scope({ baseURL: 'https://messages.test', maxUses: 5 }), api: scope({ baseURL: 'https://api.test', count: 10 }) }
+    const controller = card({ web: s.web.form, messages: s.messages.form, api: s.api.form })
+    const face = controller.inject()
+    face.setSearchApi(false)
+    face.save()
+    await vi.waitFor(() => { expect(s.web.mutate).toHaveBeenCalled() })
+    // Automatic search removes the user's provider pins; the deployment values apply again.
+    expect(s.web.mutate.mock.calls[0]?.[0]).toEqual([
+      { op: 'unset', path: ['searchProvider'] },
+      { op: 'set', path: ['fetchProvider'], value: 'http' },
+    ])
+    controller.dispose()
+  })
+
+  it('stages no write when the switch is already off and nothing is pinned', () => {
+    const web = scope({ searchProvider: '', fetchProvider: 'http' },
+      { base: { searchProvider: '', fetchProvider: 'http' } })
+    const messages = scope({ baseURL: 'https://messages.test', maxUses: 5 })
+    const api = scope({ baseURL: 'https://api.test', count: 10 })
+    const controller = card({ web: web.form, messages: messages.form, api: api.form })
+    const face = controller.inject()
+    face.setSearchApi(false)
+    face.save()
+    expect(web.mutate).not.toHaveBeenCalled()
     controller.dispose()
   })
 

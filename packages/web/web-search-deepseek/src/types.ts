@@ -12,6 +12,8 @@ export interface WebSearchResultItem {
   title?: string | null
   /** Provider-supplied page age/recency string (mapped to `publishedAt`). */
   page_age?: string | null
+  /** Excerpt of the page, when the endpoint returns one with the item. */
+  snippet?: string | null
 }
 
 /** A `web_search_tool_result` content block: the citeable result shape. */

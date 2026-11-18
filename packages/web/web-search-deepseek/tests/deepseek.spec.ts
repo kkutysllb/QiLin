@@ -95,6 +95,25 @@ describe('mapAnthropicResponse', () => {
     })
   })
 
+  it('prefers a result item\'s own snippet and falls back to its citation when absent', () => {
+    const result = mapAnthropicResponse({
+      content: [
+        { type: 'text', citations: [{ url: 'https://a.test', cited_text: 'citation for A' }, { url: 'https://b.test', cited_text: 'citation for B' }] },
+        {
+          type: 'web_search_tool_result',
+          content: [
+            { type: 'web_search_result', url: 'https://a.test', title: 'A', snippet: 'own snippet' },
+            { type: 'web_search_result', url: 'https://b.test', title: 'B', snippet: '' },
+          ],
+        },
+      ],
+    })
+    expect(result.sources).toEqual([
+      { url: 'https://a.test', title: 'A', snippet: 'own snippet' },
+      { url: 'https://b.test', title: 'B', snippet: 'citation for B' },
+    ])
+  })
+
   it('dedupes repeated urls across result blocks (first wins)', () => {
     const result = mapAnthropicResponse({
       content: [

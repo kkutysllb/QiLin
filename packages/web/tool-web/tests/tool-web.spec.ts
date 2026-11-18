@@ -3,6 +3,8 @@ import { Context } from '@qilin-agent/kylin'
 import { createScope, type Scope } from '@qilin-agent/scope'
 import TurndownService from 'turndown'
 import { ToolCallId } from '@qilin-agent/llm'
+import type { Agent } from '@qilin-agent/agent'
+import { SessionId } from '@qilin-agent/session'
 import SystemPrompt, { renderPrompt } from '@qilin-agent/system-prompt'
 import ToolRuntime, { type ToolExecutionResult } from '@qilin-agent/tools'
 import WebRuntime from '@qilin-agent/web'
@@ -41,7 +43,7 @@ async function mountTools(opts: {
   webConfig?: { searchProvider?: string; fetchProvider?: string }
   search?: WebSearchProvider
   fetchProvider?: import('@qilin-agent/web').WebFetchProvider
-} = {}): Promise<{ ctx: Context; fiber: Awaited<ReturnType<Context['plugin']>>; call: (name: string, args: unknown) => Promise<ToolExecutionResult> }> {
+} = {}): Promise<{ ctx: Context; fiber: Awaited<ReturnType<Context['plugin']>>; call: (name: string, args: unknown, agent?: Agent) => Promise<ToolExecutionResult> }> {
   const ctx = new Context()
   await ctx.plugin(SystemPrompt)
   await ctx.plugin(ToolRuntime)
@@ -50,7 +52,10 @@ async function mountTools(opts: {
   if (opts.fetchProvider) ctx.web.registerFetchProvider(opts.fetchProvider)
   const fiber = await ctx.plugin(ToolWeb, opts.config ?? {})
   let counter = 0
-  const call = (name: string, args: unknown) => ctx.tools.execute({ signal: testToolSignal, callId: ToolCallId(`call-${++counter}`), name, arguments: args })
+  const call = (name: string, args: unknown, agent?: Agent) => ctx.tools.execute({
+    signal: testToolSignal, callId: ToolCallId(`call-${++counter}`), name, arguments: args,
+    ...agent === undefined ? {} : { agent },
+  })
   return { ctx, fiber, call }
 }
 
@@ -517,6 +522,27 @@ describe('tool-web execution through the real registry', () => {
     expect(out.isError).toBe(false)
     expect(out.value).toEqual(result)
     expect(out.content.map(b => b.type === 'text' ? b.text : '').join('')).toContain('[A](https://a.test)')
+    await fiber.dispose()
+  })
+
+  it('carries the calling model route into every search so the seam prefers that route\'s provider', async () => {
+    const providers: (string | undefined)[] = []
+    const provider: WebSearchProvider = {
+      id: 'stub-search',
+      available: () => available,
+      search: (request) => {
+        providers.push(request.llmProvider)
+        return Promise.resolve({ sources: [{ url: 'https://a.test' }], truncated: false })
+      },
+    }
+    const { fiber, call } = await mountTools({ webConfig: { searchProvider: 'stub-search' }, search: provider })
+    const agent = {
+      id: SessionId('tool-web-route'),
+      session: { requestContext: () => ({ provider: 'deepseek-official', model: 'deepseek-flash', contextWindow: 1 }) },
+    } as unknown as Agent
+    const out = await call('web_search', { queries: ['one', 'two'] }, agent)
+    expect(out.isError).toBe(false)
+    expect(providers).toEqual(['deepseek-official', 'deepseek-official'])
     await fiber.dispose()
   })
 

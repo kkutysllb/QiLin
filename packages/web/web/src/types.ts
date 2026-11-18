@@ -23,6 +23,12 @@ export interface WebSearchRequest {
    * regardless.
    */
   readonly maxResults?: number
+  /**
+   * Provider route id of the model request this search serves. While no search
+   * provider is configured, the seam prefers the DeepSeek search provider this
+   * route assigns; omitted = the search serves no model request.
+   */
+  readonly llmProvider?: string
 }
 
 /**
