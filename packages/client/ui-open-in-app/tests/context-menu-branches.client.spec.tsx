@@ -205,8 +205,11 @@ it('offers the default-application entry when the handler query fails or desktop
     const [, open] = await failed.resolve('open-in-app.file', { sessionId: SessionId('s1'), path: 'a.txt' })
     expect(open?.label).toBe('Open in default application')
     expect(open?.icon).toEqual({ key: 'open-in-app.application' })
-    expect(open?.disabled).toBe(true)
-    expect(open?.run).toBeUndefined()
+    // Without an association answer the row still opens through the platform
+    // default, so the menu never loses its primary gesture.
+    expect(open?.disabled).toBe(false)
+    await open?.run?.()
+    expect(failed.remote.openWorkspacePath).toHaveBeenLastCalledWith({ path: '/ws/proj/a.txt' })
   } finally { await failed.fiber.dispose() }
 
   const offline = await bench({
@@ -222,6 +225,52 @@ it('offers the default-application entry when the handler query fails or desktop
     // No handler query runs without desktop availability.
     expect(offline.remote.workspacePathApplications).not.toHaveBeenCalled()
   } finally { await offline.fiber.dispose() }
+})
+
+it('opens with the unnamed default row when the first association answer is slow', async () => {
+  vi.useFakeTimers()
+  let answer: ((result: unknown) => void) | undefined
+  const slow = new Promise((settle) => { answer = settle })
+  const b = await bench({ remote: remoteWith({ applications: () => slow }) })
+  try {
+    const resolving = b.resolve('open-in-app.file', { sessionId: SessionId('s1'), path: 'a.txt' })
+    await vi.advanceTimersByTimeAsync(300)
+    const actions = await resolving
+    const open = b.byId(actions, 'open')
+    // The menu opened on the wait bound, naming the platform default rather
+    // than holding every row back for the association query.
+    expect(open.label).toBe('Open in default application')
+    expect(open.disabled).toBe(false)
+    await vi.advanceTimersByTimeAsync(0)
+    answer?.({ ok: true, value: [{ id: 'vscode', name: 'VS Code', default: true }] })
+    await vi.runAllTimersAsync()
+    // The late answer is cached for the next menu of the same path.
+    const next = await b.resolve('open-in-app.file', { sessionId: SessionId('s1'), path: 'a.txt' })
+    expect(b.byId(next, 'open').label).toBe('Open in VS Code')
+  } finally {
+    vi.useRealTimers()
+    await b.fiber.dispose()
+  }
+})
+
+it('ends the first-answer wait when the menu dismisses', async () => {
+  vi.useFakeTimers()
+  const b = await bench({
+    remote: remoteWith({ applications: () => new Promise(() => {}) }),
+  })
+  try {
+    const contribution = b.contributions.find(entry => entry.id === 'open-in-app.file')
+    const controller = new AbortController()
+    const resolving = contribution!.resolve(
+      { sessionId: SessionId('s1'), path: 'a.txt' }, controller.signal,
+    )
+    await vi.advanceTimersByTimeAsync(0)
+    controller.abort()
+    await expect(resolving).rejects.toThrow()
+  } finally {
+    vi.useRealTimers()
+    await b.fiber.dispose()
+  }
 })
 
 it('opens a URL externally and copies its address', async () => {

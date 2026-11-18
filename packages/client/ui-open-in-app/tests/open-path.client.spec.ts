@@ -47,6 +47,37 @@ describe('OpenInAppPathController availability', () => {
   })
 })
 
+describe('OpenInAppPathController association cache', () => {
+  it('caches answers per path and shares one query across concurrent menus', async () => {
+    const workspacePathApplications = vi.fn(async () => ok(APPS))
+    const controller = new OpenInAppPathController(remote({ workspacePathApplications }))
+    expect(controller.cachedApplications('/host/work/a.txt')).toBeUndefined()
+    await controller.load()
+    await Promise.all([
+      controller.refreshApplications('/host/work/a.txt'),
+      controller.refreshApplications('/host/work/a.txt'),
+    ])
+    expect(controller.cachedApplications('/host/work/a.txt')).toEqual(APPS)
+    expect(workspacePathApplications).toHaveBeenCalledTimes(1)
+  })
+
+  it('leaves a path unanswered after a refused query and queries nothing without a desktop', async () => {
+    const refusedController = new OpenInAppPathController(remote({ workspacePathApplications: async () => refused() }))
+    await refusedController.load()
+    await refusedController.refreshApplications('/host/work/a.txt')
+    expect(refusedController.cachedApplications('/host/work/a.txt')).toBeUndefined()
+
+    const workspacePathApplications = vi.fn(async () => ok(APPS))
+    const offline = new OpenInAppPathController(remote({
+      canOpenWorkspacePath: async () => ok(false), workspacePathApplications,
+    }))
+    await offline.load()
+    await offline.refreshApplications('/host/work/a.txt')
+    expect(offline.cachedApplications('/host/work/a.txt')).toBeUndefined()
+    expect(workspacePathApplications).not.toHaveBeenCalled()
+  })
+})
+
 describe('OpenInAppPathController gestures', () => {
   it('opens with the default application, an explicit application, and the file-manager reveal', async () => {
     const openWorkspacePath = vi.fn(async () => ok({ opened: true as const }))

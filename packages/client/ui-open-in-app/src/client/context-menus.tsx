@@ -12,6 +12,28 @@ import type { OpenInAppPathController, OpenInAppPathFailure } from './open-path.
 const FILE_MANAGER_APP_IDS = ['finder', 'explorer', 'filemanager'] as const
 
 /**
+ * How long a file menu waits for the first association answer of its path
+ * before opening with the unnamed default-application row. Most first answers
+ * arrive sooner; the row then names the application without delaying the menu.
+ */
+const FIRST_ANSWER_WAIT_MS = 300
+
+/**
+ * @param pending - settles without rejecting.
+ * @param ms - longest wait.
+ * @param signal - ends the wait early.
+ * @returns settles when `pending` settles, after `ms`, or on abort, whichever is first.
+ */
+function settleWithin(pending: Promise<void>, ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((settle) => {
+    const done = (): void => { clearTimeout(timer); signal.removeEventListener('abort', done); settle() }
+    const timer = setTimeout(done, ms)
+    signal.addEventListener('abort', done, { once: true })
+    void pending.then(done)
+  })
+}
+
+/**
  * Register native opening, original-path reveal, and URL actions.
  * @param ctx - declared plugin dependencies.
  * @param paths - existing native file path actions.
@@ -74,22 +96,35 @@ export function registerContextMenus(
   }), 'open-in-app: directory context menu')
   ctx.effect(() => ctx.contextMenus.register({
     id: 'open-in-app.file', target: 'file', order: 100,
-    observe: () => [paths.desktop, ctx.sessions.list, ctx.locale],
+    observe: () => [paths.desktop, paths.associations, ctx.sessions.list, ctx.locale],
     resolve: async ({ sessionId, path }, signal) => {
       await paths.load()
       const absolutePath = resolveWorkspacePath(sessionCwd(sessionId), path)
       const desktop = paths.desktop.getSnapshot() === true
-      const applications = desktop ? await paths.applications(absolutePath, signal) : []
-      signal.throwIfAborted()
-      const application = applications?.find(app => app.default) ?? undefined
+      let applications = desktop ? paths.cachedApplications(absolutePath) : undefined
+      if (desktop) {
+        // Every opening refreshes the answer in the background so a changed
+        // association reaches the next menu; the first answer a path ever gets
+        // holds the menu for at most FIRST_ANSWER_WAIT_MS.
+        const refreshed = paths.refreshApplications(absolutePath)
+        if (applications === undefined) {
+          await settleWithin(refreshed, FIRST_ANSWER_WAIT_MS, signal)
+          signal.throwIfAborted()
+          applications = paths.cachedApplications(absolutePath)
+        }
+      }
+      const application = applications?.find(app => app.default)
+      const runOpen = application === undefined
+        ? () => open(absolutePath, 'open')
+        : () => open(absolutePath, 'open', application.id)
       return [
         { id: 'reveal', icon: { key: 'open-in-app.reveal' }, label: fileManager(), disabled: !desktop,
           failureLabel: t('path.revealError'), ...desktop ? { run: () => open(absolutePath, 'reveal') } : {} },
         { id: 'open', label: application === undefined ? t('menu.defaultApp') : t('menu.openInApp', { app: application.name }),
           icon: { key: 'open-in-app.application', ...application?.icon ? { src: application.icon } : {} },
-          disabled: application === undefined,
+          disabled: !desktop,
           failureLabel: t('path.openError'),
-          ...application === undefined ? {} : { run: () => open(absolutePath, 'open', application.id) } },
+          ...desktop ? { run: runOpen } : {} },
         { id: 'copyPath', icon: { key: 'open-in-app.copy' }, label: t('menu.copyPath'),
           failureLabel: t('menu.copyFailed'), run: () => copy(absolutePath) },
       ]

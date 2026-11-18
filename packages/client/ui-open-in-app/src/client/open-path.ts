@@ -36,7 +36,15 @@ export interface OpenInAppPathRemote {
 export class OpenInAppPathController {
   /** Whether the Host can open paths; null until the Host answered, false also after a failed read. */
   readonly desktop: SnapshotStore<boolean | null> = createSnapshotStore<boolean | null>(null)
+  /**
+   * Association answers by absolute path. A path absent from the record has no
+   * answer yet; a failed query leaves it absent so a later menu retries.
+   */
+  readonly associations: SnapshotStore<Readonly<Record<string, readonly SessionWorkspacePathApplication[]>>> =
+    createSnapshotStore<Readonly<Record<string, readonly SessionWorkspacePathApplication[]>>>({})
   private loading: Promise<void> | undefined
+  /** One association query per path, shared by every menu opened meanwhile. */
+  private readonly refreshing = new Map<string, Promise<void>>()
 
   /**
    * @param remote - the Session Remote namespace answering availability and running gestures.
@@ -71,6 +79,35 @@ export class OpenInAppPathController {
       // like a Host that refused it, and the control announces that.
     }
     return opened ? null : action === 'open' ? 'openError' : 'revealError'
+  }
+
+  /**
+   * The last association answer for one absolute path.
+   * @param path - absolute path on the Host.
+   * @returns the cached handlers, or undefined when this path was never answered.
+   */
+  cachedApplications(path: string): readonly SessionWorkspacePathApplication[] | undefined {
+    return this.associations.getSnapshot()[path]
+  }
+
+  /**
+   * Query one path's handlers into the cache; concurrent calls for a path share one query.
+   * @param path - absolute path on the Host.
+   * @returns after the query settles, whether it answered or failed.
+   */
+  refreshApplications(path: string): Promise<void> {
+    const inFlight = this.refreshing.get(path)
+    if (inFlight !== undefined) return inFlight
+    const run = this.query(path).finally(() => { this.refreshing.delete(path) })
+    this.refreshing.set(path, run)
+    return run
+  }
+
+  private async query(path: string): Promise<void> {
+    if (this.desktop.getSnapshot() !== true) return
+    const applications = await this.applications(path, new AbortController().signal)
+    if (applications === null) return
+    this.associations.set({ ...this.associations.getSnapshot(), [path]: applications })
   }
 
   /**

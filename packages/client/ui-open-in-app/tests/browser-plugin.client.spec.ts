@@ -143,10 +143,13 @@ describe('open-in-app browser half', () => {
       ) => Promise<{ id: string; label: string; disabled?: boolean; run?: () => Promise<void> }[]>
     }
     const actions = await file.resolve({ sessionId: 's-0', path: 'notes.md' }, new AbortController().signal)
-    // The bench Host registers no file handlers, so only reveal and copy are runnable.
     expect(actions.map(action => action.id)).toEqual(['reveal', 'open', 'copyPath'])
-    expect(actions[1]?.disabled).toBe(true)
+    // The bench Host registers no file handlers, so the row falls back to the
+    // platform default instead of disappearing.
+    expect(actions[1]?.disabled).toBe(false)
     expect(actions[1]?.label).toBe(ctx.locale.bind(NS)('menu.defaultApp'))
+    await actions[1]?.run?.()
+    expect(sessionRemote.openWorkspacePath).toHaveBeenLastCalledWith({ path: '/w/dir/notes.md' })
     await actions[0]?.run?.()
     expect(sessionRemote.openWorkspacePath).toHaveBeenLastCalledWith({ path: '/w/dir/notes.md', action: 'reveal' })
     await actions[2]?.run?.()
