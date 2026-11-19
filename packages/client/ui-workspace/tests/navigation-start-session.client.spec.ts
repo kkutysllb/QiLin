@@ -25,14 +25,16 @@ function workspace(
 }
 
 function byId(...entries: { id: string; cwd?: string }[]): SessionListState['byId'] {
-  return Object.fromEntries(entries.map(entry => [SessionId(entry.id), {
-    sessionId: SessionId(entry.id),
-    agentAvailable: true,
+  const rows = entries.map(entry => ({
+    id: SessionId(entry.id),
+    displayTitle: entry.id,
     running: false,
+    retainedBy: {},
     blank: true,
     updatedAt: 1,
     ...(entry.cwd === undefined ? {} : { cwd: entry.cwd }),
-  }])) as SessionListState['byId']
+  }))
+  return Object.fromEntries(rows.map(row => [row.id, row])) as SessionListState['byId']
 }
 
 describe('startSessionTarget', () => {
