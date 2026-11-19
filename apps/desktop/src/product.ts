@@ -53,6 +53,13 @@ export interface DesktopProduct {
   readonly profile: string
   /** Ordered profile bundle layers; the last one is the product layer. */
   readonly profileBundles: readonly string[]
+  /**
+   * Profile template layers this product never loads, recorded as the profile
+   * manifest's `qilin.profile.excluded` set. A shipped template restores its
+   * own layers on every boot, so a product that wants none of them states that
+   * here instead of deleting the row afterwards.
+   */
+  readonly excludedBundles?: readonly string[]
   /** Plugin packages relative to the product root, or absent when the profile installs its own. */
   readonly pluginRoot?: string
   /** Plugin packages for an unpackaged launch, when they live elsewhere than the packaged copy. */
@@ -191,6 +198,9 @@ export function parseDesktopProduct(value: unknown): DesktopProduct {
   const presetsRoot = optionalText(record.presetsRoot, 'presetsRoot')
   const devPresetsRoot = optionalText(record.devPresetsRoot, 'devPresetsRoot')
   const entry = optionalText(record.entry, 'entry')
+  const excludedBundles = record.excludedBundles === undefined
+    ? undefined
+    : textList(record.excludedBundles, 'excludedBundles')
   return {
     schemaVersion: 1,
     name: text(record.name, 'name'),
@@ -201,6 +211,7 @@ export function parseDesktopProduct(value: unknown): DesktopProduct {
     devHarnessHomeRelative: text(record.devHarnessHomeRelative, 'devHarnessHomeRelative'),
     profile: text(record.profile, 'profile'),
     profileBundles: textList(record.profileBundles, 'profileBundles'),
+    ...(excludedBundles === undefined ? {} : { excludedBundles }),
     ...(pluginRoot === undefined ? {} : { pluginRoot }),
     ...(devPluginRoot === undefined ? {} : { devPluginRoot }),
     ...(presetsRoot === undefined ? {} : { presetsRoot }),

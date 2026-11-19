@@ -195,7 +195,7 @@ export function seedProductProfile(
   const manifestPath = join(profileDir, 'package.json')
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
     dependencies?: Record<string, string>
-    qilin?: { profile?: { bundles?: string[] } }
+    qilin?: { profile?: { bundles?: string[]; excluded?: string[] } }
   }
   const dependencies: Record<string, string> = { ...manifest.dependencies }
   for (const plugin of plugins) dependencies[plugin.name] = `link:${plugin.directory}`
@@ -204,12 +204,19 @@ export function seedProductProfile(
   const bundles = missing.length === 0
     ? existing
     : [...product.profileBundles, ...existing.filter(bundle => !product.profileBundles.includes(bundle))]
+  // A shipped template restores its own layers on every boot, so a product that
+  // wants none of them records the refusal here; the template honors
+  // `qilin.profile.excluded` when it rebuilds the bundle list.
+  const previousExcluded = manifest.qilin?.profile?.excluded ?? []
+  const excluded = [...new Set([...previousExcluded, ...product.excludedBundles ?? []])]
+  const excludedChanged = excluded.length !== previousExcluded.length
+    || excluded.some((entry, index) => entry !== previousExcluded[index])
   const dependenciesChanged = plugins.some(plugin => manifest.dependencies?.[plugin.name] !== `link:${plugin.directory}`)
-  if (dependenciesChanged || missing.length > 0) {
+  if (dependenciesChanged || missing.length > 0 || excludedChanged) {
     writeFileSync(manifestPath, `${JSON.stringify({
       ...manifest,
       dependencies,
-      qilin: { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles } },
+      qilin: { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles, excluded } },
     }, undefined, 2)}\n`)
     log('desktop profile: manifest updated')
   }

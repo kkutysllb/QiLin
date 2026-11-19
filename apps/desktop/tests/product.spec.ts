@@ -109,6 +109,31 @@ describe('product profile seeding', () => {
     expect(written.qilin.profile.bundles).toEqual(manifest.profileBundles)
   })
 
+  it('records product-excluded template layers in the profile manifest', () => {
+    const root = temporary()
+    const profile = join(root, 'profile')
+    mkdirSync(profile, { recursive: true })
+    writeFileSync(join(profile, 'package.json'), JSON.stringify({
+      name: 'profile', private: true, dependencies: {},
+      qilin: { profile: { bundles: [...manifest.profileBundles], excluded: ['owner-layer'] } },
+    }))
+    const product = parseDesktopProduct({
+      ...manifest,
+      excludedBundles: ['@qilin-agent/skills-bundle', '@qilin-agent/skills-bundle'],
+    })
+    expect(product.excludedBundles).toEqual(['@qilin-agent/skills-bundle', '@qilin-agent/skills-bundle'])
+    seedProductProfile(profile, product, [])
+    const written = JSON.parse(readFileSync(join(profile, 'package.json'), 'utf8')) as {
+      qilin: { profile: { bundles: string[]; excluded: string[] } }
+    }
+    expect(written.qilin.profile.excluded).toEqual(['owner-layer', '@qilin-agent/skills-bundle'])
+    expect(written.qilin.profile.bundles).toEqual(manifest.profileBundles)
+  })
+
+  it('rejects a non-string excluded bundle name', () => {
+    expect(() => parseDesktopProduct({ ...manifest, excludedBundles: [42] })).toThrow(/excludedBundles/)
+  })
+
   it('preserves user bundle layers when the product layers already exist', () => {
     const root = temporary()
     const profile = join(root, 'profile')
