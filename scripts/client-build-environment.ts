@@ -154,9 +154,11 @@ export function officialClientBuildEnvironment(
   root: string,
   environment: NodeJS.ProcessEnv = process.env,
 ): Readonly<Record<`QILIN_CLIENT_${string}`, string>> {
+  const productVersion = environment.QILIN_CLIENT_PRODUCT_VERSION
   return {
     QILIN_CLIENT_COMMIT_HASH: repositoryCommitHash(root, environment),
     QILIN_CLIENT_VERSION: repositoryVersion(root),
+    ...(productVersion === undefined || productVersion === '' ? {} : { QILIN_CLIENT_PRODUCT_VERSION: productVersion }),
     ...OFFICIAL_CLIENT_BUILD_ENVIRONMENT,
   }
 }
