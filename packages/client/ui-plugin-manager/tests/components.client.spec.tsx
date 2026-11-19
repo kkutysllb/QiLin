@@ -316,7 +316,7 @@ describe('PluginManagerPage', () => {
   })
 
   it('keeps a category tab panel through loading and opens the More list under its own header', () => {
-    const worktree = '@qilin-agent/experimental-tool-worktree'
+    const worktree = '@qilin-agent/experimental-terminal-bundle'
     const { set } = renderTab({ status: 'loading', packages: [] }, {}, {
       'plugins.tab:discover': (_view, owner) => (
         <button type="button" onClick={() => { (owner as PluginTabProps).openPackage(worktree) }}>Discover open</button>
@@ -1081,7 +1081,7 @@ describe('PluginManagerPage', () => {
         { packages: [
           pkg({ name: '@qilin-agent/experimental-badge-skill-bundle', official: true, enabled: false }),
           pkg({ name: '@acme/team-official', installed: false, optional: true, removable: false, enabled: false }),
-          pkg({ name: '@qilin-agent/experimental-tool-worktree', official: true, enabled: false }),
+          pkg({ name: '@qilin-agent/experimental-terminal-bundle', official: true, enabled: false }),
           pkg({ name: '@acme/new-official', official: true }),
           pkg(),
         ] },
@@ -1131,9 +1131,9 @@ describe('PluginManagerPage', () => {
         .toEqual(['more'])
       const more = group('more')
       expect(within(more).getAllByRole('listitem').map(card => card.getAttribute('data-plugin-package')))
-        .toEqual(['@qilin-agent/experimental-tool-worktree', '@qilin-agent/experimental-badge-skill-bundle'])
+        .toEqual(['@qilin-agent/experimental-terminal-bundle', '@qilin-agent/experimental-badge-skill-bundle'])
       expect(within(more).queryByText(team)).toBeNull()
-      fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', '@qilin-agent/experimental-tool-worktree') }))
+      fireEvent.click(screen.getByRole('button', { name: en.openDetail.replace('{name}', '@qilin-agent/experimental-terminal-bundle') }))
       fireEvent.click(screen.getByRole('button', { name: en.backToPackage.replace('{name}', en.moreTitle) }))
       expect(screen.getByRole('heading', { name: en.moreTitle, level: 1 })).toBeTruthy()
       fireEvent.click(screen.getByRole('button', { name: en.backToList }))
@@ -1169,8 +1169,8 @@ describe('PluginManagerPage', () => {
 
     it('pins a bundle the profile picks onto its tab, in its full-list place', () => {
       const team = '@acme/team-official'
-      const first = '@qilin-agent/experimental-tool-worktree'
-      const second = '@qilin-agent/experimental-cot-translation-bundle'
+      const first = '@qilin-agent/experimental-cot-translation-bundle'
+      const second = '@qilin-agent/experimental-terminal-bundle'
       const entry = (name: string, enabled: boolean): PackageView => pkg({ name, official: true, enabled })
       const b = renderTab({ packages: [entry(second, true), entry(team, true), entry(first, false)] })
       const cards = (group: 'basic' | 'extensions' | 'more'): (string | null)[] => {
