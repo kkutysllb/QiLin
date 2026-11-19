@@ -88,6 +88,12 @@
     "@qilin-agent/system-prompt": "workspace:*",
     "@qilin-agent/tools": "workspace:*",
     "@qilin-agent/typert-protocol": "workspace:*",
-    "@qilin-agent/kylin": "workspace:~"
+    "@qilin-agent/kylin": "workspace:~",
+    "@qilin-agent/commands": "workspace:*",
+    "@qilin-agent/token-meter": "workspace:*",
+    "@qilin-agent/compaction": "workspace:*",
+    "@qilin-agent/compaction-basic": "workspace:*",
+    "@qilin-agent/compaction-tool-result-pruner": "workspace:*",
+    "@qilin-agent/command-compact": "workspace:*"
   }
 }
