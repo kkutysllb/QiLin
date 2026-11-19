@@ -1,0 +1,380 @@
+/* KToon pre-session identity. Loaded after the engine welcome palette. */
+
+:root {
+  color-scheme: dark;
+  --ktoon-ink: #08080b;
+  --ktoon-panel: #101014;
+  --ktoon-line: #292932;
+  --ktoon-paper: #f4eee5;
+  --ktoon-muted: #96929b;
+  --ktoon-accent: #e4572e;
+  --ktoon-accent-soft: #ff8a65;
+}
+
+html,
+body {
+  background: var(--ktoon-ink);
+}
+
+#root {
+  padding: 0;
+  background: var(--ktoon-ink);
+  color: var(--ktoon-paper);
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+.titlebar {
+  position: absolute;
+  z-index: 8;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 42px;
+}
+
+.welcome {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100%;
+  padding: 98px 42px 40px;
+  overflow: hidden;
+  background:
+    radial-gradient(620px 360px at 92% 8%, rgba(228, 87, 46, 0.16), transparent 66%),
+    radial-gradient(520px 420px at 4% 100%, rgba(228, 87, 46, 0.07), transparent 64%),
+    linear-gradient(135deg, #0b0b0f 0%, #08080b 52%, #0d0b0d 100%);
+}
+
+.welcome::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 26px;
+  width: 14px;
+  opacity: 0.35;
+  background-image:
+    linear-gradient(to bottom, transparent 0 8px, rgba(244, 238, 229, 0.2) 8px 22px, transparent 22px 34px);
+  background-size: 14px 34px;
+  pointer-events: none;
+}
+
+.welcome::after {
+  content: '';
+  position: absolute;
+  right: 34px;
+  top: 132px;
+  bottom: 132px;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(228, 87, 46, 0.65), transparent);
+  pointer-events: none;
+}
+
+.brand {
+  position: absolute;
+  z-index: 4;
+  top: 48px;
+  left: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 11px;
+}
+
+.brand img {
+  width: 32px;
+  height: 32px;
+}
+
+.brand-name {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--ktoon-paper);
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.brand-name::after {
+  content: 'STUDIO';
+  padding: 2px 6px;
+  border: 1px solid rgba(244, 238, 229, 0.22);
+  border-radius: 3px;
+  color: var(--ktoon-accent-soft);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  transform: translateY(-1px);
+}
+
+.tagline {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 0 18px;
+  color: var(--ktoon-paper);
+  text-align: left;
+}
+
+.welcome-kicker {
+  margin: 0 0 14px;
+  color: var(--ktoon-accent-soft);
+  font-family: 'Consolas', 'SFMono-Regular', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.tagline h1 {
+  display: block;
+  margin: 0;
+  max-width: 390px;
+  color: var(--ktoon-paper);
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-size: 34px;
+  font-weight: 250;
+  letter-spacing: -0.035em;
+  line-height: 1.17;
+}
+
+.tagline h1 em {
+  display: block;
+  margin-top: 3px;
+  color: var(--ktoon-paper);
+  font-size: 34px;
+  font-style: normal;
+  font-weight: 620;
+  letter-spacing: -0.045em;
+  line-height: 1.16;
+}
+
+.tagline #welcome-description {
+  max-width: 360px;
+  margin: 18px 0 0;
+  color: var(--ktoon-muted);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.85;
+}
+
+.tagline .welcome-local {
+  margin: 20px 0 0;
+  padding-left: 11px;
+  border-left: 2px solid var(--ktoon-accent);
+  color: var(--ktoon-accent-soft);
+  font-family: 'Consolas', 'SFMono-Regular', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1.7;
+  text-transform: uppercase;
+}
+
+
+.auth-stack {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  margin: 0;
+  padding: 22px 24px 24px;
+  border: 1px solid rgba(244, 238, 229, 0.1);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent 30%),
+    rgba(16, 16, 20, 0.82);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+}
+
+.auth-stack-kicker {
+  margin: 0 0 20px;
+  color: var(--ktoon-accent-soft);
+  font-family: 'Consolas', 'SFMono-Regular', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.auth-stack .key-form,
+.auth-stack .actions {
+  max-width: none;
+}
+
+.auth-stack .key-form {
+  margin: 0;
+}
+
+.auth-stack .actions {
+  margin-top: 16px;
+}
+
+.auth-stack #auth-page {
+  width: 100%;
+}
+
+.actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  gap: 9px;
+  width: 100%;
+  max-width: 360px;
+  margin: 0;
+}
+
+.actions button {
+  height: 44px;
+  border-radius: 7px;
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.actions button.primary {
+  border-color: var(--ktoon-accent);
+  background: var(--ktoon-accent);
+  color: #fff8f4;
+}
+
+.actions button.primary:hover:not(:disabled) {
+  border-color: var(--ktoon-accent-soft);
+  background: var(--ktoon-accent-soft);
+  color: #1b0d08;
+}
+
+.actions button.secondary {
+  border-color: var(--ktoon-line);
+  background: rgba(16, 16, 20, 0.5);
+  color: var(--ktoon-paper);
+}
+
+.actions button.secondary:hover:not(:disabled) {
+  border-color: rgba(228, 87, 46, 0.55);
+  background: rgba(228, 87, 46, 0.08);
+}
+
+.actions button:focus-visible {
+  outline: 2px solid var(--ktoon-accent-soft);
+  outline-offset: 3px;
+}
+
+.actions .back {
+  color: var(--ktoon-muted);
+}
+
+.actions .back:hover:not(:disabled) {
+  color: var(--ktoon-accent-soft);
+}
+
+.key-form {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 18px;
+  width: 100%;
+  max-width: 360px;
+  margin: 0;
+}
+
+.key-heading {
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+}
+
+.key-heading h1 {
+  color: var(--ktoon-paper);
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-size: 24px;
+  font-weight: 620;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.key-heading p {
+  color: var(--ktoon-muted);
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.6;
+}
+
+.key-field {
+  gap: 11px;
+}
+
+.key-field input {
+  height: 44px;
+  border: 1px solid var(--ktoon-line);
+  border-radius: 7px;
+  background: rgba(16, 16, 20, 0.72);
+  color: var(--ktoon-paper);
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-size: 13px;
+  line-height: 22px;
+}
+
+.key-field input::placeholder {
+  color: #66636d;
+}
+
+.key-field input:focus {
+  border-color: var(--ktoon-accent);
+  background: rgba(16, 16, 20, 0.92);
+  box-shadow: 0 0 0 3px rgba(228, 87, 46, 0.12);
+}
+
+.password-toggle {
+  color: var(--ktoon-muted);
+}
+
+.password-toggle:hover {
+  color: var(--ktoon-accent-soft);
+}
+
+.key-error {
+  color: #ff8d7a;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-height: 620px) {
+  .welcome {
+    justify-content: flex-start;
+    padding-top: 92px;
+  }
+
+  .tagline h1,
+  .tagline h1 em {
+    font-size: 32px;
+  }
+
+  .tagline .welcome-local {
+    display: none;
+  }
+}

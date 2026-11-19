@@ -223,7 +223,7 @@ describe('installed update verification records', () => {
         const root = join(manifest, '..')
         const output = join(root, version, 'installer')
         await mkdir(output)
-        const name = `QiLin-${version}-win-x64.exe`
+        const name = `KToon-${version}-win-x64.exe`
         const bytes = Buffer.from('inert installer fixture, never executed')
         const installer = join(output, name)
         await writeFile(installer, bytes)

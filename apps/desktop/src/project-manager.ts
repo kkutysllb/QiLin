@@ -63,9 +63,16 @@ export class DesktopProjectManager {
    * @param paths - Electron-owned package state and reserved desktop profile paths.
    * @param runtime - location of the bundled application runtime.
    */
+  /**
+   * @param paths - Electron-owned package state and reserved desktop profile paths.
+   * @param runtime - location of the bundled application runtime.
+   * @param verifyRuntimeDescriptor - validate `desktop-runtime.json` before preparing the
+   *   profile; a product runtime archive carries no descriptor and skips it.
+   */
   constructor(
     readonly paths: DesktopPaths,
     readonly runtime: { readonly qilin: string },
+    readonly verifyRuntimeDescriptor = true,
   ) {}
 
   /**
@@ -83,7 +90,7 @@ export class DesktopProjectManager {
   async applyRelease(): Promise<void> {
     await this.withLock(() => {
       // Validation only: an unreadable or mismatched runtime descriptor stops preparation before the Host starts.
-      readDesktopRuntime(this.runtime.qilin)
+      if (this.verifyRuntimeDescriptor) readDesktopRuntime(this.runtime.qilin)
       migrateProfileSettings(this.paths.profile)
       createPluginProfile(this.paths.profile)
       removeLinkProjections(this.paths.profile)

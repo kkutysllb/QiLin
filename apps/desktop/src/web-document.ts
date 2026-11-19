@@ -160,13 +160,15 @@ const PLUGIN_BUNDLE_PATH = /^\/plugins\//u
  * @param host - Owned Host URL.
  * @param cookie - Cookie header forwarded to the Host.
  * @param onAccountSession - sink for the account-session cookie each response sets, before withholding.
+ * @param applicationOrigin - origin of the product's application document.
  * @returns Host response without connection-level headers.
  */
 export async function forwardWebRequest(request: Request, host: string, cookie: string,
-  onAccountSession?: (session: WebSessionCookie) => void): Promise<Response> {
+  onAccountSession?: (session: WebSessionCookie) => void,
+  applicationOrigin = 'qilin-app://app'): Promise<Response> {
   const source = new URL(request.url)
   const origin = request.headers.get('origin')
-  if (origin !== null && origin !== 'qilin-app://app') return new Response(null, { status: 403 })
+  if (origin !== null && origin !== applicationOrigin) return new Response(null, { status: 403 })
   const target = new URL(host)
   target.pathname = source.pathname
   target.search = source.search

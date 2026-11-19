@@ -24,7 +24,7 @@ it.each([
   ['darwin', 'en-US', en], ['darwin', 'zh-CN', zh],
   ['win32', 'en-US', en], ['win32', 'zh-CN', zh],
 ] as const)('records command status on %s in %s', async (platform, language, messages) => {
-  const destination = platform === 'darwin' ? '/usr/local/bin/qilin' : 'C:\\Users\\user\\AppData\\Local\\Programs\\QiLin Desktop\\resources\\runtime\\cli\\bin\\qilin.cmd'
+  const destination = platform === 'darwin' ? '/usr/local/bin/qilin' : 'C:\\Users\\user\\AppData\\Local\\Programs\\KToon\\resources\\runtime\\cli\\bin\\qilin.cmd'
   const other = platform === 'darwin' ? '/opt/homebrew/bin/dsh' : 'C:\\Program Files\\nodejs\\dsh.cmd'
   const states = [
     { managed: false, available: false, destination },

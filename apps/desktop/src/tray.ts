@@ -8,13 +8,12 @@ import type { DesktopLocale } from './locale.ts'
 
 /** Main-process actions the tray triggers; both run the same paths as the window and application menu. */
 export interface DesktopTrayOptions {
-  /** Icon rendered by `scripts/render-tray-icon.ts`: Windows takes the multi-size ICO, macOS the `@2x` PNG pair. */
+  /** Multi-size ICO on Windows; template PNG (+@2x) on macOS. */
   readonly iconPath: string
-  /**
-   * Open the window on a single click. Windows' notification-area icon answers a click that way; a macOS menu bar
-   * item answers it with the context menu instead, which the platform opens by itself.
-   */
-  readonly openOnClick: boolean
+  /** macOS: let the system tint the monochrome image for light and dark menu bars. */
+  readonly templateImage?: boolean
+  /** Bind a click to open the window; macOS opens the context menu instead. */
+  readonly openOnClick?: boolean
   readonly locale: () => DesktopLocale
   /** Show and focus the primary window. */
   readonly open: () => void
@@ -28,9 +27,12 @@ export class DesktopTray {
 
   /** @param options - Icon path, click behaviour, locale reader, and the open and quit actions. */
   constructor(private readonly options: DesktopTrayOptions) {
-    const tray = new Tray(nativeImage.createFromPath(options.iconPath))
+    const image = nativeImage.createFromPath(options.iconPath)
+    if (options.templateImage === true) image.setTemplateImage(true)
+    const tray = new Tray(image)
     this.tray = tray
-    if (options.openOnClick) tray.on('click', () => { options.open() })
+    // macOS status items own their menu; opening the window is the menu's first entry.
+    if (options.openOnClick !== false) tray.on('click', () => { options.open() })
     this.relabel()
   }
 

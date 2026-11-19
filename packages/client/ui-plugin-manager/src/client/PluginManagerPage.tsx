@@ -58,6 +58,25 @@ export type PluginManagerPageProps =
 type RenderConfig = PluginManagerPageProps['renderSlot']
 type ResolveText = PluginManagerFace['resolveText']
 
+/** Product-supplied bundle names hidden from every Plugins list (KToon brand sets the global at boot). */
+function productHiddenBundles(): ReadonlySet<string> {
+  const value = (globalThis as { __KTOON_HIDDEN_BUNDLES__?: unknown }).__KTOON_HIDDEN_BUNDLES__
+  if (!Array.isArray(value)) return new Set()
+  return new Set(value.filter((item): item is string => typeof item === 'string'))
+}
+
+/** Product-supplied bundle names hidden only from the optional/More list (promoted built-ins stay in the main list). */
+function productHiddenMoreBundles(): ReadonlySet<string> {
+  const value = (globalThis as { __KTOON_HIDDEN_MORE_BUNDLES__?: unknown }).__KTOON_HIDDEN_MORE_BUNDLES__
+  if (!Array.isArray(value)) return new Set()
+  return new Set(value.filter((item): item is string => typeof item === 'string'))
+}
+
+/** Whether the product forbids installing or refreshing external plugins. */
+function productInstallDisabled(): boolean {
+  return (globalThis as { __KTOON_PLUGIN_INSTALL_DISABLED__?: unknown }).__KTOON_PLUGIN_INSTALL_DISABLED__ === true
+}
+
 type RowPhase = NonNullable<PackageRow['phase']>
 
 /** The primary action installs; the adjacent menu offers every add-plugin path. */
@@ -1645,7 +1664,9 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   // selected name the Host cannot read; the installation's other bundles are inspected in the Settings
   // Plugins section's Plugin list tab.
   // Built-in profile layers stay out of this page even when the profile declares them as dependencies.
-  const listed = state.packages.filter(pkg => !HIDDEN_BUNDLES.has(pkg.name)
+  const productHidden = productHiddenBundles()
+  const installDisabled = productInstallDisabled()
+  const listed = state.packages.filter(pkg => !HIDDEN_BUNDLES.has(pkg.name) && !productHidden.has(pkg.name)
     && (pkg.installed || pkg.official || pkg.error !== undefined))
   const mine = listed.filter(pkg => !pkg.official)
   const official = listed.filter(pkg => pkg.official)
@@ -1659,7 +1680,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   // reaches it; its main-list place keeps it reachable.
   const extensions = ordered.filter(pkg => pinned.has(pkg.name) && isExperimentalBundle(pkg.name))
   const promoted = ordered.filter(pkg => pinned.has(pkg.name) && !isExperimentalBundle(pkg.name))
-  const more = ordered.filter(pkg => isExperimentalBundle(pkg.name))
+  const productHiddenMore = productHiddenMoreBundles()
+  const more = ordered.filter(pkg => isExperimentalBundle(pkg.name) && !productHiddenMore.has(pkg.name))
   const loaded = state.status === 'ready' || state.status === 'error'
   const refreshing = state.refreshStatus === 'refreshing'
   const openPkg = view.kind === 'package' || view.kind === 'row'
@@ -1757,21 +1779,25 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
                     </Tooltip>
                   </div>
                 </div>
-                <div className={css.toolbar} data-plugin-toolbar data-plugin-header-part="toolbar" hidden={ownTab === undefined}>
-                  {updates === undefined ? null : <span className={css.updatesNote} data-tone={updates.tone}>{updates.text}</span>}
-                  <Tooltip label={t('refresh')} delayMs={500} focusDelayMs={500} side="bottom" portal disabled={!loaded || refreshing}>
-                    <Button variant="outline" size="sm" className={css.addButton} aria-label={t('refresh')} aria-busy={refreshing}
-                      disabled={!loaded || refreshing} onClick={props.refresh}
-                      icon={refreshing ? <StateDot state="ongoing" size={13} /> : <IconRefreshOutlineRegular size={13} />}>
-                      {t('refresh')}
-                    </Button>
-                  </Tooltip>
-                  {state.install.requestId === undefined
-                    ? <AddPluginMenu t={t} disabled={!loaded} openInstall={props.openInstall} renderSlot={renderSlot} />
-                    : <Button variant="primary" size="sm" className={css.addButton} icon={<IconPlusOutlineRegular size={13} />} disabled={!loaded} onClick={props.openInstall}>
-                      {t('installViewTask')}
-                    </Button>}
-                </div>
+                {installDisabled
+                  ? null
+                  : (
+                    <div className={css.toolbar} data-plugin-toolbar data-plugin-header-part="toolbar" hidden={ownTab === undefined}>
+                      {updates === undefined ? null : <span className={css.updatesNote} data-tone={updates.tone}>{updates.text}</span>}
+                      <Tooltip label={t('refresh')} delayMs={500} focusDelayMs={500} side="bottom" portal disabled={!loaded || refreshing}>
+                        <Button variant="outline" size="sm" className={css.addButton} aria-label={t('refresh')} aria-busy={refreshing}
+                          disabled={!loaded || refreshing} onClick={props.refresh}
+                          icon={refreshing ? <StateDot state="ongoing" size={13} /> : <IconRefreshOutlineRegular size={13} />}>
+                          {t('refresh')}
+                        </Button>
+                      </Tooltip>
+                      {state.install.requestId === undefined
+                        ? <AddPluginMenu t={t} disabled={!loaded} openInstall={props.openInstall} renderSlot={renderSlot} />
+                        : <Button variant="primary" size="sm" className={css.addButton} icon={<IconPlusOutlineRegular size={13} />} disabled={!loaded} onClick={props.openInstall}>
+                          {t('installViewTask')}
+                        </Button>}
+                    </div>
+                  )}
                 <div className={css.pageTabs} data-plugin-header-part="tabs">
                   <SegmentedTabs
                     className={css.pageTabList}
@@ -1781,6 +1807,7 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
                     items={tabItems as [typeof tabItems[number], ...(typeof tabItems[number])[]]}
                   />
                 </div>
+
               </header>
             </div>
           )

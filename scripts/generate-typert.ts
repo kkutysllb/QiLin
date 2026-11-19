@@ -14,6 +14,7 @@
  * command line was invalid.
  */
 
+import { existsSync } from 'node:fs'
 import { performance } from 'node:perf_hooks'
 import { writeWorkspaceArtifacts } from '../packages/typert/generator/src/artifact-files.ts'
 import { TypertAnalysisError } from '../packages/typert/generator/src/analyzer.ts'
@@ -56,7 +57,12 @@ const STAGE_ACTIONS: Readonly<Record<TypertGenerationStage, string>> = {
 
 // Host package compilation owns TypeScript diagnostics, as it does for the
 // tsdown plugin; rejecting build outputs lets this pass run beside it.
-const GENERATION_OPTIONS = { checkDiagnostics: false, rejectBuildOutputs: true } as const
+// KToon bootstrap（2026-10-24）：全新树第一次 gen-typert 时，各包的远程导入尚由 Typert
+// 生成、工作的 lib/typert.* 也还不存在（先有鸡还是先有蛋）。工作区存在
+// .qilin-build/typert-bootstrap 标记时放行未解析导入与 lib 解析；产物仍由 faces 驱动生成，
+// 标记只用于首次引导（用文件标记而非 env：build.ts 的子进程环境白名单会剥掉自定义 env）。
+const BOOTSTRAP = existsSync(findWorkspaceRoot(process.cwd()) + '/.qilin-build/typert-bootstrap')
+const GENERATION_OPTIONS = { checkDiagnostics: false, rejectBuildOutputs: BOOTSTRAP ? false : true } as const
 
 /**
  * Generate and write every explicit contributor's Typert artifacts in the workspace containing `start`.

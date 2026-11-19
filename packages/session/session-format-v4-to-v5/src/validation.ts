@@ -12,6 +12,7 @@ import {
   assertV4SystemMessageFields,
   assertV4ToolResultMessage,
   catalogFact,
+  normalizeV4ToolResultCallIds,
 } from '@qilin-agent/session-format-v3-to-v4'
 
 /**
@@ -58,8 +59,15 @@ export function restoreReleasedV5Artifact(artifact: SessionFormatArtifact, known
   const cut = sessionFormatCount(artifact.inheritedEventCount, 'format v5 inherited event count')
   if (cut > artifact.events.length) throw new SessionFormatError('format v5 inherited event count exceeds its events')
   if (!artifact.header.isSeeded && cut !== 0) throw new SessionFormatError('unseeded format v5 Session has inherited events')
+  // 与 V4 恢复同规则：先按 source.callId 修正，再校验，旧脏会话才可读。
+  let repaired = false
+  const events = artifact.events.map((event) => {
+    const normalized = normalizeV4ToolResultCallIds(event)
+    if (normalized !== event) repaired = true
+    return normalized
+  })
   let lastInheritedMarker: number | undefined
-  for (const [index, event] of artifact.events.entries()) {
+  for (const [index, event] of events.entries()) {
     if (!knownEventTypes.has(event.type) && event['ignorable'] !== true) {
       throw new SessionFormatUnsupportedMigrationError(
         `format v5 contains unknown event type ${JSON.stringify(event.type)} at seq ${index}`,
@@ -80,8 +88,9 @@ export function restoreReleasedV5Artifact(artifact: SessionFormatArtifact, known
   if (!artifact.header.isSeeded && lastInheritedMarker !== undefined) {
     throw new SessionFormatError('format v5 unseeded Session contains an inherited end-seed marker')
   }
-  assertReleasedV5Relationships(artifact, knownEventTypes)
-  return artifact
+  const normalized: SessionFormatArtifact = repaired ? { ...artifact, events } : artifact
+  assertReleasedV5Relationships(normalized, knownEventTypes)
+  return normalized
 }
 
 /**

@@ -12,7 +12,7 @@ import {
   resolveDesktopUploadConfig,
 } from './desktop-auto-update-environment.mjs'
 import { desktopTargetBuildPaths } from './desktop-build-paths.mjs'
-import { validateDesktopBuildVersion } from './desktop-build-version.mjs'
+import { resolveDesktopProductVersion, validateDesktopBuildVersion } from './desktop-build-version.mjs'
 
 const APP_ROOT = resolve(import.meta.dirname, '..')
 const REPOSITORY_ROOT = resolve(APP_ROOT, '..', '..')
@@ -194,6 +194,8 @@ export async function createDesktopUploadPlan(
   if (dshVersion !== desktopVersion) {
     throw new Error(`desktop upload: desktop version ${desktopVersion} does not match current qilin version ${dshVersion}`)
   }
+  // A product build publishes its own release version; an engine build publishes the engine version.
+  const productVersion = options.packagedProductVersion ?? resolveDesktopProductVersion(environment, dshVersion)
 
   const update = resolveDesktopUploadConfig(environment, target.platform, target.arch)
   const buildRecord = await jsonFile(
@@ -204,10 +206,10 @@ export async function createDesktopUploadPlan(
   const recordedVersion = stringField(buildRecord.version, `${targetName} package completion record.version`)
   let buildVersion: string
   try {
-    buildVersion = validateDesktopBuildVersion(recordedVersion, dshVersion)
+    buildVersion = validateDesktopBuildVersion(recordedVersion, productVersion)
   }
   catch (error) {
-    throw new Error(`desktop upload: ${targetName} package completion record holds ${recordedVersion}, which is not a build of qilin ${dshVersion}: ${
+    throw new Error(`desktop upload: ${targetName} package completion record holds ${recordedVersion}, which is not a build of product ${productVersion}: ${
       error instanceof Error ? error.message : String(error)}`)
   }
   if (buildRecord.schemaVersion !== 1
@@ -237,7 +239,7 @@ export async function createDesktopUploadPlan(
     throw new Error(`desktop upload: ${metadataFilename}.files must contain exactly one target update file`)
   }
 
-  const base = `QiLin-${buildVersion}-${target.os}-${target.arch}`
+  const base = `KToon-${buildVersion}-${target.os}-${target.arch}`
   const updaterExtension = target.platform === 'darwin' ? 'zip' : 'exe'
   const updaterInfo = updateFileInfo(metadata.files[0], `${metadataFilename}.files[0]`, `${base}.${updaterExtension}`)
   const updaterPath = await verifyChecksummedArtifact(artifactsRoot, updaterInfo)

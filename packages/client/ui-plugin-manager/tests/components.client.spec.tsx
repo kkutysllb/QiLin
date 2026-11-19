@@ -1150,6 +1150,60 @@ describe('PluginManagerPage', () => {
       expect(screen.getByRole('tab', { name: en.builtinTab }).getAttribute('aria-selected')).toBe('true')
     })
 
+    it('hides a bundle the product global names from the official lists', () => {
+      const hidden = '@qilin-agent/experimental-tool-worktree'
+      const visible = '@qilin-agent/experimental-terminal-bundle'
+      const scope = globalThis as { __KTOON_HIDDEN_BUNDLES__?: unknown }
+      const previous = scope.__KTOON_HIDDEN_BUNDLES__
+      scope.__KTOON_HIDDEN_BUNDLES__ = [hidden]
+      try {
+        const packages = [
+          pkg({ name: hidden, official: true, enabled: false }),
+          pkg({ name: visible, official: true, enabled: true }),
+        ]
+        renderTab({ packages })
+        expect(document.querySelector(`[data-plugin-package="${hidden}"]`)).toBeNull()
+        expect(document.querySelector(`[data-plugin-package="${visible}"]`)).not.toBeNull()
+      } finally {
+        if (previous === undefined) delete scope.__KTOON_HIDDEN_BUNDLES__
+        else scope.__KTOON_HIDDEN_BUNDLES__ = previous
+      }
+    })
+    it('hides a promoted built-in from only the optional list', () => {
+      const promoted = '@qilin-agent/experimental-agent-team-profile'
+      const optional = '@qilin-agent/experimental-terminal-bundle'
+      const scope = globalThis as { __KTOON_HIDDEN_MORE_BUNDLES__?: unknown }
+      const previous = scope.__KTOON_HIDDEN_MORE_BUNDLES__
+      scope.__KTOON_HIDDEN_MORE_BUNDLES__ = [promoted]
+      try {
+        const packages = [
+          pkg({ name: promoted, official: true, enabled: true }),
+          pkg({ name: optional, official: true, enabled: false }),
+        ]
+        renderTab({ packages })
+        expect(document.querySelector(`[data-plugin-package="${promoted}"]`)).not.toBeNull()
+        fireEvent.click(screen.getByRole('button', { name: en.moreAction }))
+        expect(document.querySelector(`[data-plugin-package="${promoted}"]`)).toBeNull()
+        expect(document.querySelector(`[data-plugin-package="${optional}"]`)).not.toBeNull()
+      } finally {
+        if (previous === undefined) delete scope.__KTOON_HIDDEN_MORE_BUNDLES__
+        else scope.__KTOON_HIDDEN_MORE_BUNDLES__ = previous
+      }
+    })
+    it('hides refresh and install controls when the product forbids external plugins', () => {
+      const scope = globalThis as { __KTOON_PLUGIN_INSTALL_DISABLED__?: unknown }
+      const previous = scope.__KTOON_PLUGIN_INSTALL_DISABLED__
+      scope.__KTOON_PLUGIN_INSTALL_DISABLED__ = true
+      try {
+        const packages = [pkg({ name: '@qilin-agent/experimental-badge-skill-bundle', official: true })]
+        renderTab({ packages })
+        expect(screen.queryByRole('button', { name: en.refresh })).toBeNull()
+        expect(screen.queryByRole('button', { name: en.addPlugin })).toBeNull()
+      } finally {
+        if (previous === undefined) delete scope.__KTOON_PLUGIN_INSTALL_DISABLED__
+        else scope.__KTOON_PLUGIN_INSTALL_DISABLED__ = previous
+      }
+    })
     it('returns from package details to the secondary page and retains it across React remounts', () => {
       const name = '@qilin-agent/experimental-terminal-bundle'
       const b = renderTab({ packages: [pkg({ name, official: true, enabled: false })] })

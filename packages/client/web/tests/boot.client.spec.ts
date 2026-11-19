@@ -64,7 +64,7 @@ describe('bootstrap failure rendering', () => {
     const failure = vi.fn()
     await entry.run(failure)
     expect(failure).toHaveBeenCalledWith(new Error('web boot: window.__ModuleLoader__ bootstrap facade is missing'))
-    expect(container.textContent).toContain('Loading plugins')
+    expect(container.textContent).toContain('正在载入创作台')
     expect(container.textContent).not.toContain('Failed to load plugins')
     expect(container.querySelector('[data-qilin-boot-spinner]')).not.toBeNull()
     await entry.dispose()

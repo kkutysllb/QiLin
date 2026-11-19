@@ -17,8 +17,8 @@ export const DEFAULT_QILIN_HOME_DISPLAY = `~/${QILIN_HOME_DIR_NAME}`
 /** Environment variable that overrides the default QiLin home. */
 export const QILIN_HOME_ENV = 'QILIN_HOME'
 
-/** Desktop product home directory name: the Desktop flavor isolates its data from the Web deployment. */
-export const QILIN_DESKTOP_HOME_DIR_NAME = '.qilin-desktop'
+/** Product desktop home directory name: this branch builds KToon, whose data root is ~/.ktoon. */
+export const QILIN_DESKTOP_HOME_DIR_NAME = '.ktoon'
 
 /** Environment variable overriding the Desktop home; mirrors the Web flavor's QILIN_HOME. */
 export const QILIN_DESKTOP_HOME_ENV = 'QILIN_DESKTOP_HOME'
@@ -170,11 +170,10 @@ export function defaultQilinDesktopHome(): string {
  * Resolve the Desktop flavor's QiLin home.
  *
  * Precedence, highest first: an explicit configured path, the
- * `QILIN_DESKTOP_HOME` environment override, then `~/.qilin-desktop`. The
- * Desktop product isolates its user data from the Web deployment, which
- * resolves `~/.qilin`. An empty or whitespace-only override is treated as
- * unset, so a blank value never resolves the home to the current working
- * directory.
+ * `QILIN_DESKTOP_HOME` environment override, then `~/.ktoon`. The KToon
+ * desktop product owns its user data and never shares the Web deployment's
+ * `~/.qilin`. An empty or whitespace-only override is treated as unset, so a
+ * blank value never resolves the home to the current working directory.
  * @param configured - explicit Desktop-home override, which has highest precedence.
  * @param env - environment mapping used to read `QILIN_DESKTOP_HOME`.
  * @returns the normalized absolute Desktop harness home path.

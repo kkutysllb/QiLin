@@ -97,6 +97,33 @@ describe('LocaleRuntime', () => {
     expect(t('k')).toBe('v2')
   })
 
+  it('lays product overrides over registered dictionaries and restores them on dispose', () => {
+    const { svc } = make()
+    svc.register('ns', 'zh', { brand: '麒麟', keep: 'base' })
+    svc.register('ns', 'en', { brand: 'QiLin', keep: 'base' })
+    const t = svc.bind('ns')
+    const revision = svc.getSnapshot().revision
+    const dispose = svc.override('ns', { zh: { brand: 'KToon' }, en: { brand: 'KToon' } })
+    expect(svc.getSnapshot().revision).toBe(revision + 1)
+    expect(t('brand')).toBe('KToon')
+    expect(t('keep')).toBe('base')
+    svc.setLocale('en')
+    expect(t('brand')).toBe('KToon')
+    expect(t('keep')).toBe('base')
+    dispose()
+    expect(t('brand')).toBe('QiLin')
+    expect(svc.getSnapshot().revision).toBeGreaterThan(revision + 1)
+    // A later override for the same (namespace, locale) replaces the earlier map.
+    const first = svc.override('ns', { en: { brand: 'First' } })
+    const second = svc.override('ns', { en: { brand: 'Second' } })
+    expect(t('brand')).toBe('Second')
+    first()
+    expect(t('brand')).toBe('Second')
+    second()
+    expect(t('brand')).toBe('QiLin')
+    expect(() => svc.override('ns', { 'not a tag': { k: 'v' } })).toThrow('BCP 47-style tag')
+  })
+
   it('serves the LocaleFace: snapshot revision moves on switch and registration, subscribers fire, unsubscribe stops them', () => {
     const { svc } = make()
     const seen: number[] = []

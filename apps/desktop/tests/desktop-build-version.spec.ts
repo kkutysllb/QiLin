@@ -1,13 +1,39 @@
 import { describe, expect, it } from 'vitest'
 import {
   DESKTOP_BUILD_VERSION_ENV,
+  DESKTOP_PRODUCT_VERSION_ENV,
   desktopBuildVersionPrefix,
   resolveDesktopBuildVersion,
+  resolveDesktopProductVersion,
   validateDesktopBuildVersion,
 } from '../scripts/desktop-build-version.mjs'
 
 const PRERELEASE = '0.1.6-alpha.2'
 const STABLE = '0.1.6'
+
+describe('desktop product version', () => {
+  const ENGINE = '3.1.7-rc.3'
+
+  it('falls back to the declared engine version and honors an explicit product version', () => {
+    expect(resolveDesktopProductVersion({}, ENGINE)).toBe(ENGINE)
+    expect(resolveDesktopProductVersion({ [DESKTOP_PRODUCT_VERSION_ENV]: '   ' }, ENGINE)).toBe(ENGINE)
+    expect(resolveDesktopProductVersion({ [DESKTOP_PRODUCT_VERSION_ENV]: '0.1.0' }, ENGINE)).toBe('0.1.0')
+  })
+
+  it('rejects a product version that is not a version', () => {
+    expect(() => resolveDesktopProductVersion({ [DESKTOP_PRODUCT_VERSION_ENV]: 'nightly' }, ENGINE))
+      .toThrow(/is not a version/u)
+  })
+
+  it('publishes the product version through the build version as well', () => {
+    const env = { [DESKTOP_PRODUCT_VERSION_ENV]: '0.1.0' }
+    const productVersion = resolveDesktopProductVersion(env, ENGINE)
+    expect(resolveDesktopBuildVersion(env, productVersion)).toBe('0.1.0')
+    expect(validateDesktopBuildVersion('0.1.0-test.20261024.1', productVersion)).toBe('0.1.0-test.20261024.1')
+    // The engine version is not a product build of 0.1.0.
+    expect(() => validateDesktopBuildVersion(ENGINE, productVersion)).toThrow(/must extend product version/u)
+  })
+})
 
 describe('desktop build version', () => {
   it('publishes the product version when no build version is present', () => {

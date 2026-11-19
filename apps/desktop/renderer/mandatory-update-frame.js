@@ -22,7 +22,8 @@ if (window.parent !== window && window.dshMandatoryUpdate === undefined) {
     }
   }
   window.addEventListener('message', event => {
-    if (!event.isTrusted || event.source !== window.parent || event.origin !== 'qilin-app://app'
+    // A product may serve the application under its own scheme; the origin host is still `app`.
+    if (!event.isTrusted || event.source !== window.parent || !/^[a-z][a-z0-9+.-]*:\/\/app$/u.test(event.origin)
       || event.data?.type !== 'dsh-mandatory-connect' || event.ports.length !== 1 || port) return
     port = event.ports[0]
     port.onmessage = receive

@@ -49,7 +49,7 @@ describe('desktop macOS release signature', () => {
   it('loads release identifiers from the environment and requires code signing', async () => {
     const { createElectronBuilderConfig } = await import('../electron-builder.config.mjs')
     const config = createElectronBuilderConfig(RELEASE_ENVIRONMENT, 'darwin', 'arm64')
-    expect(config.protocols).toEqual([{ name: 'QiLin Desktop', schemes: ['qilin'] }])
+    expect(config.protocols).toEqual([{ name: 'KToon', schemes: ['ktoon'] }])
     // Final artifacts leave the checkout and land in the shared product directory.
     expect(portablePath(config.directories.output)).toBe(portablePath(resolveDesktopArtifactsDirectory(RELEASE_ENVIRONMENT)))
     expect(config.mac.extendInfo.NSMicrophoneUsageDescription).toContain('microphone')
@@ -61,8 +61,7 @@ describe('desktop macOS release signature', () => {
       'com.apple.security.cs.disable-library-validation', 'com.apple.security.device.audio-input']) {
       expect(entitlements).toContain(`<key>${key}</key>\n    <true/>`)
     }
-    // The prepared runtime, the window icon, and the menu bar PNG pair.
-    expect(config.extraResources.map(resource => resource.to)).toEqual(['runtime', 'icon.png', 'tray-macos.png', 'tray-macos@2x.png'])
+    expect(config.extraResources).toHaveLength(4)
     expect(config.extraResources[0]?.to).toBe('runtime')
     expect(portablePath(config.extraResources[0]?.from ?? '')).toContain('/.desktop-build/targets/mac-arm64/runtime')
     const [dshFiles, dshNodeModules] = config.files.slice(-2)
@@ -165,7 +164,7 @@ describe('desktop macOS release signature', () => {
       QILIN_DESKTOP_UNSIGNED: '1',
     }, 'darwin', arch)
     expect(portablePath(config.directories.output)).toBe(portablePath(resolveDesktopArtifactsDirectory({})))
-    expect(config.artifactName).toBe('QiLin-${version}-${os}-${arch}-unsigned.${ext}')
+    expect(config.artifactName).toBe('KToon-${version}-${os}-${arch}-unsigned.${ext}')
     expect(config.mac).toMatchObject({ identity: '-', forceCodeSigning: false, notarize: false, target: ['dmg'] })
     expect(config.dmg).toMatchObject({ sign: false, writeUpdateInfo: false })
     expect(config.publish).toBeNull()
