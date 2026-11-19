@@ -30,9 +30,10 @@ import ToolRuntime from '@qilin-agent/tools'
 import TokenMeter from '@qilin-agent/token-meter'
 import AgentRegistry from '@qilin-agent/agent'
 import AgentLoop from '@qilin-agent/agent-loop'
+import type { Agent } from '@qilin-agent/agent'
 import { afterEach, describe, expect, it } from 'vitest'
 import AgentPresets, {
-  COMPOSITION_FILE, livePresetMounts, serviceForAgent, type Agent,
+  COMPOSITION_FILE, livePresetMounts, serviceForAgent,
 } from '@qilin-agent/agent-presets'
 import type { PresetRoot } from '@qilin-agent/agent-presets'
 
@@ -148,8 +149,9 @@ describe('host-plane disabled rows do not reach preset rows', () => {
     const agent = await agentOn(ctx, 'compaction-active', id)
     const mount = livePresetMounts().find(entry => entry.presetId === id)
     expect(mount).toBeDefined()
+    const rows = [...mount!.tree.entries()]
     for (const rowId of ['compaction-basic', 'command-compact', 'tool-result-pruner']) {
-      const entry = mount!.tree.entries().find(candidate => candidate.options.id === rowId)
+      const entry = rows.find(candidate => candidate.options.id === rowId)
       expect(entry, rowId).toBeDefined()
       expect(entry!.disabled, rowId).toBe(false)
       expect(entry!.fiber, rowId).toBeDefined()
@@ -167,8 +169,9 @@ interface CompactionGroupRow {
 
 /** Parse the template's compaction group into the row shape above. */
 function templateCompactionGroup(): CompactionGroupRow {
-  const [first] = load(compactionGroupText(readFileSync(KTOON_TEMPLATE, 'utf8')), { schema: entryListSchema }) as CompactionGroupRow[]
-  return first as CompactionGroupRow
+  const text = compactionGroupText(readFileSync(KTOON_TEMPLATE, 'utf8')) ?? ''
+  const [first] = load(text, { schema: entryListSchema }) as CompactionGroupRow[]
+  return first ?? {}
 }
 
 const templatePresent = existsSync(KTOON_TEMPLATE)
@@ -190,8 +193,9 @@ describe.skipIf(!templatePresent)('KToon preset template drift guard', () => {
     await agentOn(ctx, 'ktoon-template-compaction', id)
     const mount = livePresetMounts().find(entry => entry.presetId === id)
     expect(mount).toBeDefined()
+    const rows = [...mount!.tree.entries()]
     for (const rowId of ['compaction-basic', 'command-compact', 'tool-result-pruner']) {
-      const entry = mount!.tree.entries().find(candidate => candidate.options.id === rowId)
+      const entry = rows.find(candidate => candidate.options.id === rowId)
       expect(entry, rowId).toBeDefined()
       expect(entry!.disabled, rowId).toBe(false)
     }
