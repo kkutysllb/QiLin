@@ -1,7 +1,7 @@
 {
   "name": "@qilin-agent/experimental-deepseek-chat-import",
   "description": "Import DeepSeek chat exports as stored Sessions in a chosen Workspace",
-  "version": "3.1.12-rc.5",
+  "version": "3.1.12",
   "icon": "./icon.svg",
   "publishConfig": {
     "access": "public"
