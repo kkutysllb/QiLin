@@ -168,7 +168,9 @@ export class SessionCommandController {
 
   /**
    * Create or idempotently adopt one ordinary Session.
-   * @param request - requested identity, location, and Agent preset.
+   * @param request - requested identity, location, and Agent preset. A
+   * cwd-only create anchors to the Workspace owning the canonical cwd when
+   * one exists; a failed resolution keeps the Session ungrouped.
    * @returns the Session identity and resolved preset when configured.
    */
   async create(request: SessionCreateRequest): Promise<SessionCreateValue> {
@@ -197,15 +199,35 @@ export class SessionCommandController {
     } catch (error) {
       this.rejectCreation(sessionId, error)
     }
+    if (workspace === undefined && request.cwd !== undefined) {
+      // A cwd-only create owns Workspace membership like the workspaceId
+      // path: the bootstrap already groups Workspaces by canonical cwd, and
+      // an unattached Session only ever shows under Ungrouped. A failing
+      // resolve (missing directory) keeps the ungrouped behavior.
+      try {
+        workspace = await this.ctx.workspaceRegistry.resolveByPath(cwd)
+      } catch {
+        // No existing directory at this cwd can back a Workspace.
+      }
+    }
     if (workspace !== undefined) {
       try {
         await workspace.attachSession(sessionId)
       } catch (error) {
-        throw new RemoteError(
-          'session/workspace-attach-failed',
-          `session "${sessionId}" was created but could not attach to workspace "${workspace.id}": ${String(error)}`,
-          { sessionId, workspaceId: workspace.id },
-        )
+        if (request.workspaceId === undefined) {
+          // The Session exists and the caller never named a Workspace; an
+          // unattachable auto-resolved one must not fail the creation.
+          this.ctx.logger.warn(
+            `session-controller: session "${sessionId}" created in cwd "${cwd}" `
+            + `but could not attach to workspace "${workspace.id}": ${String(error)}`,
+          )
+        } else {
+          throw new RemoteError(
+            'session/workspace-attach-failed',
+            `session "${sessionId}" was created but could not attach to workspace "${workspace.id}": ${String(error)}`,
+            { sessionId, workspaceId: workspace.id },
+          )
+        }
       }
     }
     const agentPreset = this.agents.presetForSession(adopted.session)

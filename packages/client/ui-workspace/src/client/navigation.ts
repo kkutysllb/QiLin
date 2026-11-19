@@ -74,7 +74,8 @@ export interface UiWorkspace {
   connectWorkspace(workspaceId: WorkspaceId, options?: Pick<StartSessionOptions, 'agentPreset'>): Promise<SessionId>
   /**
    * Start a New Session flow and navigate to its Session.
-   * @param workspaceId - explicit target; absent inherits the current or most recent Workspace.
+   * @param workspaceId - explicit target; absent inherits the current
+   * Session's Workspace (accounted or cwd-matched) or the most recent one.
    * @param options - initial content, the Agent preset, and `whenDraftExists`;
    * existing text or attachments are preserved unless that handling replaces them.
    */
@@ -251,13 +252,16 @@ class UiWorkspaceService extends Service implements UiWorkspace {
     const workspace = this.workspaces.list.getSnapshot()
     const sessions = this.sessions.list.getSnapshot()
     const current = this.mainReference?.sessionId
-    const currentWorkspaceId = current === undefined
-      ? undefined
-      : workspace.items.find(item => item.sessionIds.includes(current))?.workspaceId
     const recent = workspace.phase === 'ready' && sessions.phase === 'ready'
       ? recentWorkspace(workspace.items, sessions.byId)
       : undefined
-    const target = workspaceId ?? currentWorkspaceId ?? recent
+    const target = startSessionTarget(
+      workspaceId,
+      workspace.items,
+      sessions.byId,
+      current,
+      recent,
+    )
     if (target === undefined) {
       if (initializeDraft) {
         this.notify({ kind: 'createFailed', message: this.ctx.locale.bind('workspace')('draft.workspaceRequired') })
@@ -445,6 +449,38 @@ class UiWorkspaceService extends Service implements UiWorkspace {
     this.ctx.layout.selectPanel(null)
   }
 
+}
+
+/**
+ * Resolve the Workspace a New Session flow targets: the explicit request, else
+ * the Workspace accounting the current Session, else the most recent one.
+ * @param requested - explicitly requested Workspace id, if any.
+ * @param items - authoritative Workspace views.
+ * @param byId - session summaries carrying the current Session's cwd.
+ * @param currentSessionId - the Session the main pane currently shows.
+ * @param recent - most-recent Workspace fallback from the caller.
+ * @returns the target Workspace id, or undefined when none applies.
+ */
+export function startSessionTarget(
+  requested: WorkspaceId | undefined,
+  items: readonly WorkspaceView[],
+  byId: SessionListState['byId'],
+  currentSessionId: SessionId | undefined,
+  recent: WorkspaceId | undefined,
+): WorkspaceId | undefined {
+  if (requested !== undefined) return requested
+  const accounted = currentSessionId === undefined
+    ? undefined
+    : items.find(item => item.sessionIds.includes(currentSessionId))?.workspaceId
+  if (accounted !== undefined) return accounted
+  const cwd = currentSessionId === undefined ? undefined : byId[currentSessionId]?.cwd
+  // WorkspaceView.path is canonical; an unaccounted Session can still name its
+  // project, so a cwd match keeps the New Session flow inside the anchored
+  // project instead of falling through to the most recent Workspace.
+  const anchored = cwd === undefined
+    ? undefined
+    : items.find(item => item.path === cwd)?.workspaceId
+  return anchored ?? recent
 }
 
 /** Stable tie-breaking follows Host Workspace order. */

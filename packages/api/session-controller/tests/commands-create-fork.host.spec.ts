@@ -142,6 +142,36 @@ describe('Session creation failures', () => {
     await ctx.fiber.dispose()
   })
 
+  it('anchors a cwd-only create to the workspace owning the canonical cwd', async () => {
+    const ctx = await baseContext()
+    const attachSession = vi.fn(() => Promise.resolve())
+    const workspace = {
+      id: 'workspace-1' as WorkspaceId,
+      path: '/requested',
+      attachSession,
+    } as unknown as Workspace
+    const resolveByPath = vi.fn(() => Promise.resolve(workspace))
+    ctx.provide('workspaceRegistry', {
+      get: () => undefined,
+      list: () => [workspace],
+      resolveByPath,
+    } as never)
+    const ensureSession = vi.fn((sessionId: SessionId, cwd: string) => {
+      const session = ctx.sessions.create(sessionId, { meta: { cwd } })
+      return Promise.resolve({ id: sessionId, session } as Agent)
+    })
+    const controller = new SessionCommandController(
+      ctx,
+      controllerAgents({ ensureSession }),
+      '/default',
+    )
+
+    const created = await controller.create({ cwd: '/requested' })
+
+    expect(resolveByPath).toHaveBeenCalledWith('/requested')
+    expect(attachSession).toHaveBeenCalledWith(created.sessionId)
+    await ctx.fiber.dispose()
+  })
   it('rejects contradictory create targets', async () => {
     const ctx = await baseContext()
     const controller = new SessionCommandController(ctx, controllerAgents(), '/default')
