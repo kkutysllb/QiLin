@@ -1523,9 +1523,19 @@ describe('PluginManagerPage', () => {
     expect(screen.getByText(en.thirdpartyEmpty)).toBeTruthy()
   })
 
+  it('shows a patch-only bundle as a composition layer instead of a stalled start', () => {
+    renderTab({ packages: [pkg({ rows: [] })] })
+    openTab(en.thirdpartyTab)
+    const card = document.querySelector<HTMLElement>('[data-plugin-package="dsh-better-sidebar"]')!
+    expect(card.getAttribute('data-plugin-status')).toBe('layer')
+    expect(within(card).getByText(en.statusLayer)).toBeTruthy()
+    expect(within(card).getByText(en.layerNote)).toBeTruthy()
+    expect(within(card).queryByText(en.statusNotRunning)).toBeNull()
+    expect(card.querySelector('[data-plugin-not-running]')).toBeNull()
+  })
+
   it('marks an enabled bundle that is not running and names the reason', () => {
     const cases = [
-      { rows: [], note: en['notRunning.noRows'] },
       { rows: [row({ enabled: false, phase: null })], note: en['notRunning.rowsOff'] },
       { rows: [row({ phase: 'failed' })], note: en['notRunning.failed'] },
       { rows: [row({ phase: null })], note: en['notRunning.notLoaded'] },

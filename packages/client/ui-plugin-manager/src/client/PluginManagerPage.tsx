@@ -430,21 +430,30 @@ function EnableSwitch({ pkg, title, t, busy, onSetEnabled }: {
   )
 }
 
-/** The status one card carries: running, on-but-not-running, off, or a problem the Host reported. */
-function packageStatus(pkg: PackageView): 'running' | 'not-running' | 'disabled' | 'problem' {
+/** The status one card carries: running, a patch-only layer, on-but-not-running, off, or a problem the Host reported. */
+function packageStatus(pkg: PackageView): 'running' | 'layer' | 'not-running' | 'disabled' | 'problem' {
   if (pkg.error !== undefined) return 'problem'
   if (!pkg.enabled) return 'disabled'
+  // A bundle that declares only a patch (a composition layer, such as a brand
+  // layer) contributes rows it does not own: its layer applied at load, so
+  // owning no row is expected rather than a stalled start.
+  if (pkg.rows.length === 0) return 'layer'
   // Enabled only means the profile selects it: the bundle is running when at
   // least one of its declared rows holds an active fiber.
   return pkg.rows.some(row => row.enabled && row.phase === 'active') ? 'running' : 'not-running'
 }
 
 /** Why an enabled bundle has no running row, for the note under its card. */
-function notRunningReason(pkg: PackageView): 'noRows' | 'rowsOff' | 'failed' | 'notLoaded' {
-  if (pkg.rows.length === 0) return 'noRows'
+function notRunningReason(pkg: PackageView): 'rowsOff' | 'failed' | 'notLoaded' {
   if (!pkg.rows.some(row => row.enabled)) return 'rowsOff'
   if (pkg.rows.filter(row => row.enabled).every(row => row.phase === 'failed')) return 'failed'
   return 'notLoaded'
+}
+
+/** The neutral line a patch-only layer carries: no row of its own is the normal state. */
+function LayerNote({ pkg, t }: { readonly pkg: PackageView; readonly t: Translate }): ReactNode {
+  if (packageStatus(pkg) !== 'layer') return null
+  return <p className={css.reason} role="status" data-plugin-layer>{t('layerNote')}</p>
 }
 
 /** The one line naming why an enabled bundle is not running. */
@@ -590,6 +599,7 @@ function PackageCard({ pkg, t, resolveText, busy, highlighted, newer, badge, onO
             {badge === undefined ? null : <Tag className={css.statusTag} tone="info">{badge}</Tag>}
             {badge === undefined && beta ? <Tag className={css.statusTag} tone="info">{t('statusBeta')}</Tag> : null}
             {status === 'problem' ? <Tag className={css.statusTag} tone="danger">{t('statusProblem')}</Tag> : null}
+            {status === 'layer' ? <Tag className={css.statusTag} tone="neutral">{t('statusLayer')}</Tag> : null}
             {status === 'not-running' ? <Tag className={css.statusTag} tone="warning">{t('statusNotRunning')}</Tag> : null}
             {pkg.availability === 'missing' ? <Tag className={css.statusTag}>{t(pkg.installed ? 'statusMissingFiles' : 'statusNotInstalled')}</Tag> : null}
             {updateAvailable(pkg) || newer !== undefined ? <Tag className={css.statusTag} tone="info">{t('statusUpdateAvailable')}</Tag> : null}
@@ -600,6 +610,7 @@ function PackageCard({ pkg, t, resolveText, busy, highlighted, newer, badge, onO
       />
       <MetadataError error={pkg.meta?.error} t={t} />
       <NotRunningNote pkg={pkg} t={t} />
+      <LayerNote pkg={pkg} t={t} />
     </li>
   )
 }
@@ -770,6 +781,7 @@ function PackageDetail({
           {pkg.version === undefined ? null : <Tag className={css.versionTag} tone="neutral">{t('versionTag', { version: pkg.version })}</Tag>}
           {beta ? <Tag className={css.statusTag} tone="info">{t('statusBeta')}</Tag> : null}
           {status === 'problem' ? <Tag className={css.statusTag} tone="danger">{t('statusProblem')}</Tag> : null}
+          {status === 'layer' ? <Tag className={css.statusTag} tone="neutral">{t('statusLayer')}</Tag> : null}
           {status === 'not-running' ? <Tag className={css.statusTag} tone="warning">{t('statusNotRunning')}</Tag> : null}
           {pkg.availability === 'missing' ? <Tag className={css.statusTag}>{t(pkg.installed ? 'statusMissingFiles' : 'statusNotInstalled')}</Tag> : null}
           {updateAvailable(pkg) || newer !== undefined ? <Tag className={css.statusTag} tone="info">{t('statusUpdateAvailable')}</Tag> : null}
@@ -780,6 +792,7 @@ function PackageDetail({
       </div>
       <MetadataError error={pkg.meta?.error} t={t} />
       <NotRunningNote pkg={pkg} t={t} />
+      <LayerNote pkg={pkg} t={t} />
       {pkg.error === undefined ? null : <p className={css.reason} role="status">{t('reasonLabel')}: {managementText(pkg.error, t)}</p>}
       {pkg.readOnlyReason === undefined ? null : <p className={css.reason} role="status">{managementText({ code: pkg.readOnlyReason }, t)}</p>}
       {preview === undefined ? null : <PackagePreview src={preview} title={title} t={t} />}
