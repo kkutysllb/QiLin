@@ -409,6 +409,19 @@ it('resolves a bundle renamed by a package move to its shipped name', async () =
   expect(readProfileManifest('test', dir).qilin?.profile?.bundles).toEqual(['core', 'extra'])
 })
 
+it('refuses to disable a bundle the product always keeps on', async () => {
+  const { manager, dir } = await fixture()
+  const name = '@qilin-agent/experimental-forge-bundle'
+  // Seed the selection directly: enabling the real official bundle would resolve its
+  // installation copy and apply real entries the fixture profile cannot import.
+  const manifest = readProfileManifest('test', dir)
+  manifest.qilin = { ...manifest.qilin, profile: { ...manifest.qilin?.profile, bundles: [...(manifest.qilin?.profile?.bundles ?? []), name] } }
+  writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest))
+  expect(await manager.setBundleEnabled(name, false)).toMatchObject({
+    changed: false, application: 'failed', error: { code: 'always-enabled' },
+  })
+})
+
 it('retires the bundle a selection supersedes, and never restores it', async () => {
   const { manager, dir, bundle } = await fixture()
   // Each fixture row provides its own probe service; the shared name belongs to `extra`.
