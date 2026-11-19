@@ -312,3 +312,19 @@ describe('client build environment', () => {
     }
   })
 })
+
+
+it('official profile preserves the product version next to the engine version', () => {
+  expect(resolveClientBuildEnvironment({
+    QILIN_BUILD_CLIENT_PROFILE: 'official',
+    QILIN_CLIENT_COMMIT_HASH: COMMIT_HASH.slice(0, 7),
+    QILIN_CLIENT_VERSION: '3.1.12-rc.5',
+    QILIN_CLIENT_PRODUCT_VERSION: '0.6.1',
+  })).toEqual({
+    QILIN_CLIENT_BUILD_PROFILE: 'official',
+    QILIN_CLIENT_COMMIT_HASH: COMMIT_HASH.slice(0, 7),
+    QILIN_CLIENT_PRODUCT_VERSION: '0.6.1',
+    QILIN_CLIENT_TITLE: 'QiLin',
+    QILIN_CLIENT_VERSION: '3.1.12-rc.5',
+  })
+})

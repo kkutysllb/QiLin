@@ -212,9 +212,15 @@ export function resolveClientBuildEnvironment(
   if (version === undefined) {
     throw new Error(`${CLIENT_VERSION_VARIABLE} is required for the ${profile} client build profile`)
   }
+  // Product builds may publish their own version next to the engine version. The
+  // named profiles are otherwise closed sets, but this one value is what the
+  // sidebar badge uses; dropping it makes every product package display the
+  // engine version instead of its own release.
+  const productVersion = environment.QILIN_CLIENT_PRODUCT_VERSION
   return {
     QILIN_CLIENT_COMMIT_HASH: commitHash,
     QILIN_CLIENT_VERSION: version,
+    ...(productVersion === undefined || productVersion === '' ? {} : { QILIN_CLIENT_PRODUCT_VERSION: productVersion }),
     ...CLIENT_BUILD_PROFILES[profile],
   }
 }
